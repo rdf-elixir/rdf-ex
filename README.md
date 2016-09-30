@@ -1,10 +1,11 @@
 # RDF.Core
 
-**TODO: Add description**
+An implementation of the RDF and the basic accompanied standards for Elixir.
+
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+The [Hex package](https://hex.pm/docs/publish) can be installed as usual:
 
   1. Add `rdf_core` to your list of dependencies in `mix.exs`:
 
@@ -21,4 +22,3 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
       [applications: [:rdf_core]]
     end
     ```
-
