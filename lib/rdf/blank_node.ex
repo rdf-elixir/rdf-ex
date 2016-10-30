@@ -7,6 +7,7 @@ defmodule RDF.BlankNode do
   @type t :: module
 
   def new, do: %RDF.BlankNode{id: make_ref}
-  def new(id) when is_atom(id), do: %RDF.BlankNode{id: id}
+  def new(id) when is_atom(id) or is_binary(id) or is_integer(id),
+    do: %RDF.BlankNode{id: id}
 
 end

@@ -70,6 +70,7 @@ defmodule RDF do
 
   def literal(lit = %Literal{}), do: lit
   def literal(value),            do: Literal.new(value)
+  def literal(value, type),      do: Literal.new(value, type)
 
   @doc """
   Generator function for `RDF.Triple`s.
@@ -96,6 +97,15 @@ defmodule RDF do
       iex> RDF.bnode(:foo)
       %RDF.BlankNode{id: :foo}
   """
-  def bnode(id), do: BlankNode.new(:foo)
+  def bnode(id), do: BlankNode.new(id)
+
+
+################################################################################
+# temporary manual RDF vocab definitions
+# TODO: These should be defined as a vocabulary
+
+  def langString do
+    uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+  end
 
 end
