@@ -53,17 +53,79 @@ defmodule RDF.Description do
     end
   end
 
-
   @doc """
-  Returns the number of statements of the `RDF.Description`.
+  Returns the number of statements of a `RDF.Description`.
   """
   def count(%RDF.Description{predications: predications}) do
     Enum.reduce predications, 0,
       fn ({_, objects}, count) -> count + Enum.count(objects) end
   end
 
+
   @doc """
-  Checks if the given statement exists within the `RDF.Description`.
+  The set of all properties used in the predicates within a `RDF.Description`.
+
+  # Examples
+
+      iex> RDF.Description.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>          {EX.p2, EX.O2},
+      ...>          {EX.p2, EX.O3}]) |>
+      ...>   RDF.Description.predicates
+      MapSet.new([EX.p1, EX.p2])
+  """
+  def predicates(%RDF.Description{predications: predications}),
+    do: predications |> Map.keys |> MapSet.new
+
+  @doc """
+  The set of all resources used in the objects within a `RDF.Description`.
+
+  Note: This function does collect only URIs and BlankNodes, not Literals.
+
+  # Examples
+
+      iex> RDF.Description.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>          {EX.p2, EX.O2},
+      ...>          {EX.p3, EX.O2},
+      ...>          {EX.p4, RDF.bnode(:bnode)},
+      ...>          {EX.p3, "foo"}
+      ...> ]) |> RDF.Description.objects
+      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+  """
+  def objects(%RDF.Description{predications: predications}) do
+    Enum.reduce predications, MapSet.new, fn ({_, objects}, acc) ->
+      objects
+      |> Map.keys
+      |> Enum.filter(&RDF.resource?/1)
+      |> MapSet.new
+      |> MapSet.union(acc)
+    end
+  end
+
+  @doc """
+  The set of all resources used within a `RDF.Description`.
+
+  # Examples
+
+      iex> RDF.Description.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>          {EX.p2, EX.O2},
+      ...>          {EX.p1, EX.O2},
+      ...>          {EX.p2, RDF.bnode(:bnode)},
+      ...>          {EX.p3, "foo"}
+      ...> ]) |> RDF.Description.resources
+      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
+  """
+  def resources(description) do
+    description
+    |> objects
+    |> MapSet.union(predicates(description))
+  end
+
+
+  @doc """
+  Checks if the given statement exists within a `RDF.Description`.
   """
   def include?(description, statement)
 

@@ -1,13 +1,14 @@
 defmodule RDF.DescriptionTest do
   use ExUnit.Case
 
+  defmodule EX, do:
+    use RDF.Vocabulary, base_uri: "http://example.com/description/"
+
   doctest RDF.Description
 
   alias RDF.Description
   import RDF, only: [uri: 1, literal: 1, bnode: 1]
 
-  defmodule EX, do:
-    use RDF.Vocabulary, base_uri: "http://example.com/description/"
 
   def description, do: Description.new(EX.Subject)
   def description_of_subject(%Description{subject: subject}, subject), do: true

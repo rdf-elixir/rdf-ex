@@ -100,6 +100,27 @@ defmodule RDF do
   def bnode(id), do: BlankNode.new(id)
 
 
+  @doc """
+  Checks if the given value is a RDF resource.
+
+  ## Examples
+
+      iex> RDF.resource?(RDF.uri("http://example.com/resource"))
+      true
+      iex> RDF.resource?(EX.resource)
+      true
+      iex> RDF.resource?(RDF.bnode)
+      true
+      iex> RDF.resource?(42)
+      false
+  """
+  def resource?(value)
+  def resource?(%URI{}), do: true
+  def resource?(atom) when is_atom(atom), do: resource?(Vocabulary.__uri__(atom))
+  def resource?(%BlankNode{}), do: true
+  def resource?(_), do: false
+
+
 ################################################################################
 # temporary manual RDF vocab definitions
 # TODO: These should be defined as a vocabulary

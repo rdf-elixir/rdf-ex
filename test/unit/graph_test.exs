@@ -1,13 +1,14 @@
 defmodule RDF.GraphTest do
   use ExUnit.Case
 
+  defmodule EX, do:
+    use RDF.Vocabulary, base_uri: "http://example.com/graph/"
+
   doctest RDF.Graph
 
   alias RDF.Graph
   import RDF, only: [uri: 1]
 
-  defmodule EX, do:
-    use RDF.Vocabulary, base_uri: "http://example.com/graph/"
 
   def graph, do: unnamed_graph
   def unnamed_graph, do: Graph.new

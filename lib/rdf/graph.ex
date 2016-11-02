@@ -48,6 +48,88 @@ defmodule RDF.Graph do
     end
   end
 
+  @doc """
+  The set of all properties used in the predicates within a `RDF.Graph`.
+
+  # Examples
+
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S1, EX.p2, EX.O3}]) |>
+      ...>   RDF.Graph.subjects
+      MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2)])
+  """
+  def subjects(%RDF.Graph{descriptions: descriptions}),
+    do: descriptions |> Map.keys |> MapSet.new
+
+  @doc """
+  The set of all properties used in the predicates within a `RDF.Graph`.
+
+  # Examples
+
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S1, EX.p2, EX.O3}]) |>
+      ...>   RDF.Graph.predicates
+      MapSet.new([EX.p1, EX.p2])
+  """
+  def predicates(%RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
+      description
+      |> Description.predicates
+      |> MapSet.union(acc)
+    end
+  end
+
+  @doc """
+  The set of all resources used in the objects within a `RDF.Graph`.
+
+  Note: This function does collect only URIs and BlankNodes, not Literals.
+
+  # Examples
+
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S3, EX.p1, EX.O2},
+      ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
+      ...>   {EX.S5, EX.p3, "foo"}
+      ...> ]) |> RDF.Graph.objects
+      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+  """
+  def objects(%RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
+      description
+      |> Description.objects
+      |> MapSet.union(acc)
+    end
+  end
+
+  @doc """
+  The set of all resources used within a `RDF.Graph`.
+
+  # Examples
+
+    iex> RDF.Graph.new([
+    ...>   {EX.S1, EX.p1, EX.O1},
+    ...>   {EX.S2, EX.p1, EX.O2},
+    ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
+    ...>   {EX.S3, EX.p1, "foo"}
+    ...> ]) |> RDF.Graph.resources
+    MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2), RDF.uri(EX.S3),
+      RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+  """
+  def resources(graph = %RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce(descriptions, MapSet.new, fn ({_, description}, acc) ->
+      description
+      |> Description.resources
+      |> MapSet.union(acc)
+    end) |> MapSet.union(subjects(graph))
+  end
+
+
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
     with triple_subject = Triple.convert_subject(subject),
