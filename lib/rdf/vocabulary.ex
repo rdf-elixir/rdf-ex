@@ -67,10 +67,6 @@ defmodule RDF.Vocabulary do # or RDF.URI.Namespace?
   `__base_uri__` and `__terms__` ...
   """
 
-  defmodule InvalidBaseURIError, do: defexception [:message]
-  defmodule UndefinedTermError, do: defexception [:message]
-  defmodule InvalidTermError, do: defexception [:message]
-
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts], unquote: true do
       import unquote(__MODULE__)
@@ -87,9 +83,9 @@ defmodule RDF.Vocabulary do # or RDF.URI.Namespace?
         @base_uri base_uri
       else
         :error ->
-          raise InvalidBaseURIError, "required base_uri missing"
+          raise RDF.Vocabulary.InvalidBaseURIError, "required base_uri missing"
         false  ->
-          raise InvalidBaseURIError,
+          raise RDF.Vocabulary.InvalidBaseURIError,
                   "a base_uri without a trailing '/' or '#' is invalid"
       end
 
@@ -113,7 +109,7 @@ defmodule RDF.Vocabulary do # or RDF.URI.Namespace?
           if Enum.member?(@terms, term) do
             RDF.Vocabulary.term_to_uri(@base_uri, term)
           else
-            raise UndefinedTermError,
+            raise RDF.Vocabulary.UndefinedTermError,
               "undefined term #{term} in strict vocabulary #{__MODULE__}"
           end
         end
@@ -158,7 +154,7 @@ defmodule RDF.Vocabulary do # or RDF.URI.Namespace?
     |> Enum.map(&String.reverse/1)
     |> Enum.map(&String.to_existing_atom/1) do
       [term, vocabulary] -> vocabulary.uri(term)
-      _ -> raise InvalidTermError, ""
+      _ -> raise RDF.Vocabulary.InvalidTermError, ""
     end
 
   end

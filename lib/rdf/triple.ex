@@ -16,18 +16,6 @@ defmodule RDF.Triple do
   @type convertible_predicate :: predicate | atom | String.t
   @type convertible_object :: object | atom | String.t # TODO: all basic Elixir types convertible to Literals
 
-  defmodule InvalidSubjectError do
-    defexception [:subject]
-    def message(%{subject: subject}),
-      do: "'#{inspect(subject)}' is not a valid subject of a RDF.Triple"
-  end
-
-  defmodule InvalidPredicateError do
-    defexception [:predicate]
-    def message(%{predicate: predicate}),
-      do: "'#{inspect(predicate)}' is not a valid predicate of a RDF.Triple"
-  end
-
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
 
@@ -68,13 +56,13 @@ defmodule RDF.Triple do
   def convert_subject(uri = %URI{}), do: uri
   def convert_subject(bnode = %BlankNode{}), do: bnode
   def convert_subject(uri) when is_atom(uri) or is_binary(uri), do: RDF.uri(uri)
-  def convert_subject(arg), do: raise InvalidSubjectError, subject: arg
+  def convert_subject(arg), do: raise RDF.Triple.InvalidSubjectError, subject: arg
 
   @doc false
   def convert_predicate(uri)
   def convert_predicate(uri = %URI{}), do: uri
   def convert_predicate(uri) when is_atom(uri) or is_binary(uri), do: RDF.uri(uri)
-  def convert_predicate(arg), do: raise InvalidPredicateError, predicate: arg
+  def convert_predicate(arg), do: raise RDF.Triple.InvalidPredicateError, predicate: arg
 
   @doc false
   def convert_object(uri)

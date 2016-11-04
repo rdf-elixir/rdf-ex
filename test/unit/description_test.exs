@@ -143,7 +143,7 @@ defmodule RDF.DescriptionTest do
         Description.add(description, {"not a URI", uri(EX.Object)})
       end
 
-      assert_raise RDF.Literal.InvalidLiteralError, fn ->
+      assert_raise RDF.InvalidLiteralError, fn ->
         Description.add(description, {EX.prop, self})
       end
     end

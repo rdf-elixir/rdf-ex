@@ -1,8 +1,6 @@
 defmodule RDF do
   alias RDF.{Vocabulary, Literal, BlankNode, Triple}
 
-  defmodule InvalidURIError, do: defexception [:message]
-
   @doc """
   Generator function for URIs from strings or term atoms of a `RDF.Vocabulary`.
 
@@ -27,7 +25,7 @@ defmodule RDF do
     if uri?(parsed_uri) do
       parsed_uri
     else
-      raise InvalidURIError, ~s(string "#{string}" is not a valid URI)
+      raise RDF.InvalidURIError, ~s(string "#{string}" is not a valid URI)
     end
   end
 

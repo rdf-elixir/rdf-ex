@@ -103,7 +103,7 @@ defmodule RDF.GraphTest do
       assert_raise RDF.InvalidURIError, fn ->
         Graph.add(graph, {"not a URI", EX.predicate, uri(EX.Object)})
       end
-      assert_raise RDF.Literal.InvalidLiteralError, fn ->
+      assert_raise RDF.InvalidLiteralError, fn ->
         Graph.add(graph, {EX.Subject, EX.prop, self})
       end
     end

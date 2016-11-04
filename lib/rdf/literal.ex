@@ -8,8 +8,6 @@ defmodule RDF.Literal do
 
   alias RDF.{XSD, RDFS}
 
-  defmodule InvalidLiteralError, do: defexception [:message]
-
   @doc """
   Creates a new `RDF.Literal` of the given value and tries to infer an appropriate XSD datatype.
 
@@ -57,7 +55,7 @@ defmodule RDF.Literal do
 #  def new(value) when is_reference(value), do:
 
   def new(value) do
-    raise InvalidLiteralError, "#{inspect value} not convertible to a RDF.Literal"
+    raise RDF.InvalidLiteralError, "#{inspect value} not convertible to a RDF.Literal"
   end
 
   def new(value, language: language) when is_binary(value) do
