@@ -6,6 +6,8 @@ defmodule RDF.Description do
   """
   defstruct subject: nil, predications: %{}
 
+  @behaviour Access
+
   alias RDF.Triple
 
   @type t :: module
@@ -20,45 +22,208 @@ defmodule RDF.Description do
   def new(subject)
 
   def new({subject, predicate, object}),
-    do: new(subject) |> add({predicate, object})
+    do: new(subject) |> add(predicate, object)
   def new([statement | more_statements]),
     do: new(statement) |> add(more_statements)
   def new(subject),
     do: %RDF.Description{subject: Triple.convert_subject(subject)}
+  def new(subject, predicate, objects),
+    do: new(subject) |> add(predicate, objects)
+
+
+  @doc """
+  Add objects to a predicate of a `RDF.Description`.
+
+  # Examples
+
+      iex> RDF.Description.add(RDF.Description.new({EX.S, EX.P1, EX.O1}), EX.P2, EX.O2)
+      RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+      iex> RDF.Description.add(RDF.Description.new({EX.S, EX.P, EX.O1}), EX.P, [EX.O2, EX.O3])
+      RDF.Description.new([{EX.S, EX.P, EX.O1}, {EX.S, EX.P, EX.O2}, {EX.S, EX.P, EX.O3}])
+  """
+  def add(description, predicate, objects)
+
+  def add(description, predicate, objects) when is_list(objects) do
+    Enum.reduce objects, description, fn (object, description) ->
+      add(description, predicate, object)
+    end
+  end
+
+  def add(%RDF.Description{subject: subject, predications: predications}, predicate, object) do
+    with triple_predicate = Triple.convert_predicate(predicate),
+         triple_object = Triple.convert_object(object),
+         new_predications = Map.update(predications,
+           triple_predicate, %{triple_object => nil}, fn objects ->
+             Map.put_new(objects, triple_object, nil) end) do
+      %RDF.Description{subject: subject, predications: new_predications}
+    end
+  end
+
 
   @doc """
   Adds statements to a `RDF.Description`.
   """
   def add(description, statements)
 
-  def add(desc = %RDF.Description{}, {predicate, object}) do
-    with triple_predicate = Triple.convert_predicate(predicate),
-         triple_object = Triple.convert_object(object),
-         predications = Map.update(desc.predications,
-           triple_predicate, %{triple_object => nil}, fn objects ->
-             Map.put_new(objects, triple_object, nil) end) do
-      %RDF.Description{subject: desc.subject, predications: predications}
+  def add(description, {predicate, object}),
+    do: add(description, predicate, object)
+
+  def add(description = %RDF.Description{}, {subject, predicate, object}) do
+    if Triple.convert_subject(subject) == description.subject,
+      do:   add(description, predicate, object),
+      else: description
+  end
+
+  def add(description, statements) when is_list(statements) do
+    Enum.reduce statements, description, fn (statement, description) ->
+      add(description, statement)
     end
   end
 
-  def add(desc = %RDF.Description{}, {subject, predicate, object}) do
-    if RDF.uri(subject) == desc.subject,
-      do:   add(desc, {predicate, object}),
+
+  @doc """
+  Puts objects to a predicate of a `RDF.Description`, overwriting all existing objects.
+
+  # Examples
+
+      iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), EX.P, EX.O2)
+      RDF.Description.new([{EX.S, EX.P, EX.O2}])
+      iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P1, EX.O1}), EX.P2, EX.O2)
+      RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+  """
+  def put(description, predicate, objects)
+
+  def put(%RDF.Description{subject: subject, predications: predications},
+          predicate, objects) when is_list(objects) do
+    with triple_predicate = Triple.convert_predicate(predicate),
+         triple_objects   = Enum.reduce(objects, %{}, fn (object, acc) ->
+                              Map.put_new(acc, Triple.convert_object(object), nil) end),
+      do: %RDF.Description{subject: subject,
+            predications: Map.put(predications, triple_predicate, triple_objects)}
+  end
+
+  def put(desc = %RDF.Description{}, predicate, objects),
+    do: put(desc, predicate, [objects])
+
+  @doc """
+  Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.
+
+  # Examples
+
+      iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), {EX.P, EX.O2})
+      RDF.Description.new([{EX.S, EX.P, EX.O2}])
+      iex> RDF.Description.new({EX.S, EX.P1, EX.O1}) |>
+      ...>   RDF.Description.put([{EX.P2, EX.O2}, {EX.S, EX.P2, EX.O3}, {EX.P1, EX.O4}])
+      RDF.Description.new([{EX.S, EX.P1, EX.O4}, {EX.S, EX.P2, EX.O2}, {EX.S, EX.P2, EX.O3}])
+  """
+  def put(description, statements)
+
+  def put(desc = %RDF.Description{}, {predicate, object}),
+    do: put(desc, predicate, object)
+
+  def put(desc = %RDF.Description{}, {subject, predicate, object}) do
+    if Triple.convert_subject(subject) == desc.subject,
+      do:   put(desc, predicate, object),
       else: desc
   end
 
-  def add(desc, statements) when is_list(statements) do
-    Enum.reduce statements, desc, fn (statement, desc) ->
-      add(desc, statement)
+  def put(desc = %RDF.Description{subject: subject}, statements) when is_list(statements) do
+    statements
+    |> Stream.map(fn
+         {p, o}           -> {Triple.convert_predicate(p), o}
+         {^subject, p, o} -> {Triple.convert_predicate(p), o}
+         {s, p, o} ->
+            if Triple.convert_subject(s) == subject,
+              do: {Triple.convert_predicate(p), o}
+         bad -> raise ArgumentError, "#{inspect bad} is not a valid statement"
+       end)
+    |> Stream.filter(&(&1)) # filter nil values
+    |> Enum.group_by(&(elem(&1, 0)), &(elem(&1, 1)))
+    |> Enum.reduce(desc, fn ({predicate, objects}, desc) ->
+                            put(desc, predicate, objects) end)
+  end
+
+
+  @doc """
+  Fetches the objects for the given predicate of a Description.
+
+  When the predicate can not be found `:error` is returned.
+
+  # Examples
+
+      iex> RDF.Description.fetch(RDF.Description.new({EX.S, EX.p, EX.O}), EX.p)
+      {:ok, [RDF.uri(EX.O)]}
+      iex> RDF.Description.fetch(RDF.Description.new([{EX.S, EX.P, EX.O1},
+      ...>                                            {EX.S, EX.P, EX.O2}]), EX.P)
+      {:ok, [RDF.uri(EX.O1), RDF.uri(EX.O2)]}
+      iex> RDF.Description.fetch(RDF.Description.new(EX.S), EX.foo)
+      :error
+  """
+  def fetch(%RDF.Description{predications: predications}, predicate) do
+    with {:ok, objects} <- Access.fetch(predications, Triple.convert_predicate(predicate)) do
+      {:ok, Map.keys(objects)}
     end
   end
 
   @doc """
-  Returns the number of statements of a `RDF.Description`.
+  Gets the objects for the given predicate of a Description.
+
+  When the predicate can not be found the optionally given default value or `nil` is returned.
+
+  # Examples
+
+      iex> RDF.Description.get(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      [RDF.uri(EX.O)]
+      iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo)
+      nil
+      iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo, :bar)
+      :bar
   """
-  def count(%RDF.Description{predications: predications}) do
-    Enum.reduce predications, 0,
-      fn ({_, objects}, count) -> count + Enum.count(objects) end
+  def get(description = %RDF.Description{}, predicate, default \\ nil) do
+    case fetch(description, predicate) do
+      {:ok, value} -> value
+      :error       -> default
+    end
+  end
+
+  @doc """
+  Gets and updates the objects of the given predicate of a Description, in a single pass.
+
+  # Examples
+
+      iex> RDF.Description.get_and_update(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P, fn current_objects ->
+      ...>   {current_objects, EX.NEW}
+      ...> end)
+      {[RDF.uri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
+  """
+  def get_and_update(description = %RDF.Description{}, predicate, fun) do
+    with triple_predicate = Triple.convert_predicate(predicate) do
+      case fun.(get(description, triple_predicate)) do
+        {old_objects, new_objects} ->
+          {old_objects, put(description, triple_predicate, new_objects)}
+        :pop -> pop(description, triple_predicate)
+      end
+    end
+  end
+
+
+  @doc """
+  Gets and updates the objects of the given predicate of a Description, in a single pass.
+
+  # Examples
+
+      iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      {[RDF.uri(EX.O)], RDF.Description.new(EX.S)}
+      iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.Missing)
+      {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
+  """
+  def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
+    case Access.pop(predications, Triple.convert_predicate(predicate)) do
+      {nil, _} ->
+        {nil, description}
+      {objects, new_predications} ->
+        {Map.keys(objects), %RDF.Description{subject: subject, predications: new_predications}}
+    end
   end
 
 
@@ -121,6 +286,15 @@ defmodule RDF.Description do
     description
     |> objects
     |> MapSet.union(predicates(description))
+  end
+
+
+  @doc """
+  Returns the number of statements of a `RDF.Description`.
+  """
+  def count(%RDF.Description{predications: predications}) do
+    Enum.reduce predications, 0,
+      fn ({_, objects}, count) -> count + Enum.count(objects) end
   end
 
 

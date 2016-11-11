@@ -47,7 +47,7 @@ defmodule RDF.DescriptionTest do
     assert description_of_subject(desc, uri(EX.Subject))
     assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
 
-    desc = Description.new({EX.Subject, EX.predicate, 42})
+    desc = Description.new(EX.Subject, EX.predicate, 42)
     assert description_of_subject(desc, uri(EX.Subject))
     assert description_includes_predication(desc, {EX.predicate, literal(42)})
   end
@@ -58,17 +58,25 @@ defmodule RDF.DescriptionTest do
     assert description_of_subject(desc, uri(EX.Subject))
     assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
     assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+
+    desc = Description.new(EX.Subject, EX.predicate, [EX.Object, bnode(:foo), "bar"])
+    assert description_of_subject(desc, uri(EX.Subject))
+    assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
+    assert description_includes_predication(desc, {EX.predicate, bnode(:foo)})
+    assert description_includes_predication(desc, {EX.predicate, literal("bar")})
   end
 
-  describe "adding triples" do
+  describe "add" do
     test "a predicate-object-pair of proper RDF terms" do
+      assert Description.add(description, EX.predicate, uri(EX.Object))
+        |> description_includes_predication({EX.predicate, uri(EX.Object)})
       assert Description.add(description, {EX.predicate, uri(EX.Object)})
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
     end
 
     test "a predicate-object-pair of convertible RDF terms" do
       assert Description.add(description,
-              {"http://example.com/description/predicate", uri(EX.Object)})
+              "http://example.com/description/predicate", uri(EX.Object))
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
 
       assert Description.add(description,
@@ -198,6 +206,20 @@ defmodule RDF.DescriptionTest do
       assert desc == Enum.reduce(desc, description,
         fn(triple, acc) -> acc |> Description.add(triple) end)
     end
+  end
+
+  describe "Access behaviour" do
+    test "access with the [] operator" do
+      assert Description.new(EX.Subject)[EX.predicate] == nil
+      assert Description.new(EX.Subject, EX.predicate, EX.Object)[EX.predicate] == [uri(EX.Object)]
+      assert Description.new(EX.Subject, EX.Predicate, EX.Object)[EX.Predicate] == [uri(EX.Object)]
+      assert Description.new(EX.Subject, EX.predicate, EX.Object)["http://example.com/description/predicate"] == [uri(EX.Object)]
+      assert Description.new([{EX.Subject, EX.predicate1, EX.Object1},
+                              {EX.Subject, EX.predicate1, EX.Object2},
+                              {EX.Subject, EX.predicate2, EX.Object3}])[EX.predicate1] ==
+              [uri(EX.Object1), uri(EX.Object2)]
+    end
+
   end
 
 end
