@@ -29,6 +29,8 @@ defmodule RDF.Description do
     do: %RDF.Description{subject: Triple.convert_subject(subject)}
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
+  def new(subject, description = %RDF.Description{}),
+    do: new(subject) |> add(description)
 
 
   @doc """
@@ -80,6 +82,12 @@ defmodule RDF.Description do
     end
   end
 
+  def add(%RDF.Description{subject: subject, predications: predications},
+          %RDF.Description{predications: other_predications}) do
+    merged_predications = Map.merge predications, other_predications,
+      fn (_, objects, other_objects) -> Map.merge(objects, other_objects) end
+    %RDF.Description{subject: subject, predications: merged_predications}
+  end
 
   @doc """
   Puts objects to a predicate of a `RDF.Description`, overwriting all existing objects.
@@ -115,6 +123,9 @@ defmodule RDF.Description do
       iex> RDF.Description.new({EX.S, EX.P1, EX.O1}) |>
       ...>   RDF.Description.put([{EX.P2, EX.O2}, {EX.S, EX.P2, EX.O3}, {EX.P1, EX.O4}])
       RDF.Description.new([{EX.S, EX.P1, EX.O4}, {EX.S, EX.P2, EX.O2}, {EX.S, EX.P2, EX.O3}])
+      iex> RDF.Description.new({EX.S, EX.P, EX.O1}) |>
+      ...>   RDF.Description.put(RDF.Description.new(EX.S, EX.P, [EX.O1, EX.O2]))
+      RDF.Description.new([{EX.S, EX.P, EX.O1}, {EX.S, EX.P, EX.O2}])
   """
   def put(description, statements)
 
@@ -141,6 +152,13 @@ defmodule RDF.Description do
     |> Enum.group_by(&(elem(&1, 0)), &(elem(&1, 1)))
     |> Enum.reduce(desc, fn ({predicate, objects}, desc) ->
                             put(desc, predicate, objects) end)
+  end
+
+  def put(%RDF.Description{subject: subject, predications: predications},
+          %RDF.Description{predications: other_predications}) do
+    merged_predications = Map.merge predications, other_predications,
+      fn (_, _, other_objects) -> other_objects end
+    %RDF.Description{subject: subject, predications: merged_predications}
   end
 
 

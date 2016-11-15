@@ -66,6 +66,13 @@ defmodule RDF.DescriptionTest do
     assert description_includes_predication(desc, {EX.predicate, literal("bar")})
   end
 
+  test "creating a description from another description" do
+    desc1 = Description.new({EX.Other, EX.predicate, EX.Object})
+    desc2 = Description.new(EX.Subject, desc1)
+    assert description_of_subject(desc2, uri(EX.Subject))
+    assert description_includes_predication(desc2, {EX.predicate, uri(EX.Object)})
+  end
+
   describe "add" do
     test "a predicate-object-pair of proper RDF terms" do
       assert Description.add(description, EX.predicate, uri(EX.Object))
@@ -137,6 +144,26 @@ defmodule RDF.DescriptionTest do
       refute description_includes_predication(desc, {EX.predicate, uri(EX.Object3)})
     end
 
+
+    test "another description" do
+      desc =
+        description
+        |> Description.add([{EX.predicate1, EX.Object1},
+                            {EX.predicate2, EX.Object2}])
+        |> Description.add(Description.new({EX.Other, EX.predicate3, EX.Object3}))
+
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3, uri(EX.Object3)})
+
+      desc = Description.add(desc, Description.new({EX.Other, EX.predicate1, EX.Object4}))
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3, uri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object4)})
+    end
+
     test "duplicates are ignored" do
       desc = Description.add(description, {EX.predicate, EX.Object})
       assert Description.add(desc, {EX.predicate, EX.Object}) == desc
@@ -177,7 +204,7 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
-  describe "Enumerable implementation" do
+  describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Description.new EX.foo) == 0
       assert Enum.count(Description.new {EX.S, EX.p, EX.O}) == 1
