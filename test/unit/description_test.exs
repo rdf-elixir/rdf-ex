@@ -11,6 +11,7 @@ defmodule RDF.DescriptionTest do
 
 
   def description, do: Description.new(EX.Subject)
+  def description(content), do: Description.add(description, content)
   def description_of_subject(%Description{subject: subject}, subject), do: true
   def description_of_subject(_, _), do: false
   def empty_description(%Description{predications: predications}) do
@@ -72,6 +73,13 @@ defmodule RDF.DescriptionTest do
     assert description_of_subject(desc2, uri(EX.Subject))
     assert description_includes_predication(desc2, {EX.predicate, uri(EX.Object)})
   end
+
+  test "creating a description from a map with convertible RDF term" do
+    desc = Description.new(EX.Subject, %{EX.Predicate => EX.Object})
+    assert description_of_subject(desc, uri(EX.Subject))
+    assert description_includes_predication(desc, {uri(EX.Predicate), uri(EX.Object)})
+  end
+
 
   describe "add" do
     test "a predicate-object-pair of proper RDF terms" do
@@ -146,10 +154,7 @@ defmodule RDF.DescriptionTest do
 
 
     test "another description" do
-      desc =
-        description
-        |> Description.add([{EX.predicate1, EX.Object1},
-                            {EX.predicate2, EX.Object2}])
+      desc = description([{EX.predicate1, EX.Object1}, {EX.predicate2, EX.Object2}])
         |> Description.add(Description.new({EX.Other, EX.predicate3, EX.Object3}))
 
       assert description_of_subject(desc, uri(EX.Subject))
@@ -162,6 +167,36 @@ defmodule RDF.DescriptionTest do
       assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate3, uri(EX.Object3)})
       assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object4)})
+    end
+
+    test "a map of predications with convertible RDF terms" do
+      desc = description([{EX.predicate1, EX.Object1}, {EX.predicate2, EX.Object2}])
+        |> Description.add(%{EX.predicate3 => EX.Object3})
+
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3, uri(EX.Object3)})
+
+      desc = Description.add(desc, %{EX.predicate1 => EX.Object1,
+                                     EX.predicate2 => [EX.Object2, 42],
+                                     EX.predicate3 => [bnode(:foo)]})
+      assert Description.count(desc) == 5
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate2, literal(42)})
+      assert description_includes_predication(desc, {EX.predicate3, uri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate3, bnode(:foo)})
+    end
+
+    test "a map of predications with inconvertible RDF terms" do
+      assert_raise RDF.InvalidURIError, fn ->
+        Description.add(description, %{"not a URI" => uri(EX.Object)})
+      end
+
+      assert_raise RDF.InvalidLiteralError, fn ->
+        Description.add(description, %{EX.prop => self})
+      end
     end
 
     test "duplicates are ignored" do
