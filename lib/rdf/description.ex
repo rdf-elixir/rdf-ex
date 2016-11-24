@@ -180,7 +180,6 @@ defmodule RDF.Description do
   end
 
 
-
   @doc """
   Fetches the objects for the given predicate of a Description.
 
@@ -226,18 +225,33 @@ defmodule RDF.Description do
   @doc """
   Gets and updates the objects of the given predicate of a Description, in a single pass.
 
+  Invokes the passed function on the objects of the given predicate; this
+  function should return either `{objects_to_return, new_object}` or `:pop`.
+
+  If the passed function returns `{objects_to_return, new_objects}`, the return
+  value of `get_and_update` is `{objects_to_return, new_description}` where
+  `new_description` is the input `Description` updated with `new_objects` for
+  the given predicate.
+
+  If the passed function returns `:pop` the objects for the given predicate are
+  removed and a `{removed_objects, new_description}` tuple gets returned.
+
   # Examples
 
-      iex> RDF.Description.get_and_update(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P, fn current_objects ->
-      ...>   {current_objects, EX.NEW}
-      ...> end)
+      iex> RDF.Description.new({EX.S, EX.P, EX.O}) |>
+      ...>   RDF.Description.get_and_update(EX.P, fn current_objects ->
+      ...>     {current_objects, EX.NEW}
+      ...>   end)
       {[RDF.uri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
+      iex> RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}]) |>
+      ...>   RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
+      {[RDF.uri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
     with triple_predicate = Triple.convert_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
-        {old_objects, new_objects} ->
-          {old_objects, put(description, triple_predicate, new_objects)}
+        {objects_to_return, new_objects} ->
+          {objects_to_return, put(description, triple_predicate, new_objects)}
         :pop -> pop(description, triple_predicate)
       end
     end
@@ -245,7 +259,9 @@ defmodule RDF.Description do
 
 
   @doc """
-  Gets and updates the objects of the given predicate of a Description, in a single pass.
+  Pops the objects of the given predicate of a Description.
+
+  When the predicate can not be found the optionally given default value or `nil` is returned.
 
   # Examples
 
