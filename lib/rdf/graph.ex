@@ -13,18 +13,67 @@ defmodule RDF.Graph do
   @type t :: module
 
   @doc """
-  Creates a new `RDF.Graph`.
+  Creates an empty unnamed `RDF.Graph`.
   """
-  def new, do: %RDF.Graph{}
-  def new(statement = {_, _, _}), do: new |> add(statement)
-  def new([statement | rest]), do: new(statement) |> add(rest)
-  def new(name), do: %RDF.Graph{name: RDF.uri(name)}
-  def new(name, statement = {_, _, _}), do: new(name) |> add(statement)
-  def new(name, [statement | rest]), do: new(name, statement) |> add(rest)
+  def new,
+    do: %RDF.Graph{}
 
+  @doc """
+  Creates an unnamed `RDF.Graph` with an initial triple.
+  """
+  def new(triple = {_, _, _}),
+    do: new |> add(triple)
+
+  @doc """
+  Creates an unnamed `RDF.Graph` with initial triples.
+  """
+  def new(triples) when is_list(triples),
+    do: new |> add(triples)
+
+  @doc """
+  Creates an empty named `RDF.Graph`.
+  """
+  def new(name),
+    do: %RDF.Graph{name: RDF.uri(name)}
+
+  @doc """
+  Creates a named `RDF.Graph` with an initial triple.
+  """
+  def new(name, triple = {_, _, _}),
+    do: new(name) |> add(triple)
+
+  @doc """
+  Creates a named `RDF.Graph` with initial triples.
+  """
+  def new(name, triples) when is_list(triples),
+    do: new(name) |> add(triples)
+
+  @doc """
+  Creates an unnamed `RDF.Graph` with initial triples.
+  """
+  def new(subject, predicate, objects),
+    do: new |> add(subject, predicate, objects)
+
+  @doc """
+  Creates a named `RDF.Graph` with initial triples.
+  """
+  def new(name, subject, predicate, objects),
+    do: new(name) |> add(subject, predicate, objects)
+
+
+  @doc """
+  Adds triples to a `RDF.Graph`.
+  """
+  def add(graph, subject, predicate, objects)
+
+  def add(graph, subject, predicate, objects) when is_list(objects) do
+    Enum.reduce objects, graph, fn (object, graph) ->
+      add(graph, subject, predicate, object)
+    end
+  end
 
   def add(%RDF.Graph{name: name, descriptions: descriptions},
-          {subject, predicate, object}) do
+          subject, predicate, object) do
     with triple_subject = Triple.convert_subject(subject),
          updated_descriptions = Map.update(descriptions, triple_subject,
            Description.new({triple_subject, predicate, object}), fn description ->
@@ -34,9 +83,17 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(graph, statements) when is_list(statements) do
-    Enum.reduce statements, graph, fn (statement, graph) ->
-      RDF.Graph.add(graph, statement)
+  @doc """
+  Adds triples to a `RDF.Graph`.
+  """
+  def add(graph, triples)
+
+  def add(graph, {subject, predicate, object}),
+    do: add(graph, subject, predicate, object)
+
+  def add(graph, triples) when is_list(triples) do
+    Enum.reduce triples, graph, fn (triple, graph) ->
+      add(graph, triple)
     end
   end
 
