@@ -7,7 +7,7 @@ defmodule RDF.GraphTest do
   doctest RDF.Graph
 
   alias RDF.{Graph, Description}
-  import RDF, only: [uri: 1]
+  import RDF, only: [uri: 1, literal: 1, bnode: 1]
 
 
   def graph, do: unnamed_graph
@@ -136,6 +136,19 @@ defmodule RDF.GraphTest do
         Graph.add(graph, {EX.Subject, EX.prop, self})
       end
     end
+  end
+
+  test "putting triples" do
+    g = Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      |> RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S1, EX.P2, bnode(:foo)},
+                        {EX.S2, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O4}])
+
+      assert Graph.triple_count(g) == 5
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O3})
+      assert graph_includes_statement?(g, {EX.S1, EX.P2, bnode(:foo)})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O4})
   end
 
   test "subject_count" do

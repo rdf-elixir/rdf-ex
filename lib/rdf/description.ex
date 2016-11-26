@@ -29,6 +29,8 @@ defmodule RDF.Description do
     do: %RDF.Description{subject: Triple.convert_subject(subject)}
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
+  def new(subject, statements) when is_list(statements),
+    do: new(subject) |> add(statements)
   def new(subject, description = %RDF.Description{}),
     do: new(subject) |> add(description)
   def new(subject, predications = %{}),
@@ -58,7 +60,8 @@ defmodule RDF.Description do
          triple_object = Triple.convert_object(object),
          new_predications = Map.update(predications,
            triple_predicate, %{triple_object => nil}, fn objects ->
-             Map.put_new(objects, triple_object, nil) end) do
+             Map.put_new(objects, triple_object, nil)
+           end) do
       %RDF.Description{subject: subject, predications: new_predications}
     end
   end
@@ -119,8 +122,8 @@ defmodule RDF.Description do
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
 
-  def put(desc = %RDF.Description{}, predicate, objects),
-    do: put(desc, predicate, [objects])
+  def put(desc = %RDF.Description{}, predicate, object),
+    do: put(desc, predicate, [object])
 
   @doc """
   Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.

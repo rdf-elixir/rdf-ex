@@ -97,6 +97,65 @@ defmodule RDF.Graph do
     end
   end
 
+
+  @doc """
+  Puts statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
+
+  # Examples
+
+      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
+      RDF.Graph.new(EX.S, EX.P, EX.O2)
+      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
+      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+  """
+  def put(%RDF.Graph{name: name, descriptions: descriptions},
+          subject, predicate, objects) do
+    with triple_subject = Triple.convert_subject(subject) do
+      new_description = case descriptions[triple_subject] do
+        desc = %Description{} -> Description.put(desc, predicate, objects)
+        nil -> Description.new(triple_subject, predicate, objects)
+      end
+      %RDF.Graph{name: name,
+          descriptions: Map.put(descriptions, triple_subject, new_description)}
+    end
+  end
+
+  @doc """
+  Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
+
+  # Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
+      ...>   RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+  """
+  def put(graph, statements)
+
+  def put(graph = %RDF.Graph{}, {subject, predicate, object}),
+    do: put(graph, subject, predicate, object)
+
+  def put(graph = %RDF.Graph{}, statements) when is_map(statements) do
+    Enum.reduce statements, graph, fn ({subject, predications}, graph) ->
+      put(graph, subject, predications)
+    end
+  end
+
+  def put(graph = %RDF.Graph{}, statements) when is_list(statements) do
+    put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
+  end
+
+  def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
+        when is_list(predications) do
+    with triple_subject = Triple.convert_subject(subject),
+         description = Map.get(descriptions, triple_subject)
+                       || Description.new(triple_subject) do
+      new_descriptions = descriptions
+        |> Map.put(triple_subject, Description.put(description, predications))
+      %RDF.Graph{name: name, descriptions: new_descriptions}
+    end
+  end
+
+
   def subject_count(graph), do: Enum.count(graph.descriptions)
 
   def triple_count(%RDF.Graph{descriptions: descriptions}) do
