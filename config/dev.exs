@@ -4,6 +4,6 @@ config :mix_test_watch,
   clear: true,
   tasks: [
     "test",
-    "dialyzer",
-    "credo",
+#    "dialyzer",
+#    "credo",
   ]
