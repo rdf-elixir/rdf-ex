@@ -8,6 +8,8 @@ defmodule RDF.Graph do
   """
   defstruct name: nil, descriptions: %{}
 
+  @behaviour Access
+
   alias RDF.{Description, Triple}
 
   @type t :: module
@@ -152,6 +154,103 @@ defmodule RDF.Graph do
       new_descriptions = descriptions
         |> Map.put(triple_subject, Description.put(description, predications))
       %RDF.Graph{name: name, descriptions: new_descriptions}
+    end
+  end
+
+  def put(graph, subject, predications = {_predicate, _objects}),
+    do: put(graph, subject, [predications])
+
+
+  @doc """
+  Fetches the description of the given subject.
+
+  When the subject can not be found `:error` is returned.
+
+  # Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
+      ...>   RDF.Graph.fetch(EX.S1)
+      {:ok, RDF.Description.new({EX.S1, EX.P1, EX.O1})}
+      iex> RDF.Graph.fetch(RDF.Graph.new, EX.foo)
+      :error
+  """
+  def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
+    Access.fetch(descriptions, Triple.convert_subject(subject))
+  end
+
+  @doc """
+  Gets the description of the given subject.
+
+  When the subject can not be found the optionally given default value or `nil` is returned.
+
+  # Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
+      ...>   RDF.Graph.get(EX.S1)
+      RDF.Description.new({EX.S1, EX.P1, EX.O1})
+      iex> RDF.Graph.get(RDF.Graph.new, EX.Foo)
+      nil
+      iex> RDF.Graph.get(RDF.Graph.new, EX.Foo, :bar)
+      :bar
+  """
+  def get(graph = %RDF.Graph{}, subject, default \\ nil) do
+    case fetch(graph, subject) do
+      {:ok, value} -> value
+      :error       -> default
+    end
+  end
+
+  @doc """
+  Gets and updates the description of the given subject, in a single pass.
+
+  Invokes the passed function on the `RDF.Description` of the given subject;
+  this function should return either `{description_to_return, new_description}` or `:pop`.
+
+  If the passed function returns `{description_to_return, new_description}`, the
+  return value of `get_and_update` is `{description_to_return, new_graph}` where
+  `new_graph` is the input `Graph` updated with `new_description` for
+  the given subject.
+
+  If the passed function returns `:pop` the description for the given subject is
+  removed and a `{removed_description, new_graph}` tuple gets returned.
+
+  # Examples
+
+      iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |>
+      ...>   RDF.Graph.get_and_update(EX.S, fn current_description ->
+      ...>     {current_description, {EX.P, EX.NEW}}
+      ...>   end)
+      {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
+  """
+  def get_and_update(graph = %RDF.Graph{}, subject, fun) do
+    with triple_subject = Triple.convert_subject(subject) do
+      case fun.(get(graph, triple_subject)) do
+        {old_description, new_description} ->
+          {old_description, put(graph, triple_subject, new_description)}
+        :pop -> pop(graph, triple_subject)
+      end
+    end
+  end
+
+  @doc """
+  Pops the description of the given subject.
+
+  When the subject can not be found the optionally given default value or `nil` is returned.
+
+  # Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
+      ...>   RDF.Graph.pop(EX.S1)
+      {RDF.Description.new({EX.S1, EX.P1, EX.O1}), RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
+      iex> RDF.Graph.pop(RDF.Graph.new({EX.S, EX.P, EX.O}), EX.Missing)
+      {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
+  """
+  def pop(graph = %RDF.Graph{name: name, descriptions: descriptions}, subject) do
+    case Access.pop(descriptions, Triple.convert_subject(subject)) do
+      {nil, _} ->
+        {nil, graph}
+      {description, new_descriptions} ->
+        {description, %RDF.Graph{name: name, descriptions: new_descriptions}}
     end
   end
 

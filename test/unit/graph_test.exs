@@ -7,7 +7,7 @@ defmodule RDF.GraphTest do
   doctest RDF.Graph
 
   alias RDF.{Graph, Description}
-  import RDF, only: [uri: 1, literal: 1, bnode: 1]
+  import RDF, only: [uri: 1, bnode: 1]
 
 
   def graph, do: unnamed_graph
@@ -217,6 +217,14 @@ defmodule RDF.GraphTest do
 
       assert g == Enum.reduce(g, graph,
         fn(triple, acc) -> acc |> Graph.add(triple) end)
+    end
+  end
+
+  describe "Access behaviour" do
+    test "access with the [] operator" do
+      assert Graph.new[EX.Subject] == nil
+      assert Graph.new({EX.S, EX.p, EX.O})[EX.S] ==
+              Description.new({EX.S, EX.p, EX.O})
     end
   end
 
