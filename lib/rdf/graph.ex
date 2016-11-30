@@ -344,6 +344,7 @@ defmodule RDF.Graph do
     end) |> MapSet.union(subjects(graph))
   end
 
+  def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
 
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do

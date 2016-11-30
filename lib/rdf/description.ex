@@ -344,6 +344,8 @@ defmodule RDF.Description do
     |> MapSet.union(predicates(description))
   end
 
+  def triples(description = %RDF.Description{}), do: Enum.to_list(description)
+
 
   @doc """
   Returns the number of statements of a `RDF.Description`.
