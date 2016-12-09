@@ -23,7 +23,7 @@ defmodule RDF.Graph do
   @doc """
   Creates an unnamed `RDF.Graph` with an initial triple.
   """
-  def new(triple = {_, _, _}),
+  def new({_, _, _} = triple),
     do: new |> add(triple)
 
   @doc """
@@ -31,6 +31,12 @@ defmodule RDF.Graph do
   """
   def new(triples) when is_list(triples),
     do: new |> add(triples)
+
+  @doc """
+  Creates an unnamed `RDF.Graph` with an `RDF.Description`.
+  """
+  def new(%RDF.Description{} = description),
+    do: new |> add(description)
 
   @doc """
   Creates an empty named `RDF.Graph`.
@@ -49,6 +55,12 @@ defmodule RDF.Graph do
   """
   def new(name, triples) when is_list(triples),
     do: new(name) |> add(triples)
+
+  @doc """
+  Creates a named `RDF.Graph` with an `RDF.Description`.
+  """
+  def new(name, %RDF.Description{} = description),
+    do: new(name) |> add(description)
 
   @doc """
   Creates an unnamed `RDF.Graph` with initial triples.
@@ -99,6 +111,15 @@ defmodule RDF.Graph do
     end
   end
 
+  def add(%RDF.Graph{name: name, descriptions: descriptions},
+          %Description{subject: subject} = description) do
+    description = if existing_description = descriptions[subject],
+      do:   Description.add(existing_description, description),
+      else: description
+    %RDF.Graph{name: name,
+               descriptions: Map.put(descriptions, subject, description)}
+  end
+
 
   @doc """
   Puts statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
@@ -135,6 +156,15 @@ defmodule RDF.Graph do
 
   def put(graph = %RDF.Graph{}, {subject, predicate, object}),
     do: put(graph, subject, predicate, object)
+
+  def put(%RDF.Graph{name: name, descriptions: descriptions},
+          %Description{subject: subject} = description) do
+    description = if existing_description = descriptions[subject],
+      do:   Description.put(existing_description, description),
+      else: description
+    %RDF.Graph{name: name,
+               descriptions: Map.put(descriptions, subject, description)}
+  end
 
   def put(graph = %RDF.Graph{}, statements) when is_map(statements) do
     Enum.reduce statements, graph, fn ({subject, predications}, graph) ->
