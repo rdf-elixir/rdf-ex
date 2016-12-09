@@ -18,7 +18,7 @@ defmodule RDF.NTriples.Reader do
 
   use RDF.Reader
 
-  def read_string(content, opts \\ []) do
+  def read_string(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens) do
       {:ok, build_graph(ast)}
