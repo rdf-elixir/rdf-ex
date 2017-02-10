@@ -3,12 +3,12 @@ defmodule RDF.NTriples.ReaderTest do
 
   doctest RDF.NTriples.Reader
 
-  alias RDF.{Graph}
+  alias RDF.{Graph, TestData}
 
   defmodule EX, do: use RDF.Vocabulary, base_uri: "http://example.org/#"
   defmodule P,  do: use RDF.Vocabulary, base_uri: "http://www.perceive.net/schemas/relationship/"
 
-  @w3c_ntriples_test_suite Path.join(File.cwd!, "test/data/N-TRIPLES-TESTS")
+  @w3c_ntriples_test_suite Path.join(TestData.dir, "N-TRIPLES-TESTS")
 
   test "an empty string is deserialized to an empty graph" do
     assert RDF.NTriples.Reader.read!("") == Graph.new
