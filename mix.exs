@@ -38,9 +38,9 @@ defmodule RDF.Core.Mixfile do
   defp deps do
     [
       {:dialyxir, "~> 0.4", only: [:dev, :test]},
-      {:credo, "~> 0.5", only: [:dev, :test]},
+      {:credo, "~> 0.6", only: [:dev, :test]},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:mix_test_watch, "~> 0.2", only: :dev},
+      {:mix_test_watch, "~> 0.3", only: :dev},
     ]
   end
 end
