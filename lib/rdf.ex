@@ -83,12 +83,12 @@ defmodule RDF do
 
 
   @doc """
-  Generator function for `RDF.BlankNodes`.
+  Generator function for `RDF.BlankNode`s.
   """
   def bnode, do: BlankNode.new
 
   @doc """
-  Generator function for `RDF.BlankNodes` with a user-defined identity.
+  Generator function for `RDF.BlankNode`s with a user-defined identity.
 
   ## Examples
 

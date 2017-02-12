@@ -11,7 +11,7 @@ defmodule RDF.DescriptionTest do
 
 
   def description, do: Description.new(EX.Subject)
-  def description(content), do: Description.add(description, content)
+  def description(content), do: Description.add(description(), content)
   def description_of_subject(%Description{subject: subject}, subject), do: true
   def description_of_subject(_, _), do: false
   def empty_description(%Description{predications: predications}) do
@@ -83,56 +83,56 @@ defmodule RDF.DescriptionTest do
 
   describe "add" do
     test "a predicate-object-pair of proper RDF terms" do
-      assert Description.add(description, EX.predicate, uri(EX.Object))
+      assert Description.add(description(), EX.predicate, uri(EX.Object))
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
-      assert Description.add(description, {EX.predicate, uri(EX.Object)})
+      assert Description.add(description(), {EX.predicate, uri(EX.Object)})
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
     end
 
     test "a predicate-object-pair of convertible RDF terms" do
-      assert Description.add(description,
+      assert Description.add(description(),
               "http://example.com/description/predicate", uri(EX.Object))
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
 
-      assert Description.add(description,
+      assert Description.add(description(),
               {"http://example.com/description/predicate", 42})
         |> description_includes_predication({EX.predicate, literal(42)})
 
       # TODO: Test a url-string as object ...
 
-      assert Description.add(description,
+      assert Description.add(description(),
               {"http://example.com/description/predicate", bnode(:foo)})
         |> description_includes_predication({EX.predicate, bnode(:foo)})
     end
 
     test "a proper triple" do
-      assert Description.add(description,
+      assert Description.add(description(),
                 {uri(EX.Subject), EX.predicate, uri(EX.Object)})
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
 
-      assert Description.add(description,
+      assert Description.add(description(),
                 {uri(EX.Subject), EX.predicate, literal(42)})
         |> description_includes_predication({EX.predicate, literal(42)})
 
-      assert Description.add(description,
+      assert Description.add(description(),
                 {uri(EX.Subject), EX.predicate, bnode(:foo)})
         |> description_includes_predication({EX.predicate, bnode(:foo)})
     end
 
     test "add ignores triples not about the subject of the Description struct" do
       assert empty_description(
-        Description.add(description, {EX.Other, EX.predicate, uri(EX.Object)}))
+        Description.add(description(), {EX.Other, EX.predicate, uri(EX.Object)}))
     end
 
     test "a list of predicate-object-pairs" do
-      desc = Description.add(description,
+      desc = Description.add(description(),
         [{EX.predicate, EX.Object1}, {EX.predicate, EX.Object2}])
       assert description_includes_predication(desc, {EX.predicate, uri(EX.Object1)})
       assert description_includes_predication(desc, {EX.predicate, uri(EX.Object2)})
     end
 
     test "a list of triples" do
-      desc = Description.add(description, [
+      desc = Description.add(description(), [
         {EX.Subject, EX.predicate1, EX.Object1},
         {EX.Subject, EX.predicate2, EX.Object2}
       ])
@@ -141,7 +141,7 @@ defmodule RDF.DescriptionTest do
     end
 
     test "a list of mixed triples and predicate-object-pairs" do
-      desc = Description.add(description, [
+      desc = Description.add(description(), [
         {EX.predicate, EX.Object1},
         {EX.Subject, EX.predicate, EX.Object2},
         {EX.Other,   EX.predicate, EX.Object3}
@@ -191,30 +191,30 @@ defmodule RDF.DescriptionTest do
 
     test "a map of predications with inconvertible RDF terms" do
       assert_raise RDF.InvalidURIError, fn ->
-        Description.add(description, %{"not a URI" => uri(EX.Object)})
+        Description.add(description(), %{"not a URI" => uri(EX.Object)})
       end
 
       assert_raise RDF.InvalidLiteralError, fn ->
-        Description.add(description, %{EX.prop => self})
+        Description.add(description(), %{EX.prop => self()})
       end
     end
 
     test "duplicates are ignored" do
-      desc = Description.add(description, {EX.predicate, EX.Object})
+      desc = Description.add(description(), {EX.predicate, EX.Object})
       assert Description.add(desc, {EX.predicate, EX.Object}) == desc
       assert Description.add(desc, {EX.Subject, EX.predicate, EX.Object}) == desc
 
-      desc = Description.add(description, {EX.predicate, 42})
+      desc = Description.add(description(), {EX.predicate, 42})
       assert Description.add(desc, {EX.predicate, literal(42)}) == desc
     end
 
     test "non-convertible Triple elements are causing an error" do
       assert_raise RDF.InvalidURIError, fn ->
-        Description.add(description, {"not a URI", uri(EX.Object)})
+        Description.add(description(), {"not a URI", uri(EX.Object)})
       end
 
       assert_raise RDF.InvalidLiteralError, fn ->
-        Description.add(description, {EX.prop, self})
+        Description.add(description(), {EX.prop, self()})
       end
     end
   end
@@ -265,7 +265,7 @@ defmodule RDF.DescriptionTest do
                {EX.Subject, EX.predicate1, EX.Object1},
                {EX.Subject, EX.predicate2, EX.Object2},
                            {EX.predicate2, EX.Object3}])
-      assert desc == Enum.reduce(desc, description,
+      assert desc == Enum.reduce(desc, description(),
         fn(triple, acc) -> acc |> Description.add(triple) end)
     end
   end

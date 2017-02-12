@@ -10,7 +10,7 @@ defmodule RDF.GraphTest do
   import RDF, only: [uri: 1, bnode: 1]
 
 
-  def graph, do: unnamed_graph
+  def graph, do: unnamed_graph()
   def unnamed_graph, do: Graph.new
   def named_graph(name \\ EX.GraphName), do: Graph.new(name)
   def unnamed_graph?(%Graph{name: nil}), do: true
@@ -28,12 +28,12 @@ defmodule RDF.GraphTest do
 
   describe "construction" do
     test "creating an empty unnamed graph" do
-      assert unnamed_graph?(unnamed_graph)
+      assert unnamed_graph?(unnamed_graph())
     end
 
     test "creating an empty graph with a proper graph name" do
-      refute unnamed_graph?(named_graph)
-      assert named_graph?(named_graph)
+      refute unnamed_graph?(named_graph())
+      assert named_graph?(named_graph())
     end
 
     test "creating an empty graph with a convertible graph name" do
@@ -103,29 +103,29 @@ defmodule RDF.GraphTest do
 
   describe "adding triples" do
     test "a proper triple" do
-      assert Graph.add(graph, uri(EX.Subject), EX.predicate, uri(EX.Object))
+      assert Graph.add(graph(), uri(EX.Subject), EX.predicate, uri(EX.Object))
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
-      assert Graph.add(graph, {uri(EX.Subject), EX.predicate, uri(EX.Object)})
+      assert Graph.add(graph(), {uri(EX.Subject), EX.predicate, uri(EX.Object)})
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
     test "a convertible triple" do
-      assert Graph.add(graph,
+      assert Graph.add(graph(),
           "http://example.com/graph/Subject", EX.predicate, EX.Object)
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
-      assert Graph.add(graph,
+      assert Graph.add(graph(),
           {"http://example.com/graph/Subject", EX.predicate, EX.Object})
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
     test "a triple with multiple objects" do
-      g = Graph.add(graph, EX.Subject1, EX.predicate1, [EX.Object1, EX.Object2])
+      g = Graph.add(graph(), EX.Subject1, EX.predicate1, [EX.Object1, EX.Object2])
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1, EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1, EX.Object2})
     end
 
     test "a list of triples" do
-      g = Graph.add(graph, [
+      g = Graph.add(graph(), [
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
         {EX.Subject3, EX.predicate3, EX.Object3}
@@ -136,7 +136,7 @@ defmodule RDF.GraphTest do
     end
 
     test "a Description" do
-      g = Graph.add(graph, Description.new(EX.Subject1, [
+      g = Graph.add(graph(), Description.new(EX.Subject1, [
         {EX.predicate1, EX.Object1},
         {EX.predicate2, EX.Object2},
       ]))
@@ -150,7 +150,7 @@ defmodule RDF.GraphTest do
     end
 
     test "a list of Descriptions" do
-      g = Graph.add(graph, [
+      g = Graph.add(graph(), [
         Description.new({EX.Subject1, EX.predicate1, EX.Object1}),
         Description.new({EX.Subject2, EX.predicate2, EX.Object2}),
         Description.new({EX.Subject1, EX.predicate3, EX.Object3})
@@ -161,16 +161,16 @@ defmodule RDF.GraphTest do
     end
 
     test "duplicates are ignored" do
-      g = Graph.add(graph, {EX.Subject, EX.predicate, EX.Object})
+      g = Graph.add(graph(), {EX.Subject, EX.predicate, EX.Object})
       assert Graph.add(g, {EX.Subject, EX.predicate, EX.Object}) == g
     end
 
     test "non-convertible Triple elements are causing an error" do
       assert_raise RDF.InvalidURIError, fn ->
-        Graph.add(graph, {"not a URI", EX.predicate, uri(EX.Object)})
+        Graph.add(graph(), {"not a URI", EX.predicate, uri(EX.Object)})
       end
       assert_raise RDF.InvalidLiteralError, fn ->
-        Graph.add(graph, {EX.Subject, EX.prop, self})
+        Graph.add(graph(), {EX.Subject, EX.prop, self()})
       end
     end
   end
@@ -218,7 +218,7 @@ defmodule RDF.GraphTest do
   end
 
   test "subject_count" do
-    g = Graph.add(graph, [
+    g = Graph.add(graph(), [
       {EX.Subject1, EX.predicate1, EX.Object1},
       {EX.Subject1, EX.predicate2, EX.Object2},
       {EX.Subject3, EX.predicate3, EX.Object3}
@@ -252,7 +252,7 @@ defmodule RDF.GraphTest do
       assert Enum.count(Graph.new {EX.S, EX.p, EX.O}) == 1
       assert Enum.count(Graph.new [{EX.S, EX.p, EX.O1}, {EX.S, EX.p, EX.O2}]) == 2
 
-      g = Graph.add(graph, [
+      g = Graph.add(graph(), [
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
         {EX.Subject3, EX.predicate3, EX.Object3}
@@ -264,7 +264,7 @@ defmodule RDF.GraphTest do
       refute Enum.member?(Graph.new, {uri(EX.S), EX.p, uri(EX.O)})
       assert Enum.member?(Graph.new({EX.S, EX.p, EX.O}), {EX.S, EX.p, EX.O})
 
-      g = Graph.add(graph, [
+      g = Graph.add(graph(), [
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
         {EX.Subject3, EX.predicate3, EX.Object3}
@@ -275,13 +275,13 @@ defmodule RDF.GraphTest do
     end
 
     test "Enum.reduce" do
-      g = Graph.add(graph, [
+      g = Graph.add(graph(), [
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
         {EX.Subject3, EX.predicate3, EX.Object3}
       ])
 
-      assert g == Enum.reduce(g, graph,
+      assert g == Enum.reduce(g, graph(),
         fn(triple, acc) -> acc |> Graph.add(triple) end)
     end
   end

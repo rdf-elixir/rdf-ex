@@ -15,8 +15,8 @@ defmodule RDF.Core.Mixfile do
       elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      package: package,
-      deps: deps
+      package: package(),
+      deps: deps()
     ]
   end
 

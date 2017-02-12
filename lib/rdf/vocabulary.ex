@@ -133,7 +133,7 @@ defmodule RDF.Vocabulary do # or RDF.URI.Namespace?
 #  TODO: the URI should be built at compile-time
         # uri = RDF.Vocabulary.term_to_uri(@base_uri, unquote(term))
         def unquote(term)() do
-          URI.parse(__base_uri__ <> to_string(unquote(term)))
+          URI.parse(__base_uri__() <> to_string(unquote(term)))
         end
       end
     end
