@@ -24,19 +24,19 @@ defmodule RDF.Graph do
   Creates an unnamed `RDF.Graph` with an initial triple.
   """
   def new({_, _, _} = triple),
-    do: new |> add(triple)
+    do: new() |> add(triple)
 
   @doc """
   Creates an unnamed `RDF.Graph` with initial triples.
   """
   def new(triples) when is_list(triples),
-    do: new |> add(triples)
+    do: new() |> add(triples)
 
   @doc """
   Creates an unnamed `RDF.Graph` with an `RDF.Description`.
   """
   def new(%RDF.Description{} = description),
-    do: new |> add(description)
+    do: new() |> add(description)
 
   @doc """
   Creates an empty named `RDF.Graph`.
@@ -66,7 +66,7 @@ defmodule RDF.Graph do
   Creates an unnamed `RDF.Graph` with initial triples.
   """
   def new(subject, predicate, objects),
-    do: new |> add(subject, predicate, objects)
+    do: new() |> add(subject, predicate, objects)
 
   @doc """
   Creates a named `RDF.Graph` with initial triples.
