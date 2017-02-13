@@ -1,27 +1,8 @@
 defmodule RDF.DescriptionTest do
-  use ExUnit.Case
-
-  defmodule EX, do:
-    use RDF.Vocabulary, base_uri: "http://example.com/description/"
+  use RDF.Test.Case
 
   doctest RDF.Description
 
-  alias RDF.Description
-  import RDF, only: [uri: 1, literal: 1, bnode: 1]
-
-
-  def description, do: Description.new(EX.Subject)
-  def description(content), do: Description.add(description(), content)
-  def description_of_subject(%Description{subject: subject}, subject), do: true
-  def description_of_subject(_, _), do: false
-  def empty_description(%Description{predications: predications}) do
-    predications == %{}
-  end
-  def description_includes_predication(desc, {predicate, object}) do
-    desc.predications
-    |> Map.get(predicate, %{})
-    |> Enum.member?({object, nil})
-  end
 
   describe "creating an empty description" do
     test "with a subject URI" do
@@ -91,17 +72,17 @@ defmodule RDF.DescriptionTest do
 
     test "a predicate-object-pair of convertible RDF terms" do
       assert Description.add(description(),
-              "http://example.com/description/predicate", uri(EX.Object))
+              "http://example.com/predicate", uri(EX.Object))
         |> description_includes_predication({EX.predicate, uri(EX.Object)})
 
       assert Description.add(description(),
-              {"http://example.com/description/predicate", 42})
+              {"http://example.com/predicate", 42})
         |> description_includes_predication({EX.predicate, literal(42)})
 
       # TODO: Test a url-string as object ...
 
       assert Description.add(description(),
-              {"http://example.com/description/predicate", bnode(:foo)})
+              {"http://example.com/predicate", bnode(:foo)})
         |> description_includes_predication({EX.predicate, bnode(:foo)})
     end
 
@@ -275,7 +256,7 @@ defmodule RDF.DescriptionTest do
       assert Description.new(EX.Subject)[EX.predicate] == nil
       assert Description.new(EX.Subject, EX.predicate, EX.Object)[EX.predicate] == [uri(EX.Object)]
       assert Description.new(EX.Subject, EX.Predicate, EX.Object)[EX.Predicate] == [uri(EX.Object)]
-      assert Description.new(EX.Subject, EX.predicate, EX.Object)["http://example.com/description/predicate"] == [uri(EX.Object)]
+      assert Description.new(EX.Subject, EX.predicate, EX.Object)["http://example.com/predicate"] == [uri(EX.Object)]
       assert Description.new([{EX.Subject, EX.predicate1, EX.Object1},
                               {EX.Subject, EX.predicate1, EX.Object2},
                               {EX.Subject, EX.predicate2, EX.Object3}])[EX.predicate1] ==

@@ -1,30 +1,8 @@
 defmodule RDF.GraphTest do
-  use ExUnit.Case
-
-  defmodule EX, do:
-    use RDF.Vocabulary, base_uri: "http://example.com/graph/"
+  use RDF.Test.Case
 
   doctest RDF.Graph
 
-  alias RDF.{Graph, Description}
-  import RDF, only: [uri: 1, bnode: 1]
-
-
-  def graph, do: unnamed_graph()
-  def unnamed_graph, do: Graph.new
-  def named_graph(name \\ EX.GraphName), do: Graph.new(name)
-  def unnamed_graph?(%Graph{name: nil}), do: true
-  def unnamed_graph?(_), do: false
-  def named_graph?(%Graph{name: %URI{}}), do: true
-  def named_graph?(_), do: false
-  def named_graph?(%Graph{name: name}, name), do: true
-  def named_graph?(_, _), do: false
-  def empty_graph?(%Graph{descriptions: descriptions}), do: descriptions == %{}
-  def graph_includes_statement?(graph, statement = {subject, _, _}) do
-    graph.descriptions
-    |> Map.get(uri(subject), %{})
-    |> Enum.member?(statement)
-  end
 
   describe "construction" do
     test "creating an empty unnamed graph" do
@@ -111,10 +89,10 @@ defmodule RDF.GraphTest do
 
     test "a convertible triple" do
       assert Graph.add(graph(),
-          "http://example.com/graph/Subject", EX.predicate, EX.Object)
+          "http://example.com/Subject", EX.predicate, EX.Object)
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
       assert Graph.add(graph(),
-          {"http://example.com/graph/Subject", EX.predicate, EX.Object})
+          {"http://example.com/Subject", EX.predicate, EX.Object})
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
