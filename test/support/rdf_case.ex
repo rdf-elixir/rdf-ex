@@ -57,10 +57,46 @@ defmodule RDF.Test.Case do
   def empty_graph?(%Graph{descriptions: descriptions}),
     do: descriptions == %{}
 
-  def graph_includes_statement?(graph, statement = {subject, _, _}) do
+  def graph_includes_statement?(graph, {subject, _, _} = statement) do
     graph.descriptions
     |> Map.get(uri(subject), %{})
     |> Enum.member?(statement)
+  end
+
+
+  ###############################
+  # RDF.Graph
+
+  def dataset, do: unnamed_dataset()
+
+  def unnamed_dataset, do: Dataset.new
+
+  def named_dataset(name \\ EX.GraphName), do: Dataset.new(name)
+
+  def unnamed_dataset?(%Dataset{name: nil}), do: true
+  def unnamed_dataset?(_),                   do: false
+
+  def named_dataset?(%Dataset{name: %URI{}}),     do: true
+  def named_dataset?(_),                          do: false
+  def named_dataset?(%Dataset{name: name}, name), do: true
+  def named_dataset?(_, _),                       do: false
+
+  def empty_dataset?(%Dataset{graphs: graphs}), do: graphs == %{}
+
+  def dataset_includes_statement?(dataset, {_, _, _} = statement) do
+    dataset
+    |> Dataset.default_graph
+    |> graph_includes_statement?(statement)
+  end
+
+  def dataset_includes_statement?(dataset, {subject, predicate, objects, nil}),
+    do: dataset_includes_statement?(dataset, {subject, predicate, objects})
+
+  def dataset_includes_statement?(dataset,
+        {subject, predicate, objects, graph_context}) do
+    dataset.graphs
+    |> Map.get(uri(graph_context), named_graph(graph_context))
+    |> graph_includes_statement?({subject, predicate, objects})
   end
 
 end

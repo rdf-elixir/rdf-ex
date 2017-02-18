@@ -22,6 +22,14 @@ defmodule RDF.Triple.InvalidPredicateError do
   end
 end
 
+defmodule RDF.Quad.InvalidGraphContextError do
+  defexception [:graph_context]
+
+  def message(%{graph_context: graph_context}) do
+    "'#{inspect(graph_context)}' is not a valid graph context of a RDF.Quad"
+  end
+end
+
 
 defmodule RDF.Vocabulary.InvalidBaseURIError do
   defexception [:message]

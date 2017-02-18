@@ -33,10 +33,16 @@ defmodule RDF.Graph do
     do: new() |> add(triples)
 
   @doc """
-  Creates an unnamed `RDF.Graph` with an `RDF.Description`.
+  Creates an unnamed `RDF.Graph` with a `RDF.Description`.
   """
   def new(%RDF.Description{} = description),
     do: new() |> add(description)
+
+  @doc """
+  Creates an empty unnamed `RDF.Graph`.
+  """
+  def new(nil),
+    do: new()
 
   @doc """
   Creates an empty named `RDF.Graph`.
@@ -57,7 +63,7 @@ defmodule RDF.Graph do
     do: new(name) |> add(triples)
 
   @doc """
-  Creates a named `RDF.Graph` with an `RDF.Description`.
+  Creates a named `RDF.Graph` with a `RDF.Description`.
   """
   def new(name, %RDF.Description{} = description),
     do: new(name) |> add(description)
@@ -178,11 +184,10 @@ defmodule RDF.Graph do
 
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
-    with triple_subject = Triple.convert_subject(subject),
-         description = Map.get(descriptions, triple_subject)
-                       || Description.new(triple_subject) do
+    with subject = Triple.convert_subject(subject) do
+      description = Map.get(descriptions, subject, Description.new(subject))
       new_descriptions = descriptions
-        |> Map.put(triple_subject, Description.put(description, predications))
+        |> Map.put(subject, Description.put(description, predications))
       %RDF.Graph{name: name, descriptions: new_descriptions}
     end
   end
@@ -257,7 +262,10 @@ defmodule RDF.Graph do
       case fun.(get(graph, triple_subject)) do
         {old_description, new_description} ->
           {old_description, put(graph, triple_subject, new_description)}
-        :pop -> pop(graph, triple_subject)
+        :pop ->
+          pop(graph, triple_subject)
+        other ->
+          raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
       end
     end
   end
@@ -285,8 +293,33 @@ defmodule RDF.Graph do
   end
 
 
-  def subject_count(graph), do: Enum.count(graph.descriptions)
+  @doc """
+  The number of subjects within a `RDF.Graph`.
 
+  # Examples
+
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S1, EX.p2, EX.O3}]) |>
+      ...>   RDF.Graph.subject_count
+      2
+  """
+  def subject_count(%RDF.Graph{descriptions: descriptions}),
+    do: Enum.count(descriptions)
+
+  @doc """
+  The number of statements within a `RDF.Graph`.
+
+  # Examples
+
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S1, EX.p2, EX.O3}]) |>
+      ...>   RDF.Graph.triple_count
+      3
+  """
   def triple_count(%RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, 0, fn ({_subject, description}, count) ->
       count + Description.count(description)
@@ -294,7 +327,7 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  The set of all properties used in the predicates within a `RDF.Graph`.
+  The set of all subjects used in the statements within a `RDF.Graph`.
 
   # Examples
 
@@ -309,7 +342,7 @@ defmodule RDF.Graph do
     do: descriptions |> Map.keys |> MapSet.new
 
   @doc """
-  The set of all properties used in the predicates within a `RDF.Graph`.
+  The set of all properties used in the predicates of the statements within a `RDF.Graph`.
 
   # Examples
 
@@ -374,6 +407,20 @@ defmodule RDF.Graph do
     end) |> MapSet.union(subjects(graph))
   end
 
+  @doc """
+  All statements within a `RDF.Graph`.
+
+  # Examples
+
+        iex> RDF.Graph.new([
+        ...>   {EX.S1, EX.p1, EX.O1},
+        ...>   {EX.S2, EX.p2, EX.O2},
+        ...>   {EX.S1, EX.p2, EX.O3}
+        ...> ]) |> RDF.Graph.triples
+        [{RDF.uri(EX.S1), RDF.uri(EX.p1), RDF.uri(EX.O1)},
+         {RDF.uri(EX.S1), RDF.uri(EX.p2), RDF.uri(EX.O3)},
+         {RDF.uri(EX.S2), RDF.uri(EX.p2), RDF.uri(EX.O2)}]
+  """
   def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
 
   def include?(%RDF.Graph{descriptions: descriptions},

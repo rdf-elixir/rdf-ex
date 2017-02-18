@@ -195,15 +195,6 @@ defmodule RDF.GraphTest do
     end
   end
 
-  test "subject_count" do
-    g = Graph.add(graph(), [
-      {EX.Subject1, EX.predicate1, EX.Object1},
-      {EX.Subject1, EX.predicate2, EX.Object2},
-      {EX.Subject3, EX.predicate3, EX.Object3}
-    ])
-    assert Graph.subject_count(g) == 2
-  end
-
   test "pop a triple" do
     assert Graph.pop(Graph.new) == {nil, Graph.new}
 
