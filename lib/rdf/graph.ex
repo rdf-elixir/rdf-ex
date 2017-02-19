@@ -94,11 +94,12 @@ defmodule RDF.Graph do
 
   def add(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, object) do
-    with triple_subject = Triple.convert_subject(subject),
-         updated_descriptions = Map.update(descriptions, triple_subject,
-           Description.new({triple_subject, predicate, object}), fn description ->
-             description |> Description.add({predicate, object})
-           end) do
+    with subject = Triple.convert_subject(subject) do
+      updated_descriptions =
+        Map.update(descriptions, subject,
+          Description.new({subject, predicate, object}), fn description ->
+            description |> Description.add({predicate, object})
+          end)
       %RDF.Graph{name: name, descriptions: updated_descriptions}
     end
   end
@@ -139,13 +140,15 @@ defmodule RDF.Graph do
   """
   def put(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, objects) do
-    with triple_subject = Triple.convert_subject(subject) do
-      new_description = case descriptions[triple_subject] do
-        desc = %Description{} -> Description.put(desc, predicate, objects)
-        nil -> Description.new(triple_subject, predicate, objects)
+    with subject = Triple.convert_subject(subject) do
+      new_description = case descriptions[subject] do
+        %Description{} = description ->
+          Description.put(description, predicate, objects)
+        nil ->
+          Description.new(subject, predicate, objects)
       end
       %RDF.Graph{name: name,
-          descriptions: Map.put(descriptions, triple_subject, new_description)}
+          descriptions: Map.put(descriptions, subject, new_description)}
     end
   end
 
@@ -160,7 +163,7 @@ defmodule RDF.Graph do
   """
   def put(graph, statements)
 
-  def put(graph = %RDF.Graph{}, {subject, predicate, object}),
+  def put(%RDF.Graph{} = graph, {subject, predicate, object}),
     do: put(graph, subject, predicate, object)
 
   def put(%RDF.Graph{name: name, descriptions: descriptions},
@@ -172,27 +175,28 @@ defmodule RDF.Graph do
                descriptions: Map.put(descriptions, subject, description)}
   end
 
-  def put(graph = %RDF.Graph{}, statements) when is_map(statements) do
+  def put(%RDF.Graph{} = graph, statements) when is_map(statements) do
     Enum.reduce statements, graph, fn ({subject, predications}, graph) ->
       put(graph, subject, predications)
     end
   end
 
-  def put(graph = %RDF.Graph{}, statements) when is_list(statements) do
+  def put(%RDF.Graph{} = graph, statements) when is_list(statements) do
     put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
   end
 
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
     with subject = Triple.convert_subject(subject) do
-      description = Map.get(descriptions, subject, Description.new(subject))
-      new_descriptions = descriptions
-        |> Map.put(subject, Description.put(description, predications))
+      description =
+        Map.get(descriptions, subject, Description.new(subject))
+      new_descriptions =
+        Map.put(descriptions, subject, Description.put(description, predications))
       %RDF.Graph{name: name, descriptions: new_descriptions}
     end
   end
 
-  def put(graph, subject, predications = {_predicate, _objects}),
+  def put(graph, subject, {_predicate, _objects} = predications),
     do: put(graph, subject, [predications])
 
 
@@ -228,12 +232,19 @@ defmodule RDF.Graph do
       iex> RDF.Graph.get(RDF.Graph.new, EX.Foo, :bar)
       :bar
   """
-  def get(graph = %RDF.Graph{}, subject, default \\ nil) do
+  def get(%RDF.Graph{} = graph, subject, default \\ nil) do
     case fetch(graph, subject) do
       {:ok, value} -> value
       :error       -> default
     end
   end
+
+  @doc """
+  The `RDF.Description` of the given subject.
+  """
+  def description(%RDF.Graph{descriptions: descriptions}, subject),
+    do: Map.get(descriptions, Triple.convert_subject(subject))
+
 
   @doc """
   Gets and updates the description of the given subject, in a single pass.
@@ -257,13 +268,13 @@ defmodule RDF.Graph do
       ...>   end)
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
   """
-  def get_and_update(graph = %RDF.Graph{}, subject, fun) do
-    with triple_subject = Triple.convert_subject(subject) do
-      case fun.(get(graph, triple_subject)) do
+  def get_and_update(%RDF.Graph{} = graph, subject, fun) do
+    with subject = Triple.convert_subject(subject) do
+      case fun.(get(graph, subject)) do
         {old_description, new_description} ->
-          {old_description, put(graph, triple_subject, new_description)}
+          {old_description, put(graph, subject, new_description)}
         :pop ->
-          pop(graph, triple_subject)
+          pop(graph, subject)
         other ->
           raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
       end
@@ -283,7 +294,7 @@ defmodule RDF.Graph do
       iex> RDF.Graph.pop(RDF.Graph.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
   """
-  def pop(graph = %RDF.Graph{name: name, descriptions: descriptions}, subject) do
+  def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
     case Access.pop(descriptions, Triple.convert_subject(subject)) do
       {nil, _} ->
         {nil, graph}
@@ -425,8 +436,8 @@ defmodule RDF.Graph do
 
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
-    with triple_subject = Triple.convert_subject(subject),
-         %Description{} <- description = descriptions[triple_subject] do
+    with subject = Triple.convert_subject(subject),
+         %Description{} <- description = descriptions[subject] do
       Description.include?(description, triple)
     else
       _ -> false
@@ -439,18 +450,18 @@ defmodule RDF.Graph do
   def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
     when map_size(descriptions) == 0, do: {:done, acc}
 
-  def reduce(graph = %RDF.Graph{}, {:cont, acc}, fun) do
+  def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
     {triple, rest} = RDF.Graph.pop(graph)
     reduce(rest, fun.(triple, acc), fun)
   end
 
   def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(graph = %RDF.Graph{}, {:suspend, acc}, fun) do
+  def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
     {:suspended, acc, &reduce(graph, &1, fun)}
   end
 
 
-  def pop(graph = %RDF.Graph{descriptions: descriptions})
+  def pop(%RDF.Graph{descriptions: descriptions} = graph)
     when descriptions == %{}, do: {nil, graph}
 
   def pop(%RDF.Graph{name: name, descriptions: descriptions}) do

@@ -257,6 +257,12 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  The graph with given name.
+  """
+  def graph(%RDF.Dataset{graphs: graphs}, graph_name),
+    do: Map.get(graphs, Quad.convert_graph_context(graph_name))
+
+  @doc """
   The default graph of a `RDF.Dataset`.
   """
   def default_graph(%RDF.Dataset{graphs: graphs}),
