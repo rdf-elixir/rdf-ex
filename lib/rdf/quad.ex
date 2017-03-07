@@ -6,7 +6,7 @@ defmodule RDF.Quad do
   subject, predicate, object and a graph context.
   """
 
-  alias RDF.{BlankNode, Literal}
+  alias RDF.BlankNode
 
   import RDF.Triple, except: [new: 1, new: 3]
 
