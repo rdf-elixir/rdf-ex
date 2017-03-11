@@ -35,7 +35,7 @@ defmodule RDF.Reader do
       def read_file!(file, opts \\ []) do
         case read_file(file, opts) do
           {:ok,   graph}   -> graph
-          {:error, reason} -> raise reason
+          {:error, reason} -> raise File.Error, path: file, action: "read", reason: reason
         end
       end
 
