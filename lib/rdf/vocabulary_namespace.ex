@@ -45,35 +45,13 @@ defmodule RDF.Vocabulary.Namespace do
   defmacro __using__(_opts) do
     quote do
       import unquote(__MODULE__)
-
-#      Module.register_attribute __MODULE__, :vocabs_acc, accumulate: true
-#
-#      @before_compile unquote(__MODULE__)
     end
   end
-
-#  defmacro __before_compile__(_env) do
-#    quote do
-#      @__vocabs__ normalize_vocabs(
-#                   Module.delete_attribute(__MODULE__, :vocabs_acc), __MODULE__)
-#      def __all__, do: @__vocabs__
-#    end
-#  end
-#
-#  def normalize_vocabs(vocabs, parent_module) do
-#    Enum.reduce vocabs, %{}, fn ({name, opts}, vocabs) ->
-#      Map.put(vocabs, name, normalize_vocab_opts(name, opts, parent_module))
-#    end
-#  end
-#
-#  defp normalize_vocab_opts(name, opts, parent_module) do
-#    Keyword.put_new(opts, :module, Module.safe_concat([parent_module, name]))
-#  end
 
   @doc """
   Defines a `RDF.Namespace` module for a RDF vocabulary.
   """
-  defmacro defvocab({:__aliases__, _, [name_atom]} = name, opts) do
+  defmacro defvocab(name, opts) do
     base_uri = base_uri!(opts)
     file     = file!(opts)
     terms    = terms!(opts)
@@ -83,8 +61,6 @@ defmodule RDF.Vocabulary.Namespace do
     capitalized_terms = Map.get(case_separated_terms, :capitalized, [])
 
     quote do
-#      @vocabs_acc {unquote(name_atom), unquote(opts)}
-
       vocabdoc = Module.delete_attribute(__MODULE__, :vocabdoc)
 
       defmodule unquote(name) do

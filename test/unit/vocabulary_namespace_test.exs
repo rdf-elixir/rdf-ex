@@ -29,15 +29,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
-#  test "__all__ returns a list of all defined namespaces" do
-#    assert Enum.count(TestNS.__all__) == 4
-#    assert is_map(TestNS.__all__)
-#    assert Map.has_key?(TestNS.__all__, :Example1)
-#    assert Map.has_key?(TestNS.__all__, :Example2)
-#    assert Map.has_key?(TestNS.__all__, :Example3)
-#    assert Map.has_key?(TestNS.__all__, :Example4)
-#  end
-
   describe "defvocab" do
     test "fails without a base_uri" do
       assert_raise KeyError, fn ->
