@@ -1,9 +1,11 @@
 defmodule RDF.LiteralTest do
   use ExUnit.Case
 
+  alias RDF.{Literal}
+  alias RDF.NS.XSD
+
   doctest RDF.Literal
 
-  alias RDF.{Literal, XSD}
 
   describe "construction by type inference" do
     test "creating an string literal" do

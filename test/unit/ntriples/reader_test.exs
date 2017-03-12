@@ -5,8 +5,17 @@ defmodule RDF.NTriples.ReaderTest do
 
   alias RDF.{Graph, TestData}
 
-  defmodule EX, do: use RDF.Vocabulary, base_uri: "http://example.org/#"
-  defmodule P,  do: use RDF.Vocabulary, base_uri: "http://www.perceive.net/schemas/relationship/"
+
+  use RDF.Vocabulary.Namespace
+
+  defvocab EX,
+    base_uri: "http://example.org/#",
+    terms: [], strict: false
+
+  defvocab P,
+    base_uri: "http://www.perceive.net/schemas/relationship/",
+    terms: [], strict: false
+
 
   @w3c_ntriples_test_suite Path.join(TestData.dir, "N-TRIPLES-TESTS")
 

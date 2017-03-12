@@ -1,16 +1,18 @@
 defmodule RDF.Test.Case do
   use ExUnit.CaseTemplate
 
+  use RDF.Vocabulary.Namespace
+  defvocab EX,
+    base_uri: "http://example.com/",
+    terms: [], strict: false
+
   alias RDF.{Dataset, Graph, Description}
   import RDF, only: [uri: 1]
-
-  defmodule EX, do:
-    use RDF.Vocabulary, base_uri: "http://example.com/"
 
   using do
     quote do
       alias RDF.{Dataset, Graph, Description}
-      alias EX
+      alias RDF.Test.Case.EX
 
       import RDF, only: [uri: 1, literal: 1, bnode: 1]
       import RDF.Test.Case

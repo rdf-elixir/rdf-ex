@@ -31,15 +31,11 @@ defmodule RDF.Quad.InvalidGraphContextError do
 end
 
 
-defmodule RDF.Vocabulary.InvalidBaseURIError do
+defmodule RDF.Namespace.InvalidVocabBaseURIError do
   defexception [:message]
 end
 
-defmodule RDF.Vocabulary.UndefinedTermError do
-  defexception [:message]
-end
-
-defmodule RDF.Vocabulary.InvalidTermError do
+defmodule RDF.Namespace.UndefinedTermError do
   defexception [:message]
 end
 

@@ -1,8 +1,8 @@
 defmodule RDF do
-  alias RDF.{Vocabulary, Literal, BlankNode, Triple}
+  alias RDF.{Namespace, Literal, BlankNode, Triple}
 
   @doc """
-  Generator function for URIs from strings or term atoms of a `RDF.Vocabulary`.
+  Generator function for URIs from strings or term atoms of a `RDF.Namespace`.
 
   ## Examples
 
@@ -10,7 +10,7 @@ defmodule RDF do
       %URI{authority: "www.example.com", fragment: nil, host: "www.example.com",
        path: "/foo", port: 80, query: nil, scheme: "http", userinfo: nil}
 
-      iex> RDF.uri(RDF.RDFS.Class)
+      iex> RDF.uri(RDF.NS.RDFS.Class)
       %URI{authority: "www.w3.org", fragment: "Class", host: "www.w3.org",
        path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
        userinfo: nil}
@@ -19,7 +19,8 @@ defmodule RDF do
       ** (RDF.InvalidURIError) string "not a uri" is not a valid URI
   """
   @spec uri(URI.t | binary | atom) :: URI.t
-  def uri(atom) when is_atom(atom), do: Vocabulary.__uri__(atom)
+  def uri(atom) when is_atom(atom), do: Namespace.resolve_term(atom)
+
   def uri(string) do
     parsed_uri = URI.parse(string)
     if uri?(parsed_uri) do
@@ -114,7 +115,7 @@ defmodule RDF do
   """
   def resource?(value)
   def resource?(%URI{}), do: true
-  def resource?(atom) when is_atom(atom), do: resource?(Vocabulary.__uri__(atom))
+  def resource?(atom) when is_atom(atom), do: resource?(Namespace.resolve_term(atom))
   def resource?(%BlankNode{}), do: true
   def resource?(_), do: false
 

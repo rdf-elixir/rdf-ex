@@ -1,7 +1,8 @@
 defmodule RDF.CoreTest do
   use ExUnit.Case
 
-  defmodule EX, do: use RDF.Vocabulary, base_uri: "http://example.com/"
+  use RDF.Vocabulary.Namespace
+  defvocab EX, base_uri: "http://example.com/", terms: [], strict: false
 
   doctest RDF
 

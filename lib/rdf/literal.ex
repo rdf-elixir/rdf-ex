@@ -6,7 +6,64 @@ defmodule RDF.Literal do
 
   @type t :: module
 
-  alias RDF.{XSD, RDFS}
+  # Since the capability of RDF.Vocabulary.Namespaces requires the compilation
+  # of the RDF.NTriples.Reader and the RDF.NTriples.Reader depends on RDF.Literals,
+  # we can't define the XSD namespace in RDF.NS.
+  defmodule NS do
+    @moduledoc false
+    @vocabdoc false
+    use RDF.Vocabulary.Namespace
+    defvocab XSD,
+      base_uri:   "http://www.w3.org/2001/XMLSchema#",
+      terms: ~w[
+        string
+          normalizedString
+            token
+              language
+              Name
+                NCName
+                  ID
+                  IDREF
+                    IDREFS
+                  ENTITY
+                    ENTITIES
+              NMTOKEN
+                NMTOKENS
+        boolean
+        float
+        double
+        decimal
+          integer
+            long
+              int
+                short
+                  byte
+            nonPositiveInteger
+              negativeInteger
+            nonNegativeInteger
+              positiveInteger
+              unsignedLong
+                unsignedInt
+                  unsignedShort
+                    unsignedByte
+        duration
+        dateTime
+        time
+        date
+        gYearMonth
+        gYear
+        gMonthDay
+        gDay
+        gMonth
+        base64Binary
+        hexBinary
+        anyURI
+        QName
+        NOTATION
+      ]
+  end
+  alias NS.XSD
+
 
   @doc """
   Creates a new `RDF.Literal` of the given value and tries to infer an appropriate XSD datatype.
@@ -28,7 +85,7 @@ defmodule RDF.Literal do
   # Examples
 
       iex> RDF.Literal.new(42)
-      %RDF.Literal{value: 42, language: nil, datatype: RDF.uri(RDF.XSD.integer)}
+      %RDF.Literal{value: 42, language: nil, datatype: RDF.uri(XSD.integer)}
 
   """
   def new(value)
