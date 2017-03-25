@@ -46,7 +46,6 @@ defmodule RDF do
     case some_uri do
       %URI{scheme: nil} -> false
       %URI{host:   nil} -> false
-      %URI{path:   nil} -> false
       _uri -> true
     end
   end
