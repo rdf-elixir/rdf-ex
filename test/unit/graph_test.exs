@@ -4,7 +4,7 @@ defmodule RDF.GraphTest do
   doctest RDF.Graph
 
 
-  describe "construction" do
+  describe "new" do
     test "creating an empty unnamed graph" do
       assert unnamed_graph?(unnamed_graph())
     end
@@ -99,7 +99,7 @@ defmodule RDF.GraphTest do
     end
   end
 
-  describe "adding triples" do
+  describe "add" do
     test "a proper triple" do
       assert Graph.add(graph(), uri(EX.Subject), EX.predicate, uri(EX.Object))
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
@@ -194,7 +194,7 @@ defmodule RDF.GraphTest do
     end
   end
 
-  describe "putting triples" do
+  describe "put" do
     test "a list of triples" do
       g = Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
         |> RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S1, EX.P2, bnode(:foo)},
@@ -256,7 +256,7 @@ defmodule RDF.GraphTest do
     end
   end
 
-  test "pop a triple" do
+  test "pop" do
     assert Graph.pop(Graph.new) == {nil, Graph.new}
 
     {triple, graph} = Graph.new({EX.S, EX.p, EX.O}) |> Graph.pop

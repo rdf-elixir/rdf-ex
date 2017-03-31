@@ -4,7 +4,7 @@ defmodule RDF.DescriptionTest do
   doctest RDF.Description
 
 
-  describe "creating an empty description" do
+  describe "new" do
     test "with a subject URI" do
       assert description_of_subject(Description.new(URI.parse("http://example.com/description/subject")),
         URI.parse("http://example.com/description/subject"))
@@ -22,43 +22,43 @@ defmodule RDF.DescriptionTest do
     test "with a BlankNode subject" do
       assert description_of_subject(Description.new(bnode(:foo)), bnode(:foo))
     end
-  end
 
-  test "creating a description with a single initial triple" do
-    desc = Description.new({EX.Subject, EX.predicate, EX.Object})
-    assert description_of_subject(desc, uri(EX.Subject))
-    assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
+    test "with a single initial triple" do
+      desc = Description.new({EX.Subject, EX.predicate, EX.Object})
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
 
-    desc = Description.new(EX.Subject, EX.predicate, 42)
-    assert description_of_subject(desc, uri(EX.Subject))
-    assert description_includes_predication(desc, {EX.predicate, literal(42)})
-  end
+      desc = Description.new(EX.Subject, EX.predicate, 42)
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate, literal(42)})
+    end
 
-  test "creating a description with a list of initial triples" do
-    desc = Description.new([{EX.Subject, EX.predicate1, EX.Object1},
-                            {EX.Subject, EX.predicate2, EX.Object2}])
-    assert description_of_subject(desc, uri(EX.Subject))
-    assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
-    assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
+    test "with a list of initial triples" do
+      desc = Description.new([{EX.Subject, EX.predicate1, EX.Object1},
+                              {EX.Subject, EX.predicate2, EX.Object2}])
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1, uri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2, uri(EX.Object2)})
 
-    desc = Description.new(EX.Subject, EX.predicate, [EX.Object, bnode(:foo), "bar"])
-    assert description_of_subject(desc, uri(EX.Subject))
-    assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
-    assert description_includes_predication(desc, {EX.predicate, bnode(:foo)})
-    assert description_includes_predication(desc, {EX.predicate, literal("bar")})
-  end
+      desc = Description.new(EX.Subject, EX.predicate, [EX.Object, bnode(:foo), "bar"])
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate, uri(EX.Object)})
+      assert description_includes_predication(desc, {EX.predicate, bnode(:foo)})
+      assert description_includes_predication(desc, {EX.predicate, literal("bar")})
+    end
 
-  test "creating a description from another description" do
-    desc1 = Description.new({EX.Other, EX.predicate, EX.Object})
-    desc2 = Description.new(EX.Subject, desc1)
-    assert description_of_subject(desc2, uri(EX.Subject))
-    assert description_includes_predication(desc2, {EX.predicate, uri(EX.Object)})
-  end
+    test "from another description" do
+      desc1 = Description.new({EX.Other, EX.predicate, EX.Object})
+      desc2 = Description.new(EX.Subject, desc1)
+      assert description_of_subject(desc2, uri(EX.Subject))
+      assert description_includes_predication(desc2, {EX.predicate, uri(EX.Object)})
+    end
 
-  test "creating a description from a map with convertible RDF term" do
-    desc = Description.new(EX.Subject, %{EX.Predicate => EX.Object})
-    assert description_of_subject(desc, uri(EX.Subject))
-    assert description_includes_predication(desc, {uri(EX.Predicate), uri(EX.Object)})
+    test "from a map with convertible RDF term" do
+      desc = Description.new(EX.Subject, %{EX.Predicate => EX.Object})
+      assert description_of_subject(desc, uri(EX.Subject))
+      assert description_includes_predication(desc, {uri(EX.Predicate), uri(EX.Object)})
+    end
   end
 
 
@@ -200,7 +200,7 @@ defmodule RDF.DescriptionTest do
     end
   end
 
-  test "pop a triple" do
+  test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 
     {triple, desc} = Description.new({EX.S, EX.p, EX.O}) |> Description.pop

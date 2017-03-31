@@ -4,7 +4,7 @@ defmodule RDF.DatasetTest do
   doctest RDF.Dataset
 
 
-  describe "construction" do
+  describe "new" do
     test "creating an empty unnamed dataset" do
       assert unnamed_dataset?(unnamed_dataset())
     end
@@ -82,7 +82,7 @@ defmodule RDF.DatasetTest do
     end
   end
 
-  describe "adding statements" do
+  describe "add" do
     test "a proper triple is added to the default graph" do
       assert Dataset.add(dataset(), {uri(EX.Subject), EX.predicate, uri(EX.Object)})
         |> dataset_includes_statement?({EX.Subject, EX.predicate, EX.Object})
@@ -236,7 +236,7 @@ defmodule RDF.DatasetTest do
     end
   end
 
-  describe "putting triples" do
+  describe "put" do
     test "a list of triples" do
       ds = Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2, EX.Graph}])
         |> RDF.Dataset.put([
@@ -307,7 +307,7 @@ defmodule RDF.DatasetTest do
     end
   end
 
-  test "pop a statement" do
+  test "pop" do
     assert Dataset.pop(Dataset.new) == {nil, Dataset.new}
 
     {quad, dataset} = Dataset.new({EX.S, EX.p, EX.O, EX.Graph}) |> Dataset.pop
