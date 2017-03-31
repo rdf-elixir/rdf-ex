@@ -39,6 +39,12 @@ defmodule RDF.Graph do
     do: new() |> add(description)
 
   @doc """
+  Creates an unnamed `RDF.Graph` from another `RDF.Graph`.
+  """
+  def new(%RDF.Graph{descriptions: descriptions}),
+    do: %RDF.Graph{descriptions: descriptions}
+
+  @doc """
   Creates an empty unnamed `RDF.Graph`.
   """
   def new(nil),
@@ -67,6 +73,12 @@ defmodule RDF.Graph do
   """
   def new(name, %RDF.Description{} = description),
     do: new(name) |> add(description)
+
+  @doc """
+  Creates a named `RDF.Graph` from another `RDF.Graph`.
+  """
+  def new(name, %RDF.Graph{descriptions: descriptions}),
+    do: %RDF.Graph{new(name) | descriptions: descriptions}
 
   @doc """
   Creates an unnamed `RDF.Graph` with initial triples.

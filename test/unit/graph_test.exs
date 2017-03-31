@@ -77,6 +77,26 @@ defmodule RDF.GraphTest do
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
+
+    test "creating a named graph from another graph" do
+      g = Graph.new(EX.GraphName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      assert named_graph?(g, uri(EX.GraphName))
+      assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
+
+      g = Graph.new(EX.GraphName, Graph.new(EX.OtherGraphName, {EX.Subject, EX.predicate, EX.Object}))
+      assert named_graph?(g, uri(EX.GraphName))
+      assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
+    end
+
+    test "creating an unnamed graph from another graph" do
+      g = Graph.new(Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      assert unnamed_graph?(g)
+      assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
+
+      g = Graph.new(Graph.new(EX.OtherGraphName, {EX.Subject, EX.predicate, EX.Object}))
+      assert unnamed_graph?(g)
+      assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
+    end
   end
 
   describe "adding triples" do
