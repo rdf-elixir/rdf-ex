@@ -120,11 +120,18 @@ defmodule RDF.Graph do
 
   def add(%RDF.Graph{name: name, descriptions: descriptions},
           %Description{subject: subject} = description) do
-    description = if existing_description = descriptions[subject],
-      do:   Description.add(existing_description, description),
-      else: description
     %RDF.Graph{name: name,
-               descriptions: Map.put(descriptions, subject, description)}
+      descriptions:
+        Map.update(descriptions, subject, description, fn current ->
+          current |> Description.add(description)
+        end)
+    }
+  end
+
+  def add(graph, %RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
+      add(graph, description)
+    end
   end
 
 

@@ -143,6 +143,27 @@ defmodule RDF.GraphTest do
       assert Graph.add(g, {EX.Subject, EX.predicate, EX.Object}) == g
     end
 
+    test "a Graph" do
+      g = Graph.add(graph(), Graph.new([
+        {EX.Subject1, EX.predicate1, EX.Object1},
+        {EX.Subject2, EX.predicate2, EX.Object2},
+        {EX.Subject3, EX.predicate3, EX.Object3}
+      ]))
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2, EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3, EX.Object3})
+
+      g = Graph.add(g, Graph.new([
+        {EX.Subject1, EX.predicate1, EX.Object2},
+        {EX.Subject2, EX.predicate4, EX.Object4},
+      ]))
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1, EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2, EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate4, EX.Object4})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3, EX.Object3})
+    end
+
     test "non-convertible Triple elements are causing an error" do
       assert_raise RDF.InvalidURIError, fn ->
         Graph.add(graph(), {"not a URI", EX.predicate, uri(EX.Object)})
