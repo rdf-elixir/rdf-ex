@@ -70,8 +70,8 @@ defmodule RDF.DatasetTest do
     end
 
     test "creating a named dataset with an initial description" do
-      ds = Dataset.new(EX.GraphName, Description.new({EX.Subject, EX.predicate, EX.Object}))
-      assert named_dataset?(ds, uri(EX.GraphName))
+      ds = Dataset.new(EX.DatasetName, Description.new({EX.Subject, EX.predicate, EX.Object}))
+      assert named_dataset?(ds, uri(EX.DatasetName))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
     end
 
@@ -79,6 +79,32 @@ defmodule RDF.DatasetTest do
       ds = Dataset.new(Description.new({EX.Subject, EX.predicate, EX.Object}))
       assert unnamed_dataset?(ds)
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
+    end
+
+    test "creating a named dataset with an inital graph" do
+      ds = Dataset.new(EX.DatasetName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      assert named_dataset?(ds, uri(EX.DatasetName))
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
+
+      ds = Dataset.new(EX.DatasetName, Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object}))
+      assert named_dataset?(ds, uri(EX.DatasetName))
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert named_graph?(Dataset.graph(ds, EX.GraphName), uri(EX.GraphName))
+      assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object, EX.GraphName})
+    end
+
+    test "creating an unnamed dataset with an inital graph" do
+      ds = Dataset.new(Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      assert unnamed_dataset?(ds)
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
+
+      ds = Dataset.new(Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object}))
+      assert unnamed_dataset?(ds)
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert named_graph?(Dataset.graph(ds, EX.GraphName), uri(EX.GraphName))
+      assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object, EX.GraphName})
     end
   end
 

@@ -38,6 +38,13 @@ defmodule RDF.Dataset do
     do: new() |> add(description)
 
   @doc """
+  Creates an unnamed `RDF.Dataset` with a `RDF.Graph`.
+  """
+  def new(%RDF.Graph{} = graph),
+    do: new() |> add(graph, graph.name)
+
+
+  @doc """
   Creates an empty named `RDF.Dataset`.
   """
   def new(name),
@@ -60,6 +67,12 @@ defmodule RDF.Dataset do
   """
   def new(name, %RDF.Description{} = description),
     do: new(name) |> add(description)
+
+  @doc """
+  Creates a named `RDF.Dataset` with a `RDF.Graph`.
+  """
+  def new(name, %RDF.Graph{} = graph),
+    do: new(name) |> add(graph, graph.name)
 
 
 
