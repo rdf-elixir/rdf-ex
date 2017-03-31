@@ -107,12 +107,13 @@ defmodule RDF.Graph do
   def add(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, object) do
     with subject = Triple.convert_subject(subject) do
-      updated_descriptions =
-        Map.update(descriptions, subject,
-          Description.new({subject, predicate, object}), fn description ->
-            description |> Description.add({predicate, object})
-          end)
-      %RDF.Graph{name: name, descriptions: updated_descriptions}
+      %RDF.Graph{name: name,
+        descriptions:
+          Map.update(descriptions, subject,
+            Description.new({subject, predicate, object}), fn description ->
+              description |> Description.add({predicate, object})
+            end)
+      }
     end
   end
 
@@ -160,14 +161,12 @@ defmodule RDF.Graph do
   def put(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, objects) do
     with subject = Triple.convert_subject(subject) do
-      new_description = case descriptions[subject] do
-        %Description{} = description ->
-          Description.put(description, predicate, objects)
-        nil ->
-          Description.new(subject, predicate, objects)
-      end
       %RDF.Graph{name: name,
-          descriptions: Map.put(descriptions, subject, new_description)}
+        descriptions:
+          Map.update(descriptions, subject,
+            Description.new(subject, predicate, objects),
+            fn current -> Description.put(current, predicate, objects) end)
+      }
     end
   end
 
@@ -214,11 +213,12 @@ defmodule RDF.Graph do
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
     with subject = Triple.convert_subject(subject) do
-      description =
-        Map.get(descriptions, subject, Description.new(subject))
-      new_descriptions =
-        Map.put(descriptions, subject, Description.put(description, predications))
-      %RDF.Graph{name: name, descriptions: new_descriptions}
+      %RDF.Graph{name: name,
+        descriptions:
+          Map.update(descriptions, subject,
+            Description.new(subject, predications),
+            fn current -> current |> Description.put(predications) end)
+      }
     end
   end
 
