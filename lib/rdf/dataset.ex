@@ -65,6 +65,12 @@ defmodule RDF.Dataset do
 
   @doc """
   Adds triples and quads to a `RDF.Dataset`.
+
+  The optional third argument `graph_context` defaulting to `nil` for the default
+  graph, specifies the graph to which the statements are added.
+
+  Note: This also applies when adding a named graph. Its name is ignored over
+  `graph_context` and its default value.
   """
   def add(dataset, statements, graph_context \\ nil)
 
@@ -103,6 +109,17 @@ defmodule RDF.Dataset do
     end
   end
 
+  def add(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
+          graph_context) do
+    with graph_context = Quad.convert_graph_context(graph_context) do
+      %RDF.Dataset{name: name,
+        graphs:
+          Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
+            current |> Graph.add(graph)
+          end)
+      }
+    end
+  end
 
   @doc """
   Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.

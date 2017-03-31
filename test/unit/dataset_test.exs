@@ -172,23 +172,63 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
 
       ds = Dataset.add(ds, Description.new({EX.Subject1, EX.predicate3, EX.Object3}), EX.Graph)
+      assert Enum.count(ds) == 3
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate3, EX.Object3, EX.Graph})
     end
 
-    @tag skip: "TODO"
     test "an unnamed Graph" do
-      ds = Dataset.add(dataset(), Graph.new(%{EX.Subject1 => [
-        {EX.predicate1, EX.Object1},
-        {EX.predicate2, EX.Object2},
-      ]}))
+      ds = Dataset.add(dataset(), Graph.new([
+        {EX.Subject1, EX.predicate1, EX.Object1},
+        {EX.Subject1, EX.predicate2, EX.Object2},
+      ]))
+      assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+
+      ds = Dataset.add(ds, Graph.new({EX.Subject1, EX.predicate2, EX.Object3}))
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert Enum.count(ds) == 3
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+
+      ds = Dataset.add(ds, Graph.new({EX.Subject1, EX.predicate2, EX.Object3}), EX.Graph)
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert named_graph?(Dataset.graph(ds, EX.Graph), uri(EX.Graph))
+      assert Enum.count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph})
     end
 
-    @tag skip: "TODO"
     test "a named Graph" do
+      ds = Dataset.add(dataset(), Graph.new(EX.Graph1, [
+        {EX.Subject1, EX.predicate1, EX.Object1},
+        {EX.Subject1, EX.predicate2, EX.Object2},
+      ]))
+      refute Dataset.graph(ds, EX.Graph1)
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+
+      ds = Dataset.add(ds, Graph.new(EX.Graph2, {EX.Subject1, EX.predicate2, EX.Object3}))
+      refute Dataset.graph(ds, EX.Graph2)
+      assert unnamed_graph?(Dataset.default_graph(ds))
+      assert Enum.count(ds) == 3
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+
+      ds = Dataset.add(ds, Graph.new(EX.Graph3, {EX.Subject1, EX.predicate2, EX.Object3}), EX.Graph)
+      assert named_graph?(Dataset.graph(ds, EX.Graph), uri(EX.Graph))
+      assert Enum.count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph})
     end
 
     test "a list of Descriptions" do
