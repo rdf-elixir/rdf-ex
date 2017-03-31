@@ -187,11 +187,18 @@ defmodule RDF.Graph do
 
   def put(%RDF.Graph{name: name, descriptions: descriptions},
           %Description{subject: subject} = description) do
-    description = if existing_description = descriptions[subject],
-      do:   Description.put(existing_description, description),
-      else: description
     %RDF.Graph{name: name,
-               descriptions: Map.put(descriptions, subject, description)}
+      descriptions:
+        Map.update(descriptions, subject, description, fn current ->
+          current |> Description.put(description)
+        end)
+    }
+  end
+
+  def put(graph, %RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
+      put(graph, description)
+    end
   end
 
   def put(%RDF.Graph{} = graph, statements) when is_map(statements) do

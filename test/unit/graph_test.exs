@@ -234,6 +234,26 @@ defmodule RDF.GraphTest do
         assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
         assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O4})
     end
+
+    test "a Graph" do
+      g =
+        Graph.new([
+          {EX.S1, EX.P1, EX.O1},
+          {EX.S1, EX.P3, EX.O3},
+          {EX.S2, EX.P2, EX.O2},
+        ])
+        |> RDF.Graph.put(Graph.new([
+          {EX.S1, EX.P3, EX.O4},
+          {EX.S2, EX.P2, bnode(:foo)},
+          {EX.S3, EX.P3, EX.O3}
+        ]))
+
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.P3, EX.O4})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, bnode(:foo)})
+      assert graph_includes_statement?(g, {EX.S3, EX.P3, EX.O3})
+    end
   end
 
   test "pop a triple" do
