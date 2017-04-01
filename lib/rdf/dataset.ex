@@ -134,6 +134,7 @@ defmodule RDF.Dataset do
     end
   end
 
+
   @doc """
   Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.
 
@@ -210,6 +211,18 @@ defmodule RDF.Dataset do
       %RDF.Dataset{
         name:   name,
         graphs: Map.put(graphs, graph_context, updated_graph)
+      }
+    end
+  end
+
+  def put(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
+          graph_context) do
+    with graph_context = Quad.convert_graph_context(graph_context) do
+      %RDF.Dataset{name: name,
+        graphs:
+          Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
+            current |> Graph.put(graph)
+          end)
       }
     end
   end

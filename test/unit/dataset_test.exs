@@ -330,12 +330,28 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2})
     end
 
-    @tag skip: "TODO"
     test "an unnamed Graph" do
+      ds = Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}])
+        |> RDF.Dataset.put(Graph.new([{EX.S1, EX.P3, EX.O4}, {EX.S1, EX.P2, bnode(:foo)}]))
+
+      assert Dataset.statement_count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O4})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo)})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2})
     end
 
-    @tag skip: "TODO"
     test "a named Graph" do
+      ds = Dataset.new(
+            Graph.new(EX.GraphName, [{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}]))
+        |> RDF.Dataset.put(
+            Graph.new([{EX.S1, EX.P3, EX.O4}, {EX.S1, EX.P2, bnode(:foo)}]), EX.GraphName)
+
+      assert Dataset.statement_count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1, EX.GraphName})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O4, EX.GraphName})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo), EX.GraphName})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.GraphName})
     end
 
 #    @tag skip: "TODO: Requires Dataset.put with a list to differentiate a list of statements, a list of Descriptions and list of Graphs. Do we want to support mixed lists also?"
