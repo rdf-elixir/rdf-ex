@@ -115,40 +115,44 @@ defmodule RDF.Literal do
     raise RDF.InvalidLiteralError, "#{inspect value} not convertible to a RDF.Literal"
   end
 
-  def new(value, language: language) when is_binary(value) do
+  def new(value, opts) when is_list(opts),
+    do: new(value, Map.new(opts))
+
+  def new(value, %{language: language}) when not is_nil(language) and is_binary(value) do
     %RDF.Literal{value: value, datatype: RDF.langString, language: language}
   end
 
-  def new(value, datatype: datatype) when is_binary(value) do
-    datatype_uri = RDF.uri(datatype)
+  def new(value, %{datatype: %URI{} = datatype}) when is_binary(value) do
     cond do
-      datatype_uri == XSD.string  -> %RDF.Literal{value: value, datatype: datatype_uri}
-      datatype_uri == XSD.integer -> %RDF.Literal{value: String.to_integer(value), datatype: datatype_uri}
-# TODO:     datatype_uri == XSD.byte    -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype_uri}
-# TODO:     datatype_uri == RDF.uri(RDFS.XMLLiteral) -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype_uri}
+      datatype == XSD.string  -> %RDF.Literal{value: value, datatype: datatype}
+      datatype == XSD.integer -> %RDF.Literal{value: String.to_integer(value), datatype: datatype}
+# TODO:     datatype == XSD.byte    -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype}
+# TODO:     datatype == RDF.uri(RDFS.XMLLiteral) -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype}
       # TODO: Should we support more values, like "1" etc.?
       # TODO: Should we exclude any non-useful value?
-      datatype_uri == XSD.boolean -> %RDF.Literal{value: String.downcase(value) == "true", datatype: datatype_uri}
-      true -> %RDF.Literal{value: value, datatype: datatype_uri}
+      datatype == XSD.boolean -> %RDF.Literal{value: String.downcase(value) == "true", datatype: datatype}
+      true -> %RDF.Literal{value: value, datatype: datatype}
     end
   end
 
-  def new(value, datatype: datatype) when is_integer(value) do
-    datatype_uri = RDF.uri(datatype)
+  def new(value, %{datatype: %URI{} = datatype}) when is_integer(value) do
     cond do
-      datatype_uri == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype_uri}
-      datatype_uri == XSD.integer -> %RDF.Literal{value: value, datatype: datatype_uri}
+      datatype == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype}
+      datatype == XSD.integer -> %RDF.Literal{value: value, datatype: datatype}
     end
   end
 
-  def new(value, datatype: datatype) when is_boolean(value) do
-    datatype_uri = RDF.uri(datatype)
+  def new(value, %{datatype: %URI{} = datatype}) when is_boolean(value) do
     cond do
-      datatype_uri == XSD.boolean -> %RDF.Literal{value: value, datatype: datatype_uri}
+      datatype == XSD.boolean -> %RDF.Literal{value: value, datatype: datatype}
       # TODO: Should we exclude any non-useful value?
-      datatype_uri == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype_uri}
-      datatype_uri == XSD.integer -> %RDF.Literal{value: (if value, do: 1, else: 0), datatype: datatype_uri}
+      datatype == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype}
+      datatype == XSD.integer -> %RDF.Literal{value: (if value, do: 1, else: 0), datatype: datatype}
     end
+  end
+
+  def new(value, %{datatype: datatype}) do
+    new(value, datatype: RDF.uri(datatype))
   end
 
 end
