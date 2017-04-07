@@ -61,6 +61,10 @@ defmodule RDF.Triple do
   @doc false
   def convert_predicate(uri)
   def convert_predicate(uri = %URI{}), do: uri
+  # Note: Although, RDF does not allow blank nodes for properties, JSON-LD allows
+  # them, by introducing the notion of "generalized RDF".
+  # TODO: Support an option `:strict_rdf` to explicitly disallow them or produce warnings or ...
+  def convert_predicate(bnode = %BlankNode{}), do: bnode
   def convert_predicate(uri) when is_atom(uri) or is_binary(uri), do: RDF.uri(uri)
   def convert_predicate(arg), do: raise RDF.Triple.InvalidPredicateError, predicate: arg
 
