@@ -1,4 +1,4 @@
-defmodule RDF.Reader.ParseHelper do
+defmodule RDF.Serialization.ParseHelper do
   @moduledoc false
 
   def to_uri({:iriref, line, value}) do

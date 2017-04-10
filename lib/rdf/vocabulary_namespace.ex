@@ -160,7 +160,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp load_file(file) do
-    RDF.NTriples.Reader.read_file!(file)
+    RDF.NTriples.read_file!(file)
   end
 
   defp data_env do

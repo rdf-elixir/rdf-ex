@@ -30,6 +30,6 @@ Rules.
 
 Erlang code.
 
-quoted_content_str(TokenChars) -> 'Elixir.RDF.Reader.ParseHelper':quoted_content_str(TokenChars).
-bnode_str(TokenChars) -> 'Elixir.RDF.Reader.ParseHelper':bnode_str(TokenChars).
-langtag_str(TokenChars) -> 'Elixir.RDF.Reader.ParseHelper':langtag_str(TokenChars).
+quoted_content_str(TokenChars) -> 'Elixir.RDF.Serialization.ParseHelper':quoted_content_str(TokenChars).
+bnode_str(TokenChars) -> 'Elixir.RDF.Serialization.ParseHelper':bnode_str(TokenChars).
+langtag_str(TokenChars) -> 'Elixir.RDF.Serialization.ParseHelper':langtag_str(TokenChars).

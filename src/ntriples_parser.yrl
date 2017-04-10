@@ -37,11 +37,11 @@ literal -> string_literal_quote             : to_literal('$1').
 Erlang code.
 
 to_uri(IRIREF) ->
-  case 'Elixir.RDF.Reader.ParseHelper':to_uri(IRIREF) of
+  case 'Elixir.RDF.Serialization.ParseHelper':to_uri(IRIREF) of
     {ok, URI} -> URI;
     {error, ErrorLine, Message} -> return_error(ErrorLine, Message)
   end.
-to_bnode(BLANK_NODE_LABEL) -> 'Elixir.RDF.Reader.ParseHelper':to_bnode(BLANK_NODE_LABEL).
-to_literal(STRING_LITERAL_QUOTE) -> 'Elixir.RDF.Reader.ParseHelper':to_literal(STRING_LITERAL_QUOTE).
-to_literal(STRING_LITERAL_QUOTE, Type) -> 'Elixir.RDF.Reader.ParseHelper':to_literal(STRING_LITERAL_QUOTE, Type).
-to_langtag(LANGTAG) -> 'Elixir.RDF.Reader.ParseHelper':to_langtag(LANGTAG).
+to_bnode(BLANK_NODE_LABEL) -> 'Elixir.RDF.Serialization.ParseHelper':to_bnode(BLANK_NODE_LABEL).
+to_literal(STRING_LITERAL_QUOTE) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE).
+to_literal(STRING_LITERAL_QUOTE, Type) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE, Type).
+to_langtag(LANGTAG) -> 'Elixir.RDF.Serialization.ParseHelper':to_langtag(LANGTAG).
