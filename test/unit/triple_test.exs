@@ -1,8 +1,8 @@
 defmodule RDF.TripleTest do
   use ExUnit.Case
 
-  doctest RDF.Triple
+  import RDF.Sigils
 
-#  alias RDF.{Triple, Literal, BlankNode}
+  doctest RDF.Triple
 
 end

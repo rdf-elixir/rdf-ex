@@ -4,6 +4,8 @@ defmodule RDF do
   @doc """
   Generator function for URIs from strings or term atoms of a `RDF.Namespace`.
 
+  This function is used for the `~I` sigil.
+
   ## Examples
 
       iex> RDF.uri("http://www.example.com/foo")

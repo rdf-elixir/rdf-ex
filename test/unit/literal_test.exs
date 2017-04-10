@@ -1,6 +1,8 @@
 defmodule RDF.LiteralTest do
   use ExUnit.Case
 
+  import RDF.Sigils
+
   alias RDF.{Literal}
   alias RDF.NS.XSD
 
@@ -35,7 +37,7 @@ defmodule RDF.LiteralTest do
   describe "construction with an explicit unknown datatype" do
     literal = Literal.new("custom typed value", datatype: "http://example/dt")
     assert literal.value == "custom typed value"
-    assert literal.datatype == RDF.uri("http://example/dt")
+    assert literal.datatype == ~I<http://example/dt>
   end
 
   describe "construction with an explicit known (XSD) datatype" do

@@ -26,7 +26,7 @@ defmodule RDF.Triple do
   # Examples
 
       iex> RDF.Triple.new("http://example.com/S", "http://example.com/p", 42)
-      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42)}
+      {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
   """
   def new(subject, predicate, object) do
     {
@@ -46,7 +46,7 @@ defmodule RDF.Triple do
   # Examples
 
       iex> RDF.Triple.new {"http://example.com/S", "http://example.com/p", 42}
-      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42)}
+      {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
   """
   def new({subject, predicate, object}), do: new(subject, predicate, object)
 

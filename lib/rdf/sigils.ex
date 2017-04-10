@@ -3,6 +3,8 @@ defmodule RDF.Sigils do
   @doc ~S"""
   Handles the sigil `~I` for IRIs.
 
+  Note: The given IRI string is precompiled into an IRI struct.
+
   ## Examples
 
       iex> import RDF.Sigils
