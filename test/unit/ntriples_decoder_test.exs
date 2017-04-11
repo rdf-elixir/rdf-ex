@@ -78,7 +78,7 @@ defmodule RDF.NTriples.DecoderTest do
       ])
   end
 
-  test "decoding a single triple uris" do
+  test "decoding a single triple with uris" do
     assert RDF.NTriples.Decoder.decode!("""
       <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green_goblin> .
       """) == Graph.new({EX.spiderman, P.enemyOf, EX.green_goblin})
