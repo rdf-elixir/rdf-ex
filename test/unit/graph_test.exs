@@ -14,6 +14,11 @@ defmodule RDF.GraphTest do
       assert named_graph?(named_graph())
     end
 
+    test "creating an empty graph with a blank node as graph name" do
+      assert named_graph(bnode("graph_name"))
+             |> named_graph?(bnode("graph_name"))
+    end
+
     test "creating an empty graph with a convertible graph name" do
       assert named_graph("http://example.com/graph/GraphName")
              |> named_graph?(uri("http://example.com/graph/GraphName"))

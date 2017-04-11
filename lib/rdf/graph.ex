@@ -10,7 +10,7 @@ defmodule RDF.Graph do
 
   @behaviour Access
 
-  alias RDF.{Description, Triple}
+  alias RDF.{Description, Triple, Quad}
 
   @type t :: module
 
@@ -54,7 +54,7 @@ defmodule RDF.Graph do
   Creates an empty named `RDF.Graph`.
   """
   def new(name),
-    do: %RDF.Graph{name: RDF.uri(name)}
+    do: %RDF.Graph{name: Quad.convert_graph_context(name)}
 
   @doc """
   Creates a named `RDF.Graph` with an initial triple.
