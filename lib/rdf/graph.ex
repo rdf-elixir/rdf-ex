@@ -10,7 +10,8 @@ defmodule RDF.Graph do
 
   @behaviour Access
 
-  alias RDF.{Description, Triple, Quad}
+  alias RDF.Description
+  import RDF.Statement
 
   @type t :: module
 
@@ -54,7 +55,7 @@ defmodule RDF.Graph do
   Creates an empty named `RDF.Graph`.
   """
   def new(name),
-    do: %RDF.Graph{name: Quad.convert_graph_context(name)}
+    do: %RDF.Graph{name: convert_graph_name(name)}
 
   @doc """
   Creates a named `RDF.Graph` with an initial triple.
@@ -106,7 +107,7 @@ defmodule RDF.Graph do
 
   def add(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, object) do
-    with subject = Triple.convert_subject(subject) do
+    with subject = convert_subject(subject) do
       %RDF.Graph{name: name,
         descriptions:
           Map.update(descriptions, subject,
@@ -160,7 +161,7 @@ defmodule RDF.Graph do
   """
   def put(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, objects) do
-    with subject = Triple.convert_subject(subject) do
+    with subject = convert_subject(subject) do
       %RDF.Graph{name: name,
         descriptions:
           Map.update(descriptions, subject,
@@ -212,7 +213,7 @@ defmodule RDF.Graph do
 
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
-    with subject = Triple.convert_subject(subject) do
+    with subject = convert_subject(subject) do
       %RDF.Graph{name: name,
         descriptions:
           Map.update(descriptions, subject,
@@ -240,7 +241,7 @@ defmodule RDF.Graph do
       :error
   """
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
-    Access.fetch(descriptions, Triple.convert_subject(subject))
+    Access.fetch(descriptions, convert_subject(subject))
   end
 
   @doc """
@@ -269,7 +270,7 @@ defmodule RDF.Graph do
   The `RDF.Description` of the given subject.
   """
   def description(%RDF.Graph{descriptions: descriptions}, subject),
-    do: Map.get(descriptions, Triple.convert_subject(subject))
+    do: Map.get(descriptions, convert_subject(subject))
 
 
   @doc """
@@ -295,7 +296,7 @@ defmodule RDF.Graph do
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
   """
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
-    with subject = Triple.convert_subject(subject) do
+    with subject = convert_subject(subject) do
       case fun.(get(graph, subject)) do
         {old_description, new_description} ->
           {old_description, put(graph, subject, new_description)}
@@ -321,7 +322,7 @@ defmodule RDF.Graph do
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
   """
   def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
-    case Access.pop(descriptions, Triple.convert_subject(subject)) do
+    case Access.pop(descriptions, convert_subject(subject)) do
       {nil, _} ->
         {nil, graph}
       {description, new_descriptions} ->
@@ -462,7 +463,7 @@ defmodule RDF.Graph do
 
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
-    with subject = Triple.convert_subject(subject),
+    with subject = convert_subject(subject),
          %Description{} <- description = descriptions[subject] do
       Description.include?(description, triple)
     else

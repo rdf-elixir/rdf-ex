@@ -8,7 +8,8 @@ defmodule RDF.Dataset do
 
   @behaviour Access
 
-  alias RDF.{Quad, Graph, Description}
+  alias RDF.{Graph, Description}
+  import RDF.Statement
 
   @type t :: module
 
@@ -88,7 +89,7 @@ defmodule RDF.Dataset do
   def add(dataset, statements, graph_context \\ nil)
 
   def add(dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         add(dataset, statement, graph_context)
       end
@@ -100,7 +101,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, _) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       updated_graphs =
         Map.update(graphs, graph_context,
           Graph.new(graph_context, {subject, predicate, objects}),
@@ -111,7 +112,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.add(description)
@@ -124,7 +125,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
           graph_context) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       %RDF.Dataset{name: name,
         graphs:
           Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
@@ -172,7 +173,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, _) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       new_graph =
         case graphs[graph_context] do
           graph = %Graph{} ->
@@ -187,7 +188,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{} = dataset, statements, graph_context)
         when is_list(statements) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       put dataset, Enum.group_by(statements,
           fn
             {s, _, _, nil}                       -> s
@@ -204,7 +205,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.put(description)
@@ -217,7 +218,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
           graph_context) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       %RDF.Dataset{name: name,
         graphs:
           Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
@@ -229,7 +230,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{} = dataset, statements, graph_context)
         when is_map(statements) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       Enum.reduce statements, dataset,
         fn ({subject_with_context, predications}, dataset) ->
           put(dataset, subject_with_context, predications, graph_context)
@@ -241,7 +242,7 @@ defmodule RDF.Dataset do
             {subject, graph_context}, predications, default_graph_context)
         when is_list(predications) do
     with graph_context = graph_context || default_graph_context,
-         graph_context = Quad.convert_graph_context(graph_context) do
+         graph_context = convert_graph_name(graph_context) do
       graph = Map.get(graphs, graph_context, Graph.new(graph_context))
       new_graphs = graphs
         |> Map.put(graph_context, Graph.put(graph, subject, predications))
@@ -271,7 +272,7 @@ defmodule RDF.Dataset do
       :error
   """
   def fetch(%RDF.Dataset{graphs: graphs}, graph_name) do
-    Access.fetch(graphs, Quad.convert_graph_context(graph_name))
+    Access.fetch(graphs, convert_graph_name(graph_name))
   end
 
   @doc """
@@ -303,7 +304,7 @@ defmodule RDF.Dataset do
   The graph with given name.
   """
   def graph(%RDF.Dataset{graphs: graphs}, graph_name),
-    do: Map.get(graphs, Quad.convert_graph_context(graph_name))
+    do: Map.get(graphs, convert_graph_name(graph_name))
 
   @doc """
   The default graph of a `RDF.Dataset`.
@@ -335,7 +336,7 @@ defmodule RDF.Dataset do
       {RDF.Graph.new(EX.Graph, {EX.S, EX.P, EX.O}), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
-    with graph_context = Quad.convert_graph_context(graph_name) do
+    with graph_context = convert_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
         {old_graph, new_graph} ->
           {old_graph, put(dataset, new_graph, graph_context)}
@@ -364,7 +365,7 @@ defmodule RDF.Dataset do
       {nil, dataset}
   """
   def pop(%RDF.Dataset{name: name, graphs: graphs} = dataset, graph_name) do
-    case Access.pop(graphs, Quad.convert_graph_context(graph_name)) do
+    case Access.pop(graphs, convert_graph_name(graph_name)) do
       {nil, _} ->
         {nil, dataset}
       {graph, new_graphs} ->
@@ -511,7 +512,7 @@ defmodule RDF.Dataset do
   def include?(dataset, statement, graph_context \\ nil)
 
   def include?(%RDF.Dataset{graphs: graphs}, triple = {_, _, _}, graph_context) do
-    with graph_context = Quad.convert_graph_context(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       if graph = graphs[graph_context] do
         Graph.include?(graph, triple)
       else
@@ -554,7 +555,7 @@ defmodule RDF.Dataset do
 
     {{s, p, o, graph_name}, %RDF.Dataset{name: name, graphs: popped}}
   end
-  
+
 end
 
 defimpl Enumerable, for: RDF.Dataset do

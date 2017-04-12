@@ -8,7 +8,7 @@ defmodule RDF.Description do
 
   @behaviour Access
 
-  alias RDF.Triple
+  import RDF.Statement
 
   @type t :: module
 
@@ -18,7 +18,7 @@ defmodule RDF.Description do
   When given a triple, it must contain the subject.
   When given a list of statements, the first one must contain a subject.
   """
-  @spec new(Triple.convertible_subject) :: RDF.Description.t
+  @spec new(RDF.Statement.convertible_subject) :: RDF.Description.t
   def new(subject)
 
   def new({subject, predicate, object}),
@@ -26,7 +26,7 @@ defmodule RDF.Description do
   def new([statement | more_statements]),
     do: new(statement) |> add(more_statements)
   def new(subject),
-    do: %RDF.Description{subject: Triple.convert_subject(subject)}
+    do: %RDF.Description{subject: convert_subject(subject)}
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
   def new(subject, statements) when is_list(statements),
@@ -56,8 +56,8 @@ defmodule RDF.Description do
   end
 
   def add(%RDF.Description{subject: subject, predications: predications}, predicate, object) do
-    with triple_predicate = Triple.convert_predicate(predicate),
-         triple_object = Triple.convert_object(object),
+    with triple_predicate = convert_predicate(predicate),
+         triple_object = convert_object(object),
          new_predications = Map.update(predications,
            triple_predicate, %{triple_object => nil}, fn objects ->
              Map.put_new(objects, triple_object, nil)
@@ -76,7 +76,7 @@ defmodule RDF.Description do
     do: add(description, predicate, object)
 
   def add(description = %RDF.Description{}, {subject, predicate, object}) do
-    if Triple.convert_subject(subject) == description.subject,
+    if convert_subject(subject) == description.subject,
       do:   add(description, predicate, object),
       else: description
   end
@@ -115,9 +115,9 @@ defmodule RDF.Description do
 
   def put(%RDF.Description{subject: subject, predications: predications},
           predicate, objects) when is_list(objects) do
-    with triple_predicate = Triple.convert_predicate(predicate),
+    with triple_predicate = convert_predicate(predicate),
          triple_objects   = Enum.reduce(objects, %{}, fn (object, acc) ->
-                              Map.put_new(acc, Triple.convert_object(object), nil) end),
+                              Map.put_new(acc, convert_object(object), nil) end),
       do: %RDF.Description{subject: subject,
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
@@ -148,7 +148,7 @@ defmodule RDF.Description do
     do: put(desc, predicate, object)
 
   def put(desc = %RDF.Description{}, {subject, predicate, object}) do
-    if Triple.convert_subject(subject) == desc.subject,
+    if convert_subject(subject) == desc.subject,
       do:   put(desc, predicate, object),
       else: desc
   end
@@ -156,11 +156,11 @@ defmodule RDF.Description do
   def put(desc = %RDF.Description{subject: subject}, statements) when is_list(statements) do
     statements
     |> Stream.map(fn
-         {p, o}           -> {Triple.convert_predicate(p), o}
-         {^subject, p, o} -> {Triple.convert_predicate(p), o}
+         {p, o}           -> {convert_predicate(p), o}
+         {^subject, p, o} -> {convert_predicate(p), o}
          {s, p, o} ->
-            if Triple.convert_subject(s) == subject,
-              do: {Triple.convert_predicate(p), o}
+            if convert_subject(s) == subject,
+              do: {convert_predicate(p), o}
          bad -> raise ArgumentError, "#{inspect bad} is not a valid statement"
        end)
     |> Stream.filter(&(&1)) # filter nil values
@@ -199,7 +199,7 @@ defmodule RDF.Description do
       :error
   """
   def fetch(%RDF.Description{predications: predications}, predicate) do
-    with {:ok, objects} <- Access.fetch(predications, Triple.convert_predicate(predicate)) do
+    with {:ok, objects} <- Access.fetch(predications, convert_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
   end
@@ -251,7 +251,7 @@ defmodule RDF.Description do
       {[RDF.uri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
-    with triple_predicate = Triple.convert_predicate(predicate) do
+    with triple_predicate = convert_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
         {objects_to_return, new_objects} ->
           {objects_to_return, put(description, triple_predicate, new_objects)}
@@ -274,7 +274,7 @@ defmodule RDF.Description do
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
   def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
-    case Access.pop(predications, Triple.convert_predicate(predicate)) do
+    case Access.pop(predications, convert_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
       {objects, new_predications} ->
@@ -363,8 +363,8 @@ defmodule RDF.Description do
 
   def include?(%RDF.Description{predications: predications},
                 {predicate, object}) do
-    with triple_predicate = Triple.convert_predicate(predicate),
-         triple_object    = Triple.convert_object(object) do
+    with triple_predicate = convert_predicate(predicate),
+         triple_object    = convert_object(object) do
       predications
       |> Map.get(triple_predicate, %{})
       |> Map.has_key?(triple_object)
@@ -373,7 +373,7 @@ defmodule RDF.Description do
 
   def include?(desc = %RDF.Description{subject: desc_subject},
               {subject, predicate, object}) do
-    Triple.convert_subject(subject) == desc_subject &&
+    convert_subject(subject) == desc_subject &&
       include?(desc, {predicate, object})
   end
 

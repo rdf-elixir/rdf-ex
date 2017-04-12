@@ -6,12 +6,7 @@ defmodule RDF.Quad do
   subject, predicate, object and a graph context.
   """
 
-  alias RDF.BlankNode
-
-  import RDF.Triple, except: [new: 1, new: 3]
-
-  @type graph_context :: URI.t | BlankNode.t
-  @type convertible_graph_context :: graph_context | atom | String.t
+  alias RDF.{BlankNode, Statement}
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
@@ -27,10 +22,10 @@ defmodule RDF.Quad do
   """
   def new(subject, predicate, object, graph_context) do
     {
-      convert_subject(subject),
-      convert_predicate(predicate),
-      convert_object(object),
-      convert_graph_context(graph_context)
+      Statement.convert_subject(subject),
+      Statement.convert_predicate(predicate),
+      Statement.convert_object(object),
+      Statement.convert_graph_name(graph_context)
     }
   end
 
@@ -48,17 +43,5 @@ defmodule RDF.Quad do
   """
   def new({subject, predicate, object, graph_context}),
     do: new(subject, predicate, object, graph_context)
-
-
-  @doc false
-  def convert_graph_context(uri)
-  def convert_graph_context(nil), do: nil
-  def convert_graph_context(uri = %URI{}), do: uri
-  def convert_graph_context(bnode = %BlankNode{}), do: bnode
-  def convert_graph_context(uri) when is_atom(uri) or is_binary(uri),
-    do: RDF.uri(uri)
-  def convert_graph_context(arg),
-    do: raise RDF.Quad.InvalidGraphContextError, graph_context: arg
-
 
 end
