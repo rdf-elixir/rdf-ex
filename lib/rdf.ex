@@ -47,7 +47,6 @@ defmodule RDF do
     # TODO: Find a better way! Maybe https://github.com/marcelog/ex_rfc3986 ?
     case some_uri do
       %URI{scheme: nil} -> false
-      %URI{host:   nil} -> false
       _uri -> true
     end
   end
