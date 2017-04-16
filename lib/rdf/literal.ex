@@ -6,63 +6,7 @@ defmodule RDF.Literal do
 
   @type t :: module
 
-  # Since the capability of RDF.Vocabulary.Namespaces requires the compilation
-  # of the RDF.NTriples.Decoder and the RDF.NTriples.Decoder depends on RDF.Literals,
-  # we can't define the XSD namespace in RDF.NS.
-  defmodule NS do
-    @moduledoc false
-    @vocabdoc false
-    use RDF.Vocabulary.Namespace
-    defvocab XSD,
-      base_uri:   "http://www.w3.org/2001/XMLSchema#",
-      terms: ~w[
-        string
-          normalizedString
-            token
-              language
-              Name
-                NCName
-                  ID
-                  IDREF
-                    IDREFS
-                  ENTITY
-                    ENTITIES
-              NMTOKEN
-                NMTOKENS
-        boolean
-        float
-        double
-        decimal
-          integer
-            long
-              int
-                short
-                  byte
-            nonPositiveInteger
-              negativeInteger
-            nonNegativeInteger
-              positiveInteger
-              unsignedLong
-                unsignedInt
-                  unsignedShort
-                    unsignedByte
-        duration
-        dateTime
-        time
-        date
-        gYearMonth
-        gYear
-        gMonthDay
-        gDay
-        gMonth
-        base64Binary
-        hexBinary
-        anyURI
-        QName
-        NOTATION
-      ]
-  end
-  alias NS.XSD
+  alias RDF.Datatype.NS.XSD
 
 
   @doc """
@@ -72,44 +16,40 @@ defmodule RDF.Literal do
 
   The following mapping of Elixir types to XSD datatypes is applied:
 
-  | Elixir type | XSD datatype |
-  | :---------- | :----------- |
-  | string      |              |
-  | boolean     | `boolean`    |
-  | integer     | `integer`    |
-  | float       | `float`      |
-  | atom        |              |
-  | ...         |              |
+  | Elixir type     | XSD datatype |
+  | :-------------- | :----------- |
+  | `string`        |  `string`    |
+  | `boolean`       | `boolean`    |
+  | `integer`       | `integer`    |
+  | `float`         | `double`     |
+  | `Time`          | `time`       |
+  | `Date`          | `date`       |
+  | `DateTime`      | `dateTime`   |
+  | `NaiveDateTime` | `dateTime`   |
 
 
   # Examples
 
       iex> RDF.Literal.new(42)
-      %RDF.Literal{value: 42, language: nil, datatype: RDF.uri(XSD.integer)}
+      %RDF.Literal{value: 42, datatype: XSD.integer}
 
   """
   def new(value)
 
-  def new(value) when is_binary(value),
-    do: %RDF.Literal{value: value, datatype: XSD.string}
-  def new(value) when is_boolean(value),
-    do: %RDF.Literal{value: value, datatype: XSD.boolean}
-  def new(value) when is_integer(value),
-    do: %RDF.Literal{value: value, datatype: XSD.integer}
-  def new(value) when is_float(value),
-    do: %RDF.Literal{value: value, datatype: XSD.float}
+  def new(value) when is_binary(value),  do: RDF.String.new(value)
+  def new(value) when is_boolean(value), do: RDF.Boolean.new(value)
+  def new(value) when is_integer(value), do: RDF.Integer.new(value)
+  def new(value) when is_float(value),   do: RDF.Double.new(value)
 
-#  def new(value) when is_atom(value), do:
-#  def new(value) when is_bitstring(value), do:
-
-#  def new(value) when is_list(value), do:
-#  def new(value) when is_tuple(value), do:
-#  def new(value) when is_map(value), do:
-
-#  def new(value) when is_function(value), do:
-#  def new(value) when is_pid(value), do:
-#  def new(value) when is_port(value), do:
-#  def new(value) when is_reference(value), do:
+# TODO:
+#  def new(%Date{} = value),              do: RDF.Date.new(value)
+#  def new(%Time{} = value),              do: RDF.Time.new(value)
+#  def new(%DateTime{} = value),          do: RDF.DateTime.new(value)
+#  def new(%NaiveDateTime{} = value),     do: RDF.DateTime.new(value)
+  def new(%Date{} = date), do: %RDF.Literal{value: date, datatype: XSD.date}
+  def new(%Time{} = time), do: %RDF.Literal{value: time, datatype: XSD.time}
+  def new(%DateTime{} = datetime), do: %RDF.Literal{value: datetime, datatype: XSD.dateTime}
+  def new(%NaiveDateTime{} = datetime), do: %RDF.Literal{value: datetime, datatype: XSD.dateTime}
 
   def new(value) do
     raise RDF.InvalidLiteralError, "#{inspect value} not convertible to a RDF.Literal"
@@ -118,41 +58,78 @@ defmodule RDF.Literal do
   def new(value, opts) when is_list(opts),
     do: new(value, Map.new(opts))
 
-  def new(value, %{language: language}) when not is_nil(language) and is_binary(value) do
-    %RDF.Literal{value: value, datatype: RDF.langString, language: language}
-  end
-
-  def new(value, %{datatype: %URI{} = datatype}) when is_binary(value) do
-    cond do
-      datatype == XSD.string  -> %RDF.Literal{value: value, datatype: datatype}
-      datatype == XSD.integer -> %RDF.Literal{value: String.to_integer(value), datatype: datatype}
-# TODO:     datatype == XSD.byte    -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype}
-# TODO:     datatype == RDF.uri(RDFS.XMLLiteral) -> nil # %RDF.Literal{value: String.to_integer(value), datatype: datatype}
-      # TODO: Should we support more values, like "1" etc.?
-      # TODO: Should we exclude any non-useful value?
-      datatype == XSD.boolean -> %RDF.Literal{value: String.downcase(value) == "true", datatype: datatype}
-      true -> %RDF.Literal{value: value, datatype: datatype}
+  def new(value, %{language: language} = opts) when not is_nil(language) and is_binary(value) do
+    if not opts[:datatype] in [nil, RDF.langString] do
+      raise ArgumentError, "datatype with language must be rdf:langString"
+    else
+      RDF.LangString.new(value, opts)
     end
   end
 
-  def new(value, %{datatype: %URI{} = datatype}) when is_integer(value) do
-    cond do
-      datatype == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype}
-      datatype == XSD.integer -> %RDF.Literal{value: value, datatype: datatype}
+  def new(value, %{language: language} = opts) when not is_nil(language),
+    do: new(value, Map.delete(opts, :language)) # Should we raise a warning?
+
+  def new(value, %{datatype: %URI{} = id} = opts) do
+    case RDF.Datatype.for(id) do
+      nil           -> %RDF.Literal{value: value, datatype: id}
+      literal_type  -> literal_type.new(value, opts)
     end
   end
 
-  def new(value, %{datatype: %URI{} = datatype}) when is_boolean(value) do
-    cond do
-      datatype == XSD.boolean -> %RDF.Literal{value: value, datatype: datatype}
-      # TODO: Should we exclude any non-useful value?
-      datatype == XSD.string  -> %RDF.Literal{value: to_string(value), datatype: datatype}
-      datatype == XSD.integer -> %RDF.Literal{value: (if value, do: 1, else: 0), datatype: datatype}
-    end
+  def new(value, %{datatype: datatype} = opts),
+    do: new(value, %{opts | datatype: RDF.uri(datatype)})
+
+  def new(value, opts) when is_map(opts) and map_size(opts) == 0,
+    do: new(value)
+
+
+  @doc """
+  Checks if a literal is a simple literal.
+
+  A simple literal has no datatype or language.
+
+  see <http://www.w3.org/TR/sparql11-query/#simple_literal>
+  """
+  def simple?(%RDF.Literal{datatype: datatype}) do
+    datatype == XSD.string
   end
 
-  def new(value, %{datatype: datatype}) do
-    new(value, datatype: RDF.uri(datatype))
+  @doc """
+  Checks if a literal is a language-tagged literal.
+
+  see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
+  """
+  def has_language?(%RDF.Literal{datatype: datatype}) do
+    datatype == RDF.langString
   end
 
+  @doc """
+  Checks if a literal is a datatyped literal.
+
+  For historical reasons, this excludes `xsd:string` and `rdf:langString`.
+
+  see <http://www.w3.org/TR/rdf-concepts/#dfn-typed-literal>
+  """
+  def has_datatype?(literal) do
+    not plain?(literal) and not has_language?(literal)
+  end
+
+  @doc """
+  Checks if a literal is a plain literal.
+
+  A plain literal may have a language, but may not have a datatype.
+  For all practical purposes, this includes `xsd:string` literals too.
+
+  see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
+  """
+  def plain?(%RDF.Literal{datatype: datatype}) do
+    datatype in [RDF.langString, XSD.string]
+  end
+
+end
+
+defimpl String.Chars, for: RDF.Literal do
+  def to_string(%RDF.Literal{value: value}) do
+    Kernel.to_string(value)
+  end
 end

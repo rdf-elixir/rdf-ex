@@ -69,7 +69,7 @@ defmodule RDF do
 
   def literal(lit = %Literal{}), do: lit
   def literal(value),            do: Literal.new(value)
-  def literal(value, type),      do: Literal.new(value, type)
+  def literal(value, opts),      do: Literal.new(value, opts)
 
   @doc """
   Generator function for `RDF.Triple`s.

@@ -8,7 +8,7 @@ defmodule RDF.NS do
   """
   defvocab XSD,
     base_uri: "http://www.w3.org/2001/XMLSchema#",
-    terms:    RDF.Literal.NS.XSD.__terms__
+    terms:    RDF.Datatype.NS.XSD.__terms__
 
   @vocabdoc """
   The RDF vocabulary.
