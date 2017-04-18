@@ -6,11 +6,19 @@ defmodule RDF.SigilsTest do
   doctest RDF.Sigils
 
   describe "IRI sigil without interpolation" do
-
-    test "it can create a URI struct from a sigil" do
+    test "creating an URI" do
       assert ~I<http://example.com> == RDF.uri("http://example.com")
     end
+  end
 
+  describe "Literal sigil without interpolation" do
+    test "creating a plain Literal" do
+      assert ~L"foo" == RDF.literal("foo")
+    end
+
+    test "creating a language-tagged Literal" do
+      assert ~L"foo"en == RDF.literal("foo", language: "en")
+    end
   end
 
 end
