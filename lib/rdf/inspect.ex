@@ -38,13 +38,13 @@ defmodule RDF.InspectHelper do
 end
 
 defimpl Inspect, for: RDF.Literal do
-  def inspect(%RDF.Literal{value: value, language: language}, _opts)
+  def inspect(%RDF.Literal{lexical: lexical, language: language}, _opts)
         when not is_nil(language) do
-    "%RDF.Literal{value: #{inspect value}, language: #{inspect language}}"
+    "%RDF.Literal{lexical: #{inspect lexical}, language: #{inspect language}}"
   end
 
-  def inspect(%RDF.Literal{value: value, datatype: datatype}, _opts) do
-    "%RDF.Literal{value: #{inspect value}, datatype: ~I<#{datatype}>}"
+  def inspect(%RDF.Literal{lexical: lexical, datatype: datatype}, _opts) do
+    "%RDF.Literal{lexical: #{inspect lexical}, datatype: ~I<#{datatype}>}"
   end
 end
 

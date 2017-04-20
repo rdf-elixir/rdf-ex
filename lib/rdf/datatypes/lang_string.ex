@@ -3,11 +3,13 @@ defmodule RDF.LangString do
 
   def convert(value, _) when is_binary(value), do: value
 
-  def build_literal(value, %{language: language} = opts) do
-    %Literal{value: value, datatype: @id, language: String.downcase(language)}
+  def build_literal_by_lexical(lexical, %{language: language} = opts) do
+    %Literal{
+      lexical: lexical, value: lexical, datatype: @id,
+      language: String.downcase(language)}
   end
 
-  def build_literal(value, opts) do
+  def build_literal_by_lexical(value, opts) do
     raise ArgumentError, "datatype of rdf:langString requires a language"
   end
 

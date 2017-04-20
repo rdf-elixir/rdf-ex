@@ -2,11 +2,16 @@ defmodule RDF.Literal do
   @moduledoc """
   RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
   """
-  defstruct [:value, :datatype, :language]
+  defstruct [:lexical, :value, :datatype, :language]
 
   @type t :: module
 
   alias RDF.Datatype.NS.XSD
+
+  # to be able to pattern-match on plain types
+  @xsd_string  XSD.string
+  @lang_string RDF.langString
+  @plain_types [@xsd_string, @lang_string]
 
 
   @doc """
@@ -31,7 +36,7 @@ defmodule RDF.Literal do
   # Examples
 
       iex> RDF.Literal.new(42)
-      %RDF.Literal{value: 42, datatype: XSD.integer}
+      %RDF.Literal{value: 42, lexical: "42", datatype: XSD.integer}
 
   """
   def new(value)
@@ -70,7 +75,7 @@ defmodule RDF.Literal do
     do: new(value, Map.delete(opts, :language)) # Should we raise a warning?
 
   def new(value, %{datatype: %URI{} = id} = opts) do
-    case RDF.Datatype.for(id) do
+    case RDF.Datatype.get(id) do
       nil           -> %RDF.Literal{value: value, datatype: id}
       literal_type  -> literal_type.new(value, opts)
     end
@@ -90,18 +95,16 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/sparql11-query/#simple_literal>
   """
-  def simple?(%RDF.Literal{datatype: datatype}) do
-    datatype == XSD.string
-  end
+  def simple?(%RDF.Literal{datatype: @xsd_string}), do: true
+  def simple?(foo), do: false
 
   @doc """
   Checks if a literal is a language-tagged literal.
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
   """
-  def has_language?(%RDF.Literal{datatype: datatype}) do
-    datatype == RDF.langString
-  end
+  def has_language?(%RDF.Literal{datatype: @lang_string}), do: true
+  def has_language?(_), do: false
 
   @doc """
   Checks if a literal is a datatyped literal.
@@ -122,14 +125,22 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
   """
-  def plain?(%RDF.Literal{datatype: datatype}) do
-    datatype in [RDF.langString, XSD.string]
-  end
+  def plain?(%RDF.Literal{datatype: datatype})
+    when datatype in @plain_types, do: true
+  def plain?(_), do: false
 
+  def typed?(literal), do: not plain?(literal)
+
+#
 end
 
 defimpl String.Chars, for: RDF.Literal do
-  def to_string(%RDF.Literal{value: value}) do
+  # TODO: remove this when time types were implemented?
+  def to_string(%RDF.Literal{lexical: nil, value: value}) do
     Kernel.to_string(value)
+  end
+
+  def to_string(%RDF.Literal{lexical: lexical}) do
+    lexical
   end
 end

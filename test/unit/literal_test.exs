@@ -4,92 +4,69 @@ defmodule RDF.LiteralTest do
   import RDF.Sigils
   import RDF.TestLiterals
 
-  alias RDF.{Literal}
+  alias RDF.Literal
   alias RDF.NS.XSD
 
   doctest RDF.Literal
 
 
   describe "construction by type inference" do
-    test "creating an string literal" do
-      string_literal = Literal.new("foo")
-      assert string_literal.value == "foo"
-      assert string_literal.datatype == XSD.string
+    test "string" do
+      assert Literal.new("foo") == RDF.String.new("foo")
     end
 
-    test "creating an integer by type inference" do
-      int_literal = Literal.new(42)
-      assert int_literal.value == 42
-      assert int_literal.datatype == XSD.integer
+    test "integer" do
+      assert Literal.new(42) == RDF.Integer.new(42)
     end
 
-    test "creating a boolean by type inference" do
-      int_literal = Literal.new(true)
-      assert int_literal.value == true
-      assert int_literal.datatype == XSD.boolean
+    test "double" do
+      assert Literal.new(3.14) == RDF.Double.new(3.14)
+    end
 
-      int_literal = Literal.new(false)
-      assert int_literal.value == false
-      assert int_literal.datatype == XSD.boolean
+    test "boolean" do
+      assert Literal.new(true)  == RDF.Boolean.new(true)
+      assert Literal.new(false) == RDF.Boolean.new(false)
+    end
+
+    @tag skip: "TODO"
+    test "when options without datatype given"
+  end
+
+  describe "typed construction" do
+    test "boolean" do
+      assert Literal.new(true,    datatype: XSD.boolean) == RDF.Boolean.new(true)
+      assert Literal.new(false,   datatype: XSD.boolean) == RDF.Boolean.new(false)
+      assert Literal.new("true",  datatype: XSD.boolean) == RDF.Boolean.new("true")
+      assert Literal.new("false", datatype: XSD.boolean) == RDF.Boolean.new("false")
+    end
+
+    test "integer" do
+      assert Literal.new(42,   datatype: XSD.integer) == RDF.Integer.new(42)
+      assert Literal.new("42", datatype: XSD.integer) == RDF.Integer.new("42")
+    end
+
+
+
+    test "unknown datatype" do
+      literal = Literal.new("custom typed value", datatype: "http://example/dt")
+      assert literal.value == "custom typed value"
+      assert literal.datatype == ~I<http://example/dt>
     end
 
   end
 
-  describe "construction with an explicit unknown datatype" do
-    literal = Literal.new("custom typed value", datatype: "http://example/dt")
-    assert literal.value == "custom typed value"
-    assert literal.datatype == ~I<http://example/dt>
-  end
 
-  describe "construction with an explicit known (XSD) datatype" do
-    test "creating a boolean" do
-      bool_literal = Literal.new("true", datatype: XSD.boolean)
-      assert bool_literal.value == true
-      assert bool_literal.datatype == XSD.boolean
-
-      bool_literal = Literal.new(true, datatype: XSD.boolean)
-      assert bool_literal.value == true
-      assert bool_literal.datatype == XSD.boolean
-
-      bool_literal = Literal.new("false", datatype: XSD.boolean)
-      assert bool_literal.value == false
-      assert bool_literal.datatype == XSD.boolean
-
-      bool_literal = Literal.new(false, datatype: XSD.boolean)
-      assert bool_literal.value == false
-      assert bool_literal.datatype == XSD.boolean
-    end
-
-    test "creating an integer" do
-      int_literal = Literal.new(42, datatype: XSD.integer)
-      assert int_literal.value == 42
-      assert int_literal.datatype == XSD.integer
-
-      int_literal = Literal.new("42", datatype: XSD.integer)
-      assert int_literal.value == 42
-      assert int_literal.datatype == XSD.integer
-
-      int_literal = Literal.new(true, datatype: XSD.integer)
-      assert int_literal.value == 1
-      assert int_literal.datatype == XSD.integer
-      int_literal = Literal.new(false, datatype: XSD.integer)
-      assert int_literal.value == 0
-      assert int_literal.datatype == XSD.integer
-    end
-
-  end
-
-  describe "language-tags" do
-    test "creating a string literal with a language tag" do
+  describe "language tagged construction" do
+    test "string literal with a language tag" do
       literal = Literal.new("Eule", language: "de")
-      assert literal.value == "Eule"
+      assert literal.value    == "Eule"
       assert literal.datatype == RDF.langString
       assert literal.language == "de"
     end
 
-    test "when given a language, but the value is not a string, language is ignored" do
+    test "language is ignored on non-string literals" do
       literal = Literal.new(1, language: "de")
-      assert literal.value == 1
+      assert literal.value    == 1
       assert literal.datatype == XSD.integer
       refute literal.language
     end

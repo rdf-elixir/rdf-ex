@@ -281,8 +281,7 @@ defmodule RDF.DatasetTest do
     end
 
     @tag skip: "TODO"
-    test "a list of Graphs" do
-    end
+    test "a list of Graphs"
 
     test "duplicates are ignored" do
       ds = Dataset.add(dataset(), {EX.Subject, EX.predicate, EX.Object, EX.GraphName})

@@ -60,10 +60,7 @@ defmodule RDF do
   ## Examples
 
       iex> RDF.literal(42)
-      %RDF.Literal{value: 42, language: nil,
-        datatype: %URI{authority: "www.w3.org", fragment: "integer",
-        host: "www.w3.org", path: "/2001/XMLSchema", port: 80,
-         query: nil, scheme: "http", userinfo: nil}}
+      %RDF.Literal{value: 42, lexical: "42", datatype: XSD.integer}
   """
   def literal(value)
 
