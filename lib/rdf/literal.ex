@@ -2,7 +2,7 @@ defmodule RDF.Literal do
   @moduledoc """
   RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
   """
-  defstruct [:lexical, :value, :datatype, :language]
+  defstruct [:value, :uncanonical_lexical, :datatype, :language]
 
   @type t :: module
 
@@ -23,7 +23,7 @@ defmodule RDF.Literal do
 
   | Elixir type     | XSD datatype |
   | :-------------- | :----------- |
-  | `string`        |  `string`    |
+  | `string`        | `string`     |
   | `boolean`       | `boolean`    |
   | `integer`       | `integer`    |
   | `float`         | `double`     |
@@ -36,7 +36,7 @@ defmodule RDF.Literal do
   # Examples
 
       iex> RDF.Literal.new(42)
-      %RDF.Literal{value: 42, lexical: "42", datatype: XSD.integer}
+      %RDF.Literal{value: 42, datatype: XSD.integer}
 
   """
   def new(value)
@@ -63,21 +63,22 @@ defmodule RDF.Literal do
   def new(value, opts) when is_list(opts),
     do: new(value, Map.new(opts))
 
-  def new(value, %{language: language} = opts) when not is_nil(language) and is_binary(value) do
-    if not opts[:datatype] in [nil, RDF.langString] do
-      raise ArgumentError, "datatype with language must be rdf:langString"
+  def new(value, %{language: language} = opts) when not is_nil(language) do
+    if is_binary(value) do
+      if opts[:datatype] in [nil, RDF.langString] do
+        RDF.LangString.new(value, opts)
+      else
+        raise ArgumentError, "datatype with language must be rdf:langString"
+      end
     else
-      RDF.LangString.new(value, opts)
+      new(value, Map.delete(opts, :language)) # Should we raise a warning?
     end
   end
 
-  def new(value, %{language: language} = opts) when not is_nil(language),
-    do: new(value, Map.delete(opts, :language)) # Should we raise a warning?
-
   def new(value, %{datatype: %URI{} = id} = opts) do
     case RDF.Datatype.get(id) do
-      nil           -> %RDF.Literal{value: value, datatype: id}
-      literal_type  -> literal_type.new(value, opts)
+      nil      -> %RDF.Literal{value: value, datatype: id}
+      datatype -> datatype.new(value, opts)
     end
   end
 
@@ -86,6 +87,37 @@ defmodule RDF.Literal do
 
   def new(value, opts) when is_map(opts) and map_size(opts) == 0,
     do: new(value)
+
+
+  def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil, datatype: id} = literal) do
+    case RDF.Datatype.get(id) do
+      nil      -> to_string(value)
+      datatype -> datatype.lexical(literal)
+    end
+  end
+
+  def lexical(%RDF.Literal{uncanonical_lexical: lexical}), do: lexical
+
+
+  def canonical(%RDF.Literal{uncanonical_lexical: nil} = literal), do: literal
+  def canonical(%RDF.Literal{datatype: id} = literal) do
+    case RDF.Datatype.get(id) do
+      nil      -> literal
+      datatype -> datatype.canonical(literal)
+    end
+  end
+
+
+  def canonical?(%RDF.Literal{uncanonical_lexical: nil}), do: true
+  def canonical?(_),                                      do: false
+
+
+  def valid?(%RDF.Literal{datatype: id} = literal) do
+    case RDF.Datatype.get(id) do
+      nil      -> true
+      datatype -> datatype.valid?(literal)
+    end
+  end
 
 
   @doc """
@@ -98,6 +130,7 @@ defmodule RDF.Literal do
   def simple?(%RDF.Literal{datatype: @xsd_string}), do: true
   def simple?(foo), do: false
 
+
   @doc """
   Checks if a literal is a language-tagged literal.
 
@@ -105,6 +138,7 @@ defmodule RDF.Literal do
   """
   def has_language?(%RDF.Literal{datatype: @lang_string}), do: true
   def has_language?(_), do: false
+
 
   @doc """
   Checks if a literal is a datatyped literal.
@@ -116,6 +150,7 @@ defmodule RDF.Literal do
   def has_datatype?(literal) do
     not plain?(literal) and not has_language?(literal)
   end
+
 
   @doc """
   Checks if a literal is a plain literal.
@@ -131,16 +166,10 @@ defmodule RDF.Literal do
 
   def typed?(literal), do: not plain?(literal)
 
-#
 end
 
 defimpl String.Chars, for: RDF.Literal do
-  # TODO: remove this when time types were implemented?
-  def to_string(%RDF.Literal{lexical: nil, value: value}) do
-    Kernel.to_string(value)
-  end
-
-  def to_string(%RDF.Literal{lexical: lexical}) do
-    lexical
+  def to_string(literal) do
+    RDF.Literal.lexical(literal)
   end
 end

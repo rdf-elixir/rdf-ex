@@ -12,10 +12,10 @@ defmodule RDF.Test.Case do
   using do
     quote do
       alias RDF.{Dataset, Graph, Description}
-      alias RDF.Test.Case.EX
+      alias unquote(__MODULE__).EX
 
       import RDF, only: [uri: 1, literal: 1, bnode: 1]
-      import RDF.Test.Case
+      import unquote(__MODULE__)
     end
   end
 

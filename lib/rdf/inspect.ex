@@ -38,13 +38,21 @@ defmodule RDF.InspectHelper do
 end
 
 defimpl Inspect, for: RDF.Literal do
-  def inspect(%RDF.Literal{lexical: lexical, language: language}, _opts)
-        when not is_nil(language) do
-    "%RDF.Literal{lexical: #{inspect lexical}, language: #{inspect language}}"
+  def inspect(%RDF.Literal{value: value, language: language}, _opts) when not is_nil(language) do
+    ~s[~L"#{value}"#{language}]
   end
 
-  def inspect(%RDF.Literal{lexical: lexical, datatype: datatype}, _opts) do
-    "%RDF.Literal{lexical: #{inspect lexical}, datatype: ~I<#{datatype}>}"
+  def inspect(%RDF.Literal{value: value, uncanonical_lexical: lexical, datatype: datatype}, _opts)
+        when not is_nil(lexical) do
+    "%RDF.Literal{value: #{inspect value}, lexical: #{inspect lexical}, datatype: ~I<#{datatype}>}"
+  end
+
+  def inspect(%RDF.Literal{value: value, datatype: datatype}, _opts) do
+    if datatype == RDF.NS.XSD.string do
+      ~s[~L"#{value}"]
+    else
+      "%RDF.Literal{value: #{inspect value}, datatype: ~I<#{datatype}>}"
+    end
   end
 end
 

@@ -60,7 +60,7 @@ defmodule RDF do
   ## Examples
 
       iex> RDF.literal(42)
-      %RDF.Literal{value: 42, lexical: "42", datatype: XSD.integer}
+      %RDF.Literal{value: 42, datatype: XSD.integer}
   """
   def literal(value)
 

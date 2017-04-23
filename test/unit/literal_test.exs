@@ -9,28 +9,30 @@ defmodule RDF.LiteralTest do
 
   doctest RDF.Literal
 
+  @examples %{
+    RDF.String  => ["foo"],
+    RDF.Integer => [42],
+    RDF.Double  => [3.14],
+    RDF.Boolean => [true, false],
+  }
+
 
   describe "construction by type inference" do
-    test "string" do
-      assert Literal.new("foo") == RDF.String.new("foo")
+    Enum.each @examples, fn {datatype, example_values} ->
+      @tag example: %{datatype: datatype, values: example_values}
+      test (datatype |> Module.split |> List.last |> to_string), %{example: example} do
+        Enum.each example.values, fn example_value ->
+          assert Literal.new(example_value) == example.datatype.new(example_value)
+        end
+      end
     end
 
-    test "integer" do
-      assert Literal.new(42) == RDF.Integer.new(42)
+    test "when options without datatype given" do
+      assert Literal.new(true, %{}) == RDF.Boolean.new(true)
+      assert Literal.new(42, %{})   == RDF.Integer.new(42)
     end
-
-    test "double" do
-      assert Literal.new(3.14) == RDF.Double.new(3.14)
-    end
-
-    test "boolean" do
-      assert Literal.new(true)  == RDF.Boolean.new(true)
-      assert Literal.new(false) == RDF.Boolean.new(false)
-    end
-
-    @tag skip: "TODO"
-    test "when options without datatype given"
   end
+
 
   describe "typed construction" do
     test "boolean" do
@@ -45,9 +47,11 @@ defmodule RDF.LiteralTest do
       assert Literal.new("42", datatype: XSD.integer) == RDF.Integer.new("42")
     end
 
+    test "string" do
+      assert Literal.new("foo", datatype: XSD.string) == RDF.String.new("foo")
+    end
 
-
-    test "unknown datatype" do
+    test "unmapped/unknown datatype" do
       literal = Literal.new("custom typed value", datatype: "http://example/dt")
       assert literal.value == "custom typed value"
       assert literal.datatype == ~I<http://example/dt>
@@ -84,6 +88,7 @@ defmodule RDF.LiteralTest do
     end
   end
 
+
   describe "language" do
     Enum.each literals(:all_plain_lang), fn literal ->
       @tag literal: literal
@@ -103,6 +108,7 @@ defmodule RDF.LiteralTest do
       assert Literal.new("Upper", %{language: "EN"}).language == "en"
     end
   end
+
 
   describe "datatype" do
     Enum.each literals(:all_simple), fn literal ->
@@ -131,6 +137,7 @@ defmodule RDF.LiteralTest do
        end)
   end
 
+
   describe "has_datatype?" do
     Enum.each literals(~W[all_simple all_plain_lang]a), fn literal ->
       @tag literal: literal
@@ -147,6 +154,7 @@ defmodule RDF.LiteralTest do
     end
   end
 
+
   describe "plain?" do
     Enum.each literals(:all_plain), fn literal ->
       @tag literal: literal
@@ -162,6 +170,7 @@ defmodule RDF.LiteralTest do
     end
   end
 
+
   describe "simple?" do
     Enum.each literals(:all_simple), fn literal ->
       @tag literal: literal
@@ -176,6 +185,31 @@ defmodule RDF.LiteralTest do
       end
     end
   end
+
+
+  describe "canonicalization" do
+
+    # for mapped/known datatypes the RDF.Datatype.Test.Case uses the general RDF.Literal.canonical function
+
+    test "an unmapped/unknown datatypes is always canonical" do
+      assert Literal.canonical? Literal.new("custom typed value", datatype: "http://example/dt")
+    end
+
+    test "for unmapped/unknown datatypes, canonicalize is a no-op" do
+      assert Literal.new("custom typed value", datatype: "http://example/dt") ==
+        Literal.canonical(Literal.new("custom typed value", datatype: "http://example/dt"))
+    end
+  end
+
+  describe "validation" do
+
+    # for mapped/known datatypes the RDF.Datatype.Test.Case uses the general RDF.Literal.valid? function
+
+    test "a literal with an unmapped/unknown datatype is always valid" do
+      assert Literal.valid? Literal.new("custom typed value", datatype: "http://example/dt")
+    end
+  end
+
 
   describe "String.Chars protocol implementation" do
     Enum.each values(:all_plain), fn value ->
