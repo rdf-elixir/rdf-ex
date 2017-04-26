@@ -128,7 +128,7 @@ defmodule RDF.Literal do
   see <http://www.w3.org/TR/sparql11-query/#simple_literal>
   """
   def simple?(%RDF.Literal{datatype: @xsd_string}), do: true
-  def simple?(foo), do: false
+  def simple?(_), do: false
 
 
   @doc """

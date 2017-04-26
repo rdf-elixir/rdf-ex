@@ -8,6 +8,8 @@ defmodule RDF.Datatype do
 
   @callback canonical_lexical(any) :: binary
 
+  @callback invalid_lexical(any) :: binary
+
   @callback canonical(RDF.Literal.t) :: RDF.Literal.t
 
   @doc """
@@ -85,7 +87,7 @@ defmodule RDF.Datatype do
       def build_literal_by_value(value, opts) do
         case convert(value, opts) do
           nil ->
-            build_literal(nil, canonical_lexical(value), opts)
+            build_literal(nil, invalid_lexical(value), opts)
           converted_value ->
             build_literal(converted_value, nil, opts)
         end
@@ -128,6 +130,7 @@ defmodule RDF.Datatype do
 
       def canonical_lexical(value), do: to_string(value)
 
+      def invalid_lexical(value), do: to_string(value)
 
       def canonical(%Literal{value:               nil} = literal), do: literal
       def canonical(%Literal{uncanonical_lexical: nil} = literal), do: literal
@@ -146,6 +149,7 @@ defmodule RDF.Datatype do
         build_literal: 3,
         lexical: 1,
         canonical_lexical: 1,
+        invalid_lexical: 1,
         convert: 2,
         valid?: 1,
       ]

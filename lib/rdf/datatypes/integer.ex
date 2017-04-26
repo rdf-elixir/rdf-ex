@@ -7,11 +7,12 @@ defmodule RDF.Integer do
   def convert(value, opts) when is_binary(value) do
     case Integer.parse(value) do
       {integer, ""} -> integer
-      {integer, _}  -> super(value, opts)
+      {_, _}        -> super(value, opts)
       :error        -> super(value, opts)
     end
   end
 
   def convert(value, opts), do: super(value, opts)
+
 
 end

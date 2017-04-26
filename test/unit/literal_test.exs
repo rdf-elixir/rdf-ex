@@ -47,6 +47,11 @@ defmodule RDF.LiteralTest do
       assert Literal.new("42", datatype: XSD.integer) == RDF.Integer.new("42")
     end
 
+    test "double" do
+      assert Literal.new(3.14,   datatype: XSD.double) == RDF.Double.new(3.14)
+      assert Literal.new("3.14", datatype: XSD.double) == RDF.Double.new("3.14")
+    end
+
     test "string" do
       assert Literal.new("foo", datatype: XSD.string) == RDF.String.new("foo")
     end
