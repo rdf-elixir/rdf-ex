@@ -50,25 +50,14 @@ defmodule RDF.Datatype.Test.Case do
             end
           end
 
-          # valid value with canonical option
-          Enum.each @valid, fn {input, {value, _, _}} ->
-            expected_literal =
-              %Literal{value: value, datatype: unquote(datatype_id), language: nil}
-            @tag example: %{input: input, output: expected_literal}
-            test "valid: #{unquote(datatype)}.new(#{inspect input}, canonicalize: true) == #{inspect expected_literal}",
-                  %{example: example} do
-              assert unquote(datatype).new(example.input, canonicalize: true) == example.output
+          test "canonicalize option" do
+            Enum.each @valid, fn {input, _} ->
+              assert unquote(datatype).new(input, canonicalize: true) ==
+                      (unquote(datatype).new(input) |> Literal.canonical)
             end
-          end
-
-          # invalid value with canonical option
-          Enum.each @invalid, fn value ->
-            expected_literal =
-              %Literal{uncanonical_lexical: to_string(value), datatype: unquote(datatype_id), language: nil}
-            @tag example: %{input: value, output: expected_literal}
-            test "invalid: #{unquote(datatype)}.new(#{inspect value}, canonicalize: true) == #{inspect expected_literal}",
-                  %{example: example} do
-              assert unquote(datatype).new(example.input, canonicalize: true) == example.output
+            Enum.each @invalid, fn input ->
+              assert unquote(datatype).new(input, canonicalize: true) ==
+                      (unquote(datatype).new(input) |> Literal.canonical)
             end
           end
 
@@ -171,6 +160,17 @@ defmodule RDF.Datatype.Test.Case do
             end
           end
         end
+
+#        describe "general equality" do
+#          test "a Literal initialized with a native value is equal to a Literal with its canonical form" do
+#            Enum.each @valid, fn {_, {value, _, canonicalized}} ->
+#              assert unquote(datatype).new(value) == unquote(datatype).new(canonicalized)
+##              assert Literal.valid? unquote(datatype).new(value)
+#            end
+#
+#          end
+#
+#        end
 
       end
 

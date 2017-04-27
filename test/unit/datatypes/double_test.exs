@@ -4,6 +4,7 @@ defmodule RDF.DoubleTest do
     # input              => { value              , lexical     , canonicalized }
       0                  => { 0.0                , "0.0"       , "0.0E0"     },
       42                 => { 42.0               , "42.0"      , "4.2E1"     },
+      0.0E0              => { 0.0                , "0.0"       , "0.0E0"     },
       1.0E0              => { 1.0                , "1.0"       , "1.0E0"     },
       :positive_infinity => { :positive_infinity , nil         , "INF"       },
       :negative_infinity => { :negative_infinity , nil         , "-INF"      },
