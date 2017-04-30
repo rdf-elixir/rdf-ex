@@ -103,7 +103,7 @@ defmodule RDF.LiteralTest do
     end
     Enum.each literals(:all) -- literals(:all_plain_lang), fn literal ->
       @tag literal: literal
-      test "#{inspect literal} has no language", %{literal: literal} do
+      test "Literal for #{literal} has no language", %{literal: literal} do
         assert is_nil(literal.language)
       end
     end
@@ -135,7 +135,7 @@ defmodule RDF.LiteralTest do
     }
     |> Enum.each(fn {value, type} ->
          @tag data: %{literal: literal = Literal.new(value), type: type}
-         test "#{inspect literal} has datatype xsd:#{type}",
+         test "Literal for #{literal} has datatype xsd:#{type}",
               %{data: %{literal: literal, type: type}} do
            assert literal.datatype == apply(XSD, String.to_atom(type), [])
          end
@@ -153,7 +153,7 @@ defmodule RDF.LiteralTest do
 
     Enum.each literals(:all) -- literals(~W[all_simple all_plain_lang]a), fn literal ->
       @tag literal: literal
-      test "#{inspect literal} has a datatype", %{literal: literal} do
+      test "Literal for #{literal} has a datatype", %{literal: literal} do
         assert Literal.has_datatype?(literal)
       end
     end
@@ -169,7 +169,7 @@ defmodule RDF.LiteralTest do
     end
     Enum.each literals(:all) -- literals(:all_plain), fn literal ->
       @tag literal: literal
-      test "#{inspect literal} is not plain", %{literal: literal} do
+      test "Literal for #{literal} is not plain", %{literal: literal} do
         refute Literal.plain?(literal)
       end
     end
@@ -185,7 +185,7 @@ defmodule RDF.LiteralTest do
     end
     Enum.each literals(:all) -- literals(:all_simple), fn literal ->
       @tag literal: literal
-      test "#{inspect literal} is not simple", %{literal: literal} do
+      test "Literal for #{literal} is not simple", %{literal: literal} do
         refute Literal.simple?(literal)
       end
     end
@@ -225,18 +225,19 @@ defmodule RDF.LiteralTest do
     end
 
     %{
-        literal(:int)      => "123",
-        literal(:true)     => "true",
-        literal(:false)    => "false",
-        literal(:long)     => "9223372036854775807",
-        literal(:double)   => "3.1415",
-        literal(:date)     => "2017-04-13",
-        literal(:datetime) => "2017-04-14 15:32:07",
-        literal(:time)     => "01:02:03"
+        literal(:int)            => "123",
+        literal(:true)           => "true",
+        literal(:false)          => "false",
+        literal(:long)           => "9223372036854775807",
+        literal(:double)         => "3.1415",
+        literal(:date)           => "2017-04-13",
+        literal(:datetime)       => "2017-04-14T15:32:07Z",
+        literal(:naive_datetime) => "2017-04-14T15:32:07",
+        literal(:time)           => "01:02:03"
     }
     |> Enum.each(fn {literal, rep} ->
          @tag data: %{literal: literal, rep: rep}
-         test "returns String representation of #{inspect literal} value",
+         test "returns String representation of Literal value #{literal}",
               %{data: %{literal: literal, rep: rep}} do
            assert to_string(literal) == rep
          end

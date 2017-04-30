@@ -8,6 +8,12 @@ defmodule RDF.Datatype.Test.Case do
 
   alias RDF.{Literal, Datatype}
 
+
+  def dt(value) do
+    RDF.DateTime.convert(value, %{})
+  end
+
+
   using(opts) do
     datatype    = Keyword.fetch!(opts, :datatype)
     datatype_id = Keyword.fetch!(opts, :id)
@@ -29,12 +35,16 @@ defmodule RDF.Datatype.Test.Case do
         @valid   unquote(valid)
         @invalid unquote(invalid)
 
+        test "RDF.Datatype mapping" do
+          assert RDF.Datatype.mapping[unquote(datatype_id)] == unquote(datatype)
+        end
+
         describe "general new" do
           Enum.each @valid, fn {input, {value, lexical, _}} ->
             expected_literal =
               %Literal{value: value, uncanonical_lexical: lexical, datatype: unquote(datatype_id), language: nil}
             @tag example: %{input: input, output: expected_literal}
-            test "valid: #{unquote(datatype)}.new(#{inspect input}) == #{inspect expected_literal}",
+            test "valid: #{unquote(datatype)}.new(#{inspect input})",
                   %{example: example} do
               assert unquote(datatype).new(example.input) == example.output
             end
@@ -44,7 +54,7 @@ defmodule RDF.Datatype.Test.Case do
             expected_literal =
               %Literal{uncanonical_lexical: to_string(value), datatype: unquote(datatype_id), language: nil}
             @tag example: %{input: value, output: expected_literal}
-            test "invalid: #{unquote(datatype)}.new(#{inspect value}) == #{inspect expected_literal}",
+            test "invalid: #{unquote(datatype)}.new(#{inspect value})",
                   %{example: example} do
               assert unquote(datatype).new(example.input) == example.output
             end
@@ -99,7 +109,7 @@ defmodule RDF.Datatype.Test.Case do
           Enum.each @valid, fn {input, {_, lexical, canonicalized}} ->
             lexical = lexical || canonicalized
             @tag example: %{input: input, lexical: lexical}
-            test "of valid #{unquote(datatype)}.new(#{inspect input}) == #{inspect lexical}",
+            test "of valid #{unquote(datatype)}.new(#{inspect input})",
                   %{example: example} do
               assert (unquote(datatype).new(example.input) |> Literal.lexical) == example.lexical
             end
@@ -118,10 +128,9 @@ defmodule RDF.Datatype.Test.Case do
 
         describe "general canonicalization" do
           Enum.each @valid, fn {input, {value, _, _}} ->
-            expected_literal =
-              %Literal{value: value, datatype: unquote(datatype_id), language: nil}
+            expected_literal = %Literal{value: value, datatype: unquote(datatype_id)}
             @tag example: %{input: input, output: expected_literal}
-            test "#{unquote(datatype)} #{inspect input} is canonicalized #{inspect expected_literal}",
+            test "#{unquote(datatype)} #{inspect input}",
                   %{example: example} do
               assert (unquote(datatype).new(example.input) |> Literal.canonical) == example.output
             end
@@ -129,7 +138,7 @@ defmodule RDF.Datatype.Test.Case do
 
           Enum.each @valid, fn {input, {_, _, canonicalized}} ->
             @tag example: %{input: input, canonicalized: canonicalized}
-            test "lexical of canonicalized #{unquote(datatype)} #{inspect input} is #{inspect canonicalized}",
+            test "lexical of canonicalized #{unquote(datatype)} #{inspect input, limit: 9} is #{inspect canonicalized}",
                   %{example: example} do
               assert (unquote(datatype).new(example.input) |> Literal.canonical |> Literal.lexical) ==
                       example.canonicalized
@@ -160,17 +169,6 @@ defmodule RDF.Datatype.Test.Case do
             end
           end
         end
-
-#        describe "general equality" do
-#          test "a Literal initialized with a native value is equal to a Literal with its canonical form" do
-#            Enum.each @valid, fn {_, {value, _, canonicalized}} ->
-#              assert unquote(datatype).new(value) == unquote(datatype).new(canonicalized)
-##              assert Literal.valid? unquote(datatype).new(value)
-#            end
-#
-#          end
-#
-#        end
 
       end
 

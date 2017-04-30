@@ -54,7 +54,6 @@ defmodule RDF.Double do
       :negative_infinity          -> "-INF"
       float when is_float(float)  -> exponential_form(float)
       _                           -> to_string(value)
-
     end
   end
 

@@ -43,9 +43,10 @@ defmodule RDF.Datatype do
 # TODO:
 #    XSD.date       => RDF.Date,
 #    XSD.time       => RDF.Time,
-#    XSD.dateTime   => RDF.DateTime,
+    XSD.dateTime   => RDF.DateTime,
   }
 
+  def mapping, do: @mapping
   def ids,     do: Map.keys(@mapping)
   def modules, do: Map.values(@mapping)
 
