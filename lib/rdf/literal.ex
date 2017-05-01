@@ -48,9 +48,8 @@ defmodule RDF.Literal do
 
 # TODO:
   def new(%Date{} = date), do: %RDF.Literal{value: date, datatype: XSD.date}
-  def new(%Time{} = time), do: %RDF.Literal{value: time, datatype: XSD.time}
 #  def new(%Date{} = value),              do: RDF.Date.new(value)
-#  def new(%Time{} = value),              do: RDF.Time.new(value)
+  def new(%Time{} = value),              do: RDF.Time.new(value)
   def new(%DateTime{} = value),          do: RDF.DateTime.new(value)
   def new(%NaiveDateTime{} = value),     do: RDF.DateTime.new(value)
 

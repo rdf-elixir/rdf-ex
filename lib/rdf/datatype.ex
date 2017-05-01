@@ -40,9 +40,8 @@ defmodule RDF.Datatype do
     XSD.integer    => RDF.Integer,
     XSD.double     => RDF.Double,
     XSD.boolean    => RDF.Boolean,
-# TODO:
-#    XSD.date       => RDF.Date,
-#    XSD.time       => RDF.Time,
+    XSD.date       => RDF.Date,
+    XSD.time       => RDF.Time,
     XSD.dateTime   => RDF.DateTime,
   }
 
