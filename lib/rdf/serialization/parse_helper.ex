@@ -4,7 +4,6 @@ defmodule RDF.Serialization.ParseHelper do
   def to_uri({:iriref, line, value}) do
     case URI.parse(value) do
       %URI{scheme: nil} -> {:error, line, "#{value} is not a valid URI"}
-      %URI{path:   nil} -> {:error, line, "#{value} is not a valid URI"}
       parsed_uri -> {:ok, parsed_uri}
     end
   end
