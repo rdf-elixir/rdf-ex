@@ -31,9 +31,8 @@ defmodule RDF.Serialization.Reader do
   end
 
   def read_file!(decoder, file, opts \\ []) do
-    case read_file(decoder, file, opts) do
-      {:ok,   graph}   -> graph
-      {:error, reason} -> raise File.Error, path: file, action: "read", reason: reason
+    with content = File.read!(file) do
+      read_string!(decoder, content, opts)
     end
   end
 
