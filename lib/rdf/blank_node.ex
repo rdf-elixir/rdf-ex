@@ -18,5 +18,10 @@ defmodule RDF.BlankNode do
     do: id |> :erlang.ref_to_list |> to_string |> String.replace(~r/\<|\>/, "") |> new
   def new(id) when is_atom(id) or is_integer(id),
     do: id |> to_string |> new
+end
 
+defimpl String.Chars, for: RDF.BlankNode do
+  def to_string(%RDF.BlankNode{id: id}) do
+    "_:#{id}"
+  end
 end
