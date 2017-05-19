@@ -37,6 +37,12 @@ defmodule RDF.InspectHelper do
   end
 end
 
+defimpl Inspect, for: RDF.BlankNode do
+  def inspect(%RDF.BlankNode{id: id}, _opts) do
+    "~B<#{id}>"
+  end
+end
+
 defimpl Inspect, for: RDF.Literal do
   def inspect(%RDF.Literal{value: value, language: language}, _opts) when not is_nil(language) do
     ~s[~L"#{value}"#{language}]
