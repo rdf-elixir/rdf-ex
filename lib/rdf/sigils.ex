@@ -17,6 +17,21 @@ defmodule RDF.Sigils do
   end
 
   @doc ~S"""
+  Handles the sigil `~B` for blank nodes.
+
+  ## Examples
+
+      iex> import RDF.Sigils
+      iex> ~B<foo>
+      RDF.bnode("foo")
+
+  """
+  defmacro sigil_B({:<<>>, _, [bnode]}, []) when is_binary(bnode) do
+    Macro.escape(RDF.BlankNode.new(bnode))
+  end
+
+
+  @doc ~S"""
   Handles the sigil `~L` for plain Literals.
 
   The sigil modifier can be used to specify a language tag.

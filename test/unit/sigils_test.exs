@@ -11,6 +11,12 @@ defmodule RDF.SigilsTest do
     end
   end
 
+  describe "Blank node sigil without interpolation" do
+    test "creating a blank node" do
+      assert ~B<foo> == RDF.bnode("foo")
+    end
+  end
+
   describe "Literal sigil without interpolation" do
     test "creating a plain Literal" do
       assert ~L"foo" == RDF.literal("foo")
