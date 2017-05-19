@@ -91,7 +91,7 @@ defmodule RDF do
   ## Examples
 
       iex> RDF.bnode(:foo)
-      %RDF.BlankNode{id: :foo}
+      %RDF.BlankNode{id: "foo"}
   """
   def bnode(id), do: BlankNode.new(id)
 
