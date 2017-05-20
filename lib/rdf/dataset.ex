@@ -314,6 +314,12 @@ defmodule RDF.Dataset do
 
 
   @doc """
+  The set of all graphs.
+  """
+  def graphs(%RDF.Dataset{graphs: graphs}), do: graphs
+
+
+  @doc """
   Gets and updates the graph with the given name, in a single pass.
 
   Invokes the passed function on the `RDF.Graph` with the given name;
