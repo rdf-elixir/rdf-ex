@@ -111,7 +111,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp base_uri!(opts) do
     base_uri = Keyword.fetch!(opts, :base_uri)
-    unless String.ends_with?(base_uri, ["/", "#"]) do
+    unless is_binary(base_uri) and String.ends_with?(base_uri, ["/", "#"]) do
       raise RDF.Namespace.InvalidVocabBaseURIError,
               "a base_uri without a trailing '/' or '#' is invalid"
     else

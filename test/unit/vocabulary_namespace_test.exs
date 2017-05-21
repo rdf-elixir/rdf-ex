@@ -16,7 +16,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
     defvocab Example2,
       base_uri: "http://example.com/example2/",
       file: "test/data/vocab_ns_example2.nt"
-#      file: "vocab_ns_example2.nt"
 
     defvocab Example3,
       base_uri: "http://example.com/example3#",
@@ -30,7 +29,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
 
   describe "defvocab" do
-    test "fails without a base_uri" do
+    test "without a base_uri, an error is raised" do
       assert_raise KeyError, fn ->
         defmodule BadNS1 do
           use RDF.Vocabulary.Namespace
@@ -40,7 +39,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    test "fails, when the base_uri doesn't end with '/' or '#'" do
+    test "when the base_uri doesn't end with '/' or '#', an error is raised" do
       assert_raise RDF.Namespace.InvalidVocabBaseURIError, fn ->
         defmodule BadNS2 do
           use RDF.Vocabulary.Namespace
@@ -52,14 +51,13 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    @tag skip: "TODO: implement proper URI validation"
-    test "fails, when the base_uri isn't a valid URI according to RFC 3986" do
+    test "when the base_uri isn't a valid URI, an error is raised" do
       assert_raise RDF.Namespace.InvalidVocabBaseURIError, fn ->
         defmodule BadNS3 do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "foo/",
+            base_uri: "invalid",
             terms: []
         end
       end
@@ -74,7 +72,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    test "fails, when the given file not found" do
+    test "when the given file not found, an error is raised" do
       assert_raise File.Error, fn ->
         defmodule BadNS5 do
           use RDF.Vocabulary.Namespace
