@@ -200,6 +200,77 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "delete" do
+    setup do
+      {:ok,
+        empty_description: Description.new(EX.S),
+        description1: Description.new(EX.S, EX.p, EX.O),
+        description2: Description.new(EX.S, EX.p, [EX.O1, EX.O2]),
+        description3: Description.new(EX.S, [
+          {EX.p1, [EX.O1, EX.O2]},
+          {EX.p2, EX.O3},
+          {EX.p3, [~B<foo>, ~L"bar"]},
+        ])
+      }
+    end
+
+    test "a single statement as a predicate object",
+          %{empty_description: empty_description, description1: description1, description2: description2} do
+      assert Description.delete(empty_description, EX.p, EX.O) == empty_description
+      assert Description.delete(description1, EX.p, EX.O) == empty_description
+      assert Description.delete(description2, EX.p, EX.O1) == Description.new(EX.S, EX.p, EX.O2)
+    end
+
+    test "a single statement as a predicate-object tuple",
+          %{empty_description: empty_description, description1: description1, description2: description2} do
+      assert Description.delete(empty_description, {EX.p, EX.O}) == empty_description
+      assert Description.delete(description1, {EX.p, EX.O}) == empty_description
+      assert Description.delete(description2, {EX.p, EX.O2}) == Description.new(EX.S, EX.p, EX.O1)
+    end
+
+    test "a single statement as a subject-predicate-object tuple and the proper description subject",
+          %{empty_description: empty_description, description1: description1, description2: description2} do
+      assert Description.delete(empty_description, {EX.S, EX.p, EX.O}) == empty_description
+      assert Description.delete(description1, {EX.S, EX.p, EX.O}) == empty_description
+      assert Description.delete(description2, {EX.S, EX.p, EX.O2}) == Description.new(EX.S, EX.p, EX.O1)
+    end
+
+    test "a single statement as a subject-predicate-object tuple and another description subject",
+          %{empty_description: empty_description, description1: description1, description2: description2} do
+      assert Description.delete(empty_description, {EX.Other, EX.p, EX.O}) == empty_description
+      assert Description.delete(description1, {EX.Other, EX.p, EX.O}) == description1
+      assert Description.delete(description2, {EX.Other, EX.p, EX.O2}) == description2
+    end
+
+    test "multiple statements via predicate-objects tuple",
+          %{empty_description: empty_description, description1: description1, description2: description2} do
+      assert Description.delete(empty_description, {EX.p, [EX.O1, EX.O2]}) == empty_description
+      assert Description.delete(description1, {EX.p, [EX.O, EX.O2]}) == empty_description
+      assert Description.delete(description2, {EX.p, [EX.O1, EX.O2]}) == empty_description
+    end
+
+    test "multiple statements with a list",
+          %{empty_description: empty_description, description3: description3} do
+      assert Description.delete(empty_description, [{EX.p, [EX.O1, EX.O2]}]) == empty_description
+      assert Description.delete(description3, [
+                {EX.p1, EX.O1},
+                {EX.p2, [EX.O2, EX.O3]},
+                {EX.S, EX.p3, [~B<foo>, ~L"bar"]},
+              ]) == Description.new(EX.S, EX.p1, EX.O2)
+    end
+
+    test "multiple statements with a map of predications",
+          %{empty_description: empty_description, description3: description3} do
+      assert Description.delete(empty_description, [{EX.p, [EX.O1, EX.O2]}]) == empty_description
+      assert Description.delete(description3, %{
+                EX.p1 => EX.O1,
+                EX.p2 => [EX.O2, EX.O3],
+                EX.p3 => [~B<foo>, ~L"bar"],
+              }) == Description.new(EX.S, EX.p1, EX.O2)
+    end
+  end
+
+
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 

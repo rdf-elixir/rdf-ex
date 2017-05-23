@@ -184,6 +184,65 @@ defmodule RDF.Description do
 
 
   @doc """
+  Deletes statements from a `RDF.Description`.
+  """
+  def delete(description, predicate, objects)
+
+  def delete(description, predicate, objects) when is_list(objects) do
+    Enum.reduce objects, description, fn (object, description) ->
+      delete(description, predicate, object)
+    end
+  end
+
+  def delete(%RDF.Description{subject: subject, predications: predications} = descr, predicate, object) do
+    with triple_predicate = convert_predicate(predicate),
+         triple_object    = convert_object(object) do
+      if (objects = predications[triple_predicate]) && Map.has_key?(objects, triple_object) do
+        %RDF.Description{
+          subject: subject,
+          predications:
+            if map_size(objects) == 1 do
+              Map.delete(predications, triple_predicate)
+            else
+              Map.update!(predications, triple_predicate, fn objects ->
+                 Map.delete(objects, triple_object)
+               end)
+            end
+          }
+      else
+        descr
+      end
+    end
+  end
+
+  @doc """
+  Deletes statements from a `RDF.Description`.
+  """
+  def delete(description, statements)
+
+  def delete(desc = %RDF.Description{}, {predicate, object}),
+    do: delete(desc, predicate, object)
+
+  def delete(description = %RDF.Description{}, {subject, predicate, object}) do
+    if convert_subject(subject) == description.subject,
+      do:   delete(description, predicate, object),
+      else: description
+  end
+
+  def delete(description, statements) when is_list(statements) do
+    Enum.reduce statements, description, fn (statement, description) ->
+      delete(description, statement)
+    end
+  end
+
+  def delete(description = %RDF.Description{}, predications = %{}) do
+    Enum.reduce predications, description, fn ({predicate, objects}, description) ->
+      delete(description, predicate, objects)
+    end
+  end
+
+
+  @doc """
   Fetches the objects for the given predicate of a Description.
 
   When the predicate can not be found `:error` is returned.
