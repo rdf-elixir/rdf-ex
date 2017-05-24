@@ -405,6 +405,8 @@ defmodule RDF.Description do
 
   def triples(description = %RDF.Description{}), do: Enum.to_list(description)
 
+  defdelegate statements(description), to: RDF.Description, as: :triples
+
 
   @doc """
   Returns the number of statements of a `RDF.Description`.
@@ -476,4 +478,25 @@ defimpl Enumerable, for: RDF.Description do
   def reduce(desc, acc, fun), do: RDF.Description.reduce(desc, acc, fun)
   def member?(desc, triple),  do: {:ok, RDF.Description.include?(desc, triple)}
   def count(desc),            do: {:ok, RDF.Description.count(desc)}
+end
+
+defimpl RDF.Data, for: RDF.Description do
+  def add(description, statements),    do: RDF.Description.add(description, statements)
+  def put(description, statements),    do: RDF.Description.put(description, statements)
+  def delete(description, statements), do: RDF.Description.delete(description, statements)
+  def pop(description),                do: RDF.Description.pop(description)
+
+  def include?(description, statements),
+    do: RDF.Description.include?(description, statements)
+
+  def statements(description), do: RDF.Description.statements(description)
+  def predicates(description), do: RDF.Description.predicates(description)
+  def objects(description),    do: RDF.Description.objects(description)
+  def subjects(%RDF.Description{subject: subject}), do: MapSet.new([subject])
+
+  def resources(%RDF.Description{subject: subject} = description),
+    do: RDF.Description.resources(description) |> MapSet.put(subject)
+
+  def subject_count(_),             do: 1
+  def statement_count(description), do: RDF.Description.count(description)
 end
