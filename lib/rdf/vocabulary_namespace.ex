@@ -99,8 +99,17 @@ defmodule RDF.Vocabulary.Namespace do
             term_to_uri(@base_uri, term)
           end
 
-          def unquote(:"$handle_undefined_function")(term, args) do
+          def unquote(:"$handle_undefined_function")(term, []) do
             term_to_uri(@base_uri, term)
+          end
+
+          def unquote(:"$handle_undefined_function")(term,
+                [%RDF.Description{} = description | objects]) do
+            RDF.Description.add(description, term_to_uri(@base_uri, term), objects)
+          end
+
+          def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
+            RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
           end
         end
 
@@ -170,6 +179,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defmacro define_vocab_terms(terms, base_uri) do
     Enum.map terms, fn term ->
+        name = String.to_atom(term)
 # TODO: Why does this way of precompiling the URI not work? We're getting an "invalid quoted expression: %URI{...}"
 #      uri = term_to_uri(base_uri, term)
 #      quote bind_quoted: [uri: Macro.escape(uri), term: String.to_atom(term)] do
@@ -182,7 +192,27 @@ defmodule RDF.Vocabulary.Namespace do
       quote do
         @tmp_uri term_to_uri(@base_uri, unquote(term))
         @doc "<#{@tmp_uri}>"
-        def unquote(term |> String.to_atom)(), do: @tmp_uri
+        def unquote(name)(), do: @tmp_uri
+
+        @doc "`RDF.Description` builder for <#{@tmp_uri}>"
+        def unquote(name)(subject, object)
+
+        def unquote(name)(%RDF.Description{} = description, object) do
+          RDF.Description.add(description, @tmp_uri, object)
+        end
+
+        def unquote(name)(subject, object) do
+          RDF.Description.new(subject, @tmp_uri, object)
+        end
+
+        def unquote(name)(subject,  o1, o2),
+        do: unquote(name)(subject, [o1, o2])
+        def unquote(name)(subject,  o1, o2, o3),
+        do: unquote(name)(subject, [o1, o2, o3])
+        def unquote(name)(subject,  o1, o2, o3, o4),
+        do: unquote(name)(subject, [o1, o2, o3, o4])
+        def unquote(name)(subject,  o1, o2, o3, o4, o5),
+        do: unquote(name)(subject, [o1, o2, o3, o4, o5])
       end
     end
   end

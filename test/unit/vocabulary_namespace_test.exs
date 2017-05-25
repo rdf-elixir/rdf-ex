@@ -3,8 +3,19 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   doctest RDF.Vocabulary.Namespace
 
+  alias RDF.Description
+
+
   defmodule TestNS do
     use RDF.Vocabulary.Namespace
+
+    defvocab EX,
+      base_uri: "http://example.com/",
+      terms: ~w[], strict: false
+
+    defvocab EXS,
+      base_uri: "http://example.com/strict#",
+      terms: ~w[foo bar]
 
     defvocab Example1,
       base_uri: "http://example.com/example1#",
@@ -165,6 +176,89 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     test "defined capitalized terms" do
       assert RDF.uri(Example4.Bar) == URI.parse("http://example.com/example4#Bar")
+    end
+  end
+
+
+  describe "Description DSL" do
+    alias TestNS.{EX, EXS}
+    
+    test "one statement with a strict property term" do
+      assert EXS.foo(EX.S, EX.O) == Description.new(EX.S, EXS.foo, EX.O)
+    end
+
+    test "multiple statements with strict property terms and one object" do
+      description =
+        EX.S
+        |> EXS.foo(EX.O1)
+        |> EXS.bar(EX.O2)
+      assert description == Description.new(EX.S, [{EXS.foo, EX.O1}, {EXS.bar, EX.O2}])
+    end
+
+    test "multiple statements with strict property terms and multiple objects in a list" do
+      description =
+        EX.S
+        |> EXS.foo([EX.O1, EX.O2])
+        |> EXS.bar([EX.O3, EX.O4])
+      assert description == Description.new(EX.S, [
+              {EXS.foo, EX.O1},
+              {EXS.foo, EX.O2},
+              {EXS.bar, EX.O3},
+              {EXS.bar, EX.O4}
+             ])
+    end
+
+    test "multiple statements with strict property terms and multiple objects as arguments" do
+      description =
+        EX.S
+        |> EXS.foo(EX.O1, EX.O2)
+        |> EXS.bar(EX.O3, EX.O4, EX.O5)
+      assert description == Description.new(EX.S, [
+              {EXS.foo, EX.O1},
+              {EXS.foo, EX.O2},
+              {EXS.bar, EX.O3},
+              {EXS.bar, EX.O4},
+              {EXS.bar, EX.O5}
+             ])
+    end
+
+
+    test "one statement with a non-strict property term" do
+      assert EX.p(EX.S, EX.O) == Description.new(EX.S, EX.p, EX.O)
+    end
+
+    test "multiple statements with non-strict property terms and one object" do
+      description =
+        EX.S
+        |> EX.p1(EX.O1)
+        |> EX.p2(EX.O2)
+      assert description == Description.new(EX.S, [{EX.p1, EX.O1}, {EX.p2, EX.O2}])
+    end
+
+    test "multiple statements with non-strict property terms and multiple objects in a list" do
+      description =
+        EX.S
+        |> EX.p1([EX.O1, EX.O2])
+        |> EX.p2([EX.O3, EX.O4])
+      assert description == Description.new(EX.S, [
+              {EX.p1, EX.O1},
+              {EX.p1, EX.O2},
+              {EX.p2, EX.O3},
+              {EX.p2, EX.O4}
+             ])
+    end
+
+    test "multiple statements with non-strict property terms and multiple objects as arguments" do
+      description =
+        EX.S
+        |> EX.p1(EX.O1, EX.O2)
+        |> EX.p2(EX.O3, EX.O4)
+      assert description == Description.new(EX.S, [
+              {EX.p1, EX.O1},
+              {EX.p1, EX.O2},
+              {EX.p2, EX.O3},
+              {EX.p2, EX.O4}
+             ])
     end
   end
 
