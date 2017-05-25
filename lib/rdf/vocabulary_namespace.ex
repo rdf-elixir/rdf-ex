@@ -190,18 +190,20 @@ defmodule RDF.Vocabulary.Namespace do
         def unquote(name)(), do: @tmp_uri
 
         @doc "`RDF.Description` builder for <#{@tmp_uri}>"
-        def unquote(name)(subject, object)
-
         def unquote(name)(subject, object) do
           RDF.Description.new(subject, @tmp_uri, object)
         end
 
+        @doc false
         def unquote(name)(subject,  o1, o2),
         do: unquote(name)(subject, [o1, o2])
+        @doc false
         def unquote(name)(subject,  o1, o2, o3),
         do: unquote(name)(subject, [o1, o2, o3])
+        @doc false
         def unquote(name)(subject,  o1, o2, o3, o4),
         do: unquote(name)(subject, [o1, o2, o3, o4])
+        @doc false
         def unquote(name)(subject,  o1, o2, o3, o4, o5),
         do: unquote(name)(subject, [o1, o2, o3, o4, o5])
       end
