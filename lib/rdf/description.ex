@@ -27,8 +27,12 @@ defmodule RDF.Description do
     do: new(statement) |> add(more_statements)
   def new(subject),
     do: %RDF.Description{subject: convert_subject(subject)}
+
+  def new(%RDF.Description{} = description, predicate, objects),
+    do: RDF.Description.add(description, predicate, objects)
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
+
   def new(subject, statements) when is_list(statements),
     do: new(subject) |> add(statements)
   def new(subject, %RDF.Description{predications: predications}),

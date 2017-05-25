@@ -59,6 +59,15 @@ defmodule RDF.DescriptionTest do
       assert description_of_subject(desc, uri(EX.Subject))
       assert description_includes_predication(desc, {uri(EX.Predicate), uri(EX.Object)})
     end
+
+    test "with another description as subject, it performs and add " do
+      desc = Description.new({EX.S, EX.p, EX.O})
+
+      assert Description.new(desc, EX.p2, EX.O2) ==
+             Description.add(desc, EX.p2, EX.O2)
+      assert Description.new(desc, EX.p, [EX.O1, EX.O2]) ==
+             Description.add(desc, EX.p, [EX.O1, EX.O2])
+    end
   end
 
 

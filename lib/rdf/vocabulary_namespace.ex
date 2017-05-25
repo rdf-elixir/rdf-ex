@@ -103,11 +103,6 @@ defmodule RDF.Vocabulary.Namespace do
             term_to_uri(@base_uri, term)
           end
 
-          def unquote(:"$handle_undefined_function")(term,
-                [%RDF.Description{} = description | objects]) do
-            RDF.Description.add(description, term_to_uri(@base_uri, term), objects)
-          end
-
           def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
             RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
           end
@@ -196,10 +191,6 @@ defmodule RDF.Vocabulary.Namespace do
 
         @doc "`RDF.Description` builder for <#{@tmp_uri}>"
         def unquote(name)(subject, object)
-
-        def unquote(name)(%RDF.Description{} = description, object) do
-          RDF.Description.add(description, @tmp_uri, object)
-        end
 
         def unquote(name)(subject, object) do
           RDF.Description.new(subject, @tmp_uri, object)
