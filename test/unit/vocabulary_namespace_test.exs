@@ -217,6 +217,20 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
+  test "__uris__ returns all URIs of the vocabulary" do
+    alias TestNS.{Example1, Example5}
+    assert length(Example1.__uris__) == 2
+    assert RDF.uri(Example1.foo) in Example1.__uris__
+    assert RDF.uri(Example1.Bar) in Example1.__uris__
+
+    assert length(Example5.__uris__) == 4
+    assert RDF.uri(Example5.Term1) in Example5.__uris__
+    assert RDF.uri(Example5.term2) in Example5.__uris__
+    assert RDF.uri(Example5.Term3) in Example5.__uris__
+    assert RDF.uri(Example5.term4) in Example5.__uris__
+  end
+
+
   describe "invalid character handling" do
     test "when a term contains unallowed characters and no alias defined, it fails when invalid_characters = :fail" do
       assert_raise RDF.Namespace.InvalidTermError, ~r/Foo-bar.*foo-bar/s,

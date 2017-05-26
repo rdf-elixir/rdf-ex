@@ -78,7 +78,19 @@ defmodule RDF.Vocabulary.Namespace do
         def __strict__, do: @strict
 
         @terms unquote(Macro.escape(terms))
-        def __terms__, do: @terms  |> Map.keys
+        def __terms__, do: @terms |> Map.keys
+
+        @doc """
+        Returns all known URIs of the vocabulary.
+        """
+        def __uris__ do
+          @terms
+          |> Enum.map(fn
+               {term, true}   -> term_to_uri(@base_uri, term)
+               {_alias, term} -> term_to_uri(@base_uri, term)
+             end)
+          |> Enum.uniq
+        end
 
         define_vocab_terms unquote(lowercased_terms), unquote(base_uri)
 
