@@ -54,7 +54,7 @@ defmodule RDF.Vocabulary.Namespace do
   defmacro defvocab(name, opts) do
     base_uri = base_uri!(opts)
     file     = filename!(opts)
-    terms    = terms!(opts) |> term_mapping!(opts)
+    terms    = terms!(opts) |> term_mapping!(opts) |> validate_terms!(opts)
     strict   = strict?(opts)
     case_separated_terms = group_terms_by_case(terms)
     lowercased_terms  = Map.get(case_separated_terms, :lowercased, %{})
@@ -214,6 +214,10 @@ defmodule RDF.Vocabulary.Namespace do
     |> Enum.reduce(terms, fn {alias, original_term}, terms ->
          term = String.to_atom(original_term)
          cond do
+           not valid_term?(alias) ->
+             raise RDF.Namespace.InvalidAliasError,
+               "alias '#{alias}' contains invalid characters"
+
            Map.get(terms, alias) == true ->
              raise RDF.Namespace.InvalidAliasError,
                "alias '#{alias}' already defined"
@@ -231,6 +235,59 @@ defmodule RDF.Vocabulary.Namespace do
          end
        end)
   end
+
+  defp validate_terms!(terms, opts) do
+    if (handling = Keyword.get(opts, :invalid_characters, :fail)) == :ignore do
+      terms
+    else
+      terms
+      |> detect_invalid_terms(opts)
+      |> handle_invalid_terms(handling, terms, opts)
+    end
+  end
+
+  defp detect_invalid_terms(terms, _opts) do
+    aliased =
+      terms
+      |> Map.values
+      |> MapSet.new
+      |> MapSet.delete(true)
+      |> Enum.map(&String.to_atom/1)
+    terms
+    |> Stream.filter(fn {term, _} ->
+         not valid_term?(term) and not term in aliased
+       end)
+    |> Enum.map(fn {term, _} -> term end)
+  end
+
+  defp handle_invalid_terms([], _, terms, _), do: terms
+
+  defp handle_invalid_terms(invalid_terms, :fail, _, _) do
+    raise RDF.Namespace.InvalidTermError, """
+      The following terms contain invalid characters:
+
+      - #{Enum.join(invalid_terms, "\n- ")}
+
+      You have the following options:
+
+      - if you are in control of the vocabulary, consider renaming the resource
+      - define an alias with the :alias option on defvocab
+      - change the handling of invalid characters with the :invalid_characters option on defvocab
+      """
+  end
+
+  defp handle_invalid_terms(invalid_terms, :warn, terms, _) do
+    Enum.each invalid_terms, fn term ->
+      IO.warn "'#{term}' is not valid term, since it contains invalid characters"
+    end
+    terms
+  end
+
+  defp valid_term?(nil), do: true
+  defp valid_term?(term) do
+    Regex.match?(~r/^[a-zA-Z_]\w*$/, to_string(term))
+  end
+
 
   def filename!(opts) do
     if filename = Keyword.get(opts, :file) do
@@ -290,6 +347,7 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
+  defp vocab_term?(""), do: false
   defp vocab_term?(term) when is_binary(term) do
     not String.contains?(term, "/")
   end

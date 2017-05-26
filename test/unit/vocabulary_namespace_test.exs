@@ -116,6 +116,20 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
+    test "when the alias contains invalid characters term, an error is raised" do
+      assert_raise RDF.Namespace.InvalidAliasError, fn ->
+        defmodule BadNS12 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex#",
+            terms:    ~w[foo],
+            alias:    ["foo-bar": "foo"]
+        end
+      end
+    end
+
+
     test "when trying to map an already existing term, an error is raised" do
       assert_raise RDF.Namespace.InvalidAliasError, fn ->
         defmodule BadNS6 do
@@ -200,6 +214,30 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert :term4 in Example5.__terms__
       assert :"Term-3" in Example5.__terms__
       assert :"term-4" in Example5.__terms__
+    end
+  end
+
+  describe "invalid character handling" do
+    test "when a term contains unallowed characters and no alias defined, it fails when invalid_characters = :fail" do
+      assert_raise RDF.Namespace.InvalidTermError, ~r/Foo-bar.*foo-bar/s,
+        fn ->
+          defmodule BadNS10 do
+            use RDF.Vocabulary.Namespace
+            defvocab Example,
+              base_uri: "http://example.com/example#",
+              terms:    ~w[Foo-bar foo-bar]
+          end
+        end
+    end
+
+    test "when a term contains unallowed characters it does not fail when invalid_characters = :ignore" do
+        defmodule BadNS11 do
+          use RDF.Vocabulary.Namespace
+          defvocab Example,
+            base_uri: "http://example.com/example#",
+            terms:    ~w[Foo-bar foo-bar],
+            invalid_characters: :ignore
+        end
     end
   end
 
