@@ -36,6 +36,27 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_uri: "http://example.com/example4#",
       terms:    ~w[foo Bar],
       strict: false
+
+    defvocab Example5,
+      base_uri: "http://example.com/example5#",
+      terms: ~w[term1 Term2 Term-3 term-4],
+      alias: [
+                Term1: "term1",
+                term2: "Term2",
+                Term3: "Term-3",
+                term4: "term-4",
+              ]
+
+    defvocab Example6,
+      base_uri: "http://example.com/example6#",
+      terms: ~w[],
+      alias: [
+                Term1: "term1",
+                term2: "Term2",
+                Term3: "Term-3",
+                term4: "term-4",
+              ],
+      strict: false
   end
 
 
@@ -95,6 +116,60 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
+    test "when trying to map an already existing term, an error is raised" do
+      assert_raise RDF.Namespace.InvalidAliasError, fn ->
+        defmodule BadNS6 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex6#",
+            terms:    ~w[foo bar],
+            alias:    [foo: "bar"]
+        end
+      end
+    end
+
+    test "when strict and trying to map to a term not in the vocabulary, an error is raised" do
+      assert_raise RDF.Namespace.InvalidAliasError, fn ->
+        defmodule BadNS7 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex7#",
+            terms:    ~w[],
+            alias:    [foo: "bar"]
+        end
+      end
+    end
+
+    test "when defining an alias for an alias, an error is raised" do
+      assert_raise RDF.Namespace.InvalidAliasError, fn ->
+        defmodule BadNS8 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex8#",
+            terms:    ~w[bar],
+            alias:    [foo: "bar", baz: "foo"]
+        end
+      end
+    end
+
+    test "defining multiple aliases for a term" do
+      defmodule BadNS9 do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex8#",
+          terms:    ~w[bar Bar],
+          alias:    [foo: "bar", baz: "bar",
+                     Foo: "Bar", Baz: "Bar"]
+      end
+      alias BadNS9.Example
+      assert Example.foo == Example.baz
+      assert RDF.uri(Example.foo) == RDF.uri(Example.baz)
+    end
+
   end
 
   test "__base_uri__ returns the base_uri" do
@@ -105,20 +180,38 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert SlashVocab.__base_uri__ == "http://example.com/example2/"
   end
 
-  test "__terms__ returns a list of all defined terms" do
-    alias TestNS.Example1
-    assert length(Example1.__terms__) == 2
-    assert :foo in Example1.__terms__
-    assert :Bar in Example1.__terms__
+
+  describe "__terms__" do
+    alias TestNS.{Example1, Example5}
+
+    test "includes all defined terms" do
+      assert length(Example1.__terms__) == 2
+      assert :foo in Example1.__terms__
+      assert :Bar in Example1.__terms__
+    end
+
+    test "includes aliases" do
+      assert length(Example5.__terms__) == 8
+      assert :term1 in Example5.__terms__
+      assert :Term1 in Example5.__terms__
+      assert :term2 in Example5.__terms__
+      assert :Term2 in Example5.__terms__
+      assert :Term3 in Example5.__terms__
+      assert :term4 in Example5.__terms__
+      assert :"Term-3" in Example5.__terms__
+      assert :"term-4" in Example5.__terms__
+    end
   end
+
 
   @tag skip: "TODO: Can we make RDF.uri(:foo) an undefined function call with guards or in another way?"
   test "resolving an unqualified term raises an error" do
-    assert_raise UndefinedFunctionError, fn -> RDF.uri(:foo) end
+    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.uri(:foo) end
   end
 
   describe "term resolution in a strict vocab namespace" do
     alias TestNS.{Example1, Example2, Example3}
+
     test "undefined terms" do
       assert_raise UndefinedFunctionError, fn ->
         Example1.undefined
@@ -176,6 +269,39 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     test "defined capitalized terms" do
       assert RDF.uri(Example4.Bar) == URI.parse("http://example.com/example4#Bar")
+    end
+  end
+
+
+  describe "term resolution of aliases on a strict vocabulary" do
+    alias TestNS.Example5
+
+    test "the alias resolves to the correct URI" do
+      assert RDF.uri(Example5.Term1) == URI.parse("http://example.com/example5#term1")
+      assert RDF.uri(Example5.term2) == URI.parse("http://example.com/example5#Term2")
+      assert RDF.uri(Example5.Term3) == URI.parse("http://example.com/example5#Term-3")
+      assert RDF.uri(Example5.term4) == URI.parse("http://example.com/example5#term-4")
+    end
+
+    test "the old term remains resolvable" do
+      assert RDF.uri(Example5.term1) == URI.parse("http://example.com/example5#term1")
+      assert RDF.uri(Example5.Term2) == URI.parse("http://example.com/example5#Term2")
+    end
+  end
+
+  describe "term resolution of aliases on a non-strict vocabulary" do
+    alias TestNS.Example6
+
+    test "the alias resolves to the correct URI" do
+      assert RDF.uri(Example6.Term1) == URI.parse("http://example.com/example6#term1")
+      assert RDF.uri(Example6.term2) == URI.parse("http://example.com/example6#Term2")
+      assert RDF.uri(Example6.Term3) == URI.parse("http://example.com/example6#Term-3")
+      assert RDF.uri(Example6.term4) == URI.parse("http://example.com/example6#term-4")
+    end
+
+    test "the old term remains resolvable" do
+      assert RDF.uri(Example6.term1) == URI.parse("http://example.com/example6#term1")
+      assert RDF.uri(Example6.Term2) == URI.parse("http://example.com/example6#Term2")
     end
   end
 

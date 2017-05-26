@@ -35,6 +35,14 @@ defmodule RDF.Namespace.InvalidVocabBaseURIError do
   defexception [:message]
 end
 
+defmodule RDF.Namespace.InvalidTermError do
+  defexception [:message]
+end
+
+defmodule RDF.Namespace.InvalidAliasError do
+  defexception [:message]
+end
+
 defmodule RDF.Namespace.UndefinedTermError do
   defexception [:message]
 end

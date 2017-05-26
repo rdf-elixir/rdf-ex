@@ -53,12 +53,11 @@ defmodule RDF.Vocabulary.Namespace do
   """
   defmacro defvocab(name, opts) do
     base_uri = base_uri!(opts)
-    file     = file!(opts)
-    terms    = terms!(opts)
-    strict   = Keyword.get(opts, :strict, true)
+    file     = filename!(opts)
+    terms    = terms!(opts) |> term_mapping!(opts)
+    strict   = strict?(opts)
     case_separated_terms = group_terms_by_case(terms)
-    lowercased_terms  = Map.get(case_separated_terms, :lowercased, [])
-    capitalized_terms = Map.get(case_separated_terms, :capitalized, [])
+    lowercased_terms  = Map.get(case_separated_terms, :lowercased, %{})
 
     quote do
       vocabdoc = Module.delete_attribute(__MODULE__, :vocabdoc)
@@ -78,27 +77,28 @@ defmodule RDF.Vocabulary.Namespace do
         @strict unquote(strict)
         def __strict__, do: @strict
 
-        @lowercased_terms  unquote(lowercased_terms  |> Enum.map(&String.to_atom/1))
-        @capitalized_terms unquote(capitalized_terms |> Enum.map(&String.to_atom/1))
-        @terms @lowercased_terms ++ @capitalized_terms
-        def __terms__, do: @terms
+        @terms unquote(Macro.escape(terms))
+        def __terms__, do: @terms  |> Map.keys
 
         define_vocab_terms unquote(lowercased_terms), unquote(base_uri)
 
-        if @strict do
-          def __resolve_term__(term) do
-            if Enum.member?(@capitalized_terms, term) do
+        def __resolve_term__(term) do
+          case @terms[term] do
+            nil ->
+              if @strict do
+                raise RDF.Namespace.UndefinedTermError,
+                  "undefined term #{term} in strict vocabulary #{__MODULE__}"
+              else
+                term_to_uri(@base_uri, term)
+              end
+            true ->
               term_to_uri(@base_uri, term)
-            else
-              raise RDF.Namespace.UndefinedTermError,
-                "undefined term #{term} in strict vocabulary #{__MODULE__}"
-            end
+            original_term ->
+              term_to_uri(@base_uri, original_term)
           end
-        else
-          def __resolve_term__(term) do
-            term_to_uri(@base_uri, term)
-          end
+        end
 
+        if not @strict do
           def unquote(:"$handle_undefined_function")(term, []) do
             term_to_uri(@base_uri, term)
           end
@@ -113,6 +113,52 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
+  defmacro define_vocab_terms(terms, base_uri) do
+    terms
+    |> Stream.map(fn
+        {term, true}          -> {term, term}
+        {term, original_term} -> {term, original_term}
+       end)
+    |> Enum.map(fn {term, uri_suffix} ->
+# TODO: Why does this way of precompiling the URI not work? We're getting an "invalid quoted expression: %URI{...}"
+#      uri = term_to_uri(base_uri, term)
+#      quote bind_quoted: [uri: Macro.escape(uri), term: String.to_atom(term)] do
+##        @doc "<#{@tmp_uri}>"
+#        def unquote(term)() do
+#          unquote(uri)
+#        end
+#      end
+# Temporary workaround:
+      quote do
+        @tmp_uri term_to_uri(@base_uri, unquote(uri_suffix))
+        @doc "<#{@tmp_uri}>"
+        def unquote(term)(), do: @tmp_uri
+
+        @doc "`RDF.Description` builder for <#{@tmp_uri}>"
+        def unquote(term)(subject, object) do
+          RDF.Description.new(subject, @tmp_uri, object)
+        end
+
+        # Is there a better way to support multiple objects via arguments?
+        @doc false
+        def unquote(term)(subject,  o1, o2),
+        do: unquote(term)(subject, [o1, o2])
+        @doc false
+        def unquote(term)(subject,  o1, o2, o3),
+        do: unquote(term)(subject, [o1, o2, o3])
+        @doc false
+        def unquote(term)(subject,  o1, o2, o3, o4),
+        do: unquote(term)(subject, [o1, o2, o3, o4])
+        @doc false
+        def unquote(term)(subject,  o1, o2, o3, o4, o5),
+        do: unquote(term)(subject, [o1, o2, o3, o4, o5])
+      end
+    end)
+  end
+
+  defp strict?(opts),
+    do: Keyword.get(opts, :strict, true)
+
   defp base_uri!(opts) do
     base_uri = Keyword.fetch!(opts, :base_uri)
     unless is_binary(base_uri) and String.ends_with?(base_uri, ["/", "#"]) do
@@ -126,91 +172,88 @@ defmodule RDF.Vocabulary.Namespace do
   def terms!(opts) do
     cond do
       Keyword.has_key?(opts, :file) ->
-        opts
-        |> Keyword.delete(:file)
-        |> Keyword.put(:data, load_file(file!(opts)))
-        |> terms!
-      data = Keyword.get(opts, :data) ->
-        # TODO: support also RDF.Datasets ...
-        data = unless match?(%RDF.Graph{}, data) do
-          # TODO: find an alternative to Code.eval_quoted
-          {data, _ } = Code.eval_quoted(data, [], data_env())
-          data
-        else
-          data
-        end
-        data_vocab_terms(data, Keyword.fetch!(opts, :base_uri))
+        filename!(opts)
+        |> load_file
+        |> terms_from_rdf_data!(opts)
+      rdf_data = Keyword.get(opts, :data) ->
+        terms_from_rdf_data!(rdf_data, opts)
       terms = Keyword.get(opts, :terms) ->
         # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
-        {terms, _ } = Code.eval_quoted(terms, [], data_env())
+        {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
         terms
-        |> Enum.map(&to_string/1)
+        |> Enum.map(fn
+             term when is_atom(term)   -> term
+             term when is_binary(term) -> String.to_atom(term)
+             term ->
+               raise RDF.Namespace.InvalidTermError,
+                 "'#{term}' is not a valid vocabulary term"
+           end)
       true ->
         raise KeyError, key: ~w[terms data file], term: opts
     end
   end
 
-  def file!(opts) do
-    if file = Keyword.get(opts, :file) do
+  # TODO: support also RDF.Datasets ...
+  defp terms_from_rdf_data!(%RDF.Graph{} = rdf_data, opts) do
+    rdf_data_vocab_terms(rdf_data, Keyword.fetch!(opts, :base_uri))
+  end
+
+  defp terms_from_rdf_data!(rdf_data, opts) do
+    # TODO: find an alternative to Code.eval_quoted
+    {rdf_data, _} = Code.eval_quoted(rdf_data, [], rdf_data_env())
+    terms_from_rdf_data!(rdf_data, opts)
+  end
+
+
+  def term_mapping!(terms, opts) do
+    terms = Map.new terms, fn
+      term when is_atom(term) -> {term, true}
+      term                    -> {String.to_atom(term), true}
+    end
+    Keyword.get(opts, :alias, [])
+    |> Enum.reduce(terms, fn {alias, original_term}, terms ->
+         term = String.to_atom(original_term)
+         cond do
+           Map.get(terms, alias) == true ->
+             raise RDF.Namespace.InvalidAliasError,
+               "alias '#{alias}' already defined"
+
+           strict?(opts) and not Map.has_key?(terms, term) ->
+              raise RDF.Namespace.InvalidAliasError,
+                "term '#{original_term}' is not a term in this vocabulary"
+
+           Map.get(terms, term, true) != true ->
+              raise RDF.Namespace.InvalidAliasError,
+                "'#{original_term}' is already an alias"
+
+           true ->
+             Map.put(terms, alias, to_string(original_term))
+         end
+       end)
+  end
+
+  def filename!(opts) do
+    if filename = Keyword.get(opts, :file) do
       cond do
-        File.exists?(file) ->
-          file
-        File.exists?(expanded_file = Path.expand(file, @vocabs_dir)) ->
-          expanded_file
+        File.exists?(filename) ->
+          filename
+        File.exists?(expanded_filename = Path.expand(filename, @vocabs_dir)) ->
+          expanded_filename
         true ->
-          raise File.Error, path: file, action: "find", reason: :enoent
+          raise File.Error, path: filename, action: "find", reason: :enoent
        end
     end
   end
 
   defp load_file(file) do
-    RDF.NTriples.read_file!(file)
+    RDF.NTriples.read_file!(file)  # TODO: support other formats
   end
 
-  defp data_env do
+  defp rdf_data_env do
     __ENV__
   end
 
-
-  defmacro define_vocab_terms(terms, base_uri) do
-    Enum.map terms, fn term ->
-        name = String.to_atom(term)
-# TODO: Why does this way of precompiling the URI not work? We're getting an "invalid quoted expression: %URI{...}"
-#      uri = term_to_uri(base_uri, term)
-#      quote bind_quoted: [uri: Macro.escape(uri), term: String.to_atom(term)] do
-##        @doc "<#{@tmp_uri}>"
-#        def unquote(term)() do
-#          unquote(uri)
-#        end
-#      end
-# Temporary workaround:
-      quote do
-        @tmp_uri term_to_uri(@base_uri, unquote(term))
-        @doc "<#{@tmp_uri}>"
-        def unquote(name)(), do: @tmp_uri
-
-        @doc "`RDF.Description` builder for <#{@tmp_uri}>"
-        def unquote(name)(subject, object) do
-          RDF.Description.new(subject, @tmp_uri, object)
-        end
-
-        @doc false
-        def unquote(name)(subject,  o1, o2),
-        do: unquote(name)(subject, [o1, o2])
-        @doc false
-        def unquote(name)(subject,  o1, o2, o3),
-        do: unquote(name)(subject, [o1, o2, o3])
-        @doc false
-        def unquote(name)(subject,  o1, o2, o3, o4),
-        do: unquote(name)(subject, [o1, o2, o3, o4])
-        @doc false
-        def unquote(name)(subject,  o1, o2, o3, o4, o5),
-        do: unquote(name)(subject, [o1, o2, o3, o4, o5])
-      end
-    end
-  end
-
-  defp data_vocab_terms(data, base_uri) do
+  defp rdf_data_vocab_terms(data, base_uri) do
     data
     |> RDF.Graph.resources # TODO: support also RDF.Datasets ...
     # filter URIs
@@ -220,15 +263,20 @@ defmodule RDF.Vocabulary.Namespace do
        end)
     |> Stream.map(&to_string/1)
     |> Stream.map(&(strip_base_uri(&1, base_uri)))
-    |> Enum.filter(&vocab_term?/1)
+    |> Stream.filter(&vocab_term?/1)
+    |> Enum.map(&String.to_atom/1)
   end
 
   defp group_terms_by_case(terms) do
-    Enum.group_by terms, fn term ->
-      if lowercase?(term),
-        do:   :lowercased,
-        else: :capitalized
-    end
+    terms
+    |> Enum.group_by(fn {term, _} ->
+         if lowercase?(term),
+           do:   :lowercased,
+           else: :capitalized
+       end)
+    |> Map.new(fn {group, term_mapping} ->
+         {group, Map.new(term_mapping)}
+       end)
   end
 
   defp lowercase?(term) when is_atom(term),
