@@ -54,7 +54,7 @@ defimpl Inspect, for: RDF.Literal do
   end
 
   def inspect(%RDF.Literal{value: value, datatype: datatype}, _opts) do
-    if datatype == RDF.NS.XSD.string do
+    if datatype == RDF.Datatype.NS.XSD.string do
       ~s[~L"#{value}"]
     else
       "%RDF.Literal{value: #{inspect value}, datatype: ~I<#{datatype}>}"
