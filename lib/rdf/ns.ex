@@ -17,7 +17,11 @@ defmodule RDF.NS do
   """
   defvocab RDF,
     base_uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    file: "rdf.nt"
+    file: "rdf.nt",
+    alias: [
+      Nil:        "nil",
+      LangString: "langString"
+    ]
 
   @vocabdoc """
   The RDFS vocabulary.

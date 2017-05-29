@@ -52,10 +52,20 @@ defmodule RDF.Vocabulary.Namespace do
   Defines a `RDF.Namespace` module for a RDF vocabulary.
   """
   defmacro defvocab(name, opts) do
+    strict   = strict?(opts)
     base_uri = base_uri!(opts)
     file     = filename!(opts)
-    terms    = terms!(opts) |> term_mapping!(opts) |> validate_terms!(opts)
-    strict   = strict?(opts)
+    {terms, data} =
+      case source!(opts) do
+        {:terms, terms} -> {terms, nil}
+        {:data, data}   -> {rdf_data_vocab_terms(data, base_uri), data}
+      end #|> IO.inspect()
+
+    terms =
+      terms
+      |> term_mapping!(opts)
+      |> validate_terms!(opts)
+      |> validate_case!(data, base_uri, opts)
     case_separated_terms = group_terms_by_case(terms)
     lowercased_terms  = Map.get(case_separated_terms, :lowercased, %{})
 
@@ -181,43 +191,38 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  def terms!(opts) do
+  defp source!(opts) do
     cond do
-      Keyword.has_key?(opts, :file) ->
-        filename!(opts)
-        |> load_file
-        |> terms_from_rdf_data!(opts)
-      rdf_data = Keyword.get(opts, :data) ->
-        terms_from_rdf_data!(rdf_data, opts)
-      terms = Keyword.get(opts, :terms) ->
-        # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
-        {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
-        terms
-        |> Enum.map(fn
-             term when is_atom(term)   -> term
-             term when is_binary(term) -> String.to_atom(term)
-             term ->
-               raise RDF.Namespace.InvalidTermError,
-                 "'#{term}' is not a valid vocabulary term"
-           end)
+      Keyword.has_key?(opts, :file)        -> {:data, filename!(opts) |> load_file}
+      rdf_data = Keyword.get(opts, :data)  -> {:data, raw_rdf_data(rdf_data)}
+      terms    = Keyword.get(opts, :terms) -> {:terms, terms_from_user_input!(terms)}
       true ->
         raise KeyError, key: ~w[terms data file], term: opts
     end
   end
 
-  # TODO: support also RDF.Datasets ...
-  defp terms_from_rdf_data!(%RDF.Graph{} = rdf_data, opts) do
-    rdf_data_vocab_terms(rdf_data, Keyword.fetch!(opts, :base_uri))
+  defp terms_from_user_input!(terms) do
+    # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
+    {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
+    Enum.map terms, fn
+      term when is_atom(term)   -> term
+      term when is_binary(term) -> String.to_atom(term)
+      term ->
+        raise RDF.Namespace.InvalidTermError,
+          "'#{term}' is not a valid vocabulary term"
+    end
   end
 
-  defp terms_from_rdf_data!(rdf_data, opts) do
+  # TODO: support also RDF.Datasets ...
+  defp raw_rdf_data(%RDF.Graph{} = rdf_data), do: rdf_data
+  defp raw_rdf_data(rdf_data) do
     # TODO: find an alternative to Code.eval_quoted
     {rdf_data, _} = Code.eval_quoted(rdf_data, [], rdf_data_env())
-    terms_from_rdf_data!(rdf_data, opts)
+    rdf_data
   end
 
 
-  def term_mapping!(terms, opts) do
+  defp term_mapping!(terms, opts) do
     terms = Map.new terms, fn
       term when is_atom(term) -> {term, true}
       term                    -> {String.to_atom(term), true}
@@ -248,33 +253,36 @@ defmodule RDF.Vocabulary.Namespace do
        end)
   end
 
+  defp aliased_terms(terms) do
+    terms
+    |> Map.values
+    |> MapSet.new
+    |> MapSet.delete(true)
+    |> Enum.map(&String.to_atom/1)
+  end
+
   defp validate_terms!(terms, opts) do
     if (handling = Keyword.get(opts, :invalid_characters, :fail)) == :ignore do
       terms
     else
       terms
-      |> detect_invalid_terms(opts)
-      |> handle_invalid_terms(handling, terms, opts)
+      |> detect_invalid_terms
+      |> handle_invalid_terms(handling, terms)
     end
   end
 
-  defp detect_invalid_terms(terms, _opts) do
-    aliased =
-      terms
-      |> Map.values
-      |> MapSet.new
-      |> MapSet.delete(true)
-      |> Enum.map(&String.to_atom/1)
-    terms
-    |> Stream.filter(fn {term, _} ->
-         not valid_term?(term) and not term in aliased
-       end)
-    |> Enum.map(fn {term, _} -> term end)
+  defp detect_invalid_terms(terms) do
+    aliased_terms = aliased_terms(terms)
+    Enum.filter_map terms,
+      fn {term, _} ->
+        not term in aliased_terms and not valid_term?(term)
+      end,
+      fn {term, _} -> term end
   end
 
-  defp handle_invalid_terms([], _, terms, _), do: terms
+  defp handle_invalid_terms([], _, terms), do: terms
 
-  defp handle_invalid_terms(invalid_terms, :fail, _, _) do
+  defp handle_invalid_terms(invalid_terms, :fail, _) do
     raise RDF.Namespace.InvalidTermError, """
       The following terms contain invalid characters:
 
@@ -288,16 +296,155 @@ defmodule RDF.Vocabulary.Namespace do
       """
   end
 
-  defp handle_invalid_terms(invalid_terms, :warn, terms, _) do
+  defp handle_invalid_terms(invalid_terms, :warn, terms) do
     Enum.each invalid_terms, fn term ->
       IO.warn "'#{term}' is not valid term, since it contains invalid characters"
     end
     terms
   end
 
-  defp valid_term?(nil), do: true
-  defp valid_term?(term) do
-    Regex.match?(~r/^[a-zA-Z_]\w*$/, to_string(term))
+  defp valid_term?(term) when is_atom(term),
+    do: valid_term?(Atom.to_string(term))
+  defp valid_term?(term),
+    do: Regex.match?(~r/^[a-zA-Z_]\w*$/, term)
+
+  defp validate_case!(terms, nil, _, _), do: terms
+  defp validate_case!(terms, data, base_uri, opts) do
+    if (handling = Keyword.get(opts, :case_violations, :warn)) == :ignore do
+      terms
+    else
+      terms
+      |> detect_case_violations(data, base_uri)
+      |> group_case_violations
+      |> handle_case_violations(handling, terms, base_uri, opts)
+    end
+  end
+
+  defp detect_case_violations(terms, data, base_uri) do
+    aliased_terms = aliased_terms(terms)
+    Enum.filter terms, fn
+      {term, true} ->
+        if not term in aliased_terms do
+          proper_case?(term, base_uri, Atom.to_string(term), data)
+        end
+      {term, original_term} ->
+        proper_case?(term, base_uri, original_term, data)
+      end
+  end
+
+  defp proper_case?(term, base_uri, uri_suffix, data) do
+    case RDF.Utils.ResourceClassifier.property?(term_to_uri(base_uri, uri_suffix), data) do
+      true  -> not lowercase?(term)
+      false -> lowercase?(term)
+      nil   -> lowercase?(term)
+    end
+  end
+
+  defp group_case_violations(violations) do
+    violations
+    |> Enum.group_by(fn
+         {term, true} ->
+           if lowercase?(term),
+             do:   :lowercased_term,
+             else: :capitalized_term
+         {term, _original} ->
+           if lowercase?(term),
+             do:   :lowercased_alias,
+             else: :capitalized_alias
+       end)
+  end
+
+  defp handle_case_violations(%{} = violations, _, terms, _, _) when map_size(violations) == 0,
+    do: terms
+
+  defp handle_case_violations(violations, :fail, _, base_uri, _) do
+    resource_name_violations = fn violations ->
+      violations
+      |> Enum.map(fn {term, true} -> term_to_uri(base_uri, term) end)
+      |> Enum.map(&to_string/1)
+      |> Enum.join("\n- ")
+    end
+    alias_violations = fn violations ->
+      violations
+      |> Enum.map(fn {term, original} ->
+          "alias #{term} for #{term_to_uri(base_uri, original)}"
+         end)
+      |> Enum.join("\n- ")
+    end
+
+    violation_error_lines =
+      violations
+      |> Enum.map(fn
+          {:capitalized_term, violations} ->
+            """
+            Terms for properties should be lowercased, but the following properties are
+            capitalized:
+
+            - #{resource_name_violations.(violations)}
+
+            """
+          {:lowercased_term, violations} ->
+            """
+            Terms for non-property resource should be capitalized, but the following
+            non-properties are lowercased:
+
+            - #{resource_name_violations.(violations)}
+
+            """
+          {:capitalized_alias, violations} ->
+            """
+            Terms for properties should be lowercased, but the following aliases for
+            properties are capitalized:
+
+            - #{alias_violations.(violations)}
+
+            """
+          {:lowercased_alias, violations} ->
+            """
+            Terms for non-property resource should be capitalized, but the following
+            aliases for non-properties are lowercased:
+
+            - #{alias_violations.(violations)}
+
+            """
+         end)
+      |> Enum.join
+
+    raise RDF.Namespace.InvalidTermError, """
+      Case violations detected
+
+      #{violation_error_lines}
+      You have the following options:
+
+      - if you are in control of the vocabulary, consider renaming the resource
+      - define a properly cased alias with the :alias option on defvocab
+      - change the handling of case violations with the :case_violations option on defvocab
+      """
+  end
+
+
+  defp handle_case_violations(violations, :warn, terms, base_uri, _) do
+    for {type, violations} <- violations,
+        {term, original}   <- violations do
+      case_violation_warning(type, term, original, base_uri)
+    end
+    terms
+  end
+
+  defp case_violation_warning(:capitalized_term, term, _, base_uri) do
+    IO.warn "'#{term_to_uri(base_uri, term)}' is a capitalized property"
+  end
+
+  defp case_violation_warning(:lowercased_term, term, _, base_uri) do
+    IO.warn "'#{term_to_uri(base_uri, term)}' is a lowercased non-property resource"
+  end
+
+  defp case_violation_warning(:capitalized_alias, term, _, _) do
+    IO.warn "capitalized alias '#{term}' for a property"
+  end
+
+  defp case_violation_warning(:lowercased_alias, term, _, base_uri) do
+    IO.warn "lowercased alias '#{term}' for a non-property resource"
   end
 
 
@@ -319,6 +466,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp rdf_data_env do
+    import RDF.Sigils
     __ENV__
   end
 
@@ -330,7 +478,7 @@ defmodule RDF.Vocabulary.Namespace do
         %URI{} -> true
         _      -> false
        end)
-    |> Stream.map(&to_string/1)
+    |> Stream.map(&URI.to_string/1)
     |> Stream.map(&(strip_base_uri(&1, base_uri)))
     |> Stream.filter(&vocab_term?/1)
     |> Enum.map(&String.to_atom/1)
@@ -366,8 +514,9 @@ defmodule RDF.Vocabulary.Namespace do
   defp vocab_term?(_), do: false
 
   @doc false
-  def term_to_uri(base_uri, term) do
-    URI.parse(base_uri <> to_string(term))
-  end
+  def term_to_uri(base_uri, term) when is_atom(term),
+    do: term_to_uri(base_uri, Atom.to_string(term))
+  def term_to_uri(base_uri, term),
+    do: URI.parse(base_uri <> term)
 
 end

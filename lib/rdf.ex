@@ -121,8 +121,10 @@ defmodule RDF do
 # temporary manual RDF vocab definitions
 # TODO: These should be defined as a vocabulary
 
-  def langString do
-    uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
-  end
+  @rdf_type URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+  def type, do: @rdf_type
+
+  @rdf_langString URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+  def langString, do: @rdf_langString
 
 end

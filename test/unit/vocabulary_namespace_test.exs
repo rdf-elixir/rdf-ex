@@ -3,8 +3,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   doctest RDF.Vocabulary.Namespace
 
-  alias RDF.Description
+  import RDF.Sigils
 
+  alias RDF.Description
 
   defmodule TestNS do
     use RDF.Vocabulary.Namespace
@@ -20,8 +21,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
     defvocab Example1,
       base_uri: "http://example.com/example1#",
       data: RDF.Graph.new([
-        {"http://example.com/example1#foo", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"},
-        {"http://example.com/example1#Bar", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://www.w3.org/2000/01/rdf-schema#Resource"}
+        {~I<http://example.com/example1#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+        {~I<http://example.com/example1#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
       ])
 
     defvocab Example2,
@@ -104,6 +105,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
+    test "special terms" do
+      defmodule NSEdge do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex#",
+          terms: ~w[nil true false]
+      end
+      alias NSEdge.Example
+
+      assert Example.nil == ~I<http://example.com/ex#nil>
+      assert Example.true == ~I<http://example.com/ex#true>
+      assert Example.false == ~I<http://example.com/ex#false>
+    end
+
+
     test "when the given file not found, an error is raised" do
       assert_raise File.Error, fn ->
         defmodule BadNS5 do
@@ -116,7 +133,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    test "when the alias contains invalid characters term, an error is raised" do
+
+    test "when an alias contains invalid characters, an error is raised" do
       assert_raise RDF.Namespace.InvalidAliasError, fn ->
         defmodule BadNS12 do
           use RDF.Vocabulary.Namespace
@@ -128,7 +146,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
         end
       end
     end
-
 
     test "when trying to map an already existing term, an error is raised" do
       assert_raise RDF.Namespace.InvalidAliasError, fn ->
@@ -245,14 +262,120 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "when a term contains unallowed characters it does not fail when invalid_characters = :ignore" do
-        defmodule BadNS11 do
-          use RDF.Vocabulary.Namespace
-          defvocab Example,
-            base_uri: "http://example.com/example#",
-            terms:    ~w[Foo-bar foo-bar],
-            invalid_characters: :ignore
-        end
+      defmodule BadNS11 do
+        use RDF.Vocabulary.Namespace
+        defvocab Example,
+          base_uri: "http://example.com/example#",
+          terms:    ~w[Foo-bar foo-bar],
+          invalid_characters: :ignore
+      end
     end
+
+  end
+
+
+  describe "case violation handling" do
+
+    test "aliases can fix case violations" do
+      defmodule NS23 do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex#",
+          case_violations: :fail,
+          data: RDF.Graph.new([
+            {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+          ]),
+          alias: [
+            foo: "Foo",
+            Bar: "bar",
+          ]
+      end
+    end
+
+    test "when case_violations == :ignore is set, case violations are ignored" do
+      defmodule NS24 do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex#",
+          case_violations: :ignore,
+          data: RDF.Graph.new([
+            {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+          ]),
+          alias: [
+            foo: "Foo",
+            Bar: "bar",
+          ]
+      end
+    end
+
+
+    test "a capitalized property without an alias and :case_violations == :fail, raises an error" do
+      assert_raise RDF.Namespace.InvalidTermError, ~r<http://example\.com/ex#Foo>s, fn ->
+        defmodule BadNS13 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex#",
+            case_violations: :fail,
+            data: RDF.Graph.new([
+              {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            ])
+        end
+      end
+    end
+
+    test "a lowercased non-property without an alias and :case_violations == :fail, raises an error" do
+      assert_raise RDF.Namespace.InvalidTermError, ~r<http://example\.com/ex#bar>s, fn ->
+        defmodule BadNS14 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex#",
+            case_violations: :fail,
+            data: RDF.Graph.new([
+              {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+            ])
+        end
+      end
+    end
+
+
+    test "a capitalized alias for a property and :case_violations == :fail, raises an error" do
+      assert_raise RDF.Namespace.InvalidTermError, fn ->
+        defmodule BadNS15 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex#",
+            case_violations: :fail,
+            data: RDF.Graph.new([
+              {~I<http://example.com/ex#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            ]),
+            alias: [Foo: "foo"]
+        end
+      end
+    end
+
+    test "a lowercased alias for a non-property and :case_violations == :fail, raises an error" do
+      assert_raise RDF.Namespace.InvalidTermError, fn ->
+        defmodule BadNS16 do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_uri: "http://example.com/ex#",
+            case_violations: :fail,
+            data: RDF.Graph.new([
+              {~I<http://example.com/ex#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+            ]),
+            alias: [bar: "Bar"]
+        end
+      end
+    end
+
   end
 
 
