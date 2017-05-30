@@ -20,6 +20,7 @@ defmodule RDF.Utils.ResourceClassifier do
       http://www.w3.org/2000/01/rdf-schema#range
       http://www.w3.org/2000/01/rdf-schema#subPropertyOf
       http://www.w3.org/2002/07/owl#equivalentProperty
+      http://www.w3.org/2002/07/owl#inverseOf
       http://www.w3.org/2002/07/owl#propertyDisjointWith
     ]
     |> Enum.map(&RDF.uri/1)
