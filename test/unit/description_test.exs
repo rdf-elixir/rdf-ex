@@ -270,12 +270,22 @@ defmodule RDF.DescriptionTest do
 
     test "multiple statements with a map of predications",
           %{empty_description: empty_description, description3: description3} do
-      assert Description.delete(empty_description, [{EX.p, [EX.O1, EX.O2]}]) == empty_description
+      assert Description.delete(empty_description, %{EX.p => EX.O1}) == empty_description
       assert Description.delete(description3, %{
                 EX.p1 => EX.O1,
                 EX.p2 => [EX.O2, EX.O3],
                 EX.p3 => [~B<foo>, ~L"bar"],
               }) == Description.new(EX.S, EX.p1, EX.O2)
+    end
+
+    test "multiple statements with another description",
+          %{empty_description: empty_description, description1: description1, description3: description3} do
+      assert Description.delete(empty_description, description1) == empty_description
+      assert Description.delete(description3, Description.new(EX.S, %{
+                EX.p1 => EX.O1,
+                EX.p2 => [EX.O2, EX.O3],
+                EX.p3 => [~B<foo>, ~L"bar"],
+              })) == Description.new(EX.S, EX.p1, EX.O2)
     end
   end
 

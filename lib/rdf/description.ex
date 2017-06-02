@@ -73,6 +73,11 @@ defmodule RDF.Description do
 
   @doc """
   Adds statements to a `RDF.Description`.
+
+  Note: When the statements to be added are given as another `RDF.Description`,
+  the subject must not match subject of the description to which the statements
+  are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Graph`
+  containing both descriptions.
   """
   def add(description, statements)
 
@@ -221,6 +226,11 @@ defmodule RDF.Description do
 
   @doc """
   Deletes statements from a `RDF.Description`.
+
+  Note: When the statements to be deleted are given as another `RDF.Description`,
+  the subject must not match subject of the description from which the statements
+  are deleted. If you want to delete only a matching description subject, you can
+  use `RDF.Data.delete/2`.
   """
   def delete(description, statements)
 
@@ -236,6 +246,12 @@ defmodule RDF.Description do
   def delete(description, statements) when is_list(statements) do
     Enum.reduce statements, description, fn (statement, description) ->
       delete(description, statement)
+    end
+  end
+
+  def delete(description = %RDF.Description{}, other_description = %RDF.Description{}) do
+    Enum.reduce other_description, description, fn ({_, predicate, object}, description) ->
+      delete(description, predicate, object)
     end
   end
 
