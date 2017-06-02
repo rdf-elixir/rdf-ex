@@ -265,6 +265,24 @@ defmodule RDF.Description do
 
 
   @doc """
+  Deletes all statements with the given properties.
+  """
+  def delete_predicates(description, properties)
+
+  def delete_predicates(%RDF.Description{} = description, properties) when is_list(properties) do
+    Enum.reduce properties, description, fn (property, description) ->
+      delete_predicates(description, property)
+    end
+  end
+
+  def delete_predicates(%RDF.Description{subject: subject, predications: predications}, property) do
+    with property = convert_predicate(property) do
+      %RDF.Description{subject: subject, predications: Map.delete(predications, property)}
+    end
+  end
+
+
+  @doc """
   Fetches the objects for the given predicate of a Description.
 
   When the predicate can not be found `:error` is returned.

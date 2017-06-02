@@ -290,6 +290,33 @@ defmodule RDF.DescriptionTest do
   end
 
 
+  describe "delete_predicates" do
+    setup do
+      {:ok,
+        empty_description: Description.new(EX.S),
+        description1: Description.new(EX.S, EX.p, [EX.O1, EX.O2]),
+        description2: Description.new(EX.S, [
+          {EX.P1, [EX.O1, EX.O2]},
+          {EX.p2, [~B<foo>, ~L"bar"]},
+        ])
+      }
+    end
+
+    test "a single property",
+          %{empty_description: empty_description, description1: description1, description2: description2}  do
+      assert Description.delete_predicates(description1, EX.p) == empty_description
+      assert Description.delete_predicates(description2, EX.P1) ==
+              Description.new(EX.S, EX.p2, [~B<foo>, ~L"bar"])
+    end
+
+    test "a list of properties",
+          %{empty_description: empty_description, description1: description1, description2: description2}  do
+      assert Description.delete_predicates(description1, [EX.p]) == empty_description
+      assert Description.delete_predicates(description2, [EX.P1, EX.p2, EX.p3]) == empty_description
+    end
+  end
+
+
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 
