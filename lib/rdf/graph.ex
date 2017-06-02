@@ -270,6 +270,25 @@ defmodule RDF.Graph do
     end
   end
 
+
+  @doc """
+  Deletes all statements with the given subjects.
+  """
+  def delete_subjects(graph, subjects)
+
+  def delete_subjects(%RDF.Graph{} = graph, subjects) when is_list(subjects) do
+    Enum.reduce subjects, graph, fn (subject, graph) ->
+      delete_subjects(graph, subject)
+    end
+  end
+
+  def delete_subjects(%RDF.Graph{name: name, descriptions: descriptions}, subject) do
+    with subject = convert_subject(subject) do
+      %RDF.Graph{name: name, descriptions: Map.delete(descriptions, subject)}
+    end
+  end
+
+
   @doc """
   Fetches the description of the given subject.
 

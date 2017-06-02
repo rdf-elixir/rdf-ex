@@ -335,6 +335,30 @@ defmodule RDF.GraphTest do
   end
 
 
+  describe "delete_subjects" do
+    setup do
+      {:ok,
+        graph1: Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O2]}),
+        graph2: Graph.new([
+          {EX.S1, EX.p1, [EX.O1, EX.O2]},
+          {EX.S2, EX.p2, EX.O3},
+          {EX.S3, EX.p3, [~B<foo>, ~L"bar"]},
+        ])
+      }
+    end
+
+    test "a single subject", %{graph1: graph1} do
+      assert Graph.delete_subjects(graph1, EX.Other) == graph1
+      assert Graph.delete_subjects(graph1, EX.S) == Graph.new(EX.Graph)
+    end
+
+    test "a list of subjects", %{graph1: graph1, graph2: graph2}  do
+      assert Graph.delete_subjects(graph1, [EX.S, EX.Other]) == Graph.new(EX.Graph)
+      assert Graph.delete_subjects(graph2, [EX.S1, EX.S2, EX.S3]) == Graph.new
+    end
+  end
+
+
   test "pop" do
     assert Graph.pop(Graph.new) == {nil, Graph.new}
 
