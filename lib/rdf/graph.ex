@@ -97,18 +97,9 @@ defmodule RDF.Graph do
   @doc """
   Adds triples to a `RDF.Graph`.
   """
-  def add(%RDF.Graph{name: name, descriptions: descriptions},
-          subject, predicate, object) do
-    with subject = convert_subject(subject) do
-      %RDF.Graph{name: name,
-        descriptions:
-          Map.update(descriptions, subject,
-            Description.new({subject, predicate, object}), fn description ->
-              description |> Description.add({predicate, object})
-            end)
-      }
-    end
-  end
+  def add(%RDF.Graph{} = graph, subject, predicate, objects),
+    do: add(graph, {subject, predicate, objects})
+
 
   @doc """
   Adds triples to a `RDF.Graph`.
@@ -120,8 +111,8 @@ defmodule RDF.Graph do
   """
   def add(graph, triples)
 
-  def add(graph, {subject, predicate, object}),
-    do: add(graph, subject, predicate, object)
+  def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
+    do: do_add(graph, convert_subject(subject), statement)
 
   def add(graph, triples) when is_list(triples) do
     Enum.reduce triples, graph, fn (triple, graph) ->
@@ -129,20 +120,24 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(%RDF.Graph{name: name, descriptions: descriptions},
-          %Description{subject: subject} = description) do
-    %RDF.Graph{name: name,
-      descriptions:
-        Map.update(descriptions, subject, description, fn current ->
-          current |> Description.add(description)
-        end)
-    }
-  end
+  def add(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+    do: do_add(graph, subject, description)
 
   def add(graph, %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
       add(graph, description)
     end
+  end
+
+  defp do_add(%RDF.Graph{name: name, descriptions: descriptions},
+              subject, statements) do
+    %RDF.Graph{name: name,
+      descriptions:
+        Map.update(descriptions, subject, Description.new(statements),
+          fn description ->
+            Description.add(description, statements)
+          end)
+    }
   end
 
 
@@ -156,17 +151,8 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
       RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
   """
-  def put(%RDF.Graph{name: name, descriptions: descriptions},
-          subject, predicate, objects) do
-    with subject = convert_subject(subject) do
-      %RDF.Graph{name: name,
-        descriptions:
-          Map.update(descriptions, subject,
-            Description.new(subject, predicate, objects),
-            fn current -> Description.put(current, predicate, objects) end)
-      }
-    end
-  end
+  def put(%RDF.Graph{} = graph, subject, predicate, objects),
+    do: put(graph, {subject, predicate, objects})
 
   @doc """
   Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
@@ -179,18 +165,11 @@ defmodule RDF.Graph do
   """
   def put(graph, statements)
 
-  def put(%RDF.Graph{} = graph, {subject, predicate, object}),
-    do: put(graph, subject, predicate, object)
+  def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
+    do: do_put(graph, convert_subject(subject), statement)
 
-  def put(%RDF.Graph{name: name, descriptions: descriptions},
-          %Description{subject: subject} = description) do
-    %RDF.Graph{name: name,
-      descriptions:
-        Map.update(descriptions, subject, description, fn current ->
-          current |> Description.put(description)
-        end)
-    }
-  end
+  def put(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+    do: do_put(graph, subject, description)
 
   def put(graph, %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
@@ -208,20 +187,33 @@ defmodule RDF.Graph do
     put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
   end
 
+  # TODO: Can we reduce this case also to do_put? Only the initializer differs ...
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
     with subject = convert_subject(subject) do
       %RDF.Graph{name: name,
         descriptions:
-          Map.update(descriptions, subject,
-            Description.new(subject, predications),
-            fn current -> current |> Description.put(predications) end)
+          Map.update(descriptions, subject, Description.new(subject, predications),
+            fn current ->
+              Description.put(current, predications)
+            end)
       }
     end
   end
 
   def put(graph, subject, {_predicate, _objects} = predications),
     do: put(graph, subject, [predications])
+
+  defp do_put(%RDF.Graph{name: name, descriptions: descriptions},
+          subject, statements) do
+    %RDF.Graph{name: name,
+      descriptions:
+        Map.update(descriptions, subject, Description.new(statements),
+          fn current ->
+            Description.put(current, statements)
+          end)
+    }
+  end
 
 
   @doc """
@@ -241,7 +233,7 @@ defmodule RDF.Graph do
   def delete(graph, triples)
 
   def delete(%RDF.Graph{} = graph, {subject, _, _} = triple) do
-    do_delete(graph, subject, triple)
+    do_delete(graph, convert_subject(subject), triple)
   end
 
   def delete(%RDF.Graph{} = graph, triples) when is_list(triples) do
@@ -262,8 +254,7 @@ defmodule RDF.Graph do
 
   defp do_delete(%RDF.Graph{name: name, descriptions: descriptions} = graph,
                  subject, statements) do
-    with subject = convert_subject(subject),
-         description when not is_nil(description) <- descriptions[subject],
+    with description when not is_nil(description) <- descriptions[subject],
          new_description = Description.delete(description, statements)
     do
       %RDF.Graph{name: name,
