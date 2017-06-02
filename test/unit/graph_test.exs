@@ -199,6 +199,7 @@ defmodule RDF.GraphTest do
     end
   end
 
+
   describe "put" do
     test "a list of triples" do
       g = Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
@@ -260,6 +261,79 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S3, EX.P3, EX.O3})
     end
   end
+
+
+  describe "delete" do
+    setup do
+      {:ok,
+        graph1: Graph.new({EX.S, EX.p, EX.O}),
+        graph2: Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O2]}),
+        graph3: Graph.new([
+          {EX.S1, EX.p1, [EX.O1, EX.O2]},
+          {EX.S2, EX.p2, EX.O3},
+          {EX.S3, EX.p3, [~B<foo>, ~L"bar"]},
+        ])
+      }
+    end
+
+    test "a single statement as a triple",
+          %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete(Graph.new, {EX.S, EX.p, EX.O}) == Graph.new
+      assert Graph.delete(graph1, {EX.S, EX.p, EX.O}) == Graph.new
+      assert Graph.delete(graph2, {EX.S, EX.p, EX.O1}) ==
+              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+      assert Graph.delete(graph2, {EX.S, EX.p, EX.O1}) ==
+              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+    end
+
+    test "multiple statements with a triple with multiple objects",
+          %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete(Graph.new, {EX.S, EX.p, [EX.O1, EX.O2]}) == Graph.new
+      assert Graph.delete(graph1, {EX.S, EX.p, [EX.O, EX.O2]}) == Graph.new
+      assert Graph.delete(graph2, {EX.S, EX.p, [EX.O1, EX.O2]}) == Graph.new(EX.Graph)
+    end
+
+    test "multiple statements with a list of triples",
+          %{graph1: graph1, graph2: graph2, graph3: graph3} do
+      assert Graph.delete(graph1, [{EX.S, EX.p, EX.O},
+                                   {EX.S, EX.p, EX.O2}]) == Graph.new
+      assert Graph.delete(graph2, [{EX.S, EX.p, EX.O1},
+                                   {EX.S, EX.p, EX.O2}]) == Graph.new(EX.Graph)
+      assert Graph.delete(graph3, [
+              {EX.S1, EX.p1, [EX.O1, EX.O2]},
+              {EX.S2, EX.p2, EX.O3},
+              {EX.S3, EX.p3, ~B<foo>}]) == Graph.new({EX.S3, EX.p3, ~L"bar"})
+    end
+
+    test "multiple statements with a Description",
+          %{graph1: graph1, graph2: graph2, graph3: graph3} do
+      assert Graph.delete(graph1, Description.new(EX.S,
+                [{EX.p, EX.O}, {EX.p2, EX.O2}])) == Graph.new
+      assert Graph.delete(graph2, Description.new(EX.S, EX.p, [EX.O1, EX.O2])) ==
+              Graph.new(EX.Graph)
+      assert Graph.delete(graph3, Description.new(EX.S3, EX.p3, ~B<foo>)) ==
+               Graph.new([
+                         {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                         {EX.S2, EX.p2, EX.O3},
+                         {EX.S3, EX.p3, [~L"bar"]},
+                       ])
+    end
+
+    test "multiple statements with a Graph",
+          %{graph1: graph1, graph2: graph2, graph3: graph3} do
+      assert Graph.delete(graph1, graph2) == graph1
+      assert Graph.delete(graph1, graph1) == Graph.new
+      assert Graph.delete(graph2, Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O3]})) ==
+              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+      assert Graph.delete(graph3, Graph.new([
+                {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                {EX.S2, EX.p2, EX.O3},
+                {EX.S3, EX.p3, ~B<foo>},
+              ])) == Graph.new({EX.S3, EX.p3, ~L"bar"})
+    end
+
+  end
+
 
   test "pop" do
     assert Graph.pop(Graph.new) == {nil, Graph.new}

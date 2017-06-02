@@ -112,6 +112,11 @@ defmodule RDF.Graph do
 
   @doc """
   Adds triples to a `RDF.Graph`.
+
+  Note: When the statements to be added are given as another `RDF.Graph`,
+  the graph name must not match graph name of the graph to which the statements
+  are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Dataset`
+  containing both graphs.
   """
   def add(graph, triples)
 
@@ -218,6 +223,61 @@ defmodule RDF.Graph do
   def put(graph, subject, {_predicate, _objects} = predications),
     do: put(graph, subject, [predications])
 
+
+  @doc """
+  Deletes statements from a `RDF.Graph`.
+  """
+  def delete(graph, subject, predicate, object),
+    do: delete(graph, {subject, predicate, object})
+
+  @doc """
+  Deletes statements from a `RDF.Graph`.
+
+  Note: When the statements to be deleted are given as another `RDF.Graph`,
+  the graph name must not match graph name of the graph from which the statements
+  are deleted. If you want to delete only graphs with matching names, you can
+  use `RDF.Data.delete/2`.
+  """
+  def delete(graph, triples)
+
+  def delete(%RDF.Graph{} = graph, {subject, _, _} = triple) do
+    do_delete(graph, subject, triple)
+  end
+
+  def delete(%RDF.Graph{} = graph, triples) when is_list(triples) do
+    Enum.reduce triples, graph, fn (triple, graph) ->
+      delete(graph, triple)
+    end
+  end
+
+  def delete(%RDF.Graph{} = graph, %Description{subject: subject} = description) do
+    do_delete(graph, subject, description)
+  end
+
+  def delete(%RDF.Graph{} = graph, %RDF.Graph{descriptions: descriptions}) do
+    Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
+      delete(graph, description)
+    end
+  end
+
+  defp do_delete(%RDF.Graph{name: name, descriptions: descriptions} = graph,
+                 subject, statements) do
+    with subject = convert_subject(subject),
+         description when not is_nil(description) <- descriptions[subject],
+         new_description = Description.delete(description, statements)
+    do
+      %RDF.Graph{name: name,
+        descriptions:
+          if Enum.empty?(new_description) do
+            Map.delete(descriptions, subject)
+          else
+            Map.put(descriptions, subject, new_description)
+          end
+      }
+    else
+      nil -> graph
+    end
+  end
 
   @doc """
   Fetches the description of the given subject.
