@@ -97,14 +97,6 @@ defmodule RDF.Graph do
   @doc """
   Adds triples to a `RDF.Graph`.
   """
-  def add(graph, subject, predicate, objects)
-
-  def add(graph, subject, predicate, objects) when is_list(objects) do
-    Enum.reduce objects, graph, fn (object, graph) ->
-      add(graph, subject, predicate, object)
-    end
-  end
-
   def add(%RDF.Graph{name: name, descriptions: descriptions},
           subject, predicate, object) do
     with subject = convert_subject(subject) do
