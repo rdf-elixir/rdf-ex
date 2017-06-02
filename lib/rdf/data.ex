@@ -4,16 +4,6 @@ defprotocol RDF.Data do
   """
 
   @doc """
-  Add statements to a RDF data structure.
-  """
-  def add(data, statements)
-
-  @doc """
-  Adds statements to a RDF data structure and overwrites all existing statements with the same subjects and predicates.
-  """
-  def put(data, statements)
-
-  @doc """
   Deletes statements from a RDF data structure.
   """
   def delete(data, statements)

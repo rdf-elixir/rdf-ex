@@ -503,8 +503,6 @@ defimpl Enumerable, for: RDF.Description do
 end
 
 defimpl RDF.Data, for: RDF.Description do
-  def add(description, statements),    do: RDF.Description.add(description, statements)
-  def put(description, statements),    do: RDF.Description.put(description, statements)
   def delete(%RDF.Description{subject: subject} = description,
              %RDF.Description{subject: other_subject})
     when subject != other_subject,

@@ -366,20 +366,6 @@ defmodule RDF.DescriptionTest do
       }
     end
 
-    test "add", %{description: description} do
-      assert RDF.Data.add(description, {EX.S, EX.p1, EX.O4}) ==
-              Description.add(description, {EX.S, EX.p1, EX.O4})
-
-      assert RDF.Data.add(description, {EX.Other, EX.p2, EX.O4}) == description
-    end
-
-    test "put", %{description: description} do
-      assert RDF.Data.put(description, {EX.S, EX.p1, EX.O4}) ==
-              Description.put(description, {EX.S, EX.p1, EX.O4})
-
-      assert RDF.Data.put(description, {EX.Other, EX.p2, EX.O4}) == description
-    end
-
     test "delete", %{description: description} do
       assert RDF.Data.delete(description, {EX.S, EX.p1, EX.O2}) ==
               Description.delete(description, {EX.S, EX.p1, EX.O2})
