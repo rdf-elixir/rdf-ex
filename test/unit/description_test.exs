@@ -387,6 +387,11 @@ defmodule RDF.DescriptionTest do
       assert RDF.Data.delete(description, {EX.Other, EX.p1, EX.O2}) == description
     end
 
+    test "deleting a Description with a different subject does nothing", %{description: description} do
+      assert RDF.Data.delete(description,
+              %Description{description | subject: EX.Other}) == description
+    end
+
     test "pop", %{description: description} do
       assert RDF.Data.pop(description) == Description.pop(description)
     end
