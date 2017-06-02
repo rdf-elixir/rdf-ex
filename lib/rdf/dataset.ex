@@ -255,6 +255,29 @@ defmodule RDF.Dataset do
     do: put(dataset, {subject, graph_context}, predications, graph_context)
 
 
+  @doc """
+  Deletes the given graph.
+  """
+  def delete_graph(graph, graph_names)
+
+  def delete_graph(%RDF.Dataset{} = dataset, graph_names) when is_list(graph_names) do
+    Enum.reduce graph_names, dataset, fn (graph_name, dataset) ->
+      delete_graph(dataset, graph_name)
+    end
+  end
+
+  def delete_graph(%RDF.Dataset{name: name, graphs: graphs}, graph_name) do
+    with graph_name = convert_graph_name(graph_name) do
+      %RDF.Dataset{name: name, graphs: Map.delete(graphs, graph_name)}
+    end
+  end
+
+  @doc """
+  Deletes the default graph.
+  """
+  def delete_default_graph(%RDF.Dataset{} = graph),
+    do: delete_graph(graph, nil)
+
 
   @doc """
   Fetches the `RDF.Graph` with the given name.

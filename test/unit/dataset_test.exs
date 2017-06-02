@@ -388,6 +388,46 @@ defmodule RDF.DatasetTest do
     end
   end
 
+
+  describe "delete_graph" do
+    setup do
+      {:ok,
+        dataset1: Dataset.new({EX.S1, EX.p1, EX.O1}),
+        dataset2: Dataset.new([
+            {EX.S1, EX.p1, EX.O1},
+            {EX.S2, EX.p2, EX.O2, EX.Graph},
+          ]),
+        dataset3: Dataset.new([
+            {EX.S1, EX.p1, EX.O1},
+            {EX.S2, EX.p2, EX.O2, EX.Graph1},
+            {EX.S3, EX.p3, EX.O3, EX.Graph2},
+          ]),
+      }
+    end
+
+    test "the default graph", %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete_graph(dataset1, nil) == Dataset.new
+      assert Dataset.delete_graph(dataset2, nil) == Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+    end
+
+    test "delete_default_graph", %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete_default_graph(dataset1) == Dataset.new
+      assert Dataset.delete_default_graph(dataset2) == Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+    end
+
+    test "a single graph", %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete_graph(dataset1, EX.Graph) == dataset1
+      assert Dataset.delete_graph(dataset2, EX.Graph) == dataset1
+    end
+
+    test "a list of graphs", %{dataset1: dataset1, dataset3: dataset3}  do
+      assert Dataset.delete_graph(dataset3, [EX.Graph1, EX.Graph2]) == dataset1
+      assert Dataset.delete_graph(dataset3, [EX.Graph1, EX.Graph2, EX.Graph3]) == dataset1
+      assert Dataset.delete_graph(dataset3, [EX.Graph1, EX.Graph2, nil]) == Dataset.new
+    end
+  end
+
+
   test "pop" do
     assert Dataset.pop(Dataset.new) == {nil, Dataset.new}
 
@@ -408,6 +448,7 @@ defmodule RDF.DatasetTest do
     assert graph_context == uri(EX.Graph)
     assert Enum.count(dataset.graphs) == 1
   end
+
 
   describe "Enumerable protocol" do
     test "Enum.count" do
