@@ -523,6 +523,9 @@ defmodule RDF.Graph do
   """
   def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
 
+  defdelegate statements(graph), to: RDF.Graph, as: :triples
+
+
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
     with subject = convert_subject(subject),

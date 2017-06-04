@@ -77,3 +77,23 @@ defimpl RDF.Data, for: RDF.Description do
   def subject_count(_),             do: 1
   def statement_count(description), do: RDF.Description.count(description)
 end
+
+defimpl RDF.Data, for: RDF.Graph do
+  def delete(%RDF.Graph{name: name} = graph,
+             %RDF.Graph{name: other_name})
+    when name != other_name,
+    do: graph
+  def delete(graph, statements), do: RDF.Graph.delete(graph, statements)
+  def pop(graph),                do: RDF.Graph.pop(graph)
+
+  def include?(graph, statements), do: RDF.Graph.include?(graph, statements)
+
+  def statements(graph), do: RDF.Graph.statements(graph)
+  def subjects(graph),   do: RDF.Graph.subjects(graph)
+  def predicates(graph), do: RDF.Graph.predicates(graph)
+  def objects(graph),    do: RDF.Graph.objects(graph)
+  def resources(graph),  do: RDF.Graph.resources(graph)
+
+  def subject_count(graph),   do: RDF.Graph.subject_count(graph)
+  def statement_count(graph), do: RDF.Graph.triple_count(graph)
+end
