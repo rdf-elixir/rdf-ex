@@ -54,3 +54,26 @@ defprotocol RDF.Data do
   def statement_count(data)
 
 end
+
+defimpl RDF.Data, for: RDF.Description do
+  def delete(%RDF.Description{subject: subject} = description,
+             %RDF.Description{subject: other_subject})
+    when subject != other_subject,
+    do: description
+  def delete(description, statements), do: RDF.Description.delete(description, statements)
+  def pop(description),                do: RDF.Description.pop(description)
+
+  def include?(description, statements),
+    do: RDF.Description.include?(description, statements)
+
+  def statements(description), do: RDF.Description.statements(description)
+  def predicates(description), do: RDF.Description.predicates(description)
+  def objects(description),    do: RDF.Description.objects(description)
+  def subjects(%RDF.Description{subject: subject}), do: MapSet.new([subject])
+
+  def resources(%RDF.Description{subject: subject} = description),
+    do: RDF.Description.resources(description) |> MapSet.put(subject)
+
+  def subject_count(_),             do: 1
+  def statement_count(description), do: RDF.Description.count(description)
+end

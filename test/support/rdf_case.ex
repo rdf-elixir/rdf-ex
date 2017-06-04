@@ -16,6 +16,8 @@ defmodule RDF.Test.Case do
 
       import RDF, only: [uri: 1, literal: 1, bnode: 1]
       import unquote(__MODULE__)
+
+      import RDF.Sigils
     end
   end
 
