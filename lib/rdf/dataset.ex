@@ -256,6 +256,68 @@ defmodule RDF.Dataset do
 
 
   @doc """
+  Deletes statements from a `RDF.Dataset`.
+
+  The optional third argument `graph_context` defaulting to `nil` for the default
+  graph, specifies the graph to which the statements are added.
+  Note that this also applies when deleting a named graph. Its name is ignored over
+  `graph_context` and its default value.
+
+  Note: When the statements to be deleted are given as another `RDF.Dataset`,
+  the dataset name must not match dataset name of the dataset from which the statements
+  are deleted. If you want to delete only datasets with matching names, you can
+  use `RDF.Data.delete/2`.
+
+  """
+  def delete(dataset, statements, graph_context \\ nil)
+
+  def delete(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
+    with graph_context = convert_graph_name(graph_context) do
+      Enum.reduce statements, dataset, fn (statement, dataset) ->
+        delete(dataset, statement, graph_context)
+      end
+    end
+  end
+
+  def delete(%RDF.Dataset{} = dataset, {_, _, _} = statement, graph_context),
+    do: do_delete(dataset, graph_context, statement)
+
+  def delete(%RDF.Dataset{} = dataset, {subject, predicate, objects, graph_context}, _),
+    do: do_delete(dataset, graph_context, {subject, predicate, objects})
+
+  def delete(%RDF.Dataset{} = dataset, %Description{} = description, graph_context),
+    do: do_delete(dataset, graph_context, description)
+
+  def delete(%RDF.Dataset{} = dataset, %RDF.Graph{} = graph, graph_context),
+    do: do_delete(dataset, graph_context, graph)
+
+  def delete(%RDF.Dataset{} = dataset, %RDF.Dataset{graphs: graphs}, _) do
+    Enum.reduce graphs, dataset, fn ({_, graph}, dataset) ->
+      delete(dataset, graph)
+    end
+  end
+
+  defp do_delete(%RDF.Dataset{name: name, graphs: graphs} = dataset,
+          graph_context, statements) do
+    with graph_context = convert_graph_name(graph_context),
+         graph when not is_nil(graph) <- graphs[graph_context],
+         new_graph = Graph.delete(graph, statements)
+    do
+      %RDF.Dataset{name: name,
+        graphs:
+          if Enum.empty?(new_graph) do
+            Map.delete(graphs, graph_context)
+          else
+            Map.put(graphs, graph_context, new_graph)
+          end
+      }
+    else
+      nil -> dataset
+    end
+  end
+
+
+  @doc """
   Deletes the given graph.
   """
   def delete_graph(graph, graph_names)

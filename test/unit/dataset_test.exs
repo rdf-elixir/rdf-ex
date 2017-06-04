@@ -389,6 +389,108 @@ defmodule RDF.DatasetTest do
   end
 
 
+  describe "delete" do
+    setup do
+      {:ok,
+        dataset1: Dataset.new({EX.S1, EX.p1, EX.O1}),
+        dataset2: Dataset.new([
+            {EX.S1, EX.p1, EX.O1},
+            {EX.S2, EX.p2, EX.O2, EX.Graph},
+          ]),
+        dataset3: Dataset.new([
+            {EX.S1, EX.p1, EX.O1},
+            {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1},
+            {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
+          ]),
+      }
+    end
+
+    test "a single statement",
+          %{dataset1: dataset1, dataset2: dataset2, dataset3: dataset3} do
+      assert Dataset.delete(Dataset.new, {EX.S, EX.p, EX.O}) == Dataset.new
+      assert Dataset.delete(dataset1, {EX.S1, EX.p1, EX.O1}) == Dataset.new
+      assert Dataset.delete(dataset2, {EX.S2, EX.p2, EX.O2, EX.Graph}) == dataset1
+      assert Dataset.delete(dataset2, {EX.S1, EX.p1, EX.O1}) ==
+              Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+      assert Dataset.delete(dataset3, {EX.S2, EX.p2, EX.O1, EX.Graph1}) ==
+              Dataset.new [
+                {EX.S1, EX.p1, EX.O1},
+                {EX.S2, EX.p2, EX.O2, EX.Graph1},
+                {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
+              ]
+      assert Dataset.delete(dataset3, {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1}) ==
+              Dataset.new [
+                {EX.S1, EX.p1, EX.O1},
+                {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
+              ]
+      assert Dataset.delete(dataset3, {EX.S2, EX.p2, [EX.O1, EX.O2]}, EX.Graph1) ==
+              Dataset.new [
+                {EX.S1, EX.p1, EX.O1},
+                {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
+              ]
+    end
+
+    test "multiple statements with a list of triples",
+          %{dataset1: dataset1, dataset2: dataset2, dataset3: dataset3} do
+      assert Dataset.delete(dataset1, [{EX.S1, EX.p1, EX.O1},
+                                       {EX.S1, EX.p1, EX.O2}]) == Dataset.new
+      assert Dataset.delete(dataset2, [{EX.S1, EX.p1, EX.O1},
+                                       {EX.S2, EX.p2, EX.O2, EX.Graph}]) == Dataset.new
+      assert Dataset.delete(dataset3, [
+              {EX.S1, EX.p1, EX.O1},
+              {EX.S2, EX.p2, [EX.O1, EX.O2, EX.O3], EX.Graph1},
+              {EX.S3, EX.p3, ~B<foo>, EX.Graph2}]) == Dataset.new({EX.S3, EX.p3, ~L"bar", EX.Graph2})
+    end
+
+    test "multiple statements with a Description",
+          %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete(dataset1, Description.new(EX.S1, EX.p1, EX.O1)) == Dataset.new
+      assert Dataset.delete(dataset1, Description.new(EX.S1, EX.p1, EX.O1), EX.Graph) == dataset1
+      assert Dataset.delete(dataset2, Description.new(EX.S2, EX.p2, EX.O2), EX.Graph) == dataset1
+      assert Dataset.delete(dataset2, Description.new(EX.S1, EX.p1, EX.O1)) ==
+              Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+    end
+
+    test "multiple statements with a Graph",
+          %{dataset1: dataset1, dataset2: dataset2, dataset3: dataset3} do
+      assert Dataset.delete(dataset1, Graph.new({EX.S1, EX.p1, EX.O1})) == Dataset.new
+      assert Dataset.delete(dataset2, Graph.new({EX.S1, EX.p1, EX.O1})) ==
+              Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+      assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}), EX.Graph) == dataset1
+      assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}), EX.Graph) == dataset1
+      assert Dataset.delete(dataset3, Graph.new([
+                {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                {EX.S2, EX.p2, EX.O3},
+                {EX.S3, EX.p3, ~B<foo>},
+              ])) == Dataset.new([
+                {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1},
+                {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
+              ])
+      assert Dataset.delete(dataset3, Graph.new({EX.S3, EX.p3, ~B<foo>}), EX.Graph2) ==
+              Dataset.new([
+                {EX.S1, EX.p1, EX.O1},
+                {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1},
+                {EX.S3, EX.p3, ~L"bar", EX.Graph2},
+              ])
+    end
+
+    test "the name of a graph is ignored",
+          %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete(dataset1, Graph.new(EX.Graph, {EX.S1, EX.p1, EX.O1})) == Dataset.new
+      assert Dataset.delete(dataset2, Graph.new(EX.Graph, {EX.S1, EX.p1, EX.O1})) ==
+              Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+      assert Dataset.delete(dataset2, Graph.new(EX.Graph, {EX.S2, EX.p2, EX.O2})) == dataset2
+    end
+
+    test "multiple statements with a Dataset",
+          %{dataset1: dataset1, dataset2: dataset2} do
+      assert Dataset.delete(dataset1, dataset1) == Dataset.new
+      assert Dataset.delete(dataset1, dataset2) == Dataset.new
+      assert Dataset.delete(dataset2, dataset1) == Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
+    end
+  end
+
+
   describe "delete_graph" do
     setup do
       {:ok,
