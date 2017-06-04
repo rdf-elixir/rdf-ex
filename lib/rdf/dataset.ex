@@ -259,7 +259,7 @@ defmodule RDF.Dataset do
   Deletes statements from a `RDF.Dataset`.
 
   The optional third argument `graph_context` defaulting to `nil` for the default
-  graph, specifies the graph to which the statements are added.
+  graph, specifies the graph from which the statements are deleted.
   Note that this also applies when deleting a named graph. Its name is ignored over
   `graph_context` and its default value.
 
@@ -612,9 +612,8 @@ defmodule RDF.Dataset do
     end
   end
 
-  def include?(%RDF.Dataset{} = description,
-                              {subject, predicate, object, graph_context}, _),
-    do: include?(description, {subject, predicate, object}, graph_context)
+  def include?(%RDF.Dataset{} = dataset, {subject, predicate, object, graph_context}, _),
+    do: include?(dataset, {subject, predicate, object}, graph_context)
 
 
   # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?

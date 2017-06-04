@@ -14,9 +14,18 @@ defmodule RDF.DataTest do
           EX.S2
           |> EX.p2(EX.O3, EX.O4)
       )
+    dataset =
+      Dataset.new
+      |> Dataset.add(graph)
+      |> Dataset.add((
+          Graph.new(EX.NamedGraph)
+          |> Graph.add(description)
+          |> Graph.add({EX.S3, EX.p3, EX.O5})), EX.NamedGraph
+      )
     {:ok,
       description: description,
-      graph: graph
+      graph: graph,
+      dataset: dataset,
     }
   end
 
@@ -126,6 +135,65 @@ defmodule RDF.DataTest do
 
     test "statement_count", %{graph: graph} do
       assert RDF.Data.statement_count(graph) == 7
+    end
+  end
+
+
+  describe "RDF.Data protocol implementation of RDF.Dataset" do
+    test "delete", %{dataset: dataset} do
+      assert RDF.Data.delete(dataset, {EX.S, EX.p1, EX.O2}) ==
+                Dataset.delete(dataset, {EX.S, EX.p1, EX.O2})
+      assert RDF.Data.delete(dataset, {EX.S3, EX.p3, EX.O5, EX.NamedGraph}) ==
+                Dataset.delete(dataset, {EX.S3, EX.p3, EX.O5, EX.NamedGraph})
+      assert RDF.Data.delete(dataset, {EX.Other, EX.p1, EX.O2}) == dataset
+    end
+
+    test "deleting a Dataset with a different name does nothing", %{dataset: dataset} do
+      assert RDF.Data.delete(dataset,
+              %Dataset{dataset | name: EX.OtherDataset}) == dataset
+    end
+
+    test "pop", %{dataset: dataset} do
+      assert RDF.Data.pop(dataset) == Dataset.pop(dataset)
+    end
+
+    test "include?", %{dataset: dataset} do
+      assert RDF.Data.include?(dataset, {EX.S, EX.p1, EX.O2})
+      assert RDF.Data.include?(dataset, {EX.S2, EX.p2, EX.O3})
+      assert RDF.Data.include?(dataset, {EX.S3, EX.p3, EX.O5, EX.NamedGraph})
+      refute RDF.Data.include?(dataset, {EX.Other, EX.p1, EX.O2})
+    end
+
+    test "statements", %{dataset: dataset} do
+      assert RDF.Data.statements(dataset) == Dataset.statements(dataset)
+    end
+
+    test "subjects", %{dataset: dataset} do
+      assert RDF.Data.subjects(dataset) == MapSet.new([uri(EX.S), uri(EX.S2), uri(EX.S3)])
+    end
+
+    test "predicates", %{dataset: dataset} do
+      assert RDF.Data.predicates(dataset) == MapSet.new([EX.p1, EX.p2, EX.p3])
+    end
+
+    test "objects", %{dataset: dataset} do
+      assert RDF.Data.objects(dataset) ==
+              MapSet.new([uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), uri(EX.O5), ~B<foo>])
+    end
+
+    test "resources", %{dataset: dataset} do
+      assert RDF.Data.resources(dataset) == MapSet.new([
+              uri(EX.S), uri(EX.S2), uri(EX.S3), EX.p1, EX.p2, EX.p3,
+              uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), uri(EX.O5), ~B<foo>
+             ])
+    end
+
+    test "subject_count", %{dataset: dataset} do
+      assert RDF.Data.subject_count(dataset) == 3
+    end
+
+    test "statement_count", %{dataset: dataset} do
+      assert RDF.Data.statement_count(dataset) == 13
     end
   end
 

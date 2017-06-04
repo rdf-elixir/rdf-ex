@@ -58,8 +58,7 @@ end
 defimpl RDF.Data, for: RDF.Description do
   def delete(%RDF.Description{subject: subject} = description,
              %RDF.Description{subject: other_subject})
-    when subject != other_subject,
-    do: description
+    when subject != other_subject,     do: description
   def delete(description, statements), do: RDF.Description.delete(description, statements)
   def pop(description),                do: RDF.Description.pop(description)
 
@@ -79,10 +78,8 @@ defimpl RDF.Data, for: RDF.Description do
 end
 
 defimpl RDF.Data, for: RDF.Graph do
-  def delete(%RDF.Graph{name: name} = graph,
-             %RDF.Graph{name: other_name})
-    when name != other_name,
-    do: graph
+  def delete(%RDF.Graph{name: name} = graph, %RDF.Graph{name: other_name})
+    when name != other_name,     do: graph
   def delete(graph, statements), do: RDF.Graph.delete(graph, statements)
   def pop(graph),                do: RDF.Graph.pop(graph)
 
@@ -96,4 +93,22 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def subject_count(graph),   do: RDF.Graph.subject_count(graph)
   def statement_count(graph), do: RDF.Graph.triple_count(graph)
+end
+
+defimpl RDF.Data, for: RDF.Dataset do
+  def delete(%RDF.Dataset{name: name} = dataset, %RDF.Dataset{name: other_name})
+    when name != other_name,       do: dataset
+  def delete(dataset, statements), do: RDF.Dataset.delete(dataset, statements)
+  def pop(dataset),                do: RDF.Dataset.pop(dataset)
+
+  def include?(dataset, statements), do: RDF.Dataset.include?(dataset, statements)
+
+  def statements(dataset), do: RDF.Dataset.statements(dataset)
+  def subjects(dataset),   do: RDF.Dataset.subjects(dataset)
+  def predicates(dataset), do: RDF.Dataset.predicates(dataset)
+  def objects(dataset),    do: RDF.Dataset.objects(dataset)
+  def resources(dataset),  do: RDF.Dataset.resources(dataset)
+
+  def subject_count(dataset),   do: dataset |> subjects |> Enum.count
+  def statement_count(dataset), do: RDF.Dataset.statement_count(dataset)
 end
