@@ -114,6 +114,9 @@ defmodule RDF.Graph do
   def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
     do: do_add(graph, convert_subject(subject), statement)
 
+  def add(graph, {subject, predicate, object, _}),
+    do: add(graph, {subject, predicate, object})
+
   def add(graph, triples) when is_list(triples) do
     Enum.reduce triples, graph, fn (triple, graph) ->
       add(graph, triple)
@@ -167,6 +170,9 @@ defmodule RDF.Graph do
 
   def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
     do: do_put(graph, convert_subject(subject), statement)
+
+  def put(graph, {subject, predicate, object, _}),
+    do: put(graph, {subject, predicate, object})
 
   def put(%RDF.Graph{} = graph, %Description{subject: subject} = description),
     do: do_put(graph, subject, description)
@@ -232,9 +238,11 @@ defmodule RDF.Graph do
   """
   def delete(graph, triples)
 
-  def delete(%RDF.Graph{} = graph, {subject, _, _} = triple) do
-    do_delete(graph, convert_subject(subject), triple)
-  end
+  def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
+    do: do_delete(graph, convert_subject(subject), triple)
+
+  def delete(graph, {subject, predicate, object, _}),
+    do: delete(graph, {subject, predicate, object})
 
   def delete(%RDF.Graph{} = graph, triples) when is_list(triples) do
     Enum.reduce triples, graph, fn (triple, graph) ->
@@ -242,9 +250,8 @@ defmodule RDF.Graph do
     end
   end
 
-  def delete(%RDF.Graph{} = graph, %Description{subject: subject} = description) do
-    do_delete(graph, subject, description)
-  end
+  def delete(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+    do: do_delete(graph, subject, description)
 
   def delete(%RDF.Graph{} = graph, %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, graph, fn ({_, description}, graph) ->

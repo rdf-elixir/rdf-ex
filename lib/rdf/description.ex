@@ -92,6 +92,9 @@ defmodule RDF.Description do
       else: description
   end
 
+  def add(description, {subject, predicate, object, _}),
+    do: add(description, {subject, predicate, object})
+
   def add(description, statements) when is_list(statements) do
     Enum.reduce statements, description, fn (statement, description) ->
       add(description, statement)
@@ -133,8 +136,8 @@ defmodule RDF.Description do
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
 
-  def put(desc = %RDF.Description{}, predicate, object),
-    do: put(desc, predicate, [object])
+  def put(%RDF.Description{} = description, predicate, object),
+    do: put(description, predicate, [object])
 
   @doc """
   Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.
@@ -155,16 +158,19 @@ defmodule RDF.Description do
   """
   def put(description, statements)
 
-  def put(desc = %RDF.Description{}, {predicate, object}),
-    do: put(desc, predicate, object)
+  def put(%RDF.Description{} = description, {predicate, object}),
+    do: put(description, predicate, object)
 
-  def put(desc = %RDF.Description{}, {subject, predicate, object}) do
-    if convert_subject(subject) == desc.subject,
-      do:   put(desc, predicate, object),
-      else: desc
+  def put(%RDF.Description{} = description, {subject, predicate, object}) do
+    if convert_subject(subject) == description.subject,
+      do:   put(description, predicate, object),
+      else: description
   end
 
-  def put(desc = %RDF.Description{subject: subject}, statements) when is_list(statements) do
+  def put(description, {subject, predicate, object, _}),
+    do: put(description, {subject, predicate, object})
+
+  def put(%RDF.Description{subject: subject} = description, statements) when is_list(statements) do
     statements
     |> Stream.map(fn
          {p, o}           -> {convert_predicate(p), o}
@@ -176,8 +182,9 @@ defmodule RDF.Description do
        end)
     |> Stream.filter(&(&1)) # filter nil values
     |> Enum.group_by(&(elem(&1, 0)), &(elem(&1, 1)))
-    |> Enum.reduce(desc, fn ({predicate, objects}, desc) ->
-                            put(desc, predicate, objects) end)
+    |> Enum.reduce(description, fn ({predicate, objects}, description) ->
+         put(description, predicate, objects)
+       end)
   end
 
   def put(%RDF.Description{subject: subject, predications: predications},
@@ -244,6 +251,9 @@ defmodule RDF.Description do
       do:   delete(description, predicate, object),
       else: description
   end
+
+  def delete(description, {subject, predicate, object, _}),
+    do: delete(description, {subject, predicate, object})
 
   def delete(description, statements) when is_list(statements) do
     Enum.reduce statements, description, fn (statement, description) ->
