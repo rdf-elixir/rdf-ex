@@ -401,7 +401,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all graphs.
   """
-  def graphs(%RDF.Dataset{graphs: graphs}), do: graphs
+  def graphs(%RDF.Dataset{graphs: graphs}), do: Map.values(graphs)
 
 
   @doc """
