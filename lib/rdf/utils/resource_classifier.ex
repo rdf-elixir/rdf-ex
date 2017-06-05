@@ -1,13 +1,12 @@
 defmodule RDF.Utils.ResourceClassifier do
 
-  alias RDF.Graph # TODO: use RDF.Data instead
   alias RDF.Description
 
   @doc """
   Determines if the given resource is RDF property by
   """
   def property?(resource, data) do
-    with %Description{} = description <- Graph.description(data, resource) do
+    with %Description{} = description <- RDF.Data.description(data, resource) do
       property_by_domain?(description) or
        property_by_rdf_type?(Description.get(description, RDF.type))
     end

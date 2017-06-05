@@ -472,7 +472,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp rdf_data_vocab_terms(data, base_uri) do
     data
-    |> RDF.Graph.resources # TODO: support also RDF.Datasets ...
+    |> RDF.Data.resources
     # filter URIs
     |> Stream.filter(fn
         %URI{} -> true

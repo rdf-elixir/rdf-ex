@@ -25,6 +25,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
         {~I<http://example.com/example1#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
       ])
 
+    defvocab Example23,
+      base_uri: "http://example.com/example23#",
+      data: RDF.Dataset.new([
+        {~I<http://example.com/example23#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+        {~I<http://example.com/example23#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/example23#Graph>}
+      ])
+
+
     defvocab Example2,
       base_uri: "http://example.com/example2/",
       file: "test/data/vocab_ns_example2.nt"
@@ -213,12 +221,16 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
 
   describe "__terms__" do
-    alias TestNS.{Example1, Example5}
+    alias TestNS.{Example1, Example23, Example5}
 
     test "includes all defined terms" do
       assert length(Example1.__terms__) == 2
       assert :foo in Example1.__terms__
       assert :Bar in Example1.__terms__
+
+      assert length(Example23.__terms__) == 2
+      assert :foo in Example23.__terms__
+      assert :Bar in Example23.__terms__
     end
 
     test "includes aliases" do
