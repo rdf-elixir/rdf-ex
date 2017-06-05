@@ -18,6 +18,22 @@ defmodule RDF.Statement do
   @type convertible_graph_name :: graph_name | atom | String.t
 
 
+  @doc """
+  Creates a `RDF.Statement` tuple with proper RDF values.
+
+  An error is raised when the given elements are not convertible to RDF values.
+
+  # Examples
+
+      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42}
+      {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+      {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+  """
+  def convert(statement)
+  def convert({_, _, _} = triple),  do: Triple.new(triple)
+  def convert({_, _, _, _} = quad), do: Quad.new(quad)
+
   @doc false
   def convert_subject(uri)
   def convert_subject(uri = %URI{}), do: uri
