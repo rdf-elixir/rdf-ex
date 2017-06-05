@@ -20,7 +20,8 @@ defmodule RDF.DataTest do
       |> Dataset.add((
           Graph.new(EX.NamedGraph)
           |> Graph.add(description)
-          |> Graph.add({EX.S3, EX.p3, EX.O5})), EX.NamedGraph
+          |> Graph.add({EX.S3, EX.p3, EX.O5})
+          |> Graph.add({EX.S, EX.p3, EX.O5})), EX.NamedGraph
       )
     {:ok,
       description: description,
@@ -53,6 +54,18 @@ defmodule RDF.DataTest do
 
     test "statements", %{description: description} do
       assert RDF.Data.statements(description) == Description.statements(description)
+    end
+
+    test "description when the requested subject matches the Description.subject",
+          %{description: description} do
+      assert RDF.Data.description(description, description.subject) == description
+      assert RDF.Data.description(description, to_string(description.subject)) == description
+      assert RDF.Data.description(description, EX.S) == description
+    end
+
+    test "description when the requested subject does not match the Description.subject",
+          %{description: description} do
+      assert RDF.Data.description(description, uri(EX.Other)) == Description.new(EX.Other)
     end
 
     test "subjects", %{description: description} do
@@ -107,6 +120,16 @@ defmodule RDF.DataTest do
 
     test "statements", %{graph: graph} do
       assert RDF.Data.statements(graph) == Graph.statements(graph)
+    end
+
+    test "description when a description is present",
+          %{graph: graph, description: description} do
+      assert RDF.Data.description(graph, uri(EX.S)) == description
+      assert RDF.Data.description(graph, EX.S) == description
+    end
+
+    test "description when a description is not present", %{graph: graph} do
+      assert RDF.Data.description(graph, uri(EX.Other)) == Description.new(EX.Other)
     end
 
     test "subjects", %{graph: graph} do
@@ -164,6 +187,17 @@ defmodule RDF.DataTest do
       refute RDF.Data.include?(dataset, {EX.Other, EX.p1, EX.O2})
     end
 
+    test "description when a description is present",
+          %{dataset: dataset, description: description} do
+      description_aggregate = Description.add(description, {EX.S, EX.p3, EX.O5})
+      assert RDF.Data.description(dataset, uri(EX.S)) == description_aggregate
+      assert RDF.Data.description(dataset, EX.S) == description_aggregate
+    end
+
+    test "description when a description is not present", %{dataset: dataset} do
+      assert RDF.Data.description(dataset, uri(EX.Other)) == Description.new(EX.Other)
+    end
+
     test "statements", %{dataset: dataset} do
       assert RDF.Data.statements(dataset) == Dataset.statements(dataset)
     end
@@ -193,7 +227,7 @@ defmodule RDF.DataTest do
     end
 
     test "statement_count", %{dataset: dataset} do
-      assert RDF.Data.statement_count(dataset) == 13
+      assert RDF.Data.statement_count(dataset) == 14
     end
   end
 
