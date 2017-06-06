@@ -75,7 +75,7 @@ defmodule RDF.Test.Case do
 
   def unnamed_dataset, do: Dataset.new
 
-  def named_dataset(name \\ EX.GraphName), do: Dataset.new(name)
+  def named_dataset(name \\ EX.DatasetName), do: Dataset.new(name)
 
   def unnamed_dataset?(%Dataset{name: nil}), do: true
   def unnamed_dataset?(_),                   do: false

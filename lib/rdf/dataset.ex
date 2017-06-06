@@ -90,27 +90,28 @@ defmodule RDF.Dataset do
   @doc """
   Adds triples and quads to a `RDF.Dataset`.
 
-  The optional third argument `graph_context` defaulting to `nil` for the default
-  graph, specifies the graph to which the statements are added.
-
-  Note: This also applies when adding a named graph. Its name is ignored over
-  `graph_context` and its default value.
+  The optional third `graph_context` argument allows to set a different
+  destination graph to which the statements are added, ignoring the graph context
+  of given quads or the name of given graphs.
   """
-  def add(dataset, statements, graph_context \\ nil)
+  def add(dataset, statements, graph_context \\ false)
 
   def add(dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = graph_context && convert_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         add(dataset, statement, graph_context)
       end
     end
   end
 
+  def add(dataset, {subject, predicate, objects}, false),
+    do: add(dataset, {subject, predicate, objects, nil})
+
   def add(dataset, {subject, predicate, objects}, graph_context),
     do: add(dataset, {subject, predicate, objects, graph_context})
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
-          {subject, predicate, objects, graph_context}, _) do
+          {subject, predicate, objects, graph_context}, false) do
     with graph_context = convert_graph_name(graph_context) do
       updated_graphs =
         Map.update(graphs, graph_context,
@@ -119,6 +120,12 @@ defmodule RDF.Dataset do
       %RDF.Dataset{name: name, graphs: updated_graphs}
     end
   end
+
+  def add(%RDF.Dataset{} = dataset, {subject, predicate, objects, _}, graph_context),
+    do: add(dataset, {subject, predicate, objects, graph_context}, false)
+
+  def add(%RDF.Dataset{} = dataset, %Description{} = description, false),
+    do: add(dataset, description, nil)
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
@@ -133,23 +140,25 @@ defmodule RDF.Dataset do
     end
   end
 
-  def add(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
-          graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
-      %RDF.Dataset{name: name,
-        graphs:
-          Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
-            current |> Graph.add(graph)
-          end)
-      }
-    end
+  def add(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph, false) do
+    %RDF.Dataset{name: name,
+      graphs:
+        Map.update(graphs, graph.name, graph, fn current ->
+          Graph.add(current, graph)
+        end)
+    }
   end
 
-  def add(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, _) do
-    Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
-      add(dataset, graph)
+  def add(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
+    do: add(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+
+  def add(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
+    with graph_context = graph_context && convert_graph_name(graph_context) do
+      Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
+        add(dataset, graph, graph_context)
+      end
     end
-  end 
+  end
 
 
   @doc """
@@ -165,30 +174,17 @@ defmodule RDF.Dataset do
       iex> RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
-
-  Note: When using a map to pass the statements you'll have to take care for yourselve to
-    avoid using subject key clashes due to using inconsistent, semantically equivalent forms.
-
-      iex> RDF.Dataset.put(RDF.Dataset.new, %{
-      ...>       EX.S       => [{EX.P, EX.O1}],
-      ...>      {EX.S, nil} => [{EX.P, EX.O2}]})
-      RDF.Dataset.new({EX.S, EX.P, EX.O2})
-
-  The last always always wins in these cases. This decision was made to mitigate
-  performance drawbacks. The list form will always take care of this for you:
-
-      iex> RDF.Dataset.put(RDF.Dataset.new, [
-      ...>      {EX.S, EX.P, EX.O1},
-      ...>      {EX.S, EX.P, EX.O2, nil}])
-      RDF.Dataset.new({EX.S, EX.P, EX.O1}, {EX.S, EX.P, EX.O2})
   """
-  def put(dataset, statements, graph_context \\ nil)
+  def put(dataset, statements, graph_context \\ false)
+
+  def put(%RDF.Dataset{} = dataset, {subject, predicate, objects}, false),
+    do: put(dataset, {subject, predicate, objects, nil})
 
   def put(%RDF.Dataset{} = dataset, {subject, predicate, objects}, graph_context),
     do: put(dataset, {subject, predicate, objects, graph_context})
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
-          {subject, predicate, objects, graph_context}, _) do
+          {subject, predicate, objects, graph_context}, false) do
     with graph_context = convert_graph_name(graph_context) do
       new_graph =
         case graphs[graph_context] do
@@ -202,15 +198,28 @@ defmodule RDF.Dataset do
     end
   end
 
-  def put(%RDF.Dataset{} = dataset, statements, graph_context)
-        when is_list(statements) do
+  def put(%RDF.Dataset{} = dataset, {subject, predicate, objects, _}, graph_context),
+    do: put(dataset, {subject, predicate, objects, graph_context}, false)
+
+  def put(%RDF.Dataset{} = dataset, statements, false) when is_list(statements) do
+    do_put dataset, Enum.group_by(statements,
+        fn
+          {s, _, _}       -> {s, nil}
+          {s, _, _, nil}  -> {s, nil}
+          {s, _, _, c}    -> {s, convert_graph_name(c)}
+        end,
+        fn
+          {_, p, o, _} -> {p, o}
+          {_, p, o}    -> {p, o}
+        end)
+  end
+
+  def put(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
     with graph_context = convert_graph_name(graph_context) do
-      put dataset, Enum.group_by(statements,
+      do_put dataset, Enum.group_by(statements,
           fn
-            {s, _, _, nil}                       -> s
-            {s, _, _, c}                         -> {s, c}
-            {s, _, _} when is_nil(graph_context) -> s
-            {s, _, _}                            -> {s, graph_context}
+            {s, _, _, _} -> {s, graph_context}
+            {s, _, _}    -> {s, graph_context}
           end,
           fn
             {_, p, o, _} -> {p, o}
@@ -218,6 +227,9 @@ defmodule RDF.Dataset do
           end)
     end
   end
+
+  def put(%RDF.Dataset{} = dataset, %Description{} = description, false),
+    do: put(dataset, description, nil)
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
@@ -232,39 +244,37 @@ defmodule RDF.Dataset do
     end
   end
 
-  def put(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph,
-          graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
-      %RDF.Dataset{name: name,
-        graphs:
-          Map.update(graphs, graph_context, Graph.new(graph_context, graph), fn current ->
-            current |> Graph.put(graph)
-          end)
-      }
+  def put(%RDF.Dataset{name: name, graphs: graphs}, %Graph{} = graph, false) do
+    %RDF.Dataset{name: name,
+      graphs:
+        Map.update(graphs, graph.name, graph, fn current ->
+          Graph.put(current, graph)
+        end)
+    }
+  end
+
+  def put(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
+    do: put(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+
+  def put(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
+    with graph_context = graph_context && convert_graph_name(graph_context) do
+      Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
+        put(dataset, graph, graph_context)
+      end
     end
   end
 
-  def put(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, _) do
-    Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
-      put(dataset, graph)
-    end
-  end 
-
-  def put(%RDF.Dataset{} = dataset, statements, graph_context)
-        when is_map(statements) do
-    with graph_context = convert_graph_name(graph_context) do
-      Enum.reduce statements, dataset,
-        fn ({subject_with_context, predications}, dataset) ->
-          put(dataset, subject_with_context, predications, graph_context)
-        end
-    end
+  defp do_put(%RDF.Dataset{} = dataset, statements) when is_map(statements) do
+    Enum.reduce statements, dataset,
+      fn ({subject_with_context, predications}, dataset) ->
+        do_put(dataset, subject_with_context, predications)
+      end
   end
 
-  def put(%RDF.Dataset{name: name, graphs: graphs},
-            {subject, graph_context}, predications, default_graph_context)
+  defp do_put(%RDF.Dataset{name: name, graphs: graphs},
+            {subject, graph_context}, predications)
         when is_list(predications) do
-    with graph_context = graph_context || default_graph_context,
-         graph_context = convert_graph_name(graph_context) do
+    with graph_context = convert_graph_name(graph_context) do
       graph = Map.get(graphs, graph_context, Graph.new(graph_context))
       new_graphs = graphs
         |> Map.put(graph_context, Graph.put(graph, subject, predications))
@@ -272,50 +282,56 @@ defmodule RDF.Dataset do
     end
   end
 
-  def put(%RDF.Dataset{} = dataset, subject, predications, graph_context)
-        when is_list(predications),
-    do: put(dataset, {subject, graph_context}, predications, graph_context)
-
 
   @doc """
   Deletes statements from a `RDF.Dataset`.
 
-  The optional third argument `graph_context` defaulting to `nil` for the default
-  graph, specifies the graph from which the statements are deleted.
-  Note that this also applies when deleting a named graph. Its name is ignored over
-  `graph_context` and its default value.
+  The optional third `graph_context` argument allows to set a different
+  destination graph from which the statements are deleted, ignoring the graph
+  context of given quads or the name of given graphs.
 
   Note: When the statements to be deleted are given as another `RDF.Dataset`,
   the dataset name must not match dataset name of the dataset from which the statements
   are deleted. If you want to delete only datasets with matching names, you can
   use `RDF.Data.delete/2`.
-
   """
-  def delete(dataset, statements, graph_context \\ nil)
+  def delete(dataset, statements, graph_context \\ false)
 
   def delete(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = graph_context && convert_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         delete(dataset, statement, graph_context)
       end
     end
   end
 
+  def delete(%RDF.Dataset{} = dataset, {_, _, _} = statement, false),
+    do: do_delete(dataset, nil, statement)
+
   def delete(%RDF.Dataset{} = dataset, {_, _, _} = statement, graph_context),
     do: do_delete(dataset, graph_context, statement)
 
-  def delete(%RDF.Dataset{} = dataset, {subject, predicate, objects, graph_context}, _),
+  def delete(%RDF.Dataset{} = dataset, {subject, predicate, objects, graph_context}, false),
     do: do_delete(dataset, graph_context, {subject, predicate, objects})
+
+  def delete(%RDF.Dataset{} = dataset, {subject, predicate, objects, _}, graph_context),
+    do: do_delete(dataset, graph_context, {subject, predicate, objects})
+
+  def delete(%RDF.Dataset{} = dataset, %Description{} = description, false),
+    do: do_delete(dataset, nil, description)
 
   def delete(%RDF.Dataset{} = dataset, %Description{} = description, graph_context),
     do: do_delete(dataset, graph_context, description)
 
+  def delete(%RDF.Dataset{} = dataset, %RDF.Graph{name: name} = graph, false),
+    do: do_delete(dataset, name, graph)
+
   def delete(%RDF.Dataset{} = dataset, %RDF.Graph{} = graph, graph_context),
     do: do_delete(dataset, graph_context, graph)
 
-  def delete(%RDF.Dataset{} = dataset, %RDF.Dataset{graphs: graphs}, _) do
+  def delete(%RDF.Dataset{} = dataset, %RDF.Dataset{graphs: graphs}, graph_context) do
     Enum.reduce graphs, dataset, fn ({_, graph}, dataset) ->
-      delete(dataset, graph)
+      delete(dataset, graph, graph_context)
     end
   end
 
