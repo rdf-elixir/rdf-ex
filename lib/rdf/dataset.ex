@@ -44,6 +44,11 @@ defmodule RDF.Dataset do
   def new(%RDF.Graph{} = graph),
     do: new() |> add(graph, graph.name)
 
+  @doc """
+  Creates an unnamed `RDF.Dataset` from another `RDF.Dataset`.
+  """
+  def new(%RDF.Dataset{graphs: graphs}),
+    do: %RDF.Dataset{graphs: graphs}
 
   @doc """
   Creates an empty named `RDF.Dataset`.
@@ -75,6 +80,11 @@ defmodule RDF.Dataset do
   def new(name, %RDF.Graph{} = graph),
     do: new(name) |> add(graph, graph.name)
 
+  @doc """
+  Creates a named `RDF.Dataset` from another `RDF.Dataset`.
+  """
+  def new(name, %RDF.Dataset{graphs: graphs}),
+    do: %RDF.Dataset{new(name) | graphs: graphs}
 
 
   @doc """
@@ -134,6 +144,12 @@ defmodule RDF.Dataset do
       }
     end
   end
+
+  def add(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, _) do
+    Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
+      add(dataset, graph)
+    end
+  end 
 
 
   @doc """
@@ -227,6 +243,12 @@ defmodule RDF.Dataset do
       }
     end
   end
+
+  def put(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, _) do
+    Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
+      put(dataset, graph)
+    end
+  end 
 
   def put(%RDF.Dataset{} = dataset, statements, graph_context)
         when is_map(statements) do

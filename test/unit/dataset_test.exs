@@ -257,6 +257,44 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph})
     end
 
+    test "an unnamed Dataset" do
+      ds = Dataset.add(dataset(), Dataset.new([
+        {EX.Subject1, EX.predicate1, EX.Object1},
+        {EX.Subject1, EX.predicate2, EX.Object2},
+      ]))
+      assert ds.name == nil
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+
+      ds = Dataset.add(ds, Dataset.new({EX.Subject1, EX.predicate2, EX.Object3}))
+      ds = Dataset.add(ds, Dataset.new({EX.Subject1, EX.predicate2, EX.Object3, EX.Graph}))
+      assert ds.name == nil
+      assert Enum.count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph})
+    end
+
+    test "a named Dataset" do
+      ds = Dataset.add(named_dataset(), Dataset.new(EX.DS1, [
+        {EX.Subject1, EX.predicate1, EX.Object1},
+        {EX.Subject1, EX.predicate2, EX.Object2},
+      ]))
+      assert ds.name == uri(EX.DatasetName)
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+
+      ds = Dataset.add(ds, Dataset.new(EX.DS2, {EX.Subject1, EX.predicate2, EX.Object3}))
+      ds = Dataset.add(ds, Dataset.new(EX.DS2, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph}))
+      assert ds.name == uri(EX.DatasetName)
+      assert Enum.count(ds) == 4
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
+      assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph})
+    end
+
     test "a list of Descriptions" do
       ds = Dataset.add(dataset(), [
         Description.new({EX.Subject1, EX.predicate1, EX.Object1}),
