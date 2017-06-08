@@ -92,17 +92,17 @@ defimpl Inspect, for: RDF.Dataset do
   import Inspect.Algebra
   import RDF.InspectHelper
 
-  def inspect(%RDF.Dataset{name: name, graphs: graphs}, opts) do
+  def inspect(%RDF.Dataset{name: name} = dataset, opts) do
     doc =
       space("name:", value_doc(name, opts))
-      |> line(graphs_doc(graphs, opts))
+      |> line(graphs_doc(RDF.Dataset.graphs(dataset), opts))
       |> nest(4)
     surround("#RDF.Dataset{", doc, "}")
   end
 
   defp graphs_doc(graphs, opts) do
     graphs
-    |> Enum.map(fn {_, graph}  -> to_doc(graph, opts) end)
+    |> Enum.map(fn graph       -> to_doc(graph, opts) end)
     |> fold_doc(fn(graph, acc) -> line(graph, acc) end)
   end
 end
