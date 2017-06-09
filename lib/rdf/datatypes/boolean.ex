@@ -1,4 +1,8 @@
 defmodule RDF.Boolean do
+  @moduledoc """
+  `RDF.Datatype` for XSD boolean.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.boolean
 
 

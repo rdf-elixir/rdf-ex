@@ -1,4 +1,8 @@
 defmodule RDF.DateTime do
+  @moduledoc """
+  `RDF.Datatype` for XSD dateTime.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.dateTime
 
 

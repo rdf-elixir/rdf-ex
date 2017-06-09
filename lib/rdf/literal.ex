@@ -2,6 +2,7 @@ defmodule RDF.Literal do
   @moduledoc """
   RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
   """
+
   defstruct [:value, :uncanonical_lexical, :datatype, :language]
 
   @type t :: module
@@ -21,16 +22,16 @@ defmodule RDF.Literal do
 
   The following mapping of Elixir types to XSD datatypes is applied:
 
-  | Elixir type     | XSD datatype |
-  | :-------------- | :----------- |
-  | `string`        | `string`     |
-  | `boolean`       | `boolean`    |
-  | `integer`       | `integer`    |
-  | `float`         | `double`     |
-  | `Time`          | `time`       |
-  | `Date`          | `date`       |
-  | `DateTime`      | `dateTime`   |
-  | `NaiveDateTime` | `dateTime`   |
+  | Elixir datatype | XSD datatype   |
+  | :-------------- | :------------- |
+  | `string`        | `xsd:string`   |
+  | `boolean`       | `xsd:boolean`  |
+  | `integer`       | `xsd:integer`  |
+  | `float`         | `xsd:double`   |
+  | `Time`          | `xsd:time`     |
+  | `Date`          | `xsd:date`     |
+  | `DateTime`      | `xsd:dateTime` |
+  | `NaiveDateTime` | `xsd:dateTime` |
 
 
   # Examples
@@ -85,6 +86,9 @@ defmodule RDF.Literal do
     do: new(value)
 
 
+  @doc """
+  Returns the given literal with the canonical lexical representation according to its datatype.
+  """
   def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil, datatype: id} = literal) do
     case RDF.Datatype.get(id) do
       nil      -> to_string(value)
@@ -94,7 +98,9 @@ defmodule RDF.Literal do
 
   def lexical(%RDF.Literal{uncanonical_lexical: lexical}), do: lexical
 
-
+  @doc """
+  Returns the given literal in its canonical lexical representation.
+  """
   def canonical(%RDF.Literal{uncanonical_lexical: nil} = literal), do: literal
   def canonical(%RDF.Literal{datatype: id} = literal) do
     case RDF.Datatype.get(id) do
@@ -104,10 +110,16 @@ defmodule RDF.Literal do
   end
 
 
+  @doc """
+  Returns if the given literal is in its canonical lexical representation.
+  """
   def canonical?(%RDF.Literal{uncanonical_lexical: nil}), do: true
   def canonical?(_),                                      do: false
 
 
+  @doc """
+  Returns if the value of the given literal is a valid according to its datatype.
+  """
   def valid?(%RDF.Literal{datatype: id} = literal) do
     case RDF.Datatype.get(id) do
       nil      -> true
@@ -117,7 +129,7 @@ defmodule RDF.Literal do
 
 
   @doc """
-  Checks if a literal is a simple literal.
+  Returns if a literal is a simple literal.
 
   A simple literal has no datatype or language.
 
@@ -128,7 +140,7 @@ defmodule RDF.Literal do
 
 
   @doc """
-  Checks if a literal is a language-tagged literal.
+  Returns if a literal is a language-tagged literal.
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
   """
@@ -137,7 +149,7 @@ defmodule RDF.Literal do
 
 
   @doc """
-  Checks if a literal is a datatyped literal.
+  Returns if a literal is a datatyped literal.
 
   For historical reasons, this excludes `xsd:string` and `rdf:langString`.
 
@@ -149,7 +161,7 @@ defmodule RDF.Literal do
 
 
   @doc """
-  Checks if a literal is a plain literal.
+  Returns if a literal is a plain literal.
 
   A plain literal may have a language, but may not have a datatype.
   For all practical purposes, this includes `xsd:string` literals too.

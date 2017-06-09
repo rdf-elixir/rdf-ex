@@ -1,4 +1,8 @@
 defmodule RDF.String do
+  @moduledoc """
+  `RDF.Datatype` for XSD string.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.string
 
 

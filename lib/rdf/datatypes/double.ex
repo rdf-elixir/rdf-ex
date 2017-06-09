@@ -1,4 +1,8 @@
 defmodule RDF.Double do
+  @moduledoc """
+  `RDF.Datatype` for XSD double.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.double
 
 

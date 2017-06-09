@@ -1,4 +1,8 @@
 defmodule RDF.Integer do
+  @moduledoc """
+  `RDF.Datatype` for XSD integer.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.integer
 
 

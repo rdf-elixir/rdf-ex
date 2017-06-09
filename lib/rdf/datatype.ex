@@ -1,16 +1,41 @@
 defmodule RDF.Datatype do
+  @moduledoc """
+  A behaviour for natively supported literal datatypes.
+
+  A `RDF.Datatype` implements the foundational functions for the lexical form,
+  the validation, conversion and canonicalization of typed `RDF.Literal`s.
+  """
+
   alias RDF.Literal
   alias RDF.Datatype.NS.XSD
 
+  @doc """
+  The URI of the datatype.
+  """
   @callback id :: URI.t
 
-  @callback lexical(RDF.Literal.t) :: any
+  @doc """
+  Produces the lexical form of a `RDF.Literal`.
+  """
+  @callback lexical(literal :: RDF.Literal.t) :: any
 
+  @doc """
+  Produces the lexical form of a value.
+  """
   @callback canonical_lexical(any) :: binary
 
+  @doc """
+  Produces the lexical form of an invalid value of a typed Literal.
+
+  The default implementation of the `_using__` macro just returns `to_string`
+  representation of the value.
+  """
   @callback invalid_lexical(any) :: binary
 
-  @callback canonical(RDF.Literal.t) :: RDF.Literal.t
+  @doc """
+  Produces the canonical form of a `RDF.Literal`.
+  """
+  @callback canonical(literal :: RDF.Literal.t) :: RDF.Literal.t
 
   @doc """
   Converts a value into a proper native value.
@@ -26,11 +51,10 @@ defmodule RDF.Datatype do
   """
   @callback convert(any, keyword) :: any
 
-  @callback valid?(RDF.Literal.t) :: boolean
-
-  @callback build_literal_by_value(binary, keyword) :: RDF.Literal.t
-  @callback build_literal_by_lexical(binary, keyword) :: RDF.Literal.t
-  @callback build_literal(any, binary, keyword) :: RDF.Literal.t
+  @doc """
+  Determines if the value of a `RDF.Literal` is a member of lexical value space of its datatype.
+  """
+  @callback valid?(literal :: RDF.Literal.t) :: boolean
 
 
   # TODO: This mapping should be created dynamically and be extendable, to allow user-defined datatypes ...
@@ -45,10 +69,24 @@ defmodule RDF.Datatype do
     XSD.dateTime   => RDF.DateTime,
   }
 
+  @doc """
+  The mapping of URIs of datatypes to their `RDF.Datatype`.
+  """
   def mapping, do: @mapping
+
+  @doc """
+  The URIs of all datatypes with a `RDF.Datatype` defined.
+  """
   def ids,     do: Map.keys(@mapping)
+
+  @doc """
+  All defined `RDF.Datatype` modules.
+  """
   def modules, do: Map.values(@mapping)
 
+  @doc """
+  Returns the `RDF.Datatype` for a directly datatype URI or the datatype URI of a `RDF.Literal`.
+  """
   def get(%Literal{datatype: id}), do: get(id)
   def get(id), do: @mapping[id]
 

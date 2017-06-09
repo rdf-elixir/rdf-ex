@@ -1,4 +1,8 @@
 defmodule RDF.LangString do
+  @moduledoc """
+  `RDF.Datatype` for RDF langString.
+  """
+
   use RDF.Datatype, id: RDF.langString
 
 

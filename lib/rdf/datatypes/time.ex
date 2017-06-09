@@ -1,4 +1,8 @@
 defmodule RDF.Time do
+  @moduledoc """
+  `RDF.Datatype` for XSD time.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.time
 
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/

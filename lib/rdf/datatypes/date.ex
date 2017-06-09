@@ -1,4 +1,8 @@
 defmodule RDF.Date do
+  @moduledoc """
+  `RDF.Datatype` for XSD date.
+  """
+
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.date
 
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
