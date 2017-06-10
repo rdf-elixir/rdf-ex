@@ -1,4 +1,16 @@
 defmodule RDF.NS do
+  @moduledoc """
+  `RDF.Namespace`s for fundamental RDF vocabularies.
+
+  Namely:
+
+  - `RDF.NS.RDF`
+  - `RDF.NS.RDFS`
+  - `RDF.NS.OWL`
+  - `RDF.NS.SKOS`
+  - `RDF.NS.XSD`
+  """
+
   use RDF.Vocabulary.Namespace
 
   @vocabdoc """

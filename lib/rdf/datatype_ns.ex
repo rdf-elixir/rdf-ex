@@ -7,6 +7,7 @@ defmodule RDF.Datatype.NS do
 
   use RDF.Vocabulary.Namespace
 
+  @vocabdoc false
   defvocab XSD,
     base_uri: "http://www.w3.org/2001/XMLSchema#",
     terms: ~w[

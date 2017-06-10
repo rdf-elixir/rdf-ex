@@ -1,43 +1,14 @@
 defmodule RDF.Vocabulary.Namespace do
   @moduledoc """
-  Defines a RDF Vocabulary as a `RDF.Namespace`.
+  A RDF vocabulary as a `RDF.Namespace`.
 
+  `RDF.Vocabulary.Namespace` modules represent a RDF vocabulary as a `RDF.Namespace`.
+  They can be defined with the `defvocab/2` macro of this module.
 
-  ## Strict vocabularies
-
-  What is a strict vocabulary and why should I use them over non-strict
-  vocabularies and define all terms ...
-
-
-  ## Defining a vocabulary
-
-  There are two basic ways to define a vocabulary:
-
-  1. You can define all terms manually.
-  2. You can load all terms from a specified namespace in a given dataset or
-     graph.
-
-  Either way, you'll first have to define a new module for your vocabulary:
-
-      defmodule Example do
-        use RDF.Vocabulary.Namespace
-
-        defvocab EX,
-          base_uri: "http://www.example.com/ns/",
-          terms: ~w[Foo bar]
-
-        # Your term definitions
-      end
-
-  The `base_uri` argument with the URI prefix of all the terms in the defined
-  vocabulary is required and expects a valid URI ending with either a `"/"` or
-  a `"#"`.
-
-
-  ## Reflection
-
-  `__base_uri__` and `__terms__` ...
-
+  RDF.ex comes with predefined modules for some fundamentals vocabularies in
+  the `RDF.NS` module.
+  Furthermore, the [rdf_vocab](https://hex.pm/packages/rdf_vocab) package
+  contains predefined modules for popular vocabularies.
   """
 
   @vocabs_dir "priv/vocabs"
@@ -59,7 +30,7 @@ defmodule RDF.Vocabulary.Namespace do
       case source!(opts) do
         {:terms, terms} -> {terms, nil}
         {:data, data}   -> {rdf_data_vocab_terms(data, base_uri), data}
-      end #|> IO.inspect()
+      end
 
     terms =
       terms
@@ -135,6 +106,7 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
+  @doc false
   defmacro define_vocab_terms(terms, base_uri) do
     terms
     |> Stream.map(fn
@@ -448,7 +420,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
 
-  def filename!(opts) do
+  defp filename!(opts) do
     if filename = Keyword.get(opts, :file) do
       cond do
         File.exists?(filename) ->
