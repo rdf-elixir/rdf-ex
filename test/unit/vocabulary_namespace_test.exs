@@ -35,7 +35,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     defvocab ExampleFromNTriplesFile,
       base_uri: "http://example.com/from_ntriples/",
-      file: "test/data/vocab_ns_example2.nt"
+      file: "test/data/vocab_ns_example.nt"
+
+    defvocab ExampleFromNQuadsFile,
+      base_uri: "http://example.com/from_nquads/",
+      file: "test/data/vocab_ns_example.nq"
 
     defvocab StrictExampleFromTerms,
       base_uri: "http://example.com/strict_from_terms#",
@@ -351,12 +355,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert RDF.uri(Example1.foo) in Example1.__uris__
     assert RDF.uri(Example1.Bar) in Example1.__uris__
 
-    alias TestNS.StrictExampleFromAliasedTerms, as: Example2
-    assert length(Example2.__uris__) == 4
-    assert RDF.uri(Example2.Term1) in Example2.__uris__
-    assert RDF.uri(Example2.term2) in Example2.__uris__
-    assert RDF.uri(Example2.Term3) in Example2.__uris__
-    assert RDF.uri(Example2.term4) in Example2.__uris__
+    alias TestNS.ExampleFromNTriplesFile, as: Example2
+    assert length(Example2.__uris__) == 2
+    assert RDF.uri(Example2.foo) in Example2.__uris__
+    assert RDF.uri(Example2.Bar) in Example2.__uris__
+
+    alias TestNS.ExampleFromNQuadsFile, as: Example3
+    assert length(Example3.__uris__) == 2
+    assert RDF.uri(Example3.foo) in Example3.__uris__
+    assert RDF.uri(Example3.Bar) in Example3.__uris__
+
+    alias TestNS.StrictExampleFromAliasedTerms, as: Example4
+    assert length(Example4.__uris__) == 4
+    assert RDF.uri(Example4.Term1) in Example4.__uris__
+    assert RDF.uri(Example4.term2) in Example4.__uris__
+    assert RDF.uri(Example4.Term3) in Example4.__uris__
+    assert RDF.uri(Example4.term4) in Example4.__uris__
   end
 
 

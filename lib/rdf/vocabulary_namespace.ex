@@ -462,7 +462,14 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp load_file(file) do
-    RDF.NTriples.read_file!(file)  # TODO: support other formats
+    # TODO: support other formats
+    cond do
+      String.ends_with?(file, ".nt") -> RDF.NTriples.read_file!(file)
+      String.ends_with?(file, ".nq") -> RDF.NQuads.read_file!(file)
+      true ->
+        raise ArgumentError,
+          "unsupported file type for #{file}: vocabulary namespaces can currently be created from NTriple and NQuad files"
+    end
   end
 
   defp rdf_data_env do

@@ -1,0 +1,2 @@
+<http://example.com/from_nquads/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<http://example.com/from_nquads/Bar> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Resource> <http://example.com/from_nquads/Graph>.
