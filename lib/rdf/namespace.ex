@@ -46,15 +46,28 @@ defmodule RDF.Namespace do
 
   def resolve_term(expr)
 
-  def resolve_term(uri = %URI{}), do: uri
+  def resolve_term(uri = %URI{}),
+    do: uri
+  def resolve_term(namespaced_term) when is_atom(namespaced_term),
+    do: namespaced_term |> to_string() |> do_resolve_term()
 
-  def resolve_term(namespaced_atom) when is_atom(namespaced_atom) do
+  defp do_resolve_term("Elixir." <> _ = namespaced_term) do
     {term, namespace} =
-      namespaced_atom
+      namespaced_term
       |> Module.split
       |> List.pop_at(-1)
     {term, namespace} = {String.to_atom(term), Module.concat(namespace)}
-    namespace.__resolve_term__(term)
+    if Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
+      namespace.__resolve_term__(term)
+    else
+      raise RDF.Namespace.UndefinedTermError,
+        "#{namespaced_term} is not a term on a RDF.Namespace"
+    end
+  end
+
+  defp do_resolve_term(namespaced_term) do
+    raise RDF.Namespace.UndefinedTermError,
+      "#{namespaced_term} is not a term on a RDF.Namespace"
   end
 
 end

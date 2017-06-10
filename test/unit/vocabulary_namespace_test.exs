@@ -384,9 +384,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
-  @tag skip: "TODO: Can we make RDF.uri(:foo) an undefined function call with guards or in another way?"
   test "resolving an unqualified term raises an error" do
     assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.uri(:foo) end
+  end
+
+  test "resolving an non-RDF.Namespace module" do
+    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.uri(ExUnit.Test) end
   end
 
 
