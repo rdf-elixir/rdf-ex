@@ -2,13 +2,15 @@ defmodule RDF.Utils.ResourceClassifier do
 
   alias RDF.Description
 
+  @rdf_type RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+
   @doc """
   Determines if the given resource is RDF property by
   """
   def property?(resource, data) do
     with %Description{} = description <- RDF.Data.description(data, resource) do
       property_by_domain?(description) or
-       property_by_rdf_type?(Description.get(description, RDF.type))
+       property_by_rdf_type?(Description.get(description, @rdf_type))
     end
 #    || property_by_predicate_usage?(resource, data)
   end

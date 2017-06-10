@@ -3,7 +3,7 @@ defmodule RDF.LangString do
   `RDF.Datatype` for RDF langString.
   """
 
-  use RDF.Datatype, id: RDF.langString
+  use RDF.Datatype, id: RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
 
   def build_literal(value, lexical, %{language: language} = opts) do

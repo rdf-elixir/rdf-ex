@@ -591,4 +591,46 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
+
+  describe "term resolution on the top-level RDF module" do
+    test "capitalized terms" do
+      assert RDF.uri(RDF.Property)     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")
+      assert RDF.uri(RDF.Statement)    == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement")
+      assert RDF.uri(RDF.List)         == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#List")
+      assert RDF.uri(RDF.Nil)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
+      assert RDF.uri(RDF.Seq)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq")
+      assert RDF.uri(RDF.Bag)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag")
+      assert RDF.uri(RDF.Alt)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Alt")
+      assert RDF.uri(RDF.LangString)   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+      assert RDF.uri(RDF.PlainLiteral) == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral")
+      assert RDF.uri(RDF.XMLLiteral)   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral")
+      assert RDF.uri(RDF.HTML)         == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML")
+      assert RDF.uri(RDF.Property)     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")
+    end
+
+    test "lowercase terms" do
+      assert RDF.type      == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+      assert RDF.subject   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject")
+      assert RDF.predicate == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate")
+      assert RDF.object    == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#object")
+      assert RDF.first     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#first")
+      assert RDF.rest      == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest")
+      assert RDF.value     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#value")
+
+      assert RDF.langString == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+      assert RDF.nil        == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
+    end
+
+    test "description DSL" do
+      alias TestNS.EX
+      assert RDF.type(     EX.S, 1)                     == RDF.NS.RDF.type(     EX.S, 1)
+      assert RDF.subject(  EX.S, 1, 2)                  == RDF.NS.RDF.subject(  EX.S, 1, 2)
+      assert RDF.predicate(EX.S, 1, 2, 3)               == RDF.NS.RDF.predicate(EX.S, 1, 2, 3)
+      assert RDF.object(   EX.S, 1, 2, 3, 4)            == RDF.NS.RDF.object(   EX.S, 1, 2, 3, 4)
+      assert RDF.first(    EX.S, 1, 2, 3, 4, 5)         == RDF.NS.RDF.first(    EX.S, 1, 2, 3, 4, 5)
+      assert RDF.rest(     EX.S, [1, 2, 3, 4, 5, 6])    == RDF.NS.RDF.rest(     EX.S, [1, 2, 3, 4, 5, 6])
+      assert RDF.value(    EX.S, [1, 2, 3, 4, 5, 6, 7]) == RDF.NS.RDF.value(    EX.S, [1, 2, 3, 4, 5, 6, 7])
+    end
+  end
+
 end

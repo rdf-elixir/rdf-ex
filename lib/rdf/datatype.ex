@@ -57,16 +57,18 @@ defmodule RDF.Datatype do
   @callback valid?(literal :: RDF.Literal.t) :: boolean
 
 
+  @lang_string RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+
   # TODO: This mapping should be created dynamically and be extendable, to allow user-defined datatypes ...
   @mapping %{
-    RDF.langString => RDF.LangString,
-    XSD.string     => RDF.String,
-    XSD.integer    => RDF.Integer,
-    XSD.double     => RDF.Double,
-    XSD.boolean    => RDF.Boolean,
-    XSD.date       => RDF.Date,
-    XSD.time       => RDF.Time,
-    XSD.dateTime   => RDF.DateTime,
+    @lang_string => RDF.LangString,
+    XSD.string   => RDF.String,
+    XSD.integer  => RDF.Integer,
+    XSD.double   => RDF.Double,
+    XSD.boolean  => RDF.Boolean,
+    XSD.date     => RDF.Date,
+    XSD.time     => RDF.Time,
+    XSD.dateTime => RDF.DateTime,
   }
 
   @doc """

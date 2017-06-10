@@ -11,7 +11,7 @@ defmodule RDF.Literal do
 
   # to be able to pattern-match on plain types
   @xsd_string  XSD.string
-  @lang_string RDF.langString
+  @lang_string RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
   @plain_types [@xsd_string, @lang_string]
 
 
@@ -62,7 +62,7 @@ defmodule RDF.Literal do
 
   def new(value, %{language: language} = opts) when not is_nil(language) do
     if is_binary(value) do
-      if opts[:datatype] in [nil, RDF.langString] do
+      if opts[:datatype] in [nil, @lang_string] do
         RDF.LangString.new(value, opts)
       else
         raise ArgumentError, "datatype with language must be rdf:langString"

@@ -117,14 +117,16 @@ defmodule RDF do
   def resource?(_), do: false
 
 
-################################################################################
-# temporary manual RDF vocab definitions
-# TODO: These should be defined as a vocabulary
+  for term <- ~w[type subject predicate object first rest value]a do
+    defdelegate unquote(term)(),                      to: RDF.NS.RDF
+    defdelegate unquote(term)(s, o),                  to: RDF.NS.RDF
+    defdelegate unquote(term)(s, o1, o2),             to: RDF.NS.RDF
+    defdelegate unquote(term)(s, o1, o2, o3),         to: RDF.NS.RDF
+    defdelegate unquote(term)(s, o1, o2, o3, o4),     to: RDF.NS.RDF
+    defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
+  end
 
-  @rdf_type URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-  def type, do: @rdf_type
-
-  @rdf_langString URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
-  def langString, do: @rdf_langString
+  defdelegate langString(),   to: RDF.NS.RDF
+  defdelegate unquote(nil)(), to: RDF.NS.RDF
 
 end
