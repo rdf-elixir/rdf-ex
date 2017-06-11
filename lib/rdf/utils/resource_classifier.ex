@@ -1,4 +1,5 @@
 defmodule RDF.Utils.ResourceClassifier do
+  @moduledoc false
 
   alias RDF.Description
 
