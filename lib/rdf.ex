@@ -1,5 +1,5 @@
 defmodule RDF do
-  alias RDF.{Namespace, Literal, BlankNode, Triple}
+  alias RDF.{Namespace, Literal, BlankNode, Triple, Quad}
 
   @doc """
   Generator function for URIs from strings or term atoms of a `RDF.Namespace`.
@@ -75,9 +75,25 @@ defmodule RDF do
 
       iex> RDF.triple("http://example.com/S", "http://example.com/p", 42)
       {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42)}
+      iex> RDF.triple(EX.S, EX.p, 42)
+      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42)}
   """
   def triple(subject, predicate, object), do: Triple.new(subject, predicate, object)
   def triple(tuple), do: Triple.new(tuple)
+
+  @doc """
+  Generator function for `RDF.quad`s.
+
+  ## Examples
+
+      iex> RDF.quad("http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph")
+      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42), RDF.uri("http://example.com/Graph")}
+      iex> RDF.quad(EX.S, EX.p, 42, EX.Graph)
+      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42), RDF.uri("http://example.com/Graph")}
+  """
+  def quad(subject, predicate, object, graph_context),
+    do: Quad.new(subject, predicate, object, graph_context)
+  def quad(tuple), do: Quad.new(tuple)
 
 
   @doc """
