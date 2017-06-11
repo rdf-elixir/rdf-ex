@@ -7,7 +7,6 @@ defmodule RDF.Core.Mixfile do
     [
       app: :rdf_core,
       version: @version,
-      description: "An implementation of RDF and accompanied standards for Elixir",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -15,9 +14,16 @@ defmodule RDF.Core.Mixfile do
       elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
+      description: description(),
       package: package(),
       deps: deps()
     ]
+  end
+
+  defp description do
+    """
+    An implementation of RDF for Elixir.
+    """
   end
 
   defp package do
