@@ -11,6 +11,8 @@ defmodule RDF.Vocabulary.Namespace do
   contains predefined modules for popular vocabularies.
   """
 
+  alias RDF.Utils.ResourceClassifier
+
   @vocabs_dir "priv/vocabs"
 
   defmacro __using__(_opts) do
@@ -100,8 +102,6 @@ defmodule RDF.Vocabulary.Namespace do
             RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
           end
         end
-
-        Module.delete_attribute(__MODULE__, :tmp_uri)
       end
     end
   end
@@ -114,40 +114,31 @@ defmodule RDF.Vocabulary.Namespace do
         {term, original_term} -> {term, original_term}
        end)
     |> Enum.map(fn {term, uri_suffix} ->
-# TODO: Why does this way of precompiling the URI not work? We're getting an "invalid quoted expression: %URI{...}"
-#      uri = term_to_uri(base_uri, term)
-#      quote bind_quoted: [uri: Macro.escape(uri), term: String.to_atom(term)] do
-##        @doc "<#{@tmp_uri}>"
-#        def unquote(term)() do
-#          unquote(uri)
-#        end
-#      end
-# Temporary workaround:
-      quote do
-        @tmp_uri term_to_uri(@base_uri, unquote(uri_suffix))
-        @doc "<#{@tmp_uri}>"
-        def unquote(term)(), do: @tmp_uri
+        uri = term_to_uri(base_uri, uri_suffix)
+        quote do
+          @doc "<#{unquote(to_string(uri))}>"
+          def unquote(term)(), do: unquote(Macro.escape(uri))
 
-        @doc "`RDF.Description` builder for <#{@tmp_uri}>"
-        def unquote(term)(subject, object) do
-          RDF.Description.new(subject, @tmp_uri, object)
+          @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
+          def unquote(term)(subject, object) do
+            RDF.Description.new(subject, unquote(Macro.escape(uri)), object)
+          end
+
+          # Is there a better way to support multiple objects via arguments?
+          @doc false
+          def unquote(term)(subject,  o1, o2),
+          do: unquote(term)(subject, [o1, o2])
+          @doc false
+          def unquote(term)(subject,  o1, o2, o3),
+          do: unquote(term)(subject, [o1, o2, o3])
+          @doc false
+          def unquote(term)(subject,  o1, o2, o3, o4),
+          do: unquote(term)(subject, [o1, o2, o3, o4])
+          @doc false
+          def unquote(term)(subject,  o1, o2, o3, o4, o5),
+          do: unquote(term)(subject, [o1, o2, o3, o4, o5])
         end
-
-        # Is there a better way to support multiple objects via arguments?
-        @doc false
-        def unquote(term)(subject,  o1, o2),
-        do: unquote(term)(subject, [o1, o2])
-        @doc false
-        def unquote(term)(subject,  o1, o2, o3),
-        do: unquote(term)(subject, [o1, o2, o3])
-        @doc false
-        def unquote(term)(subject,  o1, o2, o3, o4),
-        do: unquote(term)(subject, [o1, o2, o3, o4])
-        @doc false
-        def unquote(term)(subject,  o1, o2, o3, o4, o5),
-        do: unquote(term)(subject, [o1, o2, o3, o4, o5])
-      end
-    end)
+      end)
   end
 
   defp strict?(opts),
@@ -185,8 +176,9 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  # TODO: support also RDF.Datasets ...
+  defp raw_rdf_data(%RDF.Description{} = rdf_data), do: rdf_data
   defp raw_rdf_data(%RDF.Graph{} = rdf_data), do: rdf_data
+  defp raw_rdf_data(%RDF.Dataset{} = rdf_data), do: rdf_data
   defp raw_rdf_data(rdf_data) do
     # TODO: find an alternative to Code.eval_quoted
     {rdf_data, _} = Code.eval_quoted(rdf_data, [], rdf_data_env())
@@ -305,7 +297,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp proper_case?(term, base_uri, uri_suffix, data) do
-    case RDF.Utils.ResourceClassifier.property?(term_to_uri(base_uri, uri_suffix), data) do
+    case ResourceClassifier.property?(term_to_uri(base_uri, uri_suffix), data) do
       true  -> not lowercase?(term)
       false -> lowercase?(term)
       nil   -> lowercase?(term)
