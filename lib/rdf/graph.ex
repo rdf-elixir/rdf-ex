@@ -544,6 +544,10 @@ defmodule RDF.Graph do
   end
 
 
+  defdelegate isomorphic?(graph1, graph2), to: RDF.Isomorphic, as: :isomorphic_graphs?
+  defdelegate isomorphic?(graph1, graph2, opts), to: RDF.Isomorphic, as: :isomorphic_graphs?
+
+
   # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
 
   def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)

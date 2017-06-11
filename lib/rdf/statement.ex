@@ -71,4 +71,11 @@ defmodule RDF.Statement do
   def convert_graph_name(arg),
     do: raise RDF.Quad.InvalidGraphContextError, graph_context: arg
 
+
+  def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
+  def has_bnode?({_, _, _} = triple),  do: Triple.has_bnode?(triple)
+
+  def include_value?({_, _, _, _} = quad, value), do: Quad.include_value?(quad, value)
+  def include_value?({_, _, _} = triple, value),  do: Triple.include_value?(triple, value)
+
 end
