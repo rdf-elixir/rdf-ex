@@ -8,19 +8,19 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
 The [Hex package](https://hex.pm/docs/publish) can be installed as usual:
 
-  1. Add `rdf_core` to your list of dependencies in `mix.exs`:
+  1. Add `rdf` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:rdf_core, "~> 0.1.0"}]
+      [{:rdf, "~> 0.1.0"}]
     end
     ```
 
-  2. Ensure `rdf_core` is started before your application:
+  2. Ensure `rdf` is started before your application:
 
     ```elixir
     def application do
-      [applications: [:rdf_core]]
+      [applications: [:rdf]]
     end
     ```
 

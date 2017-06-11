@@ -1,4 +1,4 @@
-defmodule RDF.CoreTest do
+defmodule RDFTest do
   use ExUnit.Case
 
   use RDF.Vocabulary.Namespace
@@ -7,7 +7,5 @@ defmodule RDF.CoreTest do
   alias RDF.NS.XSD
 
   doctest RDF
-
-#  alias RDF.{Triple, Literal, BlankNode}
 
 end

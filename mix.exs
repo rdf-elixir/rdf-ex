@@ -1,11 +1,11 @@
-defmodule RDF.Core.Mixfile do
+defmodule RDF.Mixfile do
   use Mix.Project
 
   @version "0.0.1"
 
   def project do
     [
-      app: :rdf_core,
+      app: :rdf,
       version: @version,
       elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
@@ -24,11 +24,11 @@ defmodule RDF.Core.Mixfile do
 
   defp package do
     [
-      name: :rdf_core,
+      name: :rdf,
       maintainers: ["Marcel Otto"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/rdfex/rdf_core",
-               "Docs" => "http://rdfex.github.io/rdf_core)/"},
+      links: %{"GitHub" => "https://github.com/rdfex/rdf",
+               "Docs" => "http://rdfex.github.io/rdf)/"},
       files: ["lib", "priv", "mix.exs", "README*", "readme*", "LICENSE*", "license*"]
     ]
   end
