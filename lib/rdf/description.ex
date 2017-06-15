@@ -32,15 +32,18 @@ defmodule RDF.Description do
 
   def new(%RDF.Description{} = description, predicate, objects),
     do: RDF.Description.add(description, predicate, objects)
-  def new(subject, predicate, objects),
-    do: new(subject) |> add(predicate, objects)
 
+  def new(subject, {predicate, objects}),
+    do: new(subject) |> add(predicate, objects)
   def new(subject, statements) when is_list(statements),
     do: new(subject) |> add(statements)
   def new(subject, %RDF.Description{predications: predications}),
     do: %RDF.Description{new(subject) | predications: predications}
   def new(subject, predications = %{}),
     do: new(subject) |> add(predications)
+
+  def new(subject, predicate, objects),
+    do: new(subject) |> add(predicate, objects)
 
 
   @doc """
