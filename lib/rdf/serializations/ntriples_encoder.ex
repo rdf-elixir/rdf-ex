@@ -1,4 +1,6 @@
 defmodule RDF.NTriples.Encoder do
+  @moduledoc false
+
   use RDF.Serialization.Encoder
 
   alias RDF.{Literal, BlankNode}

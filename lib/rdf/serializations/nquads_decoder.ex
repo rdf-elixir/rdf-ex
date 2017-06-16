@@ -1,4 +1,6 @@
 defmodule RDF.NQuads.Decoder do
+  @moduledoc false
+
   use RDF.Serialization.Decoder
 
   def decode(content, _opts \\ []) do
