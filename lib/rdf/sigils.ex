@@ -1,4 +1,8 @@
 defmodule RDF.Sigils do
+  @moduledoc """
+  Sigils for the most common types of RDF nodes.
+  """
+
 
   @doc ~S"""
   Handles the sigil `~I` for IRIs.
