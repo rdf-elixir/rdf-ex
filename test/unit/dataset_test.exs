@@ -405,8 +405,22 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate3, EX.Object3})
     end
 
-    @tag skip: "TODO"
-    test "a list of Graphs"
+    test "a list of Graphs" do
+      ds = Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+        |> RDF.Dataset.add([
+            Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, bnode(:foo)}]),
+            Graph.new(nil, {EX.S1, EX.P2, EX.O3}),
+            Graph.new(EX.Graph, [{EX.S1, EX.P2, EX.O2}, {EX.S2, EX.P2, EX.O2}])
+           ])
+
+        assert Enum.count(ds) == 6
+        assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+        assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo)})
+        assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O3})
+        assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2})
+        assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O2, EX.Graph})
+        assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.Graph})
+    end
 
     test "duplicates are ignored" do
       ds = Dataset.add(dataset(), {EX.Subject, EX.predicate, EX.Object, EX.GraphName})
@@ -473,7 +487,6 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo), EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O3, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O4, EX.Graph})
-
     end
 
     test "a Description" do
@@ -518,15 +531,6 @@ defmodule RDF.DatasetTest do
       assert Dataset.statement_count(ds) == 2
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O1})
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O2})
-
-# TODO: see comment on RDF.Dataset.put on why the following is not supported
-#      ds = RDF.Dataset.put(dataset(), %{
-#            EX.S        => [{EX.P, EX.O1}],
-#            {EX.S, nil} => [{EX.P, EX.O2}]
-#      })
-#      assert Dataset.statement_count(ds) == 2
-#      assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O1})
-#      assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O2})
     end
   end
 
