@@ -88,8 +88,6 @@ defmodule RDF.DescriptionTest do
               {"http://example.com/predicate", 42})
         |> description_includes_predication({EX.predicate, literal(42)})
 
-      # TODO: Test a url-string as object ...
-
       assert Description.add(description(),
               {"http://example.com/predicate", bnode(:foo)})
         |> description_includes_predication({EX.predicate, bnode(:foo)})
