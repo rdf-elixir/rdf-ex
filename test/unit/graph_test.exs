@@ -225,22 +225,6 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
     end
 
-    @tag skip: "TODO: Requires Graph.put with a list to differentiate a list of statements and a list of Descriptions. Do we want to support mixed lists also?"
-    test "a list of Descriptions" do
-      g = Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
-        |> RDF.Graph.put([
-            Description.new(EX.S1, [{EX.P2, EX.O3}, {EX.P2, bnode(:foo)}]),
-            Description.new(EX.S2, [{EX.P2, EX.O3}, {EX.P2, EX.O4}])
-           ])
-
-        assert Graph.triple_count(g) == 5
-        assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
-        assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O3})
-        assert graph_includes_statement?(g, {EX.S1, EX.P2, bnode(:foo)})
-        assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
-        assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O4})
-    end
-
     test "a Graph" do
       g =
         Graph.new([

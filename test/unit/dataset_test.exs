@@ -511,22 +511,6 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.GraphName})
     end
 
-#    @tag skip: "TODO: Requires Dataset.put with a list to differentiate a list of statements, a list of Descriptions and list of Graphs. Do we want to support mixed lists also?"
-#    test "a list of Descriptions" do
-#      ds = Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
-#        |> RDF.Dataset.put([
-#            Description.new(EX.S1, [{EX.P2, EX.O3}, {EX.P2, bnode(:foo)}]),
-#            Description.new(EX.S2, [{EX.P2, EX.O3}, {EX.P2, EX.O4}])
-#           ])
-#
-#        assert Dataset.triple_count(ds) == 5
-#        assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
-#        assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O3})
-#        assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo)})
-#        assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O3})
-#        assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O4})
-#    end
-
     test "simultaneous use of the different forms to address the default context" do
       ds = RDF.Dataset.put(dataset(), [
             {EX.S, EX.P, EX.O1},
