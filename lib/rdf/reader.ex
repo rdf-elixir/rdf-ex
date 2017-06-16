@@ -1,19 +1,6 @@
 defmodule RDF.Reader do
 
-  def read(decoder, file_or_content, opts \\ []) do
-    if File.exists?(file_or_content) do
-      read_file(decoder, file_or_content, opts)
-    else
-      read_string(decoder, file_or_content, opts)
-    end
-  end
 
-  def read!(decoder, file_or_content, opts \\ []) do
-    case read(decoder, file_or_content, opts) do
-      {:ok,   graph}   -> graph
-      {:error, reason} -> raise reason
-    end
-  end
 
   def read_string(decoder, content, opts \\ []) do
     decoder.decode(content, opts)
