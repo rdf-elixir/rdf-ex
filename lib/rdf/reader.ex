@@ -1,4 +1,4 @@
-defmodule RDF.Serialization.Reader do
+defmodule RDF.Reader do
 
   def read(decoder, file_or_content, opts \\ []) do
     if File.exists?(file_or_content) do

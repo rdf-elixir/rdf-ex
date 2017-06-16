@@ -24,17 +24,17 @@ defmodule RDF.Serialization do
       defoverridable [decoder: 0, encoder: 0, options: 0]
 
       def read(file_or_content, opts \\ []),
-        do: RDF.Serialization.Reader.read(decoder(), file_or_content, opts)
+        do: RDF.Reader.read(decoder(), file_or_content, opts)
       def read!(file_or_content, opts \\ []),
-        do: RDF.Serialization.Reader.read!(decoder(), file_or_content, opts)
+        do: RDF.Reader.read!(decoder(), file_or_content, opts)
       def read_string(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string(decoder(), content, opts)
+        do: RDF.Reader.read_string(decoder(), content, opts)
       def read_string!(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string!(decoder(), content, opts)
+        do: RDF.Reader.read_string!(decoder(), content, opts)
       def read_file(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file(decoder(), file, opts)
+        do: RDF.Reader.read_file(decoder(), file, opts)
       def read_file!(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
+        do: RDF.Reader.read_file!(decoder(), file, opts)
 
       @before_compile unquote(__MODULE__)
     end
