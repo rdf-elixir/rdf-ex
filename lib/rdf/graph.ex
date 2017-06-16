@@ -150,19 +150,6 @@ defmodule RDF.Graph do
 
 
   @doc """
-  Puts statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
-
-  # Examples
-
-      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
-      RDF.Graph.new(EX.S, EX.P, EX.O2)
-      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
-      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
-  """
-  def put(%RDF.Graph{} = graph, subject, predicate, objects),
-    do: put(graph, {subject, predicate, objects})
-
-  @doc """
   Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
 
   # Examples
@@ -198,10 +185,15 @@ defmodule RDF.Graph do
     put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
   end
 
-  # TODO: Can we reduce this case also to do_put? Only the initializer differs ...
+  @doc """
+  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
+  """
+  def put(graph, subject, predications)
+
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
     with subject = convert_subject(subject) do
+      # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
       %RDF.Graph{name: name,
         descriptions:
           Map.update(descriptions, subject, Description.new(subject, predications),
@@ -225,6 +217,19 @@ defmodule RDF.Graph do
           end)
     }
   end
+
+  @doc """
+  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
+
+  # Examples
+
+      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
+      RDF.Graph.new(EX.S, EX.P, EX.O2)
+      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
+      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+  """
+  def put(%RDF.Graph{} = graph, subject, predicate, objects),
+    do: put(graph, {subject, predicate, objects})
 
 
   @doc """
@@ -382,6 +387,26 @@ defmodule RDF.Graph do
     end
   end
 
+
+  @doc """
+  Pops an arbitrary triple from a `RDF.Graph`.
+  """
+  def pop(graph)
+
+  def pop(%RDF.Graph{descriptions: descriptions} = graph)
+    when descriptions == %{}, do: {nil, graph}
+
+  def pop(%RDF.Graph{name: name, descriptions: descriptions}) do
+    # TODO: Find a faster way ...
+    [{subject, description}] = Enum.take(descriptions, 1)
+    {triple, popped_description} = Description.pop(description)
+    popped = if Enum.empty?(popped_description),
+      do:   descriptions |> Map.delete(subject),
+      else: descriptions |> Map.put(subject, popped_description)
+
+    {triple, %RDF.Graph{name: name, descriptions: popped}}
+  end
+
   @doc """
   Pops the description of the given subject.
 
@@ -520,7 +545,7 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  All statements within a `RDF.Graph`.
+  The list of all statements within a `RDF.Graph`.
 
   # Examples
 
@@ -538,6 +563,9 @@ defmodule RDF.Graph do
   defdelegate statements(graph), to: RDF.Graph, as: :triples
 
 
+  @doc """
+  Checks if the given statement exists within a `RDF.Graph`.
+  """
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
     with subject = convert_subject(subject),
@@ -549,39 +577,23 @@ defmodule RDF.Graph do
   end
 
 
-  # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
+  defimpl Enumerable do
+    def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}
+    def count(desc),            do: {:ok, RDF.Graph.triple_count(desc)}
 
-  def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
-    when map_size(descriptions) == 0, do: {:done, acc}
+    def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
+      when map_size(descriptions) == 0, do: {:done, acc}
 
-  def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
-    {triple, rest} = RDF.Graph.pop(graph)
-    reduce(rest, fun.(triple, acc), fun)
+    def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
+      {triple, rest} = RDF.Graph.pop(graph)
+      reduce(rest, fun.(triple, acc), fun)
+    end
+
+    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
+      {:suspended, acc, &reduce(graph, &1, fun)}
+    end
   end
 
-  def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
-    {:suspended, acc, &reduce(graph, &1, fun)}
-  end
-
-
-  def pop(%RDF.Graph{descriptions: descriptions} = graph)
-    when descriptions == %{}, do: {nil, graph}
-
-  def pop(%RDF.Graph{name: name, descriptions: descriptions}) do
-    # TODO: Find a faster way ...
-    [{subject, description}] = Enum.take(descriptions, 1)
-    {triple, popped_description} = Description.pop(description)
-    popped = if Enum.empty?(popped_description),
-      do:   descriptions |> Map.delete(subject),
-      else: descriptions |> Map.put(subject, popped_description)
-
-    {triple, %RDF.Graph{name: name, descriptions: popped}}
-  end
 end
 
-defimpl Enumerable, for: RDF.Graph do
-  def reduce(desc, acc, fun), do: RDF.Graph.reduce(desc, acc, fun)
-  def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}
-  def count(desc),            do: {:ok, RDF.Graph.triple_count(desc)}
-end

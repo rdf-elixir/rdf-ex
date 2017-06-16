@@ -384,7 +384,7 @@ defmodule RDF.Description do
 
 
   @doc """
-  Pops an arbitrary triple from the `RDF.Description`.
+  Pops an arbitrary triple from a `RDF.Description`.
   """
   def pop(description)
 
