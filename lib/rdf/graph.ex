@@ -1,11 +1,16 @@
 defmodule RDF.Graph do
   @moduledoc """
-  Defines a RDF Graph.
+  A set of RDF triples with an optional name.
 
-  A `RDF.Graph` represents a set of `RDF.Description`s.
+  `RDF.Graph` implements:
 
-  Named vs. unnamed graphs ...
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
+
   """
+
   defstruct name: nil, descriptions: %{}
 
   @behaviour Access

@@ -1,9 +1,15 @@
 defmodule RDF.Description do
   @moduledoc """
-  Defines a RDF Description.
+  A set of RDF triples about the same subject.
 
-  A `RDF.Description` represents a set of `RDF.Triple`s about a subject.
+  `RDF.Description` implements:
+
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
   """
+
   defstruct subject: nil, predications: %{}
 
   @behaviour Access

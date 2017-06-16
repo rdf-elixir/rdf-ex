@@ -1,6 +1,6 @@
 defmodule RDF.BlankNode do
   @moduledoc """
-  An RDF blank node, also known as an anonymous or unlabeled node.
+  A RDF blank node is a local node of a graph without an URI.
 
   see <https://www.w3.org/TR/rdf11-primer/#section-blank-node>
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>

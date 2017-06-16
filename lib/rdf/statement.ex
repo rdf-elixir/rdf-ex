@@ -1,6 +1,6 @@
 defmodule RDF.Statement do
   @moduledoc """
-  Defines a RDF Statement.
+  Helper functions for RDF statements.
 
   A RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """

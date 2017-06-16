@@ -1,9 +1,18 @@
 defmodule RDF.Dataset do
   @moduledoc """
-  Defines a RDF Dataset.
+  A set of `RDF.Graph`s.
 
-  A `RDF.Dataset` represents a set of `RDF.Dataset`s.
+  It may have multiple named graphs and at most one unnamed ("default") graph.
+
+  `RDF.Dataset` implements:
+
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
+
   """
+
   defstruct name: nil, graphs: %{}
 
   @behaviour Access

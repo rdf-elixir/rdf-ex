@@ -1,9 +1,9 @@
 defmodule RDF.Triple do
   @moduledoc """
-  Defines a RDF Triple.
+  Helper functions for RDF triples.
 
-  A Triple is a plain Elixir tuple consisting of three valid RDF values for
-  subject, predicate and object.
+  A RDF Triple is represented as a plain Elixir tuple consisting of three valid
+  RDF values for subject, predicate and object.
   """
 
   alias RDF.{BlankNode, Statement}
