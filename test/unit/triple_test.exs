@@ -1,8 +1,5 @@
 defmodule RDF.TripleTest do
-  use ExUnit.Case
-
-  import RDF.Sigils
+  use RDF.Test.Case
 
   doctest RDF.Triple
-
 end

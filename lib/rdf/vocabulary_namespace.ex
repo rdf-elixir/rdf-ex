@@ -412,7 +412,7 @@ defmodule RDF.Vocabulary.Namespace do
     IO.warn "capitalized alias '#{term}' for a property"
   end
 
-  defp case_violation_warning(:lowercased_alias, term, _, base_uri) do
+  defp case_violation_warning(:lowercased_alias, term, _, _) do
     IO.warn "lowercased alias '#{term}' for a non-property resource"
   end
 

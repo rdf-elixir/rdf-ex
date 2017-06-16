@@ -42,6 +42,8 @@ defmodule RDF.Literal do
   """
   def new(value)
 
+  def new(%RDF.Literal{} = literal),     do: literal
+
   def new(value) when is_binary(value),  do: RDF.String.new(value)
   def new(value) when is_boolean(value), do: RDF.Boolean.new(value)
   def new(value) when is_integer(value), do: RDF.Integer.new(value)
