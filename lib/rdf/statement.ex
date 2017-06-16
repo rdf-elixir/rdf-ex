@@ -23,7 +23,7 @@ defmodule RDF.Statement do
 
   An error is raised when the given elements are not convertible to RDF values.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}

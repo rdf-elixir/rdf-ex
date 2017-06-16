@@ -173,7 +173,7 @@ defmodule RDF.Dataset do
   @doc """
   Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P1, EX.O1})
       ...> RDF.Dataset.put(dataset, {EX.S, EX.P1, EX.O2})
@@ -393,7 +393,7 @@ defmodule RDF.Dataset do
 
   When a graph with the given name can not be found can not be found `:error` is returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.fetch(dataset, EX.Graph)
@@ -413,7 +413,7 @@ defmodule RDF.Dataset do
   When a graph with the given name can not be found can not be found the optionally
   given default value or `nil` is returned
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.get(dataset, EX.Graph)
@@ -465,7 +465,7 @@ defmodule RDF.Dataset do
   If the passed function returns `:pop` the graph with the given name is
   removed and a `{removed_graph, new_dataset}` tuple gets returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P, EX.O, EX.Graph})
       ...> RDF.Dataset.get_and_update(dataset, EX.Graph, fn current_graph ->
@@ -512,7 +512,7 @@ defmodule RDF.Dataset do
   When a graph with given name can not be found the optionally given default value
   or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([
       ...>   {EX.S1, EX.P1, EX.O1, EX.Graph},
@@ -536,7 +536,7 @@ defmodule RDF.Dataset do
   @doc """
   The number of statements within a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -554,7 +554,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all subjects used in the statement within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -572,7 +572,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all properties used in the predicates within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -592,7 +592,7 @@ defmodule RDF.Dataset do
 
   Note: This function does collect only URIs and BlankNodes, not Literals.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -612,7 +612,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all resources used within a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
     iex> RDF.Dataset.new([
     ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -632,7 +632,7 @@ defmodule RDF.Dataset do
   @doc """
   All statements within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
         iex> RDF.Dataset.new([
         ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -658,7 +658,7 @@ defmodule RDF.Dataset do
   @doc """
   Returns if a given statement is in a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
         iex> dataset = RDF.Dataset.new([
         ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},

@@ -152,7 +152,7 @@ defmodule RDF.Graph do
   @doc """
   Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
@@ -221,7 +221,7 @@ defmodule RDF.Graph do
   @doc """
   Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
       RDF.Graph.new(EX.S, EX.P, EX.O2)
@@ -311,7 +311,7 @@ defmodule RDF.Graph do
 
   When the subject can not be found `:error` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.fetch(EX.S1)
@@ -328,7 +328,7 @@ defmodule RDF.Graph do
 
   When the subject can not be found the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.get(EX.S1)
@@ -366,7 +366,7 @@ defmodule RDF.Graph do
   If the passed function returns `:pop` the description for the given subject is
   removed and a `{removed_description, new_graph}` tuple gets returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |>
       ...>   RDF.Graph.get_and_update(EX.S, fn current_description ->
@@ -412,7 +412,7 @@ defmodule RDF.Graph do
 
   When the subject can not be found the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.pop(EX.S1)
@@ -433,7 +433,7 @@ defmodule RDF.Graph do
   @doc """
   The number of subjects within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -448,7 +448,7 @@ defmodule RDF.Graph do
   @doc """
   The number of statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -466,7 +466,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all subjects used in the statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -481,7 +481,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all properties used in the predicates of the statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -503,7 +503,7 @@ defmodule RDF.Graph do
 
   Note: This function does collect only URIs and BlankNodes, not Literals.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -525,7 +525,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all resources used within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
     iex> RDF.Graph.new([
     ...>   {EX.S1, EX.p1, EX.O1},
@@ -547,7 +547,7 @@ defmodule RDF.Graph do
   @doc """
   The list of all statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
         iex> RDF.Graph.new([
         ...>   {EX.S1, EX.p1, EX.O1},

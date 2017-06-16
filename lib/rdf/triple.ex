@@ -15,7 +15,7 @@ defmodule RDF.Triple do
 
   Note: The `RDF.triple` function is a shortcut to this function.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Triple.new("http://example.com/S", "http://example.com/p", 42)
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
@@ -35,7 +35,7 @@ defmodule RDF.Triple do
 
   Note: The `RDF.triple` function is a shortcut to this function.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Triple.new {"http://example.com/S", "http://example.com/p", 42}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}

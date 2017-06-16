@@ -59,7 +59,7 @@ defmodule RDF.Description do
   @doc """
   Add objects to a predicate of a `RDF.Description`.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.add(RDF.Description.new({EX.S, EX.P1, EX.O1}), EX.P2, EX.O2)
       RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
@@ -131,7 +131,7 @@ defmodule RDF.Description do
   @doc """
   Puts objects to a predicate of a `RDF.Description`, overwriting all existing objects.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), EX.P, EX.O2)
       RDF.Description.new([{EX.S, EX.P, EX.O2}])
@@ -155,7 +155,7 @@ defmodule RDF.Description do
   @doc """
   Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), {EX.P, EX.O2})
       RDF.Description.new([{EX.S, EX.P, EX.O2}])
@@ -310,7 +310,7 @@ defmodule RDF.Description do
 
   When the predicate can not be found `:error` is returned.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.fetch(RDF.Description.new({EX.S, EX.p, EX.O}), EX.p)
       {:ok, [RDF.uri(EX.O)]}
@@ -331,7 +331,7 @@ defmodule RDF.Description do
 
   When the predicate can not be found the optionally given default value or `nil` is returned.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.get(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
       [RDF.uri(EX.O)]
@@ -361,7 +361,7 @@ defmodule RDF.Description do
   If the passed function returns `:pop` the objects for the given predicate are
   removed and a `{removed_objects, new_description}` tuple gets returned.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.new({EX.S, EX.P, EX.O}) |>
       ...>   RDF.Description.get_and_update(EX.P, fn current_objects ->
@@ -409,7 +409,7 @@ defmodule RDF.Description do
 
   When the predicate can not be found the optionally given default value or `nil` is returned.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
       {[RDF.uri(EX.O)], RDF.Description.new(EX.S)}
@@ -429,7 +429,7 @@ defmodule RDF.Description do
   @doc """
   The set of all properties used in the predicates within a `RDF.Description`.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -446,7 +446,7 @@ defmodule RDF.Description do
 
   Note: This function does collect only URIs and BlankNodes, not Literals.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -470,7 +470,7 @@ defmodule RDF.Description do
   @doc """
   The set of all resources used within a `RDF.Description`.
 
-  ### Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},

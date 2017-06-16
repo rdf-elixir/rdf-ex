@@ -34,7 +34,7 @@ defmodule RDF.Literal do
   | `NaiveDateTime` | `xsd:dateTime` |
 
 
-  # Examples
+  ## Examples
 
       iex> RDF.Literal.new(42)
       %RDF.Literal{value: 42, datatype: XSD.integer}
