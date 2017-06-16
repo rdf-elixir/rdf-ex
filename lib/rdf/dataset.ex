@@ -486,6 +486,26 @@ defmodule RDF.Dataset do
     end
   end
 
+
+  @doc """
+  Pops an arbitrary statement from a `RDF.Dataset`.
+  """
+  def pop(dataset)
+
+  def pop(%RDF.Dataset{graphs: graphs} = dataset)
+    when graphs == %{}, do: {nil, dataset}
+
+  def pop(%RDF.Dataset{name: name, graphs: graphs}) do
+    # TODO: Find a faster way ...
+    [{graph_name, graph}] = Enum.take(graphs, 1)
+    {{s, p, o}, popped_graph} = Graph.pop(graph)
+    popped = if Enum.empty?(popped_graph),
+      do:   graphs |> Map.delete(graph_name),
+      else: graphs |> Map.put(graph_name, popped_graph)
+
+    {{s, p, o, graph_name}, %RDF.Dataset{name: name, graphs: popped}}
+  end
+
   @doc """
   Pops the graph with the given name.
 
@@ -663,40 +683,21 @@ defmodule RDF.Dataset do
     do: include?(dataset, {subject, predicate, object}, graph_context)
 
 
-  # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
+  defimpl Enumerable do
+    def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
+    def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
 
-  def reduce(%RDF.Dataset{graphs: graphs}, {:cont, acc}, _fun)
-    when map_size(graphs) == 0, do: {:done, acc}
+    def reduce(%RDF.Dataset{graphs: graphs}, {:cont, acc}, _fun)
+      when map_size(graphs) == 0, do: {:done, acc}
 
-  def reduce(%RDF.Dataset{} = dataset, {:cont, acc}, fun) do
-    {statement, rest} = RDF.Dataset.pop(dataset)
-    reduce(rest, fun.(statement, acc), fun)
+    def reduce(%RDF.Dataset{} = dataset, {:cont, acc}, fun) do
+      {statement, rest} = RDF.Dataset.pop(dataset)
+      reduce(rest, fun.(statement, acc), fun)
+    end
+
+    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(dataset = %RDF.Dataset{}, {:suspend, acc}, fun) do
+      {:suspended, acc, &reduce(dataset, &1, fun)}
+    end
   end
-
-  def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(dataset = %RDF.Dataset{}, {:suspend, acc}, fun) do
-    {:suspended, acc, &reduce(dataset, &1, fun)}
-  end
-
-
-  def pop(%RDF.Dataset{graphs: graphs} = dataset)
-    when graphs == %{}, do: {nil, dataset}
-
-  def pop(%RDF.Dataset{name: name, graphs: graphs}) do
-#    # TODO: Find a faster way ...
-    [{graph_name, graph}] = Enum.take(graphs, 1)
-    {{s, p, o}, popped_graph} = Graph.pop(graph)
-    popped = if Enum.empty?(popped_graph),
-      do:   graphs |> Map.delete(graph_name),
-      else: graphs |> Map.put(graph_name, popped_graph)
-
-    {{s, p, o, graph_name}, %RDF.Dataset{name: name, graphs: popped}}
-  end
-
-end
-
-defimpl Enumerable, for: RDF.Dataset do
-  def reduce(graph, acc, fun),   do: RDF.Dataset.reduce(graph, acc, fun)
-  def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
-  def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
 end
