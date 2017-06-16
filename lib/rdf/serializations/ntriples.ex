@@ -1,7 +1,7 @@
 defmodule RDF.NTriples do
   @moduledoc """
-  `RDF.NTriples` provides support for reading the N-Triples serialization
-  format.
+  `RDF.NTriples` provides support for reading and writing the N-Triples
+  serialization format.
 
   N-Triples is a line-based plain-text format for encoding an RDF graph.
   It is a very restricted, explicit and well-defined subset of both
