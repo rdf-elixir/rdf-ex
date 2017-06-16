@@ -80,6 +80,15 @@ defmodule RDF.Serialization do
       def read_file!(file, opts \\ []),
         do: RDF.Reader.read_file!(decoder(), file, opts)
 
+      def write_string(data, opts \\ []),
+        do: RDF.Writer.write_string(encoder(), data, opts)
+      def write_string!(data, opts \\ []),
+        do: RDF.Writer.write_string!(encoder(), data, opts)
+      def write_file(data, path, opts \\ []),
+        do: RDF.Writer.write_file(encoder(), data, path, opts)
+      def write_file!(data, path, opts \\ []),
+        do: RDF.Writer.write_file!(encoder(), data, path, opts)
+
       @before_compile unquote(__MODULE__)
     end
   end
