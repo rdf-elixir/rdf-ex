@@ -1,4 +1,39 @@
 defmodule RDF do
+  @moduledoc """
+  The top-level module of RDF.ex.
+
+  RDF.ex consists of:
+
+  - modules for the nodes of an RDF graph
+    - URIs are (currently) represented via Elixirs `URI` struct and should be
+      constructed with `RDF.uri/1`
+    - `RDF.BlankNode`
+    - `RDF.Literal`
+  - a facility for the mapping of URIs of a vocabulary to Elixir modules and
+    functions: `RDF.Vocabulary.Namespace`
+  - modules for the construction of statements
+    - `RDF.Triple`
+    - `RDF.Quad`
+    - `RDF.Statement`
+  - modules for collections of statements
+    - `RDF.Description`
+    - `RDF.Graph`
+    - `RDF.Dataset`
+    - `RDF.Data`
+  - the foundations for the definition of RDF serialization formats
+    - `RDF.Serialization`
+    - `RDF.Serialization.Decoder`
+    - `RDF.Serialization.Encoder`
+  - and the implementation of two basic RDF serialization formats
+    - `RDF.NTriples`
+    - `RDF.NQuads`
+
+  This top-level module provides shortcut functions for the construction of the
+  basic elements and structures of RDF and some general helper functions.
+
+  For a general introduction you may refer to the [README](readme.html).
+  """
+
   alias RDF.{Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset}
 
