@@ -340,6 +340,152 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
+  describe "defvocab ignore terms" do
+    defmodule NSWithIgnoredTerms do
+      use RDF.Vocabulary.Namespace
+
+      defvocab ExampleIgnoredLowercasedTerm,
+        base_uri: "http://example.com/",
+        data: RDF.Graph.new([
+          {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+          {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+        ]),
+        ignore: ["foo"]
+
+      defvocab ExampleIgnoredCapitalizedTerm,
+        base_uri: "http://example.com/",
+        data: RDF.Dataset.new([
+          {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+          {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/from_dataset#Graph>}
+        ]),
+        ignore: ~w[Bar]
+
+      defvocab ExampleIgnoredLowercasedTermWithAlias,
+        base_uri: "http://example.com/",
+        terms:    ~w[foo Bar],
+        alias:    [Foo: "foo"],
+        ignore:   ~w[foo]a
+
+      defvocab ExampleIgnoredCapitalizedTermWithAlias,
+        base_uri: "http://example.com/",
+        terms:    ~w[foo Bar],
+        alias:    [bar: "Bar"],
+        ignore:   ~w[Bar]a
+
+      defvocab ExampleIgnoredLowercasedAlias,
+        base_uri: "http://example.com/",
+        terms:    ~w[foo Bar],
+        alias:    [bar: "Bar"],
+        ignore:   ~w[bar]a
+
+      defvocab ExampleIgnoredCapitalizedAlias,
+        base_uri: "http://example.com/",
+        terms:    ~w[foo Bar],
+        alias:    [Foo: "foo"],
+        ignore:   ~w[Foo]a
+
+      defvocab ExampleIgnoredNonStrictLowercasedTerm,
+        base_uri: "http://example.com/",
+        terms:    ~w[],
+        strict:   false,
+        ignore:   ~w[foo]a
+
+      defvocab ExampleIgnoredNonStrictCapitalizedTerm,
+        base_uri: "http://example.com/",
+        terms:    ~w[],
+        strict:   false,
+        ignore:   ~w[Bar]a
+
+    end
+
+    test "resolution of ignored lowercased term on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredLowercasedTerm
+      assert ExampleIgnoredLowercasedTerm.__terms__ == [:Bar]
+      assert_raise UndefinedFunctionError, fn -> ExampleIgnoredLowercasedTerm.foo end
+    end
+
+    test "resolution of ignored capitalized term on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedTerm
+      assert ExampleIgnoredCapitalizedTerm.__terms__ == [:foo]
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.uri(ExampleIgnoredCapitalizedTerm.Bar)
+      end
+    end
+
+    test "resolution of ignored lowercased term with alias on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredLowercasedTermWithAlias
+      assert ExampleIgnoredLowercasedTermWithAlias.__terms__ == [:Bar, :Foo]
+      assert_raise UndefinedFunctionError, fn -> ExampleIgnoredLowercasedTermWithAlias.foo end
+      assert RDF.uri(ExampleIgnoredLowercasedTermWithAlias.Foo) == ~I<http://example.com/foo>
+    end
+
+    test "resolution of ignored capitalized term with alias on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedTermWithAlias
+      assert ExampleIgnoredCapitalizedTermWithAlias.__terms__ == [:bar, :foo]
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.uri(ExampleIgnoredCapitalizedTermWithAlias.Bar)
+      end
+      assert RDF.uri(ExampleIgnoredCapitalizedTermWithAlias.bar) == ~I<http://example.com/Bar>
+    end
+
+    test "resolution of ignored lowercased alias on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredLowercasedAlias
+      assert ExampleIgnoredLowercasedAlias.__terms__ == [:Bar, :foo]
+      assert RDF.uri(ExampleIgnoredLowercasedAlias.Bar) == ~I<http://example.com/Bar>
+      assert_raise UndefinedFunctionError, fn ->
+        RDF.uri(ExampleIgnoredLowercasedAlias.bar)
+      end
+    end
+
+    test "resolution of ignored capitalized alias on a strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedAlias
+      assert ExampleIgnoredCapitalizedAlias.__terms__ == [:Bar, :foo]
+      assert RDF.uri(ExampleIgnoredCapitalizedAlias.foo) == ~I<http://example.com/foo>
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.uri(ExampleIgnoredCapitalizedAlias.Foo)
+      end
+    end
+
+    test "resolution of ignored lowercased term on a non-strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredNonStrictLowercasedTerm
+      assert_raise UndefinedFunctionError, fn ->
+        ExampleIgnoredNonStrictLowercasedTerm.foo
+      end
+    end
+
+    test "resolution of ignored capitalized term on a non-strict vocab fails" do
+      alias NSWithIgnoredTerms.ExampleIgnoredNonStrictCapitalizedTerm
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.uri(ExampleIgnoredNonStrictCapitalizedTerm.Bar)
+      end
+    end
+
+    test "ignored terms with invalid characters do not raise anything" do
+      defmodule IgnoredTermWithInvalidCharacters do
+        use RDF.Vocabulary.Namespace
+        defvocab Example,
+          base_uri: "http://example.com/",
+          terms:    ~w[foo-bar],
+          ignore:   ~w[foo-bar]a
+      end
+    end
+
+    test "ignored terms with case violations do not raise anything" do
+      defmodule IgnoredTermWithInvalidCharacters do
+        use RDF.Vocabulary.Namespace
+        defvocab Example,
+          base_uri: "http://example.com/",
+          data: RDF.Dataset.new([
+            {~I<http://example.com/Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            {~I<http://example.com/bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/from_dataset#Graph>}
+          ]),
+          case_violations: :fail,
+          ignore:   ~w[Foo bar]a
+      end
+    end
+  end
+
+
   test "__base_uri__ returns the base_uri" do
     alias TestNS.ExampleFromGraph, as: HashVocab
     alias TestNS.ExampleFromNTriplesFile, as: SlashVocab

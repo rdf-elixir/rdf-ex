@@ -39,9 +39,11 @@ defmodule RDF.Vocabulary.Namespace do
       IO.puts("Compiling vocabulary namespace for #{base_uri} may take some time")
     end
 
+    ignored_terms = ignored_terms!(opts)
     terms =
       terms
       |> term_mapping!(opts)
+      |> Map.drop(MapSet.to_list(ignored_terms))
       |> validate_terms!(opts)
       |> validate_case!(data, base_uri, opts)
     case_separated_terms = group_terms_by_case(terms)
@@ -68,6 +70,8 @@ defmodule RDF.Vocabulary.Namespace do
         @terms unquote(Macro.escape(terms))
         def __terms__, do: @terms |> Map.keys
 
+        @ignored_terms unquote(Macro.escape(ignored_terms))
+
         @doc """
         Returns all known URIs of the vocabulary.
         """
@@ -85,7 +89,8 @@ defmodule RDF.Vocabulary.Namespace do
         def __resolve_term__(term) do
           case @terms[term] do
             nil ->
-              if @strict do
+              # TODO: Why does this MapSet.member? call produce a warning? It does NOT always yield the same result!
+              if @strict or MapSet.member?(@ignored_terms, term) do
                 raise RDF.Namespace.UndefinedTermError,
                   "undefined term #{term} in strict vocabulary #{__MODULE__}"
               else
@@ -100,11 +105,19 @@ defmodule RDF.Vocabulary.Namespace do
 
         if not @strict do
           def unquote(:"$handle_undefined_function")(term, []) do
-            term_to_uri(@base_uri, term)
+            if MapSet.member?(@ignored_terms, term) do
+              raise UndefinedFunctionError
+            else
+              term_to_uri(@base_uri, term)
+            end
           end
 
           def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
-            RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
+            if MapSet.member?(@ignored_terms, term) do
+              raise UndefinedFunctionError
+            else
+              RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
+            end
           end
         end
       end
@@ -416,6 +429,20 @@ defmodule RDF.Vocabulary.Namespace do
     IO.warn "lowercased alias '#{term}' for a non-property resource"
   end
 
+
+  defp ignored_terms!(opts) do
+    # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
+    with terms = Keyword.get(opts, :ignore, []) do
+      {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
+      terms
+      |> Enum.map(fn
+           term when is_atom(term)   -> term
+           term when is_binary(term) -> String.to_atom(term)
+           term -> raise RDF.Namespace.InvalidTermError, inspect(term)
+         end)
+      |> MapSet.new
+    end
+  end
 
   defp filename!(opts) do
     if filename = Keyword.get(opts, :file) do
