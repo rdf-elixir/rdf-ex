@@ -5,7 +5,7 @@ defmodule RDF.Vocabulary.Namespace do
   `RDF.Vocabulary.Namespace` modules represent a RDF vocabulary as a `RDF.Namespace`.
   They can be defined with the `defvocab/2` macro of this module.
 
-  RDF.ex comes with predefined modules for some fundamentals vocabularies in
+  RDF.ex comes with predefined modules for some fundamental vocabularies in
   the `RDF.NS` module.
   Furthermore, the [rdf_vocab](https://hex.pm/packages/rdf_vocab) package
   contains predefined modules for popular vocabularies.
@@ -44,7 +44,8 @@ defmodule RDF.Vocabulary.Namespace do
       terms
       |> term_mapping!(opts)
       |> Map.drop(MapSet.to_list(ignored_terms))
-      |> validate_terms!(opts)
+      |> validate_terms!
+      |> validate_characters!(opts)
       |> validate_case!(data, base_uri, opts)
     case_separated_terms = group_terms_by_case(terms)
     lowercased_terms  = Map.get(case_separated_terms, :lowercased, %{})
@@ -127,6 +128,10 @@ defmodule RDF.Vocabulary.Namespace do
   @doc false
   defmacro define_vocab_terms(terms, base_uri) do
     terms
+    |> Stream.filter(fn
+        {term, true}          -> valid_term?(term)
+        {term, original_term} -> true
+       end)
     |> Stream.map(fn
         {term, true}          -> {term, term}
         {term, original_term} -> {term, original_term}
@@ -204,6 +209,21 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
 
+  defp ignored_terms!(opts) do
+    # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
+    with terms = Keyword.get(opts, :ignore, []) do
+      {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
+      terms
+      |> Enum.map(fn
+           term when is_atom(term)   -> term
+           term when is_binary(term) -> String.to_atom(term)
+           term -> raise RDF.Namespace.InvalidTermError, inspect(term)
+         end)
+      |> MapSet.new
+    end
+  end
+
+
   defp term_mapping!(terms, opts) do
     terms = Map.new terms, fn
       term when is_atom(term) -> {term, true}
@@ -213,7 +233,7 @@ defmodule RDF.Vocabulary.Namespace do
     |> Enum.reduce(terms, fn {alias, original_term}, terms ->
          term = String.to_atom(original_term)
          cond do
-           not valid_term?(alias) ->
+           not valid_characters?(alias) ->
              raise RDF.Namespace.InvalidAliasError,
                "alias '#{alias}' contains invalid characters"
 
@@ -243,28 +263,85 @@ defmodule RDF.Vocabulary.Namespace do
     |> Enum.map(&String.to_atom/1)
   end
 
-  defp validate_terms!(terms, opts) do
+  @invalid_terms MapSet.new ~w[
+    and
+    or
+    xor
+    in
+    fn
+    def
+    when
+    if
+    for
+    case
+    with
+    quote
+    unquote
+    unquote_splicing
+    alias
+    import
+    require
+    super
+    __aliases__
+  ]a
+
+  def invalid_terms, do: @invalid_terms
+
+  defp validate_terms!(terms) do
+    aliased_terms = aliased_terms(terms)
+    terms
+    |> Enum.filter_map(
+         fn {term, _} ->
+           not term in aliased_terms and not valid_term?(term)
+         end,
+         fn {term, _} -> term end)
+    |> handle_invalid_terms!
+
+    terms
+  end
+
+  defp valid_term?(term) do
+    not MapSet.member?(@invalid_terms, term)
+  end
+
+  defp handle_invalid_terms!([]), do: nil
+
+  defp handle_invalid_terms!(invalid_terms) do
+    raise RDF.Namespace.InvalidTermError, """
+      The following terms can not be used, because they conflict with the Elixir semantics:
+
+      - #{Enum.join(invalid_terms, "\n- ")}
+
+      You have the following options:
+
+      - define an alias with the :alias option on defvocab
+      - ignore the resource with the :ignore option on defvocab
+      """
+  end
+
+
+  defp validate_characters!(terms, opts) do
     if (handling = Keyword.get(opts, :invalid_characters, :fail)) == :ignore do
       terms
     else
       terms
-      |> detect_invalid_terms
-      |> handle_invalid_terms(handling, terms)
+      |> detect_invalid_characters
+      |> handle_invalid_characters(handling, terms)
     end
   end
 
-  defp detect_invalid_terms(terms) do
+  defp detect_invalid_characters(terms) do
     aliased_terms = aliased_terms(terms)
     Enum.filter_map terms,
       fn {term, _} ->
-        not term in aliased_terms and not valid_term?(term)
+        not term in aliased_terms and not valid_characters?(term)
       end,
       fn {term, _} -> term end
   end
 
-  defp handle_invalid_terms([], _, terms), do: terms
+  defp handle_invalid_characters([], _, terms), do: terms
 
-  defp handle_invalid_terms(invalid_terms, :fail, _) do
+  defp handle_invalid_characters(invalid_terms, :fail, _) do
     raise RDF.Namespace.InvalidTermError, """
       The following terms contain invalid characters:
 
@@ -275,19 +352,20 @@ defmodule RDF.Vocabulary.Namespace do
       - if you are in control of the vocabulary, consider renaming the resource
       - define an alias with the :alias option on defvocab
       - change the handling of invalid characters with the :invalid_characters option on defvocab
+      - ignore the resource with the :ignore option on defvocab
       """
   end
 
-  defp handle_invalid_terms(invalid_terms, :warn, terms) do
+  defp handle_invalid_characters(invalid_terms, :warn, terms) do
     Enum.each invalid_terms, fn term ->
       IO.warn "'#{term}' is not valid term, since it contains invalid characters"
     end
     terms
   end
 
-  defp valid_term?(term) when is_atom(term),
-    do: valid_term?(Atom.to_string(term))
-  defp valid_term?(term),
+  defp valid_characters?(term) when is_atom(term),
+    do: valid_characters?(Atom.to_string(term))
+  defp valid_characters?(term),
     do: Regex.match?(~r/^[a-zA-Z_]\w*$/, term)
 
   defp validate_case!(terms, nil, _, _), do: terms
@@ -405,6 +483,7 @@ defmodule RDF.Vocabulary.Namespace do
       - if you are in control of the vocabulary, consider renaming the resource
       - define a properly cased alias with the :alias option on defvocab
       - change the handling of case violations with the :case_violations option on defvocab
+      - ignore the resource with the :ignore option on defvocab
       """
   end
 
@@ -433,20 +512,6 @@ defmodule RDF.Vocabulary.Namespace do
     IO.warn "lowercased alias '#{term}' for a non-property resource"
   end
 
-
-  defp ignored_terms!(opts) do
-    # TODO: find an alternative to Code.eval_quoted - We want to support that the terms can be given as sigils ...
-    with terms = Keyword.get(opts, :ignore, []) do
-      {terms, _ } = Code.eval_quoted(terms, [], rdf_data_env())
-      terms
-      |> Enum.map(fn
-           term when is_atom(term)   -> term
-           term when is_binary(term) -> String.to_atom(term)
-           term -> raise RDF.Namespace.InvalidTermError, inspect(term)
-         end)
-      |> MapSet.new
-    end
-  end
 
   defp filename!(opts) do
     if filename = Keyword.get(opts, :file) do
