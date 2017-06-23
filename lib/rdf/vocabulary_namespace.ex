@@ -304,14 +304,18 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp detect_case_violations(terms, data, base_uri) do
     aliased_terms = aliased_terms(terms)
-    Enum.filter terms, fn
-      {term, true} ->
-        if not term in aliased_terms do
-          proper_case?(term, base_uri, Atom.to_string(term), data)
-        end
-      {term, original_term} ->
-        proper_case?(term, base_uri, original_term, data)
-      end
+    terms
+    |> Enum.filter(fn {term, _} ->
+         not(Atom.to_string(term) |> String.starts_with?("_"))
+       end)
+    |> Enum.filter(fn
+         {term, true} ->
+           if not term in aliased_terms do
+             proper_case?(term, base_uri, Atom.to_string(term), data)
+           end
+         {term, original_term} ->
+           proper_case?(term, base_uri, original_term, data)
+       end)
   end
 
   defp proper_case?(term, base_uri, uri_suffix, data) do
@@ -502,7 +506,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp lowercase?(term) when is_atom(term),
     do: Atom.to_string(term) |> lowercase?
   defp lowercase?(term),
-    do: term =~ ~r/^\p{Ll}/u
+    do: term =~ ~r/^(_|\p{Ll})/u
 
   defp strip_base_uri(uri, base_uri) do
     if String.starts_with?(uri, base_uri) do

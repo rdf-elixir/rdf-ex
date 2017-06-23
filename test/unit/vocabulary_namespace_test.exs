@@ -337,6 +337,20 @@ defmodule RDF.Vocabulary.NamespaceTest do
         end
       end
     end
+
+    test "terms starting with an underscore are not checked" do
+      defmodule NSWithUnderscoreTerms do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex#",
+          case_violations: :fail,
+          data: RDF.Graph.new([
+            {~I<http://example.com/ex#_Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
+            {~I<http://example.com/ex#_bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+          ])
+      end
+    end
   end
 
 
@@ -589,10 +603,25 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert RDF.uri(StrictExampleFromTerms.foo) == URI.parse("http://example.com/strict_from_terms#foo")
     end
 
-    test "captitalized terms" do
+    test "capitalized terms" do
       assert RDF.uri(ExampleFromGraph.Bar) == URI.parse("http://example.com/from_graph#Bar")
       assert RDF.uri(ExampleFromNTriplesFile.Bar) == URI.parse("http://example.com/from_ntriples/Bar")
       assert RDF.uri(StrictExampleFromTerms.Bar) == URI.parse("http://example.com/strict_from_terms#Bar")
+    end
+
+    test "terms starting with an underscore" do
+      defmodule NSwithUnderscoreTerms do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_uri: "http://example.com/ex#",
+          terms: ~w[_foo]
+      end
+      alias NSwithUnderscoreTerms.Example
+      alias TestNS.EX
+
+      assert Example._foo == ~I<http://example.com/ex#_foo>
+      assert Example._foo(EX.S, 1) == RDF.description(EX.S, Example._foo, 1)
     end
   end
 
@@ -605,6 +634,10 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     test "undefined capitalized terms" do
       assert RDF.uri(NonStrictExampleFromTerms.Random) == URI.parse("http://example.com/non_strict_from_terms#Random")
+    end
+
+    test "undefined terms starting with an underscore" do
+      assert NonStrictExampleFromTerms._random == URI.parse("http://example.com/non_strict_from_terms#_random")
     end
 
     test "defined lowercase terms" do
