@@ -24,19 +24,19 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
   1. Add `rdf` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:rdf, "~> 0.1.0"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:rdf, "~> 0.1.0"}]
+end
+```
 
   2. Ensure `rdf` is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:rdf]]
-    end
-    ```
+```elixir
+def application do
+  [applications: [:rdf]]
+end
+```
 
 ## Usage
 
