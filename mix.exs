@@ -1,7 +1,9 @@
 defmodule RDF.Mixfile do
   use Mix.Project
 
-  @version "0.0.1"
+  @repo_url "https://github.com/marcelotto/rdf-ex"
+
+  @version "0.1.0"
 
   def project do
     [
@@ -10,9 +12,20 @@ defmodule RDF.Mixfile do
       elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      description: description(),
+      deps: deps(),
+
+      # Hex
       package: package(),
-      deps: deps()
+      description: description(),
+
+      # Docs
+      name: "RDF.ex",
+      docs: [
+        main: "RDF",
+        source_url: @repo_url,
+        source_ref: "v#{@version}",
+        extras: ["README.md"],
+      ]
     ]
   end
 
@@ -24,11 +37,9 @@ defmodule RDF.Mixfile do
 
   defp package do
     [
-      name: :rdf,
       maintainers: ["Marcel Otto"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/rdfex/rdf",
-               "Docs" => "http://rdfex.github.io/rdf)/"},
+      links: %{"GitHub" => @repo_url},
       files: ["lib", "priv", "mix.exs", "README*", "readme*", "LICENSE*", "license*"]
     ]
   end
@@ -39,10 +50,10 @@ defmodule RDF.Mixfile do
 
   defp deps do
     [
-      {:dialyxir, "~> 0.4", only: [:dev, :test]},
-      {:credo, "~> 0.6", only: [:dev, :test]},
-      {:ex_doc, "~> 0.14", only: :dev},
-      {:mix_test_watch, "~> 0.3", only: :dev},
+      {:dialyxir, "~> 0.4",       only: [:dev, :test], runtime: false},
+      {:credo, "~> 0.6",          only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.14",        only: :dev, runtime: false},
+      {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
     ]
   end
 end

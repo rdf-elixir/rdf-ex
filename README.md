@@ -50,7 +50,7 @@ Let's see how the different types of nodes are represented with RDF.ex in Elixir
 
 ### URIs
 
-Although the RDF standards speaks of IRIs, an internationalized generalization of URIs, RDF.ex currently supports only URIs. They are represented with Elixirs builtin [`URI`](http://elixir-lang.org/docs/stable/elixir/URI.html) struct. It's a pragmatic, temporary decision, which will likely be subject to changes, in favour of a more dedicated representation of IRIs specialised for its usage within RDF data. See this [issue](https://github.com/marcelotto/rdf/issues/1) for progress on this matter.
+Although the RDF standards speaks of IRIs, an internationalized generalization of URIs, RDF.ex currently supports only URIs. They are represented with Elixirs builtin [`URI`](http://elixir-lang.org/docs/stable/elixir/URI.html) struct. It's a pragmatic, temporary decision, which will likely be subject to changes, in favour of a more dedicated representation of IRIs specialised for its usage within RDF data. See this [issue](https://github.com/marcelotto/rdf-ex/issues/1) for progress on this matter.
 
 The `RDF` module defines a handy constructor function `RDF.uri/1`:
 
