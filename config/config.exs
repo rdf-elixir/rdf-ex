@@ -1,3 +1,5 @@
 use Mix.Config
 
-import_config "#{Mix.env}.exs"
+unless Mix.env == :docs do
+  import_config "#{Mix.env}.exs"
+end

@@ -9,3 +9,6 @@ otp_release:
   - 19.3
   - 18.3
 sudo: false
+after_script:
+  - MIX_ENV=docs mix deps.get
+  - MIX_ENV=docs mix inch.report
