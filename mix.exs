@@ -9,7 +9,7 @@ defmodule RDF.Mixfile do
     [
       app: :rdf,
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
@@ -45,7 +45,7 @@ defmodule RDF.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [extra_applications: [:logger]]
   end
 
   defp deps do
