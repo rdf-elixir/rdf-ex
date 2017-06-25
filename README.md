@@ -1,5 +1,9 @@
 # RDF.ex
 
+[![Travis](https://img.shields.io/travis/marcelotto/rdf-ex.svg?style=flat-square)](https://travis-ci.org/marcelotto/rdf-ex)
+[![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
+
+
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
 
 ## Features
