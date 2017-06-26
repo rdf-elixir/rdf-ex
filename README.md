@@ -25,23 +25,14 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
 ## Installation
 
-[RDF.ex] can be installed as a Hex package as usual:
-
-  1. Add `rdf` to your list of dependencies in `mix.exs`:
+The [RDF.ex] Hex package can be installed as usual, by adding `rdf` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:rdf, "~> 0.1.0"}]
+  [{:rdf, "~> 0.1"}]
 end
 ```
 
-  2. Ensure `rdf` is started before your application:
-
-```elixir
-def application do
-  [applications: [:rdf]]
-end
-```
 
 ## Usage
 
