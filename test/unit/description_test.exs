@@ -89,6 +89,10 @@ defmodule RDF.DescriptionTest do
         |> description_includes_predication({EX.predicate, literal(42)})
 
       assert Description.add(description(),
+              {"http://example.com/predicate", true})
+        |> description_includes_predication({EX.predicate, literal(true)})
+
+      assert Description.add(description(),
               {"http://example.com/predicate", bnode(:foo)})
         |> description_includes_predication({EX.predicate, bnode(:foo)})
     end

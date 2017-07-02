@@ -11,6 +11,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - Don't support Elixir versions < 1.4 
 
+### Fixed
+
+- booleans weren't recognized as convertible literals on object positions  
+
 
 
 ## 0.1.1 - 2017-06-25

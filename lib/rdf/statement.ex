@@ -57,6 +57,7 @@ defmodule RDF.Statement do
   def convert_object(uri = %URI{}), do: uri
   def convert_object(literal = %Literal{}), do: literal
   def convert_object(bnode = %BlankNode{}), do: bnode
+  def convert_object(bool) when is_boolean(bool), do: Literal.new(bool)
   def convert_object(atom) when is_atom(atom), do: RDF.uri(atom)
   def convert_object(arg), do: Literal.new(arg)
 
