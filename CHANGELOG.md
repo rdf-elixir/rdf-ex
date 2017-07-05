@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- Turtle decoder 
+
 ### Changed
 
 - Don't support Elixir versions < 1.4 

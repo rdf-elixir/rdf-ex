@@ -9,11 +9,10 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
 ## Features
 
-- aims to be fully compatible with the RDF 1.1 specification; any incompatibility is considered a bug
-- pure Elixir implementation
+- fully compatible with the RDF 1.1 specification
 - no dependencies
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
-- support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of the URIs of vocabularies, resembling QNames
+- support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of URIs
 - XML schema datatypes for RDF literals (not yet all supported)
 - sigils for the most common types of nodes, i.e. URIs, literals and blank nodes
 - a description DSL resembling Turtle in Elixir 
@@ -118,7 +117,8 @@ iex> uri(RDF.Property)
 
 This way of expressing URIs has the additional benefit, that the existence of the referenced URI is checked at compile time, i.e. whenever a term is used that is not part of the resp. vocabulary an error is raised by the Elixir compiler (unless the vocabulary namespace is non-strict; see below).
 
-For terms not adhering to the capitalization rules (lowercase properties, capitalized non-properties) or containing characters not allowed within atoms, these namespace define aliases accordingly. If unsure, you can have a look at the documentation or the vocabulary namespace definition. 
+For terms not adhering to the capitalization rules (lowercase properties, capitalized non-properties) or containing characters not allowed within atoms, the predefined namespaces in `RDF.NS` and `RDF.Vocab` define aliases accordingly. If unsure, have a look at the documentation or their definitions. 
+
 
 #### Description DSL
 
@@ -632,15 +632,14 @@ Currently only [JSON-LD] is available with the [JSON-LD.ex] package.
 - [Google Group](https://groups.google.com/d/forum/rdfex)
 
 
-## Development
+## TODO
 
 There's still much to do for a complete RDF ecosystem for Elixir, which means there are plenty of opportunities for you to contribute. Here are some suggestions:
 
 - more serialization formats
-    - [Turtle]
     - [RDFa]
-    - [N3]
     - [RDF-XML]
+    - [N3]
     - et al.
 - missing XSD datatypes
 - more sophisticated query capabilities and full SPARQL support (in the style of Ecto queries)
