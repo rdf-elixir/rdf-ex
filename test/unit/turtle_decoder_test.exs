@@ -5,7 +5,7 @@ defmodule RDF.Turtle.DecoderTest do
 
   import RDF.Sigils
 
-  alias RDF.{Turtle, Graph, TestData}
+  alias RDF.{Turtle, Graph}
   alias RDF.NS.{XSD}
 
 
