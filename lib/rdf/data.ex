@@ -50,6 +50,14 @@ defprotocol RDF.Data do
   def description(data, subject)
 
   @doc """
+  Returns all `RDF.Description`s within a RDF data structure.
+
+  Note: On a `RDF.Dataset` this will return aggregated `RDF.Description`s about
+  the same subject from all graphs.
+  """
+  def descriptions(data)
+
+  @doc """
   Returns the set of all resources which are subject of the statements of a RDF data structure.
   """
   def subjects(data)
@@ -131,6 +139,8 @@ defimpl RDF.Data, for: RDF.Description do
     end
   end
 
+  def descriptions(description), do: [description]
+
   def subjects(%RDF.Description{subject: subject}), do: MapSet.new([subject])
   def predicates(description), do: RDF.Description.predicates(description)
   def objects(description),    do: RDF.Description.objects(description)
@@ -188,6 +198,8 @@ defimpl RDF.Data, for: RDF.Graph do
   def description(graph, subject),
     do: RDF.Graph.description(graph, subject) || RDF.Description.new(subject)
 
+  def descriptions(graph), do: RDF.Graph.descriptions(graph)
+
   def subjects(graph),   do: RDF.Graph.subjects(graph)
   def predicates(graph), do: RDF.Graph.predicates(graph)
   def objects(graph),    do: RDF.Graph.objects(graph)
@@ -230,6 +242,12 @@ defimpl RDF.Data, for: RDF.Dataset do
           description
         end
     end
+  end
+
+  def descriptions(dataset) do
+    dataset
+    |> subjects
+    |> Enum.map(&(description(dataset, &1)))
   end
 
   def subjects(dataset),   do: RDF.Dataset.subjects(dataset)

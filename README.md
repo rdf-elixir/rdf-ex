@@ -529,6 +529,7 @@ The `RDF.Data` protocol offers various functions to access the contents of RDF d
 - `RDF.Data.objects/1` returns the set of all resources on the object position of statements. Note: Literals not included.
 - `RDF.Data.resources/1` returns the set of all used resources at any position in the contained RDF statements.
 - `RDF.Data.description/2` returns all statements from a data structure about the given resource as a `RDF.Description`. It will be empty if no such statements exist. On a `RDF.Dataset` it will aggregate the statements about the resource from all graphs.
+- `RDF.Data.descriptions/1` returns all `RDF.Description`s within a data structure (possible aggregated in the case of a `RDF.Dataset`)
 - `RDF.Data.statements/1` returns a list of all contained RDF statements.
 
 The `get` functions return individual elements of a RDF data structure:

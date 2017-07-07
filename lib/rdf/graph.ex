@@ -351,6 +351,12 @@ defmodule RDF.Graph do
   def description(%RDF.Graph{descriptions: descriptions}, subject),
     do: Map.get(descriptions, convert_subject(subject))
 
+  @doc """
+  All `RDF.Description`s within a `RDF.Graph`.
+  """
+  def descriptions(%RDF.Graph{descriptions: descriptions}),
+    do: Map.values(descriptions)
+
 
   @doc """
   Gets and updates the description of the given subject, in a single pass.

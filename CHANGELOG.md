@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- Turtle decoder 
+- Turtle decoder
+- `RDF.Data.descriptions/1` returns all descriptions of a RDF data structure 
 
 ### Changed
 
