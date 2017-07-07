@@ -6,6 +6,7 @@ defmodule RDF.Serialization.ParseHelper do
   @rdf_type RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
   def rdf_type, do: @rdf_type
 
+
   def to_uri_string({:iriref, line, value}), do: value
 
   def to_uri({:iriref, line, value}) do
@@ -14,6 +15,14 @@ defmodule RDF.Serialization.ParseHelper do
       parsed_uri -> {:ok, parsed_uri}
     end
   end
+
+  def to_absolute_or_relative_uri({:iriref, line, value}) do
+    case URI.parse(value) do
+      uri = %URI{scheme: scheme} when not is_nil(scheme) -> uri
+      _ -> {:relative_uri, value}
+    end
+  end
+
 
   def to_bnode({:blank_node_label, _line, value}), do: RDF.bnode(value)
   def to_bnode({:anon, _line}), do: RDF.bnode # TODO:

@@ -312,4 +312,58 @@ defmodule RDF.Turtle.DecoderTest do
     end
   end
 
+
+  describe "relative IRIs" do
+    test "without explicit in-doc base and no document_base option option given" do
+      assert_raise RuntimeError, fn ->
+        Turtle.Decoder.decode!(
+          "<#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .")
+      end
+    end
+
+    test "without explicit in-doc base, but document_base option given" do
+      assert Turtle.Decoder.decode!("""
+        <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+      """, base: "http://example.org/") == Graph.new({EX.Aaron, RDF.type, EX.Person})
+    end
+
+    test "with @base given" do
+      assert Turtle.Decoder.decode!("""
+        @base <http://example.org/> .
+        <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+
+      assert Turtle.Decoder.decode!("""
+        @base <http://example.org/#> .
+        <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+    end
+
+    test "with BASE given" do
+      assert Turtle.Decoder.decode!("""
+        BASE <http://example.org/>
+        <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+
+      assert Turtle.Decoder.decode!("""
+        base <http://example.org/#>
+        <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+    end
+
+    test "when a given base is itself relative" do
+      assert_raise RDF.InvalidURIError, fn ->
+        Turtle.Decoder.decode!("""
+          @base <foo> .
+          <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
+          """)
+      end
+      assert_raise RDF.InvalidURIError, fn ->
+        Turtle.Decoder.decode!(
+          "<#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .",
+          base: "foo")
+      end
+    end
+  end
+
 end

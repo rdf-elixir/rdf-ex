@@ -84,11 +84,7 @@ blankNode -> anon             : {anon} .
 Erlang code.
 
 to_uri_string(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_uri_string(IRIREF) .
-to_uri(IRIREF) ->
-  case 'Elixir.RDF.Serialization.ParseHelper':to_uri(IRIREF) of
-    {ok, URI} -> URI;
-    {error, ErrorLine, Message} -> return_error(ErrorLine, Message)
-  end.
+to_uri(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_absolute_or_relative_uri(IRIREF) .
 to_bnode(BLANK_NODE) -> 'Elixir.RDF.Serialization.ParseHelper':to_bnode(BLANK_NODE).
 to_literal(STRING_LITERAL_QUOTE) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE).
 to_literal(STRING_LITERAL_QUOTE, Type) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE, Type).

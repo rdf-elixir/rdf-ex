@@ -20,10 +20,16 @@ defmodule RDF.Turtle.Decoder do
     end
   end
 
-  def decode(content, _opts \\ []) do
+  def decode(content, opts \\ %{})
+
+  def decode(content, opts) when is_list(opts),
+    do: decode(content, Map.new(opts))
+
+  def decode(content, opts) do
     with {:ok, tokens, _} <- tokenize(content),
-         {:ok, ast}       <- parse(tokens) do
-      {:ok, build_graph(ast)}
+         {:ok, ast}       <- parse(tokens),
+         base = Map.get(opts, :base) do
+      {:ok, build_graph(ast, base && RDF.uri(base))}
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
         {:error, "Turtle scanner error on line #{error_line}: #{inspect error_descriptor}"}
@@ -37,9 +43,9 @@ defmodule RDF.Turtle.Decoder do
   defp parse([]),     do: {:ok, []}
   defp parse(tokens), do: tokens |> :turtle_parser.parse
 
-  defp build_graph(ast) do
+  defp build_graph(ast, base) do
     {graph, _} =
-      Enum.reduce ast, {RDF.Graph.new, %State{}}, fn
+      Enum.reduce ast, {RDF.Graph.new, %State{base_uri: base}}, fn
         {:triples, triples_ast}, {graph, state} ->
           with {statements, state} = triples(triples_ast, state) do
             {RDF.Graph.add(graph, statements), state}
@@ -57,7 +63,7 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp directive({:base, uri}, state) do
-    %State{state | base_uri: uri}
+    %State{state | base_uri: RDF.uri(uri)}
   end
 
 
@@ -83,6 +89,14 @@ defmodule RDF.Turtle.Decoder do
 
   defp resolve_node({:prefix_ln, _, {prefix, name}}, statements, state) do
     {RDF.uri(State.ns(state, prefix) <> name), statements, state}
+  end
+
+  defp resolve_node({:relative_uri, relative_uri}, _, %State{base_uri: nil}) do
+    raise "Could not resolve resolve relative IRI '#{relative_uri}', no base uri provided"
+  end
+
+  defp resolve_node({:relative_uri, relative_uri}, statements, state) do
+    {RDF.URI.Helper.absolute_iri(relative_uri, state.base_uri), statements, state}
   end
 
   defp resolve_node({:anon}, statements, state) do
