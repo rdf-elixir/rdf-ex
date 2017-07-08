@@ -329,7 +329,7 @@ defmodule RDF.Description do
   @doc """
   Gets the objects for the given predicate of a Description.
 
-  When the predicate can not be found the optionally given default value or `nil` is returned.
+  When the predicate can not be found, the optionally given default value or `nil` is returned.
 
   ## Examples
 
@@ -345,6 +345,24 @@ defmodule RDF.Description do
       {:ok, value} -> value
       :error       -> default
     end
+  end
+
+  @doc """
+  Gets a single object for the given predicate of a Description.
+
+  When the predicate can not be found, the optionally given default value or `nil` is returned.
+
+  ## Examples
+
+      iex> RDF.Description.first(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      RDF.uri(EX.O)
+      iex> RDF.Description.first(RDF.Description.new(EX.S), EX.foo)
+      nil
+  """
+  def first(description = %RDF.Description{}, predicate) do
+    description
+    |> get(predicate, [])
+    |> List.first
   end
 
   @doc """

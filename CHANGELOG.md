@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - Turtle decoder
-- `RDF.Data.descriptions/1` returns all descriptions of a RDF data structure 
+- `RDF.Data.descriptions/1` returns all descriptions within a RDF data structure 
+- `RDF.Description.first/2` returns a single object a predicate of a `RDF.Description` 
 
 ### Changed
 

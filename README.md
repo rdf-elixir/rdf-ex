@@ -549,6 +549,14 @@ iex> RDF.Graph.new({EX.S1, EX.p, [EX.O1, EX.O2]})
 :not_found
 ```
 
+You can get a single object value for a given predicate in a `RDF.Description` with the `RDF.Description.first/2` function:
+
+```elixir
+iex> RDF.Description.new(EX.S1, {EX.p, EX.O1})
+...> |> RDF.Description.first(EX.p)
+~I<http://example.com/O1>
+```
+
 Since all three RDF data structures implement the `Access` behaviour, you can also use `data[key]` syntax, which basically just calls the resp. `get` function.
 
 ```elixir
