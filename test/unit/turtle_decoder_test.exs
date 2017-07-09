@@ -134,7 +134,7 @@ defmodule RDF.Turtle.DecoderTest do
   end
 
   describe "blank node property lists" do
-    test "a statement with a blank node property list on object position" do
+    test "blank node property list on object position" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> [ <http://example.org/#baz> 42 ] .
       """) == Graph.new([
@@ -143,7 +143,7 @@ defmodule RDF.Turtle.DecoderTest do
               ])
     end
 
-    test "a statement with a blank node property list on subject position" do
+    test "blank node property list on subject position" do
       assert Turtle.Decoder.decode!("""
         [ <http://example.org/#baz> 42 ] <http://example.org/#bar> false .
       """) == Graph.new([
@@ -157,7 +157,17 @@ defmodule RDF.Turtle.DecoderTest do
               Graph.new([{RDF.bnode("b0"), EX.foo, 42}])
     end
 
-    test "a statement with a blank node via []" do
+    test "nested blank node property list" do
+      assert Turtle.Decoder.decode!("""
+        [ <http://example.org/#p1> [ <http://example.org/#p2> <http://example.org/#o2> ] ; <http://example.org/#p> <http://example.org/#o> ].
+      """) == Graph.new([
+                {RDF.bnode("b0"), EX.p1, RDF.bnode("b1")},
+                {RDF.bnode("b1"), EX.p2, EX.o2},
+                {RDF.bnode("b0"), EX.p,  EX.o},
+              ])
+    end
+
+    test "blank node via []" do
       assert Turtle.Decoder.decode!("""
         [] <http://xmlns.com/foaf/0.1/name> "Aaron Swartz" .
       """) == Graph.new({RDF.bnode("b0"), ~I<http://xmlns.com/foaf/0.1/name>, "Aaron Swartz"})
@@ -229,7 +239,7 @@ defmodule RDF.Turtle.DecoderTest do
   end
 
   describe "shorthand literals" do
-    test "a statement with a boolean" do
+    test "boolean" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> true .
       """) == Graph.new({EX.Foo, EX.bar, RDF.Boolean.new(true)})
@@ -238,19 +248,19 @@ defmodule RDF.Turtle.DecoderTest do
       """) == Graph.new({EX.Foo, EX.bar, RDF.Boolean.new(false)})
     end
 
-    test "a statement with an integer" do
+    test "integer" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 42 .
       """) == Graph.new({EX.Foo, EX.bar, RDF.Integer.new(42)})
     end
 
-    test "a statement with a decimal" do
+    test "decimal" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 3.14 .
       """) == Graph.new({EX.Foo, EX.bar, RDF.Literal.new("3.14", datatype: XSD.decimal)})
     end
 
-    test "a statement with a double" do
+    test "double" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 1.2e3 .
       """) == Graph.new({EX.Foo, EX.bar, RDF.Double.new("1.2e3")})
@@ -259,7 +269,7 @@ defmodule RDF.Turtle.DecoderTest do
 
 
   describe "prefixed names" do
-    test "a statement with prefixed names" do
+    test "non-empty prefixed names" do
       assert Turtle.Decoder.decode!("""
         @prefix ex: <http://example.org/#> .
         ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
@@ -282,7 +292,7 @@ defmodule RDF.Turtle.DecoderTest do
 
     end
 
-    test "a statement with an empty prefixed name" do
+    test "empty prefixed name" do
       assert Turtle.Decoder.decode!("""
         @prefix : <http://example.org/#> .
         :Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> :Person .
@@ -296,7 +306,7 @@ defmodule RDF.Turtle.DecoderTest do
   end
 
   describe "collections" do
-    test "a statement with a collection" do
+    test "non-empty collection" do
       assert Turtle.Decoder.decode!("""
         @prefix : <http://example.org/#> .
         :subject :predicate ( :a :b :c ) .
@@ -311,11 +321,29 @@ defmodule RDF.Turtle.DecoderTest do
       ])
     end
 
-    test "a statement with an empty collection" do
+    test "empty collection" do
       assert Turtle.Decoder.decode!("""
         @prefix : <http://example.org/#> .
         :subject :predicate () .
       """) == Graph.new({EX.subject, EX.predicate, RDF.nil})
+    end
+
+    test "nested collection" do
+      assert Turtle.Decoder.decode!("""
+        @prefix : <http://example.org/#> .
+        :subject :predicate ( :a (:b :c) ) .
+      """) == Graph.new([
+        {EX.subject, EX.predicate, RDF.bnode("b0")},
+        {RDF.bnode("b0"), RDF.first, EX.a},
+        {RDF.bnode("b0"), RDF.rest, RDF.bnode("b3")},
+        {RDF.bnode("b3"), RDF.first, RDF.bnode("b1")},
+        {RDF.bnode("b3"), RDF.rest, RDF.nil},
+
+        {RDF.bnode("b1"), RDF.first, EX.b},
+        {RDF.bnode("b1"), RDF.rest, RDF.bnode("b2")},
+        {RDF.bnode("b2"), RDF.first, EX.c},
+        {RDF.bnode("b2"), RDF.rest, RDF.nil},
+      ])
     end
   end
 
