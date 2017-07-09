@@ -63,11 +63,26 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do
-    State.add_namespace(state, ns, iri)
+    if RDF.URI.Helper.absolute_iri?(iri) do
+      State.add_namespace(state, ns, iri)
+    else
+      with absolute_uri = RDF.URI.Helper.absolute_iri(iri, state.base_uri) do
+        State.add_namespace(state, ns, URI.to_string(absolute_uri))
+      end
+    end
   end
 
-  defp directive({:base, uri}, state) do
-    %State{state | base_uri: RDF.uri(uri)}
+  defp directive({:base, uri}, %State{base_uri: base_uri} = state) do
+    cond do
+      RDF.URI.Helper.absolute_iri?(uri) ->
+        %State{state | base_uri: RDF.uri(uri)}
+      base_uri != nil ->
+        with absolute_uri = RDF.URI.Helper.absolute_iri(uri, base_uri) do
+          %State{state | base_uri: absolute_uri}
+        end
+      true ->
+        raise "Could not resolve resolve relative IRI '#{uri}', no base uri provided"
+    end
   end
 
 

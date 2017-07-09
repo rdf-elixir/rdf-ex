@@ -17,13 +17,29 @@ defmodule RDF.URI.Helper do
   characters are treated in URI references, per [section 6.5 of RFC3987](http://tools.ietf.org/html/rfc3987#section-6.5)
   """
   def absolute_iri(value, base_iri) do
-    case URI.parse(value) do
-      # absolute?
-      uri = %URI{scheme: scheme} when not is_nil(scheme) -> uri
-      # relative
-      _ when is_nil(base_iri) -> nil
-      _ -> URI.merge(base_iri, value)
+    uri =
+      case URI.parse(value) do
+        # absolute?
+        uri = %URI{scheme: scheme} when not is_nil(scheme) -> uri
+        # relative
+        _ when is_nil(base_iri) -> nil
+        _ -> URI.merge(base_iri, value)
+      end
+    if String.ends_with?(value, "#") do
+      %URI{uri | fragment: ""}
+    else
+      uri
     end
   end
+
+  @doc """
+  Checks if the given value is an absolute IRI.
+
+  An absolute IRI is defined in [RFC3987](http://www.ietf.org/rfc/rfc3987.txt)
+  containing a scheme along with a path and optional query and fragment segments.
+
+  see <https://www.w3.org/TR/json-ld-api/#dfn-absolute-iri>
+  """
+  def absolute_iri?(value), do: RDF.uri?(value)
 
 end
