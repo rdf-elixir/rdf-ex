@@ -7,17 +7,17 @@ defmodule RDF.Serialization.ParseHelper do
   def rdf_type, do: @rdf_type
 
 
-  def to_uri_string({:iriref, line, value}), do: value
+  def to_uri_string({:iriref, line, value}), do: value |> iri_unescape
 
   def to_uri({:iriref, line, value}) do
-    case URI.parse(value) do
+    case URI.parse(iri_unescape(value)) do
       %URI{scheme: nil} -> {:error, line, "#{value} is not a valid URI"}
       parsed_uri -> {:ok, parsed_uri}
     end
   end
 
   def to_absolute_or_relative_uri({:iriref, line, value}) do
-    case URI.parse(value) do
+    case URI.parse(iri_unescape(value)) do
       uri = %URI{scheme: scheme} when not is_nil(scheme) -> uri
       _ -> {:relative_uri, value}
     end
@@ -25,10 +25,10 @@ defmodule RDF.Serialization.ParseHelper do
 
 
   def to_bnode({:blank_node_label, _line, value}), do: RDF.bnode(value)
-  def to_bnode({:anon, _line}), do: RDF.bnode # TODO:
+  def to_bnode({:anon, _line}), do: RDF.bnode
 
   def to_literal({:string_literal_quote, _line, value}),
-    do: RDF.literal(value)
+    do: value |> string_unescape |> RDF.literal
   def to_literal({:integer, _line, value}), do: RDF.literal(value)
   def to_literal({:decimal, _line, value}), do: RDF.literal(value)
   def to_literal({:double,  _line, value}), do: RDF.literal(value)
@@ -36,7 +36,7 @@ defmodule RDF.Serialization.ParseHelper do
   def to_literal({:string_literal_quote, _line, value}, {:language, language}),
     do: RDF.literal(value, language: language)
   def to_literal({:string_literal_quote, _line, value}, {:datatype, %URI{} = type}),
-    do: RDF.literal(value, datatype: type)
+    do: value |> string_unescape |> RDF.literal(datatype: type)
   def to_literal(string_literal_quote_ast, type),
     do: {string_literal_quote_ast, type}
 
@@ -58,4 +58,24 @@ defmodule RDF.Serialization.ParseHelper do
   def prefix_ns(value), do: value |> List.to_string |> String.slice(0..-2)
   def prefix_ln(value), do: value |> List.to_string |> String.split(":", parts: 2) |> List.to_tuple
 
+
+  def string_unescape(string),
+    do: string |> unescape_8digit_unicode_seq |> Macro.unescape_string(&string_unescape_map(&1))
+  def iri_unescape(string),
+    do: string |> unescape_8digit_unicode_seq |> Macro.unescape_string(&iri_unescape_map(&1))
+
+  defp string_unescape_map(?b),  do: ?\b
+  defp string_unescape_map(?f),  do: ?\f
+  defp string_unescape_map(?n),  do: ?\n
+  defp string_unescape_map(?r),  do: ?\r
+  defp string_unescape_map(?t),  do: ?\t
+  defp string_unescape_map(?u),  do: true
+  defp string_unescape_map(e),   do: e
+
+  defp iri_unescape_map(?u),  do: true
+  defp iri_unescape_map(e),   do: e
+
+  def unescape_8digit_unicode_seq(string) do
+    String.replace(string, ~r/\\U([0-9]|[A-F]|[a-f]){2}(([0-9]|[A-F]|[a-f]){6})/, "\\u{\\2}")
+  end
 end

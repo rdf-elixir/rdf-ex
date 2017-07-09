@@ -93,7 +93,7 @@ defmodule RDF.Turtle.Decoder do
 
   defp resolve_node({:prefix_ln, line_number, {prefix, name}}, statements, state) do
     if ns = State.ns(state, prefix) do
-      {RDF.uri(ns <> name), statements, state}
+      {RDF.uri(ns <> local_name_unescape(name)), statements, state}
     else
       raise "line #{line_number}: undefined prefix #{inspect prefix}"
     end
@@ -106,7 +106,6 @@ defmodule RDF.Turtle.Decoder do
       raise "line #{line_number}: undefined prefix #{inspect prefix}"
     end
   end
-
 
   defp resolve_node({:relative_uri, relative_uri}, _, %State{base_uri: nil}) do
     raise "Could not resolve resolve relative IRI '#{relative_uri}', no base uri provided"
@@ -162,5 +161,13 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp resolve_node(node, statements, state), do: {node, statements, state}
+
+  defp local_name_unescape(string),
+    do: Macro.unescape_string(string, &local_name_unescape_map(&1))
+
+  @reserved_characters ~c[~.-!$&'()*+,;=/?#@%_]
+
+  defp local_name_unescape_map(e) when e in @reserved_characters, do: e
+  defp local_name_unescape_map(_), do: false
 
 end

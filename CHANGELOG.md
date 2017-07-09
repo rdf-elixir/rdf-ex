@@ -19,7 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
-- booleans weren't recognized as convertible literals on object positions  
+- booleans weren't recognized as convertible literals on object positions
+- N-Triples and N-Quads decoder didn't handle escaping properly
 
 
 
