@@ -29,7 +29,7 @@ defmodule RDF.Turtle.Decoder do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens),
          base = Map.get(opts, :base) do
-      {:ok, build_graph(ast, base && RDF.uri(base))}
+      build_graph(ast, base && RDF.uri(base))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
         {:error, "Turtle scanner error on line #{error_line}: #{inspect error_descriptor}"}
@@ -44,18 +44,22 @@ defmodule RDF.Turtle.Decoder do
   defp parse(tokens), do: tokens |> :turtle_parser.parse
 
   defp build_graph(ast, base) do
-    {graph, _} =
-      Enum.reduce ast, {RDF.Graph.new, %State{base_uri: base}}, fn
-        {:triples, triples_ast}, {graph, state} ->
-          with {statements, state} = triples(triples_ast, state) do
-            {RDF.Graph.add(graph, statements), state}
-          end
+    try do
+      {graph, _} =
+        Enum.reduce ast, {RDF.Graph.new, %State{base_uri: base}}, fn
+          {:triples, triples_ast}, {graph, state} ->
+            with {statements, state} = triples(triples_ast, state) do
+              {RDF.Graph.add(graph, statements), state}
+            end
 
-        {:directive, directive_ast}, {graph, state} ->
-          {graph, directive(directive_ast, state)}
+          {:directive, directive_ast}, {graph, state} ->
+            {graph, directive(directive_ast, state)}
 
-      end
-    graph
+        end
+      {:ok, graph}
+    rescue
+      error -> {:error, Exception.message(error)}
+    end
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do
@@ -87,9 +91,22 @@ defmodule RDF.Turtle.Decoder do
     end
   end
 
-  defp resolve_node({:prefix_ln, _, {prefix, name}}, statements, state) do
-    {RDF.uri(State.ns(state, prefix) <> name), statements, state}
+  defp resolve_node({:prefix_ln, line_number, {prefix, name}}, statements, state) do
+    if ns = State.ns(state, prefix) do
+      {RDF.uri(ns <> name), statements, state}
+    else
+      raise "line #{line_number}: undefined prefix #{inspect prefix}"
+    end
   end
+
+  defp resolve_node({:prefix_ns, line_number, prefix}, statements, state) do
+    if ns = State.ns(state, prefix) do
+      {RDF.uri(ns), statements, state}
+    else
+      raise "line #{line_number}: undefined prefix #{inspect prefix}"
+    end
+  end
+
 
   defp resolve_node({:relative_uri, relative_uri}, _, %State{base_uri: nil}) do
     raise "Could not resolve resolve relative IRI '#{relative_uri}', no base uri provided"
@@ -109,6 +126,12 @@ defmodule RDF.Turtle.Decoder do
     with {subject, state} = State.next_bnode(state),
          {new_statements, state} = triples({subject, property_list}, state) do
       {subject, statements ++ new_statements, state}
+    end
+  end
+
+  defp resolve_node({{:string_literal_quote, _line, value}, {:datatype, datatype}}, statements, state) do
+    with {datatype, statements, state} = resolve_node(datatype, statements, state) do
+      {RDF.literal(value, datatype: datatype), statements, state}
     end
   end
 

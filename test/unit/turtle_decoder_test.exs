@@ -204,6 +204,13 @@ defmodule RDF.Turtle.DecoderTest do
         """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)})
     end
 
+    test "a typed literal with type as a prefixed name" do
+      assert Turtle.Decoder.decode!("""
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        <http://example.org/#spiderman> <http://example.org/#p> "42"^^xsd:integer .
+        """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)})
+    end
+
     test "a language tagged literal" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#S> <http://example.org/#p> "foo"@en .
@@ -352,7 +359,7 @@ defmodule RDF.Turtle.DecoderTest do
     end
 
     test "when a given base is itself relative" do
-      assert_raise RDF.InvalidURIError, fn ->
+      assert_raise RuntimeError, fn ->
         Turtle.Decoder.decode!("""
           @base <foo> .
           <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .

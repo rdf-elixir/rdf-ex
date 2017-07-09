@@ -1,7 +1,7 @@
 %% Grammar for Turtle as specified in https://www.w3.org/TR/2014/REC-n-triples-20140225/
 
 Nonterminals turtleDoc statement directive prefixID base sparqlPrefix sparqlBase
-  triples predicateObjectList objectList blankNodePropertyList
+  triples predicateObjectList objectList blankNodePropertyList semicolonSequence
   verb subject predicate object collection collection_elements
   literal numericLiteral rdfLiteral booleanLiteral iri prefixedName blankNode.
 
@@ -33,8 +33,11 @@ triples -> blankNodePropertyList predicateObjectList  : { '$1', '$2' }.
 triples -> blankNodePropertyList                      : '$1'.
 
 predicateObjectList -> verb objectList     : [{'$1', '$2'}] .
-predicateObjectList -> verb objectList ';' : [{'$1', '$2'}] .
-predicateObjectList -> verb objectList ';' predicateObjectList : [{'$1', '$2'} | '$4'] .
+predicateObjectList -> verb objectList semicolonSequence : [{'$1', '$2'}] .
+predicateObjectList -> verb objectList semicolonSequence predicateObjectList : [{'$1', '$2'} | '$4'] .
+semicolonSequence -> ';' .
+semicolonSequence -> ';' semicolonSequence .
+%%: '$1' .
 
 objectList -> object                : ['$1'] .
 objectList -> object ',' objectList : ['$1' | '$3'] .
@@ -64,10 +67,10 @@ prefixedName -> prefix_ns : '$1' .
 literal -> rdfLiteral     : '$1' .
 literal -> numericLiteral : '$1' .
 literal -> booleanLiteral : '$1' .
-rdfLiteral -> string_literal_quote '^^' iriref : to_literal('$1', {datatype, to_uri('$3')}) .
+rdfLiteral -> string_literal_quote '^^' iri : to_literal('$1', {datatype, '$3'}) .
 rdfLiteral -> string_literal_quote langtag     : to_literal('$1', {language, to_langtag('$2')}) .
 rdfLiteral -> string_literal_quote '@prefix'   : to_literal('$1', {language, to_langtag('$2')}) .
-rdfLiteral -> string_literal_quote '@base'   : to_literal('$1', {language, to_langtag('$2')}) .
+rdfLiteral -> string_literal_quote '@base'     : to_literal('$1', {language, to_langtag('$2')}) .
 rdfLiteral -> string_literal_quote             : to_literal('$1') .
 numericLiteral -> integer : to_literal('$1') .
 numericLiteral -> decimal : to_literal('$1') .

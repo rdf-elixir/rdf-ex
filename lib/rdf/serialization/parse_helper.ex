@@ -33,8 +33,12 @@ defmodule RDF.Serialization.ParseHelper do
   def to_literal({:decimal, _line, value}), do: RDF.literal(value)
   def to_literal({:double,  _line, value}), do: RDF.literal(value)
   def to_literal({:boolean,  _line, value}), do: RDF.literal(value)
-  def to_literal({:string_literal_quote, _line, value}, type),
-    do: RDF.literal(value, [type])
+  def to_literal({:string_literal_quote, _line, value}, {:language, language}),
+    do: RDF.literal(value, language: language)
+  def to_literal({:string_literal_quote, _line, value}, {:datatype, %URI{} = type}),
+    do: RDF.literal(value, datatype: type)
+  def to_literal(string_literal_quote_ast, type),
+    do: {string_literal_quote_ast, type}
 
   def integer(value),   do: RDF.Integer.new(List.to_string(value))
   def decimal(value),   do: RDF.Literal.new(List.to_string(value), datatype: XSD.decimal)
