@@ -46,7 +46,10 @@ defmodule RDF.TestSuite do
   def test_name(test_case), do: value(test_case, MF.name)
 
   def test_title(test_case),
-    do: test_name(test_case) <> ": " <> value(test_case, RDFS.comment)
+# Unfortunately OTP < 20 doesn't support unicode characters in atoms,
+# so we can't put the description in the test name
+#    do: test_name(test_case) <> ": " <> value(test_case, RDFS.comment)
+    do: test_name(test_case)
 
   def test_input_file(test_case), do: Description.first(test_case, MF.action)
 
