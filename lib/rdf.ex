@@ -105,7 +105,11 @@ defmodule RDF do
   def uri(string) do
     with parsed_uri = URI.parse(string) do
       if uri?(parsed_uri) do
-        parsed_uri
+        if is_binary(string) and String.ends_with?(string, "#") do
+          %URI{parsed_uri | fragment: ""}
+        else
+          parsed_uri
+        end
       else
         raise RDF.InvalidURIError, ~s(string "#{string}" is not a valid URI)
       end
