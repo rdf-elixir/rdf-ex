@@ -1,6 +1,6 @@
 defmodule RDF.BlankNode do
   @moduledoc """
-  A RDF blank node is a local node of a graph without an URI.
+  A RDF blank node (aka bnode) is a local node of a graph without an URI.
 
   see <https://www.w3.org/TR/rdf11-primer/#section-blank-node>
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>

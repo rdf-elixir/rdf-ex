@@ -57,7 +57,6 @@ defmodule RDF do
   def resource?(%BlankNode{}), do: true
   def resource?(_), do: false
 
-
   @doc """
   Checks if the given value is an URI.
 
@@ -78,6 +77,21 @@ defmodule RDF do
   end
   def uri?(value) when is_binary(value), do: uri?(URI.parse(value))
   def uri?(_), do: false
+
+  @doc """
+  Checks if the given value is a blank node.
+
+  ## Examples
+
+      iex> RDF.bnode?(RDF.bnode)
+      true
+      iex> RDF.bnode?(RDF.uri("http://example.com/resource"))
+      false
+      iex> RDF.bnode?(42)
+      false
+  """
+  def bnode?(%BlankNode{}), do: true
+  def bnode?(_), do: false
 
 
   @doc """
