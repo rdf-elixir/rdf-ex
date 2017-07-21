@@ -475,11 +475,17 @@ defmodule RDF.Description do
       ...> ]) |> RDF.Description.objects
       MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
   """
-  def objects(%RDF.Description{predications: predications}) do
+  def objects(%RDF.Description{} = description),
+    do: objects(description, &RDF.resource?/1)
+
+  @doc """
+  The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
+  """
+  def objects(%RDF.Description{predications: predications}, filter_fn) do
     Enum.reduce predications, MapSet.new, fn ({_, objects}, acc) ->
       objects
       |> Map.keys
-      |> Enum.filter(&RDF.resource?/1)
+      |> Enum.filter(filter_fn)
       |> MapSet.new
       |> MapSet.union(acc)
     end

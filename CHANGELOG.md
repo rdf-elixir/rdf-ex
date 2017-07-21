@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - Turtle decoder
 - `RDF.Data.descriptions/1` returns all descriptions within a RDF data structure 
 - `RDF.Description.first/2` returns a single object a predicate of a `RDF.Description` 
+- `RDF.Description.objects/2` with custom filter function
 
 ### Changed
 
