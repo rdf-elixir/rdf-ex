@@ -10,8 +10,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - Turtle decoder
+- `describes?/1` on `RDF.Data` protocol and all RDF data structures which check  
+  if statements about a given resource exist
 - `RDF.Data.descriptions/1` which returns all descriptions within a RDF data structure 
-- `RDF.Description.first/2` which returns a single object a predicate of a `RDF.Description`
+- `RDF.Description.first/2` which returns a single object to a predicate of a `RDF.Description`
 - `RDF.Description.objects/2` with custom filter function
 - `RDF.bnode?/1` which checks if the given value is a blank node
 

@@ -582,6 +582,22 @@ defmodule RDF.Graph do
     end
   end
 
+  @doc """
+  Checks if a `RDF.Graph` contains statements about the given resource.
+
+  ## Examples
+
+        iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Graph.describes?(EX.S1)
+        true
+        iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Graph.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Graph{descriptions: descriptions}, subject) do
+    with subject = convert_subject(subject) do
+      Map.has_key?(descriptions, subject)
+    end
+  end
+
 
   defimpl Enumerable do
     def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}

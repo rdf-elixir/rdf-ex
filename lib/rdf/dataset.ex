@@ -683,6 +683,47 @@ defmodule RDF.Dataset do
     do: include?(dataset, {subject, predicate, object}, graph_context)
 
 
+  @doc """
+  Checks if a graph of a `RDF.Dataset` contains statements about the given resource.
+
+  ## Examples
+
+        iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Dataset.describes?(EX.S1)
+        true
+        iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Dataset.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Dataset{graphs: graphs}, subject, graph_context \\ nil) do
+    with graph_context = convert_graph_name(graph_context) do
+      if graph = graphs[graph_context] do
+        Graph.describes?(graph, subject)
+      else
+        false
+      end
+    end
+  end
+
+  @doc """
+  Returns the names of all graphs of a `RDF.Dataset` containing statements about the given subject.
+
+  ## Examples
+        iex> dataset = RDF.Dataset.new([
+        ...>   {EX.S1, EX.p, EX.O},
+        ...>   {EX.S2, EX.p, EX.O},
+        ...>   {EX.S1, EX.p, EX.O, EX.Graph1},
+        ...>   {EX.S2, EX.p, EX.O, EX.Graph2}])
+        ...> RDF.Dataset.who_describes(dataset, EX.S1)
+        [nil, RDF.uri(EX.Graph1)]
+  """
+  def who_describes(%RDF.Dataset{graphs: graphs}, subject) do
+    with subject = convert_subject(subject) do
+      graphs
+      |> Map.values
+      |> Stream.filter(&Graph.describes?(&1, subject))
+      |> Enum.map(&(&1.name))
+    end
+  end
+
   defimpl Enumerable do
     def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
     def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}

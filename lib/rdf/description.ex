@@ -552,6 +552,23 @@ defmodule RDF.Description do
   def include?(%RDF.Description{}, _), do: false
 
 
+  @doc """
+  Checks if a `RDF.Description` has the given resource as subject.
+
+  ## Examples
+
+        iex> RDF.Description.new(EX.S1, EX.p1, EX.O1) |> RDF.Description.describes?(EX.S1)
+        true
+        iex> RDF.Description.new(EX.S1, EX.p1, EX.O1) |> RDF.Description.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Description{subject: subject}, other_subject) do
+    with other_subject = convert_subject(other_subject) do
+      subject == other_subject
+    end
+  end
+
+
   defimpl Enumerable do
     def member?(desc, triple),  do: {:ok, RDF.Description.include?(desc, triple)}
     def count(desc),            do: {:ok, RDF.Description.count(desc)}

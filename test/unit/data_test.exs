@@ -91,8 +91,9 @@ defmodule RDF.DataTest do
       refute RDF.Data.include?(description, {EX.Other, EX.p1, EX.O2})
     end
 
-    test "statements", %{description: description} do
-      assert RDF.Data.statements(description) == Description.statements(description)
+    test "describes?", %{description: description} do
+      assert RDF.Data.describes?(description, EX.S)
+      refute RDF.Data.describes?(description, EX.Other)
     end
 
     test "description when the requested subject matches the Description.subject",
@@ -109,6 +110,10 @@ defmodule RDF.DataTest do
 
     test "descriptions", %{description: description} do
       assert RDF.Data.descriptions(description) == [description]
+    end
+
+    test "statements", %{description: description} do
+      assert RDF.Data.statements(description) == Description.statements(description)
     end
 
     test "subjects", %{description: description} do
@@ -215,8 +220,10 @@ defmodule RDF.DataTest do
       refute RDF.Data.include?(graph, {EX.Other, EX.p1, EX.O2})
     end
 
-    test "statements", %{graph: graph} do
-      assert RDF.Data.statements(graph) == Graph.statements(graph)
+    test "describes?", %{graph: graph} do
+      assert RDF.Data.describes?(graph, EX.S)
+      assert RDF.Data.describes?(graph, EX.S2)
+      refute RDF.Data.describes?(graph, EX.Other)
     end
 
     test "description when a description is present",
@@ -232,6 +239,10 @@ defmodule RDF.DataTest do
     test "descriptions", %{graph: graph, description: description} do
       assert RDF.Data.descriptions(graph) ==
               [description, EX.S2 |> EX.p2(EX.O3, EX.O4)]
+    end
+
+    test "statements", %{graph: graph} do
+      assert RDF.Data.statements(graph) == Graph.statements(graph)
     end
 
     test "subjects", %{graph: graph} do
@@ -319,6 +330,13 @@ defmodule RDF.DataTest do
       assert RDF.Data.include?(dataset, {EX.S2, EX.p2, EX.O3})
       assert RDF.Data.include?(dataset, {EX.S3, EX.p3, EX.O5, EX.NamedGraph})
       refute RDF.Data.include?(dataset, {EX.Other, EX.p1, EX.O2})
+    end
+
+    test "describes?", %{dataset: dataset} do
+      assert RDF.Data.describes?(dataset, EX.S)
+      assert RDF.Data.describes?(dataset, EX.S2)
+      assert RDF.Data.describes?(dataset, EX.S3)
+      refute RDF.Data.describes?(dataset, EX.Other)
     end
 
     test "description when a description is present",
