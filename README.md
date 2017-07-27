@@ -14,8 +14,8 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
 - support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of URIs
 - XML schema datatypes for RDF literals (not yet all supported)
-- sigils for the most common types of nodes, i.e. URIs, literals and blank nodes
-- a description DSL resembling Turtle in Elixir 
+- sigils for the most common types of nodes, i.e. URIs, literals, blank nodes and lists
+- a description DSL resembling Turtle in Elixir
 - foundation for RDF serialization readers and writers 
   - implementations for the [N-Triples] and [N-Quads] serialization formats
   - other formats will be available as dedicated separate Hex packages
@@ -618,6 +618,38 @@ Beyond that, there is
 - `RDF.Graph.delete_subjects` which deletes all statements with the given subject resource from a `RDF.Graph`,
 - `RDF.Dataset.delete_graph` which deletes all graphs with the given graph name from a `RDF.Dataset` and
 - `RDF.Dataset.delete_default_graph` which deletes the default graph of a `RDF.Dataset`.
+
+
+### Lists
+
+The `RDF.List` module provides some functions for working with RDF lists.
+
+`RDF.List.new` or its alias `RDF.list` takes a native Elixir list with values of all types that are allowed for objects of statements or nested lists, and creates a graph with statements constituting the list in RDF. 
+
+```elixir
+{node, graph} = RDF.list(["foo", EX.bar, ~B<bar>, [1, 2, 3]])
+```
+
+It returns a tuple `{node, graph}`, where `node` is the name of the head node of the list and `graph` the `RDF.Graph` with the list statements. If your only interested in the graph, you can use `RDF.List.new!` or its alias `RDF.list!`. 
+
+If you want to add the graph statements to an existing graph, you can do that via the `graph` option.
+
+```elixir
+existing_graph = RDF.Graph.new({EX.S, EX.p, EX.O})
+graph = RDF.list!([1, 2, 3], graph: existing_graph)
+```
+
+The function `RDF.List.to_native/2` allows to get the values of a RDF list from an existing graph as a native Elixir list. It expects to head list node and the graph with the statements. Except for nested lists, the values of the list are not further converted, but returned as RDF types, i.e. `RDF.Literal`s etc.
+
+```elixir
+{head_node, graph} = RDF.list(["foo", EX.bar, ~B<bar>, [1, 2]])
+RDF.List.to_native(head_node, graph)
+# [~L"foo", EX.bar, ~B<bar>, [RDF.Integer.new(1), RDF.Integer.new(2)]]
+```
+
+When the given node does not refer to a valid list in the given graph the function returns `nil`.
+
+If a list in a given graph is a valid RDF list can be checked with the function `RDF.List.valid?/2`.
 
 
 ### Serializations

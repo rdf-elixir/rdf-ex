@@ -157,6 +157,13 @@ defmodule RDF do
   defdelegate dataset(arg),                   to: Dataset, as: :new
   defdelegate dataset(arg1, arg2),            to: Dataset, as: :new
 
+  defdelegate list(list),             to: RDF.List, as: :new
+  defdelegate list(list, opts),       to: RDF.List, as: :new
+  defdelegate list!(list),            to: RDF.List, as: :new!
+  defdelegate list!(list, opts),      to: RDF.List, as: :new!
+  defdelegate list?(resource, graph), to: RDF.List, as: :node?
+  defdelegate list?(description),     to: RDF.List, as: :node?
+
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(),                      to: RDF.NS.RDF
