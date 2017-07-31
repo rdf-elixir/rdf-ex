@@ -24,7 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
-- `RDF.uri/1` preserves empty fragments
+- `RDF.uri/1` and URI parsing of N-Triples and N-Quads decoders preserve empty fragments   
 - booleans weren't recognized as convertible literals on object positions
 - N-Triples and N-Quads decoder didn't handle escaping properly
 

@@ -11,15 +11,27 @@ defmodule RDF.Serialization.ParseHelper do
 
   def to_uri({:iriref, line, value}) do
     case URI.parse(iri_unescape(value)) do
-      %URI{scheme: nil} -> {:error, line, "#{value} is not a valid URI"}
-      parsed_uri -> {:ok, parsed_uri}
+      %URI{scheme: nil} ->
+        {:error, line, "#{value} is not a valid URI"}
+      parsed_uri ->
+        if String.ends_with?(value, "#") do
+          {:ok, %URI{parsed_uri | fragment: ""}}
+        else
+          {:ok, parsed_uri}
+        end
     end
   end
 
   def to_absolute_or_relative_uri({:iriref, line, value}) do
     case URI.parse(iri_unescape(value)) do
-      uri = %URI{scheme: scheme} when not is_nil(scheme) -> uri
-      _ -> {:relative_uri, value}
+      uri = %URI{scheme: scheme} when not is_nil(scheme) ->
+        if String.ends_with?(value, "#") do
+          %URI{uri | fragment: ""}
+        else
+          uri
+        end
+      _ ->
+        {:relative_uri, value}
     end
   end
 
