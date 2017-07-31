@@ -16,10 +16,8 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 - XML schema datatypes for RDF literals (not yet all supported)
 - sigils for the most common types of nodes, i.e. URIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
-- foundation for RDF serialization readers and writers 
-  - implementations for the [N-Triples] and [N-Quads] serialization formats
-  - other formats will be available as dedicated separate Hex packages
-  - currently only [JSON-LD] is available via the [JSON-LD.ex] package
+- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
+    - [JSON-LD] is implemented in the separate [JSON-LD.ex] package (as every format requiring additional dependencies will be published in separate packages)
 
 
 ## Installation
@@ -622,34 +620,46 @@ Beyond that, there is
 
 ### Lists
 
-The `RDF.List` module provides some functions for working with RDF lists.
+RDF lists can be represented with the `RDF.List` structure.
 
-`RDF.List.new` or its alias `RDF.list` takes a native Elixir list with values of all types that are allowed for objects of statements or nested lists, and creates a graph with statements constituting the list in RDF. 
+An existing `RDF.List` in a given graph can be created with `RDF.List.new` or its alias `RDF.list`, passing it the head node of a list and the graph containing the statements constituting the list.
 
 ```elixir
-{node, graph} = RDF.list(["foo", EX.bar, ~B<bar>, [1, 2, 3]])
+graph = Graph.new(
+           ~B<Foo>
+           |> RDF.first(1)
+           |> RDF.rest(EX.Foo))
+        |> Graph.add(
+           EX.Foo
+           |> RDF.first(2)
+           |> RDF.rest(RDF.nil))
+        )
+list = RDF.List.new(~B<Foo>, graph)
 ```
 
-It returns a tuple `{node, graph}`, where `node` is the name of the head node of the list and `graph` the `RDF.Graph` with the list statements. If your only interested in the graph, you can use `RDF.List.new!` or its alias `RDF.list!`. 
+If the given head node does not refer to a well-formed RDF list in the graph, `nil` is returned.
 
+An entirely new `RDF.List` can be created with `RDF.List.from` or `RDF.list` and a native Elixir list or an Elixir `Enumerable` with values of all types that are allowed for objects of statements (including nested lists). 
+
+```elixir
+list = RDF.list(["foo", EX.bar, ~B<bar>, [1, 2, 3]])
+```
 If you want to add the graph statements to an existing graph, you can do that via the `graph` option.
 
 ```elixir
 existing_graph = RDF.Graph.new({EX.S, EX.p, EX.O})
-graph = RDF.list!([1, 2, 3], graph: existing_graph)
+RDF.list([1, 2, 3], graph: existing_graph)
 ```
 
-The function `RDF.List.to_native/2` allows to get the values of a RDF list from an existing graph as a native Elixir list. It expects to head list node and the graph with the statements. Except for nested lists, the values of the list are not further converted, but returned as RDF types, i.e. `RDF.Literal`s etc.
+The `head` option also allows to specify a custom node for the head of the list.
+
+The function `RDF.List.values/1` allows to get the values of a RDF list (including nested lists) as a native Elixir list.
 
 ```elixir
-{head_node, graph} = RDF.list(["foo", EX.bar, ~B<bar>, [1, 2]])
-RDF.List.to_native(head_node, graph)
-# [~L"foo", EX.bar, ~B<bar>, [RDF.Integer.new(1), RDF.Integer.new(2)]]
+RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]])
+|> RDF.List.values
+# [~L"foo", RDF.uri(EX.bar), ~B<bar>, [RDF.Integer.new(1), RDF.Integer.new(2)]]
 ```
-
-When the given node does not refer to a valid list in the given graph the function returns `nil`.
-
-If a list in a given graph is a valid RDF list can be checked with the function `RDF.List.valid?/2`.
 
 
 ### Serializations
@@ -663,8 +673,9 @@ RDF graphs and datasets can be read and written to files or strings in a RDF ser
 
 All of the read and write functions are also available in bang variants which will fail in error cases.
 
-The RDF.ex package only comes with implementations of the [N-Triples] and [N-Quads] serialization formats. Other formats are and should be implemented in separate Hex packages.
-Currently only [JSON-LD] is available with the [JSON-LD.ex] package.
+The RDF.ex package comes with implementations of the [N-Triples], [N-Quads] and [Turtle] serialization formats. 
+Formats which require additional dependencies should be implemented in separate Hex packages.
+The [JSON-LD] for example is available with the [JSON-LD.ex] package.
 
 
 ## Getting help
@@ -703,10 +714,10 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 [JSON-LD.ex]:           https://hex.pm/packages/json_ld  
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
-[JSON-LD]:              http://www.w3.org/TR/json-ld/
 [Turtle]:               https://www.w3.org/TR/turtle/
-[RDFa]:                 https://www.w3.org/TR/rdfa-syntax/
 [N3]:                   https://www.w3.org/TeamSubmission/n3/
+[JSON-LD]:              http://www.w3.org/TR/json-ld/
+[RDFa]:                 https://www.w3.org/TR/rdfa-syntax/
 [RDF-XML]:              https://www.w3.org/TR/rdf-syntax-grammar/
 [BCP47]:                https://tools.ietf.org/html/bcp47
 [XML schema datatype]:  https://www.w3.org/TR/xmlschema11-2/

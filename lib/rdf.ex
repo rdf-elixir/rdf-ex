@@ -130,6 +130,15 @@ defmodule RDF do
     end
   end
 
+  def list(native_list),
+    do: RDF.List.from(native_list)
+
+  def list(head, %Graph{} = graph),
+    do: RDF.List.new(head, graph)
+
+  def list(native_list, opts),
+    do: RDF.List.from(native_list, opts)
+
 
   defdelegate bnode(),   to: BlankNode, as: :new
   defdelegate bnode(id), to: BlankNode, as: :new
@@ -157,10 +166,6 @@ defmodule RDF do
   defdelegate dataset(arg),                   to: Dataset, as: :new
   defdelegate dataset(arg1, arg2),            to: Dataset, as: :new
 
-  defdelegate list(list),             to: RDF.List, as: :new
-  defdelegate list(list, opts),       to: RDF.List, as: :new
-  defdelegate list!(list),            to: RDF.List, as: :new!
-  defdelegate list!(list, opts),      to: RDF.List, as: :new!
   defdelegate list?(resource, graph), to: RDF.List, as: :node?
   defdelegate list?(description),     to: RDF.List, as: :node?
 

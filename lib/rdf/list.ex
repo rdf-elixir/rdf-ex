@@ -1,55 +1,93 @@
 defmodule RDF.List do
   @moduledoc """
-  Functions for working with RDF lists.
+  A structure for RDF lists.
 
   see
   - <https://www.w3.org/TR/rdf-schema/#ch_collectionvocab>
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
+  defstruct [:head, :graph]
+
   alias RDF.{Graph, Description, BlankNode}
 
   @rdf_nil RDF.nil
 
   @doc """
-  Creates a RDF list.
+  Creates a `RDF.List` for a given RDF list node of a given `RDF.Graph`.
 
-  The function returns a tuple `{node, graph}`, where `node` is the name of the
-  head node of the list and `graph` is the `RDF.Graph` with the statements
-  constituting the list.
+  If the given node does not refer to a well-formed list in the graph, `nil` is
+  returned. A well-formed list
 
-  By default the statements these statements are added to an empty graph. An
+  - consists of list nodes which have exactly one `rdf:first` and `rdf:rest`
+    statement each
+  - does not contain cycles, i.e. `rdf:rest` statements don't refer to
+    preceding list nodes
+  """
+  def new(head, graph)
+
+  def new(head, graph) when is_atom(head) and not head in ~w[true false nil]a,
+    do: new(RDF.uri(head), graph)
+
+  def new(head, graph) do
+    with list = %RDF.List{head: head, graph: graph} do
+      if well_formed?(list) do
+        list
+      end
+    end
+  end
+
+  defp well_formed?(list) do
+    Enum.reduce_while(list, MapSet.new, fn node_description, preceding_nodes ->
+      with head = node_description.subject do
+        if MapSet.member?(preceding_nodes, head) do
+          {:halt, false}
+        else
+          {:cont, MapSet.put(preceding_nodes, head)}
+        end
+      end
+    end) && true
+  end
+
+
+  @doc """
+  Creates a `RDF.List` from a native Elixir list or any other `Enumerable` with convertible RDF values.
+
+  By default the statements constituting the `Enumerable` are added to an empty graph. An
   already existing graph to which the statements are added can be specified with
   the `graph` option.
 
   The name of the head node can be specified with the `head` option
   (default: `RDF.bnode()`, i.e. an arbitrary unique name).
-  Note: When the given list is empty, the `name` option will be ignored - the
-  head node of the empty list is always `RDF.nil`.
+  Note: When the given `Enumerable` is empty, the `name` option will be ignored -
+  the head node of the empty list is always `RDF.nil`.
 
   """
-  def new(list, opts \\ []) do
+  def from(list, opts \\ []) do
     with head  = Keyword.get(opts, :head,  RDF.bnode),
          graph = Keyword.get(opts, :graph, RDF.graph),
-      do: do_new(list, head, graph, opts)
-  end
-
-  defp do_new([], _, graph, _) do
-    {RDF.nil, graph}
-  end
-
-  defp do_new(list, head, graph, opts) when is_atom(head) do
-    do_new(list, RDF.uri(head), graph, opts)
-  end
-
-  defp do_new([list | rest], head, graph, opts) when is_list(list) do
-    with {nested_list_node, graph} = do_new(list, RDF.bnode, graph, opts) do
-      do_new([nested_list_node | rest], head, graph, opts)
+         {head, graph} = do_from(list, head, graph, opts)
+    do
+      %RDF.List{head: head, graph: graph}
     end
   end
 
-  defp do_new([first | rest], head, graph, opts) do
-    with {next, graph} = do_new(rest, RDF.bnode, graph, opts) do
+  defp do_from([], _, graph, _) do
+    {RDF.nil, graph}
+  end
+
+  defp do_from(list, head, graph, opts) when is_atom(head) do
+    do_from(list, RDF.uri(head), graph, opts)
+  end
+
+  defp do_from([list | rest], head, graph, opts) when is_list(list) do
+    with {nested_list_node, graph} = do_from(list, RDF.bnode, graph, opts) do
+      do_from([nested_list_node | rest], head, graph, opts)
+    end
+  end
+
+  defp do_from([first | rest], head, graph, opts) do
+    with {next, graph} = do_from(rest, RDF.bnode, graph, opts) do
       {
         head,
         Graph.add(graph,
@@ -61,52 +99,67 @@ defmodule RDF.List do
     end
   end
 
-  def new!(list, opts \\ []) do
-    with {_, graph} = new(list, opts), do: graph
+  defp do_from(enumerable, head, graph, opts) do
+    enumerable
+    |> Enum.into([])
+    |> do_from(head, graph, opts)
   end
+
 
   @doc """
-  Converts a RDF list from a graph to native Elixir list.
+  The values of a `RDF.List` as an Elixir list.
 
-  Except for nested lists, the values of the list are not further converted, but
-  returned as RDF types, i.e. `RDF.Literal`s etc.
-
-  When the given node does not refer to a valid list in the given graph the
-  function returns `nil`.
+  Nested lists are converted recursively.
   """
-  def to_native(list_node, graph)
-  def to_native(@rdf_nil, _),  do: []
-
-  def to_native(list_node, graph) do
-    if valid?(list_node, graph) do # TODO: This is not very efficient, we're traversing the list twice ...
-      do_to_native(list_node, graph)
-    end
-  end
-
-
-  defp do_to_native(list_node, graph, acc \\ []) do
-    with description when not is_nil(description) <-
-                    Graph.description(graph, list_node),
-         [first] <- Description.get(description, RDF.first),
-         [rest]  <- Description.get(description, RDF.rest)
-    do
-      first = if node?(first, graph), do: to_native(first, graph), else: first
-      if rest == RDF.nil do
-        [first | acc] |> Enum.reverse
+  def values(%RDF.List{graph: graph} = list) do
+    Enum.map list, fn node_description ->
+      value = Description.first(node_description, RDF.first)
+      if node?(value, graph) do
+        value
+        |> new(graph)
+        |> values
       else
-        do_to_native(rest, graph, [first | acc])
+        value
       end
     end
   end
 
 
   @doc """
-  Checks if the given resource is a RDF list node in the given graph.
+  The RDF nodes constituting a `RDF.List`` as an Elixir list.
+  """
+  def nodes(%RDF.List{} = list) do
+    Enum.map list, fn node_description -> node_description.subject end
+  end
+
+
+  @doc """
+  Checks if a list is the empty list.
+  """
+  def empty?(%RDF.List{head: @rdf_nil}), do: true
+  def empty?(_),                         do: false
+
+
+  @doc """
+  Checks if the given list consists of list nodes which are all blank nodes.
+  """
+  def valid?(%RDF.List{head: @rdf_nil}), do: true
+
+  def valid?(list) do
+    Enum.all? list, fn node_description ->
+      RDF.bnode?(node_description.subject)
+    end
+  end
+
+
+  @doc """
+  Checks if a given resource is a RDF list node in a given `RDF.Graph`.
 
   Although, technically a resource is a list, if it uses at least one `rdf:first`
   or `rdf:rest`, we pragmatically require the usage of both.
 
-  Note: This function doesn't indicate if the list is valid. See `valid?/2` for that.
+  Note: This function doesn't indicate if the list is valid.
+   See `new/2` and valid?/2` for validations.
   """
   def node?(list_node, graph)
 
@@ -141,39 +194,49 @@ defmodule RDF.List do
   end
 
 
-  @doc """
-  Checks if the given resource is a valid RDF list in the given graph.
+  defimpl Enumerable do
+    @rdf_nil RDF.nil
 
-  A valid list
+    def reduce(_, {:halt, acc}, _fun),      do: {:halted, acc}
+    def reduce(list, {:suspend, acc}, fun), do: {:suspended, acc, &reduce(list, &1, fun)}
 
-  - consists of list nodes which are all blank nodes and have exactly one
-    `rdf:first` and `rdf:rest` statement each
-  - does not contain any circles, i.e. `rdf:rest` statements don't refer to
-    preceding list nodes
-  """
-  def valid?(list_node, graph)
-  def valid?(@rdf_nil, _), do: true
-  def valid?(list_node, graph), do: do_valid?(list_node, graph)
+    def reduce(%RDF.List{head: @rdf_nil}, {:cont, acc}, _fun),
+      do: {:done, acc}
 
-  defp do_valid?(list, graph, preceding_nodes \\ MapSet.new)
+    def reduce(%RDF.List{head: %BlankNode{}} = list, acc, fun),
+      do: do_reduce(list, acc, fun)
 
-  defp do_valid?(%BlankNode{} = list, graph, preceding_nodes) do
-    with description when not is_nil(description) <-
-                    Graph.description(graph, list),
-         [first] <- Description.get(description, RDF.first),
-         [rest]  <- Description.get(description, RDF.rest)
-    do
-      cond do
-        rest == @rdf_nil -> true
-        MapSet.member?(preceding_nodes, list) -> false
-        true -> do_valid?(rest, graph, MapSet.put(preceding_nodes, list))
+    def reduce(%RDF.List{head: %URI{}} = list, acc, fun),
+      do: do_reduce(list, acc, fun)
+
+    def reduce(_, _, _), do: {:halted, nil}
+
+    defp do_reduce(%RDF.List{head: head, graph: graph},
+                    {:cont, acc}, fun) do
+      with description when not is_nil(description) <-
+                      Graph.description(graph, head),
+           [_]    <- Description.get(description, RDF.first),
+           [rest] <- Description.get(description, RDF.rest),
+           acc     = fun.(description, acc)
+      do
+        if rest == @rdf_nil do
+          case acc do
+            {:cont, acc} -> {:done, acc}
+            # TODO: Is the :suspend case handled properly
+            _            -> reduce(%RDF.List{head: rest, graph: graph}, acc, fun)
+          end
+        else
+          reduce(%RDF.List{head: rest, graph: graph}, acc, fun)
+        end
+      else
+        nil ->
+          {:halted, nil}
+        values when is_list(values) ->
+          {:halted, nil}
       end
-    else
-      nil -> false
-      list when is_list(list) -> false
     end
+
+    def member?(_, _),  do: {:error, __MODULE__}
+    def count(_),       do: {:error, __MODULE__}
   end
-
-  defp do_valid?(_, _, _), do: false
-
 end
