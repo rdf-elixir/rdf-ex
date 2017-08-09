@@ -130,6 +130,7 @@ defmodule RDF do
     end
   end
 
+
   def list(native_list),
     do: RDF.List.from(native_list)
 

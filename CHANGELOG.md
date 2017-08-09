@@ -9,13 +9,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- Turtle decoder
-- `RDF.List` module with functions for working with RDF lists
-- `describes?/1` on `RDF.Data` protocol and all RDF data structures which check  
+- full Turtle support
+- `RDF.List` structure for the representation of RDF lists
+- `describes?/1` on `RDF.Data` protocol and all RDF data structures which checks  
   if statements about a given resource exist
 - `RDF.Data.descriptions/1` which returns all descriptions within a RDF data structure 
 - `RDF.Description.first/2` which returns a single object to a predicate of a `RDF.Description`
-- `RDF.Description.objects/2` with custom filter function
+- `RDF.Description.objects/2` now supports a custom filter function
 - `RDF.bnode?/1` which checks if the given value is a blank node
 
 ### Changed
@@ -28,6 +28,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - booleans weren't recognized as convertible literals on object positions
 - N-Triples and N-Quads decoder didn't handle escaping properly
 
+
+[Compare v0.1.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.1.1...HEAD)
 
 
 ## 0.1.1 - 2017-06-25
