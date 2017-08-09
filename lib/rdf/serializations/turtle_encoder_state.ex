@@ -1,8 +1,6 @@
 defmodule RDF.Turtle.Encoder.State do
   @moduledoc false
 
-  use Agent
-
   alias RDF.{Literal, BlankNode, Description, List}
 
 
