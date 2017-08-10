@@ -29,7 +29,7 @@ defmodule RDF.NS do
   """
   defvocab RDF,
     base_uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    file: "rdf.nt",
+    file: "rdf.ttl",
     alias: [
       Nil:        "nil",
       LangString: "langString"
@@ -42,7 +42,7 @@ defmodule RDF.NS do
   """
   defvocab RDFS,
     base_uri: "http://www.w3.org/2000/01/rdf-schema#",
-    file: "rdfs.nt"
+    file: "rdfs.ttl"
 
   @vocabdoc """
   The OWL vocabulary.
@@ -51,7 +51,7 @@ defmodule RDF.NS do
   """
   defvocab OWL,
     base_uri: "http://www.w3.org/2002/07/owl#",
-    file: "owl.nt"
+    file: "owl.ttl"
 
   @vocabdoc """
   The SKOS vocabulary.
@@ -60,6 +60,6 @@ defmodule RDF.NS do
   """
   defvocab SKOS,
     base_uri: "http://www.w3.org/2004/02/skos/core#",
-    file: "skos.nt"
+    file: "skos.ttl"
 
 end
