@@ -3,7 +3,7 @@ defmodule RDF.Mixfile do
 
   @repo_url "https://github.com/marcelotto/rdf-ex"
 
-  @version "0.1.1"
+  @version File.read!("VERSION") |> String.trim
 
   def project do
     [
@@ -40,7 +40,7 @@ defmodule RDF.Mixfile do
       maintainers: ["Marcel Otto"],
       licenses: ["MIT"],
       links: %{"GitHub" => @repo_url},
-      files: ~w[lib src priv mix.exs README.md LICENSE.md]
+      files: ~w[lib src priv mix.exs README.md LICENSE.md VERSION]
     ]
   end
 
