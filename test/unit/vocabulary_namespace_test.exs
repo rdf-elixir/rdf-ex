@@ -41,6 +41,10 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_uri: "http://example.com/from_nquads/",
       file: "test/data/vocab_ns_example.nq"
 
+    defvocab ExampleFromTurtleFile,
+      base_uri: "http://example.com/from_turtle/",
+      file: "test/data/vocab_ns_example.ttl"
+
     defvocab StrictExampleFromTerms,
       base_uri: "http://example.com/strict_from_terms#",
       terms:    ~w[foo Bar]
@@ -687,6 +691,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert length(Example3.__uris__) == 2
     assert RDF.uri(Example3.foo) in Example3.__uris__
     assert RDF.uri(Example3.Bar) in Example3.__uris__
+
+    alias TestNS.ExampleFromTurtleFile, as: Example4
+    assert length(Example4.__uris__) == 2
+    assert RDF.uri(Example4.foo) in Example4.__uris__
+    assert RDF.uri(Example4.Bar) in Example4.__uris__
 
     alias TestNS.StrictExampleFromAliasedTerms, as: Example4
     assert length(Example4.__uris__) == 4

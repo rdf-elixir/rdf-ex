@@ -183,7 +183,7 @@ defmodule YourApp.NS do
 end
 ```
 
-Currently only NTriple and NQuad files are supported at this place.
+Currently only N-Triples, N-Quads and Turtle files are supported at this place.
 
 During compilation the terms will be validated and checked for proper capitalisation by analysing the schema description of the resp. resource  in the given data.
 This validation behaviour can be modified with the `case_violations` options, which is by default set to `:warn`. By setting it explicitly to `:fail` errors will be raised during compilation or it can be turned off with `:ignore`.
