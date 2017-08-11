@@ -18,6 +18,10 @@ defmodule RDF.Turtle.Encoder do
   @rdf_type RDF.type
   @rdf_nil  RDF.nil
 
+  # Defines rdf:type of subjects to be serialized at the beginning of the encoded graph
+  @top_classes [RDF.NS.RDFS.Class] |> Enum.map(&RDF.uri/1)
+
+  # Defines order of predicates at the beginning of a resource description
   @predicate_order [RDF.type, RDF.NS.RDFS.label, RDF.uri("http://purl.org/dc/terms/title")]
   @ordered_properties MapSet.new(@predicate_order)
 
@@ -78,9 +82,50 @@ defmodule RDF.Turtle.Encoder do
   defp graph_statements(state) do
     State.data(state)
     |> RDF.Data.descriptions
+    |> order_descriptions(state)
     |> Enum.map(&description_statements(&1, state))
     |> Enum.reject(&is_nil/1)
     |> Enum.join("\n")
+  end
+
+  defp order_descriptions(descriptions, state) do
+    base_uri = State.base_uri(state)
+    group =
+      Enum.group_by descriptions, fn
+        %Description{subject: ^base_uri} ->
+          :base
+        description ->
+          with types when not is_nil(types) <- description.predications[@rdf_type] do
+            Enum.find @top_classes, :other, fn top_class ->
+              Map.has_key?(types, top_class)
+            end
+          else
+            _ -> :other
+          end
+      end
+    ordered_descriptions = (
+        @top_classes
+        |> Stream.map(fn top_class -> group[top_class] end)
+        |> Stream.reject(&is_nil/1)
+        |> Stream.map(&sort_description_group/1)
+        |> Enum.reduce([], fn class_group, ordered_descriptions ->
+             ordered_descriptions ++ class_group
+           end)
+      ) ++ (group |> Map.get(:other, []) |> sort_description_group())
+
+    case group[:base] do
+      [base] -> [base | ordered_descriptions]
+      _      -> ordered_descriptions
+    end
+  end
+
+  defp sort_description_group(descriptions) do
+    Enum.sort descriptions, fn
+      %Description{subject: %URI{}}, %Description{subject: %BlankNode{}} -> true
+      %Description{subject: %BlankNode{}}, %Description{subject: %URI{}} -> false
+      %Description{subject: s1}, %Description{subject: s2} ->
+        to_string(s1) < to_string(s2)
+    end
   end
 
   defp description_statements(description, state, nesting \\ 0) do

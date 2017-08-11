@@ -6,7 +6,7 @@ defmodule RDF.Turtle.EncoderTest do
   doctest Turtle.Encoder
 
   alias RDF.Graph
-  alias RDF.NS.XSD
+  alias RDF.NS.{XSD, RDFS, OWL}
 
   import RDF.Sigils
 
@@ -99,6 +99,39 @@ defmodule RDF.Turtle.EncoderTest do
 
               <http://example.org/#S2>
                   <http://example.org/#p1> _:1, _:bar, _:foo .
+              """
+    end
+
+    test "ordering of descriptions" do
+      assert Turtle.Encoder.encode!(Graph.new([
+                {EX.__base_uri__, RDF.type, OWL.Ontology},
+                {EX.S1, RDF.type, EX.O},
+                {EX.S2, RDF.type, RDFS.Class},
+                {EX.S3, RDF.type, RDF.Property},
+              ]),
+                base: EX.__base_uri__,
+                prefixes: %{
+                  rdf:  RDF.__base_uri__,
+                  rdfs: RDFS.__base_uri__,
+                  owl:  OWL.__base_uri__,
+                }) ==
+              """
+              @base <#{to_string(EX.__base_uri__)}> .
+              @prefix rdf: <#{to_string(RDF.__base_uri__)}> .
+              @prefix rdfs: <#{to_string(RDFS.__base_uri__)}> .
+              @prefix owl: <#{to_string(OWL.__base_uri__)}> .
+
+              <>
+                  a owl:Ontology .
+
+              <S2>
+                  a rdfs:Class .
+
+              <S1>
+                  a <O> .
+
+              <S3>
+                  a rdf:Property .
               """
     end
   end
