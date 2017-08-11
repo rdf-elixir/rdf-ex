@@ -183,4 +183,5 @@ defmodule RDF do
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
+  defdelegate __base_uri__(), to: RDF.NS.RDF
 end
