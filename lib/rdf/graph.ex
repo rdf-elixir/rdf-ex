@@ -60,7 +60,7 @@ defmodule RDF.Graph do
   Creates an empty named `RDF.Graph`.
   """
   def new(name),
-    do: %RDF.Graph{name: convert_graph_name(name)}
+    do: %RDF.Graph{name: coerce_graph_name(name)}
 
   @doc """
   Creates a named `RDF.Graph` with an initial triple.
@@ -117,7 +117,7 @@ defmodule RDF.Graph do
   def add(graph, triples)
 
   def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
-    do: do_add(graph, convert_subject(subject), statement)
+    do: do_add(graph, coerce_subject(subject), statement)
 
   def add(graph, {subject, predicate, object, _}),
     do: add(graph, {subject, predicate, object})
@@ -161,7 +161,7 @@ defmodule RDF.Graph do
   def put(graph, statements)
 
   def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
-    do: do_put(graph, convert_subject(subject), statement)
+    do: do_put(graph, coerce_subject(subject), statement)
 
   def put(graph, {subject, predicate, object, _}),
     do: put(graph, {subject, predicate, object})
@@ -192,7 +192,7 @@ defmodule RDF.Graph do
 
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
       %RDF.Graph{name: name,
         descriptions:
@@ -249,7 +249,7 @@ defmodule RDF.Graph do
   def delete(graph, triples)
 
   def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
-    do: do_delete(graph, convert_subject(subject), triple)
+    do: do_delete(graph, coerce_subject(subject), triple)
 
   def delete(graph, {subject, predicate, object, _}),
     do: delete(graph, {subject, predicate, object})
@@ -300,7 +300,7 @@ defmodule RDF.Graph do
   end
 
   def delete_subjects(%RDF.Graph{name: name, descriptions: descriptions}, subject) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       %RDF.Graph{name: name, descriptions: Map.delete(descriptions, subject)}
     end
   end
@@ -320,7 +320,7 @@ defmodule RDF.Graph do
       :error
   """
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
-    Access.fetch(descriptions, convert_subject(subject))
+    Access.fetch(descriptions, coerce_subject(subject))
   end
 
   @doc """
@@ -349,7 +349,7 @@ defmodule RDF.Graph do
   The `RDF.Description` of the given subject.
   """
   def description(%RDF.Graph{descriptions: descriptions}, subject),
-    do: Map.get(descriptions, convert_subject(subject))
+    do: Map.get(descriptions, coerce_subject(subject))
 
   @doc """
   All `RDF.Description`s within a `RDF.Graph`.
@@ -381,7 +381,7 @@ defmodule RDF.Graph do
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
   """
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
         {old_description, new_description} ->
           {old_description, put(graph, subject, new_description)}
@@ -427,7 +427,7 @@ defmodule RDF.Graph do
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
   """
   def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
-    case Access.pop(descriptions, convert_subject(subject)) do
+    case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->
         {nil, graph}
       {description, new_descriptions} ->
@@ -574,7 +574,7 @@ defmodule RDF.Graph do
   """
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
-    with subject = convert_subject(subject),
+    with subject = coerce_subject(subject),
          %Description{} <- description = descriptions[subject] do
       Description.include?(description, triple)
     else
@@ -593,7 +593,7 @@ defmodule RDF.Graph do
         false
   """
   def describes?(%RDF.Graph{descriptions: descriptions}, subject) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       Map.has_key?(descriptions, subject)
     end
   end

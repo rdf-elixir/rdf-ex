@@ -20,12 +20,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- Don't support Elixir versions < 1.4 
+- Rename `RDF.Statement.convert*` functions to `RDF.Statement.coerce*`
+- Don't support Elixir versions < 1.4
 
 ### Fixed
 
 - `RDF.uri/1` and URI parsing of N-Triples and N-Quads decoders preserve empty fragments   
-- booleans weren't recognized as convertible literals on object positions
+- booleans weren't recognized as coercible literals on object positions
 - N-Triples and N-Quads decoder didn't handle escaping properly
 
 

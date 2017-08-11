@@ -51,7 +51,7 @@ defmodule RDF.List do
 
 
   @doc """
-  Creates a `RDF.List` from a native Elixir list or any other `Enumerable` with convertible RDF values.
+  Creates a `RDF.List` from a native Elixir list or any other `Enumerable` with coercible RDF values.
 
   By default the statements constituting the `Enumerable` are added to an empty graph. An
   already existing graph to which the statements are added can be specified with

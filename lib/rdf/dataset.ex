@@ -106,7 +106,7 @@ defmodule RDF.Dataset do
   def add(dataset, statements, graph_context \\ false)
 
   def add(dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         add(dataset, statement, graph_context)
       end
@@ -121,7 +121,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, false) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graphs =
         Map.update(graphs, graph_context,
           Graph.new(graph_context, {subject, predicate, objects}),
@@ -138,7 +138,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.add(description)
@@ -159,10 +159,10 @@ defmodule RDF.Dataset do
   end
 
   def add(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
-    do: add(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+    do: add(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
 
   def add(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
         add(dataset, graph, graph_context)
       end
@@ -194,7 +194,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, false) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       new_graph =
         case graphs[graph_context] do
           graph = %Graph{} ->
@@ -215,7 +215,7 @@ defmodule RDF.Dataset do
         fn
           {s, _, _}       -> {s, nil}
           {s, _, _, nil}  -> {s, nil}
-          {s, _, _, c}    -> {s, convert_graph_name(c)}
+          {s, _, _, c}    -> {s, coerce_graph_name(c)}
         end,
         fn
           {_, p, o, _} -> {p, o}
@@ -224,7 +224,7 @@ defmodule RDF.Dataset do
   end
 
   def put(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       do_put dataset, Enum.group_by(statements,
           fn
             {s, _, _, _} -> {s, graph_context}
@@ -242,7 +242,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.put(description)
@@ -263,10 +263,10 @@ defmodule RDF.Dataset do
   end
 
   def put(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
-    do: put(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+    do: put(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
 
   def put(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
         put(dataset, graph, graph_context)
       end
@@ -283,7 +283,7 @@ defmodule RDF.Dataset do
   defp do_put(%RDF.Dataset{name: name, graphs: graphs},
             {subject, graph_context}, predications)
         when is_list(predications) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       graph = Map.get(graphs, graph_context, Graph.new(graph_context))
       new_graphs = graphs
         |> Map.put(graph_context, Graph.put(graph, subject, predications))
@@ -307,7 +307,7 @@ defmodule RDF.Dataset do
   def delete(dataset, statements, graph_context \\ false)
 
   def delete(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         delete(dataset, statement, graph_context)
       end
@@ -346,7 +346,7 @@ defmodule RDF.Dataset do
 
   defp do_delete(%RDF.Dataset{name: name, graphs: graphs} = dataset,
           graph_context, statements) do
-    with graph_context = convert_graph_name(graph_context),
+    with graph_context = coerce_graph_name(graph_context),
          graph when not is_nil(graph) <- graphs[graph_context],
          new_graph = Graph.delete(graph, statements)
     do
@@ -376,7 +376,7 @@ defmodule RDF.Dataset do
   end
 
   def delete_graph(%RDF.Dataset{name: name, graphs: graphs}, graph_name) do
-    with graph_name = convert_graph_name(graph_name) do
+    with graph_name = coerce_graph_name(graph_name) do
       %RDF.Dataset{name: name, graphs: Map.delete(graphs, graph_name)}
     end
   end
@@ -404,7 +404,7 @@ defmodule RDF.Dataset do
       :error
   """
   def fetch(%RDF.Dataset{graphs: graphs}, graph_name) do
-    Access.fetch(graphs, convert_graph_name(graph_name))
+    Access.fetch(graphs, coerce_graph_name(graph_name))
   end
 
   @doc """
@@ -436,7 +436,7 @@ defmodule RDF.Dataset do
   The graph with given name.
   """
   def graph(%RDF.Dataset{graphs: graphs}, graph_name),
-    do: Map.get(graphs, convert_graph_name(graph_name))
+    do: Map.get(graphs, coerce_graph_name(graph_name))
 
   @doc """
   The default graph of a `RDF.Dataset`.
@@ -474,7 +474,7 @@ defmodule RDF.Dataset do
       {RDF.Graph.new(EX.Graph, {EX.S, EX.P, EX.O}), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
-    with graph_context = convert_graph_name(graph_name) do
+    with graph_context = coerce_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
         {old_graph, new_graph} ->
           {old_graph, put(dataset, new_graph, graph_context)}
@@ -523,7 +523,7 @@ defmodule RDF.Dataset do
       {nil, dataset}
   """
   def pop(%RDF.Dataset{name: name, graphs: graphs} = dataset, graph_name) do
-    case Access.pop(graphs, convert_graph_name(graph_name)) do
+    case Access.pop(graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
         {nil, dataset}
       {graph, new_graphs} ->
@@ -670,7 +670,7 @@ defmodule RDF.Dataset do
   def include?(dataset, statement, graph_context \\ nil)
 
   def include?(%RDF.Dataset{graphs: graphs}, triple = {_, _, _}, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       if graph = graphs[graph_context] do
         Graph.include?(graph, triple)
       else
@@ -694,7 +694,7 @@ defmodule RDF.Dataset do
         false
   """
   def describes?(%RDF.Dataset{graphs: graphs}, subject, graph_context \\ nil) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       if graph = graphs[graph_context] do
         Graph.describes?(graph, subject)
       else
@@ -716,7 +716,7 @@ defmodule RDF.Dataset do
         [nil, RDF.uri(EX.Graph1)]
   """
   def who_describes(%RDF.Dataset{graphs: graphs}, subject) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       graphs
       |> Map.values
       |> Stream.filter(&Graph.describes?(&1, subject))

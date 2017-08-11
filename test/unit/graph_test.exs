@@ -19,7 +19,7 @@ defmodule RDF.GraphTest do
              |> named_graph?(bnode("graph_name"))
     end
 
-    test "creating an empty graph with a convertible graph name" do
+    test "creating an empty graph with a coercible graph name" do
       assert named_graph("http://example.com/graph/GraphName")
              |> named_graph?(uri("http://example.com/graph/GraphName"))
       assert named_graph(EX.Foo) |> named_graph?(uri(EX.Foo))
@@ -112,7 +112,7 @@ defmodule RDF.GraphTest do
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
-    test "a convertible triple" do
+    test "a coercible triple" do
       assert Graph.add(graph(),
           "http://example.com/Subject", EX.predicate, EX.Object)
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
@@ -189,7 +189,7 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3, EX.Object3})
     end
 
-    test "non-convertible Triple elements are causing an error" do
+    test "non-coercible Triple elements are causing an error" do
       assert_raise RDF.InvalidURIError, fn ->
         Graph.add(graph(), {"not a URI", EX.predicate, uri(EX.Object)})
       end

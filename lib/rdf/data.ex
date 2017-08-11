@@ -96,7 +96,7 @@ end
 
 defimpl RDF.Data, for: RDF.Description do
   def merge(%RDF.Description{subject: subject} = description, {s, _, _} = triple) do
-    with ^subject <- RDF.Statement.convert_subject(s) do
+    with ^subject <- RDF.Statement.coerce_subject(s) do
       RDF.Description.add(description, triple)
     else
       _ ->
@@ -138,7 +138,7 @@ defimpl RDF.Data, for: RDF.Description do
     do: RDF.Description.describes?(description, subject)
 
   def description(%RDF.Description{subject: subject} = description, s) do
-    with ^subject <- RDF.Statement.convert_subject(s) do
+    with ^subject <- RDF.Statement.coerce_subject(s) do
       description
     else
       _ -> RDF.Description.new(s)
@@ -163,7 +163,7 @@ end
 
 defimpl RDF.Data, for: RDF.Graph do
   def merge(%RDF.Graph{name: name} = graph, {_, _, _, graph_context} = quad) do
-    with ^name <- RDF.Statement.convert_graph_name(graph_context) do
+    with ^name <- RDF.Statement.coerce_graph_name(graph_context) do
       RDF.Graph.add(graph, quad)
     else
       _ ->
@@ -246,7 +246,7 @@ defimpl RDF.Data, for: RDF.Dataset do
     do: RDF.Dataset.who_describes(dataset, subject) != []
 
   def description(dataset, subject) do
-    with subject = RDF.Statement.convert_subject(subject) do
+    with subject = RDF.Statement.coerce_subject(subject) do
       Enum.reduce RDF.Dataset.graphs(dataset), RDF.Description.new(subject), fn
         %RDF.Graph{descriptions: %{^subject => graph_description}}, description ->
           RDF.Description.add(description, graph_description)

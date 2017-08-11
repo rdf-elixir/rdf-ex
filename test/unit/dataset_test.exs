@@ -14,7 +14,7 @@ defmodule RDF.DatasetTest do
       assert named_dataset?(named_dataset())
     end
 
-    test "creating an empty dataset with a convertible dataset name" do
+    test "creating an empty dataset with a coercible dataset name" do
       assert named_dataset("http://example.com/DatasetName")
              |> named_dataset?(uri("http://example.com/DatasetName"))
       assert named_dataset(EX.Foo) |> named_dataset?(uri(EX.Foo))
@@ -124,13 +124,13 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
     end
 
-    test "a convertible triple" do
+    test "a coercible triple" do
       assert Dataset.add(dataset(),
           {"http://example.com/Subject", EX.predicate, EX.Object})
         |> dataset_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
-    test "a convertible quad" do
+    test "a coercible quad" do
       assert Dataset.add(dataset(),
           {"http://example.com/Subject", EX.predicate, EX.Object, "http://example.com/GraphName"})
         |> dataset_includes_statement?({EX.Subject, EX.predicate, EX.Object, EX.GraphName})
@@ -427,7 +427,7 @@ defmodule RDF.DatasetTest do
       assert Dataset.add(ds, {EX.Subject, EX.predicate, EX.Object, EX.GraphName}) == ds
     end
 
-    test "non-convertible statements elements are causing an error" do
+    test "non-coercible statements elements are causing an error" do
       assert_raise RDF.InvalidURIError, fn ->
         Dataset.add(dataset(), {"not a URI", EX.predicate, uri(EX.Object), uri(EX.GraphName)})
       end

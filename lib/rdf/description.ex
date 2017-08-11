@@ -23,7 +23,7 @@ defmodule RDF.Description do
 
   When given a list of statements, the first one must contain a subject.
   """
-  @spec new(RDF.Statement.convertible_subject) :: RDF.Description.t
+  @spec new(RDF.Statement.coercible_subject) :: RDF.Description.t
   def new(subject)
 
   def new({subject, predicate, object}),
@@ -33,7 +33,7 @@ defmodule RDF.Description do
   def new(%RDF.Description{} = description),
     do: description
   def new(subject),
-    do: %RDF.Description{subject: convert_subject(subject)}
+    do: %RDF.Description{subject: coerce_subject(subject)}
 
   @doc """
   Creates a new `RDF.Description` about the given subject with optional initial statements.
@@ -75,8 +75,8 @@ defmodule RDF.Description do
   end
 
   def add(%RDF.Description{subject: subject, predications: predications}, predicate, object) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object = convert_object(object),
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object = coerce_object(object),
          new_predications = Map.update(predications,
            triple_predicate, %{triple_object => nil}, fn objects ->
              Map.put_new(objects, triple_object, nil)
@@ -100,7 +100,7 @@ defmodule RDF.Description do
     do: add(description, predicate, object)
 
   def add(description = %RDF.Description{}, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   add(description, predicate, object),
       else: description
   end
@@ -142,9 +142,9 @@ defmodule RDF.Description do
 
   def put(%RDF.Description{subject: subject, predications: predications},
           predicate, objects) when is_list(objects) do
-    with triple_predicate = convert_predicate(predicate),
+    with triple_predicate = coerce_predicate(predicate),
          triple_objects   = Enum.reduce(objects, %{}, fn (object, acc) ->
-                              Map.put_new(acc, convert_object(object), nil) end),
+                              Map.put_new(acc, coerce_object(object), nil) end),
       do: %RDF.Description{subject: subject,
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
@@ -175,7 +175,7 @@ defmodule RDF.Description do
     do: put(description, predicate, object)
 
   def put(%RDF.Description{} = description, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   put(description, predicate, object),
       else: description
   end
@@ -186,11 +186,11 @@ defmodule RDF.Description do
   def put(%RDF.Description{subject: subject} = description, statements) when is_list(statements) do
     statements
     |> Stream.map(fn
-         {p, o}           -> {convert_predicate(p), o}
-         {^subject, p, o} -> {convert_predicate(p), o}
+         {p, o}           -> {coerce_predicate(p), o}
+         {^subject, p, o} -> {coerce_predicate(p), o}
          {s, p, o} ->
-            if convert_subject(s) == subject,
-              do: {convert_predicate(p), o}
+            if coerce_subject(s) == subject,
+              do: {coerce_predicate(p), o}
          bad -> raise ArgumentError, "#{inspect bad} is not a valid statement"
        end)
     |> Stream.filter(&(&1)) # filter nil values
@@ -226,8 +226,8 @@ defmodule RDF.Description do
   end
 
   def delete(%RDF.Description{subject: subject, predications: predications} = descr, predicate, object) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object    = convert_object(object) do
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object    = coerce_object(object) do
       if (objects = predications[triple_predicate]) && Map.has_key?(objects, triple_object) do
         %RDF.Description{
           subject: subject,
@@ -260,7 +260,7 @@ defmodule RDF.Description do
     do: delete(desc, predicate, object)
 
   def delete(description = %RDF.Description{}, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   delete(description, predicate, object),
       else: description
   end
@@ -299,7 +299,7 @@ defmodule RDF.Description do
   end
 
   def delete_predicates(%RDF.Description{subject: subject, predications: predications}, property) do
-    with property = convert_predicate(property) do
+    with property = coerce_predicate(property) do
       %RDF.Description{subject: subject, predications: Map.delete(predications, property)}
     end
   end
@@ -321,7 +321,7 @@ defmodule RDF.Description do
       :error
   """
   def fetch(%RDF.Description{predications: predications}, predicate) do
-    with {:ok, objects} <- Access.fetch(predications, convert_predicate(predicate)) do
+    with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
   end
@@ -391,7 +391,7 @@ defmodule RDF.Description do
       {[RDF.uri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
-    with triple_predicate = convert_predicate(predicate) do
+    with triple_predicate = coerce_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
         {objects_to_return, new_objects} ->
           {objects_to_return, put(description, triple_predicate, new_objects)}
@@ -435,7 +435,7 @@ defmodule RDF.Description do
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
   def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
-    case Access.pop(predications, convert_predicate(predicate)) do
+    case Access.pop(predications, coerce_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
       {objects, new_predications} ->
@@ -535,8 +535,8 @@ defmodule RDF.Description do
 
   def include?(%RDF.Description{predications: predications},
                 {predicate, object}) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object    = convert_object(object) do
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object    = coerce_object(object) do
       predications
       |> Map.get(triple_predicate, %{})
       |> Map.has_key?(triple_object)
@@ -545,7 +545,7 @@ defmodule RDF.Description do
 
   def include?(desc = %RDF.Description{subject: desc_subject},
               {subject, predicate, object}) do
-    convert_subject(subject) == desc_subject &&
+    coerce_subject(subject) == desc_subject &&
       include?(desc, {predicate, object})
   end
 
@@ -563,7 +563,7 @@ defmodule RDF.Description do
         false
   """
   def describes?(%RDF.Description{subject: subject}, other_subject) do
-    with other_subject = convert_subject(other_subject) do
+    with other_subject = coerce_subject(other_subject) do
       subject == other_subject
     end
   end

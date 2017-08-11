@@ -382,7 +382,7 @@ Note: Although you can create any XSD datatype by using the resp. URI with the `
 
 RDF statements are generally represented in RDF.ex as native Elixir tuples, either as 3-element tuples for triples or a 4-element tuples for quads.
 
-The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such tuples, which convert the elements to proper nodes when possible or raise an error when such a conversion is not possible. In particular these functions also resolve qualified terms from a vocabulary namespace. They can also be called with the delegator functions `RDF.triple` and `RDF.quad`.
+The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such tuples, which coerces the elements to proper nodes when possible or raise an error when such a coercion is not possible. In particular these functions also resolve qualified terms from a vocabulary namespace. They can also be called with the delegator functions `RDF.triple` and `RDF.quad`.
 
 ```elixir
 iex> RDF.triple(EX.S, EX.p, 1)
@@ -394,7 +394,7 @@ iex> RDF.quad(EX.S, EX.p, 1, EX.Graph)
  ~I<http://example.com/Graph>}
 iex> RDF.triple {EX.S, 1, EX.O}
 ** (RDF.Triple.InvalidPredicateError) '1' is not a valid predicate of a RDF.Triple
-    (rdf) lib/rdf/statement.ex:53: RDF.Statement.convert_predicate/1
+    (rdf) lib/rdf/statement.ex:53: RDF.Statement.coerce_predicate/1
     (rdf) lib/rdf/triple.ex:26: RDF.Triple.new/3
 ```
 
