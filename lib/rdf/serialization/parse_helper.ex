@@ -7,7 +7,7 @@ defmodule RDF.Serialization.ParseHelper do
   def rdf_type, do: @rdf_type
 
 
-  def to_uri_string({:iriref, line, value}), do: value |> iri_unescape
+  def to_uri_string({:iriref, _line, value}), do: value |> iri_unescape
 
   def to_uri({:iriref, line, value}) do
     case URI.parse(iri_unescape(value)) do
@@ -22,7 +22,7 @@ defmodule RDF.Serialization.ParseHelper do
     end
   end
 
-  def to_absolute_or_relative_uri({:iriref, line, value}) do
+  def to_absolute_or_relative_uri({:iriref, _line, value}) do
     case URI.parse(iri_unescape(value)) do
       uri = %URI{scheme: scheme} when not is_nil(scheme) ->
         if String.ends_with?(value, "#") do

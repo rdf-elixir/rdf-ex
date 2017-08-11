@@ -1,7 +1,7 @@
 defmodule RDF.Turtle.Encoder.State do
   @moduledoc false
 
-  alias RDF.{Literal, BlankNode, Description, List}
+  alias RDF.{BlankNode, Description}
 
 
   def start_link(data, base, prefixes) do

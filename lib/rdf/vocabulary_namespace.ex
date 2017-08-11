@@ -129,8 +129,8 @@ defmodule RDF.Vocabulary.Namespace do
   defmacro define_vocab_terms(terms, base_uri) do
     terms
     |> Stream.filter(fn
-        {term, true}          -> valid_term?(term)
-        {term, original_term} -> true
+        {term, true} -> valid_term?(term)
+        {_, _}       -> true
        end)
     |> Stream.map(fn
         {term, true}          -> {term, term}
@@ -288,14 +288,12 @@ defmodule RDF.Vocabulary.Namespace do
   def invalid_terms, do: @invalid_terms
 
   defp validate_terms!(terms) do
-    aliased_terms = aliased_terms(terms)
-    terms
-    |> Enum.filter_map(
-         fn {term, _} ->
-           not term in aliased_terms and not valid_term?(term)
-         end,
-         fn {term, _} -> term end)
-    |> handle_invalid_terms!
+    with aliased_terms = aliased_terms(terms) do
+      for {term, _} <- terms, not term in aliased_terms and not valid_term?(term) do
+        term
+      end
+      |> handle_invalid_terms!
+    end
 
     terms
   end
@@ -331,12 +329,10 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp detect_invalid_characters(terms) do
-    aliased_terms = aliased_terms(terms)
-    Enum.filter_map terms,
-      fn {term, _} ->
-        not term in aliased_terms and not valid_characters?(term)
-      end,
-      fn {term, _} -> term end
+    with aliased_terms = aliased_terms(terms) do
+      for {term, _} <- terms, not term in aliased_terms and not valid_characters?(term),
+        do: term
+    end
   end
 
   defp handle_invalid_characters([], _, terms), do: terms

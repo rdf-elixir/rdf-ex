@@ -4,7 +4,7 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{Literal, BlankNode, Description, List}
+  alias RDF.{Literal, BlankNode, Description}
 
   @indentation_char " "
   @indentation 4
@@ -117,7 +117,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp predications(description, state, nesting) do
     description.predications
-    |> order_predications
+    |> order_predications()
     |> Enum.map(&predication(&1, state, nesting))
     |> Enum.join(" ;" <> newline_indent(nesting))
   end
