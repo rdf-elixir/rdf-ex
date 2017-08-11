@@ -230,28 +230,28 @@ defmodule RDF.Turtle.EncoderTest do
 #      ],
 #      standard_prefixes: true, prefixes: %{}
 #    }
-#    "order properties" => %{
-#      input: """
-#        @prefix ex: <http://example.com/> .
-#        @prefix dc: <http://purl.org/dc/elements/1.1/> .
-#        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-#        ex:b ex:c ex:d .
-#        ex:b dc:title "title" .
-#        ex:b a ex:class .
-#        ex:b rdfs:label "label" .
-#      """,
-#      matches: [
-#        ~r(ex:b\s+a\s+ex:class;),
-#        ~r(ex:class;\s++rdfs:label\s+"label")m,
-#        ~r("label";\s++ex:c\s+ex:d)m,
-#        ~r(ex:d;\s++dc:title\s+"title"\s+\.)m
-#      ],
-#      prefixes: %{
-#        "ex"   => "http://example.com/",
-#        "dc"   => "http://purl.org/dc/elements/1.1/",
-#        "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
-#      }
-#    },
+    "order properties" => %{
+      input: """
+        @prefix ex: <http://example.com/> .
+        @prefix dc: <http://purl.org/dc/elements/1.1/> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        ex:b ex:c ex:d .
+        ex:b dc:title "title" .
+        ex:b a ex:class .
+        ex:b rdfs:label "label" .
+      """,
+      matches: [
+        ~r(ex:b\s+a\s+ex:class\s*;)m,
+        ~r(ex:class\s*;\s+rdfs:label\s+"label")m,
+        ~r("label"\s*;\s++ex:c\s+ex:d)m,
+        ~r(ex:d\s*;\s+dc:title\s+"title"\s+\.)m
+      ],
+      prefixes: %{
+        "ex"   => "http://example.com/",
+        "dc"   => "http://purl.org/dc/elements/1.1/",
+        "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
+      }
+    },
   }
   |> Enum.each(fn {name, data} ->
       @tag data: data

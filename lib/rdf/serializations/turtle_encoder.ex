@@ -18,6 +18,9 @@ defmodule RDF.Turtle.Encoder do
   @rdf_type RDF.type
   @rdf_nil  RDF.nil
 
+  @predicate_order [RDF.type, RDF.NS.RDFS.label, RDF.uri("http://purl.org/dc/terms/title")]
+  @ordered_properties MapSet.new(@predicate_order)
+
 
   def encode(data, opts \\ []) do
     with base         = Keyword.get(opts, :base) |> init_base(),
@@ -114,8 +117,23 @@ defmodule RDF.Turtle.Encoder do
 
   defp predications(description, state, nesting) do
     description.predications
+    |> order_predications
     |> Enum.map(&predication(&1, state, nesting))
     |> Enum.join(" ;" <> newline_indent(nesting))
+  end
+
+  defp order_predications(predications) do
+    sorted_predications =
+      @predicate_order
+      |> Enum.map(fn predicate -> {predicate, predications[predicate]} end)
+      |> Enum.reject(fn {_, objects} -> is_nil(objects) end)
+
+    unsorted_predications =
+      Enum.reject(predications, fn {predicate, _} ->
+        MapSet.member?(@ordered_properties, predicate)
+      end)
+
+    sorted_predications ++ unsorted_predications
   end
 
   defp predication({predicate, objects}, state, nesting) do
