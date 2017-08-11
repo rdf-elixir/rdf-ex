@@ -25,7 +25,16 @@ defmodule RDF.Mixfile do
         source_url: @repo_url,
         source_ref: "v#{@version}",
         extras: ["README.md"],
-      ]
+      ],
+
+      # ExCoveralls
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        "coveralls": :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
     ]
   end
 
@@ -54,6 +63,7 @@ defmodule RDF.Mixfile do
       {:credo, "~> 0.6",          only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.14",        only: :dev, runtime: false},
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.7",    only: :test},
       {:inch_ex,                  only: :docs},
     ]
   end
