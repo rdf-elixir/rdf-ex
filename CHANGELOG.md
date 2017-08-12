@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.2.0 - 2017-08-12
 
 ### Added
 
@@ -30,7 +30,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - N-Triples and N-Quads decoder didn't handle escaping properly
 
 
-[Compare v0.1.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.1.1...HEAD)
+[Compare v0.1.1...v0.2.0](https://github.com/marcelotto/rdf-ex/compare/v0.1.1...v0.2.0)
+
 
 
 ## 0.1.1 - 2017-06-25
