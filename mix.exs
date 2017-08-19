@@ -64,7 +64,9 @@ defmodule RDF.Mixfile do
       {:ex_doc, "~> 0.14",        only: :dev, runtime: false},
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
       {:excoveralls, "~> 0.7",    only: :test},
-      {:inch_ex,                  only: :docs},
+      {:inch_ex, "~> 0.5",        only: [:dev, :test]},
+      {:benchee, "~> 0.9",        only: :bench},
+      {:erlang_term, "~> 1.7",    only: :bench},
     ]
   end
 end
