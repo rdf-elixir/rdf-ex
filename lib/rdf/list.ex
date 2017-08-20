@@ -9,7 +9,9 @@ defmodule RDF.List do
 
   defstruct [:head, :graph]
 
-  alias RDF.{Graph, Description, BlankNode}
+  alias RDF.{Graph, Description, IRI, BlankNode}
+
+  @type t :: module
 
   @rdf_nil RDF.nil
 
@@ -27,7 +29,7 @@ defmodule RDF.List do
   def new(head, graph)
 
   def new(head, graph) when is_atom(head) and not head in ~w[true false nil]a,
-    do: new(RDF.uri(head), graph)
+    do: new(RDF.iri(head), graph)
 
   def new(head, graph) do
     with list = %RDF.List{head: head, graph: graph} do
@@ -77,7 +79,7 @@ defmodule RDF.List do
   end
 
   defp do_from(list, head, graph, opts) when is_atom(head) do
-    do_from(list, RDF.uri(head), graph, opts)
+    do_from(list, RDF.iri!(head), graph, opts)
   end
 
   defp do_from([list | rest], head, graph, opts) when is_list(list) do
@@ -169,12 +171,12 @@ defmodule RDF.List do
   def node?(%BlankNode{} = list_node, graph),
     do: do_node?(list_node, graph)
 
-  def node?(%URI{} = list_node, graph),
+  def node?(%IRI{} = list_node, graph),
     do: do_node?(list_node, graph)
 
   def node?(list_node, graph)
     when is_atom(list_node) and not list_node in ~w[true false nil]a,
-    do: do_node?(RDF.uri(list_node), graph)
+    do: do_node?(RDF.iri(list_node), graph)
 
   def node?(_, _), do: false
 
@@ -206,7 +208,7 @@ defmodule RDF.List do
     def reduce(%RDF.List{head: %BlankNode{}} = list, acc, fun),
       do: do_reduce(list, acc, fun)
 
-    def reduce(%RDF.List{head: %URI{}} = list, acc, fun),
+    def reduce(%RDF.List{head: %IRI{}} = list, acc, fun),
       do: do_reduce(list, acc, fun)
 
     def reduce(_, _, _), do: {:halted, nil}

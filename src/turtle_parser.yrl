@@ -23,10 +23,10 @@ directive -> sparqlPrefix : '$1' .
 directive -> base         : '$1' .
 directive -> sparqlBase   : '$1' .
 
-prefixID      -> '@prefix' prefix_ns iriref '.' : {prefix, '$2', to_uri_string('$3')} .
-sparqlPrefix  -> 'PREFIX' prefix_ns iriref      : {prefix, '$2', to_uri_string('$3')} .
-sparqlBase    -> 'BASE' iriref                  : {base, to_uri_string('$2')} .
-base          -> '@base' iriref '.'             : {base, to_uri_string('$2')} .
+prefixID      -> '@prefix' prefix_ns iriref '.' : {prefix, '$2', to_iri_string('$3')} .
+sparqlPrefix  -> 'PREFIX' prefix_ns iriref      : {prefix, '$2', to_iri_string('$3')} .
+sparqlBase    -> 'BASE' iriref                  : {base, to_iri_string('$2')} .
+base          -> '@base' iriref '.'             : {base, to_iri_string('$2')} .
 
 triples -> subject predicateObjectList                : { '$1', '$2' }.
 triples -> blankNodePropertyList predicateObjectList  : { '$1', '$2' }.
@@ -77,7 +77,7 @@ numericLiteral -> decimal : to_literal('$1') .
 numericLiteral -> double  : to_literal('$1') .
 booleanLiteral -> boolean : to_literal('$1') .
 
-iri -> iriref       : to_uri('$1') .
+iri -> iriref       : to_iri('$1') .
 iri -> prefixedName : '$1' .
 
 blankNode -> blank_node_label : to_bnode('$1') .
@@ -86,8 +86,8 @@ blankNode -> anon             : {anon} .
 
 Erlang code.
 
-to_uri_string(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_uri_string(IRIREF) .
-to_uri(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_absolute_or_relative_uri(IRIREF) .
+to_iri_string(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_iri_string(IRIREF) .
+to_iri(IRIREF) -> 'Elixir.RDF.Serialization.ParseHelper':to_absolute_or_relative_iri(IRIREF) .
 to_bnode(BLANK_NODE) -> 'Elixir.RDF.Serialization.ParseHelper':to_bnode(BLANK_NODE).
 to_literal(STRING_LITERAL_QUOTE) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE).
 to_literal(STRING_LITERAL_QUOTE, Type) -> 'Elixir.RDF.Serialization.ParseHelper':to_literal(STRING_LITERAL_QUOTE, Type).

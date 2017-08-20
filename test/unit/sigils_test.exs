@@ -6,8 +6,8 @@ defmodule RDF.SigilsTest do
   doctest RDF.Sigils
 
   describe "IRI sigil without interpolation" do
-    test "creating an URI" do
-      assert ~I<http://example.com> == RDF.uri("http://example.com")
+    test "creating an IRI" do
+      assert ~I<http://example.com> == RDF.iri("http://example.com")
     end
   end
 

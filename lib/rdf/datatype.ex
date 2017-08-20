@@ -10,9 +10,9 @@ defmodule RDF.Datatype do
   alias RDF.Datatype.NS.XSD
 
   @doc """
-  The URI of the datatype.
+  The IRI of the datatype.
   """
-  @callback id :: URI.t
+  @callback id :: RDF.IRI.t
 
   @doc """
   Produces the lexical form of a `RDF.Literal`.
@@ -57,7 +57,7 @@ defmodule RDF.Datatype do
   @callback valid?(literal :: RDF.Literal.t) :: boolean
 
 
-  @lang_string RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+  @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
   # TODO: This mapping should be created dynamically and be extendable, to allow user-defined datatypes ...
   @mapping %{
@@ -72,12 +72,12 @@ defmodule RDF.Datatype do
   }
 
   @doc """
-  The mapping of URIs of datatypes to their `RDF.Datatype`.
+  The mapping of IRIs of datatypes to their `RDF.Datatype`.
   """
   def mapping, do: @mapping
 
   @doc """
-  The URIs of all datatypes with a `RDF.Datatype` defined.
+  The IRIs of all datatypes with a `RDF.Datatype` defined.
   """
   def ids,     do: Map.keys(@mapping)
 
@@ -87,7 +87,7 @@ defmodule RDF.Datatype do
   def modules, do: Map.values(@mapping)
 
   @doc """
-  Returns the `RDF.Datatype` for a directly datatype URI or the datatype URI of a `RDF.Literal`.
+  Returns the `RDF.Datatype` for a directly datatype IRI or the datatype IRI of a `RDF.Literal`.
   """
   def get(%Literal{datatype: id}), do: get(id)
   def get(id), do: @mapping[id]

@@ -4,7 +4,7 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{Literal, BlankNode, Description}
+  alias RDF.{IRI, Literal, BlankNode, Description}
 
   @indentation_char " "
   @indentation 4
@@ -19,10 +19,10 @@ defmodule RDF.Turtle.Encoder do
   @rdf_nil  RDF.nil
 
   # Defines rdf:type of subjects to be serialized at the beginning of the encoded graph
-  @top_classes [RDF.NS.RDFS.Class] |> Enum.map(&RDF.uri/1)
+  @top_classes [RDF.NS.RDFS.Class] |> Enum.map(&RDF.iri/1)
 
   # Defines order of predicates at the beginning of a resource description
-  @predicate_order [RDF.type, RDF.NS.RDFS.label, RDF.uri("http://purl.org/dc/terms/title")]
+  @predicate_order [RDF.type, RDF.NS.RDFS.label, RDF.iri("http://purl.org/dc/terms/title")]
   @ordered_properties MapSet.new(@predicate_order)
 
 
@@ -60,8 +60,8 @@ defmodule RDF.Turtle.Encoder do
   defp init_prefixes(nil), do: %{}
 
   defp init_prefixes(prefixes) do
-    Enum.reduce prefixes, %{}, fn {prefix, uri}, reverse ->
-      Map.put(reverse, RDF.uri(uri), to_string(prefix))
+    Enum.reduce prefixes, %{}, fn {prefix, iri}, reverse ->
+      Map.put(reverse, RDF.iri(iri), to_string(prefix))
     end
   end
 
@@ -89,10 +89,10 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp order_descriptions(descriptions, state) do
-    base_uri = State.base_uri(state)
+    base_iri = State.base_iri(state)
     group =
       Enum.group_by descriptions, fn
-        %Description{subject: ^base_uri} ->
+        %Description{subject: ^base_iri} ->
           :base
         description ->
           with types when not is_nil(types) <- description.predications[@rdf_type] do
@@ -121,8 +121,8 @@ defmodule RDF.Turtle.Encoder do
 
   defp sort_description_group(descriptions) do
     Enum.sort descriptions, fn
-      %Description{subject: %URI{}}, %Description{subject: %BlankNode{}} -> true
-      %Description{subject: %BlankNode{}}, %Description{subject: %URI{}} -> false
+      %Description{subject: %IRI{}}, %Description{subject: %BlankNode{}} -> true
+      %Description{subject: %BlankNode{}}, %Description{subject: %IRI{}} -> false
       %Description{subject: s1}, %Description{subject: s2} ->
         to_string(s1) < to_string(s2)
     end
@@ -254,10 +254,10 @@ defmodule RDF.Turtle.Encoder do
   defp term(@rdf_type, _, :predicate, _), do: "a"
   defp term(@rdf_nil, _, _, _),           do: "()"
 
-  defp term(%URI{} = uri, state, _, _) do
-    based_name(uri, State.base(state)) ||
-      prefixed_name(uri, State.prefixes(state)) ||
-      "<#{to_string(uri)}>"
+  defp term(%IRI{} = iri, state, _, _) do
+    based_name(iri, State.base(state)) ||
+      prefixed_name(iri, State.prefixes(state)) ||
+      "<#{to_string(iri)}>"
   end
 
   defp term(%BlankNode{} = bnode, state, position, nesting)
@@ -303,10 +303,10 @@ defmodule RDF.Turtle.Encoder do
       ")"
   end
 
-  defp based_name(%URI{} = uri, base), do: based_name(URI.to_string(uri), base)
-  defp based_name(uri, {:ok, base}) do
-    if String.starts_with?(uri, base) do
-      "<#{String.slice(uri, String.length(base)..-1)}>"
+  defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
+  defp based_name(iri, {:ok, base}) do
+    if String.starts_with?(iri, base) do
+      "<#{String.slice(iri, String.length(base)..-1)}>"
     end
   end
 
@@ -317,8 +317,8 @@ defmodule RDF.Turtle.Encoder do
     do: ~s["#{Literal.lexical(literal)}"^^#{term(datatype, state, :datatype, nesting)}]
 
 
-  def prefixed_name(uri, prefixes) do
-    with {ns, name} <- split_uri(uri) do
+  def prefixed_name(iri, prefixes) do
+    with {ns, name} <- split_iri(iri) do
       case prefixes[ns] do
         nil    -> nil
         prefix -> prefix <> ":" <> name
@@ -326,17 +326,19 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
+  defp split_iri(%IRI{} = iri),
+    do: iri |> IRI.parse |> split_iri()
 
-  defp split_uri(%URI{fragment: fragment} = uri) when not is_nil(fragment),
-    do: {%URI{uri | fragment: ""}, fragment}
+  defp split_iri(%URI{fragment: fragment} = uri) when not is_nil(fragment),
+    do: {RDF.iri(%URI{uri | fragment: ""}), fragment}
 
-  defp split_uri(%URI{path: nil}),
+  defp split_iri(%URI{path: nil}),
     do: nil
 
-  defp split_uri(%URI{path: path} = uri) do
+  defp split_iri(%URI{path: path} = uri) do
     with [{pos, _}] = Regex.run(~r"[^/]*$"u, path, return: :index),
          {ns_path, name} = String.split_at(path, pos) do
-      {%URI{uri | path: ns_path}, name}
+      {RDF.iri(%URI{uri | path: ns_path}), name}
     end
   end
 

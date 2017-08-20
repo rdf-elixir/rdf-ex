@@ -3,7 +3,7 @@ defmodule RDF.Datatype.Test.Case do
 
   use RDF.Vocabulary.Namespace
   defvocab EX,
-    base_uri: "http://example.com/",
+    base_iri: "http://example.com/",
     terms: [], strict: false
 
   alias RDF.{Literal, Datatype}

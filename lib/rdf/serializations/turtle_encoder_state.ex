@@ -22,9 +22,9 @@ defmodule RDF.Turtle.Encoder.State do
     bnode_ref_counter(state) |> Map.get(bnode, 0)
   end
 
-  def base_uri(state) do
+  def base_iri(state) do
     with {:ok, base} <- base(state) do
-      RDF.uri(base)
+      RDF.iri(base)
     else
       _ -> nil
     end

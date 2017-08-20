@@ -27,16 +27,16 @@ defmodule RDF.Vocabulary.Namespace do
   """
   defmacro defvocab(name, opts) do
     strict   = strict?(opts)
-    base_uri = base_uri!(opts)
+    base_iri = base_iri!(opts)
     file     = filename!(opts)
     {terms, data} =
       case source!(opts) do
         {:terms, terms} -> {terms, nil}
-        {:data, data}   -> {rdf_data_vocab_terms(data, base_uri), data}
+        {:data, data}   -> {rdf_data_vocab_terms(data, base_iri), data}
       end
 
     if data && RDF.Data.subject_count(data) > @big_vocab_threshold do
-      IO.puts("Compiling vocabulary namespace for #{base_uri} may take some time")
+      IO.puts("Compiling vocabulary namespace for #{base_iri} may take some time")
     end
 
     ignored_terms = ignored_terms!(opts)
@@ -46,7 +46,7 @@ defmodule RDF.Vocabulary.Namespace do
       |> Map.drop(MapSet.to_list(ignored_terms))
       |> validate_terms!
       |> validate_characters!(opts)
-      |> validate_case!(data, base_uri, opts)
+      |> validate_case!(data, base_iri, opts)
     case_separated_terms = group_terms_by_case(terms)
     lowercased_terms  = Map.get(case_separated_terms, :lowercased, %{})
 
@@ -62,8 +62,8 @@ defmodule RDF.Vocabulary.Namespace do
           @external_resource unquote(file)
         end
 
-        @base_uri unquote(base_uri)
-        def __base_uri__, do: @base_uri
+        @base_iri unquote(base_iri)
+        def   __base_iri__, do: @base_iri
 
         @strict unquote(strict)
         def __strict__, do: @strict
@@ -74,18 +74,18 @@ defmodule RDF.Vocabulary.Namespace do
         @ignored_terms unquote(Macro.escape(ignored_terms))
 
         @doc """
-        Returns all known URIs of the vocabulary.
+        Returns all known IRIs of the vocabulary.
         """
-        def __uris__ do
+        def __iris__ do
           @terms
           |> Enum.map(fn
-               {term, true}   -> term_to_uri(@base_uri, term)
-               {_alias, term} -> term_to_uri(@base_uri, term)
+               {term, true}   -> term_to_iri(@base_iri, term)
+               {_alias, term} -> term_to_iri(@base_iri, term)
              end)
           |> Enum.uniq
         end
 
-        define_vocab_terms unquote(lowercased_terms), unquote(base_uri)
+        define_vocab_terms unquote(lowercased_terms), unquote(base_iri)
 
         def __resolve_term__(term) do
           case @terms[term] do
@@ -95,12 +95,12 @@ defmodule RDF.Vocabulary.Namespace do
                 raise RDF.Namespace.UndefinedTermError,
                   "undefined term #{term} in strict vocabulary #{__MODULE__}"
               else
-                term_to_uri(@base_uri, term)
+                term_to_iri(@base_iri, term)
               end
             true ->
-              term_to_uri(@base_uri, term)
+              term_to_iri(@base_iri, term)
             original_term ->
-              term_to_uri(@base_uri, original_term)
+              term_to_iri(@base_iri, original_term)
           end
         end
 
@@ -109,7 +109,7 @@ defmodule RDF.Vocabulary.Namespace do
             if MapSet.member?(@ignored_terms, term) do
               raise UndefinedFunctionError
             else
-              term_to_uri(@base_uri, term)
+              term_to_iri(@base_iri, term)
             end
           end
 
@@ -117,7 +117,7 @@ defmodule RDF.Vocabulary.Namespace do
             if MapSet.member?(@ignored_terms, term) do
               raise UndefinedFunctionError
             else
-              RDF.Description.new(subject, term_to_uri(@base_uri, term), objects)
+              RDF.Description.new(subject, term_to_iri(@base_iri, term), objects)
             end
           end
         end
@@ -126,7 +126,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   @doc false
-  defmacro define_vocab_terms(terms, base_uri) do
+  defmacro define_vocab_terms(terms, base_iri) do
     terms
     |> Stream.filter(fn
         {term, true} -> valid_term?(term)
@@ -136,15 +136,15 @@ defmodule RDF.Vocabulary.Namespace do
         {term, true}          -> {term, term}
         {term, original_term} -> {term, original_term}
        end)
-    |> Enum.map(fn {term, uri_suffix} ->
-        uri = term_to_uri(base_uri, uri_suffix)
+    |> Enum.map(fn {term, iri_suffix} ->
+        iri = term_to_iri(base_iri, iri_suffix)
         quote do
-          @doc "<#{unquote(to_string(uri))}>"
-          def unquote(term)(), do: unquote(Macro.escape(uri))
+          @doc "<#{unquote(to_string(iri))}>"
+          def unquote(term)(), do: unquote(Macro.escape(iri))
 
           @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
           def unquote(term)(subject, object) do
-            RDF.Description.new(subject, unquote(Macro.escape(uri)), object)
+            RDF.Description.new(subject, unquote(Macro.escape(iri)), object)
           end
 
           # Is there a better way to support multiple objects via arguments?
@@ -167,13 +167,13 @@ defmodule RDF.Vocabulary.Namespace do
   defp strict?(opts),
     do: Keyword.get(opts, :strict, true)
 
-  defp base_uri!(opts) do
-    base_uri = Keyword.fetch!(opts, :base_uri)
-    unless is_binary(base_uri) and String.ends_with?(base_uri, ["/", "#"]) do
-      raise RDF.Namespace.InvalidVocabBaseURIError,
-              "a base_uri without a trailing '/' or '#' is invalid"
+  defp base_iri!(opts) do
+    base_iri = Keyword.fetch!(opts, :base_iri)
+    unless is_binary(base_iri) and String.ends_with?(base_iri, ["/", "#"]) do
+      raise RDF.Namespace.InvalidVocabBaseIRIError,
+              "a base_iri without a trailing '/' or '#' is invalid"
     else
-      base_uri
+      base_iri
     end
   end
 
@@ -365,18 +365,18 @@ defmodule RDF.Vocabulary.Namespace do
     do: Regex.match?(~r/^[a-zA-Z_]\w*$/, term)
 
   defp validate_case!(terms, nil, _, _), do: terms
-  defp validate_case!(terms, data, base_uri, opts) do
+  defp validate_case!(terms, data, base_iri, opts) do
     if (handling = Keyword.get(opts, :case_violations, :warn)) == :ignore do
       terms
     else
       terms
-      |> detect_case_violations(data, base_uri)
+      |> detect_case_violations(data, base_iri)
       |> group_case_violations
-      |> handle_case_violations(handling, terms, base_uri, opts)
+      |> handle_case_violations(handling, terms, base_iri, opts)
     end
   end
 
-  defp detect_case_violations(terms, data, base_uri) do
+  defp detect_case_violations(terms, data, base_iri) do
     aliased_terms = aliased_terms(terms)
     terms
     |> Enum.filter(fn {term, _} ->
@@ -385,15 +385,15 @@ defmodule RDF.Vocabulary.Namespace do
     |> Enum.filter(fn
          {term, true} ->
            if not term in aliased_terms do
-             proper_case?(term, base_uri, Atom.to_string(term), data)
+             proper_case?(term, base_iri, Atom.to_string(term), data)
            end
          {term, original_term} ->
-           proper_case?(term, base_uri, original_term, data)
+           proper_case?(term, base_iri, original_term, data)
        end)
   end
 
-  defp proper_case?(term, base_uri, uri_suffix, data) do
-    case ResourceClassifier.property?(term_to_uri(base_uri, uri_suffix), data) do
+  defp proper_case?(term, base_iri, iri_suffix, data) do
+    case ResourceClassifier.property?(term_to_iri(base_iri, iri_suffix), data) do
       true  -> not lowercase?(term)
       false -> lowercase?(term)
       nil   -> lowercase?(term)
@@ -417,17 +417,17 @@ defmodule RDF.Vocabulary.Namespace do
   defp handle_case_violations(%{} = violations, _, terms, _, _) when map_size(violations) == 0,
     do: terms
 
-  defp handle_case_violations(violations, :fail, _, base_uri, _) do
+  defp handle_case_violations(violations, :fail, _, base_iri, _) do
     resource_name_violations = fn violations ->
       violations
-      |> Enum.map(fn {term, true} -> term_to_uri(base_uri, term) end)
+      |> Enum.map(fn {term, true} -> term_to_iri(base_iri, term) end)
       |> Enum.map(&to_string/1)
       |> Enum.join("\n- ")
     end
     alias_violations = fn violations ->
       violations
       |> Enum.map(fn {term, original} ->
-          "alias #{term} for #{term_to_uri(base_uri, original)}"
+          "alias #{term} for #{term_to_iri(base_iri, original)}"
          end)
       |> Enum.join("\n- ")
     end
@@ -484,20 +484,20 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
 
-  defp handle_case_violations(violations, :warn, terms, base_uri, _) do
+  defp handle_case_violations(violations, :warn, terms, base_iri, _) do
     for {type, violations} <- violations,
         {term, original}   <- violations do
-      case_violation_warning(type, term, original, base_uri)
+      case_violation_warning(type, term, original, base_iri)
     end
     terms
   end
 
-  defp case_violation_warning(:capitalized_term, term, _, base_uri) do
-    IO.warn "'#{term_to_uri(base_uri, term)}' is a capitalized property"
+  defp case_violation_warning(:capitalized_term, term, _, base_iri) do
+    IO.warn "'#{term_to_iri(base_iri, term)}' is a capitalized property"
   end
 
-  defp case_violation_warning(:lowercased_term, term, _, base_uri) do
-    IO.warn "'#{term_to_uri(base_uri, term)}' is a lowercased non-property resource"
+  defp case_violation_warning(:lowercased_term, term, _, base_iri) do
+    IO.warn "'#{term_to_iri(base_iri, term)}' is a lowercased non-property resource"
   end
 
   defp case_violation_warning(:capitalized_alias, term, _, _) do
@@ -539,16 +539,15 @@ defmodule RDF.Vocabulary.Namespace do
     __ENV__
   end
 
-  defp rdf_data_vocab_terms(data, base_uri) do
+  defp rdf_data_vocab_terms(data, base_iri) do
     data
     |> RDF.Data.resources
-    # filter URIs
     |> Stream.filter(fn
-        %URI{} -> true
-        _      -> false
+        %RDF.IRI{} -> true
+        _          -> false
        end)
-    |> Stream.map(&URI.to_string/1)
-    |> Stream.map(&(strip_base_uri(&1, base_uri)))
+    |> Stream.map(&to_string/1)
+    |> Stream.map(&(strip_base_iri(&1, base_iri)))
     |> Stream.filter(&vocab_term?/1)
     |> Enum.map(&String.to_atom/1)
   end
@@ -570,9 +569,9 @@ defmodule RDF.Vocabulary.Namespace do
   defp lowercase?(term),
     do: term =~ ~r/^(_|\p{Ll})/u
 
-  defp strip_base_uri(uri, base_uri) do
-    if String.starts_with?(uri, base_uri) do
-      String.replace_prefix(uri, base_uri, "")
+  defp strip_base_iri(iri, base_iri) do
+    if String.starts_with?(iri, base_iri) do
+      String.replace_prefix(iri, base_iri, "")
     end
   end
 
@@ -583,9 +582,9 @@ defmodule RDF.Vocabulary.Namespace do
   defp vocab_term?(_), do: false
 
   @doc false
-  def term_to_uri(base_uri, term) when is_atom(term),
-    do: term_to_uri(base_uri, Atom.to_string(term))
-  def term_to_uri(base_uri, term),
-    do: URI.parse(base_uri <> term)
+  def term_to_iri(base_iri, term) when is_atom(term),
+    do: term_to_iri(base_iri, Atom.to_string(term))
+  def term_to_iri(base_iri, term),
+    do: RDF.iri(base_iri <> term)
 
 end

@@ -2,9 +2,11 @@ defmodule RDF.Turtle.Decoder do
   @moduledoc false
 
   use RDF.Serialization.Decoder
+  
+  alias RDF.IRI
 
   defmodule State do
-    defstruct base_uri: nil, namespaces: %{}, bnode_counter: 0
+    defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
 
     def add_namespace(%State{namespaces: namespaces} = state, ns, iri) do
       %State{state | namespaces: Map.put(namespaces, ns, iri)}
@@ -29,7 +31,7 @@ defmodule RDF.Turtle.Decoder do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens),
          base = Map.get(opts, :base) do
-      build_graph(ast, base && RDF.uri(base))
+      build_graph(ast, base && RDF.iri(base))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
         {:error, "Turtle scanner error on line #{error_line}: #{inspect error_descriptor}"}
@@ -46,7 +48,7 @@ defmodule RDF.Turtle.Decoder do
   defp build_graph(ast, base) do
     try do
       {graph, _} =
-        Enum.reduce ast, {RDF.Graph.new, %State{base_uri: base}}, fn
+        Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base}}, fn
           {:triples, triples_ast}, {graph, state} ->
             with {statements, state} = triples(triples_ast, state) do
               {RDF.Graph.add(graph, statements), state}
@@ -63,25 +65,25 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do
-    if RDF.URI.Helper.absolute_iri?(iri) do
+    if IRI.absolute?(iri) do
       State.add_namespace(state, ns, iri)
     else
-      with absolute_uri = RDF.URI.Helper.absolute_iri(iri, state.base_uri) do
-        State.add_namespace(state, ns, URI.to_string(absolute_uri))
+      with absolute_iri = IRI.absolute(iri, state.base_iri) do
+        State.add_namespace(state, ns, to_string(absolute_iri))
       end
     end
   end
 
-  defp directive({:base, uri}, %State{base_uri: base_uri} = state) do
+  defp directive({:base, iri}, %State{base_iri: base_iri} = state) do
     cond do
-      RDF.URI.Helper.absolute_iri?(uri) ->
-        %State{state | base_uri: RDF.uri(uri)}
-      base_uri != nil ->
-        with absolute_uri = RDF.URI.Helper.absolute_iri(uri, base_uri) do
-          %State{state | base_uri: absolute_uri}
+      IRI.absolute?(iri) ->
+        %State{state | base_iri: RDF.iri(iri)}
+      base_iri != nil ->
+        with absolute_iri = IRI.absolute(iri, base_iri) do
+          %State{state | base_iri: absolute_iri}
         end
       true ->
-        raise "Could not resolve resolve relative IRI '#{uri}', no base uri provided"
+        raise "Could not resolve resolve relative IRI '#{iri}', no base iri provided"
     end
   end
 
@@ -108,7 +110,7 @@ defmodule RDF.Turtle.Decoder do
 
   defp resolve_node({:prefix_ln, line_number, {prefix, name}}, statements, state) do
     if ns = State.ns(state, prefix) do
-      {RDF.uri(ns <> local_name_unescape(name)), statements, state}
+      {RDF.iri(ns <> local_name_unescape(name)), statements, state}
     else
       raise "line #{line_number}: undefined prefix #{inspect prefix}"
     end
@@ -116,18 +118,18 @@ defmodule RDF.Turtle.Decoder do
 
   defp resolve_node({:prefix_ns, line_number, prefix}, statements, state) do
     if ns = State.ns(state, prefix) do
-      {RDF.uri(ns), statements, state}
+      {RDF.iri(ns), statements, state}
     else
       raise "line #{line_number}: undefined prefix #{inspect prefix}"
     end
   end
 
-  defp resolve_node({:relative_uri, relative_uri}, _, %State{base_uri: nil}) do
-    raise "Could not resolve resolve relative IRI '#{relative_uri}', no base uri provided"
+  defp resolve_node({:relative_iri, relative_iri}, _, %State{base_iri: nil}) do
+    raise "Could not resolve resolve relative IRI '#{relative_iri}', no base iri provided"
   end
 
-  defp resolve_node({:relative_uri, relative_uri}, statements, state) do
-    {RDF.URI.Helper.absolute_iri(relative_uri, state.base_uri), statements, state}
+  defp resolve_node({:relative_iri, relative_iri}, statements, state) do
+    {IRI.absolute(relative_iri, state.base_iri), statements, state}
   end
 
   defp resolve_node({:anon}, statements, state) do

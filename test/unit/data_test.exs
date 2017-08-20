@@ -14,7 +14,7 @@ defmodule RDF.DataTest do
           EX.S2
           |> EX.p2(EX.O3, EX.O4)
       )
-    named_graph = %Graph{graph | name: uri(EX.NamedGraph)}
+    named_graph = %Graph{graph | name: iri(EX.NamedGraph)}
     dataset =
       Dataset.new
       |> Dataset.add(graph)
@@ -105,7 +105,7 @@ defmodule RDF.DataTest do
 
     test "description when the requested subject does not match the Description.subject",
           %{description: description} do
-      assert RDF.Data.description(description, uri(EX.Other)) == Description.new(EX.Other)
+      assert RDF.Data.description(description, iri(EX.Other)) == Description.new(EX.Other)
     end
 
     test "descriptions", %{description: description} do
@@ -117,7 +117,7 @@ defmodule RDF.DataTest do
     end
 
     test "subjects", %{description: description} do
-      assert RDF.Data.subjects(description) == MapSet.new([uri(EX.S)])
+      assert RDF.Data.subjects(description) == MapSet.new([iri(EX.S)])
     end
 
     test "predicates", %{description: description} do
@@ -126,12 +126,12 @@ defmodule RDF.DataTest do
 
     test "objects", %{description: description} do
       assert RDF.Data.objects(description) ==
-              MapSet.new([uri(EX.O1), uri(EX.O2), uri(EX.O3), ~B<foo>])
+              MapSet.new([iri(EX.O1), iri(EX.O2), iri(EX.O3), ~B<foo>])
     end
 
     test "resources", %{description: description} do
       assert RDF.Data.resources(description) ==
-              MapSet.new([uri(EX.S), EX.p1, EX.p2, EX.p3, uri(EX.O1), uri(EX.O2), uri(EX.O3), ~B<foo>])
+              MapSet.new([iri(EX.S), EX.p1, EX.p2, EX.p3, iri(EX.O1), iri(EX.O2), iri(EX.O3), ~B<foo>])
     end
 
     test "subject_count", %{description: description} do
@@ -228,12 +228,12 @@ defmodule RDF.DataTest do
 
     test "description when a description is present",
           %{graph: graph, description: description} do
-      assert RDF.Data.description(graph, uri(EX.S)) == description
+      assert RDF.Data.description(graph, iri(EX.S)) == description
       assert RDF.Data.description(graph, EX.S) == description
     end
 
     test "description when a description is not present", %{graph: graph} do
-      assert RDF.Data.description(graph, uri(EX.Other)) == Description.new(EX.Other)
+      assert RDF.Data.description(graph, iri(EX.Other)) == Description.new(EX.Other)
     end
 
     test "descriptions", %{graph: graph, description: description} do
@@ -246,7 +246,7 @@ defmodule RDF.DataTest do
     end
 
     test "subjects", %{graph: graph} do
-      assert RDF.Data.subjects(graph) == MapSet.new([uri(EX.S), uri(EX.S2)])
+      assert RDF.Data.subjects(graph) == MapSet.new([iri(EX.S), iri(EX.S2)])
     end
 
     test "predicates", %{graph: graph} do
@@ -255,13 +255,13 @@ defmodule RDF.DataTest do
 
     test "objects", %{graph: graph} do
       assert RDF.Data.objects(graph) ==
-              MapSet.new([uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), ~B<foo>])
+              MapSet.new([iri(EX.O1), iri(EX.O2), iri(EX.O3), iri(EX.O4), ~B<foo>])
     end
 
     test "resources", %{graph: graph} do
       assert RDF.Data.resources(graph) == MapSet.new([
-              uri(EX.S), uri(EX.S2), EX.p1, EX.p2, EX.p3,
-              uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), ~B<foo>
+              iri(EX.S), iri(EX.S2), EX.p1, EX.p2, EX.p3,
+              iri(EX.O1), iri(EX.O2), iri(EX.O3), iri(EX.O4), ~B<foo>
              ])
     end
 
@@ -342,12 +342,12 @@ defmodule RDF.DataTest do
     test "description when a description is present",
           %{dataset: dataset, description: description} do
       description_aggregate = Description.add(description, {EX.S, EX.p3, EX.O5})
-      assert RDF.Data.description(dataset, uri(EX.S)) == description_aggregate
+      assert RDF.Data.description(dataset, iri(EX.S)) == description_aggregate
       assert RDF.Data.description(dataset, EX.S) == description_aggregate
     end
 
     test "description when a description is not present", %{dataset: dataset} do
-      assert RDF.Data.description(dataset, uri(EX.Other)) == Description.new(EX.Other)
+      assert RDF.Data.description(dataset, iri(EX.Other)) == Description.new(EX.Other)
     end
 
     test "descriptions", %{dataset: dataset, description: description} do
@@ -364,7 +364,7 @@ defmodule RDF.DataTest do
     end
 
     test "subjects", %{dataset: dataset} do
-      assert RDF.Data.subjects(dataset) == MapSet.new([uri(EX.S), uri(EX.S2), uri(EX.S3)])
+      assert RDF.Data.subjects(dataset) == MapSet.new([iri(EX.S), iri(EX.S2), iri(EX.S3)])
     end
 
     test "predicates", %{dataset: dataset} do
@@ -373,13 +373,13 @@ defmodule RDF.DataTest do
 
     test "objects", %{dataset: dataset} do
       assert RDF.Data.objects(dataset) ==
-              MapSet.new([uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), uri(EX.O5), ~B<foo>])
+              MapSet.new([iri(EX.O1), iri(EX.O2), iri(EX.O3), iri(EX.O4), iri(EX.O5), ~B<foo>])
     end
 
     test "resources", %{dataset: dataset} do
       assert RDF.Data.resources(dataset) == MapSet.new([
-              uri(EX.S), uri(EX.S2), uri(EX.S3), EX.p1, EX.p2, EX.p3,
-              uri(EX.O1), uri(EX.O2), uri(EX.O3), uri(EX.O4), uri(EX.O5), ~B<foo>
+              iri(EX.S), iri(EX.S2), iri(EX.S3), EX.p1, EX.p2, EX.p3,
+              iri(EX.O1), iri(EX.O2), iri(EX.O3), iri(EX.O4), iri(EX.O5), ~B<foo>
              ])
     end
 

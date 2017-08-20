@@ -22,22 +22,22 @@ nonEmptyNtriplesDoc -> triple                : [ '$1' ].
 
 triple -> subject predicate object '.' : { '$1', '$2', '$3' }.
 
-subject   -> iriref            : to_uri('$1').
+subject   -> iriref            : to_iri('$1').
 subject   -> blank_node_label  : to_bnode('$1').
-predicate -> iriref            : to_uri('$1').
-object    -> iriref            : to_uri('$1').
+predicate -> iriref            : to_iri('$1').
+object    -> iriref            : to_iri('$1').
 object    -> blank_node_label  : to_bnode('$1').
 object    -> literal           : '$1'.
 
-literal -> string_literal_quote '^^' iriref : to_literal('$1', {datatype, to_uri('$3')}).
+literal -> string_literal_quote '^^' iriref : to_literal('$1', {datatype, to_iri('$3')}).
 literal -> string_literal_quote langtag     : to_literal('$1', {language, to_langtag('$2')}).
 literal -> string_literal_quote             : to_literal('$1').
 
 
 Erlang code.
 
-to_uri(IRIREF) ->
-  case 'Elixir.RDF.Serialization.ParseHelper':to_uri(IRIREF) of
+to_iri(IRIREF) ->
+  case 'Elixir.RDF.Serialization.ParseHelper':to_iri(IRIREF) of
     {ok, URI} -> URI;
     {error, ErrorLine, Message} -> return_error(ErrorLine, Message)
   end.

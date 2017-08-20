@@ -9,11 +9,11 @@ defmodule RDF.NTriples.DecoderTest do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   defvocab P,
-    base_uri: "http://www.perceive.net/schemas/relationship/",
+    base_iri: "http://www.perceive.net/schemas/relationship/",
     terms: [], strict: false
 
 
@@ -76,7 +76,7 @@ defmodule RDF.NTriples.DecoderTest do
       ])
   end
 
-  test "decoding a single triple with uris" do
+  test "decoding a single triple with iris" do
     assert RDF.NTriples.Decoder.decode!("""
       <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green_goblin> .
       """) == Graph.new({EX.spiderman, P.enemyOf, EX.green_goblin})

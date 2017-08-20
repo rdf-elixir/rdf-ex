@@ -1,37 +1,32 @@
 defmodule RDF.Serialization.ParseHelper do
   @moduledoc false
 
+  alias RDF.IRI
   alias RDF.Datatype.NS.XSD
 
-  @rdf_type RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+  @rdf_type RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
   def rdf_type, do: @rdf_type
 
 
-  def to_uri_string({:iriref, _line, value}), do: value |> iri_unescape
+  def to_iri_string({:iriref, _line, value}), do: value |> iri_unescape
 
-  def to_uri({:iriref, line, value}) do
-    case URI.parse(iri_unescape(value)) do
-      %URI{scheme: nil} ->
-        {:error, line, "#{value} is not a valid URI"}
-      parsed_uri ->
-        if String.ends_with?(value, "#") do
-          {:ok, %URI{parsed_uri | fragment: ""}}
-        else
-          {:ok, parsed_uri}
-        end
+  def to_iri({:iriref, line, value}) do
+    with iri = RDF.iri(iri_unescape(value)) do
+      if IRI.valid?(iri) do
+        {:ok, iri}
+      else
+        {:error, line, "#{value} is not a valid IRI"}
+      end
     end
   end
 
-  def to_absolute_or_relative_uri({:iriref, _line, value}) do
-    case URI.parse(iri_unescape(value)) do
-      uri = %URI{scheme: scheme} when not is_nil(scheme) ->
-        if String.ends_with?(value, "#") do
-          %URI{uri | fragment: ""}
-        else
-          uri
-        end
-      _ ->
-        {:relative_uri, value}
+  def to_absolute_or_relative_iri({:iriref, _line, value}) do
+    with iri = RDF.iri(iri_unescape(value)) do
+      if IRI.absolute?(iri) do
+        iri
+      else
+        {:relative_iri, value}
+      end
     end
   end
 
@@ -47,7 +42,7 @@ defmodule RDF.Serialization.ParseHelper do
   def to_literal({:boolean,  _line, value}), do: RDF.literal(value)
   def to_literal({:string_literal_quote, _line, value}, {:language, language}),
     do: RDF.literal(value, language: language)
-  def to_literal({:string_literal_quote, _line, value}, {:datatype, %URI{} = type}),
+  def to_literal({:string_literal_quote, _line, value}, {:datatype, %IRI{} = type}),
     do: value |> string_unescape |> RDF.literal(datatype: type)
   def to_literal(string_literal_quote_ast, type),
     do: {string_literal_quote_ast, type}

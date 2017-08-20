@@ -479,7 +479,7 @@ defmodule RDF.Graph do
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Graph.subjects
-      MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2)])
+      MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%RDF.Graph{descriptions: descriptions}),
     do: descriptions |> Map.keys |> MapSet.new
@@ -507,7 +507,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all resources used in the objects within a `RDF.Graph`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
   ## Examples
 
@@ -518,7 +518,7 @@ defmodule RDF.Graph do
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
       ...>   {EX.S5, EX.p3, "foo"}
       ...> ]) |> RDF.Graph.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
@@ -539,8 +539,8 @@ defmodule RDF.Graph do
     ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
     ...>   {EX.S3, EX.p1, "foo"}
     ...> ]) |> RDF.Graph.resources
-    MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2), RDF.uri(EX.S3),
-      RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
+      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
   def resources(graph = %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce(descriptions, MapSet.new, fn ({_, description}, acc) ->
@@ -560,9 +560,9 @@ defmodule RDF.Graph do
         ...>   {EX.S2, EX.p2, EX.O2},
         ...>   {EX.S1, EX.p2, EX.O3}
         ...> ]) |> RDF.Graph.triples
-        [{RDF.uri(EX.S1), RDF.uri(EX.p1), RDF.uri(EX.O1)},
-         {RDF.uri(EX.S1), RDF.uri(EX.p2), RDF.uri(EX.O3)},
-         {RDF.uri(EX.S2), RDF.uri(EX.p2), RDF.uri(EX.O2)}]
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
 

@@ -5,6 +5,29 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.IRI` as a more suitable URI/IRI representation for RDF, bringing enormous
+  performance and memory-consumption benefits
+
+### Changed
+
+- use `RDF.IRI` instead of Elixirs `URI` everywhere
+- use the term _iri_ instead of _uri_ consistently, leading to the following 
+  function renamings:
+    - `base_iri` instead of `base_uri` for the definition of `RDF.Vocabulary.Namespace`s
+    - `__base_iri__` instead of `__base_uri__` in all `RDF.Vocabulary.Namespace`s
+    - `__iris__` instead of `__uris__` in all `RDF.Vocabulary.Namespace`s
+    - `RDF.IRI.InvalidError` instead of `RDF.InvalidURIError`
+    - `RDF.Literal.InvalidError` instead of `RDF.InvalidLiteralError`
+    - `RDF.Namespace.InvalidVocabBaseIRIError` instead of `RDF.Namespace.InvalidVocabBaseURIError`
+
+[Compare v0.2.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.2.0...HEAD)
+
+
+
 ## 0.2.0 - 2017-08-12
 
 ### Added

@@ -1,8 +1,8 @@
-defmodule RDF.InvalidURIError do
+defmodule RDF.IRI.InvalidError do
   defexception [:message]
 end
 
-defmodule RDF.InvalidLiteralError do
+defmodule RDF.Literal.InvalidError do
   defexception [:message]
 end
 
@@ -31,7 +31,7 @@ defmodule RDF.Quad.InvalidGraphContextError do
 end
 
 
-defmodule RDF.Namespace.InvalidVocabBaseURIError do
+defmodule RDF.Namespace.InvalidVocabBaseIRIError do
   defexception [:message]
 end
 

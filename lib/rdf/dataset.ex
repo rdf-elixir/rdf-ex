@@ -63,7 +63,7 @@ defmodule RDF.Dataset do
   Creates an empty named `RDF.Dataset`.
   """
   def new(name),
-    do: %RDF.Dataset{name: RDF.uri(name)}
+    do: %RDF.Dataset{name: RDF.iri!(name)}
 
   @doc """
   Creates a named `RDF.Dataset` with an initial statement.
@@ -561,7 +561,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Dataset.subjects
-      MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2)])
+      MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, subjects) ->
@@ -590,7 +590,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all resources used in the objects within a `RDF.Dataset`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
   ## Examples
 
@@ -601,7 +601,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
       ...>   {EX.S5, EX.p3, "foo"}
       ...> ]) |> RDF.Dataset.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, objects) ->
@@ -620,8 +620,8 @@ defmodule RDF.Dataset do
     ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
     ...>   {EX.S3, EX.p1, "foo"}
     ...> ]) |> RDF.Dataset.resources
-    MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2), RDF.uri(EX.S3),
-      RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
+      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
   def resources(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, resources) ->
@@ -639,9 +639,9 @@ defmodule RDF.Dataset do
         ...>   {EX.S2, EX.p2, EX.O2},
         ...>   {EX.S1, EX.p2, EX.O3}]) |>
         ...>   RDF.Dataset.statements
-        [{RDF.uri(EX.S1), RDF.uri(EX.p1), RDF.uri(EX.O1), RDF.uri(EX.Graph)},
-         {RDF.uri(EX.S1), RDF.uri(EX.p2), RDF.uri(EX.O3)},
-         {RDF.uri(EX.S2), RDF.uri(EX.p2), RDF.uri(EX.O2)}]
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   def statements(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, [], fn ({_, graph}, all_statements) ->
@@ -713,7 +713,7 @@ defmodule RDF.Dataset do
         ...>   {EX.S1, EX.p, EX.O, EX.Graph1},
         ...>   {EX.S2, EX.p, EX.O, EX.Graph2}])
         ...> RDF.Dataset.who_describes(dataset, EX.S1)
-        [nil, RDF.uri(EX.Graph1)]
+        [nil, RDF.iri(EX.Graph1)]
   """
   def who_describes(%RDF.Dataset{graphs: graphs}, subject) do
     with subject = coerce_subject(subject) do

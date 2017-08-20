@@ -27,9 +27,9 @@ defmodule RDF.Serialization do
   """
 
   @doc """
-  An URI of the serialization format.
+  An IRI of the serialization format.
   """
-  @callback id :: URI.t
+  @callback id :: RDF.IRI.t
 
   @doc """
   The usual file extension for the serialization format.

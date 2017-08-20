@@ -20,7 +20,7 @@ defmodule RDF.Quad do
       iex> RDF.Quad.new("http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph")
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       iex> RDF.Quad.new(EX.S, EX.p, 42, EX.Graph)
-      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42), RDF.uri("http://example.com/Graph")}
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
   def new(subject, predicate, object, graph_context) do
     {
@@ -43,7 +43,7 @@ defmodule RDF.Quad do
       iex> RDF.Quad.new {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       iex> RDF.Quad.new {EX.S, EX.p, 42, EX.Graph}
-      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42), RDF.uri("http://example.com/Graph")}
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
   def new({subject, predicate, object, graph_context}),
     do: new(subject, predicate, object, graph_context)

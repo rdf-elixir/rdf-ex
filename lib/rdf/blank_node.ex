@@ -1,6 +1,6 @@
 defmodule RDF.BlankNode do
   @moduledoc """
-  A RDF blank node (aka bnode) is a local node of a graph without an URI.
+  A RDF blank node (aka bnode) is a local node of a graph without an IRI.
 
   see <https://www.w3.org/TR/rdf11-primer/#section-blank-node>
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>
@@ -11,13 +11,13 @@ defmodule RDF.BlankNode do
   @type t :: module
 
   @doc """
-  Generator function for `RDF.BlankNode`s.
+  Creates a `RDF.BlankNode` with an arbitrary internal id.
   """
   def new,
     do: new(make_ref())
 
   @doc """
-  Generator function for `RDF.BlankNode`s with a user-defined identity.
+  Creates a `RDF.BlankNode` with a user-defined identity.
 
   ## Examples
 
@@ -34,10 +34,10 @@ defmodule RDF.BlankNode do
 
   def new(id) when is_atom(id) or is_integer(id),
     do: id |> to_string |> new
-end
 
-defimpl String.Chars, for: RDF.BlankNode do
-  def to_string(%RDF.BlankNode{id: id}) do
-    "_:#{id}"
+
+  defimpl String.Chars do
+    def to_string(%RDF.BlankNode{id: id}), do: "_:#{id}"
   end
+
 end

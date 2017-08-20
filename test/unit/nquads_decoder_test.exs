@@ -11,11 +11,11 @@ defmodule RDF.NQuads.DecoderTest do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   defvocab P,
-    base_uri: "http://www.perceive.net/schemas/relationship/",
+    base_iri: "http://www.perceive.net/schemas/relationship/",
     terms: [], strict: false
 
 
@@ -78,7 +78,7 @@ defmodule RDF.NQuads.DecoderTest do
       ])
   end
 
-  test "decoding a single statement with uris" do
+  test "decoding a single statement with iris" do
     assert RDF.NQuads.Decoder.decode!("""
       <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green_goblin> .
       """) == Dataset.new({EX.spiderman, P.enemyOf, EX.green_goblin})

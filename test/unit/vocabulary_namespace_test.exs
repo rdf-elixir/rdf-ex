@@ -12,50 +12,50 @@ defmodule RDF.Vocabulary.NamespaceTest do
     use RDF.Vocabulary.Namespace
 
     defvocab EX,
-      base_uri: "http://example.com/",
+      base_iri: "http://example.com/",
       terms: ~w[], strict: false
 
     defvocab EXS,
-      base_uri: "http://example.com/strict#",
+      base_iri: "http://example.com/strict#",
       terms: ~w[foo bar]
 
     defvocab ExampleFromGraph,
-      base_uri: "http://example.com/from_graph#",
+      base_iri: "http://example.com/from_graph#",
       data: RDF.Graph.new([
         {~I<http://example.com/from_graph#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
         {~I<http://example.com/from_graph#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
       ])
 
     defvocab ExampleFromDataset,
-      base_uri: "http://example.com/from_dataset#",
+      base_iri: "http://example.com/from_dataset#",
       data: RDF.Dataset.new([
         {~I<http://example.com/from_dataset#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
         {~I<http://example.com/from_dataset#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/from_dataset#Graph>}
       ])
 
     defvocab ExampleFromNTriplesFile,
-      base_uri: "http://example.com/from_ntriples/",
+      base_iri: "http://example.com/from_ntriples/",
       file: "test/data/vocab_ns_example.nt"
 
     defvocab ExampleFromNQuadsFile,
-      base_uri: "http://example.com/from_nquads/",
+      base_iri: "http://example.com/from_nquads/",
       file: "test/data/vocab_ns_example.nq"
 
     defvocab ExampleFromTurtleFile,
-      base_uri: "http://example.com/from_turtle/",
+      base_iri: "http://example.com/from_turtle/",
       file: "test/data/vocab_ns_example.ttl"
 
     defvocab StrictExampleFromTerms,
-      base_uri: "http://example.com/strict_from_terms#",
+      base_iri: "http://example.com/strict_from_terms#",
       terms:    ~w[foo Bar]
 
     defvocab NonStrictExampleFromTerms,
-      base_uri: "http://example.com/non_strict_from_terms#",
+      base_iri: "http://example.com/non_strict_from_terms#",
       terms:    ~w[foo Bar],
       strict: false
 
     defvocab StrictExampleFromAliasedTerms,
-      base_uri: "http://example.com/strict_from_aliased_terms#",
+      base_iri: "http://example.com/strict_from_aliased_terms#",
       terms: ~w[term1 Term2 Term-3 term-4],
       alias: [
                 Term1: "term1",
@@ -65,7 +65,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
               ]
 
     defvocab NonStrictExampleFromAliasedTerms,
-      base_uri: "http://example.com/non_strict_from_aliased_terms#",
+      base_iri: "http://example.com/non_strict_from_aliased_terms#",
       terms: ~w[],
       alias: [
                 Term1: "term1",
@@ -76,7 +76,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       strict: false
 
     defvocab ExampleWithSynonymAliases,
-      base_uri: "http://example.com/ex#",
+      base_iri: "http://example.com/ex#",
       terms:    ~w[bar Bar],
       alias:    [foo: "bar", baz: "bar",
                  Foo: "Bar", Baz: "Bar"]
@@ -84,10 +84,10 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
-  describe "defvocab with bad base uri" do
-    test "without a base_uri, an error is raised" do
+  describe "defvocab with bad base iri" do
+    test "without a base_iri, an error is raised" do
       assert_raise KeyError, fn ->
-        defmodule NSWithoutBaseURI do
+        defmodule NSWithoutBaseIRI do
           use RDF.Vocabulary.Namespace
 
           defvocab Example, terms: []
@@ -95,34 +95,34 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    test "when the base_uri doesn't end with '/' or '#', an error is raised" do
-      assert_raise RDF.Namespace.InvalidVocabBaseURIError, fn ->
-        defmodule NSWithInvalidBaseURI1 do
+    test "when the base_iri doesn't end with '/' or '#', an error is raised" do
+      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
+        defmodule NSWithInvalidBaseIRI1 do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/base_uri4",
+            base_iri: "http://example.com/base_iri4",
             terms: []
         end
       end
     end
 
-    test "when the base_uri isn't a valid URI, an error is raised" do
-      assert_raise RDF.Namespace.InvalidVocabBaseURIError, fn ->
-        defmodule NSWithInvalidBaseURI2 do
+    test "when the base_iri isn't a valid IRI, an error is raised" do
+      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
+        defmodule NSWithInvalidBaseIRI2 do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "invalid",
+            base_iri: "invalid",
             terms: []
         end
       end
-      assert_raise RDF.Namespace.InvalidVocabBaseURIError, fn ->
-        defmodule NSWithInvalidBaseURI3 do
+      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
+        defmodule NSWithInvalidBaseIRI3 do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: :foo,
+            base_iri: :foo,
             terms: []
         end
       end
@@ -137,7 +137,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             file: "something.nt"
         end
       end
@@ -152,7 +152,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             terms:    ~w[foo],
             alias:    ["foo-bar": "foo"]
         end
@@ -165,7 +165,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             terms:    ~w[foo bar],
             alias:    [foo: "bar"]
         end
@@ -178,7 +178,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             terms:    ~w[],
             alias:    [foo: "bar"]
         end
@@ -191,7 +191,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             terms:    ~w[bar],
             alias:    [foo: "bar", baz: "foo"]
         end
@@ -205,7 +205,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       use RDF.Vocabulary.Namespace
 
       defvocab Example,
-        base_uri: "http://example.com/ex#",
+        base_iri: "http://example.com/ex#",
         terms: ~w[
           nil
           true
@@ -281,7 +281,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         defmodule NSWithElixirTerms do
           use RDF.Vocabulary.Namespace
           defvocab Example,
-            base_uri: "http://example.com/example#",
+            base_iri: "http://example.com/example#",
             terms: RDF.Vocabulary.Namespace.invalid_terms
         end
       end
@@ -292,7 +292,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         defmodule NSWithElixirAliasTerms do
           use RDF.Vocabulary.Namespace
           defvocab Example,
-            base_uri: "http://example.com/example#",
+            base_iri: "http://example.com/example#",
              terms: ~w[foo],
               alias: [
                       and:              "foo",
@@ -323,7 +323,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       defmodule NSWithIgnoredElixirTerms do
         use RDF.Vocabulary.Namespace
         defvocab Example,
-          base_uri: "http://example.com/example#",
+          base_iri: "http://example.com/example#",
           terms: RDF.Vocabulary.Namespace.invalid_terms,
           ignore: RDF.Vocabulary.Namespace.invalid_terms
       end
@@ -333,7 +333,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       defmodule NSWithAliasesForElixirTerms do
         use RDF.Vocabulary.Namespace
         defvocab Example,
-          base_uri: "http://example.com/example#",
+          base_iri: "http://example.com/example#",
           terms: RDF.Vocabulary.Namespace.invalid_terms,
           alias: [
                    and_:              "and",
@@ -387,7 +387,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         defmodule NSWithInvalidTerms1 do
           use RDF.Vocabulary.Namespace
           defvocab Example,
-            base_uri: "http://example.com/example#",
+            base_iri: "http://example.com/example#",
             terms:    ~w[Foo-bar foo-bar]
         end
       end
@@ -397,7 +397,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       defmodule NSWithInvalidTerms2 do
         use RDF.Vocabulary.Namespace
         defvocab Example,
-          base_uri: "http://example.com/example#",
+          base_iri: "http://example.com/example#",
           terms:    ~w[Foo-bar foo-bar],
           invalid_characters: :ignore
       end
@@ -411,7 +411,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         use RDF.Vocabulary.Namespace
 
         defvocab Example,
-          base_uri: "http://example.com/ex#",
+          base_iri: "http://example.com/ex#",
           case_violations: :fail,
           data: RDF.Graph.new([
             {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
@@ -429,7 +429,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         use RDF.Vocabulary.Namespace
 
         defvocab Example,
-          base_uri: "http://example.com/ex#",
+          base_iri: "http://example.com/ex#",
           case_violations: :ignore,
           data: RDF.Graph.new([
             {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
@@ -448,7 +448,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             case_violations: :fail,
             data: RDF.Graph.new([
               {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
@@ -463,7 +463,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             case_violations: :fail,
             data: RDF.Graph.new([
               {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
@@ -479,7 +479,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             case_violations: :fail,
             data: RDF.Graph.new([
               {~I<http://example.com/ex#foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
@@ -495,7 +495,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example,
-            base_uri: "http://example.com/ex#",
+            base_iri: "http://example.com/ex#",
             case_violations: :fail,
             data: RDF.Graph.new([
               {~I<http://example.com/ex#Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
@@ -510,7 +510,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         use RDF.Vocabulary.Namespace
 
         defvocab Example,
-          base_uri: "http://example.com/ex#",
+          base_iri: "http://example.com/ex#",
           case_violations: :fail,
           data: RDF.Graph.new([
             {~I<http://example.com/ex#_Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
@@ -526,7 +526,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       use RDF.Vocabulary.Namespace
 
       defvocab ExampleIgnoredLowercasedTerm,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         data: RDF.Graph.new([
           {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
           {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
@@ -534,7 +534,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         ignore: ["foo"]
 
       defvocab ExampleIgnoredCapitalizedTerm,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         data: RDF.Dataset.new([
           {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
           {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/from_dataset#Graph>}
@@ -542,37 +542,37 @@ defmodule RDF.Vocabulary.NamespaceTest do
         ignore: ~w[Bar]
 
       defvocab ExampleIgnoredLowercasedTermWithAlias,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[foo Bar],
         alias:    [Foo: "foo"],
         ignore:   ~w[foo]a
 
       defvocab ExampleIgnoredCapitalizedTermWithAlias,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[foo Bar],
         alias:    [bar: "Bar"],
         ignore:   ~w[Bar]a
 
       defvocab ExampleIgnoredLowercasedAlias,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[foo Bar],
         alias:    [bar: "Bar"],
         ignore:   ~w[bar]a
 
       defvocab ExampleIgnoredCapitalizedAlias,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[foo Bar],
         alias:    [Foo: "foo"],
         ignore:   ~w[Foo]a
 
       defvocab ExampleIgnoredNonStrictLowercasedTerm,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[],
         strict:   false,
         ignore:   ~w[foo]a
 
       defvocab ExampleIgnoredNonStrictCapitalizedTerm,
-        base_uri: "http://example.com/",
+        base_iri: "http://example.com/",
         terms:    ~w[],
         strict:   false,
         ignore:   ~w[Bar]a
@@ -589,7 +589,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedTerm
       assert ExampleIgnoredCapitalizedTerm.__terms__ == [:foo]
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.uri(ExampleIgnoredCapitalizedTerm.Bar)
+        RDF.iri(ExampleIgnoredCapitalizedTerm.Bar)
       end
     end
 
@@ -597,33 +597,33 @@ defmodule RDF.Vocabulary.NamespaceTest do
       alias NSWithIgnoredTerms.ExampleIgnoredLowercasedTermWithAlias
       assert ExampleIgnoredLowercasedTermWithAlias.__terms__ == [:Bar, :Foo]
       assert_raise UndefinedFunctionError, fn -> ExampleIgnoredLowercasedTermWithAlias.foo end
-      assert RDF.uri(ExampleIgnoredLowercasedTermWithAlias.Foo) == ~I<http://example.com/foo>
+      assert RDF.iri(ExampleIgnoredLowercasedTermWithAlias.Foo) == ~I<http://example.com/foo>
     end
 
     test "resolution of ignored capitalized term with alias on a strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedTermWithAlias
       assert ExampleIgnoredCapitalizedTermWithAlias.__terms__ == [:bar, :foo]
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.uri(ExampleIgnoredCapitalizedTermWithAlias.Bar)
+        RDF.iri(ExampleIgnoredCapitalizedTermWithAlias.Bar)
       end
-      assert RDF.uri(ExampleIgnoredCapitalizedTermWithAlias.bar) == ~I<http://example.com/Bar>
+      assert RDF.iri(ExampleIgnoredCapitalizedTermWithAlias.bar) == ~I<http://example.com/Bar>
     end
 
     test "resolution of ignored lowercased alias on a strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredLowercasedAlias
       assert ExampleIgnoredLowercasedAlias.__terms__ == [:Bar, :foo]
-      assert RDF.uri(ExampleIgnoredLowercasedAlias.Bar) == ~I<http://example.com/Bar>
+      assert RDF.iri(ExampleIgnoredLowercasedAlias.Bar) == ~I<http://example.com/Bar>
       assert_raise UndefinedFunctionError, fn ->
-        RDF.uri(ExampleIgnoredLowercasedAlias.bar)
+        RDF.iri(ExampleIgnoredLowercasedAlias.bar)
       end
     end
 
     test "resolution of ignored capitalized alias on a strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedAlias
       assert ExampleIgnoredCapitalizedAlias.__terms__ == [:Bar, :foo]
-      assert RDF.uri(ExampleIgnoredCapitalizedAlias.foo) == ~I<http://example.com/foo>
+      assert RDF.iri(ExampleIgnoredCapitalizedAlias.foo) == ~I<http://example.com/foo>
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.uri(ExampleIgnoredCapitalizedAlias.Foo)
+        RDF.iri(ExampleIgnoredCapitalizedAlias.Foo)
       end
     end
 
@@ -637,7 +637,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     test "resolution of ignored capitalized term on a non-strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredNonStrictCapitalizedTerm
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.uri(ExampleIgnoredNonStrictCapitalizedTerm.Bar)
+        RDF.iri(ExampleIgnoredNonStrictCapitalizedTerm.Bar)
       end
     end
 
@@ -645,7 +645,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       defmodule IgnoredTermWithInvalidCharacters do
         use RDF.Vocabulary.Namespace
         defvocab Example,
-          base_uri: "http://example.com/",
+          base_iri: "http://example.com/",
           terms:    ~w[foo-bar],
           ignore:   ~w[foo-bar]a
       end
@@ -655,7 +655,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       defmodule IgnoredTermWithCaseViolations do
         use RDF.Vocabulary.Namespace
         defvocab Example,
-          base_uri: "http://example.com/",
+          base_iri: "http://example.com/",
           data: RDF.Dataset.new([
             {~I<http://example.com/Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
             {~I<http://example.com/bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, ~I<http://www.w3.org/2000/01/rdf-schema#Resource>, ~I<http://example.com/from_dataset#Graph>}
@@ -667,42 +667,42 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
-  test "__base_uri__ returns the base_uri" do
+  test "  __base_iri__ returns the base_iri" do
     alias TestNS.ExampleFromGraph, as: HashVocab
     alias TestNS.ExampleFromNTriplesFile, as: SlashVocab
 
-    assert HashVocab.__base_uri__  == "http://example.com/from_graph#"
-    assert SlashVocab.__base_uri__ == "http://example.com/from_ntriples/"
+    assert HashVocab.  __base_iri__  == "http://example.com/from_graph#"
+    assert SlashVocab.  __base_iri__ == "http://example.com/from_ntriples/"
   end
 
 
-  test "__uris__ returns all URIs of the vocabulary" do
+  test "__iris__ returns all IRIs of the vocabulary" do
     alias TestNS.ExampleFromGraph, as: Example1
-    assert length(Example1.__uris__) == 2
-    assert RDF.uri(Example1.foo) in Example1.__uris__
-    assert RDF.uri(Example1.Bar) in Example1.__uris__
+    assert length(Example1.__iris__) == 2
+    assert RDF.iri(Example1.foo) in Example1.__iris__
+    assert RDF.iri(Example1.Bar) in Example1.__iris__
 
     alias TestNS.ExampleFromNTriplesFile, as: Example2
-    assert length(Example2.__uris__) == 2
-    assert RDF.uri(Example2.foo) in Example2.__uris__
-    assert RDF.uri(Example2.Bar) in Example2.__uris__
+    assert length(Example2.__iris__) == 2
+    assert RDF.iri(Example2.foo) in Example2.__iris__
+    assert RDF.iri(Example2.Bar) in Example2.__iris__
 
     alias TestNS.ExampleFromNQuadsFile, as: Example3
-    assert length(Example3.__uris__) == 2
-    assert RDF.uri(Example3.foo) in Example3.__uris__
-    assert RDF.uri(Example3.Bar) in Example3.__uris__
+    assert length(Example3.__iris__) == 2
+    assert RDF.iri(Example3.foo) in Example3.__iris__
+    assert RDF.iri(Example3.Bar) in Example3.__iris__
 
     alias TestNS.ExampleFromTurtleFile, as: Example4
-    assert length(Example4.__uris__) == 2
-    assert RDF.uri(Example4.foo) in Example4.__uris__
-    assert RDF.uri(Example4.Bar) in Example4.__uris__
+    assert length(Example4.__iris__) == 2
+    assert RDF.iri(Example4.foo) in Example4.__iris__
+    assert RDF.iri(Example4.Bar) in Example4.__iris__
 
     alias TestNS.StrictExampleFromAliasedTerms, as: Example4
-    assert length(Example4.__uris__) == 4
-    assert RDF.uri(Example4.Term1) in Example4.__uris__
-    assert RDF.uri(Example4.term2) in Example4.__uris__
-    assert RDF.uri(Example4.Term3) in Example4.__uris__
-    assert RDF.uri(Example4.term4) in Example4.__uris__
+    assert length(Example4.__iris__) == 4
+    assert RDF.iri(Example4.Term1) in Example4.__iris__
+    assert RDF.iri(Example4.term2) in Example4.__iris__
+    assert RDF.iri(Example4.Term3) in Example4.__iris__
+    assert RDF.iri(Example4.term4) in Example4.__iris__
   end
 
 
@@ -731,11 +731,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
 
   test "resolving an unqualified term raises an error" do
-    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.uri(:foo) end
+    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(:foo) end
   end
 
   test "resolving an non-RDF.Namespace module" do
-    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.uri(ExUnit.Test) end
+    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(ExUnit.Test) end
   end
 
 
@@ -765,20 +765,20 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "lowercased terms" do
-      assert ExampleFromGraph.foo == URI.parse("http://example.com/from_graph#foo")
-      assert RDF.uri(ExampleFromGraph.foo) == URI.parse("http://example.com/from_graph#foo")
+      assert ExampleFromGraph.foo          == ~I<http://example.com/from_graph#foo>
+      assert RDF.iri(ExampleFromGraph.foo) == ~I<http://example.com/from_graph#foo>
 
-      assert ExampleFromNTriplesFile.foo == URI.parse("http://example.com/from_ntriples/foo")
-      assert RDF.uri(ExampleFromNTriplesFile.foo) == URI.parse("http://example.com/from_ntriples/foo")
+      assert ExampleFromNTriplesFile.foo          == ~I<http://example.com/from_ntriples/foo>
+      assert RDF.iri(ExampleFromNTriplesFile.foo) == ~I<http://example.com/from_ntriples/foo>
 
-      assert StrictExampleFromTerms.foo == URI.parse("http://example.com/strict_from_terms#foo")
-      assert RDF.uri(StrictExampleFromTerms.foo) == URI.parse("http://example.com/strict_from_terms#foo")
+      assert StrictExampleFromTerms.foo          == ~I<http://example.com/strict_from_terms#foo>
+      assert RDF.iri(StrictExampleFromTerms.foo) == ~I<http://example.com/strict_from_terms#foo>
     end
 
     test "capitalized terms" do
-      assert RDF.uri(ExampleFromGraph.Bar) == URI.parse("http://example.com/from_graph#Bar")
-      assert RDF.uri(ExampleFromNTriplesFile.Bar) == URI.parse("http://example.com/from_ntriples/Bar")
-      assert RDF.uri(StrictExampleFromTerms.Bar) == URI.parse("http://example.com/strict_from_terms#Bar")
+      assert RDF.iri(ExampleFromGraph.Bar)        == ~I<http://example.com/from_graph#Bar>
+      assert RDF.iri(ExampleFromNTriplesFile.Bar) == ~I<http://example.com/from_ntriples/Bar>
+      assert RDF.iri(StrictExampleFromTerms.Bar)  == ~I<http://example.com/strict_from_terms#Bar>
     end
 
     test "terms starting with an underscore" do
@@ -786,7 +786,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
         use RDF.Vocabulary.Namespace
 
         defvocab Example,
-          base_uri: "http://example.com/ex#",
+          base_iri: "http://example.com/ex#",
           terms: ~w[_foo]
       end
       alias NSwithUnderscoreTerms.Example
@@ -801,23 +801,23 @@ defmodule RDF.Vocabulary.NamespaceTest do
   describe "term resolution in a non-strict vocab namespace" do
     alias TestNS.NonStrictExampleFromTerms
     test "undefined lowercased terms" do
-      assert NonStrictExampleFromTerms.random == URI.parse("http://example.com/non_strict_from_terms#random")
+      assert NonStrictExampleFromTerms.random == ~I<http://example.com/non_strict_from_terms#random>
     end
 
     test "undefined capitalized terms" do
-      assert RDF.uri(NonStrictExampleFromTerms.Random) == URI.parse("http://example.com/non_strict_from_terms#Random")
+      assert RDF.iri(NonStrictExampleFromTerms.Random) == ~I<http://example.com/non_strict_from_terms#Random>
     end
 
     test "undefined terms starting with an underscore" do
-      assert NonStrictExampleFromTerms._random == URI.parse("http://example.com/non_strict_from_terms#_random")
+      assert NonStrictExampleFromTerms._random == ~I<http://example.com/non_strict_from_terms#_random>
     end
 
     test "defined lowercase terms" do
-      assert NonStrictExampleFromTerms.foo == URI.parse("http://example.com/non_strict_from_terms#foo")
+      assert NonStrictExampleFromTerms.foo == ~I<http://example.com/non_strict_from_terms#foo>
     end
 
     test "defined capitalized terms" do
-      assert RDF.uri(NonStrictExampleFromTerms.Bar) == URI.parse("http://example.com/non_strict_from_terms#Bar")
+      assert RDF.iri(NonStrictExampleFromTerms.Bar) == ~I<http://example.com/non_strict_from_terms#Bar>
     end
   end
 
@@ -825,38 +825,38 @@ defmodule RDF.Vocabulary.NamespaceTest do
   describe "term resolution of aliases on a strict vocabulary" do
     alias TestNS.StrictExampleFromAliasedTerms, as: Example
 
-    test "the alias resolves to the correct URI" do
-      assert RDF.uri(Example.Term1) == URI.parse("http://example.com/strict_from_aliased_terms#term1")
-      assert RDF.uri(Example.term2) == URI.parse("http://example.com/strict_from_aliased_terms#Term2")
-      assert RDF.uri(Example.Term3) == URI.parse("http://example.com/strict_from_aliased_terms#Term-3")
-      assert RDF.uri(Example.term4) == URI.parse("http://example.com/strict_from_aliased_terms#term-4")
+    test "the alias resolves to the correct IRI" do
+      assert RDF.iri(Example.Term1) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Example.term2) == ~I<http://example.com/strict_from_aliased_terms#Term2>
+      assert RDF.iri(Example.Term3) == ~I<http://example.com/strict_from_aliased_terms#Term-3>
+      assert RDF.iri(Example.term4) == ~I<http://example.com/strict_from_aliased_terms#term-4>
     end
 
     test "the old term remains resolvable" do
-      assert RDF.uri(Example.term1) == URI.parse("http://example.com/strict_from_aliased_terms#term1")
-      assert RDF.uri(Example.Term2) == URI.parse("http://example.com/strict_from_aliased_terms#Term2")
+      assert RDF.iri(Example.term1) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Example.Term2) == ~I<http://example.com/strict_from_aliased_terms#Term2>
     end
 
     test "defining multiple aliases for a term" do
       alias TestNS.ExampleWithSynonymAliases, as: Example
       assert Example.foo == Example.baz
-      assert RDF.uri(Example.foo) == RDF.uri(Example.baz)
+      assert RDF.iri(Example.foo) == RDF.iri(Example.baz)
     end
   end
 
   describe "term resolution of aliases on a non-strict vocabulary" do
     alias TestNS.NonStrictExampleFromAliasedTerms, as: Example
 
-    test "the alias resolves to the correct URI" do
-      assert RDF.uri(Example.Term1) == URI.parse("http://example.com/non_strict_from_aliased_terms#term1")
-      assert RDF.uri(Example.term2) == URI.parse("http://example.com/non_strict_from_aliased_terms#Term2")
-      assert RDF.uri(Example.Term3) == URI.parse("http://example.com/non_strict_from_aliased_terms#Term-3")
-      assert RDF.uri(Example.term4) == URI.parse("http://example.com/non_strict_from_aliased_terms#term-4")
+    test "the alias resolves to the correct IRI" do
+      assert RDF.iri(Example.Term1) == ~I<http://example.com/non_strict_from_aliased_terms#term1>
+      assert RDF.iri(Example.term2) == ~I<http://example.com/non_strict_from_aliased_terms#Term2>
+      assert RDF.iri(Example.Term3) == ~I<http://example.com/non_strict_from_aliased_terms#Term-3>
+      assert RDF.iri(Example.term4) == ~I<http://example.com/non_strict_from_aliased_terms#term-4>
     end
 
     test "the old term remains resolvable" do
-      assert RDF.uri(Example.term1) == URI.parse("http://example.com/non_strict_from_aliased_terms#term1")
-      assert RDF.uri(Example.Term2) == URI.parse("http://example.com/non_strict_from_aliased_terms#Term2")
+      assert RDF.iri(Example.term1) == ~I<http://example.com/non_strict_from_aliased_terms#term1>
+      assert RDF.iri(Example.Term2) == ~I<http://example.com/non_strict_from_aliased_terms#Term2>
     end
   end
 
@@ -945,31 +945,31 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   describe "term resolution on the top-level RDF module" do
     test "capitalized terms" do
-      assert RDF.uri(RDF.Property)     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")
-      assert RDF.uri(RDF.Statement)    == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement")
-      assert RDF.uri(RDF.List)         == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#List")
-      assert RDF.uri(RDF.Nil)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
-      assert RDF.uri(RDF.Seq)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq")
-      assert RDF.uri(RDF.Bag)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag")
-      assert RDF.uri(RDF.Alt)          == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Alt")
-      assert RDF.uri(RDF.LangString)   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
-      assert RDF.uri(RDF.PlainLiteral) == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral")
-      assert RDF.uri(RDF.XMLLiteral)   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral")
-      assert RDF.uri(RDF.HTML)         == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML")
-      assert RDF.uri(RDF.Property)     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")
+      assert RDF.iri(RDF.Property)     == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
+      assert RDF.iri(RDF.Statement)    == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement>
+      assert RDF.iri(RDF.List)         == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#List>
+      assert RDF.iri(RDF.Nil)          == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>
+      assert RDF.iri(RDF.Seq)          == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq>
+      assert RDF.iri(RDF.Bag)          == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag>
+      assert RDF.iri(RDF.Alt)          == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Alt>
+      assert RDF.iri(RDF.LangString)   == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>
+      assert RDF.iri(RDF.PlainLiteral) == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral>
+      assert RDF.iri(RDF.XMLLiteral)   == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral>
+      assert RDF.iri(RDF.HTML)         == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML>
+      assert RDF.iri(RDF.Property)     == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
     end
 
     test "lowercase terms" do
-      assert RDF.type      == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-      assert RDF.subject   == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject")
-      assert RDF.predicate == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate")
-      assert RDF.object    == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#object")
-      assert RDF.first     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#first")
-      assert RDF.rest      == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest")
-      assert RDF.value     == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#value")
+      assert RDF.type      == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+      assert RDF.subject   == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#subject>
+      assert RDF.predicate == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate>
+      assert RDF.object    == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#object>
+      assert RDF.first     == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>
+      assert RDF.rest      == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>
+      assert RDF.value     == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#value>
 
-      assert RDF.langString == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
-      assert RDF.nil        == URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
+      assert RDF.langString == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>
+      assert RDF.nil        == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>
     end
 
     test "description DSL" do

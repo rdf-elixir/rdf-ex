@@ -5,12 +5,12 @@ defmodule RDF.Statement do
   A RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """
 
-  alias RDF.{Triple, Quad, BlankNode, Literal}
+  alias RDF.{Triple, Quad, IRI, BlankNode, Literal}
 
-  @type subject    :: URI.t | BlankNode.t
-  @type predicate  :: URI.t
-  @type object     :: URI.t | BlankNode.t | Literal.t
-  @type graph_name :: URI.t | BlankNode.t
+  @type subject    :: IRI.t | BlankNode.t
+  @type predicate  :: IRI.t
+  @type object     :: IRI.t | BlankNode.t | Literal.t
+  @type graph_name :: IRI.t | BlankNode.t
 
   @type coercible_subject    :: subject    | atom | String.t
   @type coercible_predicate  :: predicate  | atom | String.t
@@ -35,40 +35,39 @@ defmodule RDF.Statement do
   def coerce({_, _, _, _} = quad), do: Quad.new(quad)
 
   @doc false
-  def coerce_subject(uri)
-  def coerce_subject(uri = %URI{}), do: uri
+  def coerce_subject(iri)
+  def coerce_subject(iri = %IRI{}), do: iri
   def coerce_subject(bnode = %BlankNode{}), do: bnode
   def coerce_subject("_:" <> identifier), do: RDF.bnode(identifier)
-  def coerce_subject(uri) when is_atom(uri) or is_binary(uri), do: RDF.uri(uri)
+  def coerce_subject(iri) when is_atom(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_subject(arg), do: raise RDF.Triple.InvalidSubjectError, subject: arg
 
   @doc false
-  def coerce_predicate(uri)
-  def coerce_predicate(uri = %URI{}), do: uri
+  def coerce_predicate(iri)
+  def coerce_predicate(iri = %IRI{}), do: iri
   # Note: Although, RDF does not allow blank nodes for properties, JSON-LD allows
   # them, by introducing the notion of "generalized RDF".
   # TODO: Support an option `:strict_rdf` to explicitly disallow them or produce warnings or ...
   def coerce_predicate(bnode = %BlankNode{}), do: bnode
-  def coerce_predicate(uri) when is_atom(uri) or is_binary(uri), do: RDF.uri(uri)
+  def coerce_predicate(iri) when is_atom(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_predicate(arg), do: raise RDF.Triple.InvalidPredicateError, predicate: arg
 
   @doc false
-  def coerce_object(uri)
-  def coerce_object(uri = %URI{}), do: uri
+  def coerce_object(iri)
+  def coerce_object(iri = %IRI{}), do: iri
   def coerce_object(literal = %Literal{}), do: literal
   def coerce_object(bnode = %BlankNode{}), do: bnode
   def coerce_object(bool) when is_boolean(bool), do: Literal.new(bool)
-  def coerce_object(atom) when is_atom(atom), do: RDF.uri(atom)
+  def coerce_object(atom) when is_atom(atom), do: RDF.iri(atom)
   def coerce_object(arg), do: Literal.new(arg)
 
   @doc false
-  def coerce_graph_name(uri)
+  def coerce_graph_name(iri)
   def coerce_graph_name(nil), do: nil
-  def coerce_graph_name(uri = %URI{}), do: uri
+  def coerce_graph_name(iri = %IRI{}), do: iri
   def coerce_graph_name(bnode = %BlankNode{}), do: bnode
   def coerce_graph_name("_:" <> identifier), do: RDF.bnode(identifier)
-  def coerce_graph_name(uri) when is_atom(uri) or is_binary(uri),
-    do: RDF.uri(uri)
+  def coerce_graph_name(iri) when is_atom(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_graph_name(arg),
     do: raise RDF.Quad.InvalidGraphContextError, graph_context: arg
 

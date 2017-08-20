@@ -11,7 +11,7 @@ defmodule RDF.Literal do
 
   # to be able to pattern-match on plain types
   @xsd_string  XSD.string
-  @lang_string RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+  @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
   @plain_types [@xsd_string, @lang_string]
 
 
@@ -56,7 +56,7 @@ defmodule RDF.Literal do
 
 
   def new(value) do
-    raise RDF.InvalidLiteralError, "#{inspect value} not convertible to a RDF.Literal"
+    raise RDF.Literal.InvalidError, "#{inspect value} not convertible to a RDF.Literal"
   end
 
   def new(value, opts) when is_list(opts),
@@ -74,7 +74,7 @@ defmodule RDF.Literal do
     end
   end
 
-  def new(value, %{datatype: %URI{} = id} = opts) do
+  def new(value, %{datatype: %RDF.IRI{} = id} = opts) do
     case RDF.Datatype.get(id) do
       nil      -> %RDF.Literal{value: value, datatype: id}
       datatype -> datatype.new(value, opts)
@@ -82,7 +82,7 @@ defmodule RDF.Literal do
   end
 
   def new(value, %{datatype: datatype} = opts),
-    do: new(value, %{opts | datatype: RDF.uri(datatype)})
+    do: new(value, %{opts | datatype: RDF.iri(datatype)})
 
   def new(value, opts) when is_map(opts) and map_size(opts) == 0,
     do: new(value)

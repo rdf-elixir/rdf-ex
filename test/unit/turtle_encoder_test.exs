@@ -13,7 +13,7 @@ defmodule RDF.Turtle.EncoderTest do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
 
@@ -22,7 +22,7 @@ defmodule RDF.Turtle.EncoderTest do
       assert Turtle.Encoder.encode!(Graph.new) == ""
     end
 
-    test "statements with URIs only" do
+    test "statements with IRIs only" do
       assert Turtle.Encoder.encode!(Graph.new [
                 {EX.S1, EX.p1, EX.O1},
                 {EX.S1, EX.p1, EX.O2},
@@ -46,11 +46,11 @@ defmodule RDF.Turtle.EncoderTest do
                 {EX.S1, EX.p2, EX.O3},
                 {EX.S2, EX.p3, EX.O4},
               ]), prefixes: %{
-                ex: EX.__base_uri__,
-                xsd: XSD.__base_uri__
+                ex: EX.  __base_iri__,
+                xsd: XSD.  __base_iri__
               }) ==
               """
-              @prefix ex: <#{to_string(EX.__base_uri__)}> .
+              @prefix ex: <#{to_string(EX.  __base_iri__)}> .
               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
               ex:S1
@@ -64,9 +64,9 @@ defmodule RDF.Turtle.EncoderTest do
 
     test "statements with empty prefixed names" do
       assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, EX.O}),
-              prefixes: %{"" => EX.__base_uri__}) ==
+              prefixes: %{"" => EX.  __base_iri__}) ==
               """
-              @prefix : <#{to_string(EX.__base_uri__)}> .
+              @prefix : <#{to_string(EX.  __base_iri__)}> .
 
               :S
                   :p :O .
@@ -104,22 +104,22 @@ defmodule RDF.Turtle.EncoderTest do
 
     test "ordering of descriptions" do
       assert Turtle.Encoder.encode!(Graph.new([
-                {EX.__base_uri__, RDF.type, OWL.Ontology},
+                {EX.  __base_iri__, RDF.type, OWL.Ontology},
                 {EX.S1, RDF.type, EX.O},
                 {EX.S2, RDF.type, RDFS.Class},
                 {EX.S3, RDF.type, RDF.Property},
               ]),
-                base: EX.__base_uri__,
+                base: EX.  __base_iri__,
                 prefixes: %{
-                  rdf:  RDF.__base_uri__,
-                  rdfs: RDFS.__base_uri__,
-                  owl:  OWL.__base_uri__,
+                  rdf:  RDF.  __base_iri__,
+                  rdfs: RDFS.  __base_iri__,
+                  owl:  OWL.  __base_iri__,
                 }) ==
               """
-              @base <#{to_string(EX.__base_uri__)}> .
-              @prefix rdf: <#{to_string(RDF.__base_uri__)}> .
-              @prefix rdfs: <#{to_string(RDFS.__base_uri__)}> .
-              @prefix owl: <#{to_string(OWL.__base_uri__)}> .
+              @base <#{to_string(EX.  __base_iri__)}> .
+              @prefix rdf: <#{to_string(RDF.  __base_iri__)}> .
+              @prefix rdfs: <#{to_string(RDFS.  __base_iri__)}> .
+              @prefix owl: <#{to_string(OWL.  __base_iri__)}> .
 
               <>
                   a owl:Ontology .
@@ -141,53 +141,53 @@ defmodule RDF.Turtle.EncoderTest do
     setup do
       {:ok,
         prefixes: %{
-          RDF.uri(EX.__base_uri__) => "ex",
+          RDF.iri(EX.  __base_iri__) => "ex",
           ~I<http://example.org/>  => "ex2"
         }
       }
     end
 
-    test "hash uri with existing prefix", %{prefixes: prefixes} do
+    test "hash iri with existing prefix", %{prefixes: prefixes} do
       assert Turtle.Encoder.prefixed_name(EX.foo, prefixes) ==
               "ex:foo"
     end
 
-    test "hash uri namespace without name", %{prefixes: prefixes} do
-      assert Turtle.Encoder.prefixed_name(RDF.uri(EX.__base_uri__), prefixes) ==
+    test "hash iri namespace without name", %{prefixes: prefixes} do
+      assert Turtle.Encoder.prefixed_name(RDF.iri(EX.  __base_iri__), prefixes) ==
               "ex:"
     end
 
-    test "hash uri with non-existing prefix" do
+    test "hash iri with non-existing prefix" do
       refute Turtle.Encoder.prefixed_name(EX.foo, %{})
     end
 
-    test "slash uri with existing prefix", %{prefixes: prefixes} do
+    test "slash iri with existing prefix", %{prefixes: prefixes} do
       assert Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, prefixes) ==
               "ex2:foo"
     end
 
-    test "slash uri namespace without name", %{prefixes: prefixes} do
+    test "slash iri namespace without name", %{prefixes: prefixes} do
       assert Turtle.Encoder.prefixed_name(~I<http://example.org/>, prefixes) ==
               "ex2:"
     end
 
-    test "slash uri with non-existing prefix" do
+    test "slash iri with non-existing prefix" do
       refute Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, %{})
     end
   end
 
 
   %{
-    "full URIs without base" => %{
+    "full IRIs without base" => %{
       input: "<http://a/b> <http://a/c> <http://a/d> .",
       matches: [~r(<http://a/b>\s+<http://a/c>\s+<http://a/d>\s+\.)],
     },
-    "relative URIs with base" => %{
+    "relative IRIs with base" => %{
       input: "<http://a/b> <http://a/c> <http://a/d> .",
       matches: [ ~r(@base\s+<http://a/>\s+\.), ~r(<b>\s+<c>\s+<d>\s+\.)m],
       base: "http://a/"
     },
-    "pname URIs with prefix" => %{
+    "pname IRIs with prefix" => %{
       input: "<http://example.com/b> <http://example.com/c> <http://example.com/d> .",
       matches: [
         ~r(@prefix\s+ex:\s+<http://example.com/>\s+\.),
@@ -195,7 +195,7 @@ defmodule RDF.Turtle.EncoderTest do
       ],
       prefixes: %{ex: "http://example.com/"}
     },
-    "pname URIs with empty prefix" => %{
+    "pname IRIs with empty prefix" => %{
       input: "<http://example.com/b> <http://example.com/c> <http://example.com/d> .",
       matches:  [
         ~r(@prefix\s+:\s+<http://example.com/>\s+\.),
@@ -396,9 +396,9 @@ defmodule RDF.Turtle.EncoderTest do
 #      |> assert_serialization(
 #            prefixes: %{
 #              ex:   ~I<http://example.com/>,
-#              rdf:  RDF.NS.RDF.__base_uri__,
-#              rdfs: RDFS.__base_uri__,
-#              owl:  OWL.__base_uri__,
+#              rdf:  RDF.NS.RDF.  __base_iri__,
+#              rdfs: RDFS.  __base_iri__,
+#              owl:  OWL.  __base_iri__,
 #            },
 #            matches: [
 #              {~r[ex:a\s+rdfs:domain \[\s+a owl:Class;\s+owl:unionOf\s+\(ex:b\s+ex:c\)\s*\]\s*\.],
@@ -419,7 +419,7 @@ defmodule RDF.Turtle.EncoderTest do
            |> RDF.rest(RDF.nil))
       |> Graph.add({EX.Baz, EX.quux, ~B<Bar>})
       |> assert_serialization(
-           prefixes: %{ex: EX.__base_uri__},
+           prefixes: %{ex: EX.  __base_iri__},
            # TODO: provide a positive match
            neg_matches: [
             {~r[\(\s*ex:Foo\s+ex:Bar\s*\)], "does include the list as a Turtle list"}
@@ -491,7 +491,7 @@ defmodule RDF.Turtle.EncoderTest do
             ~r[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> \.],
             ~r["http://foo/"\^\^xsd:anyURI \.]
            ],
-           prefixes: %{xsd: XSD.__base_uri__}
+           prefixes: %{xsd: XSD.  __base_iri__}
          )
     end
 

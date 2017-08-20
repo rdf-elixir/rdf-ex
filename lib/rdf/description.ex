@@ -313,10 +313,10 @@ defmodule RDF.Description do
   ## Examples
 
       iex> RDF.Description.fetch(RDF.Description.new({EX.S, EX.p, EX.O}), EX.p)
-      {:ok, [RDF.uri(EX.O)]}
+      {:ok, [RDF.iri(EX.O)]}
       iex> RDF.Description.fetch(RDF.Description.new([{EX.S, EX.P, EX.O1},
       ...>                                            {EX.S, EX.P, EX.O2}]), EX.P)
-      {:ok, [RDF.uri(EX.O1), RDF.uri(EX.O2)]}
+      {:ok, [RDF.iri(EX.O1), RDF.iri(EX.O2)]}
       iex> RDF.Description.fetch(RDF.Description.new(EX.S), EX.foo)
       :error
   """
@@ -334,7 +334,7 @@ defmodule RDF.Description do
   ## Examples
 
       iex> RDF.Description.get(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
-      [RDF.uri(EX.O)]
+      [RDF.iri(EX.O)]
       iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo)
       nil
       iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo, :bar)
@@ -355,7 +355,7 @@ defmodule RDF.Description do
   ## Examples
 
       iex> RDF.Description.first(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
-      RDF.uri(EX.O)
+      RDF.iri(EX.O)
       iex> RDF.Description.first(RDF.Description.new(EX.S), EX.foo)
       nil
   """
@@ -385,10 +385,10 @@ defmodule RDF.Description do
       ...>   RDF.Description.get_and_update(EX.P, fn current_objects ->
       ...>     {current_objects, EX.NEW}
       ...>   end)
-      {[RDF.uri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
+      {[RDF.iri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
       iex> RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}]) |>
       ...>   RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
-      {[RDF.uri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
+      {[RDF.iri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
     with triple_predicate = coerce_predicate(predicate) do
@@ -430,7 +430,7 @@ defmodule RDF.Description do
   ## Examples
 
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
-      {[RDF.uri(EX.O)], RDF.Description.new(EX.S)}
+      {[RDF.iri(EX.O)], RDF.Description.new(EX.S)}
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
@@ -462,7 +462,7 @@ defmodule RDF.Description do
   @doc """
   The set of all resources used in the objects within a `RDF.Description`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
   ## Examples
 
@@ -473,7 +473,7 @@ defmodule RDF.Description do
       ...>          {EX.p4, RDF.bnode(:bnode)},
       ...>          {EX.p3, "foo"}
       ...> ]) |> RDF.Description.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%RDF.Description{} = description),
     do: objects(description, &RDF.resource?/1)
@@ -503,7 +503,7 @@ defmodule RDF.Description do
       ...>          {EX.p2, RDF.bnode(:bnode)},
       ...>          {EX.p3, "foo"}
       ...> ]) |> RDF.Description.resources
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
   """
   def resources(description) do
     description

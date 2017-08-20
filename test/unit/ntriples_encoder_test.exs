@@ -13,7 +13,7 @@ defmodule RDF.NTriples.EncoderTest do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
 
@@ -22,7 +22,7 @@ defmodule RDF.NTriples.EncoderTest do
       assert NTriples.Encoder.encode!(Graph.new) == ""
     end
 
-    test "statements with URIs only" do
+    test "statements with IRIs only" do
       assert NTriples.Encoder.encode!(Graph.new [
                 {EX.S1, EX.p1, EX.O1},
                 {EX.S1, EX.p1, EX.O2},

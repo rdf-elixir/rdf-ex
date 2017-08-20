@@ -19,7 +19,7 @@ defmodule RDF.NS do
   See <https://www.w3.org/TR/xmlschema11-2/>
   """
   defvocab XSD,
-    base_uri: "http://www.w3.org/2001/XMLSchema#",
+    base_iri: "http://www.w3.org/2001/XMLSchema#",
     terms:    RDF.Datatype.NS.XSD.__terms__
 
   @vocabdoc """
@@ -28,7 +28,7 @@ defmodule RDF.NS do
   See <https://www.w3.org/TR/rdf11-concepts/>
   """
   defvocab RDF,
-    base_uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    base_iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     file: "rdf.ttl",
     alias: [
       Nil:        "nil",
@@ -41,7 +41,7 @@ defmodule RDF.NS do
   See <https://www.w3.org/TR/rdf-schema/>
   """
   defvocab RDFS,
-    base_uri: "http://www.w3.org/2000/01/rdf-schema#",
+    base_iri: "http://www.w3.org/2000/01/rdf-schema#",
     file: "rdfs.ttl"
 
   @vocabdoc """
@@ -50,7 +50,7 @@ defmodule RDF.NS do
   See <https://www.w3.org/TR/owl-overview/>
   """
   defvocab OWL,
-    base_uri: "http://www.w3.org/2002/07/owl#",
+    base_iri: "http://www.w3.org/2002/07/owl#",
     file: "owl.ttl"
 
   @vocabdoc """
@@ -59,7 +59,7 @@ defmodule RDF.NS do
   See <http://www.w3.org/TR/skos-reference/>
   """
   defvocab SKOS,
-    base_uri: "http://www.w3.org/2004/02/skos/core#",
+    base_iri: "http://www.w3.org/2004/02/skos/core#",
     file: "skos.ttl"
 
 end

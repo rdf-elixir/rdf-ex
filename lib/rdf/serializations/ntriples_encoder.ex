@@ -3,7 +3,7 @@ defmodule RDF.NTriples.Encoder do
 
   use RDF.Serialization.Encoder
 
-  alias RDF.{Literal, BlankNode}
+  alias RDF.{IRI, Literal, BlankNode}
 
   @xsd_string RDF.Datatype.NS.XSD.string
 
@@ -22,8 +22,8 @@ defmodule RDF.NTriples.Encoder do
     "#{term(subject)} #{term(predicate)} #{term(object)} ."
   end
 
-  def term(%URI{} = uri) do
-    "<#{to_string(uri)}>"
+  def term(%IRI{} = iri) do
+    "<#{to_string(iri)}>"
   end
 
   def term(%Literal{value: value, language: language}) when not is_nil(language) do

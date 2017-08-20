@@ -5,8 +5,7 @@ defmodule RDF do
   RDF.ex consists of:
 
   - modules for the nodes of an RDF graph
-    - URIs are (currently) represented via Elixirs `URI` struct and should be
-      constructed with `RDF.uri/1`
+    - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
@@ -20,13 +19,15 @@ defmodule RDF do
     - `RDF.Graph`
     - `RDF.Dataset`
     - `RDF.Data`
+    - `RDF.List`
   - the foundations for the definition of RDF serialization formats
     - `RDF.Serialization`
     - `RDF.Serialization.Decoder`
     - `RDF.Serialization.Encoder`
-  - and the implementation of two basic RDF serialization formats
+  - and the implementation of various RDF serialization formats
     - `RDF.NTriples`
     - `RDF.NQuads`
+    - `RDF.Turtle`
 
   This top-level module provides shortcut functions for the construction of the
   basic elements and structures of RDF and some general helper functions.
@@ -34,7 +35,7 @@ defmodule RDF do
   For a general introduction you may refer to the [README](readme.html).
   """
 
-  alias RDF.{Namespace, Literal, BlankNode, Triple, Quad,
+  alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset}
 
   @doc """
@@ -42,7 +43,7 @@ defmodule RDF do
 
   ## Examples
 
-      iex> RDF.resource?(RDF.uri("http://example.com/resource"))
+      iex> RDF.resource?(RDF.iri("http://example.com/resource"))
       true
       iex> RDF.resource?(EX.resource)
       true
@@ -52,31 +53,18 @@ defmodule RDF do
       false
   """
   def resource?(value)
-  def resource?(%URI{}), do: true
+  def resource?(%IRI{}),                  do: true
+  def resource?(%BlankNode{}),            do: true
   def resource?(atom) when is_atom(atom), do: resource?(Namespace.resolve_term(atom))
-  def resource?(%BlankNode{}), do: true
-  def resource?(_), do: false
+  def resource?(_),                       do: false
 
-  @doc """
-  Checks if the given value is an URI.
 
-  ## Examples
-
-      iex> RDF.uri?("http://www.example.com/foo")
-      true
-      iex> RDF.uri?("not a uri")
-      false
-  """
-  def uri?(some_uri = %URI{}) do
-    # The following was suggested at http://stackoverflow.com/questions/30696761/check-if-a-url-is-valid-in-elixir
-    # TODO: Find a better way! Maybe <https://github.com/marcelog/ex_rfc3986>?
-    case some_uri do
-      %URI{scheme: nil} -> false
-      _uri -> true
-    end
-  end
-  def uri?(value) when is_binary(value), do: uri?(URI.parse(value))
-  def uri?(_), do: false
+  defdelegate uri?(value), to: IRI, as: :valid?
+  defdelegate iri?(value), to: IRI, as: :valid?
+  defdelegate uri(value),  to: IRI, as: :new
+  defdelegate iri(value),  to: IRI, as: :new
+  defdelegate uri!(value), to: IRI, as: :new!
+  defdelegate iri!(value), to: IRI, as: :new!
 
   @doc """
   Checks if the given value is a blank node.
@@ -85,61 +73,13 @@ defmodule RDF do
 
       iex> RDF.bnode?(RDF.bnode)
       true
-      iex> RDF.bnode?(RDF.uri("http://example.com/resource"))
+      iex> RDF.bnode?(RDF.iri("http://example.com/resource"))
       false
       iex> RDF.bnode?(42)
       false
   """
   def bnode?(%BlankNode{}), do: true
   def bnode?(_), do: false
-
-
-  @doc """
-  Generator function for URIs from strings or term atoms of a `RDF.Namespace`.
-
-  This function is used for the `~I` sigil.
-
-  ## Examples
-
-      iex> RDF.uri("http://www.example.com/foo")
-      %URI{authority: "www.example.com", fragment: nil, host: "www.example.com",
-       path: "/foo", port: 80, query: nil, scheme: "http", userinfo: nil}
-
-      iex> RDF.uri(RDF.NS.RDFS.Class)
-      %URI{authority: "www.w3.org", fragment: "Class", host: "www.w3.org",
-       path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
-       userinfo: nil}
-
-      iex> RDF.uri("not a uri")
-      ** (RDF.InvalidURIError) string "not a uri" is not a valid URI
-  """
-  @spec uri(URI.t | binary | atom) :: URI.t
-  def uri(atom) when is_atom(atom), do: Namespace.resolve_term(atom)
-
-  def uri(string) do
-    with parsed_uri = URI.parse(string) do
-      if uri?(parsed_uri) do
-        if is_binary(string) and String.ends_with?(string, "#") do
-          %URI{parsed_uri | fragment: ""}
-        else
-          parsed_uri
-        end
-      else
-        raise RDF.InvalidURIError, ~s(string "#{string}" is not a valid URI)
-      end
-    end
-  end
-
-
-  def list(native_list),
-    do: RDF.List.from(native_list)
-
-  def list(head, %Graph{} = graph),
-    do: RDF.List.new(head, graph)
-
-  def list(native_list, opts),
-    do: RDF.List.from(native_list, opts)
-
 
   defdelegate bnode(),   to: BlankNode, as: :new
   defdelegate bnode(id), to: BlankNode, as: :new
@@ -170,6 +110,16 @@ defmodule RDF do
   defdelegate list?(resource, graph), to: RDF.List, as: :node?
   defdelegate list?(description),     to: RDF.List, as: :node?
 
+  def list(native_list),
+    do: RDF.List.from(native_list)
+
+  def list(head, %Graph{} = graph),
+    do: RDF.List.new(head, graph)
+
+  def list(native_list, opts),
+    do: RDF.List.from(native_list, opts)
+
+
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(),                      to: RDF.NS.RDF
@@ -183,5 +133,5 @@ defmodule RDF do
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
-  defdelegate __base_uri__(), to: RDF.NS.RDF
+  defdelegate   __base_iri__(), to: RDF.NS.RDF
 end

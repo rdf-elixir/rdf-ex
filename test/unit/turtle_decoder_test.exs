@@ -12,11 +12,11 @@ defmodule RDF.Turtle.DecoderTest do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   defvocab P,
-    base_uri: "http://www.perceive.net/schemas/relationship/",
+    base_iri: "http://www.perceive.net/schemas/relationship/",
     terms: [], strict: false
 
 
@@ -393,7 +393,7 @@ defmodule RDF.Turtle.DecoderTest do
           <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
           """)
       end
-      assert_raise RDF.InvalidURIError, fn ->
+      assert_raise RuntimeError, fn ->
         Turtle.Decoder.decode!(
           "<#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .",
           base: "foo")

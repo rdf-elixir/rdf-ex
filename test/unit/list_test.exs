@@ -5,12 +5,12 @@ defmodule RDF.ListTest do
 
   import RDF.Sigils
 
-  alias RDF.{BlankNode, Literal, Graph}
+  alias RDF.{IRI, BlankNode, Literal, Graph}
 
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   setup do
@@ -49,7 +49,7 @@ defmodule RDF.ListTest do
                    |> RDF.first(1)
                    |> RDF.rest(RDF.nil))
       assert %RDF.List{} = list = RDF.List.new(EX.Foo, graph)
-      assert list.head == RDF.uri(EX.Foo)
+      assert list.head == iri(EX.Foo)
     end
 
     test "with other properties on its nodes" do
@@ -165,7 +165,7 @@ defmodule RDF.ListTest do
     end
 
     %{
-      "URI"        => RDF.uri(EX.Foo),
+      "IRI"        => iri(EX.Foo),
       "blank node" => ~B<Foo>,
       "literal"    => ~L<Foo>,
       "string"     => "Foo",
@@ -219,7 +219,7 @@ defmodule RDF.ListTest do
           assert RDF.nil ==
             Enum.reduce list, bnode, fn element, list_node ->
               case element do
-                %URI{} ->
+                %IRI{} ->
                   assert get_in(graph_with_list, [list_node, RDF.first]) == [element]
                 %BlankNode{} ->
                   assert get_in(graph_with_list, [list_node, RDF.first]) == [element]
@@ -228,7 +228,7 @@ defmodule RDF.ListTest do
                 element when is_boolean(element) ->
                   assert get_in(graph_with_list, [list_node, RDF.first]) == [RDF.Literal.new(element)]
                 element when is_atom(element) ->
-                  assert get_in(graph_with_list, [list_node, RDF.first]) == [RDF.uri(element)]
+                  assert get_in(graph_with_list, [list_node, RDF.first]) == [RDF.iri(element)]
                 _ ->
                   assert get_in(graph_with_list, [list_node, RDF.first]) == [RDF.Literal.new(element)]
               end
@@ -247,7 +247,7 @@ defmodule RDF.ListTest do
     end
 
     test "head option with unresolved namespace-qualified name" do
-      assert RDF.List.from([42], head: EX.Foo).head == RDF.uri(EX.Foo)
+      assert RDF.List.from([42], head: EX.Foo).head == iri(EX.Foo)
     end
   end
 
