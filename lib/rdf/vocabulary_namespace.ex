@@ -14,7 +14,6 @@ defmodule RDF.Vocabulary.Namespace do
   alias RDF.Utils.ResourceClassifier
 
   @vocabs_dir "priv/vocabs"
-  @big_vocab_threshold 300
 
   defmacro __using__(_opts) do
     quote do
@@ -35,9 +34,7 @@ defmodule RDF.Vocabulary.Namespace do
         {:data, data}   -> {rdf_data_vocab_terms(data, base_iri), data}
       end
 
-    if data && RDF.Data.subject_count(data) > @big_vocab_threshold do
-      IO.puts("Compiling vocabulary namespace for #{base_iri} may take some time")
-    end
+    IO.puts("Compiling vocabulary namespace for #{base_iri}")
 
     ignored_terms = ignored_terms!(opts)
     terms =

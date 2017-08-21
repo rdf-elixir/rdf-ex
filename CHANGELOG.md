@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
     - `RDF.IRI.InvalidError` instead of `RDF.InvalidURIError`
     - `RDF.Literal.InvalidError` instead of `RDF.InvalidLiteralError`
     - `RDF.Namespace.InvalidVocabBaseIRIError` instead of `RDF.Namespace.InvalidVocabBaseURIError`
+- show compilation message of vocabulary namespaces always to be able to relate
+  resp. errors and warnings
 
 ### Fixed
 
