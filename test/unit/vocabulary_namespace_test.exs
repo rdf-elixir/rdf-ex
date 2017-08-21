@@ -738,6 +738,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(ExUnit.Test) end
   end
 
+  test "resolving an non-existing RDF.Namespace module" do
+    assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(NonExisting.Test) end
+  end
 
   describe "term resolution in a strict vocab namespace" do
     alias TestNS.{ExampleFromGraph, ExampleFromNTriplesFile, StrictExampleFromTerms}

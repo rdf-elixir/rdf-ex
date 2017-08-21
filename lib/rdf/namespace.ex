@@ -52,7 +52,8 @@ defmodule RDF.Namespace do
   defp do_resolve_term(RDF, term), do: do_resolve_term(RDF.NS.RDF, term)
 
   defp do_resolve_term(namespace, term) do
-    if Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
+    if Code.ensure_compiled?(namespace) and
+        Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__)do
       namespace.__resolve_term__(term)
     else
       raise RDF.Namespace.UndefinedTermError,

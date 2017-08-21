@@ -24,6 +24,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
     - `RDF.Literal.InvalidError` instead of `RDF.InvalidLiteralError`
     - `RDF.Namespace.InvalidVocabBaseIRIError` instead of `RDF.Namespace.InvalidVocabBaseURIError`
 
+### Fixed
+
+- when trying to resolve a term from an undefined module a `RDF.Namespace.UndefinedTermError`
+  exception
+
+
 [Compare v0.2.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.2.0...HEAD)
 
 
