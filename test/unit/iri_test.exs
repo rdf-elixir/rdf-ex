@@ -53,6 +53,16 @@ defmodule RDF.IRITest do
     test "with a resolvable atom" do
       assert IRI.new(EX.Foo) == %IRI{value: "http://example.com/#Foo"}
     end
+
+    test "with a non-resolvable atom" do
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> IRI.new(Foo.Bar) end
+    end
+
+    test "with Elixirs special atoms" do
+      assert_raise FunctionClauseError, fn -> IRI.new(true) end
+      assert_raise FunctionClauseError, fn -> IRI.new(false) end
+      assert_raise FunctionClauseError, fn -> IRI.new(nil) end
+    end
   end
 
 
@@ -83,6 +93,16 @@ defmodule RDF.IRITest do
         end
       end)
     end
+
+    test "with a non-resolvable atom" do
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> IRI.new!(Foo.Bar) end
+    end
+
+    test "with Elixirs special atoms" do
+      assert_raise FunctionClauseError, fn -> IRI.new!(true) end
+      assert_raise FunctionClauseError, fn -> IRI.new!(false) end
+      assert_raise FunctionClauseError, fn -> IRI.new!(nil) end
+    end
   end
 
 
@@ -95,6 +115,13 @@ defmodule RDF.IRITest do
 
     test "with a resolvable atom" do
       assert IRI.valid!(EX.Foo) == EX.Foo
+    end
+
+    test "with a non-resolvable atom" do
+      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(true) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(false) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(nil) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(Foo.Bar) == false end
     end
 
     test "with relative iris" do
@@ -127,6 +154,13 @@ defmodule RDF.IRITest do
       assert IRI.valid?(EX.Foo) == true
     end
 
+    test "with a non-resolvable atom" do
+      assert IRI.valid?(true) == false
+      assert IRI.valid?(false) == false
+      assert IRI.valid?(nil) == false
+      assert IRI.valid?(Foo.Bar) == false
+    end
+
     test "with relative iris" do
       Enum.each(relative_iris(), fn relative_iri ->
         assert IRI.valid?(relative_iri) == false
@@ -151,6 +185,13 @@ defmodule RDF.IRITest do
 
     test "with a resolvable atom" do
       assert IRI.absolute?(EX.Foo) == true
+    end
+
+    test "with a non-resolvable atom" do
+      assert IRI.absolute?(true) == false
+      assert IRI.absolute?(false) == false
+      assert IRI.absolute?(nil) == false
+      assert IRI.absolute?(Foo.Bar) == false
     end
 
     test "with relative iris" do
@@ -257,6 +298,12 @@ defmodule RDF.IRITest do
       Enum.each(invalid_iris(), fn invalid_iri ->
         refute IRI.parse(invalid_iri)
       end)
+    end
+
+    test "with Elixirs special atoms" do
+      assert_raise FunctionClauseError, fn -> IRI.parse(true) end
+      assert_raise FunctionClauseError, fn -> IRI.parse(false) end
+      assert_raise FunctionClauseError, fn -> IRI.parse(nil) end
     end
   end
 

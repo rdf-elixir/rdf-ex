@@ -31,7 +31,8 @@ defmodule RDF.IRI do
   """
   def new(iri)
   def new(iri) when is_binary(iri),   do: %RDF.IRI{value: iri}
-  def new(qname) when is_atom(qname), do: Namespace.resolve_term(qname)
+  def new(qname) when is_atom(qname) and not qname in [nil, true, false],
+    do: Namespace.resolve_term(qname)
   def new(%URI{} = uri),              do: uri |> URI.to_string |> new
   def new(%RDF.IRI{} = iri),          do: iri
 
@@ -44,7 +45,8 @@ defmodule RDF.IRI do
   """
   def new!(iri)
   def new!(iri) when is_binary(iri),   do: iri |> valid!() |> new()
-  def new!(qname) when is_atom(qname), do: new(qname)  # since terms of a namespace are already validated
+  def new!(qname) when is_atom(qname) and not qname in [nil, true, false],
+    do: new(qname)  # since terms of a namespace are already validated
   def new!(%URI{} = uri),              do: uri |> valid!() |> new()
   def new!(%RDF.IRI{} = iri),          do: valid!(iri)
 
@@ -90,11 +92,18 @@ defmodule RDF.IRI do
   """
   def absolute?(iri)
 
-  def absolute?(%RDF.IRI{value: value}),    do: absolute?(value)
-  def absolute?(qname) when is_atom(qname), do: Namespace.resolve_term(qname) |> absolute?()
-  def absolute?(%URI{scheme: nil}),         do: false
-  def absolute?(%URI{scheme: _}),           do: true
-  def absolute?(value),                     do: not is_nil(scheme(value))
+  def absolute?(value) when is_binary(value), do: not is_nil(scheme(value))
+  def absolute?(%RDF.IRI{value: value}),      do: absolute?(value)
+  def absolute?(%URI{scheme: nil}),           do: false
+  def absolute?(%URI{scheme: _}),             do: true
+  def absolute?(qname) when is_atom(qname) and not qname in [nil, true, false] do
+    try do
+      qname |> Namespace.resolve_term |> absolute?()
+    rescue
+      _ -> false
+    end
+  end
+  def absolute?(_), do: false
 
 
   @doc """
@@ -157,7 +166,11 @@ defmodule RDF.IRI do
       iex> RDF.IRI.scheme("not an iri")
       nil
   """
-  def scheme(iri) do
+  def scheme(iri)
+  def scheme(%RDF.IRI{value: value}),    do: scheme(value)
+  def scheme(%URI{scheme: scheme}),      do: scheme
+  def scheme(qname) when is_atom(qname), do: Namespace.resolve_term(qname) |> scheme()
+  def scheme(iri) when is_binary(iri) do
     with [_, scheme] <- Regex.run(@scheme_regex, iri) do
       scheme
     end
@@ -169,7 +182,8 @@ defmodule RDF.IRI do
   """
   def parse(iri)
   def parse(iri) when is_binary(iri),   do: URI.parse(iri) |> empty_fragment_shim(iri)
-  def parse(qname) when is_atom(qname), do: Namespace.resolve_term(qname) |> parse()
+  def parse(qname) when is_atom(qname) and not qname in [nil, true, false],
+    do: Namespace.resolve_term(qname) |> parse()
   def parse(%RDF.IRI{value: value}),    do: URI.parse(value) |> empty_fragment_shim(value)
   def parse(%URI{} = uri),              do: uri
 
