@@ -3,7 +3,6 @@
 [![Travis](https://img.shields.io/travis/marcelotto/rdf-ex.svg?style=flat-square)](https://travis-ci.org/marcelotto/rdf-ex)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
 [![Inline docs](http://inch-ci.org/github/marcelotto/rdf-ex.svg)](http://inch-ci.org/github/marcelotto/rdf-ex)
-[![Coverage Status](https://coveralls.io/repos/github/marcelotto/rdf-ex/badge.svg?branch=master)](https://coveralls.io/github/marcelotto/rdf-ex?branch=master)
 
 
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
@@ -13,9 +12,9 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 - fully compatible with the RDF 1.1 specification
 - no dependencies
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
-- support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of URIs
+- support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
 - XML schema datatypes for RDF literals (not yet all supported)
-- sigils for the most common types of nodes, i.e. URIs, literals, blank nodes and lists
+- sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
     - [JSON-LD] is implemented in the separate [JSON-LD.ex] package (as every format requiring additional dependencies will be published in separate packages)
@@ -36,31 +35,37 @@ end
 
 The [RDF standard](http://www.w3.org/TR/rdf11-concepts/) defines a graph data model for distributed information on the web. A RDF graph is a set of statements aka RDF triples consisting of three nodes:
 
-1. a subject node with an URI or a blank node,
-2. a predicate node with the URI of a RDF property, 
-3. an object node with an URI, a blank node or a RDF literal value.
+1. a subject node with an IRI or a blank node,
+2. a predicate node with the IRI of a RDF property, 
+3. an object node with an IRI, a blank node or a RDF literal value.
 
 Let's see how the different types of nodes are represented with RDF.ex in Elixir.
 
-### URIs
+### IRIs
 
-Although the RDF standards speaks of IRIs, an internationalized generalization of URIs, RDF.ex currently supports only URIs. They are represented with Elixirs builtin [`URI`](http://elixir-lang.org/docs/stable/elixir/URI.html) struct. It's a pragmatic, temporary decision, which will likely be subject to changes, in favour of a more dedicated representation of IRIs specialised for its usage within RDF data. See this [issue](https://github.com/marcelotto/rdf-ex/issues/1) for progress on this matter.
-
-The `RDF` module defines a handy constructor function `RDF.uri/1`:
+RDF.ex follows the RDF specs and supports [IRIs](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier), an internationalized generalization of URIs, permitting a wider range of Unicode characters. They are represented with the `RDF.IRI` structure and can be constructed either with `RDF.IRI.new/1` or `RDF.IRI.new!/1`, the latter of which additionally validates, that the given IRI is actually a valid absolute IRI or raises an exception otherwise.
 
 ```elixir
-RDF.uri("http://www.example.com/foo")
+RDF.IRI.new("http://www.example.com/foo")
+RDF.IRI.new!("http://www.example.com/foo")
 ```
 
-Besides being a little shorter than `URI.parse` and better `import`able, it will provide a gentlier migration to the mentioned, more optimized URI-representation in RDF.ex.
+The `RDF` module defines the alias functions `RDF.iri/1` and `RDF.iri!/1` delegating the resp. `new` function:
 
-An URI can also be created with the `~I` sigil:
+```elixir
+RDF.iri("http://www.example.com/foo")
+RDF.iri!("http://www.example.com/foo")
+```
+
+Besides being a little shorter than `RDF.IRI.new` and better `import`able, their usage will automatically benefit from any future IRI creation optimizations and is therefore recommended over the original functions.
+
+A literal IRI can also be written with the `~I` sigil:
 
 ```elixir
 ~I<http://www.example.com/foo>
 ```
 
-But there's an even shorter notation for URI literals.
+But there's an even shorter notation for IRI literals.
 
 
 ### Vocabularies
@@ -69,52 +74,42 @@ RDF.ex supports modules which represent RDF vocabularies as `RDF.Vocabulary.Name
 Furthermore, the [rdf_vocab] package
 contains predefined `RDF.Vocabulary.Namespace`s for the most popular vocabularies.
 
-These `RDF.Vocabulary.Namespace`s (a special case of a `RDF.Namespace`) allow for something similar to QNames in XML: an atom or function qualified with a `RDF.Vocabulary.Namespace` can be resolved to an URI. 
+These `RDF.Vocabulary.Namespace`s (a special case of a `RDF.Namespace`) allow for something similar to QNames in XML: an atom or function qualified with a `RDF.Vocabulary.Namespace` can be resolved to an IRI. 
 
 There are two types of terms in a `RDF.Vocabulary.Namespace` which are
 resolved differently:
 
 1. Capitalized terms are by standard Elixir semantics module names, i.e.
-   atoms. At all places in RDF.ex where an URI is expected, you can use atoms
+   atoms. At all places in RDF.ex where an IRI is expected, you can use atoms
    qualified with a `RDF.Namespace` instead. If you want to resolve them
-   manually, you can pass a `RDF.Namespace` qualified atom to `RDF.uri`.
+   manually, you can pass a `RDF.Namespace` qualified atom to `RDF.iri`.
 2. Lowercased terms for RDF properties are represented as functions on a
-   `RDF.Vocabulary.Namespace` module and return the URI directly, but since `RDF.uri` can also handle URIs directly, you can safely and consistently use it with lowercased terms too.
+   `RDF.Vocabulary.Namespace` module and return the IRI directly, but since `RDF.iri` can also handle IRIs directly, you can safely and consistently use it with lowercased terms too.
 
 ```elixir
-iex> import RDF, only: [uri: 1]
+iex> import RDF, only: [iri: 1]
 iex> alias RDF.NS.{RDFS}
 iex> RDFS.Class
 RDF.NS.RDFS.Class
-iex> uri(RDFS.Class)
-%URI{authority: "www.w3.org", fragment: "Class", host: "www.w3.org",
- path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
- userinfo: nil}
+iex> iri(RDFS.Class)
+~I<http://www.w3.org/2000/01/rdf-schema#Class>
 iex> RDFS.subClassOf
-%URI{authority: "www.w3.org", fragment: "subClassOf", host: "www.w3.org",
- path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
- userinfo: nil}
-iex> uri(RDFS.subClassOf)
-%URI{authority: "www.w3.org", fragment: "subClassOf", host: "www.w3.org",
- path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
- userinfo: nil}
+~I<http://www.w3.org/2000/01/rdf-schema#subClassOf>
+iex> iri(RDFS.subClassOf)
+~I<http://www.w3.org/2000/01/rdf-schema#subClassOf>
 ```
 
 As this example shows, the namespace modules can be easily `alias`ed. When required, they can be also aliased to a completely different name. Since the `RDF` vocabulary namespace in `RDF.NS.RDF` can't be aliased (it would clash with the top-level `RDF` module), all of its elements can be accessed directly from the `RDF` module (without an alias).
 
 ```elixir
-iex> import RDF, only: [uri: 1]
+iex> import RDF, only: [iri: 1]
 iex> RDF.type
-%URI{authority: "www.w3.org", fragment: "type", host: "www.w3.org",
- path: "/1999/02/22-rdf-syntax-ns", port: 80, query: nil, scheme: "http",
- userinfo: nil}
-iex> uri(RDF.Property)
-%URI{authority: "www.w3.org", fragment: "Property", host: "www.w3.org",
- path: "/1999/02/22-rdf-syntax-ns", port: 80, query: nil, scheme: "http",
- userinfo: nil}
+~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+iex> iri(RDF.Property)
+~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
 ```
 
-This way of expressing URIs has the additional benefit, that the existence of the referenced URI is checked at compile time, i.e. whenever a term is used that is not part of the resp. vocabulary an error is raised by the Elixir compiler (unless the vocabulary namespace is non-strict; see below).
+This way of expressing IRIs has the additional benefit, that the existence of the referenced IRI is checked at compile time, i.e. whenever a term is used that is not part of the resp. vocabulary an error is raised by the Elixir compiler (unless the vocabulary namespace is non-strict; see below).
 
 For terms not adhering to the capitalization rules (lowercase properties, capitalized non-properties) or containing characters not allowed within atoms, the predefined namespaces in `RDF.NS` and `RDF.Vocab` define aliases accordingly. If unsure, have a look at the documentation or their definitions. 
 
@@ -150,7 +145,7 @@ The produced statements are returned by this function as a `RDF.Description` str
 There are two basic ways to define a namespace for a vocabulary:
 
 1. You can define all terms manually.
-2. You can extract the terms from existing RDF data for URIs of resources under the specified base URI.
+2. You can extract the terms from existing RDF data for IRIs of resources under the specified base IRI.
 
 It's recommended to introduce a dedicated module for the defined namespaces. In this module you'll `use RDF.Vocabulary.Namespace` and define your vocabulary namespaces with the `defvocab` macro.
 
@@ -161,14 +156,14 @@ defmodule YourApp.NS do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://www.example.com/ns/",
+    base_iri: "http://www.example.com/ns/",
     terms: ~w[Foo bar]
     
 end
 ```
 
-The `base_uri` argument with the URI prefix of all the terms in the defined
-vocabulary is required and expects a valid URI ending with either a `"/"` or
+The `base_iri` argument with the IRI prefix of all the terms in the defined
+vocabulary is required and expects a valid IRI ending with either a `"/"` or
 a `"#"`. Terms will be checked for invalid characters at compile-time and will raise a compiler error. This handling of invalid characters can be modified with the `invalid_characters` options, which is set to `:fail` by default. By setting it to `:warn` only warnings will be raised or it can be turned off completely with `:ignore`.
 
 A vocabulary namespace with extracted terms can be by defined either providing RDF data directly with the `data` option or from serialized RDF data file in the `priv/vocabs` directory:
@@ -178,7 +173,7 @@ defmodule YourApp.NS do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://www.example.com/ns/",
+    base_iri: "http://www.example.com/ns/",
     file: "your_vocabulary.nt"
     
 end
@@ -196,7 +191,7 @@ defmodule YourApp.NS do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://www.example.com/ns/",
+    base_iri: "http://www.example.com/ns/",
     file: "your_vocabulary.nt"
     alias: [example_term: "example-term"]
 
@@ -210,33 +205,31 @@ defmodule YourApp.NS do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://www.example.com/ns/",
+    base_iri: "http://www.example.com/ns/",
     file: "your_vocabulary.nt",
     ignore: ~w[Foo bar]
     
 end
 ```
 
-Though strictly discouraged, a vocabulary namespace can be defined as non-strict with the `strict` option set to `false`. A non-strict vocabulary doesn't require any terms to be defined (although they can). A term is resolved dynamically at runtime by concatenation of the term and the base URI of the resp. namespace module:
+Though strictly discouraged, a vocabulary namespace can be defined as non-strict with the `strict` option set to `false`. A non-strict vocabulary doesn't require any terms to be defined (although they can). A term is resolved dynamically at runtime by concatenation of the term and the base IRI of the resp. namespace module:
 
 ```elixir
 defmodule YourApp.NS do
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://www.example.com/ns/",
+    base_iri: "http://www.example.com/ns/",
     terms: [], 
     strict: false
 end
 
-iex> import RDF, only: [uri: 1]
+iex> import RDF, only: [iri: 1]
 iex> alias YourApp.NS.{EX}
-iex> uri(EX.Foo)
-%URI{authority: "www.example.com", fragment: nil, host: "www.example.com",
- path: "/ns/Foo", port: 80, query: nil, scheme: "http", userinfo: nil}
+iex> iri(EX.Foo)
+~I<http://www.example.com/ns/Foo>
 iex> EX.bar
-%URI{authority: "www.example.com", fragment: nil, host: "www.example.com",
- path: "/ns/bar", port: 80, query: nil, scheme: "http", userinfo: nil}
+~I<http://www.example.com/ns/bar>
 iex> EX.Foo |> EX.bar(EX.Baz)
 #RDF.Description{subject: ~I<http://www.example.com/ns/Foo>
      ~I<http://www.example.com/ns/bar>
@@ -246,7 +239,7 @@ iex> EX.Foo |> EX.bar(EX.Baz)
 
 ### Blank nodes
 
-Blank nodes are nodes of an RDF graph without an URI. They are always local to that graph and mostly used as helper nodes. 
+Blank nodes are nodes of an RDF graph without an IRI. They are always local to that graph and mostly used as helper nodes. 
 
 They can be created with `RDF.BlankNode.new` or its alias function `RDF.bnode`. You can either pass an atom, string, integer or Erlang reference with a custom local identifier or call it without any arguments, which will create a local identifier automatically.
 
@@ -297,7 +290,7 @@ import RDF.Sigils
 
 Note: Only languages without subtags are supported as modifiers of the `~L` sigil, i.e. if you want to use `en-US` as a language tag, you would have to use `RDF.literal` or `RDF.Literal.new`.
 
-A typed literal can be created by providing the `datatype` option with an URI of a datatype. Most of the time this will be an [XML schema datatype]:
+A typed literal can be created by providing the `datatype` option with an IRI of a datatype. Most of the time this will be an [XML schema datatype]:
 
 ```elixir
 RDF.literal("42", datatype: XSD.integer)
@@ -374,7 +367,7 @@ iex> RDF.Literal.canonical(RDF.Integer.new("0042")) ==
 true
 ```
 
-Note: Although you can create any XSD datatype by using the resp. URI with the `datatype` option of `RDF.Literal.new`, not all of them support the validation and conversion behaviour of `RDF.Literal`s and the `value` field simply contains the initially given value unvalidated and unconverted. 
+Note: Although you can create any XSD datatype by using the resp. IRI with the `datatype` option of `RDF.Literal.new`, not all of them support the validation and conversion behaviour of `RDF.Literal`s and the `value` field simply contains the initially given value unvalidated and unconverted. 
 
 
 
@@ -416,7 +409,7 @@ RDF.ex provides various data structures for collections of statements:
 
 All of these structures have similar sets of functions and implement Elixirs `Enumerable` protocol, Elixirs `Access` behaviour and the `RDF.Data` protocol of RDF.ex.
 
-The `new` function of these data structures create new instances of the struct and optionally initialize them with initial statements. `RDF.Description.new` requires at least an URI or blank node for the subject, while `RDF.Graph.new` and `RDF.Dataset.new` take an optional URI for the name of the graph or dataset.
+The `new` function of these data structures create new instances of the struct and optionally initialize them with initial statements. `RDF.Description.new` requires at least an IRI or blank node for the subject, while `RDF.Graph.new` and `RDF.Dataset.new` take an optional IRI for the name of the graph or dataset.
 
 ```elixir
 empty_description = RDF.Description.new(EX.Subject)
@@ -428,7 +421,7 @@ empty_unnamed_dataset = RDF.Dataset.new
 empty_named_dataset   = RDF.Dataset.new(EX.Dataset)
 ```
 
-As you can see, qualified terms from a vocabulary namespace can be given instead of an URI and will be resolved automatically. This applies to all of the functions discussed below.
+As you can see, qualified terms from a vocabulary namespace can be given instead of an IRI and will be resolved automatically. This applies to all of the functions discussed below.
 
 The `new` functions can be called more shortly with the resp. delegator functions `RDF.description`, `RDF.graph` and `RDF.dataset`.  
 
@@ -657,9 +650,10 @@ The `head` option also allows to specify a custom node for the head of the list.
 The function `RDF.List.values/1` allows to get the values of a RDF list (including nested lists) as a native Elixir list.
 
 ```elixir
-RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]])
-|> RDF.List.values
-# [~L"foo", RDF.uri(EX.bar), ~B<bar>, [RDF.Integer.new(1), RDF.Integer.new(2)]]
+iex> RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]]) |> RDF.List.values
+[~L"foo", ~I<http://www.example.com/ns/Bar>, ~B<bar>,
+ [%RDF.Literal{value: 1, datatype: ~I<http://www.w3.org/2001/XMLSchema#integer>},
+  %RDF.Literal{value: 2, datatype: ~I<http://www.w3.org/2001/XMLSchema#integer>}]]
 ```
 
 

@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.IRI` as a more suitable URI/IRI representation for RDF, bringing enormous
-  performance and memory-consumption benefits
+  performance and memory consumption benefits (see [here](https://github.com/marcelotto/rdf-ex/issues/1) 
+  for the details about the improvements)
 
 ### Changed
 
