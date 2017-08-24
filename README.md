@@ -26,7 +26,7 @@ The [RDF.ex] Hex package can be installed as usual, by adding `rdf` to your list
 
 ```elixir
 def deps do
-  [{:rdf, "~> 0.2"}]
+  [{:rdf, "~> 0.3"}]
 end
 ```
 
