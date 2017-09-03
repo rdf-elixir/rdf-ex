@@ -89,12 +89,16 @@ resolved differently:
 ```elixir
 iex> import RDF, only: [iri: 1]
 iex> alias RDF.NS.{RDFS}
+
 iex> RDFS.Class
 RDF.NS.RDFS.Class
+
 iex> iri(RDFS.Class)
 ~I<http://www.w3.org/2000/01/rdf-schema#Class>
+
 iex> RDFS.subClassOf
 ~I<http://www.w3.org/2000/01/rdf-schema#subClassOf>
+
 iex> iri(RDFS.subClassOf)
 ~I<http://www.w3.org/2000/01/rdf-schema#subClassOf>
 ```
@@ -105,6 +109,7 @@ As this example shows, the namespace modules can be easily `alias`ed. When requi
 iex> import RDF, only: [iri: 1]
 iex> RDF.type
 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+
 iex> iri(RDF.Property)
 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
 ```
@@ -226,10 +231,13 @@ end
 
 iex> import RDF, only: [iri: 1]
 iex> alias YourApp.NS.{EX}
+
 iex> iri(EX.Foo)
 ~I<http://www.example.com/ns/Foo>
+
 iex> EX.bar
 ~I<http://www.example.com/ns/bar>
+
 iex> EX.Foo |> EX.bar(EX.Baz)
 #RDF.Description{subject: ~I<http://www.example.com/ns/Foo>
      ~I<http://www.example.com/ns/bar>
@@ -276,15 +284,17 @@ An untyped literal can also be created with the `~L` sigil:
 
 ```elixir
 import RDF.Sigils
+
 ~L"foo"
 ```
 
 A language-tagged literal can be created by providing the `language` option with a [BCP47]-conform language or by adding the language as a modifier to the `~L` sigil:
 
 ```elixir
+import RDF.Sigils
+
 RDF.literal("foo", language: "en")
 
-import RDF.Sigils
 ~L"foo"en
 ```
 
@@ -326,6 +336,7 @@ For all of these supported XSD datatypes there're `RDF.Datatype`s  available tha
 ```elixir
 iex> RDF.Double.new("0042").value
 42.0
+
 iex> RDF.Double.new(42).value
 42.0
 ```
@@ -335,6 +346,7 @@ The `RDF.Literal.valid?/1` function checks if a given literal is valid according
 ```elixir
 iex> RDF.Literal.valid? RDF.Integer.new("42")
 true
+
 iex> RDF.Literal.valid? RDF.Integer.new("foo")
 false
 ```
@@ -344,6 +356,7 @@ A RDF literal is bound to the lexical form of the initially given value. This le
 ```elixir
 iex> RDF.Literal.lexical RDF.Integer.new("0042")
 "0042"
+
 iex> RDF.Literal.lexical RDF.Integer.new(42)
 "42"
 ```
@@ -353,6 +366,7 @@ Although two literals might have the same value, they are not equal if they don'
 ```elixir
 iex> RDF.Integer.new("0042").value == RDF.Integer.new("42").value
 true
+
 iex> RDF.Integer.new("0042") == RDF.Integer.new("42")
 false
 ```
@@ -362,6 +376,7 @@ The `RDF.Literal.canonical/1` function returns the given literal with its canoni
 ```elixir
 iex> RDF.Integer.new("0042") |> RDF.Literal.canonical |> RDF.Literal.lexical
 "42"
+
 iex> RDF.Literal.canonical(RDF.Integer.new("0042")) == 
      RDF.Literal.canonical(RDF.Integer.new("42"))
 true
@@ -380,11 +395,14 @@ The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such t
 ```elixir
 iex> RDF.triple(EX.S, EX.p, 1)
 {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1)}
+
 iex> RDF.triple {EX.S, EX.p, 1}
 {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1)}
+
 iex> RDF.quad(EX.S, EX.p, 1, EX.Graph)
 {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1),
  ~I<http://example.com/Graph>}
+
 iex> RDF.triple {EX.S, 1, EX.O}
 ** (RDF.Triple.InvalidPredicateError) '1' is not a valid predicate of a RDF.Triple
     (rdf) lib/rdf/statement.ex:53: RDF.Statement.coerce_predicate/1
@@ -536,6 +554,7 @@ All of these `get` functions return `nil` or the optionally given default value,
 iex> RDF.Description.new(EX.S1, {EX.p, [EX.O1, EX.O2]})
 ...> |> RDF.Description.get(EX.p)
 [~I<http://example.com/O1>, ~I<http://example.com/O2>]
+
 iex> RDF.Graph.new({EX.S1, EX.p, [EX.O1, EX.O2]})
 ...> |> RDF.Graph.get(EX.p2, :not_found)
 :not_found
@@ -554,6 +573,7 @@ Since all three RDF data structures implement the `Access` behaviour, you can al
 ```elixir
 iex> description[EX.p]
 [~I<http://example.com/O1>, ~I<http://example.com/O2>]
+
 iex> graph[EX.p2] 
 nil
 ```
@@ -564,6 +584,7 @@ Also, the familiar `fetch` function of the `Access` behaviour, as a variant of `
 iex> RDF.Description.new(EX.S1, {EX.p, [EX.O1, EX.O2]})
 ...> |> RDF.Description.fetch(EX.p)
 {:ok, [~I<http://example.com/O1>, ~I<http://example.com/O2>]}
+
 iex> RDF.Graph.new({EX.S1, EX.p, [EX.O1, EX.O2]})
 ...> |> RDF.Graph.fetch(EX.p2)
 :error
@@ -596,6 +617,7 @@ iex> RDF.Description.new(EX.S1, {EX.p, [EX.O1, EX.O2]})
 #RDF.Description{subject: ~I<http://example.com/S1>
      ~I<http://example.com/p>
          ~I<http://example.com/O2>}
+
 iex> RDF.Description.new(EX.S1, {EX.p, [EX.O1, EX.O2]})
 ...> |> RDF.Data.delete(RDF.Description.new(EX.S2, {EX.p, EX.O1}))
 #RDF.Description{subject: ~I<http://example.com/S1>
@@ -619,15 +641,17 @@ RDF lists can be represented with the `RDF.List` structure.
 An existing `RDF.List` in a given graph can be created with `RDF.List.new` or its alias `RDF.list`, passing it the head node of a list and the graph containing the statements constituting the list.
 
 ```elixir
-graph = Graph.new(
-           ~B<Foo>
-           |> RDF.first(1)
-           |> RDF.rest(EX.Foo))
-        |> Graph.add(
-           EX.Foo
-           |> RDF.first(2)
-           |> RDF.rest(RDF.nil))
-        )
+graph = 
+  Graph.new(
+       ~B<Foo>
+       |> RDF.first(1)
+       |> RDF.rest(EX.Foo))
+    |> Graph.add(
+       EX.Foo
+       |> RDF.first(2)
+       |> RDF.rest(RDF.nil))
+    )
+
 list = RDF.List.new(~B<Foo>, graph)
 ```
 
