@@ -388,9 +388,9 @@ Note: Although you can create any XSD datatype by using the resp. IRI with the `
 
 ### Statements
 
-RDF statements are generally represented in RDF.ex as native Elixir tuples, either as 3-element tuples for triples or a 4-element tuples for quads.
+RDF statements are generally represented in RDF.ex as native Elixir tuples, either as 3-element tuples for triples or as 4-element tuples for quads.
 
-The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such tuples, which coerces the elements to proper nodes when possible or raise an error when such a coercion is not possible. In particular these functions also resolve qualified terms from a vocabulary namespace. They can also be called with the delegator functions `RDF.triple` and `RDF.quad`.
+The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such tuples, which coerces the elements to proper nodes when possible or raises an error when such a coercion is not possible. In particular these functions also resolve qualified terms from a vocabulary namespace. They can also be called with the alias functions `RDF.triple` and `RDF.quad`.
 
 ```elixir
 iex> RDF.triple(EX.S, EX.p, 1)
@@ -409,7 +409,7 @@ iex> RDF.triple {EX.S, 1, EX.O}
     (rdf) lib/rdf/triple.ex:26: RDF.Triple.new/3
 ```
 
-If you want to explicitly create a Quad in the default graph context, you can use `nil` as the graph name. The `nil` value is used consistently as the name of the default graph within RDF.ex.
+If you want to explicitly create a quad in the default graph context, you can use `nil` as the graph name. The `nil` value is used consistently as the name of the default graph within RDF.ex.
 
 ```elixir
 iex> RDF.quad(EX.S, EX.p, 1, nil)
