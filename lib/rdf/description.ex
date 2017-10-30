@@ -587,4 +587,19 @@ defmodule RDF.Description do
     end
   end
 
+
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        description, {:cont, list} when is_list(list)
+                                   -> RDF.Description.add(description, List.to_tuple(list))
+        description, {:cont, elem} -> RDF.Description.add(description, elem)
+        description, :done         -> description
+        _description, :halt        -> :ok
+      end
+
+      {original, collector_fun}
+    end
+  end
+
 end

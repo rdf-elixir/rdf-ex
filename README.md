@@ -425,7 +425,7 @@ RDF.ex provides various data structures for collections of statements:
 - `RDF.Graph`: a named collection of statements
 - `RDF.Dataset`:  a named collection of graphs, i.e. a collection of statements from different graphs; it may have multiple named graphs and at most one unnamed ("default") graph
 
-All of these structures have similar sets of functions and implement Elixirs `Enumerable` protocol, Elixirs `Access` behaviour and the `RDF.Data` protocol of RDF.ex.
+All of these structures have similar sets of functions and implement Elixirs `Enumerable` and `Collectable` protocol, Elixirs `Access` behaviour and the `RDF.Data` protocol of RDF.ex.
 
 The `new` function of these data structures create new instances of the struct and optionally initialize them with initial statements. `RDF.Description.new` requires at least an IRI or blank node for the subject, while `RDF.Graph.new` and `RDF.Dataset.new` take an optional IRI for the name of the graph or dataset.
 

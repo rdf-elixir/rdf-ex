@@ -5,6 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `Collectable` implementations for all `RDF.Data` structures so they can be 
+  used as destinations of `Enum.into` and `for` comprehensions
+
+
+[Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...HEAD)
+
+
+
+
 ## 0.3.0 - 2017-08-24
 
 ### Added

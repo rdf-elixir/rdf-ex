@@ -724,6 +724,7 @@ defmodule RDF.Dataset do
     end
   end
 
+
   defimpl Enumerable do
     def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
     def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
@@ -741,4 +742,20 @@ defmodule RDF.Dataset do
       {:suspended, acc, &reduce(dataset, &1, fun)}
     end
   end
+
+
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        dataset, {:cont, list} when is_list(list)
+                               -> RDF.Dataset.add(dataset, List.to_tuple(list))
+        dataset, {:cont, elem} -> RDF.Dataset.add(dataset, elem)
+        dataset, :done         -> dataset
+        _dataset, :halt        -> :ok
+      end
+
+      {original, collector_fun}
+    end
+  end
+
 end

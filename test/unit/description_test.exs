@@ -370,6 +370,41 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "Collectable protocol" do
+    test "with a map" do
+      map = %{
+          EX.predicate1 => EX.Object1,
+          EX.predicate2 => EX.Object2
+        }
+      assert Enum.into(map, Description.new(EX.Subject)) == Description.new(EX.Subject, map)
+    end
+
+    test "with a list of triples" do
+      triples = [
+          {EX.Subject, EX.predicate1, EX.Object1},
+          {EX.Subject, EX.predicate2, EX.Object2}
+        ]
+      assert Enum.into(triples, Description.new(EX.Subject)) == Description.new(triples)
+    end
+
+    test "with a list of predicate-object pairs" do
+      pairs = [
+          {EX.predicate1, EX.Object1},
+          {EX.predicate2, EX.Object2}
+        ]
+      assert Enum.into(pairs, Description.new(EX.Subject)) == Description.new(EX.Subject, pairs)
+    end
+
+    test "with a list of lists" do
+      lists = [
+          [EX.Subject, EX.predicate1, EX.Object1],
+          [EX.Subject, EX.predicate2, EX.Object2]
+        ]
+      assert Enum.into(lists, Description.new(EX.Subject)) ==
+              Description.new(Enum.map(lists, &List.to_tuple/1))
+    end
+  end
+
   describe "Access behaviour" do
     test "access with the [] operator" do
       assert Description.new(EX.Subject)[EX.predicate] == nil
@@ -381,7 +416,6 @@ defmodule RDF.DescriptionTest do
                               {EX.Subject, EX.predicate2, EX.Object3}])[EX.predicate1] ==
               [iri(EX.Object1), iri(EX.Object2)]
     end
-
   end
 
 end

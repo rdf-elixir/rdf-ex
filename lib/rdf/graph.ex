@@ -617,5 +617,20 @@ defmodule RDF.Graph do
     end
   end
 
+
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        graph, {:cont, list} when is_list(list)
+                             -> RDF.Graph.add(graph, List.to_tuple(list))
+        graph, {:cont, elem} -> RDF.Graph.add(graph, elem)
+        graph, :done         -> graph
+        _graph, :halt        -> :ok
+      end
+
+      {original, collector_fun}
+    end
+  end
+
 end
 
