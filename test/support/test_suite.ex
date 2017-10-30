@@ -18,7 +18,6 @@ defmodule RDF.TestSuite do
       strict: false
   end
 
-  alias RDF.NS.RDFS
   alias NS.MF
 
   alias RDF.{Turtle, Graph, Description, IRI}
