@@ -1,6 +1,6 @@
 defmodule RDF.Namespace do
   @moduledoc """
-  A behaviour for resolvers of module atoms to URIs.
+  A behaviour for resolvers of module atoms to `RDF.IRI`s.
 
   Currently there's only one type of such namespaces: `RDF.Vocabulary.Namespace`,
   but other types are thinkable and might be implemented in the future, eg.
@@ -8,9 +8,9 @@ defmodule RDF.Namespace do
   """
 
   @doc """
-  Resolves a term to an URI.
+  Resolves a term to a `RDF.IRI`.
   """
-  @callback __resolve_term__(atom) :: URI.t
+  @callback __resolve_term__(atom) :: RDF.IRI.t
 
   @doc """
   All terms of a `RDF.Namespace`.
@@ -19,7 +19,7 @@ defmodule RDF.Namespace do
 
 
   @doc """
-  Resolves a qualified term to an URI.
+  Resolves a qualified term to a `RDF.IRI`.
 
   It determines a `RDF.Namespace` from the qualifier of the given term and
   delegates to remaining part of the term to `__resolve_term__/1` of this
@@ -27,7 +27,7 @@ defmodule RDF.Namespace do
   """
   def resolve_term(expr)
 
-  def resolve_term(uri = %URI{}), do: uri
+  def resolve_term(%RDF.IRI{} = iri), do: iri
 
   def resolve_term(namespaced_term) when is_atom(namespaced_term) do
     namespaced_term
@@ -52,7 +52,8 @@ defmodule RDF.Namespace do
   defp do_resolve_term(RDF, term), do: do_resolve_term(RDF.NS.RDF, term)
 
   defp do_resolve_term(namespace, term) do
-    if Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
+    if Code.ensure_compiled?(namespace) and
+        Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__)do
       namespace.__resolve_term__(term)
     else
       raise RDF.Namespace.UndefinedTermError,

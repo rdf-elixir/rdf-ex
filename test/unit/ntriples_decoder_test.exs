@@ -3,21 +3,19 @@ defmodule RDF.NTriples.DecoderTest do
 
   doctest RDF.NTriples.Decoder
 
-  alias RDF.{Graph, TestData}
+  alias RDF.Graph
 
 
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   defvocab P,
-    base_uri: "http://www.perceive.net/schemas/relationship/",
+    base_iri: "http://www.perceive.net/schemas/relationship/",
     terms: [], strict: false
 
-
-  @w3c_ntriples_test_suite Path.join(TestData.dir, "N-TRIPLES-TESTS")
 
   test "an empty string is deserialized to an empty graph" do
     assert RDF.NTriples.Decoder.decode!("") == Graph.new
@@ -78,7 +76,7 @@ defmodule RDF.NTriples.DecoderTest do
       ])
   end
 
-  test "decoding a single triple with uris" do
+  test "decoding a single triple with iris" do
     assert RDF.NTriples.Decoder.decode!("""
       <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green_goblin> .
       """) == Graph.new({EX.spiderman, P.enemyOf, EX.green_goblin})
@@ -131,29 +129,6 @@ defmodule RDF.NTriples.DecoderTest do
         {EX.S1, EX.p2, EX.O2},
         {EX.S2, EX.p3, EX.O3}
       ])
-  end
-
-  describe "the official W3C RDF 1.1 N-Triples Test Suite" do
-    # from https://www.w3.org/2013/N-TriplesTests/
-
-    ExUnit.Case.register_attribute __ENV__, :nt_test
-
-    @w3c_ntriples_test_suite
-    |> File.ls!
-    |> Enum.filter(fn (file) -> Path.extname(file) == ".nt" end)
-    |> Enum.each(fn (file) ->
-      @nt_test file: Path.join(@w3c_ntriples_test_suite, file)
-      if file |> String.contains?("-bad-") do
-        test "Negative syntax test: #{file}", context do
-          assert {:error, _} = RDF.NTriples.read_file(context.registered.nt_test[:file])
-        end
-      else
-        test "Positive syntax test: #{file}", context do
-          assert {:ok, %RDF.Graph{}} = RDF.NTriples.read_file(context.registered.nt_test[:file])
-        end
-      end
-    end)
-
   end
 
 end

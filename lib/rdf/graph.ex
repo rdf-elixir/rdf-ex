@@ -1,11 +1,16 @@
 defmodule RDF.Graph do
   @moduledoc """
-  Defines a RDF Graph.
+  A set of RDF triples with an optional name.
 
-  A `RDF.Graph` represents a set of `RDF.Description`s.
+  `RDF.Graph` implements:
 
-  Named vs. unnamed graphs ...
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
+
   """
+
   defstruct name: nil, descriptions: %{}
 
   @behaviour Access
@@ -55,7 +60,7 @@ defmodule RDF.Graph do
   Creates an empty named `RDF.Graph`.
   """
   def new(name),
-    do: %RDF.Graph{name: convert_graph_name(name)}
+    do: %RDF.Graph{name: coerce_graph_name(name)}
 
   @doc """
   Creates a named `RDF.Graph` with an initial triple.
@@ -112,7 +117,7 @@ defmodule RDF.Graph do
   def add(graph, triples)
 
   def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
-    do: do_add(graph, convert_subject(subject), statement)
+    do: do_add(graph, coerce_subject(subject), statement)
 
   def add(graph, {subject, predicate, object, _}),
     do: add(graph, {subject, predicate, object})
@@ -145,22 +150,9 @@ defmodule RDF.Graph do
 
 
   @doc """
-  Puts statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
-
-  # Examples
-
-      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
-      RDF.Graph.new(EX.S, EX.P, EX.O2)
-      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
-      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
-  """
-  def put(%RDF.Graph{} = graph, subject, predicate, objects),
-    do: put(graph, {subject, predicate, objects})
-
-  @doc """
   Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
@@ -169,7 +161,7 @@ defmodule RDF.Graph do
   def put(graph, statements)
 
   def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
-    do: do_put(graph, convert_subject(subject), statement)
+    do: do_put(graph, coerce_subject(subject), statement)
 
   def put(graph, {subject, predicate, object, _}),
     do: put(graph, {subject, predicate, object})
@@ -193,10 +185,15 @@ defmodule RDF.Graph do
     put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
   end
 
-  # TODO: Can we reduce this case also to do_put? Only the initializer differs ...
+  @doc """
+  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
+  """
+  def put(graph, subject, predications)
+
   def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
         when is_list(predications) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
+      # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
       %RDF.Graph{name: name,
         descriptions:
           Map.update(descriptions, subject, Description.new(subject, predications),
@@ -221,6 +218,19 @@ defmodule RDF.Graph do
     }
   end
 
+  @doc """
+  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
+
+  ## Examples
+
+      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
+      RDF.Graph.new(EX.S, EX.P, EX.O2)
+      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
+      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+  """
+  def put(%RDF.Graph{} = graph, subject, predicate, objects),
+    do: put(graph, {subject, predicate, objects})
+
 
   @doc """
   Deletes statements from a `RDF.Graph`.
@@ -239,7 +249,7 @@ defmodule RDF.Graph do
   def delete(graph, triples)
 
   def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
-    do: do_delete(graph, convert_subject(subject), triple)
+    do: do_delete(graph, coerce_subject(subject), triple)
 
   def delete(graph, {subject, predicate, object, _}),
     do: delete(graph, {subject, predicate, object})
@@ -290,7 +300,7 @@ defmodule RDF.Graph do
   end
 
   def delete_subjects(%RDF.Graph{name: name, descriptions: descriptions}, subject) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       %RDF.Graph{name: name, descriptions: Map.delete(descriptions, subject)}
     end
   end
@@ -301,7 +311,7 @@ defmodule RDF.Graph do
 
   When the subject can not be found `:error` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.fetch(EX.S1)
@@ -310,7 +320,7 @@ defmodule RDF.Graph do
       :error
   """
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
-    Access.fetch(descriptions, convert_subject(subject))
+    Access.fetch(descriptions, coerce_subject(subject))
   end
 
   @doc """
@@ -318,7 +328,7 @@ defmodule RDF.Graph do
 
   When the subject can not be found the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.get(EX.S1)
@@ -339,7 +349,13 @@ defmodule RDF.Graph do
   The `RDF.Description` of the given subject.
   """
   def description(%RDF.Graph{descriptions: descriptions}, subject),
-    do: Map.get(descriptions, convert_subject(subject))
+    do: Map.get(descriptions, coerce_subject(subject))
+
+  @doc """
+  All `RDF.Description`s within a `RDF.Graph`.
+  """
+  def descriptions(%RDF.Graph{descriptions: descriptions}),
+    do: Map.values(descriptions)
 
 
   @doc """
@@ -356,7 +372,7 @@ defmodule RDF.Graph do
   If the passed function returns `:pop` the description for the given subject is
   removed and a `{removed_description, new_graph}` tuple gets returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |>
       ...>   RDF.Graph.get_and_update(EX.S, fn current_description ->
@@ -365,7 +381,7 @@ defmodule RDF.Graph do
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
   """
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
-    with subject = convert_subject(subject) do
+    with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
         {old_description, new_description} ->
           {old_description, put(graph, subject, new_description)}
@@ -377,12 +393,32 @@ defmodule RDF.Graph do
     end
   end
 
+
+  @doc """
+  Pops an arbitrary triple from a `RDF.Graph`.
+  """
+  def pop(graph)
+
+  def pop(%RDF.Graph{descriptions: descriptions} = graph)
+    when descriptions == %{}, do: {nil, graph}
+
+  def pop(%RDF.Graph{name: name, descriptions: descriptions}) do
+    # TODO: Find a faster way ...
+    [{subject, description}] = Enum.take(descriptions, 1)
+    {triple, popped_description} = Description.pop(description)
+    popped = if Enum.empty?(popped_description),
+      do:   descriptions |> Map.delete(subject),
+      else: descriptions |> Map.put(subject, popped_description)
+
+    {triple, %RDF.Graph{name: name, descriptions: popped}}
+  end
+
   @doc """
   Pops the description of the given subject.
 
   When the subject can not be found the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.pop(EX.S1)
@@ -391,7 +427,7 @@ defmodule RDF.Graph do
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
   """
   def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
-    case Access.pop(descriptions, convert_subject(subject)) do
+    case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->
         {nil, graph}
       {description, new_descriptions} ->
@@ -403,7 +439,7 @@ defmodule RDF.Graph do
   @doc """
   The number of subjects within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -418,7 +454,7 @@ defmodule RDF.Graph do
   @doc """
   The number of statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -436,14 +472,14 @@ defmodule RDF.Graph do
   @doc """
   The set of all subjects used in the statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Graph.subjects
-      MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2)])
+      MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%RDF.Graph{descriptions: descriptions}),
     do: descriptions |> Map.keys |> MapSet.new
@@ -451,7 +487,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all properties used in the predicates of the statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -471,9 +507,9 @@ defmodule RDF.Graph do
   @doc """
   The set of all resources used in the objects within a `RDF.Graph`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -482,7 +518,7 @@ defmodule RDF.Graph do
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
       ...>   {EX.S5, EX.p3, "foo"}
       ...> ]) |> RDF.Graph.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
@@ -495,7 +531,7 @@ defmodule RDF.Graph do
   @doc """
   The set of all resources used within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
     iex> RDF.Graph.new([
     ...>   {EX.S1, EX.p1, EX.O1},
@@ -503,8 +539,8 @@ defmodule RDF.Graph do
     ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
     ...>   {EX.S3, EX.p1, "foo"}
     ...> ]) |> RDF.Graph.resources
-    MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2), RDF.uri(EX.S3),
-      RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
+      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
   def resources(graph = %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce(descriptions, MapSet.new, fn ({_, description}, acc) ->
@@ -515,27 +551,30 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  All statements within a `RDF.Graph`.
+  The list of all statements within a `RDF.Graph`.
 
-  # Examples
+  ## Examples
 
         iex> RDF.Graph.new([
         ...>   {EX.S1, EX.p1, EX.O1},
         ...>   {EX.S2, EX.p2, EX.O2},
         ...>   {EX.S1, EX.p2, EX.O3}
         ...> ]) |> RDF.Graph.triples
-        [{RDF.uri(EX.S1), RDF.uri(EX.p1), RDF.uri(EX.O1)},
-         {RDF.uri(EX.S1), RDF.uri(EX.p2), RDF.uri(EX.O3)},
-         {RDF.uri(EX.S2), RDF.uri(EX.p2), RDF.uri(EX.O2)}]
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
 
   defdelegate statements(graph), to: RDF.Graph, as: :triples
 
 
+  @doc """
+  Checks if the given statement exists within a `RDF.Graph`.
+  """
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
-    with subject = convert_subject(subject),
+    with subject = coerce_subject(subject),
          %Description{} <- description = descriptions[subject] do
       Description.include?(description, triple)
     else
@@ -543,44 +582,59 @@ defmodule RDF.Graph do
     end
   end
 
+  @doc """
+  Checks if a `RDF.Graph` contains statements about the given resource.
+
+  ## Examples
+
+        iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Graph.describes?(EX.S1)
+        true
+        iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Graph.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Graph{descriptions: descriptions}, subject) do
+    with subject = coerce_subject(subject) do
+      Map.has_key?(descriptions, subject)
+    end
+  end
 
   defdelegate isomorphic?(graph1, graph2), to: RDF.Isomorphic, as: :isomorphic_graphs?
   defdelegate isomorphic?(graph1, graph2, opts), to: RDF.Isomorphic, as: :isomorphic_graphs?
 
 
-  # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
 
-  def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
-    when map_size(descriptions) == 0, do: {:done, acc}
+  defimpl Enumerable do
+    def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}
+    def count(desc),            do: {:ok, RDF.Graph.triple_count(desc)}
 
-  def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
-    {triple, rest} = RDF.Graph.pop(graph)
-    reduce(rest, fun.(triple, acc), fun)
+    def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
+      when map_size(descriptions) == 0, do: {:done, acc}
+
+    def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
+      {triple, rest} = RDF.Graph.pop(graph)
+      reduce(rest, fun.(triple, acc), fun)
+    end
+
+    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
+      {:suspended, acc, &reduce(graph, &1, fun)}
+    end
   end
 
-  def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
-    {:suspended, acc, &reduce(graph, &1, fun)}
+
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        graph, {:cont, list} when is_list(list)
+                             -> RDF.Graph.add(graph, List.to_tuple(list))
+        graph, {:cont, elem} -> RDF.Graph.add(graph, elem)
+        graph, :done         -> graph
+        _graph, :halt        -> :ok
+      end
+
+      {original, collector_fun}
+    end
   end
 
-
-  def pop(%RDF.Graph{descriptions: descriptions} = graph)
-    when descriptions == %{}, do: {nil, graph}
-
-  def pop(%RDF.Graph{name: name, descriptions: descriptions}) do
-    # TODO: Find a faster way ...
-    [{subject, description}] = Enum.take(descriptions, 1)
-    {triple, popped_description} = Description.pop(description)
-    popped = if Enum.empty?(popped_description),
-      do:   descriptions |> Map.delete(subject),
-      else: descriptions |> Map.put(subject, popped_description)
-
-    {triple, %RDF.Graph{name: name, descriptions: popped}}
-  end
 end
 
-defimpl Enumerable, for: RDF.Graph do
-  def reduce(desc, acc, fun), do: RDF.Graph.reduce(desc, acc, fun)
-  def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}
-  def count(desc),            do: {:ok, RDF.Graph.triple_count(desc)}
-end

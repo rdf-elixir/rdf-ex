@@ -9,7 +9,7 @@ defmodule RDF.Datatype.NS do
 
   @vocabdoc false
   defvocab XSD,
-    base_uri: "http://www.w3.org/2001/XMLSchema#",
+    base_iri: "http://www.w3.org/2001/XMLSchema#",
     terms: ~w[
        string
          normalizedString

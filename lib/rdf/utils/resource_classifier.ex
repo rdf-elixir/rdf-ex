@@ -3,7 +3,7 @@ defmodule RDF.Utils.ResourceClassifier do
 
   alias RDF.Description
 
-  @rdf_type RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+  @rdf_type RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
 
   @doc """
   Determines if the given resource is RDF property by
@@ -25,7 +25,7 @@ defmodule RDF.Utils.ResourceClassifier do
       http://www.w3.org/2002/07/owl#inverseOf
       http://www.w3.org/2002/07/owl#propertyDisjointWith
     ]
-    |> Enum.map(&RDF.uri/1)
+    |> Enum.map(&RDF.iri/1)
     |> MapSet.new
 
   defp property_by_domain?(description) do
@@ -50,7 +50,7 @@ defmodule RDF.Utils.ResourceClassifier do
       http://www.w3.org/2002/07/owl#TransitiveProperty
       http://www.w3.org/2002/07/owl#DeprecatedProperty
     ]
-    |> Enum.map(&RDF.uri/1)
+    |> Enum.map(&RDF.iri/1)
     |> MapSet.new
 
   defp property_by_rdf_type?(nil), do: nil

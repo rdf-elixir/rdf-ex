@@ -3,22 +3,21 @@ defmodule RDF.NQuads.DecoderTest do
 
   doctest RDF.NQuads.Decoder
 
-  alias RDF.{Dataset, TestData}
+  alias RDF.Dataset
 
   import RDF.Sigils
+
 
   use RDF.Vocabulary.Namespace
 
   defvocab EX,
-    base_uri: "http://example.org/#",
+    base_iri: "http://example.org/#",
     terms: [], strict: false
 
   defvocab P,
-    base_uri: "http://www.perceive.net/schemas/relationship/",
+    base_iri: "http://www.perceive.net/schemas/relationship/",
     terms: [], strict: false
 
-
-  @w3c_nquads_test_suite Path.join(TestData.dir, "N-QUADS-TESTS")
 
   test "an empty string is deserialized to an empty graph" do
     assert RDF.NQuads.Decoder.decode!("") == Dataset.new
@@ -79,7 +78,7 @@ defmodule RDF.NQuads.DecoderTest do
       ])
   end
 
-  test "decoding a single statement with uris" do
+  test "decoding a single statement with iris" do
     assert RDF.NQuads.Decoder.decode!("""
       <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green_goblin> .
       """) == Dataset.new({EX.spiderman, P.enemyOf, EX.green_goblin})
@@ -150,29 +149,6 @@ defmodule RDF.NQuads.DecoderTest do
         {EX.S2, EX.p3, EX.O3, EX.G},
         {EX.S2, EX.p3, EX.O3}
       ])
-  end
-
-  describe "the official W3C RDF 1.1 N-Quads Test Suite" do
-    # from https://www.w3.org/2013/N-QuadsTests/
-
-    ExUnit.Case.register_attribute __ENV__, :nq_test
-
-    @w3c_nquads_test_suite
-    |> File.ls!
-    |> Enum.filter(fn (file) -> Path.extname(file) == ".nq" end)
-    |> Enum.each(fn (file) ->
-      @nq_test file: Path.join(@w3c_nquads_test_suite, file)
-      if file |> String.contains?("-bad-") do
-        test "Negative syntax test: #{file}", context do
-          assert {:error, _} = RDF.NQuads.read_file(context.registered.nq_test[:file])
-        end
-      else
-        test "Positive syntax test: #{file}", context do
-          assert {:ok, %RDF.Dataset{}} = RDF.NQuads.read_file(context.registered.nq_test[:file])
-        end
-      end
-    end)
-
   end
 
 end

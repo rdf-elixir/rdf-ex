@@ -37,9 +37,9 @@ defprotocol RDF.Data do
   def include?(data, statements)
 
   @doc """
-  Returns the list of all statements of a RDF data structure.
+  Checks if a RDF data structure contains statements about the given resource.
   """
-  def statements(data)
+  def describes?(data, subject)
 
   @doc """
   Returns a `RDF.Description` of the given subject.
@@ -48,6 +48,19 @@ defprotocol RDF.Data do
   the statements about this subject from all graphs.
   """
   def description(data, subject)
+
+  @doc """
+  Returns all `RDF.Description`s within a RDF data structure.
+
+  Note: On a `RDF.Dataset` this will return aggregated `RDF.Description`s about
+  the same subject from all graphs.
+  """
+  def descriptions(data)
+
+  @doc """
+  Returns the list of all statements of a RDF data structure.
+  """
+  def statements(data)
 
   @doc """
   Returns the set of all resources which are subject of the statements of a RDF data structure.
@@ -83,7 +96,7 @@ end
 
 defimpl RDF.Data, for: RDF.Description do
   def merge(%RDF.Description{subject: subject} = description, {s, _, _} = triple) do
-    with ^subject <- RDF.Statement.convert_subject(s) do
+    with ^subject <- RDF.Statement.coerce_subject(s) do
       RDF.Description.add(description, triple)
     else
       _ ->
@@ -121,15 +134,20 @@ defimpl RDF.Data, for: RDF.Description do
   def include?(description, statements),
     do: RDF.Description.include?(description, statements)
 
-  def statements(description), do: RDF.Description.statements(description)
+  def describes?(description, subject),
+    do: RDF.Description.describes?(description, subject)
 
   def description(%RDF.Description{subject: subject} = description, s) do
-    with ^subject <- RDF.Statement.convert_subject(s) do
+    with ^subject <- RDF.Statement.coerce_subject(s) do
       description
     else
       _ -> RDF.Description.new(s)
     end
   end
+
+  def descriptions(description), do: [description]
+
+  def statements(description), do: RDF.Description.statements(description)
 
   def subjects(%RDF.Description{subject: subject}), do: MapSet.new([subject])
   def predicates(description), do: RDF.Description.predicates(description)
@@ -145,7 +163,7 @@ end
 
 defimpl RDF.Data, for: RDF.Graph do
   def merge(%RDF.Graph{name: name} = graph, {_, _, _, graph_context} = quad) do
-    with ^name <- RDF.Statement.convert_graph_name(graph_context) do
+    with ^name <- RDF.Statement.coerce_graph_name(graph_context) do
       RDF.Graph.add(graph, quad)
     else
       _ ->
@@ -183,10 +201,15 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def include?(graph, statements), do: RDF.Graph.include?(graph, statements)
 
-  def statements(graph), do: RDF.Graph.statements(graph)
+  def describes?(graph, subject),
+    do: RDF.Graph.describes?(graph, subject)
 
   def description(graph, subject),
     do: RDF.Graph.description(graph, subject) || RDF.Description.new(subject)
+
+  def descriptions(graph), do: RDF.Graph.descriptions(graph)
+
+  def statements(graph), do: RDF.Graph.statements(graph)
 
   def subjects(graph),   do: RDF.Graph.subjects(graph)
   def predicates(graph), do: RDF.Graph.predicates(graph)
@@ -219,10 +242,11 @@ defimpl RDF.Data, for: RDF.Dataset do
 
   def include?(dataset, statements), do: RDF.Dataset.include?(dataset, statements)
 
-  def statements(dataset), do: RDF.Dataset.statements(dataset)
+  def describes?(dataset, subject),
+    do: RDF.Dataset.who_describes(dataset, subject) != []
 
   def description(dataset, subject) do
-    with subject = RDF.Statement.convert_subject(subject) do
+    with subject = RDF.Statement.coerce_subject(subject) do
       Enum.reduce RDF.Dataset.graphs(dataset), RDF.Description.new(subject), fn
         %RDF.Graph{descriptions: %{^subject => graph_description}}, description ->
           RDF.Description.add(description, graph_description)
@@ -231,6 +255,14 @@ defimpl RDF.Data, for: RDF.Dataset do
         end
     end
   end
+
+  def descriptions(dataset) do
+    dataset
+    |> subjects
+    |> Enum.map(&(description(dataset, &1)))
+  end
+
+  def statements(dataset), do: RDF.Dataset.statements(dataset)
 
   def subjects(dataset),   do: RDF.Dataset.subjects(dataset)
   def predicates(dataset), do: RDF.Dataset.predicates(dataset)

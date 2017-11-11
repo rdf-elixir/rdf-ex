@@ -3,18 +3,18 @@ defmodule RDF.Test.Case do
 
   use RDF.Vocabulary.Namespace
   defvocab EX,
-    base_uri: "http://example.com/",
+    base_iri: "http://example.com/",
     terms: [], strict: false
 
-  alias RDF.{Dataset, Graph, Description}
-  import RDF, only: [uri: 1]
+  alias RDF.{Dataset, Graph, Description, IRI}
+  import RDF, only: [iri: 1]
 
   using do
     quote do
-      alias RDF.{Dataset, Graph, Description}
+      alias RDF.{Dataset, Graph, Description, IRI}
       alias unquote(__MODULE__).EX
 
-      import RDF, only: [uri: 1, literal: 1, bnode: 1]
+      import RDF, only: [iri: 1, literal: 1, bnode: 1]
       import unquote(__MODULE__)
 
       import RDF.Sigils
@@ -53,7 +53,7 @@ defmodule RDF.Test.Case do
   def unnamed_graph?(%Graph{name: nil}), do: true
   def unnamed_graph?(_),                 do: false
 
-  def named_graph?(%Graph{name: %URI{}}),     do: true
+  def named_graph?(%Graph{name: %IRI{}}),     do: true
   def named_graph?(_),                        do: false
   def named_graph?(%Graph{name: name}, name), do: true
   def named_graph?(_, _),                     do: false
@@ -63,7 +63,7 @@ defmodule RDF.Test.Case do
 
   def graph_includes_statement?(graph, {subject, _, _} = statement) do
     graph.descriptions
-    |> Map.get(uri(subject), %{})
+    |> Map.get(iri(subject), %{})
     |> Enum.member?(statement)
   end
 
@@ -80,7 +80,7 @@ defmodule RDF.Test.Case do
   def unnamed_dataset?(%Dataset{name: nil}), do: true
   def unnamed_dataset?(_),                   do: false
 
-  def named_dataset?(%Dataset{name: %URI{}}),     do: true
+  def named_dataset?(%Dataset{name: %IRI{}}),     do: true
   def named_dataset?(_),                          do: false
   def named_dataset?(%Dataset{name: name}, name), do: true
   def named_dataset?(_, _),                       do: false
@@ -99,7 +99,7 @@ defmodule RDF.Test.Case do
   def dataset_includes_statement?(dataset,
         {subject, predicate, objects, graph_context}) do
     dataset.graphs
-    |> Map.get(uri(graph_context), named_graph(graph_context))
+    |> Map.get(iri(graph_context), named_graph(graph_context))
     |> graph_includes_statement?({subject, predicate, objects})
   end
 

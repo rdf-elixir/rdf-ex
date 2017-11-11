@@ -19,10 +19,10 @@ defmodule RDF.GraphTest do
              |> named_graph?(bnode("graph_name"))
     end
 
-    test "creating an empty graph with a convertible graph name" do
+    test "creating an empty graph with a coercible graph name" do
       assert named_graph("http://example.com/graph/GraphName")
-             |> named_graph?(uri("http://example.com/graph/GraphName"))
-      assert named_graph(EX.Foo) |> named_graph?(uri(EX.Foo))
+             |> named_graph?(iri("http://example.com/graph/GraphName"))
+      assert named_graph(EX.Foo) |> named_graph?(iri(EX.Foo))
     end
 
     test "creating an unnamed graph with an initial triple" do
@@ -37,11 +37,11 @@ defmodule RDF.GraphTest do
 
     test "creating a named graph with an initial triple" do
       g = Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object})
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
 
       g = Graph.new(EX.GraphName, EX.Subject, EX.predicate, EX.Object)
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
 
@@ -61,19 +61,19 @@ defmodule RDF.GraphTest do
     test "creating a named graph with a list of initial triples" do
       g = Graph.new(EX.GraphName, [{EX.Subject, EX.predicate1, EX.Object1},
                                    {EX.Subject, EX.predicate2, EX.Object2}])
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate1, EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate2, EX.Object2})
 
       g = Graph.new(EX.GraphName, EX.Subject, EX.predicate, [EX.Object1, EX.Object2])
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object2})
     end
 
     test "creating a named graph with an initial description" do
       g = Graph.new(EX.GraphName, Description.new({EX.Subject, EX.predicate, EX.Object}))
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
 
@@ -85,11 +85,11 @@ defmodule RDF.GraphTest do
 
     test "creating a named graph from another graph" do
       g = Graph.new(EX.GraphName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
 
       g = Graph.new(EX.GraphName, Graph.new(EX.OtherGraphName, {EX.Subject, EX.predicate, EX.Object}))
-      assert named_graph?(g, uri(EX.GraphName))
+      assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
 
@@ -106,13 +106,13 @@ defmodule RDF.GraphTest do
 
   describe "add" do
     test "a proper triple" do
-      assert Graph.add(graph(), uri(EX.Subject), EX.predicate, uri(EX.Object))
+      assert Graph.add(graph(), iri(EX.Subject), EX.predicate, iri(EX.Object))
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
-      assert Graph.add(graph(), {uri(EX.Subject), EX.predicate, uri(EX.Object)})
+      assert Graph.add(graph(), {iri(EX.Subject), EX.predicate, iri(EX.Object)})
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
     end
 
-    test "a convertible triple" do
+    test "a coercible triple" do
       assert Graph.add(graph(),
           "http://example.com/Subject", EX.predicate, EX.Object)
         |> graph_includes_statement?({EX.Subject, EX.predicate, EX.Object})
@@ -189,11 +189,11 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3, EX.Object3})
     end
 
-    test "non-convertible Triple elements are causing an error" do
-      assert_raise RDF.InvalidURIError, fn ->
-        Graph.add(graph(), {"not a URI", EX.predicate, uri(EX.Object)})
+    test "non-coercible Triple elements are causing an error" do
+      assert_raise RDF.IRI.InvalidError, fn ->
+        Graph.add(graph(), {"not a IRI", EX.predicate, iri(EX.Object)})
       end
-      assert_raise RDF.InvalidLiteralError, fn ->
+      assert_raise RDF.Literal.InvalidError, fn ->
         Graph.add(graph(), {EX.Subject, EX.prop, self()})
       end
     end
@@ -223,22 +223,6 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S1, EX.P3, EX.O4})
       assert graph_includes_statement?(g, {EX.S1, EX.P2, bnode(:foo)})
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
-    end
-
-    @tag skip: "TODO: Requires Graph.put with a list to differentiate a list of statements and a list of Descriptions. Do we want to support mixed lists also?"
-    test "a list of Descriptions" do
-      g = Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
-        |> RDF.Graph.put([
-            Description.new(EX.S1, [{EX.P2, EX.O3}, {EX.P2, bnode(:foo)}]),
-            Description.new(EX.S2, [{EX.P2, EX.O3}, {EX.P2, EX.O4}])
-           ])
-
-        assert Graph.triple_count(g) == 5
-        assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
-        assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O3})
-        assert graph_includes_statement?(g, {EX.S1, EX.P2, bnode(:foo)})
-        assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
-        assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O4})
     end
 
     test "a Graph" do
@@ -363,19 +347,19 @@ defmodule RDF.GraphTest do
     assert Graph.pop(Graph.new) == {nil, Graph.new}
 
     {triple, graph} = Graph.new({EX.S, EX.p, EX.O}) |> Graph.pop
-    assert {uri(EX.S), uri(EX.p), uri(EX.O)} == triple
+    assert {iri(EX.S), iri(EX.p), iri(EX.O)} == triple
     assert Enum.count(graph.descriptions) == 0
 
     {{subject, predicate, _}, graph} =
       Graph.new([{EX.S, EX.p, EX.O1}, {EX.S, EX.p, EX.O2}])
       |> Graph.pop
-    assert {subject, predicate} == {uri(EX.S), uri(EX.p)}
+    assert {subject, predicate} == {iri(EX.S), iri(EX.p)}
     assert Enum.count(graph.descriptions) == 1
 
     {{subject, _, _}, graph} =
       Graph.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
       |> Graph.pop
-    assert subject == uri(EX.S)
+    assert subject == iri(EX.S)
     assert Enum.count(graph.descriptions) == 1
   end
 
@@ -394,7 +378,7 @@ defmodule RDF.GraphTest do
     end
 
     test "Enum.member?" do
-      refute Enum.member?(Graph.new, {uri(EX.S), EX.p, uri(EX.O)})
+      refute Enum.member?(Graph.new, {iri(EX.S), EX.p, iri(EX.O)})
       assert Enum.member?(Graph.new({EX.S, EX.p, EX.O}), {EX.S, EX.p, EX.O})
 
       g = Graph.add(graph(), [
@@ -416,6 +400,25 @@ defmodule RDF.GraphTest do
 
       assert g == Enum.reduce(g, graph(),
         fn(triple, acc) -> acc |> Graph.add(triple) end)
+    end
+  end
+
+  describe "Collectable protocol" do
+    test "with a list of triples" do
+      triples = [
+          {EX.Subject, EX.predicate1, EX.Object1},
+          {EX.Subject, EX.predicate2, EX.Object2}
+        ]
+      assert Enum.into(triples, Graph.new()) == Graph.new(triples)
+    end
+
+    test "with a list of lists" do
+      lists = [
+          [EX.Subject, EX.predicate1, EX.Object1],
+          [EX.Subject, EX.predicate2, EX.Object2]
+        ]
+      assert Enum.into(lists, Graph.new()) ==
+              Graph.new(Enum.map(lists, &List.to_tuple/1))
     end
   end
 

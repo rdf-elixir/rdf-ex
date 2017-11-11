@@ -3,19 +3,17 @@ defmodule RDF.InspectHelper do
 
   import Inspect.Algebra
 
-  def value_doc(%URI{} = uri, _opts), do: "~I<#{uri}>"
-  def value_doc(value, opts),         do: to_doc(value, opts)
 
   def objects_doc(objects, opts) do
     objects
-    |> Enum.map(fn {object, _}  -> value_doc(object, opts) end)
+    |> Enum.map(fn {object, _}  -> to_doc(object, opts) end)
     |> fold_doc(fn(object, acc) -> line(object, acc) end)
   end
 
   def predications_doc(predications, opts) do
     predications
     |> Enum.map(fn {predicate, objects} ->
-        value_doc(predicate, opts)
+        to_doc(predicate, opts)
         |> line(objects_doc(objects, opts))
         |> nest(4)
        end)
@@ -27,13 +25,19 @@ defmodule RDF.InspectHelper do
   def descriptions_doc(descriptions, opts) do
     descriptions
     |> Enum.map(fn {subject, description} ->
-        value_doc(subject, opts)
+        to_doc(subject, opts)
         |> line(predications_doc(description.predications, opts))
         |> nest(4)
        end)
     |> fold_doc(fn(predication, acc) ->
         line(predication, acc)
        end)
+  end
+end
+
+defimpl Inspect, for: RDF.IRI do
+  def inspect(%RDF.IRI{value: value}, _opts) do
+    "~I<#{value}>"
   end
 end
 
@@ -68,7 +72,7 @@ defimpl Inspect, for: RDF.Description do
 
   def inspect(%RDF.Description{subject: subject, predications: predications}, opts) do
     doc =
-      space("subject:", value_doc(subject, opts))
+      space("subject:", to_doc(subject, opts))
       |> line(predications_doc(predications, opts))
       |> nest(4)
     surround("#RDF.Description{", doc, "}")
@@ -81,7 +85,7 @@ defimpl Inspect, for: RDF.Graph do
 
   def inspect(%RDF.Graph{name: name, descriptions: descriptions}, opts) do
     doc =
-      space("name:", value_doc(name, opts))
+      space("name:", to_doc(name, opts))
       |> line(descriptions_doc(descriptions, opts))
       |> nest(4)
     surround("#RDF.Graph{", doc, "}")
@@ -94,7 +98,7 @@ defimpl Inspect, for: RDF.Dataset do
 
   def inspect(%RDF.Dataset{name: name} = dataset, opts) do
     doc =
-      space("name:", value_doc(name, opts))
+      space("name:", to_doc(name, opts))
       |> line(graphs_doc(RDF.Dataset.graphs(dataset), opts))
       |> nest(4)
     surround("#RDF.Dataset{", doc, "}")

@@ -1,4 +1,6 @@
 defmodule RDF.NQuads.Encoder do
+  @moduledoc false
+
   use RDF.Serialization.Encoder
 
   def encode(data, opts \\ []) do

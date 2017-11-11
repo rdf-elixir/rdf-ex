@@ -1,11 +1,59 @@
 defmodule RDF.Serialization do
+  @moduledoc """
+  A behaviour for RDF serialization formats.
 
-  @callback id :: URI.t
+  A `RDF.Serialization` for a format can be implemented like this
+
+      defmodule SomeFormat do
+        use RDF.Serialization
+        import RDF.Sigils
+
+        @id           ~I<http://example.com/some_format>
+        @extension    "ext"
+        @content_type "application/some-format"
+      end
+
+  When `@id`, `@extension` and `@content_type` module attributes are defined the
+  resp. behaviour functions are generated automatically and return these values.
+
+  Then you'll have to do the main work by implementing a
+  `RDF.Serialization.Encoder` and a `RDF.Serialization.Decoder` for the format.
+
+  By default it is assumed that these are defined in `Encoder` and `Decoder`
+  moduler under the `RDF.Serialization` module of the format, i.e. in the example
+  above in `SomeFormat.Encoder` and `SomeFormat.Decoder`. If you want them in
+  another module, you'll have to override the `encoder/0` and/or `decoder/0`
+  functions in your `RDF.Serialization` module.
+  """
+
+  @doc """
+  An IRI of the serialization format.
+  """
+  @callback id :: RDF.IRI.t
+
+  @doc """
+  The usual file extension for the serialization format.
+  """
   @callback extension :: binary
+
+  @doc """
+  The MIME type of the serialization format.
+  """
   @callback content_type :: binary
+
+  @doc """
+  A map with the supported options of the `Encoder` and `Decoder` for the serialization format.
+  """
   @callback options :: map
 
+  @doc """
+  The `RDF.Serialization.Decoder` module for the serialization format.
+  """
   @callback decoder :: module
+
+  @doc """
+  The `RDF.Serialization.Encoder` module for the serialization format.
+  """
   @callback encoder :: module
 
 
@@ -23,18 +71,23 @@ defmodule RDF.Serialization do
 
       defoverridable [decoder: 0, encoder: 0, options: 0]
 
-      def read(file_or_content, opts \\ []),
-        do: RDF.Serialization.Reader.read(decoder(), file_or_content, opts)
-      def read!(file_or_content, opts \\ []),
-        do: RDF.Serialization.Reader.read!(decoder(), file_or_content, opts)
       def read_string(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string(decoder(), content, opts)
+        do: RDF.Reader.read_string(decoder(), content, opts)
       def read_string!(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string!(decoder(), content, opts)
+        do: RDF.Reader.read_string!(decoder(), content, opts)
       def read_file(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file(decoder(), file, opts)
+        do: RDF.Reader.read_file(decoder(), file, opts)
       def read_file!(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
+        do: RDF.Reader.read_file!(decoder(), file, opts)
+
+      def write_string(data, opts \\ []),
+        do: RDF.Writer.write_string(encoder(), data, opts)
+      def write_string!(data, opts \\ []),
+        do: RDF.Writer.write_string!(encoder(), data, opts)
+      def write_file(data, path, opts \\ []),
+        do: RDF.Writer.write_file(encoder(), data, path, opts)
+      def write_file!(data, path, opts \\ []),
+        do: RDF.Writer.write_file!(encoder(), data, path, opts)
 
       @before_compile unquote(__MODULE__)
     end

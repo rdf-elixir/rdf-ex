@@ -1,9 +1,15 @@
 defmodule RDF.Description do
   @moduledoc """
-  Defines a RDF Description.
+  A set of RDF triples about the same subject.
 
-  A `RDF.Description` represents a set of `RDF.Triple`s about a subject.
+  `RDF.Description` implements:
+
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
   """
+
   defstruct subject: nil, predications: %{}
 
   @behaviour Access
@@ -13,12 +19,11 @@ defmodule RDF.Description do
   @type t :: module
 
   @doc """
-  Creates a new `RDF.Description` about the given subject.
+  Creates a new `RDF.Description` about the given subject with optional initial statements.
 
-  When given a triple, it must contain the subject.
   When given a list of statements, the first one must contain a subject.
   """
-  @spec new(RDF.Statement.convertible_subject) :: RDF.Description.t
+  @spec new(RDF.Statement.coercible_subject) :: RDF.Description.t
   def new(subject)
 
   def new({subject, predicate, object}),
@@ -28,13 +33,13 @@ defmodule RDF.Description do
   def new(%RDF.Description{} = description),
     do: description
   def new(subject),
-    do: %RDF.Description{subject: convert_subject(subject)}
+    do: %RDF.Description{subject: coerce_subject(subject)}
 
-  def new(%RDF.Description{} = description, predicate, objects),
-    do: RDF.Description.add(description, predicate, objects)
-  def new(subject, predicate, objects),
+  @doc """
+  Creates a new `RDF.Description` about the given subject with optional initial statements.
+  """
+  def new(subject, {predicate, objects}),
     do: new(subject) |> add(predicate, objects)
-
   def new(subject, statements) when is_list(statements),
     do: new(subject) |> add(statements)
   def new(subject, %RDF.Description{predications: predications}),
@@ -42,11 +47,19 @@ defmodule RDF.Description do
   def new(subject, predications = %{}),
     do: new(subject) |> add(predications)
 
+  @doc """
+  Creates a new `RDF.Description` about the given subject with optional initial statements.
+  """
+  def new(%RDF.Description{} = description, predicate, objects),
+    do: RDF.Description.add(description, predicate, objects)
+  def new(subject, predicate, objects),
+    do: new(subject) |> add(predicate, objects)
+
 
   @doc """
   Add objects to a predicate of a `RDF.Description`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.add(RDF.Description.new({EX.S, EX.P1, EX.O1}), EX.P2, EX.O2)
       RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
@@ -62,8 +75,8 @@ defmodule RDF.Description do
   end
 
   def add(%RDF.Description{subject: subject, predications: predications}, predicate, object) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object = convert_object(object),
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object = coerce_object(object),
          new_predications = Map.update(predications,
            triple_predicate, %{triple_object => nil}, fn objects ->
              Map.put_new(objects, triple_object, nil)
@@ -87,7 +100,7 @@ defmodule RDF.Description do
     do: add(description, predicate, object)
 
   def add(description = %RDF.Description{}, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   add(description, predicate, object),
       else: description
   end
@@ -118,7 +131,7 @@ defmodule RDF.Description do
   @doc """
   Puts objects to a predicate of a `RDF.Description`, overwriting all existing objects.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), EX.P, EX.O2)
       RDF.Description.new([{EX.S, EX.P, EX.O2}])
@@ -129,9 +142,9 @@ defmodule RDF.Description do
 
   def put(%RDF.Description{subject: subject, predications: predications},
           predicate, objects) when is_list(objects) do
-    with triple_predicate = convert_predicate(predicate),
+    with triple_predicate = coerce_predicate(predicate),
          triple_objects   = Enum.reduce(objects, %{}, fn (object, acc) ->
-                              Map.put_new(acc, convert_object(object), nil) end),
+                              Map.put_new(acc, coerce_object(object), nil) end),
       do: %RDF.Description{subject: subject,
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
@@ -142,7 +155,7 @@ defmodule RDF.Description do
   @doc """
   Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), {EX.P, EX.O2})
       RDF.Description.new([{EX.S, EX.P, EX.O2}])
@@ -162,7 +175,7 @@ defmodule RDF.Description do
     do: put(description, predicate, object)
 
   def put(%RDF.Description{} = description, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   put(description, predicate, object),
       else: description
   end
@@ -173,11 +186,11 @@ defmodule RDF.Description do
   def put(%RDF.Description{subject: subject} = description, statements) when is_list(statements) do
     statements
     |> Stream.map(fn
-         {p, o}           -> {convert_predicate(p), o}
-         {^subject, p, o} -> {convert_predicate(p), o}
+         {p, o}           -> {coerce_predicate(p), o}
+         {^subject, p, o} -> {coerce_predicate(p), o}
          {s, p, o} ->
-            if convert_subject(s) == subject,
-              do: {convert_predicate(p), o}
+            if coerce_subject(s) == subject,
+              do: {coerce_predicate(p), o}
          bad -> raise ArgumentError, "#{inspect bad} is not a valid statement"
        end)
     |> Stream.filter(&(&1)) # filter nil values
@@ -213,8 +226,8 @@ defmodule RDF.Description do
   end
 
   def delete(%RDF.Description{subject: subject, predications: predications} = descr, predicate, object) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object    = convert_object(object) do
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object    = coerce_object(object) do
       if (objects = predications[triple_predicate]) && Map.has_key?(objects, triple_object) do
         %RDF.Description{
           subject: subject,
@@ -247,7 +260,7 @@ defmodule RDF.Description do
     do: delete(desc, predicate, object)
 
   def delete(description = %RDF.Description{}, {subject, predicate, object}) do
-    if convert_subject(subject) == description.subject,
+    if coerce_subject(subject) == description.subject,
       do:   delete(description, predicate, object),
       else: description
   end
@@ -286,7 +299,7 @@ defmodule RDF.Description do
   end
 
   def delete_predicates(%RDF.Description{subject: subject, predications: predications}, property) do
-    with property = convert_predicate(property) do
+    with property = coerce_predicate(property) do
       %RDF.Description{subject: subject, predications: Map.delete(predications, property)}
     end
   end
@@ -297,18 +310,18 @@ defmodule RDF.Description do
 
   When the predicate can not be found `:error` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.fetch(RDF.Description.new({EX.S, EX.p, EX.O}), EX.p)
-      {:ok, [RDF.uri(EX.O)]}
+      {:ok, [RDF.iri(EX.O)]}
       iex> RDF.Description.fetch(RDF.Description.new([{EX.S, EX.P, EX.O1},
       ...>                                            {EX.S, EX.P, EX.O2}]), EX.P)
-      {:ok, [RDF.uri(EX.O1), RDF.uri(EX.O2)]}
+      {:ok, [RDF.iri(EX.O1), RDF.iri(EX.O2)]}
       iex> RDF.Description.fetch(RDF.Description.new(EX.S), EX.foo)
       :error
   """
   def fetch(%RDF.Description{predications: predications}, predicate) do
-    with {:ok, objects} <- Access.fetch(predications, convert_predicate(predicate)) do
+    with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
   end
@@ -316,12 +329,12 @@ defmodule RDF.Description do
   @doc """
   Gets the objects for the given predicate of a Description.
 
-  When the predicate can not be found the optionally given default value or `nil` is returned.
+  When the predicate can not be found, the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.get(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
-      [RDF.uri(EX.O)]
+      [RDF.iri(EX.O)]
       iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo)
       nil
       iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo, :bar)
@@ -332,6 +345,24 @@ defmodule RDF.Description do
       {:ok, value} -> value
       :error       -> default
     end
+  end
+
+  @doc """
+  Gets a single object for the given predicate of a Description.
+
+  When the predicate can not be found, the optionally given default value or `nil` is returned.
+
+  ## Examples
+
+      iex> RDF.Description.first(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      RDF.iri(EX.O)
+      iex> RDF.Description.first(RDF.Description.new(EX.S), EX.foo)
+      nil
+  """
+  def first(description = %RDF.Description{}, predicate) do
+    description
+    |> get(predicate, [])
+    |> List.first
   end
 
   @doc """
@@ -348,19 +379,19 @@ defmodule RDF.Description do
   If the passed function returns `:pop` the objects for the given predicate are
   removed and a `{removed_objects, new_description}` tuple gets returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.new({EX.S, EX.P, EX.O}) |>
       ...>   RDF.Description.get_and_update(EX.P, fn current_objects ->
       ...>     {current_objects, EX.NEW}
       ...>   end)
-      {[RDF.uri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
+      {[RDF.iri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
       iex> RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}]) |>
       ...>   RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
-      {[RDF.uri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
+      {[RDF.iri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
-    with triple_predicate = convert_predicate(predicate) do
+    with triple_predicate = coerce_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
         {objects_to_return, new_objects} ->
           {objects_to_return, put(description, triple_predicate, new_objects)}
@@ -371,19 +402,40 @@ defmodule RDF.Description do
 
 
   @doc """
+  Pops an arbitrary triple from a `RDF.Description`.
+  """
+  def pop(description)
+
+  def pop(description = %RDF.Description{predications: predications})
+    when predications == %{}, do: {nil, description}
+
+  def pop(%RDF.Description{subject: subject, predications: predications}) do
+    # TODO: Find a faster way ...
+    predicate = List.first(Map.keys(predications))
+    [{object, _}] = Enum.take(objects = predications[predicate], 1)
+
+    popped = if Enum.count(objects) == 1,
+      do:   elem(Map.pop(predications, predicate), 1),
+      else: elem(pop_in(predications, [predicate, object]), 1)
+
+    {{subject, predicate, object},
+       %RDF.Description{subject: subject, predications: popped}}
+  end
+
+  @doc """
   Pops the objects of the given predicate of a Description.
 
   When the predicate can not be found the optionally given default value or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
-      {[RDF.uri(EX.O)], RDF.Description.new(EX.S)}
+      {[RDF.iri(EX.O)], RDF.Description.new(EX.S)}
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
   def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
-    case Access.pop(predications, convert_predicate(predicate)) do
+    case Access.pop(predications, coerce_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
       {objects, new_predications} ->
@@ -395,7 +447,7 @@ defmodule RDF.Description do
   @doc """
   The set of all properties used in the predicates within a `RDF.Description`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -410,9 +462,9 @@ defmodule RDF.Description do
   @doc """
   The set of all resources used in the objects within a `RDF.Description`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -421,13 +473,19 @@ defmodule RDF.Description do
       ...>          {EX.p4, RDF.bnode(:bnode)},
       ...>          {EX.p3, "foo"}
       ...> ]) |> RDF.Description.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
-  def objects(%RDF.Description{predications: predications}) do
+  def objects(%RDF.Description{} = description),
+    do: objects(description, &RDF.resource?/1)
+
+  @doc """
+  The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
+  """
+  def objects(%RDF.Description{predications: predications}, filter_fn) do
     Enum.reduce predications, MapSet.new, fn ({_, objects}, acc) ->
       objects
       |> Map.keys
-      |> Enum.filter(&RDF.resource?/1)
+      |> Enum.filter(filter_fn)
       |> MapSet.new
       |> MapSet.union(acc)
     end
@@ -436,7 +494,7 @@ defmodule RDF.Description do
   @doc """
   The set of all resources used within a `RDF.Description`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Description.new([
       ...>   {EX.S1, EX.p1, EX.O1},
@@ -445,7 +503,7 @@ defmodule RDF.Description do
       ...>          {EX.p2, RDF.bnode(:bnode)},
       ...>          {EX.p3, "foo"}
       ...> ]) |> RDF.Description.resources
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
   """
   def resources(description) do
     description
@@ -453,6 +511,9 @@ defmodule RDF.Description do
     |> MapSet.union(predicates(description))
   end
 
+  @doc """
+  The list of all triples within a `RDF.Description`.
+  """
   def triples(description = %RDF.Description{}), do: Enum.to_list(description)
 
   defdelegate statements(description), to: RDF.Description, as: :triples
@@ -474,8 +535,8 @@ defmodule RDF.Description do
 
   def include?(%RDF.Description{predications: predications},
                 {predicate, object}) do
-    with triple_predicate = convert_predicate(predicate),
-         triple_object    = convert_object(object) do
+    with triple_predicate = coerce_predicate(predicate),
+         triple_object    = coerce_object(object) do
       predications
       |> Map.get(triple_predicate, %{})
       |> Map.has_key?(triple_object)
@@ -484,48 +545,61 @@ defmodule RDF.Description do
 
   def include?(desc = %RDF.Description{subject: desc_subject},
               {subject, predicate, object}) do
-    convert_subject(subject) == desc_subject &&
+    coerce_subject(subject) == desc_subject &&
       include?(desc, {predicate, object})
   end
 
   def include?(%RDF.Description{}, _), do: false
 
 
-  # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
+  @doc """
+  Checks if a `RDF.Description` has the given resource as subject.
 
-  def reduce(%RDF.Description{predications: predications}, {:cont, acc}, _fun)
-    when map_size(predications) == 0, do: {:done, acc}
+  ## Examples
 
-  def reduce(description = %RDF.Description{}, {:cont, acc}, fun) do
-    {triple, rest} = RDF.Description.pop(description)
-    reduce(rest, fun.(triple, acc), fun)
+        iex> RDF.Description.new(EX.S1, EX.p1, EX.O1) |> RDF.Description.describes?(EX.S1)
+        true
+        iex> RDF.Description.new(EX.S1, EX.p1, EX.O1) |> RDF.Description.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Description{subject: subject}, other_subject) do
+    with other_subject = coerce_subject(other_subject) do
+      subject == other_subject
+    end
   end
 
-  def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(description = %RDF.Description{}, {:suspend, acc}, fun) do
-    {:suspended, acc, &reduce(description, &1, fun)}
+
+  defimpl Enumerable do
+    def member?(desc, triple),  do: {:ok, RDF.Description.include?(desc, triple)}
+    def count(desc),            do: {:ok, RDF.Description.count(desc)}
+
+    def reduce(%RDF.Description{predications: predications}, {:cont, acc}, _fun)
+      when map_size(predications) == 0, do: {:done, acc}
+
+    def reduce(description = %RDF.Description{}, {:cont, acc}, fun) do
+      {triple, rest} = RDF.Description.pop(description)
+      reduce(rest, fun.(triple, acc), fun)
+    end
+
+    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(description = %RDF.Description{}, {:suspend, acc}, fun) do
+      {:suspended, acc, &reduce(description, &1, fun)}
+    end
   end
 
 
-  def pop(description = %RDF.Description{predications: predications})
-    when predications == %{}, do: {nil, description}
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        description, {:cont, list} when is_list(list)
+                                   -> RDF.Description.add(description, List.to_tuple(list))
+        description, {:cont, elem} -> RDF.Description.add(description, elem)
+        description, :done         -> description
+        _description, :halt        -> :ok
+      end
 
-  def pop(%RDF.Description{subject: subject, predications: predications}) do
-    # TODO: Find a faster way ...
-    predicate = List.first(Map.keys(predications))
-    [{object, _}] = Enum.take(objects = predications[predicate], 1)
-
-    popped = if Enum.count(objects) == 1,
-      do:   elem(Map.pop(predications, predicate), 1),
-      else: elem(pop_in(predications, [predicate, object]), 1)
-
-    {{subject, predicate, object},
-       %RDF.Description{subject: subject, predications: popped}}
+      {original, collector_fun}
+    end
   end
-end
 
-defimpl Enumerable, for: RDF.Description do
-  def reduce(desc, acc, fun), do: RDF.Description.reduce(desc, acc, fun)
-  def member?(desc, triple),  do: {:ok, RDF.Description.include?(desc, triple)}
-  def count(desc),            do: {:ok, RDF.Description.count(desc)}
 end

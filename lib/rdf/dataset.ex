@@ -1,9 +1,18 @@
 defmodule RDF.Dataset do
   @moduledoc """
-  Defines a RDF Dataset.
+  A set of `RDF.Graph`s.
 
-  A `RDF.Dataset` represents a set of `RDF.Dataset`s.
+  It may have multiple named graphs and at most one unnamed ("default") graph.
+
+  `RDF.Dataset` implements:
+
+  - Elixirs `Access` behaviour
+  - Elixirs `Enumerable` protocol
+  - Elixirs `Inspect` protocol
+  - the `RDF.Data` protocol
+
   """
+
   defstruct name: nil, graphs: %{}
 
   @behaviour Access
@@ -54,7 +63,7 @@ defmodule RDF.Dataset do
   Creates an empty named `RDF.Dataset`.
   """
   def new(name),
-    do: %RDF.Dataset{name: RDF.uri(name)}
+    do: %RDF.Dataset{name: RDF.iri!(name)}
 
   @doc """
   Creates a named `RDF.Dataset` with an initial statement.
@@ -97,7 +106,7 @@ defmodule RDF.Dataset do
   def add(dataset, statements, graph_context \\ false)
 
   def add(dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         add(dataset, statement, graph_context)
       end
@@ -112,7 +121,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, false) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graphs =
         Map.update(graphs, graph_context,
           Graph.new(graph_context, {subject, predicate, objects}),
@@ -129,7 +138,7 @@ defmodule RDF.Dataset do
 
   def add(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.add(description)
@@ -150,10 +159,10 @@ defmodule RDF.Dataset do
   end
 
   def add(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
-    do: add(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+    do: add(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
 
   def add(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
         add(dataset, graph, graph_context)
       end
@@ -164,7 +173,7 @@ defmodule RDF.Dataset do
   @doc """
   Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P1, EX.O1})
       ...> RDF.Dataset.put(dataset, {EX.S, EX.P1, EX.O2})
@@ -185,7 +194,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           {subject, predicate, objects, graph_context}, false) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       new_graph =
         case graphs[graph_context] do
           graph = %Graph{} ->
@@ -206,7 +215,7 @@ defmodule RDF.Dataset do
         fn
           {s, _, _}       -> {s, nil}
           {s, _, _, nil}  -> {s, nil}
-          {s, _, _, c}    -> {s, convert_graph_name(c)}
+          {s, _, _, c}    -> {s, coerce_graph_name(c)}
         end,
         fn
           {_, p, o, _} -> {p, o}
@@ -215,7 +224,7 @@ defmodule RDF.Dataset do
   end
 
   def put(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       do_put dataset, Enum.group_by(statements,
           fn
             {s, _, _, _} -> {s, graph_context}
@@ -233,7 +242,7 @@ defmodule RDF.Dataset do
 
   def put(%RDF.Dataset{name: name, graphs: graphs},
           %Description{} = description, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
         Map.get(graphs, graph_context, Graph.new(graph_context))
         |> Graph.put(description)
@@ -254,10 +263,10 @@ defmodule RDF.Dataset do
   end
 
   def put(%RDF.Dataset{} = dataset, %Graph{} = graph, graph_context),
-    do: put(dataset, %Graph{graph | name: convert_graph_name(graph_context)}, false)
+    do: put(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
 
   def put(%RDF.Dataset{} = dataset, %RDF.Dataset{} = other_dataset, graph_context) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce graphs(other_dataset), dataset, fn (graph, dataset) ->
         put(dataset, graph, graph_context)
       end
@@ -274,7 +283,7 @@ defmodule RDF.Dataset do
   defp do_put(%RDF.Dataset{name: name, graphs: graphs},
             {subject, graph_context}, predications)
         when is_list(predications) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       graph = Map.get(graphs, graph_context, Graph.new(graph_context))
       new_graphs = graphs
         |> Map.put(graph_context, Graph.put(graph, subject, predications))
@@ -298,7 +307,7 @@ defmodule RDF.Dataset do
   def delete(dataset, statements, graph_context \\ false)
 
   def delete(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && convert_graph_name(graph_context) do
+    with graph_context = graph_context && coerce_graph_name(graph_context) do
       Enum.reduce statements, dataset, fn (statement, dataset) ->
         delete(dataset, statement, graph_context)
       end
@@ -337,7 +346,7 @@ defmodule RDF.Dataset do
 
   defp do_delete(%RDF.Dataset{name: name, graphs: graphs} = dataset,
           graph_context, statements) do
-    with graph_context = convert_graph_name(graph_context),
+    with graph_context = coerce_graph_name(graph_context),
          graph when not is_nil(graph) <- graphs[graph_context],
          new_graph = Graph.delete(graph, statements)
     do
@@ -367,7 +376,7 @@ defmodule RDF.Dataset do
   end
 
   def delete_graph(%RDF.Dataset{name: name, graphs: graphs}, graph_name) do
-    with graph_name = convert_graph_name(graph_name) do
+    with graph_name = coerce_graph_name(graph_name) do
       %RDF.Dataset{name: name, graphs: Map.delete(graphs, graph_name)}
     end
   end
@@ -384,7 +393,7 @@ defmodule RDF.Dataset do
 
   When a graph with the given name can not be found can not be found `:error` is returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.fetch(dataset, EX.Graph)
@@ -395,7 +404,7 @@ defmodule RDF.Dataset do
       :error
   """
   def fetch(%RDF.Dataset{graphs: graphs}, graph_name) do
-    Access.fetch(graphs, convert_graph_name(graph_name))
+    Access.fetch(graphs, coerce_graph_name(graph_name))
   end
 
   @doc """
@@ -404,7 +413,7 @@ defmodule RDF.Dataset do
   When a graph with the given name can not be found can not be found the optionally
   given default value or `nil` is returned
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.get(dataset, EX.Graph)
@@ -427,7 +436,7 @@ defmodule RDF.Dataset do
   The graph with given name.
   """
   def graph(%RDF.Dataset{graphs: graphs}, graph_name),
-    do: Map.get(graphs, convert_graph_name(graph_name))
+    do: Map.get(graphs, coerce_graph_name(graph_name))
 
   @doc """
   The default graph of a `RDF.Dataset`.
@@ -456,7 +465,7 @@ defmodule RDF.Dataset do
   If the passed function returns `:pop` the graph with the given name is
   removed and a `{removed_graph, new_dataset}` tuple gets returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P, EX.O, EX.Graph})
       ...> RDF.Dataset.get_and_update(dataset, EX.Graph, fn current_graph ->
@@ -465,7 +474,7 @@ defmodule RDF.Dataset do
       {RDF.Graph.new(EX.Graph, {EX.S, EX.P, EX.O}), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
-    with graph_context = convert_graph_name(graph_name) do
+    with graph_context = coerce_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
         {old_graph, new_graph} ->
           {old_graph, put(dataset, new_graph, graph_context)}
@@ -477,13 +486,33 @@ defmodule RDF.Dataset do
     end
   end
 
+
+  @doc """
+  Pops an arbitrary statement from a `RDF.Dataset`.
+  """
+  def pop(dataset)
+
+  def pop(%RDF.Dataset{graphs: graphs} = dataset)
+    when graphs == %{}, do: {nil, dataset}
+
+  def pop(%RDF.Dataset{name: name, graphs: graphs}) do
+    # TODO: Find a faster way ...
+    [{graph_name, graph}] = Enum.take(graphs, 1)
+    {{s, p, o}, popped_graph} = Graph.pop(graph)
+    popped = if Enum.empty?(popped_graph),
+      do:   graphs |> Map.delete(graph_name),
+      else: graphs |> Map.put(graph_name, popped_graph)
+
+    {{s, p, o, graph_name}, %RDF.Dataset{name: name, graphs: popped}}
+  end
+
   @doc """
   Pops the graph with the given name.
 
   When a graph with given name can not be found the optionally given default value
   or `nil` is returned.
 
-  # Examples
+  ## Examples
 
       iex> dataset = RDF.Dataset.new([
       ...>   {EX.S1, EX.P1, EX.O1, EX.Graph},
@@ -494,7 +523,7 @@ defmodule RDF.Dataset do
       {nil, dataset}
   """
   def pop(%RDF.Dataset{name: name, graphs: graphs} = dataset, graph_name) do
-    case Access.pop(graphs, convert_graph_name(graph_name)) do
+    case Access.pop(graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
         {nil, dataset}
       {graph, new_graphs} ->
@@ -507,7 +536,7 @@ defmodule RDF.Dataset do
   @doc """
   The number of statements within a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -525,14 +554,14 @@ defmodule RDF.Dataset do
   @doc """
   The set of all subjects used in the statement within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Dataset.subjects
-      MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2)])
+      MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, subjects) ->
@@ -543,7 +572,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all properties used in the predicates within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -561,9 +590,9 @@ defmodule RDF.Dataset do
   @doc """
   The set of all resources used in the objects within a `RDF.Dataset`.
 
-  Note: This function does collect only URIs and BlankNodes, not Literals.
+  Note: This function does collect only IRIs and BlankNodes, not Literals.
 
-  # Examples
+  ## Examples
 
       iex> RDF.Dataset.new([
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -572,7 +601,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
       ...>   {EX.S5, EX.p3, "foo"}
       ...> ]) |> RDF.Dataset.objects
-      MapSet.new([RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode)])
+      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, objects) ->
@@ -583,7 +612,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all resources used within a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
     iex> RDF.Dataset.new([
     ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -591,8 +620,8 @@ defmodule RDF.Dataset do
     ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
     ...>   {EX.S3, EX.p1, "foo"}
     ...> ]) |> RDF.Dataset.resources
-    MapSet.new([RDF.uri(EX.S1), RDF.uri(EX.S2), RDF.uri(EX.S3),
-      RDF.uri(EX.O1), RDF.uri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
+      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
   def resources(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, MapSet.new, fn ({_, graph}, resources) ->
@@ -603,16 +632,16 @@ defmodule RDF.Dataset do
   @doc """
   All statements within all graphs of a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
         iex> RDF.Dataset.new([
         ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
         ...>   {EX.S2, EX.p2, EX.O2},
         ...>   {EX.S1, EX.p2, EX.O3}]) |>
         ...>   RDF.Dataset.statements
-        [{RDF.uri(EX.S1), RDF.uri(EX.p1), RDF.uri(EX.O1), RDF.uri(EX.Graph)},
-         {RDF.uri(EX.S1), RDF.uri(EX.p2), RDF.uri(EX.O3)},
-         {RDF.uri(EX.S2), RDF.uri(EX.p2), RDF.uri(EX.O2)}]
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   def statements(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, [], fn ({_, graph}, all_statements) ->
@@ -629,7 +658,7 @@ defmodule RDF.Dataset do
   @doc """
   Returns if a given statement is in a `RDF.Dataset`.
 
-  # Examples
+  ## Examples
 
         iex> dataset = RDF.Dataset.new([
         ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
@@ -641,7 +670,7 @@ defmodule RDF.Dataset do
   def include?(dataset, statement, graph_context \\ nil)
 
   def include?(%RDF.Dataset{graphs: graphs}, triple = {_, _, _}, graph_context) do
-    with graph_context = convert_graph_name(graph_context) do
+    with graph_context = coerce_graph_name(graph_context) do
       if graph = graphs[graph_context] do
         Graph.include?(graph, triple)
       else
@@ -654,40 +683,79 @@ defmodule RDF.Dataset do
     do: include?(dataset, {subject, predicate, object}, graph_context)
 
 
-  # TODO: Can/should we isolate and move the Enumerable specific part to the Enumerable implementation?
+  @doc """
+  Checks if a graph of a `RDF.Dataset` contains statements about the given resource.
 
-  def reduce(%RDF.Dataset{graphs: graphs}, {:cont, acc}, _fun)
-    when map_size(graphs) == 0, do: {:done, acc}
+  ## Examples
 
-  def reduce(%RDF.Dataset{} = dataset, {:cont, acc}, fun) do
-    {statement, rest} = RDF.Dataset.pop(dataset)
-    reduce(rest, fun.(statement, acc), fun)
+        iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Dataset.describes?(EX.S1)
+        true
+        iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Dataset.describes?(EX.S2)
+        false
+  """
+  def describes?(%RDF.Dataset{graphs: graphs}, subject, graph_context \\ nil) do
+    with graph_context = coerce_graph_name(graph_context) do
+      if graph = graphs[graph_context] do
+        Graph.describes?(graph, subject)
+      else
+        false
+      end
+    end
   end
 
-  def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-  def reduce(dataset = %RDF.Dataset{}, {:suspend, acc}, fun) do
-    {:suspended, acc, &reduce(dataset, &1, fun)}
+  @doc """
+  Returns the names of all graphs of a `RDF.Dataset` containing statements about the given subject.
+
+  ## Examples
+        iex> dataset = RDF.Dataset.new([
+        ...>   {EX.S1, EX.p, EX.O},
+        ...>   {EX.S2, EX.p, EX.O},
+        ...>   {EX.S1, EX.p, EX.O, EX.Graph1},
+        ...>   {EX.S2, EX.p, EX.O, EX.Graph2}])
+        ...> RDF.Dataset.who_describes(dataset, EX.S1)
+        [nil, RDF.iri(EX.Graph1)]
+  """
+  def who_describes(%RDF.Dataset{graphs: graphs}, subject) do
+    with subject = coerce_subject(subject) do
+      graphs
+      |> Map.values
+      |> Stream.filter(&Graph.describes?(&1, subject))
+      |> Enum.map(&(&1.name))
+    end
   end
 
 
-  def pop(%RDF.Dataset{graphs: graphs} = dataset)
-    when graphs == %{}, do: {nil, dataset}
+  defimpl Enumerable do
+    def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
+    def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
 
-  def pop(%RDF.Dataset{name: name, graphs: graphs}) do
-#    # TODO: Find a faster way ...
-    [{graph_name, graph}] = Enum.take(graphs, 1)
-    {{s, p, o}, popped_graph} = Graph.pop(graph)
-    popped = if Enum.empty?(popped_graph),
-      do:   graphs |> Map.delete(graph_name),
-      else: graphs |> Map.put(graph_name, popped_graph)
+    def reduce(%RDF.Dataset{graphs: graphs}, {:cont, acc}, _fun)
+      when map_size(graphs) == 0, do: {:done, acc}
 
-    {{s, p, o, graph_name}, %RDF.Dataset{name: name, graphs: popped}}
+    def reduce(%RDF.Dataset{} = dataset, {:cont, acc}, fun) do
+      {statement, rest} = RDF.Dataset.pop(dataset)
+      reduce(rest, fun.(statement, acc), fun)
+    end
+
+    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(dataset = %RDF.Dataset{}, {:suspend, acc}, fun) do
+      {:suspended, acc, &reduce(dataset, &1, fun)}
+    end
   end
 
-end
 
-defimpl Enumerable, for: RDF.Dataset do
-  def reduce(graph, acc, fun),   do: RDF.Dataset.reduce(graph, acc, fun)
-  def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
-  def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
+  defimpl Collectable do
+    def into(original) do
+      collector_fun = fn
+        dataset, {:cont, list} when is_list(list)
+                               -> RDF.Dataset.add(dataset, List.to_tuple(list))
+        dataset, {:cont, elem} -> RDF.Dataset.add(dataset, elem)
+        dataset, :done         -> dataset
+        _dataset, :halt        -> :ok
+      end
+
+      {original, collector_fun}
+    end
+  end
+
 end

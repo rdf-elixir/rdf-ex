@@ -1,3 +1,5 @@
 use Mix.Config
 
-import_config "#{Mix.env}.exs"
+unless Mix.env in ~w[docs bench]a do
+  import_config "#{Mix.env}.exs"
+end

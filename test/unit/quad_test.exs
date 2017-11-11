@@ -1,7 +1,5 @@
 defmodule RDF.QuadTest do
-  use ExUnit.Case
-
-  import RDF.Sigils
+  use RDF.Test.Case
 
   doctest RDF.Quad
 end

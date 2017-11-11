@@ -1,8 +1,27 @@
 defmodule RDF.Serialization.Encoder do
-  @moduledoc false
+  @moduledoc """
+  A behaviour for encoders of `RDF.Graph`s or `RDF.Dataset`s in a specific
+  `RDF.Serialization` format.
+  """
 
-  @callback encode(RDF.Dataset, keyword) :: keyword(String.t)
-  @callback encode!(RDF.Dataset, keyword) :: String.t
+
+  @doc """
+  Encodes a `RDF.Graph` or `RDF.Dataset`.
+
+  It returns an `{:ok, string}` tuple, with `string` being the serialized
+  `RDF.Graph` or `RDF.Dataset`, or `{:error, reason}` if an error occurs.
+  """
+  @callback encode(RDF.Graph.t | RDF.Dataset.t, keyword) :: keyword(String.t)
+
+  @doc """
+  Encodes a `RDF.Graph` or `RDF.Dataset`.
+
+  As opposed to `encode`, it raises an exception if an error occurs.
+
+  Note: The `__using__` macro automatically provides an overridable default
+  implementation based on the non-bang `encode` function.
+  """
+  @callback encode!(RDF.Graph.t | RDF.Dataset.t, keyword) :: String.t
 
 
   defmacro __using__(_) do

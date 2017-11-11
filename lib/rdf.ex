@@ -1,107 +1,49 @@
 defmodule RDF do
-  alias RDF.{Namespace, Literal, BlankNode, Triple}
+  @moduledoc """
+  The top-level module of RDF.ex.
 
-  @doc """
-  Generator function for URIs from strings or term atoms of a `RDF.Namespace`.
+  RDF.ex consists of:
 
-  This function is used for the `~I` sigil.
+  - modules for the nodes of an RDF graph
+    - `RDF.IRI`
+    - `RDF.BlankNode`
+    - `RDF.Literal`
+  - a facility for the mapping of URIs of a vocabulary to Elixir modules and
+    functions: `RDF.Vocabulary.Namespace`
+  - modules for the construction of statements
+    - `RDF.Triple`
+    - `RDF.Quad`
+    - `RDF.Statement`
+  - modules for collections of statements
+    - `RDF.Description`
+    - `RDF.Graph`
+    - `RDF.Dataset`
+    - `RDF.Data`
+    - `RDF.List`
+  - the foundations for the definition of RDF serialization formats
+    - `RDF.Serialization`
+    - `RDF.Serialization.Decoder`
+    - `RDF.Serialization.Encoder`
+  - and the implementation of various RDF serialization formats
+    - `RDF.NTriples`
+    - `RDF.NQuads`
+    - `RDF.Turtle`
 
-  ## Examples
+  This top-level module provides shortcut functions for the construction of the
+  basic elements and structures of RDF and some general helper functions.
 
-      iex> RDF.uri("http://www.example.com/foo")
-      %URI{authority: "www.example.com", fragment: nil, host: "www.example.com",
-       path: "/foo", port: 80, query: nil, scheme: "http", userinfo: nil}
-
-      iex> RDF.uri(RDF.NS.RDFS.Class)
-      %URI{authority: "www.w3.org", fragment: "Class", host: "www.w3.org",
-       path: "/2000/01/rdf-schema", port: 80, query: nil, scheme: "http",
-       userinfo: nil}
-
-      iex> RDF.uri("not a uri")
-      ** (RDF.InvalidURIError) string "not a uri" is not a valid URI
+  For a general introduction you may refer to the [README](readme.html).
   """
-  @spec uri(URI.t | binary | atom) :: URI.t
-  def uri(atom) when is_atom(atom), do: Namespace.resolve_term(atom)
 
-  def uri(string) do
-    parsed_uri = URI.parse(string)
-    if uri?(parsed_uri) do
-      parsed_uri
-    else
-      raise RDF.InvalidURIError, ~s(string "#{string}" is not a valid URI)
-    end
-  end
-
-  @doc """
-  Checks if the given value is an URI.
-
-  ## Examples
-
-      iex> RDF.uri?("http://www.example.com/foo")
-      true
-      iex> RDF.uri?("not a uri")
-      false
-  """
-  def uri?(some_uri = %URI{}) do
-    # The following was a suggested at http://stackoverflow.com/questions/30696761/check-if-a-url-is-valid-in-elixir
-    # TODO: Find a better way! Maybe https://github.com/marcelog/ex_rfc3986 ?
-    case some_uri do
-      %URI{scheme: nil} -> false
-      _uri -> true
-    end
-  end
-  def uri?(value) when is_binary(value), do: uri?(URI.parse(value))
-  def uri?(_), do: false
-
-
-  @doc """
-  Generator function for `RDF.Literal` values.
-
-  ## Examples
-
-      iex> RDF.literal(42)
-      %RDF.Literal{value: 42, datatype: XSD.integer}
-  """
-  def literal(value)
-
-  def literal(lit = %Literal{}), do: lit
-  def literal(value),            do: Literal.new(value)
-  def literal(value, opts),      do: Literal.new(value, opts)
-
-  @doc """
-  Generator function for `RDF.Triple`s.
-
-  ## Examples
-
-      iex> RDF.triple("http://example.com/S", "http://example.com/p", 42)
-      {RDF.uri("http://example.com/S"), RDF.uri("http://example.com/p"), RDF.literal(42)}
-  """
-  def triple(subject, predicate, object), do: Triple.new(subject, predicate, object)
-  def triple(tuple), do: Triple.new(tuple)
-
-
-  @doc """
-  Generator function for `RDF.BlankNode`s.
-  """
-  def bnode, do: BlankNode.new
-
-  @doc """
-  Generator function for `RDF.BlankNode`s with a user-defined identity.
-
-  ## Examples
-
-      iex> RDF.bnode(:foo)
-      %RDF.BlankNode{id: "foo"}
-  """
-  def bnode(id), do: BlankNode.new(id)
-
+  alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
+             Description, Graph, Dataset}
 
   @doc """
   Checks if the given value is a RDF resource.
 
   ## Examples
 
-      iex> RDF.resource?(RDF.uri("http://example.com/resource"))
+      iex> RDF.resource?(RDF.iri("http://example.com/resource"))
       true
       iex> RDF.resource?(EX.resource)
       true
@@ -111,10 +53,72 @@ defmodule RDF do
       false
   """
   def resource?(value)
-  def resource?(%URI{}), do: true
+  def resource?(%IRI{}),                  do: true
+  def resource?(%BlankNode{}),            do: true
   def resource?(atom) when is_atom(atom), do: resource?(Namespace.resolve_term(atom))
-  def resource?(%BlankNode{}), do: true
-  def resource?(_), do: false
+  def resource?(_),                       do: false
+
+
+  defdelegate uri?(value), to: IRI, as: :valid?
+  defdelegate iri?(value), to: IRI, as: :valid?
+  defdelegate uri(value),  to: IRI, as: :new
+  defdelegate iri(value),  to: IRI, as: :new
+  defdelegate uri!(value), to: IRI, as: :new!
+  defdelegate iri!(value), to: IRI, as: :new!
+
+  @doc """
+  Checks if the given value is a blank node.
+
+  ## Examples
+
+      iex> RDF.bnode?(RDF.bnode)
+      true
+      iex> RDF.bnode?(RDF.iri("http://example.com/resource"))
+      false
+      iex> RDF.bnode?(42)
+      false
+  """
+  def bnode?(%BlankNode{}), do: true
+  def bnode?(_), do: false
+
+  defdelegate bnode(),   to: BlankNode, as: :new
+  defdelegate bnode(id), to: BlankNode, as: :new
+
+  defdelegate literal(value),       to: Literal, as: :new
+  defdelegate literal(value, opts), to: Literal, as: :new
+
+  defdelegate triple(s, p, o),  to: Triple, as: :new
+  defdelegate triple(tuple),    to: Triple, as: :new
+
+  defdelegate quad(s, p, o, g), to: Quad, as: :new
+  defdelegate quad(tuple),      to: Quad, as: :new
+
+  defdelegate description(arg),               to: Description, as: :new
+  defdelegate description(arg1, arg2),        to: Description, as: :new
+  defdelegate description(arg1, arg2, arg3),  to: Description, as: :new
+
+  defdelegate graph(),                        to: Graph, as: :new
+  defdelegate graph(arg),                     to: Graph, as: :new
+  defdelegate graph(arg1, arg2),              to: Graph, as: :new
+  defdelegate graph(arg1, arg2, arg3),        to: Graph, as: :new
+  defdelegate graph(arg1, arg2, arg3, arg4),  to: Graph, as: :new
+
+  defdelegate dataset(),                      to: Dataset, as: :new
+  defdelegate dataset(arg),                   to: Dataset, as: :new
+  defdelegate dataset(arg1, arg2),            to: Dataset, as: :new
+
+  defdelegate list?(resource, graph), to: RDF.List, as: :node?
+  defdelegate list?(description),     to: RDF.List, as: :node?
+
+  def list(native_list),
+    do: RDF.List.from(native_list)
+
+  def list(head, %Graph{} = graph),
+    do: RDF.List.new(head, graph)
+
+  def list(native_list, opts),
+    do: RDF.List.from(native_list, opts)
+
 
 
   for term <- ~w[type subject predicate object first rest value]a do
@@ -129,4 +133,5 @@ defmodule RDF do
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
+  defdelegate   __base_iri__(), to: RDF.NS.RDF
 end
