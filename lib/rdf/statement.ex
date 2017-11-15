@@ -25,9 +25,9 @@ defmodule RDF.Statement do
 
   ## Examples
 
-      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42}
+      iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
-      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+      iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
   def coerce(statement)
