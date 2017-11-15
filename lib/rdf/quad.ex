@@ -21,8 +21,10 @@ defmodule RDF.Quad do
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       iex> RDF.Quad.new(EX.S, EX.p, 42, EX.Graph)
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
+      iex> RDF.Quad.new(EX.S, EX.p, 42)
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), nil}
   """
-  def new(subject, predicate, object, graph_context) do
+  def new(subject, predicate, object, graph_context \\ nil) do
     {
       Statement.coerce_subject(subject),
       Statement.coerce_predicate(predicate),
@@ -44,9 +46,16 @@ defmodule RDF.Quad do
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       iex> RDF.Quad.new {EX.S, EX.p, 42, EX.Graph}
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
+      iex> RDF.Quad.new {EX.S, EX.p, 42}
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), nil}
   """
+  def new(tuple)
+
   def new({subject, predicate, object, graph_context}),
     do: new(subject, predicate, object, graph_context)
+
+  def new({subject, predicate, object}),
+    do: new(subject, predicate, object)
 
 
   def has_bnode?({%BlankNode{}, _, _, _}), do: true

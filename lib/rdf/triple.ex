@@ -43,8 +43,12 @@ defmodule RDF.Triple do
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
       iex> RDF.Triple.new {EX.S, EX.p, 42}
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
+      iex> RDF.Triple.new {EX.S, EX.p, 42, EX.Graph}
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
-  def new({subject, predicate, object}), do: new(subject, predicate, object)
+  def new(tuple)
+  def new({subject, predicate, object}),    do: new(subject, predicate, object)
+  def new({subject, predicate, object, _}), do: new(subject, predicate, object)
 
 
   def has_bnode?({%BlankNode{}, _, _}), do: true
