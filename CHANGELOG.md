@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `Collectable` implementations for all `RDF.Data` structures so they can be 
   used as destinations of `Enum.into` and `for` comprehensions
 - `RDF.Quad` can be created from triple and `RDF.Triple` can be created from quad
+- `RDF.Statement.map/2` which creates a statement with mapped nodes from another statement
 
 
 [Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...HEAD)

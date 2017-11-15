@@ -72,6 +72,40 @@ defmodule RDF.Statement do
     do: raise RDF.Quad.InvalidGraphContextError, graph_context: arg
 
 
+  @doc """
+  Creates a `RDF.Statement` by mapping the nodes of another statement.
+
+  The input nodes are coerced to proper RDF values, but the returned tuple is not
+  coerced. If wanted, this could be easily achieved by piping the result through
+  `RDF.Statement.coerce/1`.
+
+  ## Examples
+
+      iex> RDF.Statement.map {EX.S, EX.p, EX.O}, fn node -> to_string(node) <> "1" end
+      {"http://example.com/S1", "http://example.com/p1", "http://example.com/O1"}
+      iex> RDF.Statement.map {EX.S, EX.p, EX.O, EX.G}, fn node -> to_string(node) <> "1" end
+      {"http://example.com/S1", "http://example.com/p1", "http://example.com/O1", "http://example.com/G1"}
+  """
+  def map(statement, f)
+
+  def map({s, p, o}, f) do
+    {
+      (s |> coerce_subject()   |> f.()),
+      (p |> coerce_predicate() |> f.()),
+      (o |> coerce_object()    |> f.())
+    }
+  end
+
+  def map({s, p, o, g}, f) do
+    {
+      (s |> coerce_subject()    |> f.()),
+      (p |> coerce_predicate()  |> f.()),
+      (o |> coerce_object()     |> f.()),
+      (g |> coerce_graph_name() |> f.())
+    }
+  end
+
+
   def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
   def has_bnode?({_, _, _} = triple),  do: Triple.has_bnode?(triple)
 
