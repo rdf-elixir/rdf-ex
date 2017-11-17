@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   used as destinations of `Enum.into` and `for` comprehensions
 - `RDF.Quad` can be created from triple and `RDF.Triple` can be created from quad
 - `RDF.Statement.map/2` which creates a statement with mapped nodes from another statement
+- `RDF.Statement` functions to get the coerced components of a statement
 
 
 [Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...HEAD)

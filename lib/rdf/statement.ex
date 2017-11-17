@@ -19,6 +19,54 @@ defmodule RDF.Statement do
 
 
   @doc """
+  The subject component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.subject {"http://example.com/S", "http://example.com/p", 42}
+      ~I<http://example.com/S>
+  """
+  def subject(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(0) |> coerce_subject()
+
+  @doc """
+  The predicate component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.predicate {"http://example.com/S", "http://example.com/p", 42}
+      ~I<http://example.com/p>
+  """
+  def predicate(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(1) |> coerce_predicate()
+
+  @doc """
+  The object component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.object {"http://example.com/S", "http://example.com/p", 42}
+      RDF.literal(42)
+  """
+  def object(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(2) |> coerce_object()
+
+  @doc """
+  The graph name component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.graph_name {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+      ~I<http://example.com/Graph>
+      iex> RDF.Statement.graph_name {"http://example.com/S", "http://example.com/p", 42}
+      nil
+  """
+  def graph_name(statement)
+  def graph_name({_, _, _, graph_name}), do: coerce_graph_name(graph_name)
+  def graph_name({_, _, _}),             do: nil
+
+
+  @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.
 
   An error is raised when the given elements are not coercible to RDF values.
