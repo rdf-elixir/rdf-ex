@@ -77,9 +77,11 @@ defmodule RDF.Serialization.ParseHelper do
   defp string_unescape_map(?r),  do: ?\r
   defp string_unescape_map(?t),  do: ?\t
   defp string_unescape_map(?u),  do: true
+  defp string_unescape_map(:unicode),  do: true
   defp string_unescape_map(e),   do: e
 
   defp iri_unescape_map(?u),  do: true
+  defp iri_unescape_map(:unicode),  do: true
   defp iri_unescape_map(e),   do: e
 
   def unescape_8digit_unicode_seq(string) do

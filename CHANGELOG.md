@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.3.1 - 2018-01-19
 
 ### Added
 
@@ -15,9 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Statement.map/2` which creates a statement with mapped nodes from another statement
 - `RDF.Statement` functions to get the coerced components of a statement
 
+### Fixed
 
-[Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...HEAD)
+- Fix `unescape_map` in `parse_helper` for Elixir 1.6 ([@ajkeys](https://github.com/ajkeys)
 
+
+[Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...v0.3.1)
 
 
 
