@@ -5,16 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.3.1 - 2018-01-19
 
 ### Added
 
 - `Collectable` implementations for all `RDF.Data` structures so they can be 
   used as destinations of `Enum.into` and `for` comprehensions
 
+### Fixed
 
-[Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...HEAD)
+- Fix `unescape_map` in `parse_helper` for Elixir 1.6 ([@ajkeys](https://github.com/ajkeys)
 
+
+[Compare v0.3.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...v0.3.1)
 
 
 
