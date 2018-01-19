@@ -49,7 +49,7 @@ defmodule RDF.Mixfile do
       maintainers: ["Marcel Otto"],
       licenses: ["MIT"],
       links: %{"GitHub" => @repo_url},
-      files: ~w[lib src priv mix.exs README.md LICENSE.md VERSION]
+      files: ~w[lib src priv mix.exs README.md CHANGELOG.md LICENSE.md VERSION]
     ]
   end
 
