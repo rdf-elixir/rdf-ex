@@ -40,10 +40,10 @@ defmodule RDF.Turtle.Decoder do
     end
   end
 
-  defp tokenize(content), do: content |> to_charlist |> :turtle_lexer.string
+  def tokenize(content), do: content |> to_charlist |> :turtle_lexer.string
 
-  defp parse([]),     do: {:ok, []}
-  defp parse(tokens), do: tokens |> :turtle_parser.parse
+  def parse([]),     do: {:ok, []}
+  def parse(tokens), do: tokens |> :turtle_parser.parse
 
   defp build_graph(ast, base) do
     try do
