@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- implementation of the standard RDF dataset normalization algorithm
+- `isomorphic?` ...
 - `Collectable` implementations for all `RDF.Data` structures so they can be 
   used as destinations of `Enum.into` and `for` comprehensions
 - `RDF.Quad` can be created from triple and `RDF.Triple` can be created from quad

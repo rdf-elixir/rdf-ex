@@ -16,6 +16,15 @@ defmodule RDF.TestSuite do
         TestTurtleNegativeEval
       ],
       strict: false
+
+    defvocab RDFN,
+      base_iri: "http://json-ld.github.io/normalization/test-vocab#",
+      terms: ~w[
+        Urgna2012EvalTest
+        Urdna2015EvalTest
+      ],
+      strict: false
+
   end
 
   alias NS.MF
@@ -25,11 +34,11 @@ defmodule RDF.TestSuite do
 
   def dir(format), do: Path.join(RDF.TestData.dir, String.upcase(format) <> "-TESTS")
   def file(filename, format), do: format |> dir |> Path.join(filename)
-  def manifest_path(format),  do: file("manifest.ttl", format)
+  def manifest_path(format, filename),  do: file(filename, format)
 
   def manifest_graph(format, opts \\ []) do
     format
-    |> manifest_path
+    |> manifest_path(Keyword.get(opts, :manifest, "manifest.ttl"))
     |> Turtle.read_file!(opts)
   end
 
