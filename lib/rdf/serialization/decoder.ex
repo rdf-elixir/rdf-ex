@@ -1,6 +1,6 @@
 defmodule RDF.Serialization.Decoder do
   @moduledoc """
-  A behaviour for decoder of strings encoded in a specific `RDF.Serialization` format.
+  A behaviour for decoders of strings encoded in a specific `RDF.Serialization` format.
   """
 
 
@@ -10,7 +10,8 @@ defmodule RDF.Serialization.Decoder do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
-  @callback decode(String.t, keyword) :: keyword(RDF.Graph.t | RDF.Dataset.t)
+  @callback decode(String.t, keyword) :: {:ok, RDF.Graph.t | RDF.Dataset.t} |
+                                         {:error, any}
 
   @doc """
   Decodes a serialized `RDF.Graph` or `RDF.Dataset` from the given string.
