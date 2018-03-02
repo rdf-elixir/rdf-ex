@@ -290,7 +290,7 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp term(%Literal{datatype: datatype} = literal, state, _, nesting),
+  defp term(%Literal{} = literal, state, _, nesting),
     do: typed_literal_term(literal, state, nesting)
 
   defp term(list, state, _, nesting) when is_list(list) do

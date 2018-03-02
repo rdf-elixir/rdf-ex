@@ -94,7 +94,6 @@ end
 
 defimpl Inspect, for: RDF.Dataset do
   import Inspect.Algebra
-  import RDF.InspectHelper
 
   def inspect(%RDF.Dataset{name: name} = dataset, opts) do
     doc =

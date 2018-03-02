@@ -7,7 +7,7 @@ defmodule RDF.NTriples.Encoder do
 
   @xsd_string RDF.Datatype.NS.XSD.string
 
-  def encode(data, opts \\ []) do
+  def encode(data, _opts \\ []) do
     result =
       data
       |> Enum.reduce([], fn (statement, result) ->

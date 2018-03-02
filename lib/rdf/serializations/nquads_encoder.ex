@@ -3,7 +3,7 @@ defmodule RDF.NQuads.Encoder do
 
   use RDF.Serialization.Encoder
 
-  def encode(data, opts \\ []) do
+  def encode(data, _opts \\ []) do
     result =
       data
       |> Enum.reduce([], fn (statement, result) ->
