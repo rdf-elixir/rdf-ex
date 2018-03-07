@@ -15,7 +15,7 @@ defmodule RDF.NTriples do
   see <https://www.w3.org/TR/n-triples/>
   """
 
-  use RDF.Serialization
+  use RDF.Serialization.Format
 
   import RDF.Sigils
 

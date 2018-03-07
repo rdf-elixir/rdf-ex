@@ -683,7 +683,7 @@ iex> RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]]) |> RDF.List.values
 
 ### Serializations
 
-RDF graphs and datasets can be read and written to files or strings in a RDF serialization format using the  `read_file`, `read_string` and `write_file`, `write_string` functions of the resp. `RDF.Serialization` module.
+RDF graphs and datasets can be read and written to files or strings in a RDF serialization format using the  `read_file`, `read_string` and `write_file`, `write_string` functions of the resp. `RDF.Serialization.Format` module.
 
 ```elixir
 {:ok, graph} = RDF.NTriples.read_file("/path/to/some_file.nt")

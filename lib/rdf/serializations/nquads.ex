@@ -13,7 +13,7 @@ defmodule RDF.NQuads do
   see <https://www.w3.org/TR/n-quads/>
   """
 
-  use RDF.Serialization
+  use RDF.Serialization.Format
 
   import RDF.Sigils
 

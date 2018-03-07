@@ -7,9 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Changed
+
+- rename `RDF.Serialization` behaviour to `RDF.Serialization.Format`
+
+
 ### Added
 
-- `RDF.Serialization`s define an atom name
+- `RDF.Serialization.Format`s define an atom name
 
 
 [Compare v0.3.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...HEAD)

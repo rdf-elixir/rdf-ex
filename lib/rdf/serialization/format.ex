@@ -1,4 +1,4 @@
-defmodule RDF.Serialization do
+defmodule RDF.Serialization.Format do
   @moduledoc """
   A behaviour for RDF serialization formats.
 

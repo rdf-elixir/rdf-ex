@@ -6,7 +6,7 @@ defmodule RDF.Turtle do
   see <https://www.w3.org/TR/turtle/>
   """
 
-  use RDF.Serialization
+  use RDF.Serialization.Format
 
   import RDF.Sigils
 
