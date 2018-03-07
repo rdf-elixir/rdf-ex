@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Serialization`s define an atom name
+
+
+[Compare v0.3.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...HEAD)
+
+
+
 ## 0.3.1 - 2018-01-19
 
 ### Added

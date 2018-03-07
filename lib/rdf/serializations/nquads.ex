@@ -18,6 +18,7 @@ defmodule RDF.NQuads do
   import RDF.Sigils
 
   @id           ~I<http://www.w3.org/ns/formats/N-Quads>
+  @name         :nquads
   @extension    "nq"
   @content_type "application/n-quads"
 

@@ -32,6 +32,11 @@ defmodule RDF.Serialization do
   @callback id :: RDF.IRI.t
 
   @doc """
+  An name atom of the serialization format.
+  """
+  @callback name :: atom
+
+  @doc """
   The usual file extension for the serialization format.
   """
   @callback extension :: binary
@@ -98,6 +103,10 @@ defmodule RDF.Serialization do
       if !Module.defines?(__MODULE__, {:id, 0}) &&
           Module.get_attribute(__MODULE__, :id) do
         def id, do: @id
+      end
+      if !Module.defines?(__MODULE__, {:name, 0}) &&
+          Module.get_attribute(__MODULE__, :name) do
+        def name, do: @name
       end
       if !Module.defines?(__MODULE__, {:extension, 0}) &&
           Module.get_attribute(__MODULE__, :extension) do
