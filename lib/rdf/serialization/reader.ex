@@ -1,9 +1,9 @@
-defmodule RDF.Reader do
+defmodule RDF.Serialization.Reader do
   @moduledoc """
-  General serialization-independent functions for reading a `RDF.Graph` or `RDF.Dataset` from a file or encoded-string.
+  General functions for reading a `RDF.Graph` or `RDF.Dataset` from a serialization file or encoded-string.
 
   You probably won't use these functions directly, but instead use the automatically
-  generated functions with same name on a `RDF.Serialization`, which implicitly
+  generated functions with same name on a `RDF.Serialization.Format`, which implicitly
   use the proper `RDF.Serialization.Decoder` module.
   """
 

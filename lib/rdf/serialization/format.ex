@@ -79,22 +79,22 @@ defmodule RDF.Serialization.Format do
       defoverridable [decoder: 0, encoder: 0, options: 0]
 
       def read_string(content, opts \\ []),
-        do: RDF.Reader.read_string(decoder(), content, opts)
+        do: RDF.Serialization.Reader.read_string(decoder(), content, opts)
       def read_string!(content, opts \\ []),
-        do: RDF.Reader.read_string!(decoder(), content, opts)
+        do: RDF.Serialization.Reader.read_string!(decoder(), content, opts)
       def read_file(file, opts \\ []),
-        do: RDF.Reader.read_file(decoder(), file, opts)
+        do: RDF.Serialization.Reader.read_file(decoder(), file, opts)
       def read_file!(file, opts \\ []),
-        do: RDF.Reader.read_file!(decoder(), file, opts)
+        do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
 
       def write_string(data, opts \\ []),
-        do: RDF.Writer.write_string(encoder(), data, opts)
+        do: RDF.Serialization.Writer.write_string(encoder(), data, opts)
       def write_string!(data, opts \\ []),
-        do: RDF.Writer.write_string!(encoder(), data, opts)
+        do: RDF.Serialization.Writer.write_string!(encoder(), data, opts)
       def write_file(data, path, opts \\ []),
-        do: RDF.Writer.write_file(encoder(), data, path, opts)
+        do: RDF.Serialization.Writer.write_file(encoder(), data, path, opts)
       def write_file!(data, path, opts \\ []),
-        do: RDF.Writer.write_file!(encoder(), data, path, opts)
+        do: RDF.Serialization.Writer.write_file!(encoder(), data, path, opts)
 
       @before_compile unquote(__MODULE__)
     end

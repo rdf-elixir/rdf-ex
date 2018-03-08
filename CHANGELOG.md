@@ -9,9 +9,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- rename `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
+- renamed `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
   `RDF.Serialization` module contains just simple RDF serialization related functions 
-- rename `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0` 
+- renamed `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0`
+- moved `RDF.Reader` and `RDF.Writer` into `RDF.Serialization` module 
 
 
 ### Added

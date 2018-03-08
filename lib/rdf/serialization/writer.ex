@@ -1,9 +1,9 @@
-defmodule RDF.Writer do
+defmodule RDF.Serialization.Writer do
   @moduledoc """
-  General serialization-independent functions for writing the statements of a `RDF.Graph` or `RDF.Dataset` to a file or string.
+  General functions for writing the statements of a `RDF.Graph` or `RDF.Dataset` to a serialization file or string.
 
   You probably won't use these functions directly, but instead use the automatically
-  generated functions with same name on a `RDF.Serialization`, which implicitly
+  generated functions with same name on a `RDF.Serialization.Format`, which implicitly
   use the proper `RDF.Serialization.Encoder` module.
   """
 
