@@ -9,12 +9,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- rename `RDF.Serialization` behaviour to `RDF.Serialization.Format`
+- rename `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
+  `RDF.Serialization` module contains just simple RDF serialization related functions 
 
 
 ### Added
 
-- `RDF.Serialization.Format`s define an atom name
+- `RDF.Serialization.Format`s define a `name` atom
+- The following functions to access available `RDF.Serialization.Format`s:
+  - `RDF.Serialization.formats/0`
+  - `RDF.Serialization.available_formats/0`
+  - `RDF.Serialization.format/1`
+  - `RDF.Serialization.format_by_content_type/1`
+  - `RDF.Serialization.format_by_extension/1`
 
 
 [Compare v0.3.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...HEAD)
