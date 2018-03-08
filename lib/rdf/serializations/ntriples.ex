@@ -19,9 +19,9 @@ defmodule RDF.NTriples do
 
   import RDF.Sigils
 
-  @id           ~I<http://www.w3.org/ns/formats/N-Triples>
-  @name         :ntriples
-  @extension    "nt"
-  @content_type "application/n-triples"
+  @id         ~I<http://www.w3.org/ns/formats/N-Triples>
+  @name       :ntriples
+  @extension  "nt"
+  @media_type "application/n-triples"
 
 end

@@ -5,25 +5,27 @@ defmodule RDF.Serialization.Format do
   A `RDF.Serialization` for a format can be implemented like this
 
       defmodule SomeFormat do
-        use RDF.Serialization
+        use RDF.Serialization.Format
         import RDF.Sigils
 
-        @id           ~I<http://example.com/some_format>
-        @extension    "ext"
-        @content_type "application/some-format"
+        @id         ~I<http://example.com/some_format>
+        @name       :some_format
+        @extension  "ext"
+        @media_type "application/some-format"
       end
 
-  When `@id`, `@extension` and `@content_type` module attributes are defined the
-  resp. behaviour functions are generated automatically and return these values.
+  When `@id`, `@name`, `@extension` and `@media_type` module attributes are
+  defined the resp. behaviour functions are generated automatically and return
+  these values.
 
   Then you'll have to do the main work by implementing a
   `RDF.Serialization.Encoder` and a `RDF.Serialization.Decoder` for the format.
 
   By default it is assumed that these are defined in `Encoder` and `Decoder`
-  moduler under the `RDF.Serialization` module of the format, i.e. in the example
-  above in `SomeFormat.Encoder` and `SomeFormat.Decoder`. If you want them in
-  another module, you'll have to override the `encoder/0` and/or `decoder/0`
-  functions in your `RDF.Serialization` module.
+  moduler under the `RDF.Serialization.Format` module of the format, i.e. in the
+  example above in `SomeFormat.Encoder` and `SomeFormat.Decoder`. If you want
+  them in another module, you'll have to override the `encoder/0` and/or
+  `decoder/0` functions in your `RDF.Serialization.Format` module.
   """
 
   @doc """
@@ -44,7 +46,7 @@ defmodule RDF.Serialization.Format do
   @doc """
   The MIME type of the serialization format.
   """
-  @callback content_type :: binary
+  @callback media_type :: binary
 
   @doc """
   A map with the supported options of the `Encoder` and `Decoder` for the serialization format.
@@ -112,9 +114,9 @@ defmodule RDF.Serialization.Format do
           Module.get_attribute(__MODULE__, :extension) do
         def extension, do: @extension
       end
-      if !Module.defines?(__MODULE__, {:content_type, 0}) &&
-          Module.get_attribute(__MODULE__, :content_type) do
-        def content_type, do: @content_type
+      if !Module.defines?(__MODULE__, {:media_type, 0}) &&
+          Module.get_attribute(__MODULE__, :media_type) do
+        def media_type, do: @media_type
       end
     end
   end

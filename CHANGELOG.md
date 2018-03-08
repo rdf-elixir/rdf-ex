@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - rename `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
   `RDF.Serialization` module contains just simple RDF serialization related functions 
+- rename `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0` 
 
 
 ### Added
@@ -20,7 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   - `RDF.Serialization.formats/0`
   - `RDF.Serialization.available_formats/0`
   - `RDF.Serialization.format/1`
-  - `RDF.Serialization.format_by_content_type/1`
+  - `RDF.Serialization.format_by_media_type/1`
   - `RDF.Serialization.format_by_extension/1`
 
 

@@ -74,13 +74,13 @@ defmodule RDF.Serialization do
 
   ## Examples
 
-      iex> RDF.Serialization.format_by_content_type("text/turtle")
+      iex> RDF.Serialization.format_by_media_type("text/turtle")
       RDF.Turtle
-      iex> RDF.Serialization.format_by_content_type("application/ld+json")
+      iex> RDF.Serialization.format_by_media_type("application/ld+json")
       nil  # unless json_ld is defined as a dependency of the application
   """
-  def format_by_content_type(content_type) do
-    format_where(fn format -> format.content_type == content_type end)
+  def format_by_media_type(media_type) do
+    format_where(fn format -> format.media_type == media_type end)
   end
 
   @doc """
