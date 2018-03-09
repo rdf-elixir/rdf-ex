@@ -13,6 +13,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   `RDF.Serialization` module contains just simple RDF serialization related functions 
 - renamed `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0`
 - moved `RDF.Reader` and `RDF.Writer` into `RDF.Serialization` module 
+- removed the limitation to serialization formats defined in the core RDF.ex package
+  for use as a source of `RDF.Vocabulary.Namespace`s; so you can now also define
+  vocabulary namespaces from JSON-LD files for example, provided that the corresponding 
+  Hex package is defined as a dependency  
 
 
 ### Added

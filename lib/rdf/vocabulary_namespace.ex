@@ -176,7 +176,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp source!(opts) do
     cond do
-      Keyword.has_key?(opts, :file)        -> {:data, filename!(opts) |> load_file}
+      Keyword.has_key?(opts, :file)        -> {:data, filename!(opts) |> RDF.read_file!()}
       rdf_data = Keyword.get(opts, :data)  -> {:data, raw_rdf_data(rdf_data)}
       terms    = Keyword.get(opts, :terms) -> {:terms, terms_from_user_input!(terms)}
       true ->
@@ -516,18 +516,6 @@ defmodule RDF.Vocabulary.Namespace do
         true ->
           raise File.Error, path: filename, action: "find", reason: :enoent
        end
-    end
-  end
-
-  defp load_file(file) do
-    # TODO: support other formats
-    cond do
-      String.ends_with?(file, ".nt")  -> RDF.NTriples.read_file!(file)
-      String.ends_with?(file, ".nq")  -> RDF.NQuads.read_file!(file)
-      String.ends_with?(file, ".ttl") -> RDF.Turtle.read_file!(file)
-      true ->
-        raise ArgumentError,
-          "unsupported file type for #{file}: vocabulary namespaces can currently be created from NTriple, NQuad and Turtle files"
     end
   end
 
