@@ -18,7 +18,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.Serialization.Format`s define a `name` atom
-- The following functions to access available `RDF.Serialization.Format`s:
+- all `RDF.Serialization.Reader` and `RDF.Serialization.Writer` functions are now
+  available on the `RDF.Serialization` module (or aliased on the top-level `RDF` 
+  module) and the format can be specified instead of a `RDF.Serialization.Format` 
+  argument, via the `format` or `media_type` option or in case of `*_file` 
+  functions, without explicit specification of the format, but inferred from file
+  name extension instead; see the updated README section about RDF serializations
+- the following functions to access available `RDF.Serialization.Format`s:
   - `RDF.Serialization.formats/0`
   - `RDF.Serialization.available_formats/0`
   - `RDF.Serialization.format/1`

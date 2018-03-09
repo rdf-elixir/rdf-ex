@@ -90,9 +90,15 @@ defmodule RDF.Serialization do
 
       iex> RDF.Serialization.format_by_extension("ttl")
       RDF.Turtle
+      iex> RDF.Serialization.format_by_extension(".ttl")
+      RDF.Turtle
       iex> RDF.Serialization.format_by_extension("jsonld")
       nil  # unless json_ld is defined as a dependency of the application
   """
+  def format_by_extension(extension)
+
+  def format_by_extension("." <> extension), do: format_by_extension(extension)
+
   def format_by_extension(extension) do
     format_where(fn format -> format.extension == extension end)
   end
@@ -102,4 +108,169 @@ defmodule RDF.Serialization do
     |> Stream.filter(&Code.ensure_loaded?/1)
     |> Enum.find(fun)
   end
+
+
+  @doc """
+  Reads and decodes a serialized graph or dataset from a string.
+
+  The format must be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format.
+
+  It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
+  dataset, or `{:error, reason}` if an error occurs.
+  """
+  def read_string(content, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.read_string(content, opts)
+    end
+  end
+
+  @doc """
+  Reads and decodes a serialized graph or dataset from a string.
+
+  The format must be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format.
+
+  As opposed to `read_string`, it raises an exception if an error occurs.
+  """
+  def read_string!(content, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.read_string!(content, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
+  Reads and decodes a serialized graph or dataset from a file.
+
+  The format can be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format. If none of these are 
+  given, the format gets inferred from the extension of the given file name. 
+
+  It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
+  dataset, or `{:error, reason}` if an error occurs.
+  """
+  def read_file(file, opts \\ []) do
+    with {:ok, format} <- file_format(file, opts) do
+      format.read_file(file, opts)
+    end
+  end
+
+  @doc """
+  Reads and decodes a serialized graph or dataset from a file.
+
+  The format can be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format. If none of these are 
+  given, the format gets inferred from the extension of the given file name. 
+
+  As opposed to `read_file`, it raises an exception if an error occurs.
+  """
+  def read_file!(file, opts \\ []) do
+    with {:ok, format} <- file_format(file, opts) do
+      format.read_file!(file, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
+  Encodes and writes a graph or dataset to a string.
+
+  The format must be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format.
+
+  It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
+  dataset, or `{:error, reason}` if an error occurs.
+  """
+  def write_string(data, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.write_string(data, opts)
+    end
+  end
+
+  @doc """
+  Encodes and writes a graph or dataset to a string.
+
+  The format must be specified with the `format` option and a format name or the 
+  `media_type` option and the media type of the format.
+
+  As opposed to `write_string`, it raises an exception if an error occurs.
+  """
+  def write_string!(data, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.write_string!(data, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
+  Encodes and writes a graph or dataset to a file.
+
+  The format can be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format. If none of these are
+  given, the format gets inferred from the extension of the given file name.
+
+  Other available serialization-independent options:
+
+  - `:force` - If not set to `true`, an error is raised when the given file
+    already exists (default: `false`)
+  - `:file_mode` - A list with the Elixir `File.open` modes to be used fior writing
+    (default: `[:utf8, :write]`)
+
+  It returns `:ok` if successfull or `{:error, reason}` if an error occurs.
+  """
+  def write_file(data, path, opts \\ []) do
+    with {:ok, format} <- file_format(path, opts) do
+      format.write_file(data, path, opts)
+    end
+  end
+
+  @doc """
+  Encodes and writes a graph or dataset to a file.
+
+  The format can be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format. If none of these are
+  given, the format gets inferred from the extension of the given file name.
+
+  See `write_file` for a list of other available options.
+
+  As opposed to `write_file`, it raises an exception if an error occurs.
+  """
+  def write_file!(data, path, opts \\ []) do
+    with {:ok, format} <- file_format(path, opts) do
+      format.write_file!(data, path, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+
+  defp string_format(opts) do
+    if format =
+        (opts |> Keyword.get(:format) |> format()) ||
+        (opts |> Keyword.get(:media_type) |> format_by_media_type())
+    do
+      {:ok, format}
+    else
+      {:error, "unable to detect serialization format"}
+    end
+  end
+
+  defp file_format(filename, opts) do
+    case string_format(opts) do
+      {:ok, format} -> {:ok, format}
+      _             -> format_by_file_name(filename)
+    end
+  end
+
+  defp format_by_file_name(filename) do
+    if format = filename |> Path.extname() |> format_by_extension() do
+      {:ok, format}
+    else
+      {:error, "unable to detect serialization format"}
+    end
+  end
+
 end

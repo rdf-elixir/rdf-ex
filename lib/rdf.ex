@@ -20,8 +20,9 @@ defmodule RDF do
     - `RDF.Dataset`
     - `RDF.Data`
     - `RDF.List`
-  - the foundations for the definition of RDF serialization formats
-    - `RDF.Serialization`
+  - functions for working with RDF serializations: `RDF.Serialization`
+  - behaviours for the definition of RDF serialization formats
+    - `RDF.Serialization.Format`
     - `RDF.Serialization.Decoder`
     - `RDF.Serialization.Encoder`
   - and the implementation of various RDF serialization formats
@@ -37,6 +38,16 @@ defmodule RDF do
 
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset}
+
+  defdelegate read_string(content, opts),        to: RDF.Serialization
+  defdelegate read_string!(content, opts),       to: RDF.Serialization
+  defdelegate read_file(filename, opts \\ []),   to: RDF.Serialization
+  defdelegate read_file!(filename, opts \\ []),  to: RDF.Serialization
+  defdelegate write_string(content, opts),       to: RDF.Serialization
+  defdelegate write_string!(content, opts),      to: RDF.Serialization
+  defdelegate write_file(filename, opts \\ []),  to: RDF.Serialization
+  defdelegate write_file!(filename, opts \\ []), to: RDF.Serialization
+
 
   @doc """
   Checks if the given value is a RDF resource.
