@@ -570,8 +570,9 @@ defmodule RDF.Description do
 
 
   defimpl Enumerable do
-    def member?(desc, triple),  do: {:ok, RDF.Description.include?(desc, triple)}
-    def count(desc),            do: {:ok, RDF.Description.count(desc)}
+    def member?(desc, triple), do: {:ok, RDF.Description.include?(desc, triple)}
+    def count(desc),           do: {:ok, RDF.Description.count(desc)}
+    def slice(_desc),          do: {:error, __MODULE__}
 
     def reduce(%RDF.Description{predications: predications}, {:cont, acc}, _fun)
       when map_size(predications) == 0, do: {:done, acc}

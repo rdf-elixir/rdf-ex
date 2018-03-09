@@ -600,8 +600,9 @@ defmodule RDF.Graph do
 
 
   defimpl Enumerable do
-    def member?(desc, triple),  do: {:ok, RDF.Graph.include?(desc, triple)}
-    def count(desc),            do: {:ok, RDF.Graph.triple_count(desc)}
+    def member?(graph, triple),  do: {:ok, RDF.Graph.include?(graph, triple)}
+    def count(graph),            do: {:ok, RDF.Graph.triple_count(graph)}
+    def slice(_graph),           do: {:error, __MODULE__}
 
     def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
       when map_size(descriptions) == 0, do: {:done, acc}
@@ -615,6 +616,7 @@ defmodule RDF.Graph do
     def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(graph, &1, fun)}
     end
+
   end
 
 

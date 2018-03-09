@@ -726,8 +726,9 @@ defmodule RDF.Dataset do
 
 
   defimpl Enumerable do
-    def member?(graph, statement), do: {:ok, RDF.Dataset.include?(graph, statement)}
-    def count(graph),              do: {:ok, RDF.Dataset.statement_count(graph)}
+    def member?(dataset, statement), do: {:ok, RDF.Dataset.include?(dataset, statement)}
+    def count(dataset),              do: {:ok, RDF.Dataset.statement_count(dataset)}
+    def slice(_dataset),             do: {:error, __MODULE__}
 
     def reduce(%RDF.Dataset{graphs: graphs}, {:cont, acc}, _fun)
       when map_size(graphs) == 0, do: {:done, acc}

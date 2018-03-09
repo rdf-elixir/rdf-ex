@@ -240,5 +240,6 @@ defmodule RDF.List do
 
     def member?(_, _),  do: {:error, __MODULE__}
     def count(_),       do: {:error, __MODULE__}
+    def slice(_),       do: {:error, __MODULE__}
   end
 end
