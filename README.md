@@ -184,8 +184,6 @@ defmodule YourApp.NS do
 end
 ```
 
-Currently only N-Triples, N-Quads and Turtle files are supported at this place.
-
 During compilation the terms will be validated and checked for proper capitalisation by analysing the schema description of the resp. resource  in the given data.
 This validation behaviour can be modified with the `case_violations` options, which is by default set to `:warn`. By setting it explicitly to `:fail` errors will be raised during compilation or it can be turned off with `:ignore`.
 
@@ -683,6 +681,10 @@ iex> RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]]) |> RDF.List.values
 
 ### Serializations
 
+The RDF.ex package comes with implementations of the [N-Triples], [N-Quads] and [Turtle] serialization formats. 
+Formats which require additional dependencies should be implemented in separate Hex packages.
+The [JSON-LD] format for example is available with the [JSON-LD.ex] package.
+
 RDF graphs and datasets can be read and written to files or strings in a RDF serialization format using the  `read_file`, `read_string` and `write_file`, `write_string` functions of the resp. `RDF.Serialization.Format` module.
 
 ```elixir
@@ -692,9 +694,22 @@ RDF graphs and datasets can be read and written to files or strings in a RDF ser
 
 All of the read and write functions are also available in bang variants which will fail in error cases.
 
-The RDF.ex package comes with implementations of the [N-Triples], [N-Quads] and [Turtle] serialization formats. 
-Formats which require additional dependencies should be implemented in separate Hex packages.
-The [JSON-LD] for example is available with the [JSON-LD.ex] package.
+All of these `read_*` and `write_*` functions are also available in the top-level `RDF` module, where the serialization format can be specified in various ways, either by providing the format name via the `format` option, or via the `media_type` option. 
+
+```elixir
+{:ok, graph} = RDF.read_file("/path/to/some_file", format: :turtle)
+json_ld_string = RDF.write_string!(graph, media_type: "application/ld+json")
+```
+
+Note: The later command requires the `json_ld` package to be defined as a dependency in the Mixfile of your application.
+
+The file read and write functions are also able to infer the format from the file extension of the given filename.
+
+```elixir
+"/path/to/some_file.ttl"
+|> RDF.read_file!()
+|> RDF.write_file!("/path/to/some_file.jsonld")
+```
 
 
 ## Getting help
