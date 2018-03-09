@@ -53,7 +53,7 @@ defmodule RDF.Vocabulary.Namespace do
       defmodule unquote(name) do
         @moduledoc vocabdoc
 
-        @behaviour RDF.Namespace
+        @behaviour Elixir.RDF.Namespace
 
         if unquote(file) do
           @external_resource unquote(file)
@@ -89,7 +89,7 @@ defmodule RDF.Vocabulary.Namespace do
             nil ->
               # TODO: Why does this MapSet.member? call produce a warning? It does NOT always yield the same result!
               if @strict or MapSet.member?(@ignored_terms, term) do
-                raise RDF.Namespace.UndefinedTermError,
+                raise Elixir.RDF.Namespace.UndefinedTermError,
                   "undefined term #{term} in strict vocabulary #{__MODULE__}"
               else
                 term_to_iri(@base_iri, term)
@@ -520,7 +520,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp rdf_data_env do
-    import RDF.Sigils
+    import RDF.Sigils # TODO: Can we get rid of the warning about this line somehow? It is plain false.
     __ENV__
   end
 
