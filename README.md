@@ -17,7 +17,7 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
-    - [JSON-LD] is implemented in the separate [JSON-LD.ex] package (as every format requiring additional dependencies will be published in separate packages)
+    - [JSON-LD] is implemented in the separate [JSON-LD.ex] package
 
 
 ## Installation
@@ -26,7 +26,7 @@ The [RDF.ex] Hex package can be installed as usual, by adding `rdf` to your list
 
 ```elixir
 def deps do
-  [{:rdf, "~> 0.3"}]
+  [{:rdf, "~> 0.4"}]
 end
 ```
 
@@ -727,9 +727,7 @@ There's still much to do for a complete RDF ecosystem for Elixir, which means th
     - [RDF-XML]
     - [N3]
     - et al.
-- missing XSD datatypes
-- more sophisticated query capabilities and full SPARQL support (in the style of Ecto queries)
-- `RDF.Repo` abstraction for RDF triple stores (in the style of Ecto Repos)
+- more XSD datatypes
 - improve documentation
 
 
@@ -740,7 +738,7 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## License and Copyright
 
-(c) 2017 Marcel Otto. MIT Licensed, see [LICENSE](LICENSE.md) for details.
+(c) 2017-2018 Marcel Otto. MIT Licensed, see [LICENSE](LICENSE.md) for details.
 
 
 [RDF.ex]:               https://hex.pm/packages/rdf

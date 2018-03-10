@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.4.0 - 2018-03-10
 
 ### Changed
 
@@ -36,7 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   - `RDF.Serialization.format_by_extension/1`
 
 
-[Compare v0.3.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...HEAD)
+[Compare v0.3.1...v0.4.0](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...v0.4.0)
 
 
 
