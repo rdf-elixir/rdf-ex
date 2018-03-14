@@ -86,10 +86,9 @@ defmodule RDF.LiteralTest do
       end
     end
 
-    test "construction of a rdf:langString typed literal without language fails" do
-      assert_raise ArgumentError, fn ->
-        Literal.new("Eule", datatype: RDF.langString)
-      end
+    test "construction of a rdf:langString works, but results in an invalid literal" do
+      assert %Literal{value: "Eule"} = literal = Literal.new("Eule", datatype: RDF.langString)
+      refute Literal.valid?(literal)
     end
   end
 

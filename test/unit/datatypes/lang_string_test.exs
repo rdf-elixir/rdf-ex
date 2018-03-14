@@ -42,9 +42,10 @@ defmodule RDF.LangStringTest do
       end
     end
 
-    test "without a language it raises an error" do
+    test "without a language it warns and produces an invalid literal" do
       Enum.each @valid, fn {input, _} ->
-        assert_raise ArgumentError, fn -> LangString.new(input) end
+        assert %Literal{} = literal = LangString.new(input)
+        refute Literal.valid?(literal)
       end
     end
   end

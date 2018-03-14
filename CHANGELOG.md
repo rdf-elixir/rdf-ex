@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Changed
+
+- `Literal.new/2` can create `rdf:langString` literals without failing, they are 
+  simply invalid
+
+
+[Compare v0.4.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.0...HEAD)
+
+
+
 ## 0.4.0 - 2018-03-10
 
 ### Changed

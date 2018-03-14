@@ -10,8 +10,8 @@ defmodule RDF.LangString do
     %Literal{super(value, lexical, opts) | language: String.downcase(language)}
   end
 
-  def build_literal(_, _, _) do
-    raise ArgumentError, "datatype of rdf:langString requires a language"
+  def build_literal(value, lexical, opts) do
+    super(value, lexical, opts)
   end
 
 
@@ -20,6 +20,5 @@ defmodule RDF.LangString do
 
   def valid?(%Literal{language: nil}), do: false
   def valid?(literal), do: super(literal)
-
 
 end
