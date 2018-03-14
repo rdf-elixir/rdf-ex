@@ -349,6 +349,8 @@ iex> RDF.Literal.valid? RDF.Integer.new("foo")
 false
 ```
 
+If you want to prohibit the creation of invalid literals, you can use the `new!` constructor function of `RDF.Datatype` or `RDF.Literal`, which will fail in case of invalid values.
+
 A RDF literal is bound to the lexical form of the initially given value. This lexical representation can be retrieved with the `RDF.Literal.lexical/1` function:
 
 ```elixir
@@ -706,8 +708,7 @@ Note: The later command requires the `json_ld` package to be defined as a depend
 The file read and write functions are also able to infer the format from the file extension of the given filename.
 
 ```elixir
-"/path/to/some_file.ttl"
-|> RDF.read_file!()
+RDF.read_file!("/path/to/some_file.ttl")
 |> RDF.write_file!("/path/to/some_file.jsonld")
 ```
 

@@ -7,10 +7,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `RDF.Literal.new!/2` which fails when creating an invalid literal 
+
+
 ### Changed
 
-- `Literal.new/2` can create `rdf:langString` literals without failing, they are 
-  simply invalid
+- `RDF.Literal.new/2` can create `rdf:langString` literals without failing, they  
+  are simply invalid; if you want to fail without a language tag use the new 
+  `RDF.Literal.new!/2` function
 
 
 [Compare v0.4.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.0...HEAD)

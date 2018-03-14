@@ -59,6 +59,11 @@ defmodule RDF.Literal do
     raise RDF.Literal.InvalidError, "#{inspect value} not convertible to a RDF.Literal"
   end
 
+  @doc """
+  Creates a new `RDF.Literal` with the given datatype or language tag.
+  """
+  def new(value, opts)
+
   def new(value, opts) when is_list(opts),
     do: new(value, Map.new(opts))
 
@@ -87,6 +92,40 @@ defmodule RDF.Literal do
   def new(value, opts) when is_map(opts) and map_size(opts) == 0,
     do: new(value)
 
+
+  @doc """
+  Creates a new `RDF.Literal`, but fails if it's not valid.
+
+  Note: Validation is only possible if an `RDF.Datatype` with an implementation of
+    `RDF.Datatype.valid?/1` exists.
+
+  ## Examples
+
+      iex> RDF.Literal.new!("3.14", datatype: XSD.double) == RDF.Literal.new("3.14", datatype: XSD.double)
+      true
+
+      iex> RDF.Literal.new!("invalid", datatype: "http://example/unkown_datatype") == RDF.Literal.new("invalid", datatype: "http://example/unkown_datatype")
+      true
+
+      iex> RDF.Literal.new!("foo", datatype: XSD.integer)
+      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.Literal{value: nil, lexical: "foo", datatype: ~I<http://www.w3.org/2001/XMLSchema#integer>}
+
+      iex> RDF.Literal.new!("foo", datatype: RDF.langString)
+      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.Literal{value: "foo", datatype: ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>, language: nil}
+
+  """
+  def new!(value, opts \\ %{}) do
+    with %RDF.Literal{} = literal <- new(value, opts) do
+      if valid?(literal) do
+        literal
+      else
+        raise RDF.Literal.InvalidError, "invalid RDF.Literal: #{inspect literal}"
+      end
+    else
+      invalid ->
+        raise RDF.Literal.InvalidError, "invalid result of RDF.Literal.new: #{inspect invalid}"
+    end
+  end
 
   @doc """
   Returns the given literal with the canonical lexical representation according to its datatype.
