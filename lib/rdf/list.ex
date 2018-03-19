@@ -128,7 +128,7 @@ defmodule RDF.List do
 
 
   @doc """
-  The RDF nodes constituting a `RDF.List`` as an Elixir list.
+  The RDF nodes constituting a `RDF.List` as an Elixir list.
   """
   def nodes(%RDF.List{} = list) do
     Enum.map list, fn node_description -> node_description.subject end
@@ -161,7 +161,7 @@ defmodule RDF.List do
   or `rdf:rest`, we pragmatically require the usage of both.
 
   Note: This function doesn't indicate if the list is valid.
-   See `new/2` and valid?/2` for validations.
+   See `new/2` and `valid?/2` for validations.
   """
   def node?(list_node, graph)
 

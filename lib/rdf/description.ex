@@ -4,9 +4,9 @@ defmodule RDF.Description do
 
   `RDF.Description` implements:
 
-  - Elixirs `Access` behaviour
-  - Elixirs `Enumerable` protocol
-  - Elixirs `Inspect` protocol
+  - Elixir's `Access` behaviour
+  - Elixir's `Enumerable` protocol
+  - Elixir's `Inspect` protocol
   - the `RDF.Data` protocol
   """
 
