@@ -121,16 +121,26 @@ defmodule RDF do
   defdelegate list?(resource, graph), to: RDF.List, as: :node?
   defdelegate list?(description),     to: RDF.List, as: :node?
 
-  def list(native_list),
-    do: RDF.List.from(native_list)
+  def list(native_list),            do: RDF.List.from(native_list)
+  def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
+  def list(native_list, opts),      do: RDF.List.from(native_list, opts)
 
-  def list(head, %Graph{} = graph),
-    do: RDF.List.new(head, graph)
-
-  def list(native_list, opts),
-    do: RDF.List.from(native_list, opts)
-
-
+  defdelegate string(value),            to: RDF.String,     as: :new
+  defdelegate string(value, opts),      to: RDF.String,     as: :new
+  defdelegate lang_string(value),       to: RDF.LangString, as: :new
+  defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
+  defdelegate boolean(value),           to: RDF.Boolean,    as: :new
+  defdelegate boolean(value, opts),     to: RDF.Boolean,    as: :new
+  defdelegate integer(value),           to: RDF.Integer,    as: :new
+  defdelegate integer(value, opts),     to: RDF.Integer,    as: :new
+  defdelegate double(value),            to: RDF.Double,     as: :new
+  defdelegate double(value, opts),      to: RDF.Double,     as: :new
+  defdelegate date(value),              to: RDF.Date,       as: :new
+  defdelegate date(value, opts),        to: RDF.Date,       as: :new
+  defdelegate time(value),              to: RDF.Time,       as: :new
+  defdelegate time(value, opts),        to: RDF.Time,       as: :new
+  defdelegate date_time(value),         to: RDF.DateTime,   as: :new
+  defdelegate date_time(value, opts),   to: RDF.DateTime,   as: :new
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(),                      to: RDF.NS.RDF

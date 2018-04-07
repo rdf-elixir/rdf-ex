@@ -329,7 +329,7 @@ iex> RDF.literal(42, datatype: XSD.double).value
 42.0
 ```
 
-For all of these supported XSD datatypes there're `RDF.Datatype`s  available that allow the creation of `RDF.Literal`s with the respective datatype:
+For all of these supported XSD datatypes there're `RDF.Datatype`s  available that allow the creation of `RDF.Literal`s with the respective datatype. Their `new` constructor function can be called also via the alias functions on the top-level `RDF` namespace.
 
 ```elixir
 iex> RDF.Double.new("0042").value
@@ -337,15 +337,18 @@ iex> RDF.Double.new("0042").value
 
 iex> RDF.Double.new(42).value
 42.0
+
+iex> RDF.double(42).value
+42.0
 ```
 
 The `RDF.Literal.valid?/1` function checks if a given literal is valid according to the [XML schema datatype] specification.
 
 ```elixir
-iex> RDF.Literal.valid? RDF.Integer.new("42")
+iex> RDF.Literal.valid? RDF.integer("42")
 true
 
-iex> RDF.Literal.valid? RDF.Integer.new("foo")
+iex> RDF.Literal.valid? RDF.integer("foo")
 false
 ```
 
@@ -354,31 +357,31 @@ If you want to prohibit the creation of invalid literals, you can use the `new!`
 A RDF literal is bound to the lexical form of the initially given value. This lexical representation can be retrieved with the `RDF.Literal.lexical/1` function:
 
 ```elixir
-iex> RDF.Literal.lexical RDF.Integer.new("0042")
+iex> RDF.Literal.lexical RDF.integer("0042")
 "0042"
 
-iex> RDF.Literal.lexical RDF.Integer.new(42)
+iex> RDF.Literal.lexical RDF.integer(42)
 "42"
 ```
 
 Although two literals might have the same value, they are not equal if they don't have the same lexical form:
 
 ```elixir
-iex> RDF.Integer.new("0042").value == RDF.Integer.new("42").value
+iex> RDF.integer("0042").value == RDF.integer("42").value
 true
 
-iex> RDF.Integer.new("0042") == RDF.Integer.new("42")
+iex> RDF.integer("0042") == RDF.integer("42")
 false
 ```
 
 The `RDF.Literal.canonical/1` function returns the given literal with its canonical lexical form according its datatype:
 
 ```elixir
-iex> RDF.Integer.new("0042") |> RDF.Literal.canonical |> RDF.Literal.lexical
+iex> RDF.integer("0042") |> RDF.Literal.canonical |> RDF.Literal.lexical
 "42"
 
-iex> RDF.Literal.canonical(RDF.Integer.new("0042")) == 
-     RDF.Literal.canonical(RDF.Integer.new("42"))
+iex> RDF.Literal.canonical(RDF.integer("0042")) == 
+     RDF.Literal.canonical(RDF.integer("42"))
 true
 ```
 
@@ -394,13 +397,13 @@ The `RDF.Triple` and `RDF.Quad` modules both provide a function `new` for such t
 
 ```elixir
 iex> RDF.triple(EX.S, EX.p, 1)
-{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1)}
+{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(1)}
 
 iex> RDF.triple {EX.S, EX.p, 1}
-{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1)}
+{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(1)}
 
 iex> RDF.quad(EX.S, EX.p, 1, EX.Graph)
-{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1),
+{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(1),
  ~I<http://example.com/Graph>}
 
 iex> RDF.triple {EX.S, 1, EX.O}
@@ -413,7 +416,7 @@ If you want to explicitly create a quad in the default graph context, you can us
 
 ```elixir
 iex> RDF.quad(EX.S, EX.p, 1, nil)
-{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.Integer.new(1), nil}
+{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(1), nil}
 ```
 
 

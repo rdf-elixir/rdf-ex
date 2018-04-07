@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- top-level alias functions for constructors of the basic datatypes
+
+
+[Compare v0.4.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...HEAD)
+
+
+
 ## 0.4.1 - 2018-03-19
 
 ### Added
