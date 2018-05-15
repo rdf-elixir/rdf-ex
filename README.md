@@ -18,6 +18,7 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
     - [JSON-LD] is implemented in the separate [JSON-LD.ex] package
+- a SPARQL client is implemented in the separate [SPARQL.Client] package
 
 
 ## Installation
@@ -747,7 +748,8 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 [RDF.ex]:               https://hex.pm/packages/rdf
 [rdf_vocab]:            https://hex.pm/packages/rdf_vocab
-[JSON-LD.ex]:           https://hex.pm/packages/json_ld  
+[JSON-LD.ex]:           https://hex.pm/packages/json_ld
+[SPARQL.Client]:        https://hex.pm/packages/sparql_client
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
 [Turtle]:               https://www.w3.org/TR/turtle/
