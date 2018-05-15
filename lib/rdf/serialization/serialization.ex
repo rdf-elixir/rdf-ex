@@ -55,13 +55,11 @@ defmodule RDF.Serialization do
   def format(name)
 
   def format(name) when is_binary(name) do
-    try do
-      name
-      |> String.to_existing_atom
-      |> format()
-    rescue
-      ArgumentError -> nil
-    end
+    name
+    |> String.to_existing_atom
+    |> format()
+  rescue
+    ArgumentError -> nil
   end
 
   def format(name) do

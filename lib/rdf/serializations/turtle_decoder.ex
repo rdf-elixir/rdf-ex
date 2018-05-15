@@ -46,22 +46,20 @@ defmodule RDF.Turtle.Decoder do
   def parse(tokens), do: tokens |> :turtle_parser.parse
 
   defp build_graph(ast, base) do
-    try do
-      {graph, _} =
-        Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base}}, fn
-          {:triples, triples_ast}, {graph, state} ->
-            with {statements, state} = triples(triples_ast, state) do
-              {RDF.Graph.add(graph, statements), state}
-            end
+    {graph, _} =
+      Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base}}, fn
+        {:triples, triples_ast}, {graph, state} ->
+          with {statements, state} = triples(triples_ast, state) do
+            {RDF.Graph.add(graph, statements), state}
+          end
 
-          {:directive, directive_ast}, {graph, state} ->
-            {graph, directive(directive_ast, state)}
+        {:directive, directive_ast}, {graph, state} ->
+          {graph, directive(directive_ast, state)}
 
-        end
-      {:ok, graph}
-    rescue
-      error -> {:error, Exception.message(error)}
-    end
+      end
+    {:ok, graph}
+  rescue
+    error -> {:error, Exception.message(error)}
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do

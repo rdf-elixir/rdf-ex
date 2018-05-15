@@ -97,11 +97,9 @@ defmodule RDF.IRI do
   def absolute?(%URI{scheme: nil}),           do: false
   def absolute?(%URI{scheme: _}),             do: true
   def absolute?(qname) when is_atom(qname) and not qname in [nil, true, false] do
-    try do
-      qname |> Namespace.resolve_term |> absolute?()
-    rescue
-      _ -> false
-    end
+    qname |> Namespace.resolve_term |> absolute?()
+  rescue
+    _ -> false
   end
   def absolute?(_), do: false
 
