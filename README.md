@@ -172,7 +172,7 @@ The `base_iri` argument with the IRI prefix of all the terms in the defined
 vocabulary is required and expects a valid IRI ending with either a `"/"` or
 a `"#"`. Terms will be checked for invalid characters at compile-time and will raise a compiler error. This handling of invalid characters can be modified with the `invalid_characters` options, which is set to `:fail` by default. By setting it to `:warn` only warnings will be raised or it can be turned off completely with `:ignore`.
 
-A vocabulary namespace with extracted terms can be by defined either providing RDF data directly with the `data` option or from serialized RDF data file in the `priv/vocabs` directory:
+A vocabulary namespace with extracted terms can be defined either by providing RDF data directly with the `data` option or files with serialized RDF data in the `priv/vocabs` directory using the `file` option:
 
 ```elixir
 defmodule YourApp.NS do
