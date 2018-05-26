@@ -151,6 +151,9 @@ defmodule RDF do
     defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
+  defdelegate unquote(:true)(),  to: RDF.Boolean.Value
+  defdelegate unquote(:false)(), to: RDF.Boolean.Value
+
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 

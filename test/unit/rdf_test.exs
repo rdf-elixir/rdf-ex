@@ -11,4 +11,8 @@ defmodule RDFTest do
        end)
   end
 
+  test "true and false aliases" do
+    assert RDF.true  == RDF.Boolean.new(true)
+    assert RDF.false == RDF.Boolean.new(false)
+  end
 end

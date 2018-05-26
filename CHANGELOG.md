@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - top-level alias functions for constructors of the basic datatypes
+- top-level constant functions `RDF.true` and `RDF.false` for the two boolean 
+  RDF.Literal values
 
 
 [Compare v0.4.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...HEAD)
