@@ -29,6 +29,8 @@ defmodule RDF.Datatype.Test.Case do
 
       import unquote(__MODULE__)
 
+      doctest unquote(datatype)
+
       @moduletag datatype: unquote(datatype)
 
       if unquote(valid) do
