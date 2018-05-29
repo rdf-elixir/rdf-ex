@@ -134,4 +134,40 @@ defmodule RDF.BooleanTest do
     end
   end
 
+  test "truth-table of logical_and" do
+    [
+      {RDF.true,  RDF.true,  RDF.true},
+      {RDF.true,  RDF.false, RDF.false},
+      {RDF.false, RDF.true,  RDF.false},
+      {RDF.false, RDF.false, RDF.false},
+      {RDF.true,  nil,       nil},
+      {nil,       RDF.true,  nil},
+      {RDF.false, nil,       RDF.false},
+      {nil,       RDF.false, RDF.false},
+      {nil,       nil,       nil},
+    ]
+    |> Enum.each(fn {left, right, result} ->
+         assert RDF.Boolean.logical_and(left, right) == result,
+            "expected logical_and(#{inspect left}, #{inspect right}) to be #{inspect result}, but got #{inspect RDF.Boolean.logical_and(left, right)}"
+       end)
+  end
+
+  test "truth-table of logical_or" do
+    [
+      {RDF.true,  RDF.true,  RDF.true},
+      {RDF.true,  RDF.false, RDF.true},
+      {RDF.false, RDF.true,  RDF.true},
+      {RDF.false, RDF.false, RDF.false},
+      {RDF.true,  nil,       RDF.true},
+      {nil,       RDF.true,  RDF.true},
+      {RDF.false, nil,       nil},
+      {nil,       RDF.false, nil},
+      {nil,       nil,       nil},
+    ]
+    |> Enum.each(fn {left, right, result} ->
+         assert RDF.Boolean.logical_or(left, right) == result,
+            "expected logical_or(#{inspect left}, #{inspect right}) to be #{inspect result}, but got #{inspect RDF.Boolean.logical_and(left, right)}"
+       end)
+  end
+
 end

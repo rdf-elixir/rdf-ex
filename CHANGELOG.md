@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - top-level constant functions `RDF.true` and `RDF.false` for the two boolean 
   RDF.Literal values
 - `RDF.Numeric` with a list of all numeric datatypes
+- the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
+  from the XPath and SPARQL specs on `RDF.Boolean`
 
 
 [Compare v0.4.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...HEAD)

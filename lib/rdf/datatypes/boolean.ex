@@ -25,6 +25,126 @@ defmodule RDF.Boolean do
   def convert(value, opts), do: super(value, opts)
 
 
+  @doc """
+  Returns `RDF.true` if the effective boolean value of the given argument is `RDF.false`, or `RDF.false` if it is `RDF.true`.
+
+  Otherwise it returns `nil`.
+
+  ## Examples
+
+      iex> RDF.Boolean.fn_not(RDF.true)
+      RDF.false
+      iex> RDF.Boolean.fn_not(RDF.false)
+      RDF.true
+
+      iex> RDF.Boolean.fn_not(true)
+      RDF.false
+      iex> RDF.Boolean.fn_not(false)
+      RDF.true
+
+      iex> RDF.Boolean.fn_not(42)
+      RDF.false
+      iex> RDF.Boolean.fn_not("")
+      RDF.true
+
+      iex> RDF.Boolean.fn_not(nil)
+      nil
+
+  see <https://www.w3.org/TR/xpath-functions/#func-not>
+  """
+  def fn_not(value) do
+    case ebv(value) do
+      %RDF.Literal{value: true}  -> RDF.Boolean.Value.false
+      %RDF.Literal{value: false} -> RDF.Boolean.Value.true
+      nil                        -> nil
+    end
+  end
+
+  @doc """
+  Returns the logical `AND` of the effective boolean value of the given arguments.
+
+  It returns `nil` if only one argument is `nil` and the other argument is
+  `RDF.true` and `RDF.false` if the other argument is `RDF.false`.
+
+  ## Examples
+
+      iex> RDF.Boolean.logical_and(RDF.true, RDF.true)
+      RDF.true
+      iex> RDF.Boolean.logical_and(RDF.true, RDF.false)
+      RDF.false
+
+      iex> RDF.Boolean.logical_and(RDF.true, nil)
+      nil
+      iex> RDF.Boolean.logical_and(nil, RDF.false)
+      RDF.false
+      iex> RDF.Boolean.logical_and(nil, nil)
+      nil
+
+  see <https://www.w3.org/TR/sparql11-query/#func-logical-and>
+
+  """
+  def logical_and(left, right) do
+    case ebv(left) do
+      %RDF.Literal{value: false} ->
+        RDF.false
+
+      %RDF.Literal{value: true}  ->
+        case ebv(right) do
+          %RDF.Literal{value: true}  -> RDF.true
+          %RDF.Literal{value: false} -> RDF.false
+          nil                        -> nil
+        end
+
+      nil ->
+        if match?(%RDF.Literal{value: false}, ebv(right)) do
+          RDF.false
+        end
+    end
+  end
+
+  @doc """
+  Returns the logical `OR` of the effective boolean value of the given arguments.
+
+  It returns `nil` if only one argument is `nil` and the other argument is
+  `RDF.false` and `RDF.true` if the other argument is `RDF.true`.
+
+  ## Examples
+
+      iex> RDF.Boolean.logical_or(RDF.true, RDF.false)
+      RDF.true
+      iex> RDF.Boolean.logical_or(RDF.false, RDF.false)
+      RDF.false
+
+      iex> RDF.Boolean.logical_or(RDF.true, nil)
+      RDF.true
+      iex> RDF.Boolean.logical_or(nil, RDF.false)
+      nil
+      iex> RDF.Boolean.logical_or(nil, nil)
+      nil
+
+  see <https://www.w3.org/TR/sparql11-query/#func-logical-or>
+
+  """
+  def logical_or(left, right) do
+    case ebv(left) do
+      %RDF.Literal{value: true} ->
+        RDF.true
+
+      %RDF.Literal{value: false}  ->
+        case ebv(right) do
+          %RDF.Literal{value: true}  -> RDF.true
+          %RDF.Literal{value: false} -> RDF.false
+          nil                        -> nil
+        end
+
+      nil ->
+        if match?(%RDF.Literal{value: true}, ebv(right)) do
+          RDF.true
+        end
+    end
+  end
+
+
   @xsd_boolean RDF.Datatype.NS.XSD.boolean
 
   @doc """
@@ -39,6 +159,7 @@ defmodule RDF.Boolean do
   see
   - <https://www.w3.org/TR/xpath-31/#id-ebv>
   - <https://www.w3.org/TR/sparql11-query/#ebv>
+
   """
   def ebv(value)
 
