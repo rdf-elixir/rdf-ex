@@ -17,6 +17,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   from the XPath and SPARQL specs on `RDF.Boolean`
 
 
+### Changed
+
+- Elixir 1.4 is no longer supported
+
+
 ### Fixed
 
 - `RDF.DateTime`: '24:00:00' is a valid time in a xsd:dateTime; the dateTime 
