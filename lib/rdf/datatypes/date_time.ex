@@ -24,6 +24,20 @@ defmodule RDF.DateTime do
           _                -> super(value, opts)
         end
 
+      {:error, :invalid_time} ->
+        if String.contains?(value, "T24:00:00") do
+          with [day, tz]  <- String.split(value, "T24:00:00", parts: 2),
+               {:ok, day} <- Date.from_iso8601(day)
+          do
+            "#{day |> Date.add(1) |> Date.to_string()}T00:00:00#{tz}"
+            |> convert(opts)
+          else
+            _ -> super(value, opts)
+          end
+
+        else
+          super(value, opts)
+        end
       _ ->
         super(value, opts)
     end
