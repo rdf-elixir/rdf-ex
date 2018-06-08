@@ -59,6 +59,32 @@ defmodule RDF.EqualityTest do
     test "incomparability",  do: assert_incomparable  @incomparable_bnodes
   end
 
+  describe "RDF.String and RDF.LangString" do
+    @term_equal_strings [
+      {RDF.string("foo"), RDF.string("foo")},
+      {RDF.lang_string("foo", language: "de"), RDF.lang_string("foo", language: "de")},
+    ]
+    @term_unequal_strings [
+      {RDF.string("foo"), RDF.string("bar")},
+      {RDF.lang_string("foo", language: "de"), RDF.lang_string("bar", language: "de")},
+    ]
+    @value_equal_strings [
+    ]
+    @value_unequal_strings [
+    ]
+    @incomparable_strings [
+      {RDF.string("foo"), RDF.lang_string("foo", language: "de")},
+      {RDF.lang_string("foo", language: "de"), RDF.string("foo")},
+      {RDF.string("foo"), RDF.bnode("foo")},
+    ]
+
+    test "term equality",    do: assert_term_equal    @term_equal_strings
+    test "term inequality",  do: assert_term_unequal  @term_unequal_strings
+    test "value equality",   do: assert_value_equal   @value_equal_strings
+    test "value inequality", do: assert_value_unequal @value_unequal_strings
+    test "incomparability",  do: assert_incomparable  @incomparable_strings
+  end
+
   describe "RDF.Boolean" do
     @term_equal_booleans [
       {RDF.true,       RDF.true},
@@ -135,7 +161,7 @@ defmodule RDF.EqualityTest do
 #      {RDF.date_time("2002-04-02T12:00:00"),       RDF.date_time("2002-04-02T23:00:00+06:00")},
     ]
     @value_unequal_datetimes [
-     {RDF.date_time("2005-04-04T24:00:00"), RDF.date_time("2005-04-04T00:00:00")},
+      {RDF.date_time("2005-04-04T24:00:00"), RDF.date_time("2005-04-04T00:00:00")},
     ]
     @incomparable_datetimes [
       {RDF.string("2002-04-02T12:00:00-01:00"),    RDF.date_time("2002-04-02T12:00:00-01:00")},
