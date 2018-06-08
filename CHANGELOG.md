@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Numeric` with a list of all numeric datatypes
 - the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
   from the XPath and SPARQL specs on `RDF.Boolean`
+- `RDF.Term.equal?/2` and `RDF.Term.equal_value?/2` 
 
 
 ### Changed

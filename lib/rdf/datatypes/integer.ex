@@ -18,5 +18,6 @@ defmodule RDF.Integer do
 
   def convert(value, opts), do: super(value, opts)
 
+  def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
 end

@@ -36,6 +36,20 @@ defmodule RDF.BlankNode do
     do: id |> to_string |> new
 
 
+  @doc """
+  Tests for value equality of blank nodes.
+
+  Returns `nil` when the given arguments are not comparable as blank nodes.
+  """
+  def equal_value?(left, right)
+
+  def equal_value?(%RDF.BlankNode{id: left}, %RDF.BlankNode{id: right}),
+    do: left == right
+
+  def equal_value?(_, _),
+    do: nil
+
+
   defimpl String.Chars do
     def to_string(%RDF.BlankNode{id: id}), do: "_:#{id}"
   end

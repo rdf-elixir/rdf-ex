@@ -186,6 +186,30 @@ defmodule RDF.IRI do
   def parse(%URI{} = uri),              do: uri
 
 
+  @doc """
+  Tests for value equality of IRIs.
+
+  Returns `nil` when the given arguments are not comparable as IRIs.
+
+  see <https://www.w3.org/TR/rdf-concepts/#section-Graph-URIref>
+  """
+  def equal_value?(left, right)
+
+  def equal_value?(%RDF.IRI{value: left}, %RDF.IRI{value: right}),
+    do: left == right
+
+  @xsd_any_uri "http://www.w3.org/2001/XMLSchema#anyURI"
+
+  def equal_value?(%RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}, value: left}, right),
+    do: equal_value?(new(left), right)
+
+  def equal_value?(left, %RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}, value: right}),
+    do: equal_value?(left, new(right))
+
+  def equal_value?(_, _),
+    do: nil
+
+
   defimpl String.Chars do
     def to_string(%RDF.IRI{value: value}) do
       value

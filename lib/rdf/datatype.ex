@@ -56,6 +56,16 @@ defmodule RDF.Datatype do
   """
   @callback valid?(literal :: RDF.Literal.t) :: boolean
 
+  @doc """
+  Checks if the value of two `RDF.Literal`s of this datatype are equal.
+
+  Returns `nil` when the given arguments are not comparable as literals of this datatype.
+
+  The default implementation of the `_using__` macro compares the values of the
+  `canonical/1` forms of the given literals of this datatype.
+  """
+  @callback equal_value?(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: boolean | nil
+
 
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
@@ -183,6 +193,12 @@ defmodule RDF.Datatype do
       def valid?(_), do: false
 
 
+      def equal_value?(%Literal{datatype: @id} = literal1, %Literal{datatype: @id} = literal2) do
+        canonical(literal1).value == canonical(literal2).value
+      end
+
+      def equal_value?(_, _), do: nil
+
       defoverridable [
         build_literal_by_value: 2,
         build_literal_by_lexical: 2,
@@ -192,6 +208,7 @@ defmodule RDF.Datatype do
         invalid_lexical: 1,
         convert: 2,
         valid?: 1,
+        equal_value?: 2,
       ]
     end
   end

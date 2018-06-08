@@ -128,7 +128,7 @@ defmodule RDF.Literal do
   end
 
   @doc """
-  Returns the given literal with the canonical lexical representation according to its datatype.
+  Returns the lexical representation of the given literal according to its datatype.
   """
   def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil, datatype: id} = literal) do
     case RDF.Datatype.get(id) do
@@ -214,6 +214,38 @@ defmodule RDF.Literal do
   def plain?(_), do: false
 
   def typed?(literal), do: not plain?(literal)
+
+
+  @doc """
+  Checks if two `RDF.Literal`s of this datatype are equal.
+
+  Returns `nil` when the given arguments are not comparable as Literals.
+
+  see <https://www.w3.org/TR/rdf-concepts/#section-Literal-Equality>
+  """
+  def equal_value?(left, right)
+
+  def equal_value?(%RDF.Literal{datatype: id1} = literal1, %RDF.Literal{datatype: id2} = literal2) do
+    case RDF.Datatype.get(id1) do
+      nil ->
+        if id1 == id2 do
+          literal1.value == literal2.value
+        end
+      datatype ->
+        datatype.equal_value?(literal1, literal2)
+    end
+  end
+
+  # TODO: Handle AnyURI in its own RDF.Datatype implementation
+  @xsd_any_uri "http://www.w3.org/2001/XMLSchema#anyURI"
+
+  def equal_value?(%RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}} = left, right),
+    do: RDF.IRI.equal_value?(left, right)
+
+  def equal_value?(left, %RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}} = right),
+    do: RDF.IRI.equal_value?(left, right)
+
+  def equal_value?(_, _), do: nil
 
 end
 
