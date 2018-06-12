@@ -60,12 +60,11 @@ defmodule RDF.Mixfile do
   defp deps do
     [
       {:dialyxir, "~> 0.5",       only: [:dev, :test], runtime: false},
-      {:credo, "~> 0.8",          only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.16",        only: :dev, runtime: false},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.7",    only: :test},
+      {:credo, "~> 0.9",          only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.18",        only: :dev, runtime: false},
+      {:excoveralls, "~> 0.9",    only: :test},
       {:inch_ex, "~> 0.5",        only: [:dev, :test]},
-      {:benchee, "~> 0.9",        only: :bench},
+      {:benchee, "~> 0.13",       only: :bench},
       {:erlang_term, "~> 1.7",    only: :bench},
     ]
   end
