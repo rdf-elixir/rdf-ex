@@ -2,9 +2,9 @@ defmodule RDF.Decimal do
   @moduledoc """
   `RDF.Datatype` for XSD decimal.
   """
-  alias Elixir.Decimal, as: D
-
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.decimal
+
+  alias Elixir.Decimal, as: D
 
 
   def build_literal_by_value(value, opts) when is_integer(value),
@@ -66,5 +66,8 @@ defmodule RDF.Decimal do
 
   defp canonical_decimal(%D{coef: coef, exp: exp} = decimal),
     do: canonical_decimal(%{decimal | coef: Kernel.div(coef, 10), exp: exp + 1})
+
+
+  def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
 end

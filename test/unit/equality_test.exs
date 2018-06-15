@@ -126,12 +126,17 @@ defmodule RDF.EqualityTest do
     ]
     @value_equal_numerics [
       {RDF.integer("42"), RDF.integer("042")},
-      {RDF.double("+0"),  RDF.double("-0")},
       {RDF.integer("42"), RDF.double("42")},
       {RDF.integer(42),   RDF.double(42.0)},
+      {RDF.integer("42"), RDF.decimal("42")},
+      {RDF.integer(42),   RDF.decimal(42.0)},
+      {RDF.double(3.14),  RDF.decimal(3.14)},
+      {RDF.double("+0"),  RDF.double("-0")},
+      {RDF.decimal("+0"), RDF.decimal("-0")},
     ]
     @value_unequal_numerics [
       {RDF.integer("1"), RDF.double("1.1")},
+      {RDF.integer("1"), RDF.decimal("1.1")},
     ]
     @incomparable_numerics [
       {RDF.string("42"),  RDF.integer(42)},

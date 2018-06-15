@@ -6,6 +6,8 @@ defmodule RDF.Numeric do
   alias RDF.Literal
   alias RDF.Datatype.NS.XSD
 
+  alias Elixir.Decimal, as: D
+
   @types MapSet.new [
     XSD.integer,
     XSD.decimal,
@@ -35,6 +37,7 @@ defmodule RDF.Numeric do
   """
   def type?(type), do: MapSet.member?(@types, type)
 
+  @xsd_decimal XSD.decimal
 
   @doc """
   Tests for numeric value equality of two numeric literals.
@@ -48,18 +51,29 @@ defmodule RDF.Numeric do
   """
   def equal_value?(left, right)
 
-  def equal_value?(%Literal{datatype: left_datatype} = left,
-             %Literal{datatype: right_datatype} = right) do
+  def equal_value?(%Literal{datatype: left_datatype, value: left},
+                   %Literal{datatype: right_datatype, value: right})
+      when left_datatype == @xsd_decimal or right_datatype == @xsd_decimal,
+      do: equal_decimal_value?(left, right)
+
+  def equal_value?(%Literal{datatype: left_datatype, value: left},
+                   %Literal{datatype: right_datatype, value: right})
+  do
     if type?(left_datatype) and type?(right_datatype) do
       # We rely here on Elixirs numeric equality comparison.
       # TODO:  There are probably problematic edge-case, which might require an
       # TODO:  implementation of XPath type promotion and subtype substitution
       # - https://www.w3.org/TR/xpath-functions/#op.numeric
       # - https://www.w3.org/TR/xpath20/#id-type-promotion-and-operator-mapping
-      Literal.canonical(left).value == Literal.canonical(right).value
+      left == right
     end
   end
 
   def equal_value?(_, _), do: nil
+
+  defp equal_decimal_value?(%D{} = left, %D{} = right), do: D.equal?(left, right)
+  defp equal_decimal_value?(%D{} = left, right), do: equal_decimal_value?(left, D.new(right))
+  defp equal_decimal_value?(left, %D{} = right), do: equal_decimal_value?(D.new(left), right)
+  defp equal_decimal_value?(_, _), do: nil
 
 end
