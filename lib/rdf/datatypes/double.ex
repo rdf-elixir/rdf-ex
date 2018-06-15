@@ -51,15 +51,12 @@ defmodule RDF.Double do
   def convert(value, opts), do: super(value, opts)
 
 
-  def canonical_lexical(value) do
-    case value do
-      :nan                        -> "NaN"
-      :positive_infinity          -> "INF"
-      :negative_infinity          -> "-INF"
-      float when is_float(float)  -> exponential_form(float)
-      _                           -> to_string(value)
-    end
-  end
+  def canonical_lexical(:nan),                       do: "NaN"
+  def canonical_lexical(:positive_infinity),         do: "INF"
+  def canonical_lexical(:negative_infinity),         do: "-INF"
+  def canonical_lexical(float) when is_float(float), do: exponential_form(float)
+  def canonical_lexical(value),                      do: to_string(value)
+
 
   def decimal_form(float) when is_float(float) do
     to_string(float)
