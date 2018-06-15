@@ -552,7 +552,6 @@ defmodule RDF.Turtle.EncoderTest do
          end)
     end
 
-    @tag skip: "TODO: Decimal literals"
     test "valid decimals" do
       [
         {1.0,       "1.0 ."},

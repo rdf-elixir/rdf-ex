@@ -13,7 +13,8 @@ defmodule RDF.Turtle.Encoder do
   @native_supported_datatypes [
     RDF.Datatype.NS.XSD.boolean,
     RDF.Datatype.NS.XSD.integer,
-    RDF.Datatype.NS.XSD.double
+    RDF.Datatype.NS.XSD.double,
+    RDF.Datatype.NS.XSD.decimal
   ]
   @rdf_type RDF.type
   @rdf_nil  RDF.nil

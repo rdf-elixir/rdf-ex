@@ -12,7 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - top-level alias functions for constructors of the basic datatypes
 - top-level constant functions `RDF.true` and `RDF.false` for the two boolean 
   RDF.Literal values
-- `RDF.Decimal` datatype for `xsd:decimal` literals
+- `RDF.Decimal` datatype for `xsd:decimal` literals and support for decimal 
+  literals in Turtle encoder
 - `RDF.Numeric` with a list of all numeric datatypes and shared functions for
   all numeric literals
 - the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
