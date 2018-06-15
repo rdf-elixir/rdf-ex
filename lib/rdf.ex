@@ -135,6 +135,8 @@ defmodule RDF do
   defdelegate integer(value, opts),     to: RDF.Integer,    as: :new
   defdelegate double(value),            to: RDF.Double,     as: :new
   defdelegate double(value, opts),      to: RDF.Double,     as: :new
+  defdelegate decimal(value),           to: RDF.Decimal,    as: :new
+  defdelegate decimal(value, opts),     to: RDF.Decimal,    as: :new
   defdelegate date(value),              to: RDF.Date,       as: :new
   defdelegate date(value, opts),        to: RDF.Date,       as: :new
   defdelegate time(value),              to: RDF.Time,       as: :new

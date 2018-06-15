@@ -20,3 +20,5 @@ alias RDF.{
 alias RDF.BlankNode, as: BNode
 
 alias RDF.{NTriples, NQuads, Turtle}
+
+alias Decimal, as: D

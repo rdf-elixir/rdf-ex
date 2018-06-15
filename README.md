@@ -10,7 +10,6 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 ## Features
 
 - fully compatible with the RDF 1.1 specification
-- no dependencies
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
 - support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
 - XML schema datatypes for RDF literals (not yet all supported)
@@ -316,6 +315,7 @@ It is also possible to create a typed literal by using a native Elixir non-strin
 | `Date`          | `xsd:date`     |
 | `DateTime`      | `xsd:dateTime` |
 | `NaiveDateTime` | `xsd:dateTime` |
+| [`Decimal`]     | `xsd:decimal`  |
 
 So the former example literal can be created equivalently like this:
 
@@ -759,3 +759,4 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 [RDF-XML]:              https://www.w3.org/TR/rdf-syntax-grammar/
 [BCP47]:                https://tools.ietf.org/html/bcp47
 [XML schema datatype]:  https://www.w3.org/TR/xmlschema11-2/
+[`Decimal`]:            https://github.com/ericmj/decimal

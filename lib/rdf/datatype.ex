@@ -75,6 +75,7 @@ defmodule RDF.Datatype do
     XSD.string   => RDF.String,
     XSD.integer  => RDF.Integer,
     XSD.double   => RDF.Double,
+    XSD.decimal  => RDF.Decimal,
     XSD.boolean  => RDF.Boolean,
     XSD.date     => RDF.Date,
     XSD.time     => RDF.Time,

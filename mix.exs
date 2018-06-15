@@ -59,11 +59,14 @@ defmodule RDF.Mixfile do
 
   defp deps do
     [
+      {:decimal, "~> 1.5"},
+
       {:dialyxir, "~> 0.5",       only: [:dev, :test], runtime: false},
       {:credo, "~> 0.9",          only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.18",        only: :dev, runtime: false},
       {:excoveralls, "~> 0.9",    only: :test},
       {:inch_ex, "~> 0.5",        only: [:dev, :test]},
+
       {:benchee, "~> 0.13",       only: :bench},
       {:erlang_term, "~> 1.7",    only: :bench},
     ]
