@@ -7,19 +7,17 @@ defmodule RDF.Decimal do
   alias Elixir.Decimal, as: D
 
 
-  def build_literal_by_value(value, opts) when is_integer(value),
-    do: value |> D.new() |> build_literal(to_string(value), opts)
-
-  def build_literal_by_value(value, opts),
-    do: super(value, opts)
-
-
   def convert(%D{coef: coef} = value, opts) when coef in ~w[qNaN sNaN inf]a,
     do: super(value, opts)
 
-  def convert(%D{} = decimal, _), do: decimal
+  def convert(%D{} = decimal, _),
+    do: canonical_decimal(decimal)
 
-  def convert(value, _) when is_float(value), do: D.from_float(value)
+  def convert(value, opts) when is_integer(value),
+    do: value |> D.new() |> convert(opts)
+
+  def convert(value, opts) when is_float(value),
+    do: value |> D.from_float() |> convert(opts)
 
   def convert(value, opts) when is_binary(value) do
     if String.contains?(value, ~w[e E]) do
@@ -35,36 +33,34 @@ defmodule RDF.Decimal do
   def convert(value, opts), do: super(value, opts)
 
 
-  def canonical_lexical(%D{sign: sign, coef: :qNaN}) do
-    if sign == 1, do: "NaN", else: "-NaN"
-  end
+  def canonical_lexical(%D{sign: sign, coef: :qNaN}),
+    do: if sign == 1, do: "NaN", else: "-NaN"
 
-  def canonical_lexical(%D{sign: sign, coef: :sNaN}) do
-    if sign == 1, do: "sNaN", else: "-sNaN"
-  end
+  def canonical_lexical(%D{sign: sign, coef: :sNaN}),
+    do: if sign == 1, do: "sNaN", else: "-sNaN"
 
-  def canonical_lexical(%D{sign: sign, coef: :inf}) do
-    if sign == 1, do: "Infinity", else: "-Infinity"
-  end
+  def canonical_lexical(%D{sign: sign, coef: :inf}),
+    do: if sign == 1, do: "Infinity", else: "-Infinity"
 
-  def canonical_lexical(%D{} = decimal) do
-    decimal |> canonical_decimal() |> D.to_string(:normal)
-  end
+  def canonical_lexical(%D{} = decimal),
+    do: D.to_string(decimal, :normal)
 
-  defp canonical_decimal(%D{coef: 0} = decimal), do: %{decimal | exp: -1}
 
-  defp canonical_decimal(%D{coef: coef, exp: 0} = decimal),
+  def canonical_decimal(%D{coef: 0} = decimal),
+    do: %{decimal | exp: -1}
+
+  def canonical_decimal(%D{coef: coef, exp: 0} = decimal),
     do: %{decimal | coef: coef * 10, exp: -1}
 
-  defp canonical_decimal(%D{coef: coef, exp: exp} = decimal)
+  def canonical_decimal(%D{coef: coef, exp: exp} = decimal)
        when exp > 0,
        do: canonical_decimal(%{decimal | coef: coef * 10, exp: exp - 1})
 
-  defp canonical_decimal(%D{coef: coef} = decimal)
+  def canonical_decimal(%D{coef: coef} = decimal)
        when Kernel.rem(coef, 10) != 0,
        do: decimal
 
-  defp canonical_decimal(%D{coef: coef, exp: exp} = decimal),
+  def canonical_decimal(%D{coef: coef, exp: exp} = decimal),
     do: canonical_decimal(%{decimal | coef: Kernel.div(coef, 10), exp: exp + 1})
 
 
