@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Decimal` datatype for `xsd:decimal` literals and support for decimal 
   literals in Turtle encoder
 - `RDF.Numeric` with a list of all numeric datatypes and shared functions for
-  all numeric literals
+  all numeric literals, eg. arithmetic functions
 - the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
   from the XPath and SPARQL specs on `RDF.Boolean`
 - `RDF.Term.equal?/2` and `RDF.Term.equal_value?/2` 
