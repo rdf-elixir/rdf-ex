@@ -66,9 +66,8 @@ defmodule RDF.Double do
     # Can't use simple %f transformation due to special requirements from
     # N3 tests in representation
     [i, f, e] =
-      :io_lib.format("~.15e", [float])
-      |> List.first
-      |> to_string
+      float
+      |> float_to_string()
       |> String.split(~r/[\.e]/)
     f =
       case String.replace(f, ~r/0*$/, "", global: false) do # remove any trailing zeroes
@@ -79,6 +78,18 @@ defmodule RDF.Double do
     "#{i}.#{f}E#{e}"
   end
 
+  if List.to_integer(:erlang.system_info(:otp_release)) >= 21 do
+    defp float_to_string(float) do
+      :io_lib.format("~.15e", [float])
+      |> to_string()
+    end
+  else
+    defp float_to_string(float) do
+      :io_lib.format("~.15e", [float])
+      |> List.first
+      |> to_string()
+    end
+  end
 
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
