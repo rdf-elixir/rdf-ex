@@ -20,6 +20,8 @@ defmodule RDF.Datatype.Test.Case do
     valid       = Keyword.get(opts, :valid)
     invalid     = Keyword.get(opts, :invalid)
 
+    allow_language = Keyword.get(opts, :allow_language, false)
+
     quote do
       alias RDF.{Literal, Datatype}
       alias RDF.NS.XSD
@@ -81,9 +83,11 @@ defmodule RDF.Datatype.Test.Case do
             end
           end
 
-          test "language option is ignored" do
-            Enum.each @valid, fn {input, _} ->
-              assert unquote(datatype).new(input, language: "en") == unquote(datatype).new(input)
+          unless unquote(allow_language) do
+            test "language option is ignored" do
+              Enum.each @valid, fn {input, _} ->
+                assert unquote(datatype).new(input, language: "en") == unquote(datatype).new(input)
+              end
             end
           end
         end

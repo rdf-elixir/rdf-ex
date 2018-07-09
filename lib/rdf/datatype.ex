@@ -210,6 +210,8 @@ defmodule RDF.Datatype do
         convert: 2,
         valid?: 1,
         equal_value?: 2,
+        new: 2,
+        new!: 2,
       ]
     end
   end

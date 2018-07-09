@@ -24,6 +24,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Changed
 
 - Elixir 1.4 is no longer supported
+- `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
+  given a language tag
 
 
 ### Fixed

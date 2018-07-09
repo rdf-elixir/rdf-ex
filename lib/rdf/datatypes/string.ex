@@ -5,6 +5,14 @@ defmodule RDF.String do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.string
 
+  def new(value, opts) when is_list(opts), do: new(value, Map.new(opts))
+  def new(value, %{language: _} = opts), do: RDF.LangString.new!(value, opts)
+  def new(value, opts), do: super(value, opts)
+
+  def new!(value, opts) when is_list(opts), do: new!(value, Map.new(opts))
+  def new!(value, %{language: _} = opts), do: RDF.LangString.new!(value, opts)
+  def new!(value, opts), do: super(value, opts)
+
 
   def build_literal_by_lexical(lexical, opts) do
     build_literal(lexical, nil, opts)

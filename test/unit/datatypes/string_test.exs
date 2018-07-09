@@ -9,6 +9,21 @@ defmodule RDF.StringTest do
       true  => { "true"  , nil     , "true"  },
       false => { "false" , nil     , "false" },
     },
-    invalid: []
+    invalid: [],
+    allow_language: true
+
+  describe "new" do
+    test "when given a language tag it produces a rdf:langString" do
+      assert RDF.String.new("foo", language: "en") ==
+             RDF.LangString.new("foo", language: "en")
+    end
+  end
+
+  describe "new!" do
+    test "when given a language tag it produces a rdf:langString" do
+      assert RDF.String.new!("foo", language: "en") ==
+             RDF.LangString.new!("foo", language: "en")
+    end
+  end
 
 end
