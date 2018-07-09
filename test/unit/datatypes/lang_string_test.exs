@@ -42,9 +42,23 @@ defmodule RDF.LangStringTest do
       end
     end
 
-    test "without a language it warns and produces an invalid literal" do
+    test "without a language it produces an invalid literal" do
       Enum.each @valid, fn {input, _} ->
         assert %Literal{} = literal = LangString.new(input)
+        refute Literal.valid?(literal)
+      end
+    end
+
+    test "with nil as a language it produces an invalid literal" do
+      Enum.each @valid, fn {input, _} ->
+        assert %Literal{} = literal = LangString.new(input, language: nil)
+        refute Literal.valid?(literal)
+      end
+    end
+
+    test "with the empty string as a language it produces an invalid literal" do
+      Enum.each @valid, fn {input, _} ->
+        assert %Literal{} = literal = LangString.new(input, language: "")
         refute Literal.valid?(literal)
       end
     end
@@ -66,6 +80,18 @@ defmodule RDF.LangStringTest do
     test "without a language it raises an error" do
       Enum.each @valid, fn {input, _} ->
         assert_raise ArgumentError, fn -> LangString.new!(input) end
+      end
+    end
+
+    test "with nil as a language it raises an error" do
+      Enum.each @valid, fn {input, _} ->
+        assert_raise ArgumentError, fn -> LangString.new!(input, language: nil) end
+      end
+    end
+
+    test "with the empty string as a language it raises an error" do
+      Enum.each @valid, fn {input, _} ->
+        assert_raise ArgumentError, fn -> LangString.new!(input, language: "") end
       end
     end
   end

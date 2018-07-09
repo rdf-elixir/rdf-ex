@@ -30,6 +30,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.DateTime`: '24:00:00' is a valid time in a xsd:dateTime; the dateTime 
   value so represented is the first instant of the following day
+- `RDF.LangString`: non-strings or the empty string as language produce invalid
+  literals
 
 
 [Compare v0.4.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...HEAD)

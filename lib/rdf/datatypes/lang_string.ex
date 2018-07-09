@@ -6,7 +6,8 @@ defmodule RDF.LangString do
   use RDF.Datatype, id: RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
 
-  def build_literal(value, lexical, %{language: language} = opts) do
+  def build_literal(value, lexical, %{language: language} = opts)
+      when is_binary(language) and language != "" do
     %Literal{super(value, lexical, opts) | language: String.downcase(language)}
   end
 
