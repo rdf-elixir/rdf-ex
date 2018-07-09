@@ -146,5 +146,77 @@ defmodule RDF.LangStringTest do
       end
     end
   end
-  
+
+
+  describe "match_language?/2" do
+    @positive_examples [
+      {"de", "de"},
+      {"de", "DE"},
+      {"de-DE", "de"},
+      {"de-CH", "de"},
+      {"de-CH", "de-ch"},
+      {"de-DE-1996", "de-de"},
+    ]
+
+    @negative_examples [
+      {"en", "de"},
+      {"de", "de-CH"},
+      {"de-Deva", "de-de"},
+      {"de-Latn-DE", "de-de"},
+    ]
+
+    test "with a language tag and a matching non-'*' language range" do
+      Enum.each @positive_examples, fn {language_tag, language_range} ->
+        assert LangString.match_language?(language_tag, language_range),
+          "expected language range #{inspect language_range} to match language tag #{inspect language_tag}, but it didn't"
+      end
+    end
+
+    test "with a language tag and a non-matching non-'*' language range" do
+      Enum.each @negative_examples, fn {language_tag, language_range} ->
+        refute LangString.match_language?(language_tag, language_range),
+         "expected language range #{inspect language_range} to not match language tag #{inspect language_tag}, but it did"
+      end
+    end
+
+    test "with a language tag and '*' language range" do
+      Enum.each @positive_examples ++ @negative_examples, fn {language_tag, _} ->
+        assert LangString.match_language?(language_tag, "*"),
+           ~s[expected language range "*" to match language tag #{inspect language_tag}, but it didn't]
+      end
+    end
+
+    test "with the empty string as language tag" do
+      refute LangString.match_language?("", "de")
+      refute LangString.match_language?("", "*")
+    end
+
+    test "with the empty string as language range" do
+      refute LangString.match_language?("de", "")
+    end
+
+    test "with a language-tagged literal and a language range" do
+      Enum.each @positive_examples, fn {language_tag, language_range} ->
+        literal = RDF.lang_string("foo", language: language_tag)
+        assert LangString.match_language?(literal, language_range),
+          "expected language range #{inspect language_range} to match #{inspect literal}, but it didn't"
+      end
+      Enum.each @negative_examples, fn {language_tag, language_range} ->
+        literal = RDF.lang_string("foo", language: language_tag)
+        refute LangString.match_language?(literal, language_range),
+          "expected language range #{inspect language_range} to not match #{inspect literal}, but it did"
+      end
+      refute LangString.match_language?(RDF.lang_string("foo", language: ""), "de")
+      refute LangString.match_language?(RDF.lang_string("foo", language: ""), "*")
+      refute LangString.match_language?(RDF.lang_string("foo", language: nil), "de")
+      refute LangString.match_language?(RDF.lang_string("foo", language: nil), "*")
+    end
+
+    test "with a non-language-tagged literal" do
+      refute RDF.string("42") |> LangString.match_language?("de")
+      refute RDF.string("42") |> LangString.match_language?("")
+      refute RDF.integer("42") |> LangString.match_language?("de")
+    end
+  end
+
 end
