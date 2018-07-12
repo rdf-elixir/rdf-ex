@@ -225,6 +225,38 @@ defmodule RDF.Numeric do
     end
   end
 
+  @doc """
+  Returns the absolute value of a numeric literal.
+
+  If the argument is not a valid numeric literal `nil` is returned.
+
+  see <http://www.w3.org/TR/xpath-functions/#func-abs>
+
+  """
+  def abs(literal)
+
+  def abs(%Literal{datatype: @xsd_decimal} = literal) do
+    if RDF.Decimal.valid?(literal) do
+      literal.value
+      |> D.abs()
+      |> RDF.Decimal.new()
+    end
+  end
+
+  def abs(%Literal{datatype: datatype} = literal) do
+    if type?(datatype) and Literal.valid?(literal) do
+      case literal.value do
+        :nan               -> literal
+        :positive_infinity -> literal
+        :negative_infinity -> Literal.new(:positive_infinity, datatype: datatype)
+        value ->
+          value
+          |> Kernel.abs()
+          |> Literal.new(datatype: datatype)
+      end
+    end
+  end
+
 
   defp arithmetic_operation(op, arg1, arg2, fun) do
     if literal?(arg1) && literal?(arg2) do

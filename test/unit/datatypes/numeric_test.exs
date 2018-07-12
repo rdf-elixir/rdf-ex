@@ -2,7 +2,7 @@ defmodule RDF.NumericTest do
   use RDF.Test.Case
 
   alias RDF.Numeric
-
+  alias RDF.NS.XSD
 
   @positive_infinity RDF.double(:positive_infinity)
   @negative_infinity RDF.double(:negative_infinity)
@@ -309,6 +309,42 @@ defmodule RDF.NumericTest do
 
     # TODO: What happens when using INF/-INF on division with numbers?
 
+  end
+
+  describe "abs/1" do
+    test "with xsd:integer" do
+      assert RDF.integer(42)  |> Numeric.abs() == RDF.integer(42)
+      assert RDF.integer(-42) |> Numeric.abs() == RDF.integer(42)
+    end
+
+    test "with xsd:double" do
+      assert RDF.double(3.14)   |> Numeric.abs() == RDF.double(3.14)
+      assert RDF.double(-3.14)  |> Numeric.abs() == RDF.double(3.14)
+      assert RDF.double("INF")  |> Numeric.abs() == RDF.double("INF")
+      assert RDF.double("-INF") |> Numeric.abs() == RDF.double("INF")
+      assert RDF.double("NAN")  |> Numeric.abs() == RDF.double("NAN")
+    end
+
+    test "with xsd:decimal" do
+      assert RDF.decimal(3.14)  |> Numeric.abs() == RDF.decimal(3.14)
+      assert RDF.decimal(-3.14) |> Numeric.abs() == RDF.decimal(3.14)
+    end
+
+    @tag skip: "TODO: derived datatypes"
+    test "with derived numerics" do
+      assert RDF.literal(-42, datatype: XSD.byte) |> Numeric.abs() ==
+             RDF.literal(42, datatype: XSD.byte)
+      assert RDF.literal("-42", datatype: XSD.byte) |> Numeric.abs() ==
+               RDF.literal(42, datatype: XSD.byte)
+      assert RDF.literal(-42, datatype: XSD.nonPositiveInteger)
+             |> Numeric.abs() == RDF.integer(42)
+    end
+
+    test "with invalid numeric literals" do
+      assert RDF.integer("-3.14") |> Numeric.abs() == nil
+      assert RDF.double("foo") |> Numeric.abs() == nil
+      assert RDF.decimal("foo") |> Numeric.abs() == nil
+    end
   end
 
 end
