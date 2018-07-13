@@ -335,15 +335,77 @@ defmodule RDF.NumericTest do
       assert RDF.literal(-42, datatype: XSD.byte) |> Numeric.abs() ==
              RDF.literal(42, datatype: XSD.byte)
       assert RDF.literal("-42", datatype: XSD.byte) |> Numeric.abs() ==
-               RDF.literal(42, datatype: XSD.byte)
+             RDF.literal(42, datatype: XSD.byte)
       assert RDF.literal(-42, datatype: XSD.nonPositiveInteger)
              |> Numeric.abs() == RDF.integer(42)
     end
 
     test "with invalid numeric literals" do
       assert RDF.integer("-3.14") |> Numeric.abs() == nil
-      assert RDF.double("foo") |> Numeric.abs() == nil
-      assert RDF.decimal("foo") |> Numeric.abs() == nil
+      assert RDF.double("foo")    |> Numeric.abs() == nil
+      assert RDF.decimal("foo")   |> Numeric.abs() == nil
+    end
+  end
+
+  describe "round/1" do
+    test "with xsd:integer" do
+      assert RDF.integer(42)  |> Numeric.round() == RDF.integer(42)
+      assert RDF.integer(-42) |> Numeric.round() == RDF.integer(-42)
+    end
+
+    test "with xsd:double" do
+      assert RDF.double(3.14)  |> Numeric.round() == RDF.double(3.0)
+      assert RDF.double(-3.14) |> Numeric.round() == RDF.double(-3.0)
+      assert RDF.double(-2.5)  |> Numeric.round() == RDF.double(-2.0)
+
+      assert RDF.double("INF")  |> Numeric.round() == RDF.double("INF")
+      assert RDF.double("-INF") |> Numeric.round() == RDF.double("-INF")
+      assert RDF.double("NAN")  |> Numeric.round() == RDF.double("NAN")
+    end
+
+    test "with xsd:decimal" do
+      assert RDF.decimal(2.5)    |> Numeric.round() == RDF.decimal(3.0)
+      assert RDF.decimal(2.4999) |> Numeric.round() == RDF.decimal(2.0)
+      assert RDF.decimal(-2.5)   |> Numeric.round() == RDF.decimal(-2.0)
+    end
+
+    test "with invalid numeric literals" do
+      assert RDF.integer("-3.14") |> Numeric.round() == nil
+      assert RDF.double("foo")    |> Numeric.round() == nil
+      assert RDF.decimal("foo")   |> Numeric.round() == nil
+    end
+  end
+
+  describe "round/2" do
+    test "with xsd:integer" do
+      assert RDF.integer(42)   |> Numeric.round(3) == RDF.integer(42)
+      assert RDF.integer(8452) |> Numeric.round(-2) == RDF.integer(8500)
+      assert RDF.integer(85)   |> Numeric.round(-1) == RDF.integer(90)
+      assert RDF.integer(-85)  |> Numeric.round(-1) == RDF.integer(-80)
+    end
+
+    @tag skip: "TODO: xsd:float"
+    test "with xsd:float"
+
+    test "with xsd:double" do
+      assert RDF.double(3.14)     |> Numeric.round(1) == RDF.double(3.1)
+      assert RDF.double(3.1415e0) |> Numeric.round(2) == RDF.double(3.14e0)
+
+      assert RDF.double("INF")  |> Numeric.round(1) == RDF.double("INF")
+      assert RDF.double("-INF") |> Numeric.round(2) == RDF.double("-INF")
+      assert RDF.double("NAN")  |> Numeric.round(3) == RDF.double("NAN")
+    end
+
+    test "with xsd:decimal" do
+      assert RDF.decimal(1.125)  |> Numeric.round(2) == RDF.decimal(1.13)
+      assert RDF.decimal(2.4999) |> Numeric.round(2) == RDF.decimal(2.5)
+      assert RDF.decimal(-2.55)  |> Numeric.round(1) == RDF.decimal(-2.5)
+    end
+
+    test "with invalid numeric literals" do
+      assert RDF.integer("-3.14") |> Numeric.round(1) == nil
+      assert RDF.double("foo")    |> Numeric.round(2) == nil
+      assert RDF.decimal("foo")   |> Numeric.round(3) == nil
     end
   end
 

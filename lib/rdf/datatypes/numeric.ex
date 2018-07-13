@@ -47,6 +47,12 @@ defmodule RDF.Numeric do
   def literal?(%Literal{datatype: datatype}), do: type?(datatype)
   def literal?(_),                            do: false
 
+#  @doc """
+#  Returns if a given datatype is a numeric datatype for integers.
+#  """
+#  def integer_type?(type), do: MapSet.member?(@integer_types, type)
+
+
 
   @doc """
   Tests for numeric value equality of two numeric literals.
@@ -256,6 +262,62 @@ defmodule RDF.Numeric do
       end
     end
   end
+
+  @doc """
+  Rounds a value to a specified number of decimal places, rounding upwards if two such values are equally near.
+
+  The function returns the nearest (that is, numerically closest) value to the
+  given literal value that is a multiple of ten to the power of minus `precision`.
+  If two such values are equally near (for example, if the fractional part in the
+  literal value is exactly .5), the function returns the one that is closest to
+  positive infinity.
+
+  If the argument is not a valid numeric literal `nil` is returned.
+
+  see <http://www.w3.org/TR/xpath-functions/#func-round>
+
+  """
+  def round(literal, precision \\ 0)
+
+  def round(%Literal{datatype: @xsd_decimal} = literal, precision) do
+    if RDF.Decimal.valid?(literal) do
+      literal.value
+      |> xpath_round(precision)
+      |> RDF.Decimal.new()
+    end
+  end
+
+  def round(%Literal{datatype: @xsd_double, value: value} = literal, _)
+      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+
+  def round(%Literal{datatype: @xsd_double} = literal, precision) do
+    if RDF.Double.valid?(literal) do
+      literal.value
+      |> D.new()
+      |> xpath_round(precision)
+      |> D.to_float()
+      |> RDF.Double.new()
+    end
+  end
+
+  def round(%Literal{datatype: datatype} = literal, precision) do
+    if type?(datatype) and Literal.valid?(literal) do
+      if precision < 0 do
+        literal.value
+        |> D.new()
+        |> xpath_round(precision)
+        |> D.to_integer()
+        |> RDF.Integer.new()
+      else
+        literal
+      end
+    end
+  end
+
+  defp xpath_round(%D{sign: -1} = decimal, precision),
+     do: D.round(decimal, precision, :half_down)
+  defp xpath_round(decimal, precision),
+     do: D.round(decimal, precision)
 
 
   defp arithmetic_operation(op, arg1, arg2, fun) do
