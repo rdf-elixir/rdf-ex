@@ -409,4 +409,58 @@ defmodule RDF.NumericTest do
     end
   end
 
+  describe "ceil/1" do
+    test "with xsd:integer" do
+      assert RDF.integer(42)  |> Numeric.ceil() == RDF.integer(42)
+      assert RDF.integer(-42) |> Numeric.ceil() == RDF.integer(-42)
+    end
+
+    test "with xsd:double" do
+      assert RDF.double(10.5)  |> Numeric.ceil() == RDF.integer(11)
+      assert RDF.double(-10.5) |> Numeric.ceil() == RDF.integer(-10)
+
+      assert RDF.double("INF")  |> Numeric.ceil() == RDF.double("INF")
+      assert RDF.double("-INF") |> Numeric.ceil() == RDF.double("-INF")
+      assert RDF.double("NAN")  |> Numeric.ceil() == RDF.double("NAN")
+    end
+
+    test "with xsd:decimal" do
+      assert RDF.decimal(10.5)  |> Numeric.ceil() == RDF.integer(11)
+      assert RDF.decimal(-10.5) |> Numeric.ceil() == RDF.integer(-10)
+    end
+
+    test "with invalid numeric literals" do
+      assert RDF.integer("-3.14") |> Numeric.ceil() == nil
+      assert RDF.double("foo")    |> Numeric.ceil() == nil
+      assert RDF.decimal("foo")   |> Numeric.ceil() == nil
+    end
+  end
+
+  describe "floor/1" do
+    test "with xsd:integer" do
+      assert RDF.integer(42)  |> Numeric.floor() == RDF.integer(42)
+      assert RDF.integer(-42) |> Numeric.floor() == RDF.integer(-42)
+    end
+
+    test "with xsd:double" do
+      assert RDF.double(10.5)  |> Numeric.floor() == RDF.integer(10)
+      assert RDF.double(-10.5) |> Numeric.floor() == RDF.integer(-11)
+
+      assert RDF.double("INF")  |> Numeric.floor() == RDF.double("INF")
+      assert RDF.double("-INF") |> Numeric.floor() == RDF.double("-INF")
+      assert RDF.double("NAN")  |> Numeric.floor() == RDF.double("NAN")
+    end
+
+    test "with xsd:decimal" do
+      assert RDF.decimal(10.5)  |> Numeric.floor() == RDF.integer(10)
+      assert RDF.decimal(-10.5) |> Numeric.floor() == RDF.integer(-11)
+    end
+
+    test "with invalid numeric literals" do
+      assert RDF.integer("-3.14") |> Numeric.floor() == nil
+      assert RDF.double("foo")    |> Numeric.floor() == nil
+      assert RDF.decimal("foo")   |> Numeric.floor() == nil
+    end
+  end
+
 end

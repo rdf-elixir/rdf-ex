@@ -319,6 +319,80 @@ defmodule RDF.Numeric do
   defp xpath_round(decimal, precision),
      do: D.round(decimal, precision)
 
+  @doc """
+  Rounds a numeric literal upwards to a whole number literal.
+
+  If the argument is not a valid numeric literal `nil` is returned.
+
+  see <http://www.w3.org/TR/xpath-functions/#func-ceil>
+
+  """
+  def ceil(literal)
+
+  def ceil(%Literal{datatype: @xsd_decimal} = literal) do
+    if RDF.Decimal.valid?(literal) do
+      literal.value
+      |> D.round(0, (if literal.value.sign == -1, do: :down, else: :up))
+      |> D.to_integer()
+      |> RDF.Integer.new()
+    end
+  end
+
+  def ceil(%Literal{datatype: @xsd_double, value: value} = literal)
+      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+
+  def ceil(%Literal{datatype: @xsd_double} = literal) do
+    if RDF.Double.valid?(literal) do
+      literal.value
+      |> Float.ceil()
+      |> trunc()
+      |> RDF.Integer.new()
+    end
+  end
+
+  def ceil(%Literal{datatype: datatype} = literal) do
+    if type?(datatype) and Literal.valid?(literal) do
+      literal
+    end
+  end
+
+  @doc """
+  Rounds a numeric literal downwards to a whole number literal.
+
+  If the argument is not a valid numeric literal `nil` is returned.
+
+  see <http://www.w3.org/TR/xpath-functions/#func-floor>
+
+  """
+  def floor(literal)
+
+  def floor(%Literal{datatype: @xsd_decimal} = literal) do
+    if RDF.Decimal.valid?(literal) do
+      literal.value
+      |> D.round(0, (if literal.value.sign == -1, do: :up, else: :down))
+      |> D.to_integer()
+      |> RDF.Integer.new()
+    end
+  end
+
+  def floor(%Literal{datatype: @xsd_double, value: value} = literal)
+      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+
+  def floor(%Literal{datatype: @xsd_double} = literal) do
+    if RDF.Double.valid?(literal) do
+      literal.value
+      |> Float.floor()
+      |> trunc()
+      |> RDF.Integer.new()
+    end
+  end
+
+  def floor(%Literal{datatype: datatype} = literal) do
+    if type?(datatype) and Literal.valid?(literal) do
+      literal
+    end
+  end
+
 
   defp arithmetic_operation(op, arg1, arg2, fun) do
     if literal?(arg1) && literal?(arg2) do
