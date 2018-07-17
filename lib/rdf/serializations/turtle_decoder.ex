@@ -81,7 +81,7 @@ defmodule RDF.Turtle.Decoder do
           %State{state | base_iri: absolute_iri}
         end
       true ->
-        raise "Could not resolve resolve relative IRI '#{iri}', no base iri provided"
+        raise "Could not resolve relative IRI '#{iri}', no base iri provided"
     end
   end
 
@@ -123,7 +123,7 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp resolve_node({:relative_iri, relative_iri}, _, %State{base_iri: nil}) do
-    raise "Could not resolve resolve relative IRI '#{relative_iri}', no base iri provided"
+    raise "Could not resolve relative IRI '#{relative_iri}', no base iri provided"
   end
 
   defp resolve_node({:relative_iri, relative_iri}, statements, state) do
