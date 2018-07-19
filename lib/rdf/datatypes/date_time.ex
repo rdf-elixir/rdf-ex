@@ -8,11 +8,11 @@ defmodule RDF.DateTime do
 
   # Special case for date and dateTime, for which 0 is not a valid year
   def convert(%DateTime{year: 0} = value, opts), do: super(value, opts)
-  def convert(%DateTime{} = value, _),           do: value |> strip_microseconds
+  def convert(%DateTime{} = value, _),           do: value
 
   # Special case for date and dateTime, for which 0 is not a valid year
   def convert(%NaiveDateTime{year: 0} = value, opts), do: super(value, opts)
-  def convert(%NaiveDateTime{} = value, _),           do: value |> strip_microseconds
+  def convert(%NaiveDateTime{} = value, _),           do: value
 
   def convert(value, opts) when is_binary(value) do
     case DateTime.from_iso8601(value) do
@@ -53,12 +53,5 @@ defmodule RDF.DateTime do
   def canonical_lexical(%NaiveDateTime{} = value) do
     NaiveDateTime.to_iso8601(value)
   end
-
-
-  # microseconds are not part of the xsd:dateTime value space
-  defp strip_microseconds(%{microsecond: ms} = date_time) when ms != {0, 0},
-    do: %{date_time | microsecond: {0, 0}}
-  defp strip_microseconds(date_time),
-    do: date_time
 
 end
