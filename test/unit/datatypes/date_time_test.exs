@@ -61,4 +61,49 @@ defmodule RDF.DateTimeTest do
     end
   end
 
+  describe "tz/1" do
+    test "with timezone" do
+      [
+        {"2010-01-01T00:00:00-23:00", "-23:00"},
+        {"2010-01-01T00:00:00+23:00", "+23:00"},
+        {"2010-01-01T00:00:00+00:00", "+00:00"},
+      ]
+      |> Enum.each(fn {dt, tz} ->
+           assert dt |> DateTime.new() |> DateTime.tz() == tz
+         end)
+
+    end
+
+    test "without any specific timezone" do
+      [
+        "2010-01-01T00:00:00Z",
+        "2010-01-01T00:00:00.0000Z",
+      ]
+      |> Enum.each(fn dt ->
+           assert dt |> DateTime.new() |> DateTime.tz() == "Z"
+         end)
+    end
+
+    test "without any timezone" do
+      [
+        "2010-01-01T00:00:00",
+        "2010-01-01T00:00:00.0000",
+      ]
+      |> Enum.each(fn dt ->
+           assert dt |> DateTime.new() |> DateTime.tz() == ""
+         end)
+    end
+
+    test "with invalid timezone literals" do
+      [
+        DateTime.new("2010-01-01T00:0"),
+        "2010-01-01T00:00:00.0000",
+      ]
+      |> Enum.each(fn dt ->
+           assert DateTime.tz(dt) == nil
+         end)
+
+    end
+  end
+
 end

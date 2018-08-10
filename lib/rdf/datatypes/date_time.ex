@@ -54,4 +54,20 @@ defmodule RDF.DateTime do
     NaiveDateTime.to_iso8601(value)
   end
 
+  def tz(datetime_literal) do
+    if valid?(datetime_literal) do
+      lexical = lexical(datetime_literal)
+      case Regex.run(~r/([+-])(\d\d:\d\d)/, lexical) do
+        [_, sign, zone] ->
+          sign <> zone
+        _ ->
+          if String.ends_with?(lexical, "Z") do
+            "Z"
+          else
+            ""
+          end
+      end
+    end
+  end
+
 end
