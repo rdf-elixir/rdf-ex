@@ -28,7 +28,7 @@ defmodule RDF.List do
   """
   def new(head, graph)
 
-  def new(head, graph) when is_atom(head) and not head in ~w[true false nil]a,
+  def new(head, graph) when is_atom(head) and head not in ~w[true false nil]a,
     do: new(RDF.iri(head), graph)
 
   def new(head, graph) do
@@ -175,7 +175,7 @@ defmodule RDF.List do
     do: do_node?(list_node, graph)
 
   def node?(list_node, graph)
-    when is_atom(list_node) and not list_node in ~w[true false nil]a,
+    when is_atom(list_node) and list_node not in ~w[true false nil]a,
     do: do_node?(RDF.iri(list_node), graph)
 
   def node?(_, _), do: false

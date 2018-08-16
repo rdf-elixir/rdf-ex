@@ -286,7 +286,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp validate_terms!(terms) do
     with aliased_terms = aliased_terms(terms) do
-      for {term, _} <- terms, not term in aliased_terms and not valid_term?(term) do
+      for {term, _} <- terms, term not in aliased_terms and not valid_term?(term) do
         term
       end
       |> handle_invalid_terms!
@@ -327,7 +327,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp detect_invalid_characters(terms) do
     with aliased_terms = aliased_terms(terms) do
-      for {term, _} <- terms, not term in aliased_terms and not valid_characters?(term),
+      for {term, _} <- terms, term not in aliased_terms and not valid_characters?(term),
         do: term
     end
   end
@@ -381,7 +381,7 @@ defmodule RDF.Vocabulary.Namespace do
        end)
     |> Enum.filter(fn
          {term, true} ->
-           if not term in aliased_terms do
+           if term not in aliased_terms do
              proper_case?(term, base_iri, Atom.to_string(term), data)
            end
          {term, original_term} ->

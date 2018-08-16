@@ -31,7 +31,7 @@ defmodule RDF.IRI do
   """
   def new(iri)
   def new(iri) when is_binary(iri),   do: %RDF.IRI{value: iri}
-  def new(qname) when is_atom(qname) and not qname in [nil, true, false],
+  def new(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: Namespace.resolve_term(qname)
   def new(%URI{} = uri),              do: uri |> URI.to_string |> new
   def new(%RDF.IRI{} = iri),          do: iri
@@ -45,7 +45,7 @@ defmodule RDF.IRI do
   """
   def new!(iri)
   def new!(iri) when is_binary(iri),   do: iri |> valid!() |> new()
-  def new!(qname) when is_atom(qname) and not qname in [nil, true, false],
+  def new!(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: new(qname)  # since terms of a namespace are already validated
   def new!(%URI{} = uri),              do: uri |> valid!() |> new()
   def new!(%RDF.IRI{} = iri),          do: valid!(iri)
@@ -96,7 +96,7 @@ defmodule RDF.IRI do
   def absolute?(%RDF.IRI{value: value}),      do: absolute?(value)
   def absolute?(%URI{scheme: nil}),           do: false
   def absolute?(%URI{scheme: _}),             do: true
-  def absolute?(qname) when is_atom(qname) and not qname in [nil, true, false] do
+  def absolute?(qname) when is_atom(qname) and qname not in [nil, true, false] do
     qname |> Namespace.resolve_term |> absolute?()
   rescue
     _ -> false
@@ -180,7 +180,7 @@ defmodule RDF.IRI do
   """
   def parse(iri)
   def parse(iri) when is_binary(iri),   do: URI.parse(iri) |> empty_fragment_shim(iri)
-  def parse(qname) when is_atom(qname) and not qname in [nil, true, false],
+  def parse(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: Namespace.resolve_term(qname) |> parse()
   def parse(%RDF.IRI{value: value}),    do: URI.parse(value) |> empty_fragment_shim(value)
   def parse(%URI{} = uri),              do: uri

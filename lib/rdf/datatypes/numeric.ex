@@ -218,7 +218,7 @@ defmodule RDF.Numeric do
       arg1, arg2, result_type ->
         if zero_value?(arg2) do
           cond do
-            not result_type in [XSD.double] -> nil  # TODO: or XSD.float
+            result_type not in [XSD.double] -> nil  # TODO: or XSD.float
             zero_value?(arg1)          -> :nan
             negative_zero and arg1 < 0 -> :positive_infinity
             negative_zero              -> :negative_infinity
