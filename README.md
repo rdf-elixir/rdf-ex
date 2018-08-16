@@ -716,6 +716,14 @@ RDF.read_file!("/path/to/some_file.ttl")
 |> RDF.write_file!("/path/to/some_file.jsonld")
 ```
 
+For serialization formats which support it, you can provide a base IRI on the read functions with the `base` option. You can also provide a default base IRI in your application configuration, which will be used when no `base` option is given.
+
+```elixir
+config :rdf,
+  default_base_iri: "http://my_app.example/"
+```
+
+
 
 ## Getting help
 

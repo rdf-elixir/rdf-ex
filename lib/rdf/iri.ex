@@ -25,6 +25,19 @@ defmodule RDF.IRI do
   # see https://tools.ietf.org/html/rfc3986#appendix-B
   @scheme_regex Regex.recompile!(~r/^([a-z][a-z0-9\+\-\.]*):/i)
 
+  @doc """
+  The default base IRI to be used when reading a serialization and no `base` option is provided.
+
+  The value can be set via the `default_base_iri` configuration. For example:
+
+      config :rdf,
+        default_base_iri: "http://my_app.example/"
+
+  See [section 5.1.4 of RFC 3987](https://tools.ietf.org/html/rfc3986#page-29)
+  """
+  @default_base Application.get_env(:rdf, :default_base_iri)
+  def default_base, do: @default_base
+
 
   @doc """
   Creates a `RDF.IRI`.
