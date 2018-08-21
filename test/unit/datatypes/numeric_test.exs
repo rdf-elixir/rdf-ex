@@ -364,9 +364,9 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:decimal" do
-      assert RDF.decimal(2.5)    |> Numeric.round() == RDF.decimal(3.0)
-      assert RDF.decimal(2.4999) |> Numeric.round() == RDF.decimal(2.0)
-      assert RDF.decimal(-2.5)   |> Numeric.round() == RDF.decimal(-2.0)
+      assert RDF.decimal(2.5)    |> Numeric.round() == RDF.decimal("3")
+      assert RDF.decimal(2.4999) |> Numeric.round() == RDF.decimal("2")
+      assert RDF.decimal(-2.5)   |> Numeric.round() == RDF.decimal("-2")
     end
 
     test "with invalid numeric literals" do
@@ -397,9 +397,9 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:decimal" do
-      assert RDF.decimal(1.125)  |> Numeric.round(2) == RDF.decimal(1.13)
-      assert RDF.decimal(2.4999) |> Numeric.round(2) == RDF.decimal(2.5)
-      assert RDF.decimal(-2.55)  |> Numeric.round(1) == RDF.decimal(-2.5)
+      assert RDF.decimal(1.125)  |> Numeric.round(2) == RDF.decimal("1.13")
+      assert RDF.decimal(2.4999) |> Numeric.round(2) == RDF.decimal("2.50")
+      assert RDF.decimal(-2.55)  |> Numeric.round(1) == RDF.decimal("-2.5")
     end
 
     test "with invalid numeric literals" do
@@ -416,8 +416,8 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:double" do
-      assert RDF.double(10.5)  |> Numeric.ceil() == RDF.integer(11)
-      assert RDF.double(-10.5) |> Numeric.ceil() == RDF.integer(-10)
+      assert RDF.double(10.5)  |> Numeric.ceil() == RDF.double("11")
+      assert RDF.double(-10.5) |> Numeric.ceil() == RDF.double("-10")
 
       assert RDF.double("INF")  |> Numeric.ceil() == RDF.double("INF")
       assert RDF.double("-INF") |> Numeric.ceil() == RDF.double("-INF")
@@ -425,8 +425,8 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:decimal" do
-      assert RDF.decimal(10.5)  |> Numeric.ceil() == RDF.integer(11)
-      assert RDF.decimal(-10.5) |> Numeric.ceil() == RDF.integer(-10)
+      assert RDF.decimal(10.5)  |> Numeric.ceil() == RDF.decimal("11")
+      assert RDF.decimal(-10.5) |> Numeric.ceil() == RDF.decimal("-10")
     end
 
     test "with invalid numeric literals" do
@@ -443,8 +443,8 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:double" do
-      assert RDF.double(10.5)  |> Numeric.floor() == RDF.integer(10)
-      assert RDF.double(-10.5) |> Numeric.floor() == RDF.integer(-11)
+      assert RDF.double(10.5)  |> Numeric.floor() == RDF.double("10")
+      assert RDF.double(-10.5) |> Numeric.floor() == RDF.double("-11")
 
       assert RDF.double("INF")  |> Numeric.floor() == RDF.double("INF")
       assert RDF.double("-INF") |> Numeric.floor() == RDF.double("-INF")
@@ -452,8 +452,8 @@ defmodule RDF.NumericTest do
     end
 
     test "with xsd:decimal" do
-      assert RDF.decimal(10.5)  |> Numeric.floor() == RDF.integer(10)
-      assert RDF.decimal(-10.5) |> Numeric.floor() == RDF.integer(-11)
+      assert RDF.decimal(10.5)  |> Numeric.floor() == RDF.decimal("10")
+      assert RDF.decimal(-10.5) |> Numeric.floor() == RDF.decimal("-11")
     end
 
     test "with invalid numeric literals" do

@@ -283,6 +283,7 @@ defmodule RDF.Numeric do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> xpath_round(precision)
+      |> to_string()
       |> RDF.Decimal.new()
     end
   end
@@ -333,8 +334,8 @@ defmodule RDF.Numeric do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> D.round(0, (if literal.value.sign == -1, do: :down, else: :up))
-      |> D.to_integer()
-      |> RDF.Integer.new()
+      |> D.to_string()
+      |> RDF.Decimal.new()
     end
   end
 
@@ -346,7 +347,8 @@ defmodule RDF.Numeric do
       literal.value
       |> Float.ceil()
       |> trunc()
-      |> RDF.Integer.new()
+      |> to_string()
+      |> RDF.Double.new()
     end
   end
 
@@ -370,8 +372,8 @@ defmodule RDF.Numeric do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> D.round(0, (if literal.value.sign == -1, do: :up, else: :down))
-      |> D.to_integer()
-      |> RDF.Integer.new()
+      |> D.to_string()
+      |> RDF.Decimal.new()
     end
   end
 
@@ -383,7 +385,8 @@ defmodule RDF.Numeric do
       literal.value
       |> Float.floor()
       |> trunc()
-      |> RDF.Integer.new()
+      |> to_string()
+      |> RDF.Double.new()
     end
   end
 
