@@ -223,6 +223,12 @@ defmodule RDF.IRITest do
                 IRI.merge(base_iri, relative_iri)
       end
     end
+
+    test "with a relative iri without an absolute base iri" do
+      for relative_iri <- relative_iris(), base_iri <- [nil, "foo"] do
+        assert IRI.absolute(relative_iri, base_iri) == nil
+      end
+    end
   end
 
 

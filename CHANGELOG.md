@@ -29,6 +29,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - Elixir 1.4 is no longer supported
 - `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
   given a language tag
+- `RDF.IRI.absolute/2` returns `nil` if the given base is not absolute, instead 
+  of failing with a `FunctionClauseError`
 
 
 ### Fixed

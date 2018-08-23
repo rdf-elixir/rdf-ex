@@ -126,12 +126,14 @@ defmodule RDF.IRI do
 
   Characters additionally allowed in IRI references are treated in the same way that unreserved
   characters are treated in URI references, per [section 6.5 of RFC3987](http://tools.ietf.org/html/rfc3987#section-6.5)
+
+  If the given is not an absolute IRI `nil` is returned.
   """
   def absolute(iri, base) do
-    if absolute?(iri) do
-      new(iri)
-    else
-      merge(base, iri)
+    cond do
+      absolute?(iri)      -> new(iri)
+      not absolute?(base) -> nil
+      true                -> merge(base, iri)
     end
   end
 
