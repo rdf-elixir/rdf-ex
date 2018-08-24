@@ -22,8 +22,8 @@ defmodule RDF.DateTimeTest do
       "2009-12-31T23:00:00-01:00"        => { dt( "2010-01-01T00:00:00Z")        , "2009-12-31T23:00:00-01:00", "2010-01-01T00:00:00Z" },
       "2009-12-31T24:00:00"              => { dt( "2010-01-01T00:00:00")         , "2009-12-31T24:00:00"      , "2010-01-01T00:00:00"  },
       "2009-12-31T24:00:00+00:00"        => { dt( "2010-01-01T00:00:00Z")        , "2009-12-31T24:00:00+00:00", "2010-01-01T00:00:00Z" },
-# TODO: DateTime doesn't support negative years (at least with the iso8601 conversion functions)
-#      "-2010-01-01T00:00:00Z"         => { dt("-2010-01-01T00:00:00Z") , nil, "-2010-01-01T00:00:00Z" },
+# TODO: DateTimes on Elixir versions < 1.7.2 don't handle negative years correctly, so we test this conditionally below
+#      "-2010-01-01T00:00:00Z"            => { dt("-2010-01-01T00:00:00Z")        , nil, "-2010-01-01T00:00:00Z" },
     },
     invalid: ~w(
         foo
@@ -37,6 +37,23 @@ defmodule RDF.DateTimeTest do
         2010_
       ) ++ [true, false, 2010, 3.14, "2010-01-01T00:00:00Z foo", "foo 2010-01-01T00:00:00Z"]
 
+  unless Version.compare(System.version(), "1.7.2") == :lt do
+    test "negative years" do
+      assert DateTime.new("-2010-01-01T00:00:00Z") ==
+               %Literal{value: dt("-2010-01-01T00:00:00Z"), uncanonical_lexical: nil, datatype: RDF.NS.XSD.dateTime, language: nil}
+      assert (DateTime.new("-2010-01-01T00:00:00Z") |> Literal.lexical) == "-2010-01-01T00:00:00Z"
+      assert (DateTime.new("-2010-01-01T00:00:00Z") |> Literal.canonical) ==
+               DateTime.new("-2010-01-01T00:00:00Z")
+      assert Literal.valid? DateTime.new("-2010-01-01T00:00:00Z")
+
+      assert DateTime.new("-2010-01-01T00:00:00+00:00") ==
+               %Literal{value: dt("-2010-01-01T00:00:00Z"), uncanonical_lexical: "-2010-01-01T00:00:00+00:00", datatype: RDF.NS.XSD.dateTime, language: nil}
+      assert (DateTime.new("-2010-01-01T00:00:00+00:00") |> Literal.lexical) == "-2010-01-01T00:00:00+00:00"
+      assert (DateTime.new("-2010-01-01T00:00:00+00:00") |> Literal.canonical) ==
+               DateTime.new("-2010-01-01T00:00:00Z")
+      assert Literal.valid? DateTime.new("-2010-01-01T00:00:00+00:00")
+    end
+  end
 
   describe "equality" do
     test "two literals are equal when they have the same datatype and lexical form" do

@@ -725,10 +725,17 @@ config :rdf,
 
 
 
+## Caveats
+
+The `Date` and `DateTime` modules of Elixir versions < 1.7.2 don't handle negative years properly. In case you're data contains negative years in `xsd:date` or `xsd:dateTime` literals, you'll have to upgrade to a newer Elixir version.
+
+
+
 ## Getting help
 
 - [Documentation](http://hexdocs.pm/rdf)
 - [Google Group](https://groups.google.com/d/forum/rdfex)
+
 
 
 ## TODO
@@ -744,9 +751,11 @@ There's still much to do for a complete RDF ecosystem for Elixir, which means th
 - improve documentation
 
 
+
 ## Contributing
 
 see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
 
 
 ## License and Copyright
