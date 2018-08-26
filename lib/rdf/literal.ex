@@ -67,7 +67,10 @@ defmodule RDF.Literal do
   def new(value, opts) when is_list(opts),
     do: new(value, Map.new(opts))
 
-  def new(value, %{language: language} = opts) when not is_nil(language) do
+  def new(value, %{language: nil} = opts),
+    do: new(value, Map.delete(opts, :language))
+
+  def new(value, %{language: language} = opts) do
     if is_binary(value) do
       if opts[:datatype] in [nil, @lang_string] do
         RDF.LangString.new(value, opts)

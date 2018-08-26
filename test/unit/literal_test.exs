@@ -91,6 +91,18 @@ defmodule RDF.LiteralTest do
       end
     end
 
+    test "nil as language is ignored" do
+      assert Literal.new("Eule", datatype: XSD.string, language: nil) ==
+             Literal.new("Eule", datatype: XSD.string)
+      assert Literal.new("Eule", language: nil) ==
+             Literal.new("Eule")
+
+      assert Literal.new!("Eule", datatype: XSD.string, language: nil) ==
+             Literal.new!("Eule", datatype: XSD.string)
+      assert Literal.new!("Eule", language: nil) ==
+             Literal.new!("Eule")
+    end
+
     test "construction of a rdf:langString works, but results in an invalid literal" do
       assert %Literal{value: "Eule"} = literal = Literal.new("Eule", datatype: RDF.langString)
       refute Literal.valid?(literal)

@@ -17,6 +17,14 @@ defmodule RDF.StringTest do
       assert RDF.String.new("foo", language: "en") ==
              RDF.LangString.new("foo", language: "en")
     end
+
+    test "nil as language is ignored" do
+      assert RDF.String.new("Eule", datatype: XSD.string, language: nil) ==
+             RDF.String.new("Eule", datatype: XSD.string)
+      assert RDF.String.new("Eule", language: nil) ==
+             RDF.String.new("Eule")
+    end
+
   end
 
   describe "new!" do
@@ -24,6 +32,14 @@ defmodule RDF.StringTest do
       assert RDF.String.new!("foo", language: "en") ==
              RDF.LangString.new!("foo", language: "en")
     end
+
+    test "nil as language is ignored" do
+      assert RDF.String.new!("Eule", datatype: XSD.string, language: nil) ==
+             RDF.String.new!("Eule", datatype: XSD.string)
+      assert RDF.String.new!("Eule", language: nil) ==
+             RDF.String.new!("Eule")
+    end
+
   end
 
 end
