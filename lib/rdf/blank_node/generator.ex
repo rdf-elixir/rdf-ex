@@ -55,10 +55,10 @@ defmodule RDF.BlankNode.Generator do
 
 
   @doc """
-  Generates a blank node for a given string according to the `RDF.BlankNode.Generator.Algorithm` set up.
+  Generates a blank node for a given value according to the `RDF.BlankNode.Generator.Algorithm` set up.
   """
-  def generate_for(pid, string) do
-    GenServer.call(pid, {:generate_for, string})
+  def generate_for(pid, value) do
+    GenServer.call(pid, {:generate_for, value})
   end
 
 

@@ -65,4 +65,18 @@ defmodule RDF.BlankNode.IncrementTest do
     assert Generator.generate_for(generator, "foo") == bnode("b2")
     assert Generator.generate(generator) == bnode("b6")
   end
+
+  test "generator with non-string values" do
+    {:ok, generator} = Generator.start_link(Increment, prefix: "b", hash: true)
+
+    assert Generator.generate(generator) == bnode("b0")
+    assert Generator.generate(generator) == bnode("b1")
+    assert Generator.generate_for(generator, {:foo, 42}) == bnode("b2")
+    assert Generator.generate(generator) == bnode("b3")
+    assert Generator.generate_for(generator, [:bar, 3.14]) == bnode("b4")
+    assert Generator.generate(generator) == bnode("b5")
+    assert Generator.generate_for(generator, {:foo, 42}) == bnode("b2")
+    assert Generator.generate(generator) == bnode("b6")
+  end
+
 end

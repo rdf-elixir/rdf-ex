@@ -27,6 +27,6 @@ defmodule RDF.BlankNode.Generator.Algorithm do
   given state and return a tuple consisting of the generated blank node and the
   new state.
   """
-  @callback generate_for(string :: binary, state :: map) :: {RDF.BlankNode.t, map}
+  @callback generate_for(value :: any, state :: map) :: {RDF.BlankNode.t, map}
 
 end

@@ -36,11 +36,11 @@ defmodule RDF.BlankNode.Increment do
   end
 
   @impl BlankNode.Generator.Algorithm
-  def generate_for(string, %{map: map, counter: counter} = state) do
-    case Map.get(map, string) do
+  def generate_for(value, %{map: map, counter: counter} = state) do
+    case Map.get(map, value) do
       nil ->
         {bnode(counter, state),
-          %{state | map: Map.put(map, string, counter), counter: counter + 1}}
+          %{state | map: Map.put(map, value, counter), counter: counter + 1}}
       previous ->
         {bnode(previous, state), state}
     end
