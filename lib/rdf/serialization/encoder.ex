@@ -35,6 +35,7 @@ defmodule RDF.Serialization.Encoder do
         end
       end
 
+      defoverridable [encode!: 1]
       defoverridable [encode!: 2]
     end
   end
