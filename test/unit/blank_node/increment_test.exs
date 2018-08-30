@@ -3,8 +3,7 @@ defmodule RDF.BlankNode.IncrementTest do
 
   import RDF, only: [bnode: 1]
 
-  alias RDF.BlankNode.Generator
-  alias RDF.BlankNode.Increment
+  alias RDF.BlankNode.{Generator, Increment}
 
 
   describe "generate/1" do
@@ -67,7 +66,7 @@ defmodule RDF.BlankNode.IncrementTest do
   end
 
   test "generator with non-string values" do
-    {:ok, generator} = Generator.start_link(Increment, prefix: "b", hash: true)
+    {:ok, generator} = Generator.start_link(Increment, prefix: "b")
 
     assert Generator.generate(generator) == bnode("b0")
     assert Generator.generate(generator) == bnode("b1")
