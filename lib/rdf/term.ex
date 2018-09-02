@@ -11,6 +11,10 @@ defprotocol RDF.Term do
   see <https://www.w3.org/TR/sparql11-query/#defn_RDFTerm>
   """
 
+
+  @type t :: RDF.IRI.t | RDF.BlankNode.t | RDF.Literal.t
+
+
   @doc """
   Tests for term equality.
 
