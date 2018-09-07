@@ -9,7 +9,6 @@ defmodule RDF.Turtle.Encoder do
   @indentation_char " "
   @indentation 4
 
-  @xsd_string  RDF.Datatype.NS.XSD.string
   @native_supported_datatypes [
     RDF.Datatype.NS.XSD.boolean,
     RDF.Datatype.NS.XSD.integer,
@@ -279,7 +278,7 @@ defmodule RDF.Turtle.Encoder do
   defp term(%Literal{value: value, language: language}, _,_ , _) when not is_nil(language),
     do: ~s["#{value}"@#{language}]
 
-  defp term(%Literal{datatype: @xsd_string} = literal, _, _,_),
+  defp term(%Literal{datatype: datatype} = literal, _, _,_) when is_xsd_string(datatype),
     do: literal |> Literal.lexical |> quoted()
 
   defp term(%Literal{datatype: datatype} = literal, state, _, nesting)

@@ -28,6 +28,8 @@ defmodule RDF.Serialization.Encoder do
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
 
+      import RDF.Literal.Guards
+
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
           {:ok,    data}   -> data

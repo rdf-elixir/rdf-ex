@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.LangString.match_language?/2`
 - possibility to configure an application-specific default base IRI; for now it 
   is used only on reading of RDF serializations (when no `base` specified)
+- `RDF.Literal.Guards` which allow pattern matching of common literal datatypes 
 
 
 ### Changed

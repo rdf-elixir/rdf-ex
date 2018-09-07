@@ -5,7 +5,6 @@ defmodule RDF.NTriples.Encoder do
 
   alias RDF.{IRI, Literal, BlankNode}
 
-  @xsd_string RDF.Datatype.NS.XSD.string
 
   def encode(data, _opts \\ []) do
     result =
@@ -34,7 +33,7 @@ defmodule RDF.NTriples.Encoder do
     ~s["#{value}"@#{language}]
   end
 
-  def term(%Literal{datatype: @xsd_string} = literal) do
+  def term(%Literal{datatype: datatype} = literal) when is_xsd_string(datatype) do
     ~s["#{Literal.lexical(literal)}"]
   end
 

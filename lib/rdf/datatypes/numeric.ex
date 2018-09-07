@@ -8,6 +8,9 @@ defmodule RDF.Numeric do
 
   alias Elixir.Decimal, as: D
 
+  import RDF.Literal.Guards
+
+
   @types MapSet.new [
     XSD.integer,
     XSD.decimal,
@@ -26,9 +29,6 @@ defmodule RDF.Numeric do
     XSD.unsignedByte,
     XSD.positiveInteger,
   ]
-
-  @xsd_decimal XSD.decimal
-  @xsd_double XSD.double
 
 
   @doc """
@@ -68,7 +68,7 @@ defmodule RDF.Numeric do
 
   def equal_value?(%Literal{datatype: left_datatype, value: left},
                    %Literal{datatype: right_datatype, value: right})
-      when left_datatype == @xsd_decimal or right_datatype == @xsd_decimal,
+      when is_xsd_decimal(left_datatype) or is_xsd_decimal(right_datatype),
       do: equal_decimal_value?(left, right)
 
   def equal_value?(%Literal{datatype: left_datatype, value: left},
@@ -94,8 +94,8 @@ defmodule RDF.Numeric do
   defp zero_value?(_), do: false
 
 
-  def negative_zero?(%Literal{value: zero, uncanonical_lexical: "-" <> _, datatype: @xsd_double})
-    when zero == 0, do: true
+  def negative_zero?(%Literal{value: zero, uncanonical_lexical: "-" <> _, datatype: datatype})
+    when zero == 0 and is_xsd_double(datatype), do: true
 
   def negative_zero?(%Literal{value: %D{sign: -1, coef: 0}}), do: true
 
@@ -241,7 +241,7 @@ defmodule RDF.Numeric do
   """
   def abs(literal)
 
-  def abs(%Literal{datatype: @xsd_decimal} = literal) do
+  def abs(%Literal{datatype: datatype} = literal) when is_xsd_decimal(datatype) do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> D.abs()
@@ -279,7 +279,7 @@ defmodule RDF.Numeric do
   """
   def round(literal, precision \\ 0)
 
-  def round(%Literal{datatype: @xsd_decimal} = literal, precision) do
+  def round(%Literal{datatype: datatype} = literal, precision) when is_xsd_decimal(datatype) do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> xpath_round(precision)
@@ -288,10 +288,11 @@ defmodule RDF.Numeric do
     end
   end
 
-  def round(%Literal{datatype: @xsd_double, value: value} = literal, _)
-      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+  def round(%Literal{datatype: datatype, value: value} = literal, _)
+      when is_xsd_double(datatype) and value in ~w[nan positive_infinity negative_infinity]a,
+      do: literal
 
-  def round(%Literal{datatype: @xsd_double} = literal, precision) do
+  def round(%Literal{datatype: datatype} = literal, precision) when is_xsd_double(datatype) do
     if RDF.Double.valid?(literal) do
       literal.value
       |> D.new()
@@ -330,7 +331,7 @@ defmodule RDF.Numeric do
   """
   def ceil(literal)
 
-  def ceil(%Literal{datatype: @xsd_decimal} = literal) do
+  def ceil(%Literal{datatype: datatype} = literal) when is_xsd_decimal(datatype)do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> D.round(0, (if literal.value.sign == -1, do: :down, else: :up))
@@ -339,10 +340,11 @@ defmodule RDF.Numeric do
     end
   end
 
-  def ceil(%Literal{datatype: @xsd_double, value: value} = literal)
-      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+  def ceil(%Literal{datatype: datatype, value: value} = literal)
+      when is_xsd_double(datatype) and value in ~w[nan positive_infinity negative_infinity]a,
+      do: literal
 
-  def ceil(%Literal{datatype: @xsd_double} = literal) do
+  def ceil(%Literal{datatype: datatype} = literal) when is_xsd_double(datatype) do
     if RDF.Double.valid?(literal) do
       literal.value
       |> Float.ceil()
@@ -368,7 +370,7 @@ defmodule RDF.Numeric do
   """
   def floor(literal)
 
-  def floor(%Literal{datatype: @xsd_decimal} = literal) do
+  def floor(%Literal{datatype: datatype} = literal) when is_xsd_decimal(datatype)do
     if RDF.Decimal.valid?(literal) do
       literal.value
       |> D.round(0, (if literal.value.sign == -1, do: :up, else: :down))
@@ -377,10 +379,11 @@ defmodule RDF.Numeric do
     end
   end
 
-  def floor(%Literal{datatype: @xsd_double, value: value} = literal)
-      when value in ~w[nan positive_infinity negative_infinity]a, do: literal
+  def floor(%Literal{datatype: datatype, value: value} = literal)
+      when is_xsd_double(datatype) and value in ~w[nan positive_infinity negative_infinity]a,
+      do: literal
 
-  def floor(%Literal{datatype: @xsd_double} = literal) do
+  def floor(%Literal{datatype: datatype} = literal) when is_xsd_double(datatype)do
     if RDF.Double.valid?(literal) do
       literal.value
       |> Float.floor()
@@ -410,18 +413,21 @@ defmodule RDF.Numeric do
   end
 
 
-  defp type_conversion(%Literal{datatype: @xsd_decimal} = arg1,
-                       %Literal{value: arg2}, @xsd_decimal),
+  defp type_conversion(%Literal{datatype: datatype} = arg1,
+                       %Literal{value: arg2}, datatype) when is_xsd_decimal(datatype),
     do: {arg1, RDF.decimal(arg2)}
 
   defp type_conversion(%Literal{value: arg1},
-                       %Literal{datatype: @xsd_decimal} = arg2, @xsd_decimal),
+                       %Literal{datatype: datatype} = arg2, datatype)
+    when is_xsd_decimal(datatype),
     do: {RDF.decimal(arg1), arg2}
 
-  defp type_conversion(%Literal{datatype: @xsd_decimal, value: arg1}, arg2, @xsd_double),
+  defp type_conversion(%Literal{datatype: input_datatype, value: arg1}, arg2, output_datatype)
+       when is_xsd_decimal(input_datatype) and is_xsd_double(output_datatype),
     do: {arg1 |> D.to_float() |> RDF.double(), arg2}
 
-  defp type_conversion(arg1, %Literal{datatype: @xsd_decimal, value: arg2}, @xsd_double),
+  defp type_conversion(arg1, %Literal{datatype: input_datatype, value: arg2}, output_datatype)
+       when is_xsd_decimal(input_datatype) and is_xsd_double(output_datatype),
     do: {arg1, arg2 |> D.to_float() |> RDF.double()}
 
   defp type_conversion(arg1, arg2, _), do: {arg1, arg2}
@@ -445,4 +451,5 @@ defmodule RDF.Numeric do
       true                 -> XSD.integer
     end
   end
+
 end

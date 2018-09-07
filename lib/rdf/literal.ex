@@ -9,7 +9,7 @@ defmodule RDF.Literal do
 
   alias RDF.Datatype.NS.XSD
 
-  # to be able to pattern-match on plain types
+  # to be able to pattern-match on plain types; we can't use RDF.Literal.Guards here since these aren't compiled here yet
   @xsd_string  XSD.string
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
   @plain_types [@xsd_string, @lang_string]
