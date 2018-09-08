@@ -6,6 +6,10 @@ defmodule RDF.DateTime do
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.dateTime
 
 
+  def now() do
+    new(DateTime.utc_now())
+  end
+
   # Special case for date and dateTime, for which 0 is not a valid year
   def convert(%DateTime{year: 0} = value, opts), do: super(value, opts)
   def convert(%DateTime{} = value, _),           do: value
