@@ -5,6 +5,8 @@ defmodule RDF.Boolean do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.boolean
 
+  import RDF.Literal.Guards
+
 
   def convert(value, _) when is_boolean(value), do: value
 
@@ -23,6 +25,37 @@ defmodule RDF.Boolean do
   def convert(0, _), do: false
 
   def convert(value, opts), do: super(value, opts)
+
+
+  def cast(%RDF.Literal{datatype: datatype} = literal) do
+    cond do
+      not RDF.Literal.valid?(literal) ->
+        nil
+
+      is_xsd_boolean(datatype) ->
+        literal
+
+      is_xsd_string(datatype) ->
+        literal.value
+        |> new()
+        |> canonical()
+
+      is_xsd_decimal(datatype) ->
+        !Decimal.equal?(literal.value, 0)
+        |> new()
+
+      is_xsd_double(datatype) or is_xsd_float(datatype) ->
+        literal.value not in [0.0, :nan]
+        |> new()
+
+      RDF.Numeric.type?(datatype) ->
+        literal.value
+        |> new()
+
+      true ->
+        nil
+    end
+  end
 
 
   @doc """

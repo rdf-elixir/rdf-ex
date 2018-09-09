@@ -17,6 +17,7 @@ defmodule RDF.BooleanTest do
 
   import RDF.Sigils
 
+
   describe "equality" do
     test "two literals are equal when they have the same datatype and lexical form" do
       [
@@ -26,8 +27,8 @@ defmodule RDF.BooleanTest do
         {0      , "false"},
       ]
       |> Enum.each(fn {l, r} ->
-           assert Boolean.new(l) == Boolean.new(r)
-         end)
+        assert Boolean.new(l) == Boolean.new(r)
+      end)
     end
 
     test "two literals with same value but different lexical form are not equal" do
@@ -38,10 +39,76 @@ defmodule RDF.BooleanTest do
         {"0"     , "false"},
       ]
       |> Enum.each(fn {l, r} ->
-           assert Boolean.new(l) != Boolean.new(r)
-         end)
+        assert Boolean.new(l) != Boolean.new(r)
+      end)
     end
   end
+
+
+  describe "cast/1" do
+    test "casting a boolean returns the input as it is" do
+      assert RDF.true  |> RDF.Boolean.cast() == RDF.true
+      assert RDF.false |> RDF.Boolean.cast() == RDF.false
+    end
+
+    test "casting a string" do
+      assert RDF.string("true")  |> RDF.Boolean.cast() == RDF.true
+      assert RDF.string("tRuE")  |> RDF.Boolean.cast() == RDF.true
+      assert RDF.string("1")     |> RDF.Boolean.cast() == RDF.true
+
+      assert RDF.string("false") |> RDF.Boolean.cast() == RDF.false
+      assert RDF.string("FaLsE") |> RDF.Boolean.cast() == RDF.false
+      assert RDF.string("0")     |> RDF.Boolean.cast() == RDF.false
+    end
+
+    test "casting an integer" do
+      assert RDF.integer(0) |> RDF.Boolean.cast() == RDF.false
+      assert RDF.integer(1) |> RDF.Boolean.cast() == RDF.true
+    end
+
+    test "casting a decimal" do
+      assert RDF.decimal(0)       |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal(0.0)     |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal("+0")    |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal("-0")    |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal("+0.0")  |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal("-0.0")  |> RDF.Boolean.cast() == RDF.false
+      assert RDF.decimal(0.0e0)   |> RDF.Boolean.cast() == RDF.false
+
+      assert RDF.decimal(1)       |> RDF.Boolean.cast() == RDF.true
+      assert RDF.decimal(0.1)     |> RDF.Boolean.cast() == RDF.true
+    end
+
+    test "casting a double" do
+      assert RDF.double(0)       |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double(0.0)     |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("+0")    |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("-0")    |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("+0.0")  |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("-0.0")  |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("0.0E0") |> RDF.Boolean.cast() == RDF.false
+      assert RDF.double("NAN")   |> RDF.Boolean.cast() == RDF.false
+
+      assert RDF.double(1)       |> RDF.Boolean.cast() == RDF.true
+      assert RDF.double(0.1)     |> RDF.Boolean.cast() == RDF.true
+      assert RDF.double("+INF")  |> RDF.Boolean.cast() == RDF.true
+    end
+
+    @tag skip: "TODO: RDF.Float datatype"
+    test "casting a float"
+
+    test "with invalid literals" do
+      assert RDF.boolean("42")  |> RDF.Boolean.cast() == nil
+      assert RDF.integer(3.14)  |> RDF.Boolean.cast() == nil
+      assert RDF.decimal("NAN") |> RDF.Boolean.cast() == nil
+      assert RDF.double(true)   |> RDF.Boolean.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.DateTime.now() |> RDF.Boolean.cast() == nil
+    end
+  end
+
 
   describe "ebv/1" do
     import RDF.Boolean, only: [ebv: 1]
