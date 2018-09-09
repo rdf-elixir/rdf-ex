@@ -16,6 +16,57 @@ defmodule RDF.IntegerTest do
     invalid: ~w(foo 10.1 12xyz) ++ [true, false, 3.14, "1 2", "foo 1", "1 foo"]
 
 
+  describe "cast/1" do
+    test "casting an integer returns the input as it is" do
+      assert RDF.integer(0) |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.integer(1) |> RDF.Integer.cast() == RDF.integer(1)
+    end
+
+    test "casting a boolean" do
+      assert RDF.false |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.true  |> RDF.Integer.cast() == RDF.integer(1)
+    end
+
+    test "casting a string" do
+      assert RDF.string("0") |> RDF.Integer.cast() == RDF.integer(0)
+    end
+
+    test "casting an decimal" do
+      assert RDF.decimal(0)    |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.decimal(1.0)  |> RDF.Integer.cast() == RDF.integer(1)
+      assert RDF.decimal(3.14) |> RDF.Integer.cast() == RDF.integer(3)
+    end
+
+    test "casting a double" do
+      assert RDF.double(0)       |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double(0.0)     |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double(0.1)     |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double("+0")    |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double("+0.0")  |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double("-0.0")  |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double("0.0E0") |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.double(1)       |> RDF.Integer.cast() == RDF.integer(1)
+      assert RDF.double(3.14)    |> RDF.Integer.cast() == RDF.integer(3)
+
+      assert RDF.double("NAN")   |> RDF.Integer.cast() == nil
+      assert RDF.double("+INF")  |> RDF.Integer.cast() == nil
+    end
+
+    @tag skip: "TODO: RDF.Float datatype"
+    test "casting a float"
+
+    test "with invalid literals" do
+      assert RDF.integer(3.14)  |> RDF.Integer.cast() == nil
+      assert RDF.decimal("NAN") |> RDF.Integer.cast() == nil
+      assert RDF.double(true)   |> RDF.Integer.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.DateTime.now() |> RDF.Integer.cast() == nil
+    end
+  end
+
+
   describe "equality" do
     test "two literals are equal when they have the same datatype and lexical form" do
       [

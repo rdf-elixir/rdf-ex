@@ -4,6 +4,8 @@ defmodule RDF.Decimal do
   """
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.decimal
 
+  import RDF.Literal.Guards
+
   alias Elixir.Decimal, as: D
 
 
@@ -62,6 +64,36 @@ defmodule RDF.Decimal do
 
   def canonical_decimal(%D{coef: coef, exp: exp} = decimal),
     do: canonical_decimal(%{decimal | coef: Kernel.div(coef, 10), exp: exp + 1})
+
+
+
+  def cast(%RDF.Literal{datatype: datatype} = literal) do
+    cond do
+      not RDF.Literal.valid?(literal) ->
+        nil
+
+      is_xsd_decimal(datatype) ->
+        literal
+
+      literal == RDF.false ->
+        new(0.0)
+
+      literal == RDF.true ->
+        new(1.0)
+
+      is_xsd_string(datatype) ->
+        literal.value
+        |> new()
+        |> canonical()
+
+      is_number(literal.value) and (is_xsd_integer(datatype) or
+                                    is_xsd_double(datatype) or is_xsd_float(datatype)) ->
+        new(literal.value)
+
+      true ->
+        nil
+    end
+  end
 
 
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)

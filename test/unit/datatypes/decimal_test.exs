@@ -65,6 +65,57 @@ defmodule RDF.DecimalTest do
   end
 
 
+  describe "cast/1" do
+    test "casting a decimal returns the input as it is" do
+      assert RDF.decimal(0)       |> RDF.Decimal.cast() == RDF.decimal(0)
+      assert RDF.decimal("-0.0")  |> RDF.Decimal.cast() == RDF.decimal("-0.0")
+      assert RDF.decimal(1)       |> RDF.Decimal.cast() == RDF.decimal(1)
+      assert RDF.decimal(0.1)     |> RDF.Decimal.cast() == RDF.decimal(0.1)
+    end
+
+    test "casting a boolean" do
+      assert RDF.true  |> RDF.Decimal.cast() == RDF.decimal(1.0)
+      assert RDF.false |> RDF.Decimal.cast() == RDF.decimal(0.0)
+    end
+
+    test "casting a string" do
+      assert RDF.string("0")    |> RDF.Decimal.cast() == RDF.decimal(0)
+      assert RDF.string("3.14") |> RDF.Decimal.cast() == RDF.decimal(3.14)
+    end
+
+    test "casting an integer" do
+      assert RDF.integer(0)  |> RDF.Decimal.cast() == RDF.decimal(0.0)
+      assert RDF.integer(42) |> RDF.Decimal.cast() == RDF.decimal(42.0)
+    end
+
+    test "casting a double" do
+      assert RDF.double(0.0)    |> RDF.Decimal.cast() == RDF.decimal(0.0)
+      assert RDF.double("-0.0") |> RDF.Decimal.cast() == RDF.decimal(0.0)
+      assert RDF.double(0.1)    |> RDF.Decimal.cast() == RDF.decimal(0.1)
+      assert RDF.double(1)      |> RDF.Decimal.cast() == RDF.decimal(1.0)
+      assert RDF.double(3.14)   |> RDF.Decimal.cast() == RDF.decimal(3.14)
+      assert RDF.double(10.1e1) |> RDF.Decimal.cast() == RDF.decimal(101.0)
+
+      assert RDF.double("NAN")  |> RDF.Decimal.cast() == nil
+      assert RDF.double("+INF") |> RDF.Decimal.cast() == nil
+    end
+
+    @tag skip: "TODO: RDF.Float datatype"
+    test "casting a float"
+
+    test "with invalid literals" do
+      assert RDF.boolean("42")  |> RDF.Decimal.cast() == nil
+      assert RDF.integer(3.14)  |> RDF.Decimal.cast() == nil
+      assert RDF.decimal("NAN") |> RDF.Decimal.cast() == nil
+      assert RDF.double(true)   |> RDF.Decimal.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.DateTime.now() |> RDF.Decimal.cast() == nil
+    end
+  end
+
+
   defmacrop sigil_d(str, _opts) do
     quote do
       Elixir.Decimal.new(unquote(str))
