@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   literals in Turtle encoder
 - `RDF.Numeric` with a list of all numeric datatypes and shared functions for
   all numeric literals, eg. arithmetic functions
+- `RDF.Datatype.cast/1` for casting between `RDF.Literal`s  as specified in the 
+  XSD spec 
 - the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
   from the XPath and SPARQL specs on `RDF.Boolean`
 - `RDF.DateTime.now/0`

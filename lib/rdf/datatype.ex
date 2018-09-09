@@ -35,7 +35,7 @@ defmodule RDF.Datatype do
   @doc """
   Produces the canonical form of a `RDF.Literal`.
   """
-  @callback canonical(literal :: RDF.Literal.t) :: RDF.Literal.t
+  @callback canonical(RDF.Literal.t) :: RDF.Literal.t
 
   @doc """
   Converts a value into a proper native value.
@@ -50,6 +50,16 @@ defmodule RDF.Datatype do
     implementation of this datatype calls `super`.
   """
   @callback convert(any, keyword) :: any
+
+
+  @doc """
+  Casts a literal of another datatype into a literal of the datatype the function is implemented on.
+
+  If the given literal is invalid or can not be converted into this datatype
+  `nil` is returned.
+  """
+  @callback cast(RDF.Literal.t) :: RDF.Literal.t
+
 
   @doc """
   Determines if the value of a `RDF.Literal` is a member of lexical value space of its datatype.
