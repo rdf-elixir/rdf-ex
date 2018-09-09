@@ -35,6 +35,14 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   given a language tag
 - `RDF.IRI.absolute/2` returns `nil` if the given base is not absolute, instead 
   of failing with a `FunctionClauseError`
+- Some of the defined structs now enforce keys on compile-time (via Elixirs 
+  `@enforce_keys` feature) when not setting the corresponding fields would lead  
+  to invalid structs, namely the following fields: 
+  - `RDF.IRI.value`
+  - `RDF.BlankNode.id`
+  - `RDF.Description.subject`
+  - `RDF.List.head`
+
 
 
 ### Fixed

@@ -16,6 +16,7 @@ defmodule RDF.IRI do
   see <https://tools.ietf.org/html/rfc3987>
   """
 
+  @enforce_keys [:value]
   defstruct [:value]
 
   alias RDF.Namespace

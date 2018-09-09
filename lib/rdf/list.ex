@@ -7,6 +7,7 @@ defmodule RDF.List do
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
+  @enforce_keys [:head]
   defstruct [:head, :graph]
 
   alias RDF.{Graph, Description, IRI, BlankNode}

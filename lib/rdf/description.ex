@@ -10,6 +10,7 @@ defmodule RDF.Description do
   - the `RDF.Data` protocol
   """
 
+  @enforce_keys [:subject]
   defstruct subject: nil, predications: %{}
 
   @behaviour Access

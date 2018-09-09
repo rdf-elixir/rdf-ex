@@ -6,6 +6,7 @@ defmodule RDF.BlankNode do
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>
   """
 
+  @enforce_keys [:id]
   defstruct [:id]
 
   @type t :: module
