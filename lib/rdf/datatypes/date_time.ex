@@ -58,6 +58,8 @@ defmodule RDF.DateTime do
     NaiveDateTime.to_iso8601(value)
   end
 
+  def tz(%Literal{value: %NaiveDateTime{}}), do: ""
+  
   def tz(datetime_literal) do
     if valid?(datetime_literal) do
       lexical = lexical(datetime_literal)
