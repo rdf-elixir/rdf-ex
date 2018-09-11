@@ -109,4 +109,36 @@ defmodule RDF.Time do
     end
   end
 
+  def cast(%RDF.Literal{datatype: datatype} = literal) do
+    cond do
+      not RDF.Literal.valid?(literal) ->
+        nil
+
+      is_xsd_time(datatype) ->
+        literal
+
+      is_xsd_datetime(datatype) ->
+        case literal.value do
+          %NaiveDateTime{} = datetime ->
+            datetime
+            |> NaiveDateTime.to_time()
+            |> new()
+
+          %DateTime{} ->
+            [_date, time_with_zone] =
+              literal
+              |> RDF.DateTime.canonical_lexical_with_zone()
+              |> String.split("T", parts: 2)
+            new(time_with_zone)
+        end
+
+      is_xsd_string(datatype) ->
+        literal.value
+        |> new()
+
+      true ->
+        nil
+    end
+  end
+
 end

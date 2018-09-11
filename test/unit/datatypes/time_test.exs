@@ -60,4 +60,42 @@ defmodule RDF.TimeTest do
     end
   end
 
+  describe "cast/1" do
+    test "casting a time returns the input as it is" do
+      assert RDF.time("01:00:00") |> RDF.Time.cast() ==
+             RDF.time("01:00:00")
+    end
+
+    test "casting a string" do
+      assert RDF.string("01:00:00") |> RDF.Time.cast() ==
+               RDF.time("01:00:00")
+      assert RDF.string("01:00:00Z") |> RDF.Time.cast() ==
+               RDF.time("01:00:00Z")
+      assert RDF.string("01:00:00+01:00") |> RDF.Time.cast() ==
+               RDF.time("01:00:00+01:00")
+    end
+
+    test "casting a datetime" do
+      assert RDF.date_time("2010-01-01T01:00:00") |> RDF.Time.cast() ==
+               RDF.time("01:00:00")
+      assert RDF.date_time("2010-01-01T00:00:00Z") |> RDF.Time.cast() ==
+               RDF.time("00:00:00Z")
+      assert RDF.date_time("2010-01-01T00:00:00+00:00") |> RDF.Time.cast() ==
+               RDF.time("00:00:00Z")
+      assert RDF.date_time("2010-01-01T23:00:00+01:00") |> RDF.Time.cast() ==
+               RDF.time("23:00:00+01:00")
+    end
+
+    test "with invalid literals" do
+      assert RDF.time("25:00:00") |> RDF.Time.cast() == nil
+      assert RDF.date_time("02010-01-01T00:00:00") |> RDF.Time.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.false |> RDF.Time.cast() == nil
+      assert RDF.integer(1) |> RDF.Time.cast() == nil
+      assert RDF.decimal(3.14) |> RDF.Time.cast() == nil
+    end
+  end
+
 end

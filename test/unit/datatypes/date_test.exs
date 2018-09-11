@@ -73,4 +73,42 @@ defmodule RDF.DateTest do
     end
   end
 
+  describe "cast/1" do
+    test "casting a date returns the input as it is" do
+      assert RDF.date("2010-01-01") |> RDF.Date.cast() ==
+             RDF.date("2010-01-01")
+    end
+
+    test "casting a string" do
+      assert RDF.string("2010-01-01") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01")
+      assert RDF.string("2010-01-01Z") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01Z")
+      assert RDF.string("2010-01-01+01:00") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01+01:00")
+    end
+
+    test "casting a datetime" do
+      assert RDF.date_time("2010-01-01T01:00:00") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01")
+      assert RDF.date_time("2010-01-01T00:00:00Z") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01Z")
+      assert RDF.date_time("2010-01-01T00:00:00+00:00") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01Z")
+      assert RDF.date_time("2010-01-01T23:00:00+01:00") |> RDF.Date.cast() ==
+               RDF.date("2010-01-01+01:00")
+    end
+
+    test "with invalid literals" do
+      assert RDF.date("02010-01-00") |> RDF.Date.cast() == nil
+      assert RDF.date_time("02010-01-01T00:00:00") |> RDF.Date.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.false |> RDF.Date.cast() == nil
+      assert RDF.integer(1) |> RDF.Date.cast() == nil
+      assert RDF.decimal(3.14) |> RDF.Date.cast() == nil
+    end
+  end
+
 end

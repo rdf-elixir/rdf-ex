@@ -116,6 +116,12 @@ defmodule RDF.StringTest do
     test "casting an IRI" do
       assert RDF.iri("http://example.com") |> RDF.String.cast() == RDF.string("http://example.com")
     end
+
+    test "with invalid literals" do
+      assert RDF.integer(3.14)  |> RDF.Integer.cast() == nil
+      assert RDF.decimal("NAN") |> RDF.Integer.cast() == nil
+      assert RDF.double(true)   |> RDF.Integer.cast() == nil
+    end
   end
 
 end

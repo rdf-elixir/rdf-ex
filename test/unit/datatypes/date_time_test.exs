@@ -123,6 +123,44 @@ defmodule RDF.DateTimeTest do
     end
   end
 
+  describe "cast/1" do
+    test "casting a datetime returns the input as it is" do
+      assert RDF.date_time("2010-01-01T12:34:56") |> RDF.DateTime.cast() ==
+             RDF.date_time("2010-01-01T12:34:56")
+    end
+
+    test "casting a string" do
+      assert RDF.string("2010-01-01T12:34:56") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T12:34:56")
+      assert RDF.string("2010-01-01T12:34:56Z") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T12:34:56Z")
+      assert RDF.string("2010-01-01T12:34:56+01:00") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T12:34:56+01:00")
+    end
+
+    test "casting a date" do
+      assert RDF.date("2010-01-01") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T00:00:00")
+      assert RDF.date("2010-01-01Z") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T00:00:00Z")
+      assert RDF.date("2010-01-01+00:00") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T00:00:00Z")
+      assert RDF.date("2010-01-01+01:00") |> RDF.DateTime.cast() ==
+               RDF.date_time("2010-01-01T00:00:00+01:00")
+    end
+
+    test "with invalid literals" do
+      assert RDF.date_time("02010-01-01T00:00:00") |> RDF.DateTime.cast() == nil
+    end
+
+    test "with literals of unsupported datatypes" do
+      assert RDF.false |> RDF.DateTime.cast() == nil
+      assert RDF.integer(1) |> RDF.DateTime.cast() == nil
+      assert RDF.decimal(3.14) |> RDF.DateTime.cast() == nil
+    end
+  end
+
+
   test "canonical_lexical_with_zone/1" do
     assert RDF.date_time(~N[2010-01-01T12:34:56])     |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"
     assert RDF.date_time("2010-01-01T12:34:56")       |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"

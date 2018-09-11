@@ -5,6 +5,8 @@ defmodule RDF.Date do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.date
 
+  import RDF.Literal.Guards
+
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
 
 
@@ -51,6 +53,37 @@ defmodule RDF.Date do
 
   def canonical_lexical({%Date{} = value, zone}) do
     canonical_lexical(value) <> zone
+  end
+
+
+  def cast(%RDF.Literal{datatype: datatype} = literal) do
+    cond do
+      not RDF.Literal.valid?(literal) ->
+        nil
+
+      is_xsd_date(datatype) ->
+        literal
+
+      is_xsd_datetime(datatype) ->
+        case literal.value do
+          %NaiveDateTime{} = datetime ->
+            datetime
+            |> NaiveDateTime.to_date()
+            |> new()
+
+          %DateTime{} = datetime ->
+            datetime
+            |> DateTime.to_date()
+            |> new(%{tz: RDF.DateTime.tz(literal)})
+        end
+
+      is_xsd_string(datatype) ->
+        literal.value
+        |> new()
+
+      true ->
+        nil
+    end
   end
 
 end

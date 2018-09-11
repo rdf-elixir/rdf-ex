@@ -60,6 +60,34 @@ defmodule RDF.DateTime do
     NaiveDateTime.to_iso8601(value)
   end
 
+
+  def cast(%RDF.Literal{datatype: datatype} = literal) do
+    cond do
+      not RDF.Literal.valid?(literal) ->
+        nil
+
+      is_xsd_datetime(datatype) ->
+        literal
+
+      is_xsd_date(datatype) ->
+        case literal.value do
+          {value, zone} ->
+            RDF.Date.canonical_lexical(value) <> "T00:00:00" <> zone
+          value ->
+            RDF.Date.canonical_lexical(value) <> "T00:00:00"
+        end
+        |> new()
+
+      is_xsd_string(datatype) ->
+        literal.value
+        |> new()
+
+      true ->
+        nil
+    end
+  end
+
+
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
 
   def tz(datetime_literal) do
