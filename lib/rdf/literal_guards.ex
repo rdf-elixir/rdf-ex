@@ -27,8 +27,10 @@ defmodule RDF.Literal.Guards do
   @xsd_string XSD.string()
   @xsd_boolean XSD.boolean()
   @xsd_dateTime XSD.dateTime()
+  @xsd_date XSD.date()
+  @xsd_time XSD.time()
   @xsd_any_uri XSD.anyURI()
-  @rdf_lang_string RDF.langString
+  @rdf_lang_string RDF.langString()
 
   @doc """
   Returns `true` if the given datatype is `xsd:integer`; otherwise returns `false`.
@@ -63,6 +65,16 @@ defmodule RDF.Literal.Guards do
   Returns `true` if the given datatype is `xsd:dateTime`; otherwise returns `false`.
   """
   defguard is_xsd_datetime(datatype) when datatype == @xsd_dateTime
+
+  @doc """
+  Returns `true` if the given datatype is `xsd:date`; otherwise returns `false`.
+  """
+  defguard is_xsd_date(datatype) when datatype == @xsd_date
+
+  @doc """
+  Returns `true` if the given datatype is `xsd:time`; otherwise returns `false`.
+  """
+  defguard is_xsd_time(datatype) when datatype == @xsd_time
 
   @doc """
   Returns `true` if the given datatype is `xsd:anyURI`; otherwise returns `false`.
