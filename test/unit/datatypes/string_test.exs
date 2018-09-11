@@ -100,7 +100,9 @@ defmodule RDF.StringTest do
       assert RDF.date("2000-01-01+00:00") |> RDF.String.cast() == RDF.string("2000-01-01Z")
       assert RDF.date("2000-01-01+01:00") |> RDF.String.cast() == RDF.string("2000-01-01+01:00")
       assert RDF.date("0001-01-01")   |> RDF.String.cast() == RDF.string("0001-01-01")
-      assert RDF.date("-0001-01-01")  |> RDF.String.cast() == RDF.string("-0001-01-01")
+      unless Version.compare(System.version(), "1.7.2") == :lt do
+        assert RDF.date("-0001-01-01")  |> RDF.String.cast() == RDF.string("-0001-01-01")
+      end
     end
 
     test "casting a time" do
