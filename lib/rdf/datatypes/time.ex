@@ -5,6 +5,8 @@ defmodule RDF.Time do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.time
 
+  import RDF.Literal.Guards
+
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
@@ -74,6 +76,37 @@ defmodule RDF.Time do
 
   def canonical_lexical({%Time{} = value, true}) do
     canonical_lexical(value) <> "Z"
+  end
+
+  def tz(time_literal) do
+    if valid?(time_literal) do
+      time_literal
+      |> lexical()
+      |> RDF.DateTimeUtils.tz()
+    end
+  end
+
+
+  @doc """
+  Converts a time literal to a canonical string, preserving the zone information.
+  """
+  def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
+      when is_xsd_time(datatype) do
+    case tz(literal) do
+      nil ->
+        nil
+
+      zone when zone in ["Z", "", "+00:00"] ->
+        canonical_lexical(literal.value)
+
+      zone ->
+        literal
+        |> lexical()
+        |> String.replace_trailing(zone, "")
+        |> Time.from_iso8601!()
+        |> canonical_lexical()
+        |> Kernel.<>(zone)
+    end
   end
 
 end

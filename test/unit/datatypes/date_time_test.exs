@@ -123,4 +123,12 @@ defmodule RDF.DateTimeTest do
     end
   end
 
+  test "canonical_lexical_with_zone/1" do
+    assert RDF.date_time(~N[2010-01-01T12:34:56])     |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"
+    assert RDF.date_time("2010-01-01T12:34:56")       |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"
+    assert RDF.date_time("2010-01-01T00:00:00+00:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T00:00:00Z"
+    assert RDF.date_time("2010-01-01T01:00:00+01:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T01:00:00+01:00"
+    assert RDF.date_time("2010-01-01 01:00:00+01:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T01:00:00+01:00"
+  end
+
 end

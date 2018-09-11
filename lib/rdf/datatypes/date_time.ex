@@ -5,6 +5,8 @@ defmodule RDF.DateTime do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.dateTime
 
+  import RDF.Literal.Guards
+
 
   def now() do
     new(DateTime.utc_now())
@@ -59,20 +61,35 @@ defmodule RDF.DateTime do
   end
 
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
-  
+
   def tz(datetime_literal) do
     if valid?(datetime_literal) do
-      lexical = lexical(datetime_literal)
-      case Regex.run(~r/([+-])(\d\d:\d\d)/, lexical) do
-        [_, sign, zone] ->
-          sign <> zone
-        _ ->
-          if String.ends_with?(lexical, "Z") do
-            "Z"
-          else
-            ""
-          end
-      end
+      datetime_literal
+      |> lexical()
+      |> RDF.DateTimeUtils.tz()
+    end
+  end
+
+  @doc """
+  Converts a datetime literal to a canonical string, preserving the zone information.
+  """
+  def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
+      when is_xsd_datetime(datatype) do
+    case tz(literal) do
+      nil ->
+        nil
+
+      zone when zone in ["Z", "", "+00:00"] ->
+        canonical_lexical(literal.value)
+
+      zone ->
+        literal
+        |> lexical()
+        |> String.replace_trailing(zone, "Z")
+        |> DateTime.from_iso8601()
+        |> elem(1)
+        |> canonical_lexical()
+        |> String.replace_trailing("Z", zone)
     end
   end
 
