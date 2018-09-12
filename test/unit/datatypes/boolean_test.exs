@@ -62,8 +62,9 @@ defmodule RDF.BooleanTest do
     end
 
     test "casting an integer" do
-      assert RDF.integer(0) |> RDF.Boolean.cast() == RDF.false
-      assert RDF.integer(1) |> RDF.Boolean.cast() == RDF.true
+      assert RDF.integer(0)  |> RDF.Boolean.cast() == RDF.false
+      assert RDF.integer(1)  |> RDF.Boolean.cast() == RDF.true
+      assert RDF.integer(42) |> RDF.Boolean.cast() == RDF.true
     end
 
     test "casting a decimal" do

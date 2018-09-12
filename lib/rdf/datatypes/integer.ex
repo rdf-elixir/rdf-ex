@@ -36,9 +36,10 @@ defmodule RDF.Integer do
         new(1)
 
       is_xsd_string(datatype) ->
-        literal.value
-        |> new()
-        |> canonical()
+        case Integer.parse(literal.value) do
+          {value, _} -> new(value)
+          _          -> nil
+        end
 
       is_xsd_decimal(datatype) ->
         literal.value

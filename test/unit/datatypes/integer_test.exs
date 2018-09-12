@@ -28,7 +28,9 @@ defmodule RDF.IntegerTest do
     end
 
     test "casting a string" do
-      assert RDF.string("0") |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.string("0")    |> RDF.Integer.cast() == RDF.integer(0)
+      assert RDF.string("042")  |> RDF.Integer.cast() == RDF.integer(42)
+      assert RDF.string("3.14") |> RDF.Integer.cast() == RDF.integer(3)
     end
 
     test "casting an decimal" do

@@ -44,12 +44,8 @@ defmodule RDF.Boolean do
         !Decimal.equal?(literal.value, 0)
         |> new()
 
-      is_xsd_double(datatype) or is_xsd_float(datatype) ->
-        literal.value not in [0.0, :nan]
-        |> new()
-
       RDF.Numeric.type?(datatype) ->
-        literal.value
+        literal.value not in [0, 0.0, :nan]
         |> new()
 
       true ->

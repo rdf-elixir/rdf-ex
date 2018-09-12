@@ -72,8 +72,9 @@ defmodule RDF.DoubleTest do
     end
 
     test "casting a string" do
-      assert RDF.string("1.0")  |> RDF.Double.cast() == RDF.double("1.0E0")
-      assert RDF.string("3.14") |> RDF.Double.cast() == RDF.double("3.14E0")
+      assert RDF.string("1.0")    |> RDF.Double.cast() == RDF.double("1.0E0")
+      assert RDF.string("3.14")   |> RDF.Double.cast() == RDF.double("3.14E0")
+      assert RDF.string("3.14E0") |> RDF.Double.cast() == RDF.double("3.14E0")
     end
 
     test "casting an integer" do
@@ -82,9 +83,9 @@ defmodule RDF.DoubleTest do
     end
 
     test "casting a decimal" do
-      assert RDF.decimal(0)       |> RDF.Double.cast() == RDF.double(0)
-      assert RDF.decimal(1)       |> RDF.Double.cast() == RDF.double(1)
-      assert RDF.decimal(3.14)     |> RDF.Double.cast() == RDF.double(3.14)
+      assert RDF.decimal(0)    |> RDF.Double.cast() == RDF.double(0)
+      assert RDF.decimal(1)    |> RDF.Double.cast() == RDF.double(1)
+      assert RDF.decimal(3.14) |> RDF.Double.cast() == RDF.double(3.14)
     end
 
     @tag skip: "TODO: RDF.Float datatype"
