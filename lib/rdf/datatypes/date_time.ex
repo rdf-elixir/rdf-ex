@@ -22,12 +22,12 @@ defmodule RDF.DateTime do
 
   def convert(value, opts) when is_binary(value) do
     case DateTime.from_iso8601(value) do
-      {:ok, date_time, _} -> convert(date_time, opts)
+      {:ok, datetime, _} -> convert(datetime, opts)
 
       {:error, :missing_offset} ->
         case NaiveDateTime.from_iso8601(value) do
-          {:ok, date_time} -> convert(date_time, opts)
-          _                -> super(value, opts)
+          {:ok, datetime} -> convert(datetime, opts)
+          _               -> super(value, opts)
         end
 
       {:error, :invalid_time} ->
@@ -93,9 +93,9 @@ defmodule RDF.DateTime do
 
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
 
-  def tz(datetime_literal) do
-    if valid?(datetime_literal) do
-      datetime_literal
+  def tz(date_time_literal) do
+    if valid?(date_time_literal) do
+      date_time_literal
       |> lexical()
       |> RDF.DateTimeUtils.tz()
     end

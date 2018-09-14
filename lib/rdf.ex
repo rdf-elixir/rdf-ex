@@ -129,6 +129,8 @@ defmodule RDF do
   defdelegate string(value, opts),      to: RDF.String,     as: :new
   defdelegate lang_string(value),       to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
+  defdelegate langString(value),        to: RDF.LangString, as: :new
+  defdelegate langString(value, opts),  to: RDF.LangString, as: :new
   defdelegate boolean(value),           to: RDF.Boolean,    as: :new
   defdelegate boolean(value, opts),     to: RDF.Boolean,    as: :new
   defdelegate integer(value),           to: RDF.Integer,    as: :new
@@ -143,6 +145,10 @@ defmodule RDF do
   defdelegate time(value, opts),        to: RDF.Time,       as: :new
   defdelegate date_time(value),         to: RDF.DateTime,   as: :new
   defdelegate date_time(value, opts),   to: RDF.DateTime,   as: :new
+  defdelegate dateTime(value),          to: RDF.DateTime,   as: :new
+  defdelegate dateTime(value, opts),    to: RDF.DateTime,   as: :new
+  defdelegate datetime(value),          to: RDF.DateTime,   as: :new
+  defdelegate datetime(value, opts),    to: RDF.DateTime,   as: :new
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(),                      to: RDF.NS.RDF
@@ -159,5 +165,5 @@ defmodule RDF do
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
-  defdelegate   __base_iri__(), to: RDF.NS.RDF
+  defdelegate __base_iri__(), to: RDF.NS.RDF
 end
