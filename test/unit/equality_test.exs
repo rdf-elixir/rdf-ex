@@ -180,6 +180,25 @@ defmodule RDF.EqualityTest do
     test "incomparability",  do: assert_incomparable  @incomparable_datetimes
   end
 
+  describe "RDF.Literals with unsupported types" do
+    @equal_literals [
+      {RDF.literal("foo", datatype: "http://example.com/datatype"),
+       RDF.literal("foo", datatype: "http://example.com/datatype")},
+    ]
+    @unequal_literals [
+      {RDF.literal("foo", datatype: "http://example.com/datatype"),
+       RDF.literal("bar", datatype: "http://example.com/datatype")},
+    ]
+    @incomparable_literals [
+      {RDF.literal("foo", datatype: "http://example.com/datatype1"),
+       RDF.literal("foo", datatype: "http://example.com/datatype2")},
+    ]
+
+    test "term equality",    do: assert_term_equal    @equal_literals
+    test "term inequality",  do: assert_value_unequal @unequal_literals
+    test "incomparability",  do: assert_incomparable  @incomparable_literals
+  end
+
 
   defp assert_term_equal(examples) do
     Enum.each examples, fn example -> assert_term_equality(example, true) end
