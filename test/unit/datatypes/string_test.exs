@@ -122,7 +122,6 @@ defmodule RDF.StringTest do
       assert RDF.decimal("NAN") |> RDF.String.cast() == nil
       assert RDF.double(true)   |> RDF.String.cast() == nil
     end
-    end
   end
 
 end
