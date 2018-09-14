@@ -15,9 +15,7 @@ defmodule RDF.Time do
     {convert(value, Map.delete(opts, :tz)), tz}
   end
 
-  def convert(%Time{} = value, _opts) do
-    value |> strip_microseconds
-  end
+  def convert(%Time{} = value, _opts), do: value
 
   def convert(value, opts) when is_binary(value) do
     case Regex.run(@grammar, value) do
@@ -62,12 +60,6 @@ defmodule RDF.Time do
       end
     %Time{time | hour: hour, minute: minute}
   end
-
-  # microseconds are not part of the xsd:dateTime value space
-  defp strip_microseconds(%{microsecond: ms} = date_time) when ms != {0, 0},
-    do: %{date_time | microsecond: {0, 0}}
-  defp strip_microseconds(date_time),
-    do: date_time
 
 
   def canonical_lexical(%Time{} = value) do
