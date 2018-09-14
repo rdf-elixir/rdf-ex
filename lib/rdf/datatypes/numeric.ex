@@ -47,12 +47,6 @@ defmodule RDF.Numeric do
   def literal?(%Literal{datatype: datatype}), do: type?(datatype)
   def literal?(_),                            do: false
 
-#  @doc """
-#  Returns if a given datatype is a numeric datatype for integers.
-#  """
-#  def integer_type?(type), do: MapSet.member?(@integer_types, type)
-
-
 
   @doc """
   Tests for numeric value equality of two numeric literals.
@@ -65,6 +59,11 @@ defmodule RDF.Numeric do
   - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
   """
   def equal_value?(left, right)
+
+  def equal_value?(%Literal{uncanonical_lexical: lexical1, datatype: dt, value: nil},
+                   %Literal{uncanonical_lexical: lexical2, datatype: dt}) do
+    lexical1 == lexical2
+  end
 
   def equal_value?(%Literal{datatype: left_datatype, value: left},
                    %Literal{datatype: right_datatype, value: right})

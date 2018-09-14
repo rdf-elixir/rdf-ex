@@ -87,20 +87,28 @@ defmodule RDF.EqualityTest do
 
   describe "RDF.Boolean" do
     @term_equal_booleans [
-      {RDF.true,       RDF.true},
-      {RDF.false,      RDF.false},
+      {RDF.true,  RDF.true},
+      {RDF.false, RDF.false},
+      # invalid literals
+      {RDF.boolean("foo"), RDF.boolean("foo")},
     ]
     @term_unequal_booleans [
-      {RDF.true,       RDF.false},
-      {RDF.false,      RDF.true},
+      {RDF.true,  RDF.false},
+      {RDF.false, RDF.true},
+      # invalid literals
+      {RDF.boolean("foo"), RDF.boolean("bar")},
     ]
     @value_equal_booleans [
       {RDF.true,       RDF.boolean("TRUE")},
       {RDF.boolean(1), RDF.true},
+      # invalid literals
+      {RDF.boolean("foo"), RDF.boolean("foo")},
     ]
     @value_unequal_booleans [
       {RDF.true,       RDF.boolean("FALSE")},
       {RDF.boolean(0), RDF.true},
+      # invalid literals
+      {RDF.boolean("foo"), RDF.boolean("bar")},
     ]
     @incomparable_booleans [
       {RDF.true,       nil},
@@ -120,9 +128,17 @@ defmodule RDF.EqualityTest do
     @term_equal_numerics [
       {RDF.integer(42),    RDF.integer(42)},
       {RDF.integer("042"), RDF.integer("042")},
+      # invalid literals
+      {RDF.integer("foo"), RDF.integer("foo")},
+      {RDF.decimal("foo"), RDF.decimal("foo")},
+      {RDF.double("foo"),  RDF.double("foo")},
     ]
     @term_unequal_numerics [
       {RDF.integer(1), RDF.integer(2)},
+      # invalid literals
+      {RDF.integer("foo"), RDF.integer("bar")},
+      {RDF.decimal("foo"), RDF.decimal("bar")},
+      {RDF.double("foo"),  RDF.double("bar")},
     ]
     @value_equal_numerics [
       {RDF.integer("42"), RDF.integer("042")},
@@ -133,10 +149,18 @@ defmodule RDF.EqualityTest do
       {RDF.double(3.14),  RDF.decimal(3.14)},
       {RDF.double("+0"),  RDF.double("-0")},
       {RDF.decimal("+0"), RDF.decimal("-0")},
+      # invalid literals
+      {RDF.integer("foo"), RDF.integer("foo")},
+      {RDF.decimal("foo"), RDF.decimal("foo")},
+      {RDF.double("foo"),  RDF.double("foo")},
     ]
     @value_unequal_numerics [
       {RDF.integer("1"), RDF.double("1.1")},
       {RDF.integer("1"), RDF.decimal("1.1")},
+      # invalid literals
+      {RDF.integer("foo"), RDF.integer("bar")},
+      {RDF.decimal("foo"), RDF.decimal("bar")},
+      {RDF.double("foo"),  RDF.double("bar")},
     ]
     @incomparable_numerics [
       {RDF.string("42"),  RDF.integer(42)},
@@ -154,9 +178,13 @@ defmodule RDF.EqualityTest do
     @term_equal_datetimes [
       {RDF.date_time("2002-04-02T12:00:00-01:00"), RDF.date_time("2002-04-02T12:00:00-01:00")},
       {RDF.date_time("2002-04-02T12:00:00"),       RDF.date_time("2002-04-02T12:00:00")},
+      # invalid literals
+      {RDF.date_time("foo"), RDF.date_time("foo")},
     ]
     @term_unequal_datetimes [
      {RDF.date_time("2002-04-02T12:00:00"), RDF.date_time("2002-04-02T17:00:00")},
+      # invalid literals
+      {RDF.date_time("foo"), RDF.date_time("bar")},
     ]
     @value_equal_datetimes [
       {RDF.date_time("2002-04-02T12:00:00-01:00"), RDF.date_time("2002-04-02T17:00:00+04:00")},
@@ -164,9 +192,13 @@ defmodule RDF.EqualityTest do
       {RDF.date_time("1999-12-31T24:00:00"),       RDF.date_time("2000-01-01T00:00:00")},
 # TODO: Assume that the dynamic context provides an implicit timezone value of -05:00
 #      {RDF.date_time("2002-04-02T12:00:00"),       RDF.date_time("2002-04-02T23:00:00+06:00")},
+      # invalid literals
+      {RDF.date_time("foo"), RDF.date_time("foo")},
     ]
     @value_unequal_datetimes [
       {RDF.date_time("2005-04-04T24:00:00"), RDF.date_time("2005-04-04T00:00:00")},
+      # invalid literals
+      {RDF.date_time("foo"), RDF.date_time("bar")},
     ]
     @incomparable_datetimes [
       {RDF.string("2002-04-02T12:00:00-01:00"),    RDF.date_time("2002-04-02T12:00:00-01:00")},

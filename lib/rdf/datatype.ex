@@ -204,6 +204,11 @@ defmodule RDF.Datatype do
       def valid?(_), do: false
 
 
+      def equal_value?(%Literal{uncanonical_lexical: lexical1, datatype: @id, value: nil},
+                       %Literal{uncanonical_lexical: lexical2, datatype: @id}) do
+        lexical1 == lexical2
+      end
+
       def equal_value?(%Literal{datatype: @id} = literal1, %Literal{datatype: @id} = literal2) do
         canonical(literal1).value == canonical(literal2).value
       end
