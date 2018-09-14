@@ -88,6 +88,8 @@ defmodule RDF.DateTime do
     end
   end
 
+  def cast(_), do: nil
+
 
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
 

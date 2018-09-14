@@ -109,6 +109,10 @@ defmodule RDF.DateTest do
       assert RDF.integer(1) |> RDF.Date.cast() == nil
       assert RDF.decimal(3.14) |> RDF.Date.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.Date.cast(:foo) == nil
+    end
   end
 
 end

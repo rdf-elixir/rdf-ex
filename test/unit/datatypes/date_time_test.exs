@@ -163,6 +163,10 @@ defmodule RDF.DateTimeTest do
       assert RDF.integer(1)    |> RDF.DateTime.cast() == nil
       assert RDF.decimal(3.14) |> RDF.DateTime.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.DateTime.cast(:foo) == nil
+    end
   end
 
 

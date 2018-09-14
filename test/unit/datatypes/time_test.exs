@@ -96,6 +96,10 @@ defmodule RDF.TimeTest do
       assert RDF.integer(1) |> RDF.Time.cast() == nil
       assert RDF.decimal(3.14) |> RDF.Time.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.Time.cast(:foo) == nil
+    end
   end
 
 end

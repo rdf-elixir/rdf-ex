@@ -122,6 +122,10 @@ defmodule RDF.StringTest do
       assert RDF.decimal("NAN") |> RDF.String.cast() == nil
       assert RDF.double(true)   |> RDF.String.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.String.cast(:foo) == nil
+    end
   end
 
 end

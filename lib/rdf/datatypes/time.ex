@@ -141,4 +141,6 @@ defmodule RDF.Time do
     end
   end
 
+  def cast(_), do: nil
+
 end

@@ -117,6 +117,10 @@ defmodule RDF.DecimalTest do
     test "with literals of unsupported datatypes" do
       assert RDF.DateTime.now() |> RDF.Decimal.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.Decimal.cast(:foo) == nil
+    end
   end
 
 

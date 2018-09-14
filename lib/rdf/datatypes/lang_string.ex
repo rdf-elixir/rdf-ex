@@ -53,8 +53,9 @@ defmodule RDF.LangString do
     end
   end
 
+
   def cast(_) do
-    raise "not supported"
+    nil
   end
 
 end

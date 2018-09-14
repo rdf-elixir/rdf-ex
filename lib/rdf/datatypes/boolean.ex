@@ -54,6 +54,8 @@ defmodule RDF.Boolean do
     end
   end
 
+  def cast(_), do: nil
+
 
   @doc """
   Returns `RDF.true` if the effective boolean value of the given argument is `RDF.false`, or `RDF.false` if it is `RDF.true`.

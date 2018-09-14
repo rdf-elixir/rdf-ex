@@ -112,6 +112,10 @@ defmodule RDF.BooleanTest do
     test "with literals of unsupported datatypes" do
       assert RDF.DateTime.now() |> RDF.Boolean.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.Boolean.cast(:foo) == nil
+    end
   end
 
 

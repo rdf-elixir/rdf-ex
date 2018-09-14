@@ -58,6 +58,8 @@ defmodule RDF.Integer do
     end
   end
 
+  def cast(_), do: nil
+
 
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 

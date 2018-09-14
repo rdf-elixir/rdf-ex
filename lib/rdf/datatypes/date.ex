@@ -86,4 +86,6 @@ defmodule RDF.Date do
     end
   end
 
+  def cast(_), do: nil
+
 end

@@ -105,6 +105,10 @@ defmodule RDF.DoubleTest do
     test "with literals of unsupported datatypes" do
       assert RDF.DateTime.now() |> RDF.Double.cast() == nil
     end
+
+    test "with non-RDF terms" do
+      assert RDF.Double.cast(:foo) == nil
+    end
   end
 
 end
