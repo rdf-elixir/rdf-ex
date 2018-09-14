@@ -129,13 +129,18 @@ defmodule RDF.DateTimeTest do
              RDF.date_time("2010-01-01T12:34:56")
     end
 
-    test "casting a string" do
+    test "casting a string with a value from the lexical value space of xsd:dateTime" do
       assert RDF.string("2010-01-01T12:34:56") |> RDF.DateTime.cast() ==
                RDF.date_time("2010-01-01T12:34:56")
       assert RDF.string("2010-01-01T12:34:56Z") |> RDF.DateTime.cast() ==
                RDF.date_time("2010-01-01T12:34:56Z")
       assert RDF.string("2010-01-01T12:34:56+01:00") |> RDF.DateTime.cast() ==
                RDF.date_time("2010-01-01T12:34:56+01:00")
+    end
+
+    test "casting a string with a value not in the lexical value space of xsd:dateTime" do
+      assert RDF.string("string") |> RDF.DateTime.cast() == nil
+      assert RDF.string("02010-01-01T00:00:00") |> RDF.DateTime.cast() == nil
     end
 
     test "casting a date" do
@@ -154,8 +159,8 @@ defmodule RDF.DateTimeTest do
     end
 
     test "with literals of unsupported datatypes" do
-      assert RDF.false |> RDF.DateTime.cast() == nil
-      assert RDF.integer(1) |> RDF.DateTime.cast() == nil
+      assert RDF.false         |> RDF.DateTime.cast() == nil
+      assert RDF.integer(1)    |> RDF.DateTime.cast() == nil
       assert RDF.decimal(3.14) |> RDF.DateTime.cast() == nil
     end
   end

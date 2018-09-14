@@ -95,11 +95,11 @@ defmodule RDF.StringTest do
     end
 
     test "casting a date" do
-      assert RDF.date(~D[2000-01-01]) |> RDF.String.cast() == RDF.string("2000-01-01")
-      assert RDF.date("2000-01-01") |> RDF.String.cast() == RDF.string("2000-01-01")
+      assert RDF.date(~D[2000-01-01])     |> RDF.String.cast() == RDF.string("2000-01-01")
+      assert RDF.date("2000-01-01")       |> RDF.String.cast() == RDF.string("2000-01-01")
       assert RDF.date("2000-01-01+00:00") |> RDF.String.cast() == RDF.string("2000-01-01Z")
       assert RDF.date("2000-01-01+01:00") |> RDF.String.cast() == RDF.string("2000-01-01+01:00")
-      assert RDF.date("0001-01-01")   |> RDF.String.cast() == RDF.string("0001-01-01")
+      assert RDF.date("0001-01-01")       |> RDF.String.cast() == RDF.string("0001-01-01")
       unless Version.compare(System.version(), "1.7.2") == :lt do
         assert RDF.date("-0001-01-01")  |> RDF.String.cast() == RDF.string("-0001-01-01")
       end
@@ -118,9 +118,10 @@ defmodule RDF.StringTest do
     end
 
     test "with invalid literals" do
-      assert RDF.integer(3.14)  |> RDF.Integer.cast() == nil
-      assert RDF.decimal("NAN") |> RDF.Integer.cast() == nil
-      assert RDF.double(true)   |> RDF.Integer.cast() == nil
+      assert RDF.integer(3.14)  |> RDF.String.cast() == nil
+      assert RDF.decimal("NAN") |> RDF.String.cast() == nil
+      assert RDF.double(true)   |> RDF.String.cast() == nil
+    end
     end
   end
 

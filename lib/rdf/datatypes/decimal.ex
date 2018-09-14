@@ -85,6 +85,7 @@ defmodule RDF.Decimal do
         literal.value
         |> new()
         |> canonical()
+        |> validate_cast()
 
       is_number(literal.value) and (is_xsd_integer(datatype) or
                                     is_xsd_double(datatype) or is_xsd_float(datatype)) ->

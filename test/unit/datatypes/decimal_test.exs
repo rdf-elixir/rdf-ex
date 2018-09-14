@@ -78,9 +78,13 @@ defmodule RDF.DecimalTest do
       assert RDF.false |> RDF.Decimal.cast() == RDF.decimal(0.0)
     end
 
-    test "casting a string" do
+    test "casting a string with a value from the lexical value space of xsd:decimal" do
       assert RDF.string("0")    |> RDF.Decimal.cast() == RDF.decimal(0)
       assert RDF.string("3.14") |> RDF.Decimal.cast() == RDF.decimal(3.14)
+    end
+
+    test "casting a string with a value not in the lexical value space of xsd:decimal" do
+      assert RDF.string("foo") |> RDF.Decimal.cast() == nil
     end
 
     test "casting an integer" do

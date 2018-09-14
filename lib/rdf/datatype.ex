@@ -210,6 +210,14 @@ defmodule RDF.Datatype do
 
       def equal_value?(_, _), do: nil
 
+
+      def validate_cast(%Literal{} = literal) do
+        if valid?(literal), do: literal
+      end
+
+      def validate_cast(_), do: nil
+
+
       defoverridable [
         build_literal_by_value: 2,
         build_literal_by_lexical: 2,

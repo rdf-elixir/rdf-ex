@@ -39,6 +39,7 @@ defmodule RDF.Boolean do
         literal.value
         |> new()
         |> canonical()
+        |> validate_cast()
 
       is_xsd_decimal(datatype) ->
         !Decimal.equal?(literal.value, 0)

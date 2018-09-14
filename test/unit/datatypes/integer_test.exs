@@ -27,10 +27,14 @@ defmodule RDF.IntegerTest do
       assert RDF.true  |> RDF.Integer.cast() == RDF.integer(1)
     end
 
-    test "casting a string" do
+    test "casting a string with a value from the lexical value space of xsd:integer" do
       assert RDF.string("0")    |> RDF.Integer.cast() == RDF.integer(0)
       assert RDF.string("042")  |> RDF.Integer.cast() == RDF.integer(42)
-      assert RDF.string("3.14") |> RDF.Integer.cast() == RDF.integer(3)
+    end
+
+    test "casting a string with a value not in the lexical value space of xsd:integer" do
+      assert RDF.string("foo")  |> RDF.Integer.cast() == nil
+      assert RDF.string("3.14") |> RDF.Integer.cast() == nil
     end
 
     test "casting an decimal" do

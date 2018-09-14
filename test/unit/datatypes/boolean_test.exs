@@ -51,7 +51,7 @@ defmodule RDF.BooleanTest do
       assert RDF.false |> RDF.Boolean.cast() == RDF.false
     end
 
-    test "casting a string" do
+    test "casting a string with a value from the lexical value space of xsd:boolean" do
       assert RDF.string("true")  |> RDF.Boolean.cast() == RDF.true
       assert RDF.string("tRuE")  |> RDF.Boolean.cast() == RDF.true
       assert RDF.string("1")     |> RDF.Boolean.cast() == RDF.true
@@ -59,6 +59,10 @@ defmodule RDF.BooleanTest do
       assert RDF.string("false") |> RDF.Boolean.cast() == RDF.false
       assert RDF.string("FaLsE") |> RDF.Boolean.cast() == RDF.false
       assert RDF.string("0")     |> RDF.Boolean.cast() == RDF.false
+    end
+
+    test "casting a string with a value not in the lexical value space of xsd:boolean" do
+      assert RDF.string("foo") |> RDF.Boolean.cast() == nil
     end
 
     test "casting an integer" do

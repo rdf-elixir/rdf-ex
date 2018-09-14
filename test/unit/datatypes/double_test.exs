@@ -71,10 +71,14 @@ defmodule RDF.DoubleTest do
       assert RDF.false |> RDF.Double.cast() == RDF.double(0.0)
     end
 
-    test "casting a string" do
+    test "casting a string with a value from the lexical value space of xsd:double" do
       assert RDF.string("1.0")    |> RDF.Double.cast() == RDF.double("1.0E0")
       assert RDF.string("3.14")   |> RDF.Double.cast() == RDF.double("3.14E0")
       assert RDF.string("3.14E0") |> RDF.Double.cast() == RDF.double("3.14E0")
+    end
+
+    test "casting a string with a value not in the lexical value space of xsd:double" do
+      assert RDF.string("foo") |> RDF.Double.cast() == nil
     end
 
     test "casting an integer" do

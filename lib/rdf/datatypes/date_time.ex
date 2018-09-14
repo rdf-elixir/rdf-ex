@@ -81,6 +81,7 @@ defmodule RDF.DateTime do
       is_xsd_string(datatype) ->
         literal.value
         |> new()
+        |> validate_cast()
 
       true ->
         nil
