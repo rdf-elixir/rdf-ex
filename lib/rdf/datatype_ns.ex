@@ -42,6 +42,8 @@ defmodule RDF.Datatype.NS do
                  unsignedShort
                    unsignedByte
        duration
+        dayTimeDuration
+        yearMonthDuration
        dateTime
        time
        date
