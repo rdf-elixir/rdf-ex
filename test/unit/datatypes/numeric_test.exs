@@ -3,6 +3,7 @@ defmodule RDF.NumericTest do
 
   alias RDF.Numeric
   alias RDF.NS.XSD
+  alias Decimal, as: D
 
   @positive_infinity RDF.double(:positive_infinity)
   @negative_infinity RDF.double(:negative_infinity)
@@ -97,6 +98,13 @@ defmodule RDF.NumericTest do
       assert Numeric.add(@positive_infinity, @negative_infinity) == RDF.double(:nan)
       assert Numeric.add(@negative_infinity, @positive_infinity) == RDF.double(:nan)
     end
+
+    test "coercion" do
+      assert Numeric.add(1, 2)     == RDF.integer(3)
+      assert Numeric.add(3.14, 42) == RDF.double(45.14)
+      assert RDF.decimal(3.14) |> Numeric.add(42) == RDF.decimal(45.14)
+      assert Numeric.add(42, RDF.decimal(3.14)) == RDF.decimal(45.14)
+    end
   end
 
 
@@ -143,6 +151,13 @@ defmodule RDF.NumericTest do
     test "if one of the operands is INF and the other is -INF, an infinity of the appropriate sign is returned" do
       assert Numeric.subtract(@positive_infinity, @negative_infinity) == @positive_infinity
       assert Numeric.subtract(@negative_infinity, @positive_infinity) == @negative_infinity
+    end
+
+    test "coercion" do
+      assert Numeric.subtract(2, 1)     == RDF.integer(1)
+      assert Numeric.subtract(42, 3.14) == RDF.double(38.86)
+      assert RDF.decimal(3.14) |> Numeric.subtract(42) == RDF.decimal(-38.86)
+      assert Numeric.subtract(42, RDF.decimal(3.14))   == RDF.decimal(38.86)
     end
   end
 
@@ -205,6 +220,13 @@ defmodule RDF.NumericTest do
     test "if one of the operands is INF and the other is -INF, NaN is returned" do
       assert Numeric.multiply(@positive_infinity, @negative_infinity) == RDF.double(:nan)
       assert Numeric.multiply(@negative_infinity, @positive_infinity) == RDF.double(:nan)
+    end
+
+    test "coercion" do
+      assert Numeric.multiply(1, 2)   == RDF.integer(2)
+      assert Numeric.multiply(2, 1.5) == RDF.double(3.0)
+      assert RDF.decimal(1.5) |> Numeric.multiply(2) == RDF.decimal(3.0)
+      assert Numeric.multiply(2, RDF.decimal(1.5))   == RDF.decimal(3.0)
     end
   end
 
@@ -309,6 +331,15 @@ defmodule RDF.NumericTest do
 
     # TODO: What happens when using INF/-INF on division with numbers?
 
+    test "coercion" do
+      assert Numeric.divide(4, 2)   == RDF.decimal(2.0)
+      assert Numeric.divide(4, 2.0) == RDF.double(2.0)
+      assert RDF.decimal(4) |> Numeric.divide(2) == RDF.decimal(2.0)
+      assert Numeric.divide(4, RDF.decimal(2.0)) == RDF.decimal(2.0)
+      assert Numeric.divide("foo", "bar") == nil
+      assert Numeric.divide(4, "bar") == nil
+      assert Numeric.divide("foo", 2) == nil
+    end
   end
 
   describe "abs/1" do
@@ -345,6 +376,14 @@ defmodule RDF.NumericTest do
       assert RDF.double("foo")    |> Numeric.abs() == nil
       assert RDF.decimal("foo")   |> Numeric.abs() == nil
     end
+
+    test "coercion" do
+      assert Numeric.abs(42) == RDF.integer(42)
+      assert Numeric.abs(-42) == RDF.integer(42)
+      assert Numeric.abs(-3.14) == RDF.double(3.14)
+      assert Numeric.abs(D.new(-3.14)) == RDF.decimal(3.14)
+      assert Numeric.abs("foo") == nil
+    end
   end
 
   describe "round/1" do
@@ -373,6 +412,13 @@ defmodule RDF.NumericTest do
       assert RDF.integer("-3.14") |> Numeric.round() == nil
       assert RDF.double("foo")    |> Numeric.round() == nil
       assert RDF.decimal("foo")   |> Numeric.round() == nil
+    end
+
+    test "coercion" do
+      assert Numeric.round(-42) == RDF.integer(-42)
+      assert Numeric.round(-3.14) == RDF.double(-3.0)
+      assert Numeric.round(D.new(3.14)) == RDF.decimal("3")
+      assert Numeric.round("foo") == nil
     end
   end
 
@@ -407,6 +453,13 @@ defmodule RDF.NumericTest do
       assert RDF.double("foo")    |> Numeric.round(2) == nil
       assert RDF.decimal("foo")   |> Numeric.round(3) == nil
     end
+
+    test "coercion" do
+      assert Numeric.round(-42, 1) == RDF.integer(-42)
+      assert Numeric.round(-3.14, 1) == RDF.double(-3.1)
+      assert Numeric.round(D.new(3.14), 1) == RDF.decimal("3.1")
+      assert Numeric.round("foo", 1) == nil
+    end
   end
 
   describe "ceil/1" do
@@ -434,6 +487,13 @@ defmodule RDF.NumericTest do
       assert RDF.double("foo")    |> Numeric.ceil() == nil
       assert RDF.decimal("foo")   |> Numeric.ceil() == nil
     end
+
+    test "coercion" do
+      assert Numeric.ceil(-42) == RDF.integer(-42)
+      assert Numeric.ceil(-3.14) == RDF.double("-3")
+      assert Numeric.ceil(D.new(3.14)) == RDF.decimal("4")
+      assert Numeric.ceil("foo") == nil
+    end
   end
 
   describe "floor/1" do
@@ -460,6 +520,13 @@ defmodule RDF.NumericTest do
       assert RDF.integer("-3.14") |> Numeric.floor() == nil
       assert RDF.double("foo")    |> Numeric.floor() == nil
       assert RDF.decimal("foo")   |> Numeric.floor() == nil
+    end
+
+    test "coercion" do
+      assert Numeric.floor(-42) == RDF.integer(-42)
+      assert Numeric.floor(-3.14) == RDF.double("-4")
+      assert Numeric.floor(D.new(3.14)) == RDF.decimal("3")
+      assert Numeric.floor("foo") == nil
     end
   end
 

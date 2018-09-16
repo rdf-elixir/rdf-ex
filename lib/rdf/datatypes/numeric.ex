@@ -9,6 +9,7 @@ defmodule RDF.Numeric do
   alias Elixir.Decimal, as: D
 
   import RDF.Literal.Guards
+  import Kernel, except: [abs: 1]
 
 
   @types MapSet.new [
@@ -267,6 +268,15 @@ defmodule RDF.Numeric do
     end
   end
 
+  def abs(value) do
+    unless RDF.term?(value) do
+      value
+      |> RDF.Term.coerce()
+      |> abs()
+    end
+  end
+
+
   @doc """
   Rounds a value to a specified number of decimal places, rounding upwards if two such values are equally near.
 
@@ -320,6 +330,14 @@ defmodule RDF.Numeric do
     end
   end
 
+  def round(value, precision) do
+    unless RDF.term?(value) do
+      value
+      |> RDF.Term.coerce()
+      |> round(precision)
+    end
+  end
+
   defp xpath_round(%D{sign: -1} = decimal, precision),
      do: D.round(decimal, precision, :half_down)
   defp xpath_round(decimal, precision),
@@ -364,6 +382,14 @@ defmodule RDF.Numeric do
     end
   end
 
+  def ceil(value) do
+    unless RDF.term?(value) do
+      value
+      |> RDF.Term.coerce()
+      |> ceil()
+    end
+  end
+
   @doc """
   Rounds a numeric literal downwards to a whole number literal.
 
@@ -403,8 +429,16 @@ defmodule RDF.Numeric do
     end
   end
 
+  def floor(value) do
+    unless RDF.term?(value) do
+      value
+      |> RDF.Term.coerce()
+      |> floor()
+    end
+  end
 
-  defp arithmetic_operation(op, arg1, arg2, fun) do
+
+  defp arithmetic_operation(op, %Literal{} = arg1, %Literal{} = arg2, fun) do
     if literal?(arg1) && literal?(arg2) do
       with result_type  = result_type(op, arg1.datatype, arg2.datatype),
            {arg1, arg2} = type_conversion(arg1, arg2, result_type),
@@ -415,6 +449,15 @@ defmodule RDF.Numeric do
       end
     end
   end
+
+  defp arithmetic_operation(op, %Literal{} = arg1, arg2, fun),
+    do: arithmetic_operation(op, arg1, RDF.Term.coerce(arg2), fun)
+
+  defp arithmetic_operation(op, arg1, %Literal{} = arg2, fun),
+    do: arithmetic_operation(op, RDF.Term.coerce(arg1), arg2, fun)
+
+  defp arithmetic_operation(op, arg1, arg2, fun),
+    do: arithmetic_operation(op, RDF.Term.coerce(arg1), RDF.Term.coerce(arg2), fun)
 
 
   defp type_conversion(%Literal{datatype: datatype} = arg1,
