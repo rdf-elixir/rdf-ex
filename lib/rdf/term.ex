@@ -100,6 +100,12 @@ defimpl RDF.Term, for: Float do
   def coerce(term),               do: RDF.Double.new(term)
 end
 
+defimpl RDF.Term, for: Decimal do
+  def equal?(term1, term2),       do: term1 == term2
+  def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
+  def coerce(term),               do: RDF.Decimal.new(term)
+end
+
 defimpl RDF.Term, for: DateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)

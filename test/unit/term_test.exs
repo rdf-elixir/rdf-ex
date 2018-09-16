@@ -3,6 +3,8 @@ defmodule RDF.TermTest do
 
   doctest RDF.Term
 
+  alias Decimal, as: D
+
   describe "coerce/1" do
     test "with RDF.IRI" do
       assert RDF.Term.coerce(~I<http://example.com/>) == ~I<http://example.com/>
@@ -31,6 +33,10 @@ defmodule RDF.TermTest do
 
     test "with float" do
       assert RDF.Term.coerce(3.14) == RDF.double(3.14)
+    end
+
+    test "with decimal" do
+      assert D.new(3.14) |> RDF.Term.coerce() == RDF.decimal(3.14)
     end
 
     test "with datetime" do

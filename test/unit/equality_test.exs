@@ -2,7 +2,7 @@ defmodule RDF.EqualityTest do
   use RDF.Test.Case
 
   alias RDF.NS.XSD
-
+  alias Decimal, as: D
 
   describe "RDF.IRI" do
     @term_equal_iris [
@@ -185,13 +185,17 @@ defmodule RDF.EqualityTest do
     @value_equal_numerics_by_coercion [
       {RDF.integer(42),   42},
       {RDF.integer(42),   42.0},
+      {RDF.integer(42),   D.new(42)},
       {RDF.decimal(42),   42},
       {RDF.decimal(3.14), 3.14},
+      {RDF.decimal(3.14), D.new(3.14)},
       {RDF.double(42),    42},
       {RDF.double(3.14),  3.14},
+      {RDF.double(3.14),  D.new(3.14)},
     ]
     @value_unequal_numerics_by_coercion [
       {RDF.integer(3),    3.14},
+      {RDF.integer(3),    D.new(3.14)},
       {RDF.double(3.14),  3},
       {RDF.decimal(3.14), 3},
     ]
