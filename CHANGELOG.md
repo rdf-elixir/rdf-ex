@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
   from the XPath and SPARQL specs on `RDF.Boolean`
 - various functions on the `RDF.DateTime` and `RDF.Time` datatypes
+- `RDF.term?/1` 
 - `RDF.Term.equal?/2` and `RDF.Term.equal_value?/2`
 - `RDF.LangString.match_language?/2`
 - possibility to configure an application-specific default base IRI; for now it 

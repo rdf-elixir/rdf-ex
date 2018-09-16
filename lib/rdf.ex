@@ -5,6 +5,7 @@ defmodule RDF do
   RDF.ex consists of:
 
   - modules for the nodes of an RDF graph
+    - `RDF.Term`
     - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
@@ -60,15 +61,37 @@ defmodule RDF do
       true
       iex> RDF.resource?(RDF.bnode)
       true
+      iex> RDF.resource?(RDF.integer(42))
+      false
       iex> RDF.resource?(42)
       false
   """
   def resource?(value)
   def resource?(%IRI{}),                  do: true
   def resource?(%BlankNode{}),            do: true
-  def resource?(atom) when is_atom(atom), do: resource?(Namespace.resolve_term(atom))
+  def resource?(atom) when is_atom(atom) and atom not in ~w[true false nil]a,
+      do: resource?(Namespace.resolve_term(atom))
   def resource?(_),                       do: false
 
+  @doc """
+  Checks if the given value is a RDF term.
+
+  ## Examples
+
+      iex> RDF.term?(RDF.iri("http://example.com/resource"))
+      true
+      iex> RDF.term?(EX.resource)
+      true
+      iex> RDF.term?(RDF.bnode)
+      true
+      iex> RDF.term?(RDF.integer(42))
+      true
+      iex> RDF.term?(42)
+      false
+  """
+  def term?(value)
+  def term?(%Literal{}), do: true
+  def term?(value),      do: resource?(value)
 
   defdelegate uri?(value), to: IRI, as: :valid?
   defdelegate iri?(value), to: IRI, as: :valid?
