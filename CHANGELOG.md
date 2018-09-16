@@ -33,6 +33,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Changed
 
 - Elixir versions < 1.6 are no longer supported
+- `RDF.resource?/1` does not fail anymore when called with unresolvable atoms 
+  but returns `false` instead
 - `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
   given a language tag
 - `RDF.IRI.absolute/2` returns `nil` if the given base is not absolute, instead 

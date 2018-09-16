@@ -55,10 +55,16 @@ defmodule RDF do
 
   ## Examples
 
+  Supposed `EX` is a `RDF.Vocabulary.Namespace` and `Foo` is not.
+
       iex> RDF.resource?(RDF.iri("http://example.com/resource"))
       true
       iex> RDF.resource?(EX.resource)
       true
+      iex> RDF.resource?(EX.Resource)
+      true
+      iex> RDF.resource?(Foo.Resource)
+      false
       iex> RDF.resource?(RDF.bnode)
       true
       iex> RDF.resource?(RDF.integer(42))
@@ -69,8 +75,12 @@ defmodule RDF do
   def resource?(value)
   def resource?(%IRI{}),                  do: true
   def resource?(%BlankNode{}),            do: true
-  def resource?(atom) when is_atom(atom) and atom not in ~w[true false nil]a,
-      do: resource?(Namespace.resolve_term(atom))
+  def resource?(atom) when is_atom(atom) and atom not in ~w[true false nil]a do
+    resource?(Namespace.resolve_term(atom))
+  rescue
+    RDF.Namespace.UndefinedTermError -> false
+  end
+
   def resource?(_),                       do: false
 
   @doc """
@@ -78,10 +88,16 @@ defmodule RDF do
 
   ## Examples
 
+  Supposed `EX` is a `RDF.Vocabulary.Namespace` and `Foo` is not.
+
       iex> RDF.term?(RDF.iri("http://example.com/resource"))
       true
       iex> RDF.term?(EX.resource)
       true
+      iex> RDF.term?(EX.Resource)
+      true
+      iex> RDF.term?(Foo.Resource)
+      false
       iex> RDF.term?(RDF.bnode)
       true
       iex> RDF.term?(RDF.integer(42))
