@@ -71,10 +71,15 @@ defmodule RDF.Numeric do
       do: equal_decimal_value?(left, right)
 
   def equal_value?(%Literal{datatype: left_datatype, value: left},
-                   %Literal{datatype: right_datatype, value: right})
-  do
+                   %Literal{datatype: right_datatype, value: right}) do
     if type?(left_datatype) and type?(right_datatype) do
       left == right
+    end
+  end
+
+  def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
+    unless RDF.term?(right) do
+      equal_value?(left, RDF.Term.coerce(right))
     end
   end
 

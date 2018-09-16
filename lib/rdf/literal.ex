@@ -222,6 +222,8 @@ defmodule RDF.Literal do
   @doc """
   Checks if two `RDF.Literal`s of this datatype are equal.
 
+  Non-RDF terms are tried to be coerced via `RDF.Term.coerce/1` before comparison.
+
   Returns `nil` when the given arguments are not comparable as Literals.
 
   see <https://www.w3.org/TR/rdf-concepts/#section-Literal-Equality>
@@ -247,6 +249,12 @@ defmodule RDF.Literal do
 
   def equal_value?(left, %RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}} = right),
     do: RDF.IRI.equal_value?(left, right)
+
+  def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
+    unless RDF.term?(right) do
+      equal_value?(left, RDF.Term.coerce(right))
+    end
+  end
 
   def equal_value?(_, _), do: nil
 

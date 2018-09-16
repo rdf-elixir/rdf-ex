@@ -69,6 +69,8 @@ defmodule RDF.Datatype do
   @doc """
   Checks if the value of two `RDF.Literal`s of this datatype are equal.
 
+  Non-RDF terms are tried to be coerced via `RDF.Term.coerce/1` before comparison.
+
   Returns `nil` when the given arguments are not comparable as literals of this datatype.
 
   The default implementation of the `_using__` macro compares the values of the
@@ -211,6 +213,12 @@ defmodule RDF.Datatype do
 
       def equal_value?(%Literal{datatype: @id} = literal1, %Literal{datatype: @id} = literal2) do
         canonical(literal1).value == canonical(literal2).value
+      end
+
+      def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
+        unless RDF.term?(right) do
+          equal_value?(left, RDF.Term.coerce(right))
+        end
       end
 
       def equal_value?(_, _), do: nil
