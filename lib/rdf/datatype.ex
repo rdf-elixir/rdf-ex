@@ -216,7 +216,7 @@ defmodule RDF.Datatype do
       end
 
       def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
-        unless RDF.term?(right) do
+        unless RDF.Term.term?(right) do
           equal_value?(left, RDF.Term.coerce(right))
         end
       end

@@ -16,6 +16,27 @@ defprotocol RDF.Term do
 
 
   @doc """
+  Checks if the given value is a RDF term.
+
+  Note: As opposed to `RDF.term?` this function returns false on atoms and does
+  not try resolves those to IRIs.
+
+  ## Examples
+
+      iex> RDF.Term.term?(RDF.iri("http://example.com/resource"))
+      true
+      iex> RDF.Term.term?(EX.Resource)
+      false
+      iex> RDF.Term.term?(RDF.bnode)
+      true
+      iex> RDF.Term.term?(RDF.integer(42))
+      true
+      iex> RDF.Term.term?(42)
+      false
+  """
+  def term?(value)
+
+  @doc """
   Tests for term equality.
 
   see <http://www.w3.org/TR/rdf-sparql-query/#func-sameTerm>
@@ -51,24 +72,28 @@ defimpl RDF.Term, for: RDF.IRI do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.IRI.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def term?(_),                   do: true
 end
 
 defimpl RDF.Term, for: RDF.BlankNode do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.BlankNode.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def term?(_),                   do: true
 end
 
 defimpl RDF.Term, for: Reference do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.BlankNode.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: RDF.Literal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Literal.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def term?(_),                   do: true
 end
 
 defimpl RDF.Term, for: Atom do
@@ -80,58 +105,69 @@ defimpl RDF.Term, for: Atom do
   def coerce(true),  do: RDF.true
   def coerce(false), do: RDF.false
   def coerce(_),     do: nil
+
+  def term?(_), do: false
 end
 
 defimpl RDF.Term, for: BitString do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.String.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Integer do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Integer.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Float do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Double.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Decimal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Decimal.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: DateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.DateTime.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: NaiveDateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.DateTime.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Date do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Date.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Time do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Time.new(term)
+  def term?(_),                   do: false
 end
 
 defimpl RDF.Term, for: Any do
   def equal?(term1, term2), do: term1 == term2
   def equal_value?(_, _),   do: nil
   def coerce(_),            do: nil
+  def term?(_),             do: false
 end

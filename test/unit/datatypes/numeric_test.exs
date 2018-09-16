@@ -104,6 +104,10 @@ defmodule RDF.NumericTest do
       assert Numeric.add(3.14, 42) == RDF.double(45.14)
       assert RDF.decimal(3.14) |> Numeric.add(42) == RDF.decimal(45.14)
       assert Numeric.add(42, RDF.decimal(3.14)) == RDF.decimal(45.14)
+      assert Numeric.add(42, ~B"foo")   == nil
+      assert Numeric.add(42, :foo)   == nil
+      assert Numeric.add(:foo, 42)   == nil
+      assert Numeric.add(:foo, :bar) == nil
     end
   end
 
@@ -337,8 +341,11 @@ defmodule RDF.NumericTest do
       assert RDF.decimal(4) |> Numeric.divide(2) == RDF.decimal(2.0)
       assert Numeric.divide(4, RDF.decimal(2.0)) == RDF.decimal(2.0)
       assert Numeric.divide("foo", "bar") == nil
-      assert Numeric.divide(4, "bar") == nil
-      assert Numeric.divide("foo", 2) == nil
+      assert Numeric.divide(4, "bar")     == nil
+      assert Numeric.divide("foo", 2)     == nil
+      assert Numeric.divide(42, :bar)     == nil
+      assert Numeric.divide(:foo, 42)     == nil
+      assert Numeric.divide(:foo, :bar)   == nil
     end
   end
 
@@ -383,6 +390,7 @@ defmodule RDF.NumericTest do
       assert Numeric.abs(-3.14) == RDF.double(3.14)
       assert Numeric.abs(D.new(-3.14)) == RDF.decimal(3.14)
       assert Numeric.abs("foo") == nil
+      assert Numeric.abs(:foo) == nil
     end
   end
 
@@ -419,6 +427,7 @@ defmodule RDF.NumericTest do
       assert Numeric.round(-3.14) == RDF.double(-3.0)
       assert Numeric.round(D.new(3.14)) == RDF.decimal("3")
       assert Numeric.round("foo") == nil
+      assert Numeric.round(:foo)  == nil
     end
   end
 
@@ -459,6 +468,7 @@ defmodule RDF.NumericTest do
       assert Numeric.round(-3.14, 1) == RDF.double(-3.1)
       assert Numeric.round(D.new(3.14), 1) == RDF.decimal("3.1")
       assert Numeric.round("foo", 1) == nil
+      assert Numeric.round(:foo, 1)  == nil
     end
   end
 
@@ -493,6 +503,7 @@ defmodule RDF.NumericTest do
       assert Numeric.ceil(-3.14) == RDF.double("-3")
       assert Numeric.ceil(D.new(3.14)) == RDF.decimal("4")
       assert Numeric.ceil("foo") == nil
+      assert Numeric.ceil(:foo)  == nil
     end
   end
 
@@ -527,6 +538,7 @@ defmodule RDF.NumericTest do
       assert Numeric.floor(-3.14) == RDF.double("-4")
       assert Numeric.floor(D.new(3.14)) == RDF.decimal("3")
       assert Numeric.floor("foo") == nil
+      assert Numeric.floor(:foo)  == nil
     end
   end
 

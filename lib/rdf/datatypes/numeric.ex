@@ -79,7 +79,7 @@ defmodule RDF.Numeric do
   end
 
   def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
-    unless RDF.term?(right) do
+    unless RDF.Term.term?(right) do
       equal_value?(left, RDF.Term.coerce(right))
     end
   end
@@ -269,7 +269,7 @@ defmodule RDF.Numeric do
   end
 
   def abs(value) do
-    unless RDF.term?(value) do
+    if not is_nil(value) and not RDF.Term.term?(value) do
       value
       |> RDF.Term.coerce()
       |> abs()
@@ -331,7 +331,7 @@ defmodule RDF.Numeric do
   end
 
   def round(value, precision) do
-    unless RDF.term?(value) do
+    if not is_nil(value) and not RDF.Term.term?(value) do
       value
       |> RDF.Term.coerce()
       |> round(precision)
@@ -383,7 +383,7 @@ defmodule RDF.Numeric do
   end
 
   def ceil(value) do
-    unless RDF.term?(value) do
+    if not is_nil(value) and not RDF.Term.term?(value) do
       value
       |> RDF.Term.coerce()
       |> ceil()
@@ -430,7 +430,7 @@ defmodule RDF.Numeric do
   end
 
   def floor(value) do
-    unless RDF.term?(value) do
+    if not is_nil(value) and not RDF.Term.term?(value) do
       value
       |> RDF.Term.coerce()
       |> floor()
@@ -450,14 +450,24 @@ defmodule RDF.Numeric do
     end
   end
 
-  defp arithmetic_operation(op, %Literal{} = arg1, arg2, fun),
-    do: arithmetic_operation(op, arg1, RDF.Term.coerce(arg2), fun)
+  defp arithmetic_operation(op, %Literal{} = arg1, arg2, fun) do
+    if not is_nil(arg2) and not RDF.Term.term?(arg2) do
+      arithmetic_operation(op, arg1, RDF.Term.coerce(arg2), fun)
+    end
+  end
 
-  defp arithmetic_operation(op, arg1, %Literal{} = arg2, fun),
-    do: arithmetic_operation(op, RDF.Term.coerce(arg1), arg2, fun)
+  defp arithmetic_operation(op, arg1, %Literal{} = arg2, fun) do
+    if not is_nil(arg1) and not RDF.Term.term?(arg1) do
+      arithmetic_operation(op, RDF.Term.coerce(arg1), arg2, fun)
+    end
+  end
 
-  defp arithmetic_operation(op, arg1, arg2, fun),
-    do: arithmetic_operation(op, RDF.Term.coerce(arg1), RDF.Term.coerce(arg2), fun)
+  defp arithmetic_operation(op, arg1, arg2, fun) do
+    if not is_nil(arg1) and not RDF.Term.term?(arg1) and
+       not is_nil(arg2) and not RDF.Term.term?(arg2) do
+      arithmetic_operation(op, RDF.Term.coerce(arg1), RDF.Term.coerce(arg2), fun)
+    end
+  end
 
 
   defp type_conversion(%Literal{datatype: datatype} = arg1,
