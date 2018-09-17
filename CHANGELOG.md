@@ -9,38 +9,39 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- top-level alias functions for constructors of the basic datatypes
-- top-level constant functions `RDF.true` and `RDF.false` for the two boolean 
-  `RDF.Literal` values
-- `RDF.Decimal` datatype for `xsd:decimal` literals and support for decimal 
-  literals in Turtle encoder
-- `RDF.Numeric` with a list of all numeric datatypes and shared functions for
-  all numeric literals, eg. arithmetic functions
-- `RDF.Datatype.cast/1` for casting between `RDF.Literal`s  as specified in the 
-  XSD spec 
-- the logical operators and the Effective Boolean Value (EBV) coercion algorithm 
-  from the XPath and SPARQL specs on `RDF.Boolean`
-- various functions on the `RDF.DateTime` and `RDF.Time` datatypes
-- `RDF.term?/1` 
-- `RDF.Term.coerce/1` which converts native Elixir values to a proper RDF term
-- `RDF.Term.equal?/2` and `RDF.Term.equal_value?/2`
-- `RDF.LangString.match_language?/2`
-- possibility to configure an application-specific default base IRI; for now it 
+- Possibility to execute simple SPARQL queries against `RDF.Graph`s with 
+  [SPARQL 0.2](https://github.com/marcelotto/sparql-ex/blob/master/CHANGELOG.md)
+- New `RDF.Term` protocol implemented for all structs representing RDF nodes and  
+  all native Elixir datatypes which are coercible to those modules. For now, it  
+  mainly offers, besides the coercion, just the function `RDF.Term.equal?/2` and 
+  `RDF.Term.equal_value?/2` for term- and value comparisons.
+- New `RDF.Decimal` datatype for `xsd:decimal` literals and support for decimal 
+	literals in Turtle encoder
+- `RDF.Numeric` module with a list of all numeric datatypes and shared functions
+	for all numeric literals, eg. arithmetic functions
+- Various new `RDF.Datatype` function 
+	- `RDF.Datatype.cast/1` for casting between `RDF.Literal`s  as specified in the 
+		XSD spec on all `RDF.Datatype`s 
+	- logical operators and the Effective Boolean Value (EBV) coercion algorithm 
+		from the XPath and SPARQL specs on `RDF.Boolean`
+	- various functions on the `RDF.DateTime` and `RDF.Time` datatypes
+	- `RDF.LangString.match_language?/2`
+- Many new convenience functions on the top-level `RDF` module 
+	- constructors for all of the supported `RDF.Datatype`s
+	- constant functions `RDF.true` and `RDF.false` for the two boolean `RDF.Literal` values
+- `RDF.Literal.Guards` which allow pattern matching of common literal datatypes
+- `RDF.BlankNode.Generator`
+- Possibility to configure an application-specific default base IRI; for now it 
   is used only on reading of RDF serializations (when no `base` specified)
-- `RDF.Literal.Guards` which allow pattern matching of common literal datatypes 
 
 
 ### Changed
 
 - Elixir versions < 1.6 are no longer supported
-- `RDF.resource?/1` does not fail anymore when called with unresolvable atoms 
-  but returns `false` instead
 - `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
   given a language tag
-- `RDF.IRI.absolute/2` returns `nil` if the given base is not absolute, instead 
-  of failing with a `FunctionClauseError`
 - Some of the defined structs now enforce keys on compile-time (via Elixirs 
-  `@enforce_keys` feature) when not setting the corresponding fields would lead  
+  `@enforce_keys` feature) when not setting the corresponding fields would lead 
   to invalid structs, namely the following fields: 
   - `RDF.IRI.value`
   - `RDF.BlankNode.id`
@@ -48,9 +49,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   - `RDF.List.head`
 
 
-
 ### Fixed
 
+- `RDF.resource?/1` does not fail anymore when called with unresolvable atoms 
+  but returns `false` instead
+- `RDF.IRI.absolute/2` does not fail with a `FunctionClauseError` when the given 
+  base is not absolute, but returns `nil` instead 
 - `RDF.DateTime` and `RDF.Time` store microseconds
 - `RDF.DateTime`: '24:00:00' is a valid time in a xsd:dateTime; the dateTime 
   value so represented is the first instant of the following day
