@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## 0.5.1 - 2018-09-17
+
+### Fixed
+
+- generated Erlang output files of Leex and Yecc are excluded from Hex package
+
+[Compare v0.5.0...v0.5.1](https://github.com/marcelotto/rdf-ex/compare/v0.5.0...v0.5.1)
+
+
+
 ## 0.5.0 - 2018-09-17
 
 ### Added
