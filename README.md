@@ -11,13 +11,13 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
 - fully compatible with the RDF 1.1 specification
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
+- ability to execute SPARQL queries against the in-memory data structures via the [SPARQL.ex] package or against any SPARQL endpoint via the [SPARQL.Client] package
 - support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
 - XML schema datatypes for RDF literals (not yet all supported)
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
     - [JSON-LD] is implemented in the separate [JSON-LD.ex] package
-- a SPARQL client is implemented in the separate [SPARQL.Client] package
 
 
 ## Installation
@@ -26,7 +26,7 @@ The [RDF.ex] Hex package can be installed as usual, by adding `rdf` to your list
 
 ```elixir
 def deps do
-  [{:rdf, "~> 0.4"}]
+  [{:rdf, "~> 0.5"}]
 end
 ```
 
@@ -766,6 +766,7 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 [RDF.ex]:               https://hex.pm/packages/rdf
 [rdf_vocab]:            https://hex.pm/packages/rdf_vocab
 [JSON-LD.ex]:           https://hex.pm/packages/json_ld
+[SPARQL.ex]:        https://hex.pm/packages/sparql
 [SPARQL.Client]:        https://hex.pm/packages/sparql_client
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
