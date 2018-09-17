@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.5.0 - 2018-09-17
 
 ### Added
 
@@ -62,7 +62,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   literals
 
 
-[Compare v0.4.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...HEAD)
+[Compare v0.4.1...v0.5.0](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...v0.5.0)
 
 
 
