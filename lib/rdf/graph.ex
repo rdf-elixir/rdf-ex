@@ -319,6 +319,7 @@ defmodule RDF.Graph do
       iex> RDF.Graph.fetch(RDF.Graph.new, EX.foo)
       :error
   """
+  @impl Access
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
     Access.fetch(descriptions, coerce_subject(subject))
   end
@@ -380,6 +381,7 @@ defmodule RDF.Graph do
       ...>   end)
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
   """
+  @impl Access
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
     with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
@@ -426,6 +428,7 @@ defmodule RDF.Graph do
       iex> RDF.Graph.pop(RDF.Graph.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
   """
+  @impl Access
   def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
     case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->

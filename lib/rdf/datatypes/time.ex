@@ -11,6 +11,9 @@ defmodule RDF.Time do
   @tz_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
 
+  @impl RDF.Datatype
+  def convert(value, opts)
+
   def convert(%Time{} = value, %{tz: tz} = opts) do
     {convert(value, Map.delete(opts, :tz)), tz}
   end
@@ -62,6 +65,9 @@ defmodule RDF.Time do
   end
 
 
+  @impl RDF.Datatype
+  def canonical_lexical(value)
+
   def canonical_lexical(%Time{} = value) do
     Time.to_iso8601(value)
   end
@@ -70,36 +76,9 @@ defmodule RDF.Time do
     canonical_lexical(value) <> "Z"
   end
 
-  def tz(time_literal) do
-    if valid?(time_literal) do
-      time_literal
-      |> lexical()
-      |> RDF.DateTimeUtils.tz()
-    end
-  end
 
-
-  @doc """
-  Converts a time literal to a canonical string, preserving the zone information.
-  """
-  def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
-      when is_xsd_time(datatype) do
-    case tz(literal) do
-      nil ->
-        nil
-
-      zone when zone in ["Z", "", "+00:00"] ->
-        canonical_lexical(literal.value)
-
-      zone ->
-        literal
-        |> lexical()
-        |> String.replace_trailing(zone, "")
-        |> Time.from_iso8601!()
-        |> canonical_lexical()
-        |> Kernel.<>(zone)
-    end
-  end
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do
@@ -134,5 +113,40 @@ defmodule RDF.Time do
   end
 
   def cast(_), do: nil
+
+
+  @doc """
+  Extracts the timezone string from a `RDF.Time` literal.
+  """
+  def tz(time_literal) do
+    if valid?(time_literal) do
+      time_literal
+      |> lexical()
+      |> RDF.DateTimeUtils.tz()
+    end
+  end
+
+
+  @doc """
+  Converts a time literal to a canonical string, preserving the zone information.
+  """
+  def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
+      when is_xsd_time(datatype) do
+    case tz(literal) do
+      nil ->
+        nil
+
+      zone when zone in ["Z", "", "+00:00"] ->
+        canonical_lexical(literal.value)
+
+      zone ->
+        literal
+        |> lexical()
+        |> String.replace_trailing(zone, "")
+        |> Time.from_iso8601!()
+        |> canonical_lexical()
+        |> Kernel.<>(zone)
+    end
+  end
 
 end

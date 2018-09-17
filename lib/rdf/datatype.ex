@@ -125,6 +125,7 @@ defmodule RDF.Datatype do
       alias RDF.Datatype.NS.XSD
 
       @id unquote(id)
+      @impl unquote(__MODULE__)
       def id, do: @id
 
 
@@ -182,6 +183,9 @@ defmodule RDF.Datatype do
       def convert(value, _), do: nil
 
 
+      @impl unquote(__MODULE__)
+      def lexical(literal)
+
       def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil}) do
         canonical_lexical(value)
       end
@@ -191,20 +195,29 @@ defmodule RDF.Datatype do
       end
 
 
+      @impl unquote(__MODULE__)
       def canonical_lexical(value), do: to_string(value)
 
+      @impl unquote(__MODULE__)
       def invalid_lexical(value), do: to_string(value)
 
+      @impl unquote(__MODULE__)
+      def canonical(literal)
       def canonical(%Literal{value:               nil} = literal), do: literal
       def canonical(%Literal{uncanonical_lexical: nil} = literal), do: literal
       def canonical(%Literal{} = literal) do
         %Literal{literal | uncanonical_lexical: nil}
       end
 
+      @impl unquote(__MODULE__)
+      def valid?(literal)
       def valid?(%Literal{value: nil}),    do: false
       def valid?(%Literal{datatype: @id}), do: true
       def valid?(_), do: false
 
+
+      @impl unquote(__MODULE__)
+      def equal_value?(literal1, literal2)
 
       def equal_value?(%Literal{uncanonical_lexical: lexical1, datatype: @id, value: nil},
                        %Literal{uncanonical_lexical: lexical2, datatype: @id}) do

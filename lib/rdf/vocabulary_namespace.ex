@@ -66,6 +66,7 @@ defmodule RDF.Vocabulary.Namespace do
         def __strict__, do: @strict
 
         @terms unquote(Macro.escape(terms))
+        @impl Elixir.RDF.Namespace
         def __terms__, do: @terms |> Map.keys
 
         @ignored_terms unquote(Macro.escape(ignored_terms))
@@ -84,6 +85,7 @@ defmodule RDF.Vocabulary.Namespace do
 
         define_vocab_terms unquote(lowercased_terms), unquote(base_iri)
 
+        @impl Elixir.RDF.Namespace
         def __resolve_term__(term) do
           case @terms[term] do
             nil ->

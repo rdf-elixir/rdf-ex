@@ -8,6 +8,9 @@ defmodule RDF.Boolean do
   import RDF.Literal.Guards
 
 
+  @impl RDF.Datatype
+  def convert(value, opts)
+
   def convert(value, _) when is_boolean(value), do: value
 
   def convert(value, opts) when is_binary(value) do
@@ -26,6 +29,9 @@ defmodule RDF.Boolean do
 
   def convert(value, opts), do: super(value, opts)
 
+
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do

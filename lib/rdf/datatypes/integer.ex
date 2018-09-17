@@ -8,6 +8,9 @@ defmodule RDF.Integer do
   import RDF.Literal.Guards
 
 
+  @impl RDF.Datatype
+  def convert(value, opts)
+
   def convert(value, _) when is_integer(value), do: value
 
   def convert(value, opts) when is_binary(value) do
@@ -20,6 +23,9 @@ defmodule RDF.Integer do
 
   def convert(value, opts), do: super(value, opts)
 
+
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do
@@ -61,6 +67,7 @@ defmodule RDF.Integer do
   def cast(_), do: nil
 
 
+  @impl RDF.Datatype
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
 end

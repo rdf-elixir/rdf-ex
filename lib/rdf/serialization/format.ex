@@ -71,9 +71,13 @@ defmodule RDF.Serialization.Format do
       @decoder __MODULE__.Decoder
       @encoder __MODULE__.Encoder
 
+      @impl unquote(__MODULE__)
       def decoder, do: @decoder
+
+      @impl unquote(__MODULE__)
       def encoder, do: @encoder
 
+      @impl unquote(__MODULE__)
       def options, do: %{}
 
       defoverridable [decoder: 0, encoder: 0, options: 0]
@@ -104,18 +108,22 @@ defmodule RDF.Serialization.Format do
     quote do
       if !Module.defines?(__MODULE__, {:id, 0}) &&
           Module.get_attribute(__MODULE__, :id) do
+        @impl unquote(__MODULE__)
         def id, do: @id
       end
       if !Module.defines?(__MODULE__, {:name, 0}) &&
           Module.get_attribute(__MODULE__, :name) do
+        @impl unquote(__MODULE__)
         def name, do: @name
       end
       if !Module.defines?(__MODULE__, {:extension, 0}) &&
           Module.get_attribute(__MODULE__, :extension) do
+        @impl unquote(__MODULE__)
         def extension, do: @extension
       end
       if !Module.defines?(__MODULE__, {:media_type, 0}) &&
           Module.get_attribute(__MODULE__, :media_type) do
+        @impl unquote(__MODULE__)
         def media_type, do: @media_type
       end
     end

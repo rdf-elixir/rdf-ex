@@ -9,6 +9,9 @@ defmodule RDF.Decimal do
   alias Elixir.Decimal, as: D
 
 
+  @impl RDF.Datatype
+  def convert(value, opts)
+
   def convert(%D{coef: coef} = value, opts) when coef in ~w[qNaN sNaN inf]a,
     do: super(value, opts)
 
@@ -34,6 +37,9 @@ defmodule RDF.Decimal do
 
   def convert(value, opts), do: super(value, opts)
 
+
+  @impl RDF.Datatype
+  def canonical_lexical(value)
 
   def canonical_lexical(%D{sign: sign, coef: :qNaN}),
     do: if sign == 1, do: "NaN", else: "-NaN"
@@ -66,6 +72,8 @@ defmodule RDF.Decimal do
     do: canonical_decimal(%{decimal | coef: Kernel.div(coef, 10), exp: exp + 1})
 
 
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do
@@ -99,6 +107,7 @@ defmodule RDF.Decimal do
   def cast(_), do: nil
 
 
+  @impl RDF.Datatype
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
 end

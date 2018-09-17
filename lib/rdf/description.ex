@@ -321,6 +321,7 @@ defmodule RDF.Description do
       iex> RDF.Description.fetch(RDF.Description.new(EX.S), EX.foo)
       :error
   """
+  @impl Access
   def fetch(%RDF.Description{predications: predications}, predicate) do
     with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
@@ -391,6 +392,7 @@ defmodule RDF.Description do
       ...>   RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
       {[RDF.iri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
+  @impl Access
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
     with triple_predicate = coerce_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
@@ -435,6 +437,7 @@ defmodule RDF.Description do
       iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
+  @impl Access
   def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
     case Access.pop(predications, coerce_predicate(predicate)) do
       {nil, _} ->

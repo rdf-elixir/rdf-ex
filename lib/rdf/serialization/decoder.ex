@@ -28,6 +28,7 @@ defmodule RDF.Serialization.Decoder do
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
 
+      @impl unquote(__MODULE__)
       def decode!(content, opts \\ []) do
         case decode(content, opts) do
           {:ok,    data}   -> data

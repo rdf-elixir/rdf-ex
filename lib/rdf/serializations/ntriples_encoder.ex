@@ -6,6 +6,7 @@ defmodule RDF.NTriples.Encoder do
   alias RDF.{IRI, Literal, BlankNode}
 
 
+  @impl RDF.Serialization.Encoder
   def encode(data, _opts \\ []) do
     result =
       data

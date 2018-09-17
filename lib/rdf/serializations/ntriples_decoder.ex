@@ -3,6 +3,7 @@ defmodule RDF.NTriples.Decoder do
 
   use RDF.Serialization.Decoder
 
+  @impl RDF.Serialization.Decoder
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens) do

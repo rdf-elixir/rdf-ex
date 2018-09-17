@@ -10,6 +10,9 @@ defmodule RDF.Date do
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
 
 
+  @impl RDF.Datatype
+  def convert(value, opts)
+
   def convert(%Date{} = value, %{tz: "+00:00"} = opts) do
     {convert(value, Map.delete(opts, :tz)), "Z"}
   end
@@ -47,6 +50,9 @@ defmodule RDF.Date do
   end
 
 
+  @impl RDF.Datatype
+  def canonical_lexical(value)
+
   def canonical_lexical(%Date{} = value) do
     Date.to_iso8601(value)
   end
@@ -55,6 +61,9 @@ defmodule RDF.Date do
     canonical_lexical(value) <> zone
   end
 
+
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do

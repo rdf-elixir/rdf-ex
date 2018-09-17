@@ -26,6 +26,7 @@ defmodule RDF.Turtle.Encoder do
   @ordered_properties MapSet.new(@predicate_order)
 
 
+  @impl RDF.Serialization.Encoder
   def encode(data, opts \\ []) do
     with base         = Keyword.get(opts, :base) |> init_base(),
          prefixes     = Keyword.get(opts, :prefixes, %{}) |> init_prefixes(),

@@ -30,6 +30,7 @@ defmodule RDF.Serialization.Encoder do
 
       import RDF.Literal.Guards
 
+      @impl unquote(__MODULE__)
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
           {:ok,    data}   -> data

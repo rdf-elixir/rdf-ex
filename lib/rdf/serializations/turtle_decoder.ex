@@ -22,6 +22,7 @@ defmodule RDF.Turtle.Decoder do
     end
   end
 
+  @impl RDF.Serialization.Decoder
   def decode(content, opts \\ %{})
 
   def decode(content, opts) when is_list(opts),

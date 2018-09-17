@@ -16,11 +16,20 @@ defmodule RDF.LangString do
   end
 
 
+  @impl RDF.Datatype
   def convert(value, _), do: to_string(value)
 
 
+  @impl RDF.Datatype
+  def valid?(literal)
   def valid?(%Literal{language: nil}), do: false
   def valid?(literal), do: super(literal)
+
+
+  @impl RDF.Datatype
+  def cast(_) do
+    nil
+  end
 
 
   @doc """
@@ -51,11 +60,6 @@ defmodule RDF.LangString do
       [_, rest] -> rest == "" or String.starts_with?(rest, "-")
       _         -> false
     end
-  end
-
-
-  def cast(_) do
-    nil
   end
 
 end

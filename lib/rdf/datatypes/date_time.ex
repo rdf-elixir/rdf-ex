@@ -8,9 +8,8 @@ defmodule RDF.DateTime do
   import RDF.Literal.Guards
 
 
-  def now() do
-    new(DateTime.utc_now())
-  end
+  @impl RDF.Datatype
+  def convert(value, opts)
 
   # Special case for date and dateTime, for which 0 is not a valid year
   def convert(%DateTime{year: 0} = value, opts), do: super(value, opts)
@@ -52,6 +51,9 @@ defmodule RDF.DateTime do
   def convert(value, opts), do: super(value, opts)
 
 
+  @impl RDF.Datatype
+  def canonical_lexical(value)
+
   def canonical_lexical(%DateTime{} = value) do
     DateTime.to_iso8601(value)
   end
@@ -60,6 +62,9 @@ defmodule RDF.DateTime do
     NaiveDateTime.to_iso8601(value)
   end
 
+
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do
@@ -91,6 +96,19 @@ defmodule RDF.DateTime do
   def cast(_), do: nil
 
 
+  @doc """
+  Builds a `RDF.DateTime` literal for current moment in time.
+  """
+  def now() do
+    new(DateTime.utc_now())
+  end
+
+
+  @doc """
+  Extracts the timezone string from a `RDF.DateTime` literal.
+  """
+  def tz(literal)
+
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
 
   def tz(date_time_literal) do
@@ -100,6 +118,7 @@ defmodule RDF.DateTime do
       |> RDF.DateTimeUtils.tz()
     end
   end
+
 
   @doc """
   Converts a datetime literal to a canonical string, preserving the zone information.

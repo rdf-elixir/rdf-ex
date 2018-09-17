@@ -19,6 +19,8 @@ defmodule RDF.Double do
     end
   end
 
+  @impl RDF.Datatype
+  def convert(value, opts)
 
   def convert(value, _) when is_float(value),   do: value
 
@@ -52,6 +54,9 @@ defmodule RDF.Double do
 
   def convert(value, opts), do: super(value, opts)
 
+
+  @impl RDF.Datatype
+  def canonical_lexical(value)
 
   def canonical_lexical(:nan),                       do: "NaN"
   def canonical_lexical(:positive_infinity),         do: "INF"
@@ -94,6 +99,8 @@ defmodule RDF.Double do
   end
 
 
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.Literal{datatype: datatype} = literal) do
     cond do
@@ -131,6 +138,7 @@ defmodule RDF.Double do
   def cast(_), do: nil
 
 
+  @impl RDF.Datatype
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
 end

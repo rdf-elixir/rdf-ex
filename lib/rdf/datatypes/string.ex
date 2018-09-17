@@ -28,8 +28,12 @@ defmodule RDF.String do
   end
 
 
+  @impl RDF.Datatype
   def convert(value, _), do: to_string(value)
 
+
+  @impl RDF.Datatype
+  def cast(literal)
 
   def cast(%RDF.IRI{value: value}), do: new(value)
 

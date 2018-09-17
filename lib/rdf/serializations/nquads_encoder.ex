@@ -3,6 +3,7 @@ defmodule RDF.NQuads.Encoder do
 
   use RDF.Serialization.Encoder
 
+  @impl RDF.Serialization.Encoder
   def encode(data, _opts \\ []) do
     result =
       data

@@ -403,6 +403,7 @@ defmodule RDF.Dataset do
       iex> RDF.Dataset.fetch(dataset, EX.Foo)
       :error
   """
+  @impl Access
   def fetch(%RDF.Dataset{graphs: graphs}, graph_name) do
     Access.fetch(graphs, coerce_graph_name(graph_name))
   end
@@ -473,6 +474,7 @@ defmodule RDF.Dataset do
       ...>   end)
       {RDF.Graph.new(EX.Graph, {EX.S, EX.P, EX.O}), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
+  @impl Access
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
     with graph_context = coerce_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
@@ -522,6 +524,7 @@ defmodule RDF.Dataset do
       iex> RDF.Dataset.pop(dataset, EX.Foo)
       {nil, dataset}
   """
+  @impl Access
   def pop(%RDF.Dataset{name: name, graphs: graphs} = dataset, graph_name) do
     case Access.pop(graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
