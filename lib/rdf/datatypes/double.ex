@@ -65,11 +65,11 @@ defmodule RDF.Double do
   def canonical_lexical(value),                      do: to_string(value)
 
 
-  def decimal_form(float) when is_float(float) do
+  defp decimal_form(float) when is_float(float) do
     to_string(float)
   end
 
-  def exponential_form(float) when is_float(float) do
+  defp exponential_form(float) when is_float(float) do
     # Can't use simple %f transformation due to special requirements from
     # N3 tests in representation
     [i, f, e] =
