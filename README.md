@@ -601,6 +601,13 @@ iex> RDF.Graph.new({EX.S1, EX.p, [EX.O1, EX.O2]})
 - `RDF.Dataset.graph` returns the graph of the dataset with the given name 
 
 
+#### Querying graphs with the SPARQL query language
+
+The [SPARQL.ex] package allows you to execute SPARQL queries against RDF.ex data structures. It's still very limited at the moment. It just supports `SELECT` queries with basic graph pattern matching, filtering and projection and works on `RDF.Graph`s only. But even in this early, limited form it allows to express more powerful queries in a simpler way than with the plain `RDF.Graph` API.
+
+See the [SPARQL.ex README](https://github.com/marcelotto/sparql-ex#sparqlex) for more information and some examples.
+
+
 #### Deleting statements
 
 Statements can be deleted in two slightly different ways. One way is to use the `delete` function of the resp. data structure. It accepts all the supported ways for specifying collections of statements supported by the resp. `add` counterparts and removes the found triples.
