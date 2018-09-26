@@ -7,8 +7,6 @@ defmodule RDF.Vocabulary.Namespace do
 
   RDF.ex comes with predefined modules for some fundamental vocabularies in
   the `RDF.NS` module.
-  Furthermore, the [rdf_vocab](https://hex.pm/packages/rdf_vocab) package
-  contains predefined modules for popular vocabularies.
   """
 
   alias RDF.Utils.ResourceClassifier

@@ -71,8 +71,6 @@ But there's an even shorter notation for IRI literals.
 ### Vocabularies
 
 RDF.ex supports modules which represent RDF vocabularies as `RDF.Vocabulary.Namespace`s. It comes with predefined modules for some fundamental vocabularies defined in the `RDF.NS` module.
-Furthermore, the [rdf_vocab] package
-contains predefined `RDF.Vocabulary.Namespace`s for the most popular vocabularies.
 
 These `RDF.Vocabulary.Namespace`s (a special case of a `RDF.Namespace`) allow for something similar to QNames in XML: an atom or function qualified with a `RDF.Vocabulary.Namespace` can be resolved to an IRI. 
 
@@ -116,7 +114,7 @@ iex> iri(RDF.Property)
 
 This way of expressing IRIs has the additional benefit, that the existence of the referenced IRI is checked at compile time, i.e. whenever a term is used that is not part of the resp. vocabulary an error is raised by the Elixir compiler (unless the vocabulary namespace is non-strict; see below).
 
-For terms not adhering to the capitalization rules (lowercase properties, capitalized non-properties) or containing characters not allowed within atoms, the predefined namespaces in `RDF.NS` and `RDF.Vocab` define aliases accordingly. If unsure, have a look at the documentation or their definitions. 
+For terms not adhering to the capitalization rules (lowercase properties, capitalized non-properties) or containing characters not allowed within atoms, the predefined namespaces in `RDF.NS` define aliases accordingly. If unsure, have a look at the documentation or their definitions. 
 
 
 #### Description DSL
