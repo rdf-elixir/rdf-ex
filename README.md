@@ -328,7 +328,7 @@ iex> RDF.literal(42, datatype: XSD.double).value
 42.0
 ```
 
-For all of these supported XSD datatypes there're `RDF.Datatype`s  available that allow the creation of `RDF.Literal`s with the respective datatype. Their `new` constructor function can be called also via the alias functions on the top-level `RDF` namespace.
+For all of these supported XSD datatypes there are `RDF.Datatype`s available that allow the creation of `RDF.Literal`s with the respective datatype. Their `new` constructor function can be called also via the alias functions on the top-level `RDF` namespace.
 
 ```elixir
 iex> RDF.Double.new("0042").value
