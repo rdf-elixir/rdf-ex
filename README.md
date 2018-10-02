@@ -739,6 +739,7 @@ The `Date` and `DateTime` modules of Elixir versions < 1.7.2 don't handle negati
 ## Getting help
 
 - [Documentation](http://hexdocs.pm/rdf)
+- [A tutorial about working with RDF.ex vocabularies](https://medium.com/@tonyhammond/early-steps-in-elixir-and-rdf-5078a4ebfe0f)
 - [Google Group](https://groups.google.com/d/forum/rdfex)
 
 
