@@ -1,4 +1,5 @@
 import RDF.Sigils
+import RDF.Literal.Guards
 
 alias RDF.NS.{XSD, RDFS, OWL, SKOS}
 
