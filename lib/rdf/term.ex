@@ -63,8 +63,33 @@ defprotocol RDF.Term do
   Converts a given value into a RDF term.
 
   Returns `nil` if the given value is not convertible into any valid RDF.Term.
+
+  ## Examples
+
+      iex> RDF.Term.coerce("foo")
+      ~L"foo"
+      iex> RDF.Term.coerce(42)
+      RDF.integer(42)
+
   """
   def coerce(value)
+
+  @doc """
+  Returns the native Elixir value of a RDF term.
+
+  Returns `nil` if the given value is not a a valid RDF term or a value convertible to a RDF term.
+
+  ## Examples
+
+      iex> RDF.Term.value(~I<http://example.com/>)
+      "http://example.com/"
+      iex> RDF.Term.value(~L"foo")
+      "foo"
+      iex> RDF.integer(42) |> RDF.Term.value()
+      42
+
+  """
+  def value(term)
 
 end
 
@@ -72,6 +97,7 @@ defimpl RDF.Term, for: RDF.IRI do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.IRI.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def value(term),                do: term.value
   def term?(_),                   do: true
 end
 
@@ -79,6 +105,7 @@ defimpl RDF.Term, for: RDF.BlankNode do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.BlankNode.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def value(term),                do: to_string(term)
   def term?(_),                   do: true
 end
 
@@ -86,6 +113,7 @@ defimpl RDF.Term, for: Reference do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.BlankNode.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -93,6 +121,7 @@ defimpl RDF.Term, for: RDF.Literal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Literal.equal_value?(term1, term2)
   def coerce(term),               do: term
+  def value(term),                do: term.value  || RDF.Literal.lexical(term)
   def term?(_),                   do: true
 end
 
@@ -106,6 +135,10 @@ defimpl RDF.Term, for: Atom do
   def coerce(false), do: RDF.false
   def coerce(_),     do: nil
 
+  def value(true),  do: true
+  def value(false), do: false
+  def value(_),     do: nil
+
   def term?(_), do: false
 end
 
@@ -113,6 +146,7 @@ defimpl RDF.Term, for: BitString do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.String.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -120,6 +154,7 @@ defimpl RDF.Term, for: Integer do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Integer.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -127,6 +162,7 @@ defimpl RDF.Term, for: Float do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Double.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -134,6 +170,7 @@ defimpl RDF.Term, for: Decimal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Decimal.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -141,6 +178,7 @@ defimpl RDF.Term, for: DateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.DateTime.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -148,6 +186,7 @@ defimpl RDF.Term, for: NaiveDateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.DateTime.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -155,6 +194,7 @@ defimpl RDF.Term, for: Date do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Date.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -162,6 +202,7 @@ defimpl RDF.Term, for: Time do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.Time.new(term)
+  def value(term),                do: term
   def term?(_),                   do: false
 end
 
@@ -169,5 +210,6 @@ defimpl RDF.Term, for: Any do
   def equal?(term1, term2), do: term1 == term2
   def equal_value?(_, _),   do: nil
   def coerce(_),            do: nil
+  def value(_),             do: nil
   def term?(_),             do: false
 end

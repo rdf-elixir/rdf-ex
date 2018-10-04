@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Term.value/1` returning the native Elixir value of a RDF term
+
+[Compare v0.5.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...HEAD)
+
+
+
 ## 0.5.1 - 2018-09-17
 
 ### Fixed
