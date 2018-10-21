@@ -6,7 +6,7 @@ defmodule RDF.Triple do
   RDF values for subject, predicate and object.
   """
 
-  alias RDF.Statement
+  alias RDF.{Statement, Term}
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
@@ -45,5 +45,28 @@ defmodule RDF.Triple do
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
   def new({subject, predicate, object}), do: new(subject, predicate, object)
+
+
+  @doc """
+  Returns a tuple of native Elixir values from a `RDF.Triple` of RDF terms.
+
+  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
+
+  ## Examples
+
+      iex> RDF.Triple.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      {"http://example.com/S", "http://example.com/p", 42}
+
+  """
+  def values({subject, predicate, object}) do
+    with subject_value   when not is_nil(subject_value)   <- Term.value(subject),
+         predicate_value when not is_nil(predicate_value) <- Term.value(predicate),
+         object_value    when not is_nil(object_value)    <- Term.value(object)
+    do
+      {subject_value, predicate_value, object_value}
+    end
+  end
+
+  def values(_), do: nil
 
 end

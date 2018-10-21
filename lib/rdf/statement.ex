@@ -71,4 +71,22 @@ defmodule RDF.Statement do
   def coerce_graph_name(arg),
     do: raise RDF.Quad.InvalidGraphContextError, graph_context: arg
 
+
+  @doc """
+  Returns a tuple of native Elixir values from a `RDF.Statement` of RDF terms.
+
+  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
+
+  ## Examples
+
+      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      {"http://example.com/S", "http://example.com/p", 42}
+      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+      {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+
+  """
+  def values({_, _, _} = triple),  do: RDF.Triple.values(triple)
+  def values({_, _, _, _} = quad), do: RDF.Quad.values(quad)
+  def values(_), do: nil
+
 end

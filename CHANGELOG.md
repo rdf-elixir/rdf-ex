@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.Term.value/1` returning the native Elixir value of a RDF term
+- `RDF.Statement.values/1`, `RDF.Triple.values/1` and `RDF.Quad.values/1` 
+  returning a tuple of `RDF.Term.value/1` converted native Elixir values from a 
+  tuple of RDF terms
 
 [Compare v0.5.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...HEAD)
 
