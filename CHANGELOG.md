@@ -14,6 +14,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   returning a tuple of `RDF.Term.value/1` converted native Elixir values from a 
   tuple of RDF terms
 
+
+### Fixed
+
+- `RDF.Date.equal_value?/2` did not handle timezones correctly
+
+
 [Compare v0.5.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...HEAD)
 
 
@@ -23,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Fixed
 
 - generated Erlang output files of Leex and Yecc are excluded from Hex package
+
 
 [Compare v0.5.0...v0.5.1](https://github.com/marcelotto/rdf-ex/compare/v0.5.0...v0.5.1)
 

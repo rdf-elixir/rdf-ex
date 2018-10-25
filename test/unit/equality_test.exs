@@ -274,14 +274,24 @@ defmodule RDF.EqualityTest do
       {RDF.date("foo"), RDF.date("bar")},
     ]
     @value_equal_dates [
+      {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02+00:00")},
+      {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02+00:00")},
+      {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02-00:00")},
+      {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")},
+      {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")},
+      {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")},
     ]
     @value_unequal_dates [
     ]
     @value_equal_dates_by_coercion [
       {RDF.date("2002-04-02"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02Z"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02+00:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02-00:00"), Date.from_iso8601!("2002-04-02")},
     ]
     @value_unequal_dates_by_coercion [
       {RDF.date("2002-04-02"), Date.from_iso8601!("2002-04-03")},
+      {RDF.date("2002-04-02+01:00"), Date.from_iso8601!("2002-04-02")},
     ]
     @incomparable_dates [
       {RDF.date("2002-04-02"), RDF.string("2002-04-02")},

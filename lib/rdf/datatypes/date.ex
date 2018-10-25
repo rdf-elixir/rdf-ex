@@ -97,4 +97,23 @@ defmodule RDF.Date do
 
   def cast(_), do: nil
 
+
+  @impl RDF.Datatype
+  def equal_value?(%Literal{datatype: @id, value: value1} = left,
+                   %Literal{datatype: @id, value: value2} = right)
+      when is_nil(value1) or is_nil(value2),
+    do: left.uncanonical_lexical == right.uncanonical_lexical
+
+  def equal_value?(%Literal{datatype: @id} = left, %Literal{datatype: @id} = right),
+    do: equal_normalization(left).value == equal_normalization(right).value
+
+  def equal_value?(_, _), do: nil
+
+  defp equal_normalization(%{value: {value, "-00:00"}}),
+    do: new(value, %{tz: "Z"})
+  defp equal_normalization(%{value: value}) when not is_tuple(value),
+    do: new(value, %{tz: "Z"})
+  defp equal_normalization(literal),
+    do: literal
+
 end
