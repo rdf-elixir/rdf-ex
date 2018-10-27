@@ -363,6 +363,18 @@ defmodule RDF.GraphTest do
     assert Enum.count(graph.descriptions) == 1
   end
 
+
+  test "values/1" do
+    assert Graph.new() |> Graph.values() == %{}
+    assert Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+           |> Graph.values() ==
+             %{
+               RDF.Term.value(EX.s1) => %{RDF.Term.value(EX.p) => [RDF.Term.value(EX.o1)]},
+               RDF.Term.value(EX.s2) => %{RDF.Term.value(EX.p) => [RDF.Term.value(EX.o2)]},
+             }
+  end
+
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Graph.new EX.foo) == 0

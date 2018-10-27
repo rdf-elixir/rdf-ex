@@ -728,6 +728,34 @@ defmodule RDF.Dataset do
   end
 
 
+  @doc """
+  Returns a nested map of the native Elixir values of a `RDF.Dataset`.
+
+  ## Examples
+
+      iex> [
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), }
+      ...> ]
+      ...> |> RDF.Dataset.new()
+      ...> |> RDF.Dataset.values()
+      %{
+        "http://example.com/Graph" => %{
+          "http://example.com/S" => %{"http://example.com/p" => ["Foo"]}
+        },
+        nil => %{
+          "http://example.com/S" => %{"http://example.com/p" => [42]}
+        }
+      }
+
+  """
+  def values(%RDF.Dataset{graphs: graphs}) do
+    Map.new graphs, fn {graph_name, graph} ->
+      {RDF.Term.value(graph_name), Graph.values(graph)}
+    end
+  end
+
+
   defimpl Enumerable do
     def member?(dataset, statement), do: {:ok, RDF.Dataset.include?(dataset, statement)}
     def count(dataset),              do: {:ok, RDF.Dataset.statement_count(dataset)}

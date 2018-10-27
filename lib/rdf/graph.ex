@@ -602,6 +602,30 @@ defmodule RDF.Graph do
   end
 
 
+  @doc """
+  Returns a nested map of the native Elixir values of a `RDF.Graph`.
+
+  ## Examples
+
+      iex> [
+      ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
+      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+      ...> ]
+      ...> |> RDF.Graph.new()
+      ...> |> RDF.Graph.values()
+      %{
+        "http://example.com/S1" => %{"http://example.com/p" => ["Foo"]},
+        "http://example.com/S2" => %{"http://example.com/p" => [42]}
+      }
+
+  """
+  def values(%RDF.Graph{descriptions: descriptions}) do
+      Map.new descriptions, fn {subject, description} ->
+        {RDF.Term.value(subject), Description.values(description)}
+      end
+  end
+
+
   defimpl Enumerable do
     def member?(graph, triple),  do: {:ok, RDF.Graph.include?(graph, triple)}
     def count(graph),            do: {:ok, RDF.Graph.triple_count(graph)}

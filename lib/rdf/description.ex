@@ -572,6 +572,28 @@ defmodule RDF.Description do
     end
   end
 
+  @doc """
+  Returns a map of the native Elixir values of a `RDF.Description`.
+
+  The subject is not part of the result. It can be converted separately with
+  `RDF.Term.value/1`.
+
+  ## Examples
+
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
+      ...> |> RDF.Description.new()
+      ...> |> RDF.Description.values()
+      %{"http://example.com/p" => ["Foo"]}
+
+  """
+  def values(%RDF.Description{subject: subject, predications: predications}) do
+    Map.new predications, fn {predicate, objects} ->
+      {
+        RDF.Term.value(predicate),
+        objects |> Map.keys() |> Enum.map(&RDF.Term.value/1)
+      }
+    end
+  end
 
   defimpl Enumerable do
     def member?(desc, triple), do: {:ok, RDF.Description.include?(desc, triple)}

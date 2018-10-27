@@ -339,6 +339,12 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
+  test "values/1" do
+      assert Description.new(EX.s) |> Description.values() == %{}
+      assert Description.new({EX.s, EX.p, ~L"Foo"}) |> Description.values() ==
+               %{RDF.Term.value(EX.p) => ["Foo"]}
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Description.new EX.foo) == 0

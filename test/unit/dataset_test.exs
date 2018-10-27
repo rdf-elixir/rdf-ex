@@ -701,6 +701,21 @@ defmodule RDF.DatasetTest do
   end
 
 
+  test "values/1" do
+    assert Dataset.new() |> Dataset.values() == %{}
+    assert Dataset.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2, EX.graph}])
+           |> Dataset.values() ==
+             %{
+               nil => %{
+                 RDF.Term.value(EX.s1) => %{RDF.Term.value(EX.p) => [RDF.Term.value(EX.o1)]}
+               },
+               RDF.Term.value(EX.graph) => %{
+                 RDF.Term.value(EX.s2) => %{RDF.Term.value(EX.p) => [RDF.Term.value(EX.o2)]},
+               }
+             }
+  end
+
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Dataset.new EX.foo) == 0
