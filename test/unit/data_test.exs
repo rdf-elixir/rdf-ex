@@ -141,6 +141,18 @@ defmodule RDF.DataTest do
     test "statement_count", %{description: description} do
       assert RDF.Data.statement_count(description) == 5
     end
+
+    test "values", %{description: description} do
+      assert RDF.Data.values(description) ==
+               %{
+                 RDF.Term.value(EX.p1) => [
+                   RDF.Term.value(RDF.iri(EX.O1)),
+                   RDF.Term.value(RDF.iri(EX.O2))
+                 ],
+                 RDF.Term.value(EX.p2) => [RDF.Term.value(RDF.iri(EX.O3))],
+                 RDF.Term.value(EX.p3) => ["_:foo", "bar"],
+               }
+    end
   end
 
 
@@ -272,6 +284,26 @@ defmodule RDF.DataTest do
     test "statement_count", %{graph: graph} do
       assert RDF.Data.statement_count(graph) == 7
     end
+
+    test "values", %{graph: graph} do
+      assert RDF.Data.values(graph) ==
+               %{
+                 RDF.Term.value(RDF.iri(EX.S)) => %{
+                   RDF.Term.value(EX.p1) => [
+                     RDF.Term.value(RDF.iri(EX.O1)),
+                     RDF.Term.value(RDF.iri(EX.O2))
+                   ],
+                   RDF.Term.value(EX.p2) => [RDF.Term.value(RDF.iri(EX.O3))],
+                   RDF.Term.value(EX.p3) => ["_:foo", "bar"],
+                 },
+                 RDF.Term.value(RDF.iri(EX.S2)) => %{
+                   RDF.Term.value(EX.p2) => [
+                     RDF.Term.value(RDF.iri(EX.O3)),
+                     RDF.Term.value(RDF.iri(EX.O4))
+                   ],
+                 },
+               }
+    end
   end
 
 
@@ -389,6 +421,43 @@ defmodule RDF.DataTest do
 
     test "statement_count", %{dataset: dataset} do
       assert RDF.Data.statement_count(dataset) == 14
+    end
+
+    test "values", %{dataset: dataset} do
+      assert RDF.Data.values(dataset) ==
+               %{
+                 nil => %{
+                   RDF.Term.value(RDF.iri(EX.S)) => %{
+                     RDF.Term.value(EX.p1) => [
+                       RDF.Term.value(RDF.iri(EX.O1)),
+                       RDF.Term.value(RDF.iri(EX.O2))
+                     ],
+                     RDF.Term.value(EX.p2) => [RDF.Term.value(RDF.iri(EX.O3))],
+                     RDF.Term.value(EX.p3) => ["_:foo", "bar"],
+                   },
+                   RDF.Term.value(RDF.iri(EX.S2)) => %{
+                     RDF.Term.value(EX.p2) => [
+                       RDF.Term.value(RDF.iri(EX.O3)),
+                       RDF.Term.value(RDF.iri(EX.O4))
+                     ],
+                   },
+                 },
+                 RDF.Term.value(RDF.iri(EX.NamedGraph)) => %{
+                   RDF.Term.value(RDF.iri(EX.S)) => %{
+                     RDF.Term.value(EX.p1) => [
+                       RDF.Term.value(RDF.iri(EX.O1)),
+                       RDF.Term.value(RDF.iri(EX.O2))
+                     ],
+                     RDF.Term.value(EX.p2) => [RDF.Term.value(RDF.iri(EX.O3))],
+                     RDF.Term.value(EX.p3) => ["_:foo", RDF.Term.value(RDF.iri(EX.O5)), "bar"],
+                   },
+                   RDF.Term.value(RDF.iri(EX.S3)) => %{
+                     RDF.Term.value(EX.p3) => [
+                       RDF.Term.value(RDF.iri(EX.O5))
+                     ],
+                   },
+                 }
+               }
     end
   end
 

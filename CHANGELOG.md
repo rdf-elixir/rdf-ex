@@ -13,9 +13,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Statement.values/1`, `RDF.Triple.values/1` and `RDF.Quad.values/1` 
   returning a tuple of `RDF.Term.value/1` converted native Elixir values from a 
   tuple of RDF terms
-- `RDF.Description.values/1`, `RDF.Graph.values/1` and `RDF.Dataset.values/1` 
-  returning a map of `RDF.Term.value/1` converted native Elixir values from the
-  respective structure of RDF terms
+- `RDF.Description.values/1`, `RDF.Graph.values/1`, `RDF.Dataset.values/1` and
+	`RDF.Data.values/1` returning a map of `RDF.Term.value/1` converted native 
+	Elixir values from the respective structure of RDF terms
 
 
 ### Fixed
