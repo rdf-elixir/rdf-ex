@@ -78,6 +78,20 @@ defmodule RDF.Datatype do
   """
   @callback equal_value?(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: boolean | nil
 
+  @doc """
+  Compares two `RDF.Literal`s.
+
+  Returns `:gt` if first literal is greater than the second in terms of their datatype
+  and `:lt` for vice versa. If the two literals are equal `:eq` is returned.
+
+  Returns `nil` when the given arguments are not comparable datatypes or if one
+  them is invalid.
+
+  The default implementation of the `_using__` macro compares the values of the
+  `canonical/1` forms of the given literals of this datatype.
+  """
+  @callback compare(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: :lt | :gt | :eq  | nil
+
 
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
@@ -237,6 +251,29 @@ defmodule RDF.Datatype do
       def equal_value?(_, _), do: nil
 
 
+      def less_than?(literal1, literal2),    do: RDF.Literal.less_than?(literal1, literal2)
+
+      def greater_than?(literal1, literal2), do: RDF.Literal.greater_than?(literal1, literal2)
+
+
+      @impl unquote(__MODULE__)
+      def compare(left, right)
+
+      def compare(%Literal{datatype: @id, value: value1} = literal1,
+                  %Literal{datatype: @id, value: value2} = literal2)
+          when not (is_nil(value1) or is_nil(value2))
+      do
+        case {canonical(literal1).value, canonical(literal2).value} do
+          {value1, value2} when value1 < value2 -> :lt
+          {value1, value2} when value1 > value2 -> :gt
+          _ ->
+            if equal_value?(literal1, literal2), do: :eq
+        end
+      end
+
+      def compare(_, _), do: nil
+
+
       def validate_cast(%Literal{} = literal) do
         if valid?(literal), do: literal
       end
@@ -254,6 +291,7 @@ defmodule RDF.Datatype do
         convert: 2,
         valid?: 1,
         equal_value?: 2,
+        compare: 2,
         new: 2,
         new!: 2,
       ]

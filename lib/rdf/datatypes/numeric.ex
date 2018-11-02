@@ -92,6 +92,56 @@ defmodule RDF.Numeric do
   defp equal_decimal_value?(_, _), do: nil
 
 
+  @doc """
+  Compares two numeric `RDF.Literal`s.
+
+  Returns `:gt` if first literal is greater than the second and `:lt` for vice
+  versa. If the two literals are equal `:eq` is returned.
+
+  Returns `nil` when the given arguments are not comparable datatypes.
+
+  """
+  def compare(left, right)
+
+  def compare(%Literal{datatype: left_datatype, value: left},
+              %Literal{datatype: right_datatype, value: right})
+      when is_xsd_decimal(left_datatype)
+  do
+    if type?(right_datatype) do
+      compare_decimal_value(left, right)
+    end
+  end
+
+  def compare(%Literal{datatype: left_datatype, value: left},
+              %Literal{datatype: right_datatype, value: right})
+      when is_xsd_decimal(right_datatype)
+  do
+    if type?(left_datatype) do
+      compare_decimal_value(left, right)
+    end
+  end
+
+  def compare(%Literal{datatype: left_datatype, value: left},
+              %Literal{datatype: right_datatype, value: right})
+      when not (is_nil(left) or is_nil(right))
+  do
+    if type?(left_datatype) and type?(right_datatype) do
+      cond do
+        left < right -> :lt
+        left > right -> :gt
+        true         -> :eq
+      end
+    end
+  end
+
+  def compare(_, _), do: nil
+
+  defp compare_decimal_value(%D{} = left, %D{} = right), do: D.cmp(left, right)
+  defp compare_decimal_value(%D{} = left, right), do: compare_decimal_value(left, D.new(right))
+  defp compare_decimal_value(left, %D{} = right), do: compare_decimal_value(D.new(left), right)
+  defp compare_decimal_value(_, _), do: nil
+
+
   def zero?(%Literal{value: value}), do: zero_value?(value)
 
   defp zero_value?(zero) when zero == 0, do: true

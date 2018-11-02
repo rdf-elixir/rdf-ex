@@ -141,4 +141,7 @@ defmodule RDF.Double do
   @impl RDF.Datatype
   def equal_value?(left, right), do: RDF.Numeric.equal_value?(left, right)
 
+  @impl RDF.Datatype
+  def compare(left, right), do: RDF.Numeric.compare(left, right)
+
 end

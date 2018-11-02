@@ -62,4 +62,20 @@ defmodule RDF.LangString do
     end
   end
 
+  @impl RDF.Datatype
+  def compare(left, right)
+
+  def compare(%Literal{datatype: @id, value: value1, language: language_tag} = literal1,
+              %Literal{datatype: @id, value: value2, language: language_tag} = literal2)
+      when not (is_nil(value1) or is_nil(value2))
+  do
+    case {canonical(literal1).value, canonical(literal2).value} do
+      {value1, value2} when value1 < value2 -> :lt
+      {value1, value2} when value1 > value2 -> :gt
+      _ ->
+        if equal_value?(literal1, literal2), do: :eq
+    end
+  end
+
+  def compare(_, _), do: nil
 end

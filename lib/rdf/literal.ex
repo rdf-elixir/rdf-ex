@@ -220,7 +220,7 @@ defmodule RDF.Literal do
 
 
   @doc """
-  Checks if two `RDF.Literal`s of this datatype are equal.
+  Checks if two `RDF.Literal`s are equal.
 
   Non-RDF terms are tried to be coerced via `RDF.Term.coerce/1` before comparison.
 
@@ -257,6 +257,65 @@ defmodule RDF.Literal do
   end
 
   def equal_value?(_, _), do: nil
+
+
+  @doc """
+  Checks if the first of two `RDF.Literal`s is smaller then the other.
+
+  Returns `nil` when the given arguments are not comparable datatypes.
+
+  """
+  def less_than?(literal1, literal2) do
+    case compare(literal1, literal2) do
+      :lt -> true
+      nil -> nil
+      _   -> false
+    end
+  end
+
+  @doc """
+  Checks if the first of two `RDF.Literal`s is greater then the other.
+
+  Returns `nil` when the given arguments are not comparable datatypes.
+
+  """
+  def greater_than?(literal1, literal2) do
+    case compare(literal1, literal2) do
+      :gt -> true
+      nil -> nil
+      _   -> false
+    end
+  end
+
+
+  @doc """
+  Compares two `RDF.Literal`s.
+
+  Returns `:gt` if first literal is greater than the second in terms of their datatype
+  and `:lt` for vice versa. If the two literals are equal `:eq` is returned.
+
+  Returns `nil` when the given arguments are not comparable datatypes.
+
+  """
+  def compare(left, right)
+
+  def compare(%RDF.Literal{datatype: id1} = literal1, %RDF.Literal{datatype: id2} = literal2) do
+    case RDF.Datatype.get(id1) do
+      nil ->
+        if id1 == id2 do
+          cond do
+            literal1.value == literal2.value -> :eq
+            literal1.value < literal2.value  -> :lt
+            true                             -> :gt
+          end
+        end
+
+      datatype ->
+        datatype.compare(literal1, literal2)
+    end
+  end
+
+  def compare(_, _), do: nil
 
 end
 
