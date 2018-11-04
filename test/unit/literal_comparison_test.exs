@@ -132,6 +132,37 @@ defmodule RDF.LiteralComparisonTest do
     end
   end
 
+# It seems quite strange that open-world test date-2 from the SPARQL 1.0 test suite
+#  allows for equality comparisons between dates and datetimes, but disallows
+#  ordering comparisons in the date-3 test.
+#
+#  describe "comparisons RDF.DateTime between RDF.Date and RDF.DateTime" do
+#    test "when unequal" do
+#      # without timezone
+#      assert_order {RDF.date_time("2000-01-14T00:00:00"),  RDF.date("2000-02-15")}
+#      assert_order {RDF.date("2000-01-15"), RDF.date_time("2000-01-15T00:00:01")}
+#      # with timezone
+#      assert_order {RDF.date_time("2000-01-14T00:00:00"),  RDF.date("2000-02-15")}
+#      assert_order {RDF.date_time("2000-01-14T00:00:00"),  RDF.date("2000-02-15Z")}
+#      assert_order {RDF.date_time("2000-01-14T00:00:00"),  RDF.date("2000-02-15+01:00")}
+#      assert_order {RDF.date_time("2000-01-14T00:00:00Z"),  RDF.date("2000-02-15")}
+#      assert_order {RDF.date_time("2000-01-14T00:00:00Z"),  RDF.date("2000-02-15Z")}
+#      assert_order {RDF.date_time("2000-01-14T00:00:00Z"),  RDF.date("2000-02-15+01:00")}
+#    end
+#
+#    test "when equal" do
+#      assert_equal {RDF.date_time("2000-01-15T00:00:00"),  RDF.date("2000-01-15")}
+#      assert_equal {RDF.date_time("2000-01-15T00:00:00Z"), RDF.date("2000-01-15Z")}
+#      assert_equal {RDF.date_time("2000-01-15T00:00:00Z"), RDF.date("2000-01-15+00:00")}
+#      assert_equal {RDF.date_time("2000-01-15T00:00:00Z"), RDF.date("2000-01-15-00:00")}
+#    end
+#
+#    test "when indeterminate" do
+#      assert_indeterminate {RDF.date_time("2000-01-15T00:00:00"),  RDF.date("2000-01-15Z")}
+#      assert_indeterminate {RDF.date_time("2000-01-15T00:00:00Z"), RDF.date("2000-01-15")}
+#    end
+#  end
+
   describe "RDF.Time comparisons" do
     test "when unequal" do
       assert_order {RDF.time("12:00:00+01:00"), RDF.time("13:00:00+01:00")}

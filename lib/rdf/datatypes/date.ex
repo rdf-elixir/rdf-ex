@@ -8,6 +8,7 @@ defmodule RDF.Date do
   import RDF.Literal.Guards
 
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
+  @xsd_datetime RDF.Datatype.NS.XSD.dateTime
 
 
   @impl RDF.Datatype
@@ -118,6 +119,9 @@ defmodule RDF.Date do
     )
   end
 
+  def equal_value?(%Literal{datatype: @id}, %Literal{datatype: @xsd_datetime}), do: false
+  def equal_value?(%Literal{datatype: @xsd_datetime}, %Literal{datatype: @id}), do: false
+
   def equal_value?(_, _), do: nil
 
 
@@ -135,6 +139,27 @@ defmodule RDF.Date do
       comparison_normalization(value2)
     )
   end
+
+# It seems quite strange that open-world test date-2 from the SPARQL 1.0 test suite
+#  allows for equality comparisons between dates and datetimes, but disallows
+#  ordering comparisons in the date-3 test. The following implementation would allow
+#  an ordering comparisons between date and datetimes.
+#
+#  def compare(%Literal{datatype: @id, value: date_value},
+#              %Literal{datatype: @xsd_datetime} = datetime_literal) do
+#    RDF.DateTime.compare(
+#      comparison_normalization(date_value),
+#      datetime_literal
+#    )
+#  end
+#
+#  def compare(%Literal{datatype: @xsd_datetime} = datetime_literal,
+#              %Literal{datatype: @id, value: date_value}) do
+#    RDF.DateTime.compare(
+#      datetime_literal,
+#      comparison_normalization(date_value)
+#    )
+#  end
 
   def compare(_, _), do: nil
 

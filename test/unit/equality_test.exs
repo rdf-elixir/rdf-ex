@@ -328,6 +328,48 @@ defmodule RDF.EqualityTest do
     test "incomparability",          do: assert_incomparable  @incomparable_dates
   end
 
+  describe "equality between RDF.Date and RDF.DateTime" do
+# It seems quite strange that open-world test date-2 from the SPARQL 1.0 test suite
+#  allows for equality comparisons between dates and datetimes, but disallows
+#  ordering comparisons in the date-3 test.
+#
+#    @value_equal_dates_and_datetimes [
+#      {RDF.date("2002-04-02"),       RDF.datetime("2002-04-02T00:00:00")},
+#      {RDF.datetime("2002-04-02T00:00:00"), RDF.date("2002-04-02")},
+#      {RDF.date("2002-04-02Z"),       RDF.datetime("2002-04-02T00:00:00Z")},
+#      {RDF.datetime("2002-04-02T00:00:00Z"), RDF.date("2002-04-02Z")},
+#      {RDF.date("2002-04-02Z"),       RDF.datetime("2002-04-02T00:00:00+00:00")},
+#      {RDF.datetime("2002-04-02T00:00:00-00:00"), RDF.date("2002-04-02Z")},
+#    ]
+#    @value_unequal_dates_and_datetimes [
+#      {RDF.date("2002-04-01"),       RDF.datetime("2002-04-02T00:00:00")},
+#      {RDF.datetime("2002-04-01T00:00:00"), RDF.date("2002-04-02")},
+#      {RDF.date("2002-04-01Z"),       RDF.datetime("2002-04-02T00:00:00Z")},
+#      {RDF.datetime("2002-04-01T00:00:00Z"), RDF.date("2002-04-02Z")},
+#      {RDF.date("2002-04-01Z"),       RDF.datetime("2002-04-02T00:00:00+00:00")},
+#      {RDF.datetime("2002-04-01T00:00:00-00:00"), RDF.date("2002-04-02Z")},
+#    ]
+#    @incomparable_dates_and_datetimes [
+#      {RDF.date("2002-04-02Z"),       RDF.datetime("2002-04-02T00:00:00")},
+#      {RDF.datetime("2002-04-02T00:00:00Z"), RDF.date("2002-04-02")},
+#      {RDF.date("2002-04-02"),       RDF.datetime("2002-04-02T00:00:00Z")},
+#      {RDF.datetime("2002-04-02T00:00:00"), RDF.date("2002-04-02Z")},
+#    ]
+#
+#    test "value equality",   do: assert_value_equal  @value_equal_dates_and_datetimes
+#    test "value inequality", do: assert_value_unequal @value_unequal_dates_and_datetimes
+#    test "incomparability",  do: assert_incomparable @incomparable_dates_and_datetimes
+
+    @value_unequal_dates_and_datetimes [
+      {RDF.date("2002-04-02"),       RDF.datetime("2002-04-02T00:00:00")},
+      {RDF.datetime("2002-04-02T00:00:00"), RDF.date("2002-04-02")},
+      {RDF.date("2002-04-01"),       RDF.datetime("2002-04-02T00:00:00")},
+      {RDF.datetime("2002-04-01T00:00:00"), RDF.date("2002-04-02")},
+    ]
+
+    test "value inequality", do: assert_value_unequal @value_unequal_dates_and_datetimes
+  end
+
   describe "RDF.Time" do
     @term_equal_times [
       {RDF.time("12:00:00+01:00"), RDF.time("12:00:00+01:00")},

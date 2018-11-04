@@ -7,6 +7,8 @@ defmodule RDF.DateTime do
 
   import RDF.Literal.Guards
 
+  @xsd_date RDF.Datatype.NS.XSD.date
+
 
   @impl RDF.Datatype
   def convert(value, opts)
@@ -176,6 +178,9 @@ defmodule RDF.DateTime do
     end
   end
 
+  def equal_value?(%Literal{datatype: @id}, %Literal{datatype: @xsd_date}), do: false
+  def equal_value?(%Literal{datatype: @xsd_date}, %Literal{datatype: @id}), do: false
+
   def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
     unless RDF.Term.term?(right) do
       equal_value?(left, RDF.Term.coerce(right))
@@ -192,6 +197,21 @@ defmodule RDF.DateTime do
               %Literal{datatype: @id, value: %type{} = value2}) do
     type.compare(value1, value2)
   end
+
+# It seems quite strange that open-world test date-2 from the SPARQL 1.0 test suite
+#  allows for equality comparisons between dates and datetimes, but disallows
+#  ordering comparisons in the date-3 test. The following implementation would allow
+#  an ordering comparisons between date and datetimes.
+#
+#  def compare(%Literal{datatype: @id} = literal1,
+#              %Literal{datatype: @xsd_date} = literal2) do
+#    RDF.Date.compare(literal1, literal2)
+#  end
+#
+#  def compare(%Literal{datatype: @xsd_date} = literal1,
+#              %Literal{datatype: @id} = literal2) do
+#    RDF.Date.compare(literal1, literal2)
+#  end
 
   def compare(%Literal{datatype: @id, value: %DateTime{}} = literal1,
               %Literal{datatype: @id, value: %NaiveDateTime{} = value2}) do
