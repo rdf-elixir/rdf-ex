@@ -231,8 +231,11 @@ defmodule RDF.EqualityTest do
       {RDF.date_time("2002-04-02T12:00:00-01:00"), RDF.date_time("2002-04-02T17:00:00+04:00")},
       {RDF.date_time("2002-04-02T23:00:00-04:00"), RDF.date_time("2002-04-03T02:00:00-01:00")},
       {RDF.date_time("1999-12-31T24:00:00"),       RDF.date_time("2000-01-01T00:00:00")},
-# TODO: Assume that the dynamic context provides an implicit timezone value of -05:00
-#      {RDF.date_time("2002-04-02T12:00:00"),       RDF.date_time("2002-04-02T23:00:00+06:00")},
+
+      {RDF.date_time("2002-04-02T23:00:00Z"),      RDF.date_time("2002-04-02T23:00:00+00:00")},
+      {RDF.date_time("2002-04-02T23:00:00Z"),      RDF.date_time("2002-04-02T23:00:00-00:00")},
+      {RDF.date_time("2002-04-02T23:00:00+00:00"), RDF.date_time("2002-04-02T23:00:00-00:00")},
+
       # invalid literals
       {RDF.date_time("foo"), RDF.date_time("foo")},
     ]
@@ -244,12 +247,19 @@ defmodule RDF.EqualityTest do
     @value_equal_datetimes_by_coercion [
       {RDF.date_time("2002-04-02T12:00:00-01:00"), elem(DateTime.from_iso8601("2002-04-02T12:00:00-01:00"), 1)},
       {RDF.date_time("2002-04-02T12:00:00"), ~N"2002-04-02T12:00:00"},
+      {RDF.date_time("2002-04-02T23:00:00Z"),      elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)},
+      {RDF.date_time("2002-04-02T23:00:00+00:00"),      elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
+      {RDF.date_time("2002-04-02T23:00:00-00:00"),      elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
+      {RDF.date_time("2002-04-02T23:00:00-00:00"), elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)},
     ]
     @value_unequal_datetimes_by_coercion [
       {RDF.date_time("2002-04-02T12:00:00-01:00"), elem(DateTime.from_iso8601("2002-04-02T12:00:00+00:00"), 1)},
     ]
     @incomparable_datetimes [
-      {RDF.string("2002-04-02T12:00:00-01:00"),    RDF.date_time("2002-04-02T12:00:00-01:00")},
+      {RDF.date_time("2002-04-02T12:00:00"),    RDF.date_time("2002-04-02T12:00:00Z")},
+      {RDF.string("2002-04-02T12:00:00-01:00"), RDF.date_time("2002-04-02T12:00:00-01:00")},
+      # These are incomparable because of indeterminacy due to missing timezone
+      {RDF.date_time("2002-04-02T12:00:00"), RDF.date_time("2002-04-02T23:00:00+00:00")},
     ]
 
     test "term equality",            do: assert_term_equal    @term_equal_datetimes
@@ -277,24 +287,36 @@ defmodule RDF.EqualityTest do
       {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02+00:00")},
       {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02+00:00")},
       {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02-00:00")},
-      {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")},
-      {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")},
-      {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")},
     ]
     @value_unequal_dates [
+      {RDF.date("2002-04-03Z"),      RDF.date("2002-04-02")},
+      {RDF.date("2002-04-03"),       RDF.date("2002-04-02Z")},
+      {RDF.date("2002-04-03+00:00"), RDF.date("2002-04-02")},
+      {RDF.date("2002-04-03-00:00"), RDF.date("2002-04-02")},
+      # invalid literals
+      {RDF.date("2002.04.02"), RDF.date("2002-04-02")},
     ]
     @value_equal_dates_by_coercion [
-      {RDF.date("2002-04-02"), Date.from_iso8601!("2002-04-02")},
-      {RDF.date("2002-04-02Z"), Date.from_iso8601!("2002-04-02")},
-      {RDF.date("2002-04-02+00:00"), Date.from_iso8601!("2002-04-02")},
-      {RDF.date("2002-04-02-00:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02"),       Date.from_iso8601!("2002-04-02")},
     ]
     @value_unequal_dates_by_coercion [
-      {RDF.date("2002-04-02"), Date.from_iso8601!("2002-04-03")},
-      {RDF.date("2002-04-02+01:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02"),       Date.from_iso8601!("2002-04-03")},
+      {RDF.date("2002-04-03+01:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-03Z"),      Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-03+00:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-03-00:00"), Date.from_iso8601!("2002-04-02")},
     ]
     @incomparable_dates [
       {RDF.date("2002-04-02"), RDF.string("2002-04-02")},
+      # These are incomparable because of indeterminacy due to missing timezone
+      {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")},
+      {RDF.date("2002-04-02"),       RDF.date("2002-04-02Z")},
+      {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")},
+      {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")},
+      {RDF.date("2002-04-02+01:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02Z"),      Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02+00:00"), Date.from_iso8601!("2002-04-02")},
+      {RDF.date("2002-04-02-00:00"), Date.from_iso8601!("2002-04-02")},
     ]
 
     test "term equality",            do: assert_term_equal    @term_equal_dates

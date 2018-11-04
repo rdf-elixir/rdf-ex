@@ -83,6 +83,8 @@ defmodule RDF.Datatype do
 
   Returns `:gt` if first literal is greater than the second in terms of their datatype
   and `:lt` for vice versa. If the two literals are equal `:eq` is returned.
+  For datatypes with only partial ordering `:indeterminate` is returned when the
+  order of the given literals is not defined.
 
   Returns `nil` when the given arguments are not comparable datatypes or if one
   them is invalid.
@@ -90,7 +92,7 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro compares the values of the
   `canonical/1` forms of the given literals of this datatype.
   """
-  @callback compare(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: :lt | :gt | :eq  | nil
+  @callback compare(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: :lt | :gt | :eq  | :indeterminate | nil
 
 
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")

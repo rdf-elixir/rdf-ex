@@ -22,7 +22,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
-- `RDF.Date.equal_value?/2` did not handle timezones correctly
+- `RDF.DateTime.equal_value?/2` and `RDF.Date.equal_value?/2` did not handle 
+  timezones correctly
 - `-00:00` is a valid timezone offset on `RDF.DateTime`
 
 

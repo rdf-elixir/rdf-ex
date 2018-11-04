@@ -99,21 +99,56 @@ defmodule RDF.Date do
 
 
   @impl RDF.Datatype
-  def equal_value?(%Literal{datatype: @id, value: value1} = left,
-                   %Literal{datatype: @id, value: value2} = right)
-      when is_nil(value1) or is_nil(value2),
-    do: left.uncanonical_lexical == right.uncanonical_lexical
+  def equal_value?(literal1, literal2)
 
-  def equal_value?(%Literal{datatype: @id} = left, %Literal{datatype: @id} = right),
-    do: equal_normalization(left).value == equal_normalization(right).value
+  def equal_value?(%Literal{datatype: @id, value: nil, uncanonical_lexical: lexical1},
+                   %Literal{datatype: @id, value: nil, uncanonical_lexical: lexical2}) do
+    lexical1 == lexical2
+  end
+
+  def equal_value?(%Literal{datatype: @id, value: value1},
+                   %Literal{datatype: @id, value: value2})
+      when is_nil(value1) or is_nil(value2), do: false
+
+  def equal_value?(%Literal{datatype: @id, value: value1},
+                   %Literal{datatype: @id, value: value2}) do
+    RDF.DateTime.equal_value?(
+      comparison_normalization(value1),
+      comparison_normalization(value2)
+    )
+  end
 
   def equal_value?(_, _), do: nil
 
-  defp equal_normalization(%{value: {value, "-00:00"}}),
-    do: new(value, %{tz: "Z"})
-  defp equal_normalization(%{value: value}) when not is_tuple(value),
-    do: new(value, %{tz: "Z"})
-  defp equal_normalization(literal),
-    do: literal
+
+  @impl RDF.Datatype
+  def compare(left, right)
+
+  def compare(%Literal{datatype: @id, value: value1},
+              %Literal{datatype: @id, value: value2})
+      when is_nil(value1) or is_nil(value2), do: nil
+
+  def compare(%Literal{datatype: @id, value: value1},
+              %Literal{datatype: @id, value: value2}) do
+    RDF.DateTime.compare(
+      comparison_normalization(value1),
+      comparison_normalization(value2)
+    )
+  end
+
+  def compare(_, _), do: nil
+
+
+  defp comparison_normalization({date, tz}) do
+    (Date.to_iso8601(date) <> "T00:00:00" <> tz)
+    |> RDF.DateTime.new()
+  end
+
+  defp comparison_normalization(%Date{} = date) do
+    (Date.to_iso8601(date) <> "T00:00:00")
+    |> RDF.DateTime.new()
+  end
+
+  defp comparison_normalization(_), do: nil
 
 end

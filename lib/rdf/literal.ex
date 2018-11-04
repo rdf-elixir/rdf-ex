@@ -293,6 +293,8 @@ defmodule RDF.Literal do
 
   Returns `:gt` if first literal is greater than the second in terms of their datatype
   and `:lt` for vice versa. If the two literals are equal `:eq` is returned.
+  For datatypes with only partial ordering `:indeterminate` is returned when the
+  order of the given literals is not defined.
 
   Returns `nil` when the given arguments are not comparable datatypes.
 

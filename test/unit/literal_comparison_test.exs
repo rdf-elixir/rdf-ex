@@ -85,6 +85,11 @@ defmodule RDF.LiteralComparisonTest do
     test "when unequal" do
       assert_order {RDF.date_time("2002-04-02T12:00:00"), RDF.date_time("2002-04-02T17:00:00")}
       assert_order {RDF.date_time("2002-04-02T12:00:00+01:00"), RDF.date_time("2002-04-02T12:00:00+00:00")}
+      assert_order {RDF.date_time("2000-01-15T12:00:00"), RDF.date_time("2000-01-16T12:00:00Z")}
+    end
+
+    test "when unequal due to missing time zone" do
+      assert_order {RDF.date_time("2000-01-15T00:00:00"), RDF.date_time("2000-02-15T00:00:00")}
     end
 
     test "when equal" do
@@ -96,24 +101,34 @@ defmodule RDF.LiteralComparisonTest do
       # TODO: Assume that the dynamic context provides an implicit timezone value of -05:00
 #      assert_equal {RDF.date_time("2002-04-02T12:00:00"),       RDF.date_time("2002-04-02T23:00:00+06:00")}
     end
+
+    test "when indeterminate" do
+      assert_indeterminate {RDF.date_time("2000-01-01T12:00:00"), RDF.date_time("1999-12-31T23:00:00Z")}
+      assert_indeterminate {RDF.date_time("2000-01-16T12:00:00"), RDF.date_time("2000-01-16T12:00:00Z")}
+      assert_indeterminate {RDF.date_time("2000-01-16T00:00:00"), RDF.date_time("2000-01-16T12:00:00Z")}
+    end
   end
 
   describe "RDF.Date comparisons" do
     test "when unequal" do
       assert_order {RDF.date("2002-04-02"),       RDF.date("2002-04-03")}
       assert_order {RDF.date("2002-04-02+01:00"), RDF.date("2002-04-03+00:00")}
+      assert_order {RDF.date("2002-04-02"),       RDF.date("2002-04-03Z")}
     end
 
     test "when equal" do
       assert_equal {RDF.date("2002-04-02-01:00"), RDF.date("2002-04-02-01:00")}
       assert_equal {RDF.date("2002-04-02"),       RDF.date("2002-04-02")}
 # TODO:
-#      assert_equal {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02+00:00")}
-#      assert_equal {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02+00:00")}
-#      assert_equal {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02-00:00")}
-#      assert_equal {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")}
-#      assert_equal {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")}
-#      assert_equal {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")}
+      assert_equal {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02+00:00")}
+      assert_equal {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02+00:00")}
+      assert_equal {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02-00:00")}
+    end
+
+    test "when indeterminate" do
+      assert_indeterminate {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")}
+      assert_indeterminate {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")}
+      assert_indeterminate {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")}
     end
   end
 
@@ -126,6 +141,12 @@ defmodule RDF.LiteralComparisonTest do
     test "when equal" do
       assert_equal {RDF.time("12:00:00+01:00"), RDF.time("12:00:00+01:00")}
       assert_equal {RDF.time("12:00:00"),       RDF.time("12:00:00")}
+    end
+
+    test "when indeterminate" do
+      assert_indeterminate {RDF.date("2002-04-02Z"),      RDF.date("2002-04-02")}
+      assert_indeterminate {RDF.date("2002-04-02+00:00"), RDF.date("2002-04-02")}
+      assert_indeterminate {RDF.date("2002-04-02-00:00"), RDF.date("2002-04-02")}
     end
   end
 
@@ -141,29 +162,40 @@ defmodule RDF.LiteralComparisonTest do
     end
   end
 
-  test "incomparable" do
-    Enum.each [
-      {RDF.string("http://example.com/"), RDF.iri("http://example.com/")},
-      {RDF.string("foo"),  RDF.bnode("foo")},
-      {RDF.string("true"), RDF.true},
-      {RDF.string("42"),   RDF.integer(42)},
-      {RDF.string("3.14"), RDF.decimal(3.14)},
-      {RDF.string("2002-04-02T12:00:00"), RDF.date_time("2002-04-02T12:00:00")},
-      {RDF.string("2002-04-02"),          RDF.date("2002-04-02")},
-      {RDF.string("12:00:00"),            RDF.time("12:00:00")},
-      {RDF.false, nil},
-      {RDF.true,  RDF.integer(42)},
-      {RDF.true,  RDF.decimal(3.14)},
-      {RDF.date_time("2002-04-02T12:00:00"), RDF.true},
-      {RDF.date_time("2002-04-02T12:00:00"), RDF.integer(42)},
-      {RDF.date_time("2002-04-02T12:00:00"), RDF.decimal(3.14)},
-      {RDF.date("2002-04-02"), RDF.true},
-      {RDF.date("2002-04-02"), RDF.integer(42)},
-      {RDF.date("2002-04-02"), RDF.decimal(3.14)},
-      {RDF.time("12:00:00"), RDF.true},
-      {RDF.time("12:00:00"), RDF.integer(42)},
-      {RDF.time("12:00:00"), RDF.decimal(3.14)},
-    ], &assert_incomparable/1
+  describe "incomparable " do
+    test "when comparing incomparable types" do
+      Enum.each [
+        {RDF.string("http://example.com/"), RDF.iri("http://example.com/")},
+        {RDF.string("foo"),  RDF.bnode("foo")},
+        {RDF.string("true"), RDF.true},
+        {RDF.string("42"),   RDF.integer(42)},
+        {RDF.string("3.14"), RDF.decimal(3.14)},
+        {RDF.string("2002-04-02T12:00:00"), RDF.date_time("2002-04-02T12:00:00")},
+        {RDF.string("2002-04-02"),          RDF.date("2002-04-02")},
+        {RDF.string("12:00:00"),            RDF.time("12:00:00")},
+        {RDF.false, nil},
+        {RDF.true,  RDF.integer(42)},
+        {RDF.true,  RDF.decimal(3.14)},
+        {RDF.date_time("2002-04-02T12:00:00"), RDF.true},
+        {RDF.date_time("2002-04-02T12:00:00"), RDF.integer(42)},
+        {RDF.date_time("2002-04-02T12:00:00"), RDF.decimal(3.14)},
+        {RDF.date("2002-04-02"), RDF.true},
+        {RDF.date("2002-04-02"), RDF.integer(42)},
+        {RDF.date("2002-04-02"), RDF.decimal(3.14)},
+        {RDF.time("12:00:00"), RDF.true},
+        {RDF.time("12:00:00"), RDF.integer(42)},
+        {RDF.time("12:00:00"), RDF.decimal(3.14)},
+      ], &assert_incomparable/1
+    end
+
+    test "when comparing invalid literals" do
+      Enum.each [
+        {RDF.true,  RDF.boolean(42)},
+        {RDF.date_time("2002-04-02T12:00:00"), RDF.date_time("2002.04.02 12:00")},
+        {RDF.date("2002-04-02"), RDF.date("2002.04.02")},
+        {RDF.time("12:00:00"), RDF.time("12-00-00")},
+      ], &assert_incomparable/1
+    end
   end
 
 
@@ -198,6 +230,17 @@ defmodule RDF.LiteralComparisonTest do
 
     assert_less_than({left, right}, nil)
     assert_less_than({right, left}, nil)
+  end
+
+  defp assert_indeterminate({left, right}) do
+    assert_compare_result({left, right}, :indeterminate)
+    assert_compare_result({right, left}, :indeterminate)
+
+    assert_greater_than({left, right}, false)
+    assert_greater_than({right, left}, false)
+
+    assert_less_than({left, right}, false)
+    assert_less_than({right, left}, false)
   end
 
   defp assert_compare_result({left, right}, expected) do

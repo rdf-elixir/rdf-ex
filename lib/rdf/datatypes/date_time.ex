@@ -152,4 +152,72 @@ defmodule RDF.DateTime do
     end
   end
 
+
+  @impl RDF.Datatype
+  def equal_value?(literal1, literal2)
+
+  def equal_value?(%Literal{datatype: @id, value: %type{} = value1},
+                   %Literal{datatype: @id, value: %type{} = value2})
+    do
+    type.compare(value1, value2) == :eq
+  end
+
+  def equal_value?(%Literal{datatype: @id, value: nil, uncanonical_lexical: lexical1},
+                   %Literal{datatype: @id, value: nil, uncanonical_lexical: lexical2}) do
+    lexical1 == lexical2
+  end
+
+  def equal_value?(%Literal{datatype: @id} = literal1, %Literal{datatype: @id} = literal2) do
+    case compare(literal1, literal2) do
+      :lt -> false
+      :gt -> false
+      :eq -> true  # This actually can't/shouldn't happen.
+      _   -> nil
+    end
+  end
+
+  def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
+    unless RDF.Term.term?(right) do
+      equal_value?(left, RDF.Term.coerce(right))
+    end
+  end
+
+  def equal_value?(_, _), do: nil
+
+
+  @impl RDF.Datatype
+  def compare(left, right)
+
+  def compare(%Literal{datatype: @id, value: %type{} = value1},
+              %Literal{datatype: @id, value: %type{} = value2}) do
+    type.compare(value1, value2)
+  end
+
+  def compare(%Literal{datatype: @id, value: %DateTime{}} = literal1,
+              %Literal{datatype: @id, value: %NaiveDateTime{} = value2}) do
+    cond do
+      compare(literal1, new(to_datetime(value2, "+"))) == :lt -> :lt
+      compare(literal1, new(to_datetime(value2, "-"))) == :gt -> :gt
+      true                                                    -> :indeterminate
+    end
+  end
+
+  def compare(%Literal{datatype: @id, value: %NaiveDateTime{} = value1},
+              %Literal{datatype: @id, value: %DateTime{}} = literal2) do
+    cond do
+      compare(new(to_datetime(value1, "-")), literal2) == :lt -> :lt
+      compare(new(to_datetime(value1, "+")), literal2) == :gt -> :gt
+      true                                                    -> :indeterminate
+    end
+  end
+
+  def compare(_, _), do: nil
+
+
+  defp to_datetime(naive_datetime, offset) do
+    (NaiveDateTime.to_iso8601(naive_datetime) <> offset <> "14:00")
+    |> DateTime.from_iso8601()
+    |> elem(1)
+  end
+  
 end
