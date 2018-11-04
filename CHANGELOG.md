@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.5.2 - 2018-11-04
 
 ### Added
 
@@ -30,7 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `-00:00` is a valid timezone offset on `RDF.DateTime`
 
 
-[Compare v0.5.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...HEAD)
+[Compare v0.5.1...v0.5.2](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...v0.5.2)
 
 
 
