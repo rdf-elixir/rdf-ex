@@ -340,9 +340,22 @@ defmodule RDF.DescriptionTest do
   end
 
   test "values/1" do
-      assert Description.new(EX.s) |> Description.values() == %{}
-      assert Description.new({EX.s, EX.p, ~L"Foo"}) |> Description.values() ==
-               %{RDF.Term.value(EX.p) => ["Foo"]}
+    assert Description.new(EX.s) |> Description.values() == %{}
+    assert Description.new({EX.s, EX.p, ~L"Foo"}) |> Description.values() ==
+             %{RDF.Term.value(EX.p) => ["Foo"]}
+  end
+
+  test "values/2" do
+    mapping = fn
+      {:predicate, predicate} ->
+        predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
+      {_, term} ->
+        RDF.Term.value(term)
+    end
+
+    assert Description.new(EX.s) |> Description.values(mapping) == %{}
+    assert Description.new({EX.s, EX.p, ~L"Foo"}) |> Description.values(mapping) ==
+             %{p: ["Foo"]}
   end
 
   describe "Enumerable protocol" do

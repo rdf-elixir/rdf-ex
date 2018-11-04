@@ -715,6 +715,29 @@ defmodule RDF.DatasetTest do
              }
   end
 
+  test "values/2" do
+    mapping = fn
+      {:graph_name, graph_name} ->
+        graph_name
+      {:predicate, predicate} ->
+        predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
+      {_, term} ->
+        RDF.Term.value(term)
+    end
+
+    assert Dataset.new() |> Dataset.values(mapping) == %{}
+    assert Dataset.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2, EX.graph}])
+           |> Dataset.values(mapping) ==
+             %{
+               nil => %{
+                 RDF.Term.value(EX.s1) => %{p: [RDF.Term.value(EX.o1)]}
+               },
+               EX.graph => %{
+                 RDF.Term.value(EX.s2) => %{p: [RDF.Term.value(EX.o2)]},
+               }
+             }
+  end
+
 
   describe "Enumerable protocol" do
     test "Enum.count" do

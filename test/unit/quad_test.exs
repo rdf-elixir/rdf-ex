@@ -18,4 +18,16 @@ defmodule RDF.QuadTest do
       refute Quad.values({self(), self(), self(), self()})
     end
   end
+
+  test "values/2" do
+    assert {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), ~I<http://example.com/Graph>}
+           |> Quad.values(fn
+             {:subject, subject} -> subject |> to_string() |> String.last() |> String.to_atom()
+             {:predicate, _}     -> :p
+             {:object, object}   -> object |> RDF.Term.value() |> Kernel.+(1)
+             {:graph_name, _}    -> nil
+           end)
+           == {:S, :p, 43, nil}
+  end
+
 end

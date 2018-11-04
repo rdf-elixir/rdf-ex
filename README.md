@@ -689,6 +689,83 @@ iex> RDF.list(["foo", EX.Bar, ~B<bar>, [1, 2]]) |> RDF.List.values
   %RDF.Literal{value: 2, datatype: ~I<http://www.w3.org/2001/XMLSchema#integer>}]]
 ```
 
+### Mapping of RDF terms and structures
+
+The `RDF.Term.value/1` function converts RDF terms to Elixir values:
+
+```elixir
+iex> RDF.Term.value(~I<http://example.com/>)
+"http://example.com/"
+iex> RDF.Term.value(~L"foo")
+"foo"
+iex> RDF.integer(42) |> RDF.Term.value()
+42
+```
+
+It returns `nil` if no conversion is possible.
+
+All structures of RDF terms also support a `values` function. On `RDF.Triple.values`, `RDF.Quad` and `RDF.Statement` the tuple of RDF terms is converted to an tuple of the resp. Elixir values. On all of the other RDF data structures (`RDF.Description`, `RDF.Graph` and `RDF.Dataset`) and the general `RDF.Data` protocol the `values` functions produces a map of the converted Elixir values.
+
+```elixir
+iex> RDF.Triple.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+{"http://example.com/S", "http://example.com/p", 42}
+
+iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
+...> |> RDF.Description.new()
+...> |> RDF.Description.values()
+%{"http://example.com/p" => ["Foo"]}
+
+iex> [
+...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
+...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+...> ]
+...> |> RDF.Graph.new()
+...> |> RDF.Graph.values()
+%{
+  "http://example.com/S1" => %{"http://example.com/p" => ["Foo"]},
+  "http://example.com/S2" => %{"http://example.com/p" => [42]}
+}
+
+iex> [
+...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
+...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), }
+...> ]
+...> |> RDF.Dataset.new()
+...> |> RDF.Dataset.values()
+%{
+  "http://example.com/Graph" => %{
+    "http://example.com/S" => %{"http://example.com/p" => ["Foo"]}
+  },
+  nil => %{
+    "http://example.com/S" => %{"http://example.com/p" => [42]}
+  }
+}
+```
+
+All of these `values` functions also support an optional second argument for a function with a custom mapping of the terms depending on their statement position. The function will be called with a tuple `{statement_position, rdf_term}` where `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or `:graph_name`, while `rdf_term` is the RDF term to be mapped.
+
+```elixir
+iex> [
+...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
+...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+...> ]
+...> |> RDF.Graph.new()
+...> |> RDF.Graph.values(fn 
+...>      {:predicate, predicate} ->
+...>        predicate 
+...>        |> to_string() 
+...>        |> String.split("/") 
+...>        |> List.last() 
+...>        |> String.to_atom()
+...>    {_, term} ->
+...>      RDF.Term.value(term)
+...>    end)
+%{
+  "http://example.com/S1" => %{p: ["Foo"]},
+  "http://example.com/S2" => %{p: [42]}
+}
+```
+
 
 ### Serializations
 
@@ -739,7 +816,7 @@ The `Date` and `DateTime` modules of Elixir versions < 1.7.2 don't handle negati
 ## Getting help
 
 - [Documentation](http://hexdocs.pm/rdf)
-- [A tutorial about working with RDF.ex vocabularies](https://medium.com/@tonyhammond/early-steps-in-elixir-and-rdf-5078a4ebfe0f)
+- [A tutorial about working with RDF.ex vocabularies by Tony Hammond](https://medium.com/@tonyhammond/early-steps-in-elixir-and-rdf-5078a4ebfe0f)
 - [Google Group](https://groups.google.com/d/forum/rdfex)
 
 
@@ -772,7 +849,7 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 [RDF.ex]:               https://hex.pm/packages/rdf
 [rdf_vocab]:            https://hex.pm/packages/rdf_vocab
 [JSON-LD.ex]:           https://hex.pm/packages/json_ld
-[SPARQL.ex]:        https://hex.pm/packages/sparql
+[SPARQL.ex]:            https://hex.pm/packages/sparql
 [SPARQL.Client]:        https://hex.pm/packages/sparql_client
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/

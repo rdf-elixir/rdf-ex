@@ -97,6 +97,10 @@ defprotocol RDF.Data do
   """
   def values(data)
 
+  @doc """
+  Returns a nested map of the native Elixir values of a RDF data structure with values mapped with the given function.
+  """
+  def values(data, mapping)
 end
 
 defimpl RDF.Data, for: RDF.Description do
@@ -164,6 +168,7 @@ defimpl RDF.Data, for: RDF.Description do
   def subject_count(_),             do: 1
   def statement_count(description), do: RDF.Description.count(description)
   def values(description),          do: RDF.Description.values(description)
+  def values(description, mapping), do: RDF.Description.values(description, mapping)
 end
 
 
@@ -225,6 +230,7 @@ defimpl RDF.Data, for: RDF.Graph do
   def subject_count(graph),   do: RDF.Graph.subject_count(graph)
   def statement_count(graph), do: RDF.Graph.triple_count(graph)
   def values(graph),          do: RDF.Graph.values(graph)
+  def values(graph, mapping), do: RDF.Graph.values(graph, mapping)
 end
 
 
@@ -279,4 +285,5 @@ defimpl RDF.Data, for: RDF.Dataset do
   def subject_count(dataset),   do: dataset |> subjects |> Enum.count
   def statement_count(dataset), do: RDF.Dataset.statement_count(dataset)
   def values(dataset),          do: RDF.Dataset.values(dataset)
+  def values(dataset, mapping), do: RDF.Dataset.values(dataset, mapping)
 end

@@ -25,9 +25,9 @@ defmodule RDF.Statement do
 
   ## Examples
 
-      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42}
+      iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
-      iex> RDF.Statement.new {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+      iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
   def coerce(statement)
@@ -77,6 +77,13 @@ defmodule RDF.Statement do
 
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or
+  `:graph_name`, while `rdf_term` is the RDF term to be mapped. When the given
+  function returns `nil` this will be interpreted as an error and will become
+  the overhaul result of the `values/2` call.
+
   ## Examples
 
       iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
@@ -84,9 +91,28 @@ defmodule RDF.Statement do
       iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
 
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+      ...> |> RDF.Statement.values(fn
+      ...>      {:subject, subject} ->
+      ...>        subject |> to_string() |> String.last()
+      ...>      {:predicate, predicate} ->
+      ...>        predicate |> to_string() |> String.last() |> String.to_atom()
+      ...>      {:object, object} ->
+      ...>        RDF.Term.value(object)
+      ...>      {:graph_name, graph_name} ->
+      ...>        graph_name
+      ...>    end)
+      {"S", :p, 42, ~I<http://example.com/Graph>}
+
   """
-  def values({_, _, _} = triple),  do: RDF.Triple.values(triple)
-  def values({_, _, _, _} = quad), do: RDF.Quad.values(quad)
-  def values(_), do: nil
+  def values(statement, mapping \\ &default_term_mapping/1)
+  def values({_, _, _} = triple, mapping),  do: RDF.Triple.values(triple, mapping)
+  def values({_, _, _, _} = quad, mapping), do: RDF.Quad.values(quad, mapping)
+  def values(_, _), do: nil
+
+  @doc false
+  def default_term_mapping(qualified_term)
+  def default_term_mapping({:graph_name, nil}), do: nil
+  def default_term_mapping({_, term}), do: RDF.Term.value(term)
 
 end

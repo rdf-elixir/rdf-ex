@@ -54,23 +54,44 @@ defmodule RDF.Quad do
 
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or
+  `:graph_name`, while `rdf_term` is the RDF term to be mapped. When the given
+  function returns `nil` this will be interpreted as an error and will become
+  the overhaul result of the `values/2` call.
+
   ## Examples
 
       iex> RDF.Quad.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
       {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
 
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+      ...> |> RDF.Quad.values(fn
+      ...>      {:object, object} ->
+      ...>        RDF.Term.value(object)
+      ...>      {:graph_name, graph_name} ->
+      ...>        graph_name
+      ...>      {_, resource} ->
+      ...>        resource |> to_string() |> String.last() |> String.to_atom()
+      ...>    end)
+      {:S, :p, 42, ~I<http://example.com/Graph>}
+
   """
-  def values({subject, predicate, object, graph_context}) do
-    with subject_value   when not is_nil(subject_value)       <- Term.value(subject),
-         predicate_value when not is_nil(predicate_value)     <- Term.value(predicate),
-         object_value    when not is_nil(object_value)        <- Term.value(object),
-         graph_context_value when not is_nil(graph_context_value) or is_nil(graph_context) <-
-           Term.value(graph_context)
+  def values(quad, mapping \\ &Statement.default_term_mapping/1)
+
+  def values({subject, predicate, object, graph_context}, mapping) do
+    with subject_value when not is_nil(subject_value)     <- mapping.({:subject, subject}),
+         predicate_value when not is_nil(predicate_value) <- mapping.({:predicate, predicate}),
+         object_value when not is_nil(object_value)       <- mapping.({:object, object}),
+         graph_context_value                              <- mapping.({:graph_name, graph_context})
     do
       {subject_value, predicate_value, object_value, graph_context_value}
+    else
+      _ -> nil
     end
   end
 
-  def values(_), do: nil
+  def values(_, _), do: nil
 
 end

@@ -374,6 +374,23 @@ defmodule RDF.GraphTest do
              }
   end
 
+  test "values/2" do
+    mapping = fn
+      {:predicate, predicate} ->
+        predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
+      {_, term} ->
+        RDF.Term.value(term)
+    end
+
+    assert Graph.new() |> Graph.values(mapping) == %{}
+    assert Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+           |> Graph.values(mapping) ==
+             %{
+               RDF.Term.value(EX.s1) => %{p: [RDF.Term.value(EX.o1)]},
+               RDF.Term.value(EX.s2) => %{p: [RDF.Term.value(EX.o2)]},
+             }
+  end
+
 
   describe "Enumerable protocol" do
     test "Enum.count" do

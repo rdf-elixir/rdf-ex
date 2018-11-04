@@ -16,6 +16,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Description.values/1`, `RDF.Graph.values/1`, `RDF.Dataset.values/1` and
 	`RDF.Data.values/1` returning a map of `RDF.Term.value/1` converted native 
 	Elixir values from the respective structure of RDF terms
+- for all of aforementioned `values/1` functions a variant `values/2` which 
+  allows to specify custom mapping function to be applied when creating the resp.
+  structure
 - `RDF.Literal.compare/2`, `RDF.Literal.less_than?/2` and `RDF.Literal.greater_than?/2`  
   for `RDF.Datatype` aware comparisons of `RDF.Literal`s  
 

@@ -578,6 +578,11 @@ defmodule RDF.Description do
   The subject is not part of the result. It can be converted separately with
   `RDF.Term.value/1`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:predicate` or `:object`,
+  while `rdf_term` is the RDF term to be mapped.
+
   ## Examples
 
       iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
@@ -585,15 +590,32 @@ defmodule RDF.Description do
       ...> |> RDF.Description.values()
       %{"http://example.com/p" => ["Foo"]}
 
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
+      ...> |> RDF.Description.new()
+      ...> |> RDF.Description.values(fn
+      ...>      {:predicate, predicate} ->
+      ...>        predicate
+      ...>        |> to_string()
+      ...>        |> String.split("/")
+      ...>        |> List.last()
+      ...>        |> String.to_atom()
+      ...>    {_, term} ->
+      ...>      RDF.Term.value(term)
+      ...>    end)
+      %{p: ["Foo"]}
+
   """
-  def values(%RDF.Description{subject: subject, predications: predications}) do
+  def values(description, mapping \\ &RDF.Statement.default_term_mapping/1)
+
+  def values(%RDF.Description{predications: predications}, mapping) do
     Map.new predications, fn {predicate, objects} ->
       {
-        RDF.Term.value(predicate),
-        objects |> Map.keys() |> Enum.map(&RDF.Term.value/1)
+        mapping.({:predicate, predicate}),
+        objects |> Map.keys() |> Enum.map(&(mapping.({:object, &1})))
       }
     end
   end
+
 
   defimpl Enumerable do
     def member?(desc, triple), do: {:ok, RDF.Description.include?(desc, triple)}

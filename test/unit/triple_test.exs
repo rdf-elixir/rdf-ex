@@ -16,4 +16,14 @@ defmodule RDF.TripleTest do
       refute Triple.values({self(), self(), self()})
     end
   end
+
+  test "values/2" do
+    assert {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42)}
+           |> Triple.values(fn
+                {:object, object} -> object |> RDF.Term.value() |> Kernel.+(1)
+                {_, term}         -> term |> to_string() |> String.last()
+              end)
+           == {"S", "p", 43}
+  end
+
 end

@@ -423,7 +423,7 @@ defmodule RDF.DataTest do
       assert RDF.Data.statement_count(dataset) == 14
     end
 
-    test "values", %{dataset: dataset} do
+    test "values/1", %{dataset: dataset} do
       assert RDF.Data.values(dataset) ==
                %{
                  nil => %{
@@ -453,6 +453,52 @@ defmodule RDF.DataTest do
                    },
                    RDF.Term.value(RDF.iri(EX.S3)) => %{
                      RDF.Term.value(EX.p3) => [
+                       RDF.Term.value(RDF.iri(EX.O5))
+                     ],
+                   },
+                 }
+               }
+    end
+
+    test "values/2", %{dataset: dataset} do
+      mapping = fn
+        {:graph_name, graph_name} ->
+          graph_name
+        {:predicate, predicate} ->
+          predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
+        {_, term} ->
+          RDF.Term.value(term)
+      end
+
+      assert RDF.Data.values(dataset, mapping) ==
+               %{
+                 nil => %{
+                   RDF.Term.value(RDF.iri(EX.S)) => %{
+                     p1: [
+                       RDF.Term.value(RDF.iri(EX.O1)),
+                       RDF.Term.value(RDF.iri(EX.O2))
+                     ],
+                     p2: [RDF.Term.value(RDF.iri(EX.O3))],
+                     p3: ["_:foo", "bar"],
+                   },
+                   RDF.Term.value(RDF.iri(EX.S2)) => %{
+                     p2: [
+                       RDF.Term.value(RDF.iri(EX.O3)),
+                       RDF.Term.value(RDF.iri(EX.O4))
+                     ],
+                   },
+                 },
+                 RDF.iri(EX.NamedGraph) => %{
+                   RDF.Term.value(RDF.iri(EX.S)) => %{
+                     p1: [
+                       RDF.Term.value(RDF.iri(EX.O1)),
+                       RDF.Term.value(RDF.iri(EX.O2))
+                     ],
+                     p2: [RDF.Term.value(RDF.iri(EX.O3))],
+                     p3: ["_:foo", RDF.Term.value(RDF.iri(EX.O5)), "bar"],
+                   },
+                   RDF.Term.value(RDF.iri(EX.S3)) => %{
+                     p3: [
                        RDF.Term.value(RDF.iri(EX.O5))
                      ],
                    },

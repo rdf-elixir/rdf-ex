@@ -52,21 +52,39 @@ defmodule RDF.Triple do
 
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate` or `:object`,
+  while `rdf_term` is the RDF term to be mapped. When the given function returns
+  `nil` this will be interpreted as an error and will become the overhaul result
+  of the `values/2` call.
+
   ## Examples
 
       iex> RDF.Triple.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
       {"http://example.com/S", "http://example.com/p", 42}
 
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      ...> |> RDF.Triple.values(fn
+      ...>      {:object, object} -> RDF.Term.value(object)
+      ...>      {_, term}         -> term |> to_string() |> String.last()
+      ...>    end)
+      {"S", "p", 42}
+
   """
-  def values({subject, predicate, object}) do
-    with subject_value   when not is_nil(subject_value)   <- Term.value(subject),
-         predicate_value when not is_nil(predicate_value) <- Term.value(predicate),
-         object_value    when not is_nil(object_value)    <- Term.value(object)
+  def values(triple, mapping \\ &Statement.default_term_mapping/1)
+
+  def values({subject, predicate, object}, mapping) do
+    with subject_value when not is_nil(subject_value)     <- mapping.({:subject, subject}),
+         predicate_value when not is_nil(predicate_value) <- mapping.({:predicate, predicate}),
+         object_value when not is_nil(object_value)       <- mapping.({:object, object})
     do
       {subject_value, predicate_value, object_value}
+    else
+      _ -> nil
     end
   end
 
-  def values(_), do: nil
+  def values(_, _), do: nil
 
 end

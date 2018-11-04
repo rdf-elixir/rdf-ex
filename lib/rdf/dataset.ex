@@ -731,6 +731,11 @@ defmodule RDF.Dataset do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Dataset`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object`,
+   or `graph_name` while `rdf_term` is the RDF term to be mapped.
+
   ## Examples
 
       iex> [
@@ -748,10 +753,38 @@ defmodule RDF.Dataset do
         }
       }
 
+      iex> [
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), }
+      ...> ]
+      ...> |> RDF.Dataset.new()
+      ...> |> RDF.Dataset.values(fn
+      ...>      {:graph_name, graph_name} ->
+      ...>        graph_name
+      ...>      {:predicate, predicate} ->
+      ...>        predicate
+      ...>        |> to_string()
+      ...>        |> String.split("/")
+      ...>        |> List.last()
+      ...>        |> String.to_atom()
+      ...>    {_, term} ->
+      ...>      RDF.Term.value(term)
+      ...>    end)
+      %{
+        ~I<http://example.com/Graph> => %{
+          "http://example.com/S" => %{p: ["Foo"]}
+        },
+        nil => %{
+          "http://example.com/S" => %{p: [42]}
+        }
+      }
+
   """
-  def values(%RDF.Dataset{graphs: graphs}) do
+  def values(dataset, mapping \\ &RDF.Statement.default_term_mapping/1)
+
+  def values(%RDF.Dataset{graphs: graphs}, mapping) do
     Map.new graphs, fn {graph_name, graph} ->
-      {RDF.Term.value(graph_name), Graph.values(graph)}
+      {mapping.({:graph_name, graph_name}), Graph.values(graph, mapping)}
     end
   end
 

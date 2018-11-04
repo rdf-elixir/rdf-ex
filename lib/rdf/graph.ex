@@ -605,6 +605,11 @@ defmodule RDF.Graph do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Graph`.
 
+  The optional second argument allows to specify a custom mapping with a function
+  which will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate` or `:object`,
+  while `rdf_term` is the RDF term to be mapped.
+
   ## Examples
 
       iex> [
@@ -618,10 +623,32 @@ defmodule RDF.Graph do
         "http://example.com/S2" => %{"http://example.com/p" => [42]}
       }
 
+      iex> [
+      ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
+      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+      ...> ]
+      ...> |> RDF.Graph.new()
+      ...> |> RDF.Graph.values(fn
+      ...>      {:predicate, predicate} ->
+      ...>        predicate
+      ...>        |> to_string()
+      ...>        |> String.split("/")
+      ...>        |> List.last()
+      ...>        |> String.to_atom()
+      ...>    {_, term} ->
+      ...>      RDF.Term.value(term)
+      ...>    end)
+      %{
+        "http://example.com/S1" => %{p: ["Foo"]},
+        "http://example.com/S2" => %{p: [42]}
+      }
+
   """
-  def values(%RDF.Graph{descriptions: descriptions}) do
+  def values(graph, mapping \\ &RDF.Statement.default_term_mapping/1)
+
+  def values(%RDF.Graph{descriptions: descriptions}, mapping) do
       Map.new descriptions, fn {subject, description} ->
-        {RDF.Term.value(subject), Description.values(description)}
+        {mapping.({:subject, subject}), Description.values(description, mapping)}
       end
   end
 
