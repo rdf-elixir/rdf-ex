@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Fixed
 
 - `RDF.Date.equal_value?/2` did not handle timezones correctly
+- `-00:00` is a valid timezone offset on `RDF.DateTime`
 
 
 [Compare v0.5.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...HEAD)

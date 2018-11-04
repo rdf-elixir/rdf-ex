@@ -17,12 +17,14 @@ defmodule RDF.DateTimeTest do
       "2010-01-01T00:00:00.123456Z"      => { dt( "2010-01-01T00:00:00.123456Z") , nil                        , "2010-01-01T00:00:00.123456Z" },
       "2010-01-01T00:00:00"              => { dt( "2010-01-01T00:00:00")         , nil                        , "2010-01-01T00:00:00"  },
       "2010-01-01T00:00:00+00:00"        => { dt( "2010-01-01T00:00:00Z")        , "2010-01-01T00:00:00+00:00", "2010-01-01T00:00:00Z" },
+      "2010-01-01T00:00:00-00:00"        => { dt( "2010-01-01T00:00:00Z")        , "2010-01-01T00:00:00-00:00", "2010-01-01T00:00:00Z" },
       "2010-01-01T01:00:00+01:00"        => { dt( "2010-01-01T00:00:00Z")        , "2010-01-01T01:00:00+01:00", "2010-01-01T00:00:00Z" },
       "2009-12-31T23:00:00.42-01:00"     => { dt( "2010-01-01T00:00:00.42Z")     , "2009-12-31T23:00:00.42-01:00", "2010-01-01T00:00:00.42Z" },
       "2009-12-31T23:00:00-01:00"        => { dt( "2010-01-01T00:00:00Z")        , "2009-12-31T23:00:00-01:00", "2010-01-01T00:00:00Z" },
       "2009-12-31T24:00:00"              => { dt( "2010-01-01T00:00:00")         , "2009-12-31T24:00:00"      , "2010-01-01T00:00:00"  },
       "2009-12-31T24:00:00+00:00"        => { dt( "2010-01-01T00:00:00Z")        , "2009-12-31T24:00:00+00:00", "2010-01-01T00:00:00Z" },
-# TODO: DateTimes on Elixir versions < 1.7.2 don't handle negative years correctly, so we test this conditionally below
+      "2009-12-31T24:00:00-00:00"        => { dt( "2010-01-01T00:00:00Z")        , "2009-12-31T24:00:00-00:00", "2010-01-01T00:00:00Z" },
+# DateTimes on Elixir versions < 1.7.2 don't handle negative years correctly, so we test this conditionally below
 #      "-2010-01-01T00:00:00Z"            => { dt("-2010-01-01T00:00:00Z")        , nil, "-2010-01-01T00:00:00Z" },
     },
     invalid: ~w(
@@ -174,6 +176,7 @@ defmodule RDF.DateTimeTest do
     assert RDF.date_time(~N[2010-01-01T12:34:56])     |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"
     assert RDF.date_time("2010-01-01T12:34:56")       |> DateTime.canonical_lexical_with_zone() == "2010-01-01T12:34:56"
     assert RDF.date_time("2010-01-01T00:00:00+00:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T00:00:00Z"
+    assert RDF.date_time("2010-01-01T00:00:00-00:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T00:00:00Z"
     assert RDF.date_time("2010-01-01T01:00:00+01:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T01:00:00+01:00"
     assert RDF.date_time("2010-01-01 01:00:00+01:00") |> DateTime.canonical_lexical_with_zone() == "2010-01-01T01:00:00+01:00"
   end

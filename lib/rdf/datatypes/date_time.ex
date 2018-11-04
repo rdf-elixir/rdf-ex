@@ -29,6 +29,14 @@ defmodule RDF.DateTime do
           _               -> super(value, opts)
         end
 
+      {:error, :invalid_format} ->
+        if String.ends_with?(value, "-00:00") do
+          String.replace_trailing(value, "-00:00", "Z")
+          |> convert(opts)
+        else
+          super(value, opts)
+        end
+
       {:error, :invalid_time} ->
         if String.contains?(value, "T24:00:00") do
           with [day, tz]  <- String.split(value, "T24:00:00", parts: 2),
@@ -43,6 +51,7 @@ defmodule RDF.DateTime do
         else
           super(value, opts)
         end
+
       _ ->
         super(value, opts)
     end
@@ -129,7 +138,7 @@ defmodule RDF.DateTime do
       nil ->
         nil
 
-      zone when zone in ["Z", "", "+00:00"] ->
+      zone when zone in ["Z", "", "+00:00", "-00:00"] ->
         canonical_lexical(literal.value)
 
       zone ->
