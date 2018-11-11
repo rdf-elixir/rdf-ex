@@ -6,7 +6,7 @@ defmodule RDF.Triple do
   RDF values for subject, predicate and object.
   """
 
-  alias RDF.{Statement, Term}
+  alias RDF.Statement
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
@@ -86,5 +86,17 @@ defmodule RDF.Triple do
   end
 
   def values(_, _), do: nil
+
+
+  @doc """
+  Checks if the given tuple is a valid RDF triple.
+
+  The elements of a valid RDF triple must be RDF terms. On the subject
+  position only IRIs and blank nodes allowed, while on the predicate position
+  only IRIs allowed. The object position can be any RDF term.
+  """
+  def valid?(tuple)
+  def valid?({_, _, _} = triple), do: Statement.valid?(triple)
+  def valid?(_), do: false
 
 end

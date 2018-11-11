@@ -115,4 +115,40 @@ defmodule RDF.Statement do
   def default_term_mapping({:graph_name, nil}), do: nil
   def default_term_mapping({_, term}), do: RDF.Term.value(term)
 
+
+  @doc """
+  Checks if the given tuple is a valid RDF statement, i.e. RDF triple or quad.
+
+  The elements of a valid RDF statement must be RDF terms. On the subject
+  position only IRIs and blank nodes allowed, while on the predicate and graph
+  context position only IRIs allowed. The object position can be any RDF term.
+  """
+  def valid?(tuple)
+
+  def valid?({subject, predicate, object}) do
+    valid_subject?(subject) && valid_predicate?(predicate) && valid_object?(object)
+  end
+
+  def valid?({subject, predicate, object, graph_name}) do
+    valid_subject?(subject) && valid_predicate?(predicate) && valid_object?(object) &&
+      valid_graph_name?(graph_name)
+  end
+
+  def valid?(_), do: false
+
+  def valid_subject?(%IRI{}),       do: true
+  def valid_subject?(%BlankNode{}), do: true
+  def valid_subject?(_),            do: false
+
+  def valid_predicate?(%IRI{}),     do: true
+  def valid_predicate?(_),          do: false
+
+  def valid_object?(%IRI{}),        do: true
+  def valid_object?(%BlankNode{}),  do: true
+  def valid_object?(%Literal{}),    do: true
+  def valid_object?(_),             do: false
+
+  def valid_graph_name?(%IRI{}),    do: true
+  def valid_graph_name?(_),         do: false
+
 end

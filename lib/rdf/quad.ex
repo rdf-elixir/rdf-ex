@@ -6,7 +6,7 @@ defmodule RDF.Quad do
   RDF values for subject, predicate, object and a graph context.
   """
 
-  alias RDF.{Statement, Term}
+  alias RDF.Statement
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
@@ -93,5 +93,17 @@ defmodule RDF.Quad do
   end
 
   def values(_, _), do: nil
+
+
+  @doc """
+  Checks if the given tuple is a valid RDF quad.
+
+  The elements of a valid RDF quad must be RDF terms. On the subject
+  position only IRIs and blank nodes allowed, while on the predicate and graph
+  context position only IRIs allowed. The object position can be any RDF term.
+  """
+  def valid?(tuple)
+  def valid?({_, _, _, _} = quad), do: Statement.valid?(quad)
+  def valid?(_), do: false
 
 end
