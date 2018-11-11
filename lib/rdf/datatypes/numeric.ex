@@ -256,7 +256,7 @@ defmodule RDF.Numeric do
 
   If one of the given arguments is not a numeric literal, `nil` is returned.
 
-  'nil` is also returned for `xsd:decimal` and `xsd:integer` operands, if the
+  `nil` is also returned for `xsd:decimal` and `xsd:integer` operands, if the
   divisor is (positive or negative) zero.
 
   see <http://www.w3.org/TR/xpath-functions/#func-numeric-divide>
