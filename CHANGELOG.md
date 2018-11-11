@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.5.3 - 2018-11-11
 
 ### Added
 
@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   validate if a tuple is a valid RDF triple or RDF quad
 
 
-[Compare v0.5.2...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.2...HEAD)
+[Compare v0.5.2...v0.5.3](https://github.com/marcelotto/rdf-ex/compare/v0.5.2...v0.5.3)
 
 
 
