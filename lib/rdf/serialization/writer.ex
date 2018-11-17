@@ -34,10 +34,10 @@ defmodule RDF.Serialization.Writer do
 
   - `:force` - If not set to `true`, an error is raised when the given file
     already exists (default: `false`)
-  - `:file_mode` - A list with the Elixir `File.open` modes to be used fior writing
+  - `:file_mode` - A list with the Elixir `File.open` modes to be used for writing
     (default: `[:utf8, :write]`)
 
-  It returns `:ok` if successfull or `{:error, reason}` if an error occurs.
+  It returns `:ok` if successful or `{:error, reason}` if an error occurs.
   """
   def write_file(encoder, data, path, opts \\ []) do
     with {:ok, encoded_string} <- write_string(encoder, data, opts) do
