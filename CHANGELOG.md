@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- `RDF.write_file` and `RDF.write_file!` delegators had wrong signatures
+
+
+[Compare v0.5.3...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.3...HEAD)
+
+
+
 ## 0.5.3 - 2018-11-11
 
 ### Added

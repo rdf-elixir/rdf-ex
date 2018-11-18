@@ -40,14 +40,14 @@ defmodule RDF do
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset}
 
-  defdelegate read_string(content, opts),        to: RDF.Serialization
-  defdelegate read_string!(content, opts),       to: RDF.Serialization
-  defdelegate read_file(filename, opts \\ []),   to: RDF.Serialization
-  defdelegate read_file!(filename, opts \\ []),  to: RDF.Serialization
-  defdelegate write_string(content, opts),       to: RDF.Serialization
-  defdelegate write_string!(content, opts),      to: RDF.Serialization
-  defdelegate write_file(filename, opts \\ []),  to: RDF.Serialization
-  defdelegate write_file!(filename, opts \\ []), to: RDF.Serialization
+  defdelegate read_string(content, opts),                 to: RDF.Serialization
+  defdelegate read_string!(content, opts),                to: RDF.Serialization
+  defdelegate read_file(filename, opts \\ []),            to: RDF.Serialization
+  defdelegate read_file!(filename, opts \\ []),           to: RDF.Serialization
+  defdelegate write_string(content, opts),                to: RDF.Serialization
+  defdelegate write_string!(content, opts),               to: RDF.Serialization
+  defdelegate write_file(content, filename, opts \\ []),  to: RDF.Serialization
+  defdelegate write_file!(content, filename, opts \\ []), to: RDF.Serialization
 
 
   @doc """
