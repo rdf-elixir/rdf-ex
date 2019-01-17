@@ -3,10 +3,10 @@ matrix:
   include:
     - otp_release: 21.0
       elixir: 1.6
+    - otp_release: 19.3
+      elixir: 1.7
     - otp_release: 21.0
       elixir: 1.7
-    - otp_release: 19.3
-      elixir: 1.8
     - otp_release: 20.0
       elixir: 1.8
     - otp_release: 21.0
