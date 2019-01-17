@@ -8,7 +8,6 @@ defmodule RDF.StatementTest do
     @bnode ~B<foo>
     @valid_literal ~L"foo"
     @invalid_literal RDF.integer("foo")
-    @literal @valid_literal
 
     @valid_triples [
       {@iri,   @iri, @iri},
