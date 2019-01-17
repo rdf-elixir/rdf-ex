@@ -9,7 +9,7 @@ defmodule RDF.Numeric do
   alias Elixir.Decimal, as: D
 
   import RDF.Literal.Guards
-  import Kernel, except: [abs: 1]
+  import Kernel, except: [abs: 1, floor: 1, ceil: 1]
 
 
   @types MapSet.new [
