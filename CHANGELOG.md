@@ -5,14 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.5.4 - 2019-01-17
 
 ### Fixed
 
+- issue with Elixir 1.8
 - `RDF.write_file` and `RDF.write_file!` delegators had wrong signatures
 
 
-[Compare v0.5.3...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.3...HEAD)
+[Compare v0.5.3...v0.5.4](https://github.com/marcelotto/rdf-ex/compare/v0.5.3...v0.5.4)
 
 
 
