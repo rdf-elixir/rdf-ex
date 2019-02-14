@@ -388,7 +388,7 @@ defmodule RDF.NumericTest do
       assert Numeric.abs(42) == RDF.integer(42)
       assert Numeric.abs(-42) == RDF.integer(42)
       assert Numeric.abs(-3.14) == RDF.double(3.14)
-      assert Numeric.abs(D.new(-3.14)) == RDF.decimal(3.14)
+      assert Numeric.abs(D.from_float(-3.14)) == RDF.decimal(3.14)
       assert Numeric.abs("foo") == nil
       assert Numeric.abs(:foo) == nil
     end
@@ -425,7 +425,7 @@ defmodule RDF.NumericTest do
     test "coercion" do
       assert Numeric.round(-42) == RDF.integer(-42)
       assert Numeric.round(-3.14) == RDF.double(-3.0)
-      assert Numeric.round(D.new(3.14)) == RDF.decimal("3")
+      assert Numeric.round(D.from_float(3.14)) == RDF.decimal("3")
       assert Numeric.round("foo") == nil
       assert Numeric.round(:foo)  == nil
     end
@@ -466,7 +466,7 @@ defmodule RDF.NumericTest do
     test "coercion" do
       assert Numeric.round(-42, 1) == RDF.integer(-42)
       assert Numeric.round(-3.14, 1) == RDF.double(-3.1)
-      assert Numeric.round(D.new(3.14), 1) == RDF.decimal("3.1")
+      assert Numeric.round(D.from_float(3.14), 1) == RDF.decimal("3.1")
       assert Numeric.round("foo", 1) == nil
       assert Numeric.round(:foo, 1)  == nil
     end
@@ -501,7 +501,7 @@ defmodule RDF.NumericTest do
     test "coercion" do
       assert Numeric.ceil(-42) == RDF.integer(-42)
       assert Numeric.ceil(-3.14) == RDF.double("-3")
-      assert Numeric.ceil(D.new(3.14)) == RDF.decimal("4")
+      assert Numeric.ceil(D.from_float(3.14)) == RDF.decimal("4")
       assert Numeric.ceil("foo") == nil
       assert Numeric.ceil(:foo)  == nil
     end
@@ -536,7 +536,7 @@ defmodule RDF.NumericTest do
     test "coercion" do
       assert Numeric.floor(-42) == RDF.integer(-42)
       assert Numeric.floor(-3.14) == RDF.double("-4")
-      assert Numeric.floor(D.new(3.14)) == RDF.decimal("3")
+      assert Numeric.floor(D.from_float(3.14)) == RDF.decimal("3")
       assert Numeric.floor("foo") == nil
       assert Numeric.floor(:foo)  == nil
     end

@@ -188,14 +188,14 @@ defmodule RDF.EqualityTest do
       {RDF.integer(42),   D.new(42)},
       {RDF.decimal(42),   42},
       {RDF.decimal(3.14), 3.14},
-      {RDF.decimal(3.14), D.new(3.14)},
+      {RDF.decimal(3.14), D.from_float(3.14)},
       {RDF.double(42),    42},
       {RDF.double(3.14),  3.14},
-      {RDF.double(3.14),  D.new(3.14)},
+      {RDF.double(3.14),  D.from_float(3.14)},
     ]
     @value_unequal_numerics_by_coercion [
       {RDF.integer(3),    3.14},
-      {RDF.integer(3),    D.new(3.14)},
+      {RDF.integer(3),    D.from_float(3.14)},
       {RDF.double(3.14),  3},
       {RDF.decimal(3.14), 3},
     ]

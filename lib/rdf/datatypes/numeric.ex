@@ -87,8 +87,8 @@ defmodule RDF.Numeric do
   def equal_value?(_, _), do: nil
 
   defp equal_decimal_value?(%D{} = left, %D{} = right), do: D.equal?(left, right)
-  defp equal_decimal_value?(%D{} = left, right), do: equal_decimal_value?(left, D.new(right))
-  defp equal_decimal_value?(left, %D{} = right), do: equal_decimal_value?(D.new(left), right)
+  defp equal_decimal_value?(%D{} = left, right), do: equal_decimal_value?(left, new_decimal(right))
+  defp equal_decimal_value?(left, %D{} = right), do: equal_decimal_value?(new_decimal(left), right)
   defp equal_decimal_value?(_, _), do: nil
 
 
@@ -137,8 +137,8 @@ defmodule RDF.Numeric do
   def compare(_, _), do: nil
 
   defp compare_decimal_value(%D{} = left, %D{} = right), do: D.cmp(left, right)
-  defp compare_decimal_value(%D{} = left, right), do: compare_decimal_value(left, D.new(right))
-  defp compare_decimal_value(left, %D{} = right), do: compare_decimal_value(D.new(left), right)
+  defp compare_decimal_value(%D{} = left, right), do: compare_decimal_value(left, new_decimal(right))
+  defp compare_decimal_value(left, %D{} = right), do: compare_decimal_value(new_decimal(left), right)
   defp compare_decimal_value(_, _), do: nil
 
 
@@ -359,7 +359,7 @@ defmodule RDF.Numeric do
   def round(%Literal{datatype: datatype} = literal, precision) when is_xsd_double(datatype) do
     if RDF.Double.valid?(literal) do
       literal.value
-      |> D.new()
+      |> new_decimal()
       |> xpath_round(precision)
       |> D.to_float()
       |> RDF.Double.new()
@@ -370,7 +370,7 @@ defmodule RDF.Numeric do
     if type?(datatype) and Literal.valid?(literal) do
       if precision < 0 do
         literal.value
-        |> D.new()
+        |> new_decimal()
         |> xpath_round(precision)
         |> D.to_integer()
         |> RDF.Integer.new()
@@ -558,5 +558,8 @@ defmodule RDF.Numeric do
       true                 -> XSD.integer
     end
   end
+
+  defp new_decimal(value) when is_float(value), do: D.from_float(value)
+  defp new_decimal(value), do: D.new(value)
 
 end

@@ -36,7 +36,7 @@ defmodule RDF.TermTest do
     end
 
     test "with decimal" do
-      assert D.new(3.14) |> RDF.Term.coerce() == RDF.decimal(3.14)
+      assert D.from_float(3.14) |> RDF.Term.coerce() == RDF.decimal(3.14)
     end
 
     test "with datetime" do
@@ -101,7 +101,7 @@ defmodule RDF.TermTest do
     end
 
     test "with decimal" do
-      assert D.new(3.14) |> RDF.Term.value() == D.new(3.14)
+      assert D.from_float(3.14) |> RDF.Term.value() == D.from_float(3.14)
     end
 
     test "with datetime" do
