@@ -33,6 +33,10 @@ defmodule RDF.InspectHelper do
         line(predication, acc)
        end)
   end
+
+  def surround_doc(left, doc, right) do
+    concat(concat(left, nest(doc, 1)), right)
+  end
 end
 
 defimpl Inspect, for: RDF.IRI do
@@ -81,7 +85,7 @@ defimpl Inspect, for: RDF.Description do
       space("subject:", to_doc(subject, opts))
       |> line(predications_doc(predications, opts))
       |> nest(4)
-    surround("#RDF.Description{", doc, "}")
+    surround_doc("#RDF.Description{", doc, "}")
   end
 end
 
@@ -94,19 +98,20 @@ defimpl Inspect, for: RDF.Graph do
       space("name:", to_doc(name, opts))
       |> line(descriptions_doc(descriptions, opts))
       |> nest(4)
-    surround("#RDF.Graph{", doc, "}")
+    surround_doc("#RDF.Graph{", doc, "}")
   end
 end
 
 defimpl Inspect, for: RDF.Dataset do
   import Inspect.Algebra
+  import RDF.InspectHelper
 
   def inspect(%RDF.Dataset{name: name} = dataset, opts) do
     doc =
       space("name:", to_doc(name, opts))
       |> line(graphs_doc(RDF.Dataset.graphs(dataset), opts))
       |> nest(4)
-    surround("#RDF.Dataset{", doc, "}")
+    surround_doc("#RDF.Dataset{", doc, "}")
   end
 
   defp graphs_doc(graphs, opts) do
