@@ -65,7 +65,7 @@ defmodule RDF.Mixfile do
       {:credo, "~> 1.0",          only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19",        only: :dev, runtime: false},
       {:excoveralls, "~> 0.10",   only: :test},
-      {:inch_ex, "~> 2.0",        only: [:dev, :test]},
+      {:inch_ex, "~> 1.0",        only: [:dev, :test]},
 
       {:benchee, "~> 0.14",       only: :bench},
       {:erlang_term, "~> 1.7",    only: :bench},
