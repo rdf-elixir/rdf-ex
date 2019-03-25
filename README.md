@@ -704,7 +704,7 @@ iex> RDF.integer(42) |> RDF.Term.value()
 
 It returns `nil` if no conversion is possible.
 
-All structures of RDF terms also support a `values` function. On `RDF.Triple.values`, `RDF.Quad` and `RDF.Statement` the tuple of RDF terms is converted to an tuple of the resp. Elixir values. On all of the other RDF data structures (`RDF.Description`, `RDF.Graph` and `RDF.Dataset`) and the general `RDF.Data` protocol the `values` functions produces a map of the converted Elixir values.
+All structures of RDF terms also support a `values` function. The `values` functions on `RDF.Triple`, `RDF.Quad` and `RDF.Statement` are converting a tuple of RDF terms to a tuple of the resp. Elixir values. On all of the other RDF data structures (`RDF.Description`, `RDF.Graph` and `RDF.Dataset`) and the general `RDF.Data` protocol the `values` functions are producing a map of the converted Elixir values.
 
 ```elixir
 iex> RDF.Triple.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
