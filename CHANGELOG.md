@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.PrefixMap`
+
+
+[Compare v0.5.4...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...HEAD)
+
+
+
 ## 0.5.4 - 2019-01-17
 
 ### Fixed
