@@ -20,6 +20,11 @@ defmodule RDF.PrefixMapTest do
     ex3: @ex_ns3
   }}
 
+  @example4 %PrefixMap{map: %{
+    ex1: @ex_ns1,
+    ex: RDF.iri(EX.__base_iri__)
+  }}
+
   test "new/0" do
     assert PrefixMap.new() == %PrefixMap{}
   end
@@ -38,6 +43,13 @@ defmodule RDF.PrefixMapTest do
                ex2: "http://example.com/bar#"
              ) == @example2
     end
+
+    test "when the IRI namespace is given as a RDF.Vocabulary.Namespace" do
+      assert PrefixMap.new(
+               ex1: "http://example.com/foo/",
+               ex: EX
+             ) == @example4
+    end
   end
 
   describe "add/3" do
@@ -45,12 +57,22 @@ defmodule RDF.PrefixMapTest do
       assert PrefixMap.add(@example1, :ex2, @ex_ns2) == {:ok, @example2}
     end
 
-    test "with the prefix is given as a string" do
+    test "when the prefix is given as a string" do
       assert PrefixMap.add(@example1, "ex2", @ex_ns2) == {:ok, @example2}
     end
 
-    test "with the IRI namespace is given as a string" do
+    test "when the IRI namespace is given as a string" do
       assert PrefixMap.add(@example1, :ex2, "http://example.com/bar#") == {:ok, @example2}
+    end
+
+    test "when the IRI namespace is given as a RDF.Vocabulary.Namespace" do
+      assert PrefixMap.add(@example1, :ex, EX) == {:ok, @example4}
+    end
+
+    test "when the IRI namespace is given as an atom" do
+      assert_raise ArgumentError, "Invalid prefix mapping for :ex, :foo is not a vocabulary namespace", fn ->
+        PrefixMap.add(@example1, :ex, :foo)
+      end
     end
 
     test "when a mapping of the given prefix to the same namespace already exists" do

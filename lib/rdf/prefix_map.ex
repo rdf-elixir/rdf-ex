@@ -38,10 +38,20 @@ defmodule RDF.PrefixMap do
     do: normalize({String.to_atom(prefix), namespace})
 
   defp normalize({prefix, namespace}) when is_binary(namespace),
-       do: normalize({prefix, IRI.new(namespace)})
+    do: normalize({prefix, IRI.new(namespace)})
 
-  defp normalize({prefix, _}),
-    do: raise("Invalid prefix on PrefixMap: #{inspect(prefix)}}")
+  defp normalize({prefix, namespace}) when is_atom(namespace) do
+    if function_exported?(namespace, :__base_iri__, 0) do
+      normalize({prefix, apply(namespace, :__base_iri__, [])})
+    else
+      raise ArgumentError,
+            "Invalid prefix mapping for #{inspect(prefix)}, #{inspect(namespace)} is not a vocabulary namespace"
+    end
+  end
+
+  defp normalize({prefix, namespace}),
+    do:
+      raise(ArgumentError, "Invalid prefix mapping: #{inspect(prefix)} => #{inspect(namespace)}")
 
   @doc """
   Adds a prefix mapping the given `RDF.PrefixMap`.
@@ -92,7 +102,8 @@ defmodule RDF.PrefixMap do
       {:ok, %__MODULE__{map: Map.merge(map1, map2)}}
     else
       conflicts ->
-        {:error, "conflicting prefix mappings: #{conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")}"}
+        {:error,
+         "conflicting prefix mappings: #{conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")}"}
     end
   end
 
