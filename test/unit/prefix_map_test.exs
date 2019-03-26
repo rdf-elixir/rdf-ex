@@ -127,6 +127,19 @@ defmodule RDF.PrefixMapTest do
     end
   end
 
+  describe "merge!/2" do
+    test "when the prefix maps can be merged" do
+      other_prefix_map = PrefixMap.new(ex3: @ex_ns3)
+      assert PrefixMap.merge!(@example2, other_prefix_map) == @example3
+    end
+
+    test "when the prefix maps can not be merged" do
+      assert_raise RuntimeError, "conflicting prefix mappings: :ex2", fn ->
+        PrefixMap.merge!(@example2, ex2: @ex_ns3)
+      end
+    end
+  end
+
   describe "delete/2" do
     test "when a mapping of the given prefix exists" do
       assert PrefixMap.delete(@example2, :ex2) == @example1

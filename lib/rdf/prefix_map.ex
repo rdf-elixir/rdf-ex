@@ -129,6 +129,17 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
+  Merges two `RDF.PrefixMap`s and raises an exception in error cases.
+  """
+  def merge!(prefix_map1, prefix_map2) do
+    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2) do
+      new_prefix_map
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
   Deletes a prefix mapping from the given `RDF.PrefixMap`..
   """
   def delete(prefix_map, prefix)
