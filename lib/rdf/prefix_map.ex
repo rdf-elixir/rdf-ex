@@ -34,11 +34,11 @@ defmodule RDF.PrefixMap do
   defp normalize({prefix, %IRI{} = namespace}) when is_atom(prefix),
     do: {prefix, namespace}
 
-  defp normalize({prefix, namespace}) when is_atom(prefix),
-    do: normalize({prefix, IRI.new(namespace)})
-
   defp normalize({prefix, namespace}) when is_binary(prefix),
     do: normalize({String.to_atom(prefix), namespace})
+
+  defp normalize({prefix, namespace}) when is_binary(namespace),
+       do: normalize({prefix, IRI.new(namespace)})
 
   defp normalize({prefix, _}),
     do: raise("Invalid prefix on PrefixMap: #{inspect(prefix)}}")
