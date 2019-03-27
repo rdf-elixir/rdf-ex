@@ -38,7 +38,73 @@ defmodule RDF do
   """
 
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
-             Description, Graph, Dataset}
+             Description, Graph, Dataset, PrefixMap}
+
+
+  @standard_prefixes PrefixMap.new(
+                       xsd:  IRI.new("http://www.w3.org/2001/XMLSchema#"),
+                       rdf:  IRI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+                       rdfs: IRI.new("http://www.w3.org/2000/01/rdf-schema#")
+                     )
+
+  @doc """
+  A fixed set prefixes that will always be part of the `default_prefixes/0`.
+
+  ```elixir
+  #{inspect(@standard_prefixes, pretty: true)}
+  ```
+
+  See `default_prefixes/0`, if you don't want these standard prefixes to be part
+  of the default prefixes.
+  """
+  def standard_prefixes(), do: @standard_prefixes
+
+
+  @doc """
+  A user-defined `RDF.PrefixMap` of prefixes to IRI namespaces.
+
+  This prefix map will be used implicitly wherever a prefix map is expected, but
+  not provided. For example, when you don't pass a prefix map to the Turtle serializer,
+  this prefix map will be used.
+
+  By default the `standard_prefixes/0` are part of this prefix map, but you can
+  define additional default prefixes via the `default_prefixes` compile-time
+  configuration.
+
+  For example:
+
+      config :rdf,
+        default_prefixes: %{
+          ex: "http://example.com/"
+        }
+
+  If you don't want the `standard_prefixes/0` to be part of the default prefixes,
+  or you want to map the standard prefixes to different namespaces (strongly discouraged!),
+  you can set the `use_standard_prefixes` compile-time configuration flag to `false`.
+
+      config :rdf,
+        use_standard_prefixes: false
+
+  """
+  @default_prefixes Application.get_env(:rdf, :default_prefixes, %{}) |> PrefixMap.new()
+  if Application.get_env(:rdf, :use_standard_prefixes, true) do
+    def default_prefixes() do
+      PrefixMap.merge!(@standard_prefixes, @default_prefixes)
+    end
+  else
+    def default_prefixes() do
+      @default_prefixes
+    end
+  end
+
+  @doc """
+  Returns the `default_prefixes/0` with additional prefix mappings.
+
+  The `prefix_mappings` can be given in any format accepted by `RDF.PrefixMap.new/1`.
+  """
+  def default_prefixes(prefix_mappings) do
+    default_prefixes() |> PrefixMap.merge!(prefix_mappings)
+  end
 
   defdelegate read_string(content, opts),                 to: RDF.Serialization
   defdelegate read_string!(content, opts),                to: RDF.Serialization

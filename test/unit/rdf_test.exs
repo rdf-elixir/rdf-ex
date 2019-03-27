@@ -15,4 +15,11 @@ defmodule RDFTest do
     assert RDF.true  == RDF.Boolean.new(true)
     assert RDF.false == RDF.Boolean.new(false)
   end
+
+  describe "default_prefixes/0" do
+    test "when nothing configured returns the standard prefixes" do
+      assert RDF.default_prefixes() == RDF.standard_prefixes()
+    end
+  end
+
 end

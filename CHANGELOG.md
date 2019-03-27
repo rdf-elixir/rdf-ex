@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.PrefixMap`
+- configurable RDF.default_prefixes
 
 
 [Compare v0.5.4...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...HEAD)
