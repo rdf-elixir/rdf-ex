@@ -10,12 +10,12 @@ defmodule RDF.PrefixMap do
   alias RDF.IRI
 
   @doc """
-  Creates an empty `RDF.PrefixMap.
+  Creates an empty `RDF.PrefixMap`.
   """
   def new(), do: %__MODULE__{}
 
   @doc """
-  Creates a new `RDF.PrefixMap.
+  Creates a new `RDF.PrefixMap`.
 
   The prefix mappings can be passed as keyword lists or maps.
   The keys for the prefixes can be given as atoms or strings and will be normalized to atoms.
@@ -54,7 +54,7 @@ defmodule RDF.PrefixMap do
       raise(ArgumentError, "Invalid prefix mapping: #{inspect(prefix)} => #{inspect(namespace)}")
 
   @doc """
-  Adds a prefix mapping the given `RDF.PrefixMap`.
+  Adds a prefix mapping to the given `RDF.PrefixMap`.
 
   Unless a mapping of the given prefix to a different namespace already exists,
   an ok tuple is returned, other an error tuple.
