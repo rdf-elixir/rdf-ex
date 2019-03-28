@@ -13,6 +13,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - configurable RDF.default_prefixes
 
 
+### Changed
+
+- `RDF.Graph.new` now takes the graph name as a `name` option
+
+
 [Compare v0.5.4...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...HEAD)
 
 

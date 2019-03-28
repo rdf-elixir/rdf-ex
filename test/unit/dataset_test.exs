@@ -81,13 +81,13 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
     end
 
-    test "creating a named dataset with an inital graph" do
+    test "creating a named dataset with an initial graph" do
       ds = Dataset.new(EX.DatasetName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
 
-      ds = Dataset.new(EX.DatasetName, Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object}))
+      ds = Dataset.new(EX.DatasetName, Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.GraphName))
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert named_graph?(Dataset.graph(ds, EX.GraphName), iri(EX.GraphName))
@@ -100,7 +100,7 @@ defmodule RDF.DatasetTest do
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
 
-      ds = Dataset.new(Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object}))
+      ds = Dataset.new(Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.GraphName))
       assert unnamed_dataset?(ds)
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert named_graph?(Dataset.graph(ds, EX.GraphName), iri(EX.GraphName))
@@ -293,17 +293,17 @@ defmodule RDF.DatasetTest do
     end
 
     test "a named Graph without specification of the default context" do
-      ds = Dataset.add(dataset(), Graph.new(EX.Graph1, [
+      ds = Dataset.add(dataset(), Graph.new([
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
-      ]))
+      ], name: EX.Graph1))
       assert Dataset.graph(ds, EX.Graph1)
       assert named_graph?(Dataset.graph(ds, EX.Graph1), iri(EX.Graph1))
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1, EX.Graph1})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2, EX.Graph1})
 
-      ds = Dataset.add(ds, Graph.new(EX.Graph2, {EX.Subject1, EX.predicate2, EX.Object3}))
+      ds = Dataset.add(ds, Graph.new({EX.Subject1, EX.predicate2, EX.Object3}, name: EX.Graph2))
       assert Dataset.graph(ds, EX.Graph2)
       assert named_graph?(Dataset.graph(ds, EX.Graph2), iri(EX.Graph2))
       assert unnamed_graph?(Dataset.default_graph(ds))
@@ -314,16 +314,16 @@ defmodule RDF.DatasetTest do
     end
 
     test "a named Graph with specification of the default context" do
-      ds = Dataset.add(dataset(), Graph.new(EX.Graph1, [
+      ds = Dataset.add(dataset(), Graph.new([
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
-      ]), nil)
+      ], name: EX.Graph1), nil)
       refute Dataset.graph(ds, EX.Graph1)
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
 
-      ds = Dataset.add(ds, Graph.new(EX.Graph2, {EX.Subject1, EX.predicate2, EX.Object3}), nil)
+      ds = Dataset.add(ds, Graph.new({EX.Subject1, EX.predicate2, EX.Object3}, name: EX.Graph2), nil)
       refute Dataset.graph(ds, EX.Graph2)
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert Enum.count(ds) == 3
@@ -331,7 +331,7 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object3})
 
-      ds = Dataset.add(ds, Graph.new(EX.Graph3, {EX.Subject1, EX.predicate2, EX.Object3}), EX.Graph)
+      ds = Dataset.add(ds, Graph.new({EX.Subject1, EX.predicate2, EX.Object3}, name: EX.Graph3), EX.Graph)
       assert named_graph?(Dataset.graph(ds, EX.Graph), iri(EX.Graph))
       assert Enum.count(ds) == 4
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
@@ -409,8 +409,8 @@ defmodule RDF.DatasetTest do
       ds = Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
         |> RDF.Dataset.add([
             Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, bnode(:foo)}]),
-            Graph.new(nil, {EX.S1, EX.P2, EX.O3}),
-            Graph.new(EX.Graph, [{EX.S1, EX.P2, EX.O2}, {EX.S2, EX.P2, EX.O2}])
+            Graph.new({EX.S1, EX.P2, EX.O3}),
+            Graph.new([{EX.S1, EX.P2, EX.O2}, {EX.S2, EX.P2, EX.O2}], name: EX.Graph)
            ])
 
         assert Enum.count(ds) == 6
@@ -513,7 +513,7 @@ defmodule RDF.DatasetTest do
 
     test "a named Graph" do
       ds = Dataset.new(
-            Graph.new(EX.GraphName, [{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}]))
+            Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}], name: EX.GraphName))
         |> RDF.Dataset.put(
             Graph.new([{EX.S1, EX.P3, EX.O4}, {EX.S1, EX.P2, bnode(:foo)}]), EX.GraphName)
 
@@ -602,8 +602,8 @@ defmodule RDF.DatasetTest do
       assert Dataset.delete(dataset1, Graph.new({EX.S1, EX.p1, EX.O1})) == Dataset.new
       assert Dataset.delete(dataset2, Graph.new({EX.S1, EX.p1, EX.O1})) ==
               Dataset.new({EX.S2, EX.p2, EX.O2, EX.Graph})
-      assert Dataset.delete(dataset2, Graph.new(EX.Graph, {EX.S2, EX.p2, EX.O2})) == dataset1
-      assert Dataset.delete(dataset2, Graph.new(EX.Graph, {EX.S2, EX.p2, EX.O2})) == dataset1
+      assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}, name: EX.Graph)) == dataset1
+      assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}, name: EX.Graph)) == dataset1
       assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}), EX.Graph) == dataset1
       assert Dataset.delete(dataset2, Graph.new({EX.S2, EX.p2, EX.O2}), EX.Graph) == dataset1
       assert Dataset.delete(dataset3, Graph.new([
@@ -614,11 +614,11 @@ defmodule RDF.DatasetTest do
                 {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1},
                 {EX.S3, EX.p3, [~B<foo>, ~L"bar"], EX.Graph2},
               ])
-      assert Dataset.delete(dataset3, Graph.new(EX.Graph2, [
+      assert Dataset.delete(dataset3, Graph.new([
                 {EX.S1, EX.p1, [EX.O1, EX.O2]},
                 {EX.S2, EX.p2, EX.O3},
                 {EX.S3, EX.p3, ~B<foo>},
-              ])) == Dataset.new([
+              ], name: EX.Graph2)) == Dataset.new([
                 {EX.S1, EX.p1, EX.O1},
                 {EX.S2, EX.p2, [EX.O1, EX.O2], EX.Graph1},
                 {EX.S3, EX.p3, [~L"bar"], EX.Graph2},
@@ -805,7 +805,7 @@ defmodule RDF.DatasetTest do
     test "access with the [] operator" do
       assert Dataset.new[EX.Graph] == nil
       assert Dataset.new({EX.S, EX.p, EX.O, EX.Graph})[EX.Graph] ==
-              Graph.new(EX.Graph, {EX.S, EX.p, EX.O})
+              Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph)
     end
   end
 

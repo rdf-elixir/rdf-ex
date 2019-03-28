@@ -48,7 +48,7 @@ defmodule RDF.Test.Case do
 
   def unnamed_graph, do: Graph.new
 
-  def named_graph(name \\ EX.GraphName), do: Graph.new(name)
+  def named_graph(name \\ EX.GraphName), do: Graph.new(name: name)
 
   def unnamed_graph?(%Graph{name: nil}), do: true
   def unnamed_graph?(_),                 do: false
@@ -69,7 +69,7 @@ defmodule RDF.Test.Case do
 
 
   ###############################
-  # RDF.Graph
+  # RDF.Dataset
 
   def dataset, do: unnamed_dataset()
 

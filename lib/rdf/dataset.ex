@@ -124,7 +124,7 @@ defmodule RDF.Dataset do
     with graph_context = coerce_graph_name(graph_context) do
       updated_graphs =
         Map.update(graphs, graph_context,
-          Graph.new(graph_context, {subject, predicate, objects}),
+          Graph.new({subject, predicate, objects}, name: graph_context),
             fn graph -> Graph.add(graph, {subject, predicate, objects}) end)
       %RDF.Dataset{name: name, graphs: updated_graphs}
     end
@@ -140,7 +140,7 @@ defmodule RDF.Dataset do
           %Description{} = description, graph_context) do
     with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
-        Map.get(graphs, graph_context, Graph.new(graph_context))
+        Map.get(graphs, graph_context, Graph.new(name: graph_context))
         |> Graph.add(description)
       %RDF.Dataset{
         name:   name,
@@ -200,7 +200,7 @@ defmodule RDF.Dataset do
           graph = %Graph{} ->
             Graph.put(graph, {subject, predicate, objects})
           nil ->
-            Graph.new(graph_context, {subject, predicate, objects})
+            Graph.new({subject, predicate, objects}, name: graph_context)
         end
       %RDF.Dataset{name: name,
           graphs: Map.put(graphs, graph_context, new_graph)}
@@ -244,7 +244,7 @@ defmodule RDF.Dataset do
           %Description{} = description, graph_context) do
     with graph_context = coerce_graph_name(graph_context) do
       updated_graph =
-        Map.get(graphs, graph_context, Graph.new(graph_context))
+        Map.get(graphs, graph_context, Graph.new(name: graph_context))
         |> Graph.put(description)
       %RDF.Dataset{
         name:   name,
@@ -284,7 +284,7 @@ defmodule RDF.Dataset do
             {subject, graph_context}, predications)
         when is_list(predications) do
     with graph_context = coerce_graph_name(graph_context) do
-      graph = Map.get(graphs, graph_context, Graph.new(graph_context))
+      graph = Map.get(graphs, graph_context, Graph.new(name: graph_context))
       new_graphs = graphs
         |> Map.put(graph_context, Graph.put(graph, subject, predications))
       %RDF.Dataset{name: name, graphs: new_graphs}
@@ -397,7 +397,7 @@ defmodule RDF.Dataset do
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.fetch(dataset, EX.Graph)
-      {:ok, RDF.Graph.new(EX.Graph, {EX.S1, EX.P1, EX.O1})}
+      {:ok, RDF.Graph.new({EX.S1, EX.P1, EX.O1}, name: EX.Graph)}
       iex> RDF.Dataset.fetch(dataset, nil)
       {:ok, RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
       iex> RDF.Dataset.fetch(dataset, EX.Foo)
@@ -418,7 +418,7 @@ defmodule RDF.Dataset do
 
       iex> dataset = RDF.Dataset.new([{EX.S1, EX.P1, EX.O1, EX.Graph}, {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.get(dataset, EX.Graph)
-      RDF.Graph.new(EX.Graph, {EX.S1, EX.P1, EX.O1})
+      RDF.Graph.new({EX.S1, EX.P1, EX.O1}, name: EX.Graph)
       iex> RDF.Dataset.get(dataset, nil)
       RDF.Graph.new({EX.S2, EX.P2, EX.O2})
       iex> RDF.Dataset.get(dataset, EX.Foo)
@@ -472,7 +472,7 @@ defmodule RDF.Dataset do
       ...> RDF.Dataset.get_and_update(dataset, EX.Graph, fn current_graph ->
       ...>     {current_graph, {EX.S, EX.P, EX.NEW}}
       ...>   end)
-      {RDF.Graph.new(EX.Graph, {EX.S, EX.P, EX.O}), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
+      {RDF.Graph.new({EX.S, EX.P, EX.O}, name: EX.Graph), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   @impl Access
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
@@ -520,7 +520,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S1, EX.P1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.pop(dataset, EX.Graph)
-      {RDF.Graph.new(EX.Graph, {EX.S1, EX.P1, EX.O1}), RDF.Dataset.new({EX.S2, EX.P2, EX.O2})}
+      {RDF.Graph.new({EX.S1, EX.P1, EX.O1}, name: EX.Graph), RDF.Dataset.new({EX.S2, EX.P2, EX.O2})}
       iex> RDF.Dataset.pop(dataset, EX.Foo)
       {nil, dataset}
   """

@@ -23,80 +23,78 @@ defmodule RDF.Graph do
   @doc """
   Creates an empty unnamed `RDF.Graph`.
   """
-  def new,
-    do: %RDF.Graph{}
+  def new, do: %RDF.Graph{}
 
   @doc """
-  Creates an unnamed `RDF.Graph` with an initial triple.
+  Creates an `RDF.Graph`.
+
+  If a keyword list is given an empty graph is created.
+  Otherwise an unnamed graph initialized with the given data is created.
+
+  See `new/2` for available arguments and the different ways to provide data.
+
+  ## Examples
+
+      RDF.Graph.new({EX.S, EX.p, EX.O})
+
+      RDF.Graph.new(name: EX.GraphName)
+
   """
-  def new({_, _, _} = triple),
-    do: new() |> add(triple)
+  def new(data_or_options)
+
+  def new(data_or_options)
+      when is_list(data_or_options) and length(data_or_options) != 0 do
+    if Keyword.keyword?(data_or_options) do
+      new([], data_or_options)
+    else
+      new(data_or_options, [])
+    end
+  end
+
+  def new(data), do: new(data, [])
 
   @doc """
-  Creates an unnamed `RDF.Graph` with initial triples.
+  Creates an `RDF.Graph` initialized with data.
+
+  The initial RDF triples can be provided
+
+  - as a single statement tuple
+  - an `RDF.Description`
+  - an `RDF.Graph`
+  - or a list with any combination of the former
+
+  Available options:
+
+  - `name`: the name of the graph to be created
+
+  ## Examples
+
+      RDF.Graph.new({EX.S, EX.p, EX.O})
+      RDF.Graph.new({EX.S, EX.p, EX.O}, name: EX.GraphName)
+      RDF.Graph.new({EX.S, EX.p, [EX.O1, EX.O2]})
+      RDF.Graph.new([{EX.S1, EX.p1, EX.O1}, {EX.S2, EX.p2, EX.O2}])
+      RDF.Graph.new(RDF.Description.new(EX.S, EX.P, EX.O))
+      RDF.Graph.new([graph, description, triple])
+
   """
-  def new(triples) when is_list(triples),
-    do: new() |> add(triples)
+  def new(data, options)
+
+  def new(%RDF.Graph{} = graph, options) do
+    %RDF.Graph{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
+  end
+
+  def new(data, options) do
+    %RDF.Graph{name: options |> Keyword.get(:name) |> coerce_graph_name()}
+    |> add(data)
+  end
 
   @doc """
-  Creates an unnamed `RDF.Graph` with a `RDF.Description`.
-  """
-  def new(%RDF.Description{} = description),
-    do: new() |> add(description)
+  Creates an `RDF.Graph` with initial triples.
 
-  @doc """
-  Creates an unnamed `RDF.Graph` from another `RDF.Graph`.
+  See `new/2` for available arguments.
   """
-  def new(%RDF.Graph{descriptions: descriptions}),
-    do: %RDF.Graph{descriptions: descriptions}
-
-  @doc """
-  Creates an empty unnamed `RDF.Graph`.
-  """
-  def new(nil),
-    do: new()
-
-  @doc """
-  Creates an empty named `RDF.Graph`.
-  """
-  def new(name),
-    do: %RDF.Graph{name: coerce_graph_name(name)}
-
-  @doc """
-  Creates a named `RDF.Graph` with an initial triple.
-  """
-  def new(name, triple = {_, _, _}),
-    do: new(name) |> add(triple)
-
-  @doc """
-  Creates a named `RDF.Graph` with initial triples.
-  """
-  def new(name, triples) when is_list(triples),
-    do: new(name) |> add(triples)
-
-  @doc """
-  Creates a named `RDF.Graph` with a `RDF.Description`.
-  """
-  def new(name, %RDF.Description{} = description),
-    do: new(name) |> add(description)
-
-  @doc """
-  Creates a named `RDF.Graph` from another `RDF.Graph`.
-  """
-  def new(name, %RDF.Graph{descriptions: descriptions}),
-    do: %RDF.Graph{new(name) | descriptions: descriptions}
-
-  @doc """
-  Creates an unnamed `RDF.Graph` with initial triples.
-  """
-  def new(subject, predicate, objects),
-    do: new() |> add(subject, predicate, objects)
-
-  @doc """
-  Creates a named `RDF.Graph` with initial triples.
-  """
-  def new(name, subject, predicate, objects),
-    do: new(name) |> add(subject, predicate, objects)
+  def new(subject, predicate, objects, options \\ []),
+    do: new(options) |> add(subject, predicate, objects)
 
 
   @doc """
@@ -105,7 +103,6 @@ defmodule RDF.Graph do
   def add(%RDF.Graph{} = graph, subject, predicate, objects),
     do: add(graph, {subject, predicate, objects})
 
-
   @doc """
   Adds triples to a `RDF.Graph`.
 
@@ -113,6 +110,7 @@ defmodule RDF.Graph do
   the graph name must not match graph name of the graph to which the statements
   are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Dataset`
   containing both graphs.
+
   """
   def add(graph, triples)
 
@@ -157,6 +155,7 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
       ...>   RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+
   """
   def put(graph, statements)
 
@@ -227,6 +226,7 @@ defmodule RDF.Graph do
       RDF.Graph.new(EX.S, EX.P, EX.O2)
       iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
       RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+
   """
   def put(%RDF.Graph{} = graph, subject, predicate, objects),
     do: put(graph, {subject, predicate, objects})
@@ -245,6 +245,7 @@ defmodule RDF.Graph do
   the graph name must not match graph name of the graph from which the statements
   are deleted. If you want to delete only graphs with matching names, you can
   use `RDF.Data.delete/2`.
+
   """
   def delete(graph, triples)
 
@@ -318,6 +319,7 @@ defmodule RDF.Graph do
       {:ok, RDF.Description.new({EX.S1, EX.P1, EX.O1})}
       iex> RDF.Graph.fetch(RDF.Graph.new, EX.foo)
       :error
+
   """
   @impl Access
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
@@ -338,6 +340,7 @@ defmodule RDF.Graph do
       nil
       iex> RDF.Graph.get(RDF.Graph.new, EX.Foo, :bar)
       :bar
+
   """
   def get(%RDF.Graph{} = graph, subject, default \\ nil) do
     case fetch(graph, subject) do
@@ -380,6 +383,7 @@ defmodule RDF.Graph do
       ...>     {current_description, {EX.P, EX.NEW}}
       ...>   end)
       {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
+
   """
   @impl Access
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
@@ -427,6 +431,7 @@ defmodule RDF.Graph do
       {RDF.Description.new({EX.S1, EX.P1, EX.O1}), RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
       iex> RDF.Graph.pop(RDF.Graph.new({EX.S, EX.P, EX.O}), EX.Missing)
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
+
   """
   @impl Access
   def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
@@ -450,6 +455,7 @@ defmodule RDF.Graph do
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Graph.subject_count
       2
+
   """
   def subject_count(%RDF.Graph{descriptions: descriptions}),
     do: Enum.count(descriptions)
@@ -465,6 +471,7 @@ defmodule RDF.Graph do
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
       ...>   RDF.Graph.triple_count
       3
+
   """
   def triple_count(%RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, 0, fn ({_subject, description}, count) ->

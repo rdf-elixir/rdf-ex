@@ -19,7 +19,7 @@ defmodule RDF.DataTest do
       Dataset.new
       |> Dataset.add(graph)
       |> Dataset.add(
-          Graph.new(EX.NamedGraph)
+          Graph.new(name: EX.NamedGraph)
           |> Graph.add(description)
           |> Graph.add({EX.S3, EX.p3, EX.O5})
           |> Graph.add({EX.S, EX.p3, EX.O5}))
@@ -206,7 +206,7 @@ defmodule RDF.DataTest do
     test "merge of a dataset", %{dataset: dataset} do
       assert RDF.Data.merge(Graph.new({EX.Other, EX.p1, EX.O3}), dataset) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3})
-      assert RDF.Data.merge(Graph.new(EX.NamedGraph, {EX.Other, EX.p1, EX.O3}), dataset) ==
+      assert RDF.Data.merge(Graph.new({EX.Other, EX.p1, EX.O3}, name: EX.NamedGraph), dataset) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3, EX.NamedGraph})
     end
 
@@ -328,7 +328,7 @@ defmodule RDF.DataTest do
     test "merge of a graph", %{dataset: dataset} do
       assert RDF.Data.merge(dataset, Graph.new({EX.Other, EX.p1, EX.O3})) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3})
-      assert RDF.Data.merge(dataset, Graph.new(EX.NamedGraph, {EX.Other, EX.p1, EX.O3})) ==
+      assert RDF.Data.merge(dataset, Graph.new({EX.Other, EX.p1, EX.O3}, name: EX.NamedGraph)) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3, EX.NamedGraph})
     end
 

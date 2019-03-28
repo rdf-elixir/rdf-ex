@@ -36,11 +36,11 @@ defmodule RDF.GraphTest do
     end
 
     test "creating a named graph with an initial triple" do
-      g = Graph.new(EX.GraphName, {EX.Subject, EX.predicate, EX.Object})
+      g = Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
 
-      g = Graph.new(EX.GraphName, EX.Subject, EX.predicate, EX.Object)
+      g = Graph.new(EX.Subject, EX.predicate, EX.Object, name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
@@ -59,20 +59,23 @@ defmodule RDF.GraphTest do
     end
 
     test "creating a named graph with a list of initial triples" do
-      g = Graph.new(EX.GraphName, [{EX.Subject, EX.predicate1, EX.Object1},
-                                   {EX.Subject, EX.predicate2, EX.Object2}])
+      g = Graph.new([{EX.Subject, EX.predicate1, EX.Object1},
+                     {EX.Subject, EX.predicate2, EX.Object2}],
+                    name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate1, EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate2, EX.Object2})
 
-      g = Graph.new(EX.GraphName, EX.Subject, EX.predicate, [EX.Object1, EX.Object2])
+      g = Graph.new(EX.Subject, EX.predicate, [EX.Object1, EX.Object2],
+                    name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object2})
     end
 
     test "creating a named graph with an initial description" do
-      g = Graph.new(EX.GraphName, Description.new({EX.Subject, EX.predicate, EX.Object}))
+      g = Graph.new(Description.new({EX.Subject, EX.predicate, EX.Object}),
+                    name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
@@ -84,11 +87,13 @@ defmodule RDF.GraphTest do
     end
 
     test "creating a named graph from another graph" do
-      g = Graph.new(EX.GraphName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      g = Graph.new(Graph.new({EX.Subject, EX.predicate, EX.Object}),
+                    name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
 
-      g = Graph.new(EX.GraphName, Graph.new(EX.OtherGraphName, {EX.Subject, EX.predicate, EX.Object}))
+      g = Graph.new(Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.OtherGraphName),
+                    name: EX.GraphName)
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
@@ -98,9 +103,14 @@ defmodule RDF.GraphTest do
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
 
-      g = Graph.new(Graph.new(EX.OtherGraphName, {EX.Subject, EX.predicate, EX.Object}))
+      g = Graph.new(Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.OtherGraphName))
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
+    end
+
+    @tag skip: "TODO: "
+    test "with prefixes" do
+#      assert Graph.new prefixes
     end
   end
 
@@ -251,7 +261,7 @@ defmodule RDF.GraphTest do
     setup do
       {:ok,
         graph1: Graph.new({EX.S, EX.p, EX.O}),
-        graph2: Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O2]}),
+        graph2: Graph.new({EX.S, EX.p, [EX.O1, EX.O2]}, name: EX.Graph),
         graph3: Graph.new([
           {EX.S1, EX.p1, [EX.O1, EX.O2]},
           {EX.S2, EX.p2, EX.O3},
@@ -265,16 +275,16 @@ defmodule RDF.GraphTest do
       assert Graph.delete(Graph.new, {EX.S, EX.p, EX.O}) == Graph.new
       assert Graph.delete(graph1, {EX.S, EX.p, EX.O}) == Graph.new
       assert Graph.delete(graph2, {EX.S, EX.p, EX.O1}) ==
-              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+              Graph.new({EX.S, EX.p, EX.O2}, name: EX.Graph)
       assert Graph.delete(graph2, {EX.S, EX.p, EX.O1}) ==
-              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+              Graph.new({EX.S, EX.p, EX.O2}, name: EX.Graph)
     end
 
     test "multiple statements with a triple with multiple objects",
           %{graph1: graph1, graph2: graph2} do
       assert Graph.delete(Graph.new, {EX.S, EX.p, [EX.O1, EX.O2]}) == Graph.new
       assert Graph.delete(graph1, {EX.S, EX.p, [EX.O, EX.O2]}) == Graph.new
-      assert Graph.delete(graph2, {EX.S, EX.p, [EX.O1, EX.O2]}) == Graph.new(EX.Graph)
+      assert Graph.delete(graph2, {EX.S, EX.p, [EX.O1, EX.O2]}) == Graph.new(name: EX.Graph)
     end
 
     test "multiple statements with a list of triples",
@@ -282,7 +292,7 @@ defmodule RDF.GraphTest do
       assert Graph.delete(graph1, [{EX.S, EX.p, EX.O},
                                    {EX.S, EX.p, EX.O2}]) == Graph.new
       assert Graph.delete(graph2, [{EX.S, EX.p, EX.O1},
-                                   {EX.S, EX.p, EX.O2}]) == Graph.new(EX.Graph)
+                                   {EX.S, EX.p, EX.O2}]) == Graph.new(name: EX.Graph)
       assert Graph.delete(graph3, [
               {EX.S1, EX.p1, [EX.O1, EX.O2]},
               {EX.S2, EX.p2, EX.O3},
@@ -294,7 +304,7 @@ defmodule RDF.GraphTest do
       assert Graph.delete(graph1, Description.new(EX.S,
                 [{EX.p, EX.O}, {EX.p2, EX.O2}])) == Graph.new
       assert Graph.delete(graph2, Description.new(EX.S, EX.p, [EX.O1, EX.O2])) ==
-              Graph.new(EX.Graph)
+              Graph.new(name: EX.Graph)
       assert Graph.delete(graph3, Description.new(EX.S3, EX.p3, ~B<foo>)) ==
                Graph.new([
                          {EX.S1, EX.p1, [EX.O1, EX.O2]},
@@ -307,8 +317,9 @@ defmodule RDF.GraphTest do
           %{graph1: graph1, graph2: graph2, graph3: graph3} do
       assert Graph.delete(graph1, graph2) == graph1
       assert Graph.delete(graph1, graph1) == Graph.new
-      assert Graph.delete(graph2, Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O3]})) ==
-              Graph.new(EX.Graph, {EX.S, EX.p, EX.O2})
+      assert Graph.delete(graph2, Graph.new({EX.S, EX.p, [EX.O1, EX.O3]},
+                          name: EX.Graph)) ==
+              Graph.new({EX.S, EX.p, EX.O2}, name: EX.Graph)
       assert Graph.delete(graph3, Graph.new([
                 {EX.S1, EX.p1, [EX.O1, EX.O2]},
                 {EX.S2, EX.p2, EX.O3},
@@ -322,7 +333,7 @@ defmodule RDF.GraphTest do
   describe "delete_subjects" do
     setup do
       {:ok,
-        graph1: Graph.new(EX.Graph, {EX.S, EX.p, [EX.O1, EX.O2]}),
+        graph1: Graph.new({EX.S, EX.p, [EX.O1, EX.O2]}, name: EX.Graph),
         graph2: Graph.new([
           {EX.S1, EX.p1, [EX.O1, EX.O2]},
           {EX.S2, EX.p2, EX.O3},
@@ -333,11 +344,11 @@ defmodule RDF.GraphTest do
 
     test "a single subject", %{graph1: graph1} do
       assert Graph.delete_subjects(graph1, EX.Other) == graph1
-      assert Graph.delete_subjects(graph1, EX.S) == Graph.new(EX.Graph)
+      assert Graph.delete_subjects(graph1, EX.S) == Graph.new(name: EX.Graph)
     end
 
     test "a list of subjects", %{graph1: graph1, graph2: graph2}  do
-      assert Graph.delete_subjects(graph1, [EX.S, EX.Other]) == Graph.new(EX.Graph)
+      assert Graph.delete_subjects(graph1, [EX.S, EX.Other]) == Graph.new(name: EX.Graph)
       assert Graph.delete_subjects(graph2, [EX.S1, EX.S2, EX.S3]) == Graph.new
     end
   end
@@ -394,7 +405,7 @@ defmodule RDF.GraphTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
-      assert Enum.count(Graph.new EX.foo) == 0
+      assert Enum.count(Graph.new(name: EX.foo)) == 0
       assert Enum.count(Graph.new {EX.S, EX.p, EX.O}) == 1
       assert Enum.count(Graph.new [{EX.S, EX.p, EX.O1}, {EX.S, EX.p, EX.O2}]) == 2
 
