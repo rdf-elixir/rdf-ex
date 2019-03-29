@@ -92,8 +92,10 @@ defmodule RDF.PrefixMap do
   The second prefix map can also be given as any structure which can converted
   to a `RDF.PrefixMap` via `new/1`.
 
-  If there are conflicts between the prefix maps, that is prefixes mapped to
-  different namespaces and error tuple is returned, otherwise an ok tuple.
+  If the prefix maps can be merged without conflicts, that is there are no
+  prefixes mapped to different namespaces an `:ok` tuple is returned.
+  Otherwise an `:error` tuple with the list of prefixes with conflicting
+  namespaces is returned.
   """
   def merge(prefix_map1, prefix_map2)
 
@@ -101,9 +103,7 @@ defmodule RDF.PrefixMap do
     with [] <- merge_conflicts(map1, map2) do
       {:ok, %__MODULE__{map: Map.merge(map1, map2)}}
     else
-      conflicts ->
-        {:error,
-         "conflicting prefix mappings: #{conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")}"}
+      conflicts -> {:error, conflicts}
     end
   end
 
@@ -135,7 +135,10 @@ defmodule RDF.PrefixMap do
     with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2) do
       new_prefix_map
     else
-      {:error, error} -> raise error
+      {:error, conflicts} ->
+        raise "conflicting prefix mappings: #{
+                conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")
+              }"
     end
   end
 

@@ -112,7 +112,8 @@ defmodule RDF.PrefixMapTest do
 
     test "when the prefix maps share some prefixes and both map to different namespaces" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
-      assert PrefixMap.merge(@example3, other_prefix_map) == {:error, "conflicting prefix mappings: :ex3"}
+      assert PrefixMap.merge(@example3, other_prefix_map) ==
+               {:error, [:ex3]}
     end
 
     test "when the second prefix map is given as a structure convertible to a prefix map" do
