@@ -30,70 +30,60 @@ defmodule RDF.Dataset do
     do: %RDF.Dataset{}
 
   @doc """
-  Creates an unnamed `RDF.Dataset` with an initial statement.
+  Creates an `RDF.Dataset`.
+
+  If a keyword list is given an empty dataset is created.
+  Otherwise an unnamed dataset initialized with the given data is created.
+
+  See `new/2` for available arguments and the different ways to provide data.
+
+  ## Examples
+
+      RDF.Graph.new({EX.S, EX.p, EX.O})
+
+      RDF.Graph.new(name: EX.GraphName)
+
   """
-  def new(statement) when is_tuple(statement),
-    do: new() |> add(statement)
+  def new(data_or_options)
+
+  def new(data_or_options)
+      when is_list(data_or_options) and length(data_or_options) != 0 do
+    if Keyword.keyword?(data_or_options) do
+      new([], data_or_options)
+    else
+      new(data_or_options, [])
+    end
+  end
+
+  def new(data), do: new(data, [])
 
   @doc """
-  Creates an unnamed `RDF.Dataset` with initial statements.
-  """
-  def new(statements) when is_list(statements),
-    do: new() |> add(statements)
+  Creates an `RDF.Dataset` initialized with data.
 
-  @doc """
-  Creates an unnamed `RDF.Dataset` with a `RDF.Description`.
-  """
-  def new(%RDF.Description{} = description),
-    do: new() |> add(description)
+  The initial RDF triples can be provided
 
-  @doc """
-  Creates an unnamed `RDF.Dataset` with a `RDF.Graph`.
-  """
-  def new(%RDF.Graph{} = graph),
-    do: new() |> add(graph, graph.name)
+  - as a single statement tuple
+  - an `RDF.Description`
+  - an `RDF.Graph`
+  - an `RDF.Dataset`
+  - or a list with any combination of the former
 
-  @doc """
-  Creates an unnamed `RDF.Dataset` from another `RDF.Dataset`.
-  """
-  def new(%RDF.Dataset{graphs: graphs}),
-    do: %RDF.Dataset{graphs: graphs}
+  Available options:
 
-  @doc """
-  Creates an empty named `RDF.Dataset`.
-  """
-  def new(name),
-    do: %RDF.Dataset{name: RDF.iri!(name)}
+  - `name`: the name of the dataset to be created
 
-  @doc """
-  Creates a named `RDF.Dataset` with an initial statement.
   """
-  def new(name, statement) when is_tuple(statement),
-    do: new(name) |> add(statement)
+  def new(data, options)
 
-  @doc """
-  Creates a named `RDF.Dataset` with initial statements.
-  """
-  def new(name, statements) when is_list(statements),
-    do: new(name) |> add(statements)
+  def new(%RDF.Dataset{} = graph, options) do
+    %RDF.Dataset{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
+  end
 
-  @doc """
-  Creates a named `RDF.Dataset` with a `RDF.Description`.
-  """
-  def new(name, %RDF.Description{} = description),
-    do: new(name) |> add(description)
-
-  @doc """
-  Creates a named `RDF.Dataset` with a `RDF.Graph`.
-  """
-  def new(name, %RDF.Graph{} = graph),
-    do: new(name) |> add(graph, graph.name)
-
-  @doc """
-  Creates a named `RDF.Dataset` from another `RDF.Dataset`.
-  """
-  def new(name, %RDF.Dataset{graphs: graphs}),
-    do: %RDF.Dataset{new(name) | graphs: graphs}
+  def new(data, options) do
+    %RDF.Dataset{}
+    |> new(options)
+    |> add(data)
+  end
 
 
   @doc """

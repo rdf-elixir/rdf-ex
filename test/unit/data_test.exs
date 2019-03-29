@@ -335,7 +335,7 @@ defmodule RDF.DataTest do
     test "merge of a dataset", %{dataset: dataset} do
       assert RDF.Data.merge(dataset, Dataset.new({EX.Other, EX.p1, EX.O3})) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3})
-      assert RDF.Data.merge(dataset, Dataset.new(EX.NamedDataset, {EX.Other, EX.p1, EX.O3})) ==
+      assert RDF.Data.merge(dataset, Dataset.new({EX.Other, EX.p1, EX.O3}, name: EX.NamedDataset)) ==
               Dataset.add(dataset, {EX.Other, EX.p1, EX.O3})
     end
 

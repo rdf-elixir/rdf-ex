@@ -107,11 +107,6 @@ defmodule RDF.GraphTest do
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
-
-    @tag skip: "TODO: "
-    test "with prefixes" do
-#      assert Graph.new prefixes
-    end
   end
 
   describe "add" do

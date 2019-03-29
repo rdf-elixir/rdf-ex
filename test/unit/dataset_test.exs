@@ -34,13 +34,13 @@ defmodule RDF.DatasetTest do
     end
 
     test "creating a named dataset with an initial triple" do
-      ds = Dataset.new(EX.DatasetName, {EX.Subject, EX.predicate, EX.Object})
+      ds = Dataset.new({EX.Subject, EX.predicate, EX.Object}, name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
     end
 
     test "creating a named dataset with an initial quad" do
-      ds = Dataset.new(EX.DatasetName, {EX.Subject, EX.predicate, EX.Object, EX.GraphName})
+      ds = Dataset.new({EX.Subject, EX.predicate, EX.Object, EX.GraphName}, name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object, EX.GraphName})
     end
@@ -58,11 +58,11 @@ defmodule RDF.DatasetTest do
     end
 
     test "creating a named dataset with a list of initial statements" do
-      ds = Dataset.new(EX.DatasetName, [
+      ds = Dataset.new([
               {EX.Subject, EX.predicate1, EX.Object1},
               {EX.Subject, EX.predicate2, EX.Object2, EX.GraphName},
               {EX.Subject, EX.predicate3, EX.Object3, nil}
-           ])
+           ], name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate1, EX.Object1, nil})
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate2, EX.Object2, EX.GraphName})
@@ -70,7 +70,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "creating a named dataset with an initial description" do
-      ds = Dataset.new(EX.DatasetName, Description.new({EX.Subject, EX.predicate, EX.Object}))
+      ds = Dataset.new(Description.new({EX.Subject, EX.predicate, EX.Object}), name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
     end
@@ -82,12 +82,12 @@ defmodule RDF.DatasetTest do
     end
 
     test "creating a named dataset with an initial graph" do
-      ds = Dataset.new(EX.DatasetName, Graph.new({EX.Subject, EX.predicate, EX.Object}))
+      ds = Dataset.new(Graph.new({EX.Subject, EX.predicate, EX.Object}), name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert dataset_includes_statement?(ds, {EX.Subject, EX.predicate, EX.Object})
 
-      ds = Dataset.new(EX.DatasetName, Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.GraphName))
+      ds = Dataset.new(Graph.new({EX.Subject, EX.predicate, EX.Object}, name: EX.GraphName), name: EX.DatasetName)
       assert named_dataset?(ds, iri(EX.DatasetName))
       assert unnamed_graph?(Dataset.default_graph(ds))
       assert named_graph?(Dataset.graph(ds, EX.GraphName), iri(EX.GraphName))
@@ -362,17 +362,17 @@ defmodule RDF.DatasetTest do
     end
 
     test "a named Dataset" do
-      ds = Dataset.add(named_dataset(), Dataset.new(EX.DS1, [
+      ds = Dataset.add(named_dataset(), Dataset.new([
         {EX.Subject1, EX.predicate1, EX.Object1},
         {EX.Subject1, EX.predicate2, EX.Object2},
-      ]))
+      ], name: EX.DS1))
       assert ds.name == iri(EX.DatasetName)
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate2, EX.Object2})
 
-      ds = Dataset.add(ds, Dataset.new(EX.DS2, {EX.Subject1, EX.predicate2, EX.Object3}))
-      ds = Dataset.add(ds, Dataset.new(EX.DS2, {EX.Subject1, EX.predicate2, EX.Object3, EX.Graph}))
-      ds = Dataset.add(ds, Dataset.new(EX.DS2, {EX.Subject1, EX.predicate2, EX.Object4}), EX.Graph)
+      ds = Dataset.add(ds, Dataset.new({EX.Subject1, EX.predicate2, EX.Object3}, name: EX.DS2))
+      ds = Dataset.add(ds, Dataset.new({EX.Subject1, EX.predicate2, EX.Object3, EX.Graph}, name: EX.DS2))
+      ds = Dataset.add(ds, Dataset.new({EX.Subject1, EX.predicate2, EX.Object4}, name: EX.DS2), EX.Graph)
       assert ds.name == iri(EX.DatasetName)
       assert Enum.count(ds) == 5
       assert dataset_includes_statement?(ds, {EX.Subject1, EX.predicate1, EX.Object1})
@@ -741,7 +741,7 @@ defmodule RDF.DatasetTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
-      assert Enum.count(Dataset.new EX.foo) == 0
+      assert Enum.count(Dataset.new(name: EX.foo)) == 0
       assert Enum.count(Dataset.new {EX.S, EX.p, EX.O, EX.Graph}) == 1
       assert Enum.count(Dataset.new [{EX.S, EX.p, EX.O1, EX.Graph}, {EX.S, EX.p, EX.O2}]) == 2
 

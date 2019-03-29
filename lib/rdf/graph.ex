@@ -84,7 +84,8 @@ defmodule RDF.Graph do
   end
 
   def new(data, options) do
-    %RDF.Graph{name: options |> Keyword.get(:name) |> coerce_graph_name()}
+    %RDF.Graph{}
+    |> new(options)
     |> add(data)
   end
 
@@ -94,7 +95,7 @@ defmodule RDF.Graph do
   See `new/2` for available arguments.
   """
   def new(subject, predicate, objects, options \\ []),
-    do: new(options) |> add(subject, predicate, objects)
+    do: new([], options) |> add(subject, predicate, objects)
 
 
   @doc """
