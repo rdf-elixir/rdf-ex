@@ -96,6 +96,8 @@ defmodule RDF.PrefixMap do
   prefixes mapped to different namespaces an `:ok` tuple is returned.
   Otherwise an `:error` tuple with the list of prefixes with conflicting
   namespaces is returned.
+
+  See also `merge/3` which allows you to resolve conflicts with a function.
   """
   def merge(prefix_map1, prefix_map2)
 
@@ -114,6 +116,53 @@ defmodule RDF.PrefixMap do
       raise ArgumentError, "#{inspect(other_prefixes)} is not convertible to a RDF.PrefixMap"
   end
 
+  @doc """
+  Merges two `RDF.PrefixMap`s, resolving conflicts through the given `fun`.
+
+  The second prefix map can also be given as any structure which can converted
+  to a `RDF.PrefixMap` via `new/1`.
+
+  The given function will be invoked when there are conflicting mappings of
+  prefixes to different namespaces; its arguments are `prefix`, `namespace1`
+  (the namespace for the prefix in the first prefix map),
+  and `namespace2` (the namespace for the prefix in the second prefix map).
+  The value returned by `fun` is used as the namespace for the prefix in the
+  resulting prefix map.
+  Non-`RDF.IRI` values will be tried to be converted to converted to `RDF.IRI`
+  via `RDF.IRI.new` implicitly.
+
+  If a conflict can't be resolved, the provided function can return `nil`.
+  This will result in an overall return of an `:error` tuple with the list of
+  prefixes for which the conflict couldn't be resolved.
+
+  If everything could be merged, an `:ok` tuple is returned.
+
+  """
+  def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, fun) when is_function(fun) do
+    conflict_resolution = fn prefix, namespace1, namespace2 ->
+      case fun.(prefix, namespace1, namespace2) do
+        nil -> :conflict
+        result -> IRI.new(result)
+      end
+    end
+
+    with resolved_merge = Map.merge(map1, map2, conflict_resolution),
+         [] <- resolved_merge_rest_conflicts(resolved_merge) do
+      {:ok, %__MODULE__{map: resolved_merge}}
+    else
+      conflicts -> {:error, conflicts}
+    end
+  end
+
+  def merge(prefix_map1, prefix_map2, nil), do: merge(prefix_map1, prefix_map2)
+
+  defp resolved_merge_rest_conflicts(map) do
+    Enum.reduce(map, [], fn
+      {prefix, :conflict}, conflicts -> [prefix | conflicts]
+      _, conflicts -> conflicts
+    end)
+  end
+
   defp merge_conflicts(map1, map2) do
     Enum.reduce(map1, [], fn {prefix, namespace}, conflicts ->
       if conflicts?(map2, prefix, namespace) do
@@ -130,9 +179,11 @@ defmodule RDF.PrefixMap do
 
   @doc """
   Merges two `RDF.PrefixMap`s and raises an exception in error cases.
+
+  See `merge/2` and `merge/3` for more information on merging prefix maps.
   """
-  def merge!(prefix_map1, prefix_map2) do
-    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2) do
+  def merge!(prefix_map1, prefix_map2, fun \\ nil) do
+    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2, fun) do
       new_prefix_map
     else
       {:error, conflicts} ->
@@ -143,7 +194,7 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Deletes a prefix mapping from the given `RDF.PrefixMap`..
+  Deletes a prefix mapping from the given `RDF.PrefixMap`.
   """
   def delete(prefix_map, prefix)
 
