@@ -119,7 +119,7 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Merges two `RDF.PrefixMap`s, resolving conflicts through the given `fun`.
+  Merges two `RDF.PrefixMap`s, resolving conflicts through the given `conflict_resolver` function.
 
   The second prefix map can also be given as any structure which can converted
   to a `RDF.PrefixMap` via `new/1`.
@@ -128,8 +128,8 @@ defmodule RDF.PrefixMap do
   prefixes to different namespaces; its arguments are `prefix`, `namespace1`
   (the namespace for the prefix in the first prefix map),
   and `namespace2` (the namespace for the prefix in the second prefix map).
-  The value returned by `fun` is used as the namespace for the prefix in the
-  resulting prefix map.
+  The value returned by the `conflict_resolver` function is used as the namespace
+  for the prefix in the resulting prefix map.
   Non-`RDF.IRI` values will be tried to be converted to converted to `RDF.IRI`
   via `RDF.IRI.new` implicitly.
 
@@ -140,11 +140,12 @@ defmodule RDF.PrefixMap do
   If everything could be merged, an `:ok` tuple is returned.
 
   """
-  def merge(prefix_map1, prefix_map2, fun)
+  def merge(prefix_map1, prefix_map2, conflict_resolver)
 
-  def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, fun) when is_function(fun) do
+  def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, conflict_resolver)
+      when is_function(conflict_resolver) do
     conflict_resolution = fn prefix, namespace1, namespace2 ->
-      case fun.(prefix, namespace1, namespace2) do
+      case conflict_resolver.(prefix, namespace1, namespace2) do
         nil -> :conflict
         result -> IRI.new(result)
       end
@@ -158,8 +159,9 @@ defmodule RDF.PrefixMap do
     end
   end
 
-  def merge(%__MODULE__{} = prefix_map1, prefix_map2, fun) when is_function(fun) do
-    merge(prefix_map1, new(prefix_map2), fun)
+  def merge(%__MODULE__{} = prefix_map1, prefix_map2, conflict_resolver)
+      when is_function(conflict_resolver) do
+    merge(prefix_map1, new(prefix_map2), conflict_resolver)
   end
 
   def merge(prefix_map1, prefix_map2, nil), do: merge(prefix_map1, prefix_map2)
@@ -190,8 +192,8 @@ defmodule RDF.PrefixMap do
 
   See `merge/2` and `merge/3` for more information on merging prefix maps.
   """
-  def merge!(prefix_map1, prefix_map2, fun \\ nil) do
-    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2, fun) do
+  def merge!(prefix_map1, prefix_map2, conflict_resolver \\ nil) do
+    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2, conflict_resolver) do
       new_prefix_map
     else
       {:error, conflicts} ->
