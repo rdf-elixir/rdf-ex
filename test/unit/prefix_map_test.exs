@@ -70,10 +70,20 @@ defmodule RDF.PrefixMapTest do
       assert PrefixMap.add(@example1, :ex, EX) == {:ok, @example4}
     end
 
+    test "when the IRI namespace is given as a RDF.Vocabulary.Namespace which is not loaded yet" do
+      assert {:ok, prefix_map} = PrefixMap.new |> PrefixMap.add(:rdfs, RDF.NS.RDFS)
+      assert PrefixMap.has_prefix?(prefix_map, :rdfs)
+    end
+
     test "when the IRI namespace is given as an atom" do
       assert_raise ArgumentError, "Invalid prefix mapping for :ex, :foo is not a vocabulary namespace", fn ->
         PrefixMap.add(@example1, :ex, :foo)
       end
+    end
+
+    @tag skip: "TODO: "
+    test "when a default namespace is given" do
+      assert PrefixMap.add(@example1, :_, @ex_ns2) == {:ok, @example5}
     end
 
     test "when a mapping of the given prefix to the same namespace already exists" do

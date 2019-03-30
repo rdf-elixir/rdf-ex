@@ -572,4 +572,9 @@ defmodule RDF.Vocabulary.Namespace do
   def term_to_iri(base_iri, term),
     do: RDF.iri(base_iri <> term)
 
+  @doc false
+  def vocabulary_namespace?(name) do
+    Code.ensure_loaded?(name) && function_exported?(name, :__base_iri__, 0)
+  end
+
 end

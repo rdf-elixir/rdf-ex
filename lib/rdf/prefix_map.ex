@@ -41,7 +41,7 @@ defmodule RDF.PrefixMap do
     do: normalize({prefix, IRI.new(namespace)})
 
   defp normalize({prefix, namespace}) when is_atom(namespace) do
-    if function_exported?(namespace, :__base_iri__, 0) do
+    if RDF.Vocabulary.Namespace.vocabulary_namespace?(namespace) do
       normalize({prefix, apply(namespace, :__base_iri__, [])})
     else
       raise ArgumentError,
