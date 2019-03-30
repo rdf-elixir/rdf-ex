@@ -23,6 +23,8 @@ defmodule RDF.PrefixMap do
   """
   def new(map)
 
+  def new(%__MODULE__{} = prefix_map), do: prefix_map
+
   def new(map) when is_map(map) do
     %__MODULE__{map: Map.new(map, &normalize/1)}
   end

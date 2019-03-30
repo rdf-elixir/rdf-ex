@@ -45,6 +45,10 @@ defmodule RDF.PrefixMapTest do
              ) == @example2
     end
 
+    test "with another prefix map" do
+      assert PrefixMap.new(@example2) == @example2
+    end
+
     test "when the IRI namespace is given as a RDF.Vocabulary.Namespace" do
       assert PrefixMap.new(
                ex1: "http://example.com/foo/",
