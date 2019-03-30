@@ -208,6 +208,20 @@ defmodule RDF.PrefixMapTest do
     end
   end
 
+  describe "drop/2" do
+    test "when a mapping of the given prefix exists" do
+      assert PrefixMap.drop(@example3, [:ex3, :ex2, :ex]) == @example1
+    end
+
+    test "when no mapping of the given prefix exists" do
+      assert PrefixMap.drop(@example1, [:ex2]) == @example1
+    end
+
+    test "with the prefixes are given as strings" do
+      assert PrefixMap.drop(@example3, ["ex3", :ex2]) == @example1
+    end
+  end
+
   describe "namespace/2" do
     test "when a mapping of the given prefix exists" do
       assert PrefixMap.namespace(@example2, :ex2) == @ex_ns2

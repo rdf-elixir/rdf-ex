@@ -213,6 +213,26 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
+  Drops the given `prefixes` from the given `prefix_map`.
+
+  If `prefixes` contains prefixes that are not in `prefix_map`, they're simply ignored.
+  """
+  def drop(prefix_map, prefixes)
+
+  def drop(%__MODULE__{map: map}, prefixes) do
+    %__MODULE__{
+      map:
+        Map.drop(
+          map,
+          Enum.map(prefixes, fn
+            prefix when is_binary(prefix) -> String.to_atom(prefix)
+            other -> other
+          end)
+        )
+    }
+  end
+
+  @doc """
   Returns the namespace for the given prefix in the given `RDF.PrefixMap`.
 
   Returns `nil`, when the given `prefix` is not present in `prefix_map`.
