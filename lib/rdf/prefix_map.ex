@@ -138,6 +138,8 @@ defmodule RDF.PrefixMap do
   If everything could be merged, an `:ok` tuple is returned.
 
   """
+  def merge(prefix_map1, prefix_map2, fun)
+
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, fun) when is_function(fun) do
     conflict_resolution = fn prefix, namespace1, namespace2 ->
       case fun.(prefix, namespace1, namespace2) do
@@ -152,6 +154,10 @@ defmodule RDF.PrefixMap do
     else
       conflicts -> {:error, conflicts}
     end
+  end
+
+  def merge(%__MODULE__{} = prefix_map1, prefix_map2, fun) when is_function(fun) do
+    merge(prefix_map1, new(prefix_map2), fun)
   end
 
   def merge(prefix_map1, prefix_map2, nil), do: merge(prefix_map1, prefix_map2)

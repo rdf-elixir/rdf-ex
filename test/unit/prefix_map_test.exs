@@ -142,6 +142,9 @@ defmodule RDF.PrefixMapTest do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
       assert PrefixMap.merge(@example3, other_prefix_map,
                 fn _prefix, ns1, _ns2 -> ns1 end) == {:ok, @example3}
+
+      assert PrefixMap.merge(@example1, %{ex1: EX},
+               fn _prefix, _ns1, ns2 -> ns2 end) == {:ok, PrefixMap.new(ex1: EX)}
     end
 
     test "with a function which does not resolve by returning nil" do
