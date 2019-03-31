@@ -3,6 +3,8 @@ defmodule RDF.GraphTest do
 
   doctest RDF.Graph
 
+  alias RDF.PrefixMap
+  alias RDF.NS.{XSD, RDFS}
 
   describe "new" do
     test "creating an empty unnamed graph" do
@@ -107,6 +109,25 @@ defmodule RDF.GraphTest do
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate, EX.Object})
     end
+
+    test "with prefixes" do
+      assert Graph.new(prefixes: %{ex: EX}) ==
+               %Graph{prefixes: PrefixMap.new(ex: EX)}
+      assert Graph.new(prefixes: %{ex: EX}, name: EX.graph_name) ==
+               %Graph{prefixes: PrefixMap.new(ex: EX), name: EX.graph_name}
+
+      assert Graph.new({EX.Subject, EX.predicate, EX.Object}, prefixes: %{ex: EX}) ==
+               %Graph{Graph.new({EX.Subject, EX.predicate, EX.Object}) | prefixes: PrefixMap.new(ex: EX)}
+    end
+
+    test "creating a graph from another graph takes the prefixes from the other graph, but overwrites if necessary" do
+      prefix_map = PrefixMap.new(ex: EX)
+      g = Graph.new(Graph.new(prefixes: prefix_map))
+      assert g.prefixes == prefix_map
+
+      g = Graph.new(Graph.new(prefixes: %{ex: XSD, rdfs: RDFS}), prefixes: prefix_map)
+      assert g.prefixes == PrefixMap.new(ex: EX, rdfs: RDFS)
+    end
   end
 
   describe "add" do
@@ -194,6 +215,25 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3, EX.Object3})
     end
 
+    test "merges the prefixes of another graph" do
+      graph = Graph.new(prefixes: %{xsd: XSD})
+              |> Graph.add(Graph.new(prefixes: %{rdfs: RDFS}))
+      assert graph.prefixes == PrefixMap.new(xsd: XSD, rdfs: RDFS)
+    end
+
+    test "merges the prefixes of another graph and keeps the original mapping in case of conflicts" do
+      graph = Graph.new(prefixes: %{ex: EX})
+              |> Graph.add(Graph.new(prefixes: %{ex: XSD}))
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
+    test "preserves the name and prefixes on when the data provided is not a graph" do
+      graph = Graph.new(name: EX.GraphName, prefixes: %{ex: EX})
+              |> Graph.add(EX.Subject, EX.predicate, EX.Object)
+      assert graph.name == RDF.iri(EX.GraphName)
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
     test "non-coercible Triple elements are causing an error" do
       assert_raise RDF.IRI.InvalidError, fn ->
         Graph.add(graph(), {"not a IRI", EX.predicate, iri(EX.Object)})
@@ -248,6 +288,25 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S1, EX.P3, EX.O4})
       assert graph_includes_statement?(g, {EX.S2, EX.P2, bnode(:foo)})
       assert graph_includes_statement?(g, {EX.S3, EX.P3, EX.O3})
+    end
+
+    test "merges the prefixes of another graph" do
+      graph = Graph.new(prefixes: %{xsd: XSD})
+              |> Graph.put(Graph.new(prefixes: %{rdfs: RDFS}))
+      assert graph.prefixes == PrefixMap.new(xsd: XSD, rdfs: RDFS)
+    end
+
+    test "merges the prefixes of another graph and keeps the original mapping in case of conflicts" do
+      graph = Graph.new(prefixes: %{ex: EX})
+              |> Graph.put(Graph.new(prefixes: %{ex: XSD}))
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
+    test "preserves the name and prefixes" do
+      graph = Graph.new(name: EX.GraphName, prefixes: %{ex: EX})
+              |> Graph.put(EX.Subject, EX.predicate, EX.Object)
+      assert graph.name == RDF.iri(EX.GraphName)
+      assert graph.prefixes == PrefixMap.new(ex: EX)
     end
   end
 
@@ -322,6 +381,12 @@ defmodule RDF.GraphTest do
               ])) == Graph.new({EX.S3, EX.p3, ~L"bar"})
     end
 
+    test "preserves the name and prefixes" do
+      graph = Graph.new(EX.Subject, EX.predicate, EX.Object, name: EX.GraphName, prefixes: %{ex: EX})
+              |> Graph.delete(EX.Subject, EX.predicate, EX.Object)
+      assert graph.name == RDF.iri(EX.GraphName)
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
   end
 
 
@@ -397,6 +462,48 @@ defmodule RDF.GraphTest do
              }
   end
 
+  describe "add_prefixes/2" do
+    test "when prefixes already exist" do
+      graph = Graph.new(prefixes: %{xsd: XSD}) |> Graph.add_prefixes(ex: EX)
+      assert graph.prefixes == PrefixMap.new(xsd: XSD, ex: EX)
+    end
+
+    test "when prefixes are not defined yet" do
+      graph = Graph.new() |> Graph.add_prefixes(ex: EX)
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
+    test "when prefixes have conflicting mappings, the new mapping is used" do
+      graph = Graph.new(prefixes: %{ex: EX}) |> Graph.add_prefixes(ex: XSD)
+      assert graph.prefixes == PrefixMap.new(ex: XSD)
+    end
+
+    test "when prefixes have conflicting mappings and a conflict resolver function is provided" do
+      graph = Graph.new(prefixes: %{ex: EX}) |> Graph.add_prefixes([ex: XSD], fn _, ns, _ -> ns end)
+      assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+  end
+
+  describe "delete_prefixes/2" do
+    test "when given a single prefix" do
+      graph = Graph.new(prefixes: %{ex: EX}) |> Graph.delete_prefixes(:ex)
+      assert graph.prefixes == PrefixMap.new()
+    end
+
+    test "when given a list of prefixes" do
+      graph = Graph.new(prefixes: %{ex1: EX, ex2: EX}) |> Graph.delete_prefixes([:ex1, :ex2, :ex3])
+      assert graph.prefixes == PrefixMap.new()
+    end
+
+    test "when prefixes are not defined yet" do
+      graph = Graph.new() |> Graph.delete_prefixes(:ex)
+      assert graph.prefixes == nil
+    end
+  end
+
+  test "clear_prefixes/1" do
+    assert Graph.clear_prefixes(Graph.new(prefixes: %{ex: EX})) == Graph.new
+  end
 
   describe "Enumerable protocol" do
     test "Enum.count" do

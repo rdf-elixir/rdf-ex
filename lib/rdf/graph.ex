@@ -11,7 +11,7 @@ defmodule RDF.Graph do
 
   """
 
-  defstruct name: nil, descriptions: %{}
+  defstruct name: nil, descriptions: %{}, prefixes: nil
 
   @behaviour Access
 
@@ -66,6 +66,8 @@ defmodule RDF.Graph do
   Available options:
 
   - `name`: the name of the graph to be created
+  - `prefixes`: some prefix mappings which should be stored alongside the graph
+    and will be used for example when serializing in a format with prefix support
 
   ## Examples
 
@@ -81,6 +83,7 @@ defmodule RDF.Graph do
 
   def new(%RDF.Graph{} = graph, options) do
     %RDF.Graph{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
+    |> add_prefixes(Keyword.get(options, :prefixes))
   end
 
   def new(data, options) do
@@ -107,11 +110,14 @@ defmodule RDF.Graph do
   @doc """
   Adds triples to a `RDF.Graph`.
 
-  Note: When the statements to be added are given as another `RDF.Graph`,
+  When the statements to be added are given as another `RDF.Graph`,
   the graph name must not match graph name of the graph to which the statements
   are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Dataset`
   containing both graphs.
 
+  Also when the statements to be added are given as another `RDF.Graph`, the
+  prefixes of this graph will be added. In case of conflicting prefix mappings
+  the original prefix from `graph` will be kept.
   """
   def add(graph, triples)
 
@@ -130,15 +136,21 @@ defmodule RDF.Graph do
   def add(%RDF.Graph{} = graph, %Description{subject: subject} = description),
     do: do_add(graph, subject, description)
 
-  def add(graph, %RDF.Graph{descriptions: descriptions}) do
-    Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
-      add(graph, description)
+  def add(graph, %RDF.Graph{descriptions: descriptions, prefixes: prefixes}) do
+    graph =
+      Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
+        add(graph, description)
+      end
+
+    if prefixes do
+      add_prefixes(graph, prefixes, fn _, ns, _ -> ns end)
+    else
+      graph
     end
   end
 
-  defp do_add(%RDF.Graph{name: name, descriptions: descriptions},
-              subject, statements) do
-    %RDF.Graph{name: name,
+  defp do_add(%RDF.Graph{descriptions: descriptions} = graph, subject, statements) do
+    %RDF.Graph{graph |
       descriptions:
         Map.update(descriptions, subject, Description.new(statements),
           fn description ->
@@ -150,6 +162,10 @@ defmodule RDF.Graph do
 
   @doc """
   Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
+
+  When the statements to be added are given as another `RDF.Graph`, the prefixes
+  of this graph will be added. In case of conflicting prefix mappings the
+  original  prefix from `graph` will be kept.
 
   ## Examples
 
@@ -169,9 +185,16 @@ defmodule RDF.Graph do
   def put(%RDF.Graph{} = graph, %Description{subject: subject} = description),
     do: do_put(graph, subject, description)
 
-  def put(graph, %RDF.Graph{descriptions: descriptions}) do
-    Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
-      put(graph, description)
+  def put(graph, %RDF.Graph{descriptions: descriptions, prefixes: prefixes}) do
+    graph =
+      Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
+        put(graph, description)
+      end
+
+    if prefixes do
+      add_prefixes(graph, prefixes, fn _, ns, _ -> ns end)
+    else
+      graph
     end
   end
 
@@ -190,11 +213,11 @@ defmodule RDF.Graph do
   """
   def put(graph, subject, predications)
 
-  def put(%RDF.Graph{name: name, descriptions: descriptions}, subject, predications)
+  def put(%RDF.Graph{descriptions: descriptions} = graph, subject, predications)
         when is_list(predications) do
     with subject = coerce_subject(subject) do
       # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
-      %RDF.Graph{name: name,
+      %RDF.Graph{graph |
         descriptions:
           Map.update(descriptions, subject, Description.new(subject, predications),
             fn current ->
@@ -207,9 +230,8 @@ defmodule RDF.Graph do
   def put(graph, subject, {_predicate, _objects} = predications),
     do: put(graph, subject, [predications])
 
-  defp do_put(%RDF.Graph{name: name, descriptions: descriptions},
-          subject, statements) do
-    %RDF.Graph{name: name,
+  defp do_put(%RDF.Graph{descriptions: descriptions} = graph, subject, statements) do
+    %RDF.Graph{graph |
       descriptions:
         Map.update(descriptions, subject, Description.new(statements),
           fn current ->
@@ -271,12 +293,12 @@ defmodule RDF.Graph do
     end
   end
 
-  defp do_delete(%RDF.Graph{name: name, descriptions: descriptions} = graph,
+  defp do_delete(%RDF.Graph{descriptions: descriptions} = graph,
                  subject, statements) do
     with description when not is_nil(description) <- descriptions[subject],
          new_description = Description.delete(description, statements)
     do
-      %RDF.Graph{name: name,
+      %RDF.Graph{graph |
         descriptions:
           if Enum.empty?(new_description) do
             Map.delete(descriptions, subject)
@@ -301,9 +323,9 @@ defmodule RDF.Graph do
     end
   end
 
-  def delete_subjects(%RDF.Graph{name: name, descriptions: descriptions}, subject) do
+  def delete_subjects(%RDF.Graph{descriptions: descriptions} = graph, subject) do
     with subject = coerce_subject(subject) do
-      %RDF.Graph{name: name, descriptions: Map.delete(descriptions, subject)}
+      %RDF.Graph{graph | descriptions: Map.delete(descriptions, subject)}
     end
   end
 
@@ -409,7 +431,7 @@ defmodule RDF.Graph do
   def pop(%RDF.Graph{descriptions: descriptions} = graph)
     when descriptions == %{}, do: {nil, graph}
 
-  def pop(%RDF.Graph{name: name, descriptions: descriptions}) do
+  def pop(%RDF.Graph{descriptions: descriptions} = graph) do
     # TODO: Find a faster way ...
     [{subject, description}] = Enum.take(descriptions, 1)
     {triple, popped_description} = Description.pop(description)
@@ -417,7 +439,7 @@ defmodule RDF.Graph do
       do:   descriptions |> Map.delete(subject),
       else: descriptions |> Map.put(subject, popped_description)
 
-    {triple, %RDF.Graph{name: name, descriptions: popped}}
+    {triple, %RDF.Graph{graph | descriptions: popped}}
   end
 
   @doc """
@@ -435,12 +457,12 @@ defmodule RDF.Graph do
 
   """
   @impl Access
-  def pop(%RDF.Graph{name: name, descriptions: descriptions} = graph, subject) do
+  def pop(%RDF.Graph{descriptions: descriptions} = graph, subject) do
     case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->
         {nil, graph}
       {description, new_descriptions} ->
-        {description, %RDF.Graph{name: name, descriptions: new_descriptions}}
+        {description, %RDF.Graph{graph | descriptions: new_descriptions}}
     end
   end
 
@@ -655,9 +677,59 @@ defmodule RDF.Graph do
   def values(graph, mapping \\ &RDF.Statement.default_term_mapping/1)
 
   def values(%RDF.Graph{descriptions: descriptions}, mapping) do
-      Map.new descriptions, fn {subject, description} ->
-        {mapping.({:subject, subject}), Description.values(description, mapping)}
-      end
+    Map.new descriptions, fn {subject, description} ->
+      {mapping.({:subject, subject}), Description.values(description, mapping)}
+    end
+  end
+
+
+  @doc """
+  Adds `prefixes` to the given `graph`.
+
+  The `prefixes` mappings can be given as any structure convertible to a
+  `RDF.PrefixMap`.
+
+  When a prefix with another mapping already exists it will be overwritten with
+  the new one. This behaviour can be customized by providing a `conflict_resolver`
+  function. See `RDF.PrefixMap.merge/3` for more on that.
+  """
+  def add_prefixes(graph, prefixes, conflict_resolver \\ nil)
+
+  def add_prefixes(%RDF.Graph{} = graph, nil, _), do: graph
+
+  def add_prefixes(%RDF.Graph{prefixes: nil} = graph, prefixes, _) do
+    %RDF.Graph{graph | prefixes: RDF.PrefixMap.new(prefixes)}
+  end
+
+  def add_prefixes(%RDF.Graph{} = graph, additions, nil) do
+    add_prefixes(%RDF.Graph{} = graph, additions, fn _, _, ns -> ns end)
+  end
+
+  def add_prefixes(%RDF.Graph{prefixes: prefixes} = graph, additions, conflict_resolver) do
+    %RDF.Graph{graph |
+      prefixes: RDF.PrefixMap.merge!(prefixes, additions, conflict_resolver)
+    }
+  end
+
+  @doc """
+  Deletes `prefixes` from the given `graph`.
+
+  The `prefixes` can be a single prefix or a list of prefixes.
+  Prefixes not in prefixes of the graph are simply ignored.
+  """
+  def delete_prefixes(graph, prefixes)
+
+  def delete_prefixes(%RDF.Graph{prefixes: nil} = graph, _), do: graph
+
+  def delete_prefixes(%RDF.Graph{prefixes: prefixes} = graph, deletions) do
+    %RDF.Graph{graph | prefixes: RDF.PrefixMap.drop(prefixes, List.wrap(deletions))}
+  end
+
+  @doc """
+  Clears all prefixes of the given `graph`.
+  """
+  def clear_prefixes(%RDF.Graph{} = graph) do
+    %RDF.Graph{graph | prefixes: nil}
   end
 
 

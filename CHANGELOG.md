@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.PrefixMap`
+- prefix management of `RDF.Graph`s:
+	- the structure now has `prefixes` field with an optional `RDF.PrefixMap`
+	- new functions `add_prefixes/2`, `delete_prefixes/2` and `clear_prefixes/1` 
 - configurable RDF.default_prefixes
 
 
@@ -18,6 +21,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the constructor functions for `RDF.Graph`s and `RDF.Dataset`s now take the 
   graph name resp. dataset name through a `name` option, instead of the first
   argument
+- `RDF.Graph.new` supports an additional `prefixes` argument to initialize the 
+	`prefixes` field
+- when `RDF.Graph.add` and `RDF.Graph.put` are called with another graph, its
+  prefixes are merged 
+	
 
 
 [Compare v0.5.4...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...HEAD)
