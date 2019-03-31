@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - prefix management of `RDF.Graph`s:
 	- the structure now has `prefixes` field with an optional `RDF.PrefixMap`
 	- new functions `add_prefixes/2`, `delete_prefixes/2` and `clear_prefixes/1` 
-- configurable RDF.default_prefixes
+- configurable `RDF.default_prefixes`
 
 
 ### Changed
@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 	`prefixes` field
 - when `RDF.Graph.add` and `RDF.Graph.put` are called with another graph, its
   prefixes are merged 
+- `RDF.Turtle.Decoder` saves the prefixes now
 	
 
 

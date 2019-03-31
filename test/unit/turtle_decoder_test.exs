@@ -218,7 +218,7 @@ defmodule RDF.Turtle.DecoderTest do
       assert Turtle.Decoder.decode!("""
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         <http://example.org/#spiderman> <http://example.org/#p> "42"^^xsd:integer .
-        """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)})
+        """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)}, prefixes: %{xsd: XSD})
     end
 
     test "a language tagged literal" do
@@ -270,38 +270,39 @@ defmodule RDF.Turtle.DecoderTest do
 
   describe "prefixed names" do
     test "non-empty prefixed names" do
+      prefixes = RDF.PrefixMap.new(ex: ~I<http://example.org/#>)
       assert Turtle.Decoder.decode!("""
         @prefix ex: <http://example.org/#> .
         ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
 
       assert Turtle.Decoder.decode!("""
         @prefix  ex:  <http://example.org/#> .
         ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
 
       assert Turtle.Decoder.decode!("""
         PREFIX ex: <http://example.org/#>
         ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
 
       assert Turtle.Decoder.decode!("""
         prefix ex: <http://example.org/#>
         ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
-
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
     end
 
     test "empty prefixed name" do
+      prefixes = RDF.PrefixMap.new("": ~I<http://example.org/#>)
       assert Turtle.Decoder.decode!("""
         @prefix : <http://example.org/#> .
         :Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> :Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
 
       assert Turtle.Decoder.decode!("""
         PREFIX : <http://example.org/#>
         :Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> :Person .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, prefixes: prefixes)
     end
   end
 
@@ -318,14 +319,14 @@ defmodule RDF.Turtle.DecoderTest do
         {RDF.bnode("b1"), RDF.rest, RDF.bnode("b2")},
         {RDF.bnode("b2"), RDF.first, EX.c},
         {RDF.bnode("b2"), RDF.rest, RDF.nil},
-      ])
+      ], prefixes: %{"": ~I<http://example.org/#>})
     end
 
     test "empty collection" do
       assert Turtle.Decoder.decode!("""
         @prefix : <http://example.org/#> .
         :subject :predicate () .
-      """) == Graph.new({EX.subject, EX.predicate, RDF.nil})
+      """) == Graph.new({EX.subject, EX.predicate, RDF.nil}, prefixes: %{"": ~I<http://example.org/#>})
     end
 
     test "nested collection" do
@@ -343,7 +344,7 @@ defmodule RDF.Turtle.DecoderTest do
         {RDF.bnode("b1"), RDF.rest, RDF.bnode("b2")},
         {RDF.bnode("b2"), RDF.first, EX.c},
         {RDF.bnode("b2"), RDF.rest, RDF.nil},
-      ])
+      ], prefixes: %{"": ~I<http://example.org/#>})
     end
   end
 

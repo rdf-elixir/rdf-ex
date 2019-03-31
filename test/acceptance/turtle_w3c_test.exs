@@ -53,8 +53,12 @@ defmodule RDF.Turtle.W3C.Test do
 
        test TestSuite.test_title(test_case), %{test_case: test_case} do
          with base = to_string(TestSuite.test_input_file(test_case)) do
-           assert (TestSuite.test_input_file_path(test_case, "Turtle")  |> Turtle.read_file!(base: base)) ==
-                  (TestSuite.test_result_file_path(test_case, "Turtle") |> NTriples.read_file!)
+           assert (TestSuite.test_input_file_path(test_case, "Turtle")
+                   |> Turtle.read_file!(base: base)
+                   |> RDF.Graph.clear_prefixes()
+                  ) ==
+                  (TestSuite.test_result_file_path(test_case, "Turtle")
+                   |> NTriples.read_file!)
          end
        end
      end)
