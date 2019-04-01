@@ -17,7 +17,7 @@ defmodule RDF.SerializationTest do
 
   @example_graph RDF.Graph.new [{EX.S, EX.p, EX.O}]
   @example_graph_turtle """
-  @prefix : <#{to_string(EX.  __base_iri__)}> .
+  @prefix : <#{to_string(EX.__base_iri__)}> .
 
   :S
       :p :O .
@@ -122,19 +122,19 @@ defmodule RDF.SerializationTest do
   describe "write_string/2" do
     test "with name of available format" do
       assert RDF.Serialization.write_string(@example_graph, format: :turtle,
-              prefixes: %{"" => EX.  __base_iri__}) ==
+              prefixes: %{"" => EX.__base_iri__}) ==
                 {:ok, @example_graph_turtle}
     end
 
     test "with invalid format name" do
       assert RDF.Serialization.write_string(@example_graph, format: :foo,
-              prefixes: %{"" => EX.  __base_iri__}) ==
+              prefixes: %{"" => EX.__base_iri__}) ==
                 {:error, "unable to detect serialization format"}
     end
 
     test "with media type" do
       assert RDF.Serialization.write_string(@example_graph, media_type: "text/turtle",
-              prefixes: %{"" => EX.  __base_iri__}) ==
+              prefixes: %{"" => EX.__base_iri__}) ==
                 {:ok, @example_graph_turtle}
     end
   end
@@ -142,20 +142,20 @@ defmodule RDF.SerializationTest do
   describe "write_string!/2" do
     test "with name of available format" do
       assert RDF.Serialization.write_string!(@example_graph, format: :turtle,
-              prefixes: %{"" => EX.  __base_iri__}) ==
+              prefixes: %{"" => EX.__base_iri__}) ==
                 @example_graph_turtle
     end
 
     test "with invalid format name" do
       assert_raise RuntimeError, "unable to detect serialization format", fn ->
         RDF.Serialization.write_string!(@example_graph, format: :foo,
-                      prefixes: %{"" => EX.  __base_iri__})
+                      prefixes: %{"" => EX.__base_iri__})
       end
     end
 
     test "with media type" do
       assert RDF.Serialization.write_string!(@example_graph, media_type: "text/turtle",
-              prefixes: %{"" => EX.  __base_iri__}) ==
+              prefixes: %{"" => EX.__base_iri__}) ==
                 @example_graph_turtle
     end
   end
@@ -165,7 +165,7 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.ttl")
       if File.exists?(file), do: File.rm(file)
       assert RDF.Serialization.write_file(@example_graph, file,
-              prefixes: %{"" => EX.  __base_iri__}) == :ok
+              prefixes: %{"" => EX.__base_iri__}) == :ok
       assert File.exists?(file)
       assert File.read!(file) == @example_graph_turtle
       File.rm(file)
@@ -175,7 +175,7 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
       assert RDF.Serialization.write_file(@example_graph, file, format: :turtle,
-              prefixes: %{"" => EX.  __base_iri__}) == :ok
+              prefixes: %{"" => EX.__base_iri__}) == :ok
       assert File.exists?(file)
       assert File.read!(file) == @example_graph_turtle
       File.rm(file)
@@ -187,7 +187,7 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.ttl")
       if File.exists?(file), do: File.rm(file)
       assert RDF.Serialization.write_file!(@example_graph, file,
-              prefixes: %{"" => EX.  __base_iri__}) == :ok
+              prefixes: %{"" => EX.__base_iri__}) == :ok
       assert File.exists?(file)
       assert File.read!(file) == @example_graph_turtle
       File.rm(file)
@@ -197,7 +197,7 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
       assert RDF.Serialization.write_file!(@example_graph, file, format: :turtle,
-              prefixes: %{"" => EX.  __base_iri__}) == :ok
+              prefixes: %{"" => EX.__base_iri__}) == :ok
       assert File.exists?(file)
       assert File.read!(file) == @example_graph_turtle
       File.rm(file)

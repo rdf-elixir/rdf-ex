@@ -58,7 +58,7 @@ defmodule RDF.Vocabulary.Namespace do
         end
 
         @base_iri unquote(base_iri)
-        def   __base_iri__, do: @base_iri
+        def __base_iri__, do: @base_iri
 
         @strict unquote(strict)
         def __strict__, do: @strict

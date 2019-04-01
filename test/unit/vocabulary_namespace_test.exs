@@ -667,12 +667,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
 
-  test "  __base_iri__ returns the base_iri" do
+  test "__base_iri__ returns the base_iri" do
     alias TestNS.ExampleFromGraph, as: HashVocab
     alias TestNS.ExampleFromNTriplesFile, as: SlashVocab
 
-    assert HashVocab.  __base_iri__  == "http://example.com/from_graph#"
-    assert SlashVocab.  __base_iri__ == "http://example.com/from_ntriples/"
+    assert HashVocab.__base_iri__  == "http://example.com/from_graph#"
+    assert SlashVocab.__base_iri__ == "http://example.com/from_ntriples/"
   end
 
 
