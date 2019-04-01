@@ -29,7 +29,7 @@ defmodule RDF.Turtle.Encoder do
   @impl RDF.Serialization.Encoder
   def encode(data, opts \\ []) do
     with base         = Keyword.get(opts, :base) |> init_base(),
-         prefixes     = Keyword.get(opts, :prefixes, %{}) |> init_prefixes(),
+         prefixes     = Keyword.get(opts, :prefixes) |> prefixes(data) |> init_prefixes(),
          {:ok, state} = State.start_link(data, base, prefixes) do
       try do
         State.preprocess(state)
@@ -58,11 +58,13 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp init_prefixes(nil), do: %{}
+  defp prefixes(nil, %RDF.Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+  defp prefixes(nil, _), do: RDF.default_prefixes()
+  defp prefixes(prefixes, _), do: RDF.PrefixMap.new(prefixes)
 
   defp init_prefixes(prefixes) do
     Enum.reduce prefixes, %{}, fn {prefix, iri}, reverse ->
-      Map.put(reverse, RDF.iri(iri), to_string(prefix))
+      Map.put(reverse, iri, to_string(prefix))
     end
   end
 

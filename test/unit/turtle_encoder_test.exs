@@ -19,16 +19,16 @@ defmodule RDF.Turtle.EncoderTest do
 
   describe "serializing a graph" do
     test "an empty graph is serialized to an empty string" do
-      assert Turtle.Encoder.encode!(Graph.new) == ""
+      assert Turtle.Encoder.encode!(Graph.new, prefixes: %{}) == ""
     end
 
     test "statements with IRIs only" do
-      assert Turtle.Encoder.encode!(Graph.new [
+      assert Turtle.Encoder.encode!(Graph.new([
                 {EX.S1, EX.p1, EX.O1},
                 {EX.S1, EX.p1, EX.O2},
                 {EX.S1, EX.p2, EX.O3},
                 {EX.S2, EX.p3, EX.O4},
-              ]) ==
+              ]), prefixes: %{}) ==
               """
               <http://example.org/#S1>
                   <http://example.org/#p1> <http://example.org/#O1>, <http://example.org/#O2> ;
@@ -62,6 +62,41 @@ defmodule RDF.Turtle.EncoderTest do
               """
     end
 
+    test "when no prefixes are given, the prefixes from the given graph are used" do
+      assert Turtle.Encoder.encode!(Graph.new([
+               {EX.S1, EX.p1, EX.O1},
+               {EX.S1, EX.p1, EX.O2},
+               {EX.S1, EX.p2, XSD.integer},
+               {EX.S2, EX.p3, EX.O4},
+             ], prefixes: %{
+               "": EX.__base_iri__,
+               xsd: XSD.__base_iri__
+             })) ==
+               """
+               @prefix : <#{to_string(EX.__base_iri__)}> .
+               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+               :S1
+                   :p1 :O1, :O2 ;
+                   :p2 xsd:integer .
+
+               :S2
+                   :p3 :O4 .
+               """
+    end
+
+    test "when no prefixes are given and no prefixes are in the given graph the default_prefixes are used" do
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, XSD.string})) ==
+               """
+               @prefix rdf: <#{to_string(RDF.__base_iri__)}> .
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__)}> .
+               @prefix xsd: <#{to_string(XSD.__base_iri__)}> .
+
+               <http://example.org/#S>
+                   <http://example.org/#p> xsd:string .
+               """
+    end
+
     test "statements with empty prefixed names" do
       assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, EX.O}),
               prefixes: %{"" => EX.__base_iri__}) ==
@@ -74,11 +109,11 @@ defmodule RDF.Turtle.EncoderTest do
     end
 
     test "statements with literals" do
-      assert Turtle.Encoder.encode!(Graph.new [
+      assert Turtle.Encoder.encode!(Graph.new([
                 {EX.S1, EX.p1, ~L"foo"},
                 {EX.S1, EX.p1, ~L"foo"en},
                 {EX.S2, EX.p2, RDF.literal("strange things", datatype: EX.custom)},
-              ]) ==
+              ]), prefixes: %{}) ==
               """
               <http://example.org/#S1>
                   <http://example.org/#p1> "foo"@en, "foo" .
@@ -89,10 +124,10 @@ defmodule RDF.Turtle.EncoderTest do
     end
 
     test "statements with blank nodes" do
-      assert Turtle.Encoder.encode!(Graph.new [
+      assert Turtle.Encoder.encode!(Graph.new([
                 {EX.S1, EX.p1, [RDF.bnode(1), RDF.bnode("foo"), RDF.bnode(:bar)]},
                 {EX.S2, EX.p1, [RDF.bnode(1), RDF.bnode("foo"), RDF.bnode(:bar)]},
-              ]) ==
+              ]), prefixes: %{}) ==
               """
               <http://example.org/#S1>
                   <http://example.org/#p1> _:1, _:bar, _:foo .

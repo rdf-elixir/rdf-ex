@@ -26,6 +26,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - when `RDF.Graph.add` and `RDF.Graph.put` are called with another graph, its
   prefixes are merged 
 - `RDF.Turtle.Decoder` saves the prefixes now
+- `RDF.Turtle.Encoder` now takes the prefixes to be serialized in the following 
+  order of precedence:
+	- from the `prefixes` option (as before)
+	- from the `prefixes` field of the given graph
+	- from the `RDF.default_prefixes`
 - drop support for OTP < 20, since prefixes can consist of UTF characters which
   are not supported in atoms on these versions  	
 
