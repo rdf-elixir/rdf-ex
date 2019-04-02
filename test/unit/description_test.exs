@@ -358,6 +358,11 @@ defmodule RDF.DescriptionTest do
              %{p: ["Foo"]}
   end
 
+  test "equal/2" do
+    assert Description.new({EX.S, EX.p, EX.O}) |> Description.equal?(Description.new({EX.S, EX.p, EX.O}))
+    refute Description.new({EX.S, EX.p, EX.O}) |> Description.equal?(Description.new({EX.S, EX.p, EX.O2}))
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Description.new EX.foo) == 0

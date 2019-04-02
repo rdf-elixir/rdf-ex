@@ -462,6 +462,20 @@ defmodule RDF.GraphTest do
              }
   end
 
+
+  test "equal/2" do
+    assert Graph.new({EX.S, EX.p, EX.O}) |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}))
+    assert Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph1)
+           |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph1))
+    assert Graph.new({EX.S, EX.p, EX.O}, prefixes: %{ex: EX})
+           |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, prefixes: %{xsd: XSD}))
+
+    refute Graph.new({EX.S, EX.p, EX.O}) |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O2}))
+    refute Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph1)
+           |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph2))
+  end
+
+
   describe "add_prefixes/2" do
     test "when prefixes already exist" do
       graph = Graph.new(prefixes: %{xsd: XSD}) |> Graph.add_prefixes(ex: EX)

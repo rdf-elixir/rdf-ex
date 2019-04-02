@@ -1,4 +1,4 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and
@@ -11,9 +11,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.PrefixMap`
 - prefix management of `RDF.Graph`s:
-	- the structure now has `prefixes` field with an optional `RDF.PrefixMap`
+	- the structure now has a `prefixes` field with an optional `RDF.PrefixMap`
 	- new functions `add_prefixes/2`, `delete_prefixes/2` and `clear_prefixes/1` 
 - configurable `RDF.default_prefixes`
+- `RDF.Description.equal?/2`, `RDF.Graph.equal?/2` and `RDF.Dataset.equal?/2` 
 
 
 ### Changed

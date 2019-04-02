@@ -617,6 +617,20 @@ defmodule RDF.Description do
   end
 
 
+  @doc """
+  Checks if two `RDF.Description`s are equal.
+
+  Two `RDF.Description`s are considered to be equal if they contain the same triples.
+  """
+  def equal?(description1, description2)
+
+  def equal?(%RDF.Description{} = description1, %RDF.Description{} = description2) do
+    description1 == description2
+  end
+
+  def equal?(_, _), do: false
+
+
   defimpl Enumerable do
     def member?(desc, triple), do: {:ok, RDF.Description.include?(desc, triple)}
     def count(desc),           do: {:ok, RDF.Description.count(desc)}

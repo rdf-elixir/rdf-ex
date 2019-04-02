@@ -779,6 +779,21 @@ defmodule RDF.Dataset do
   end
 
 
+  @doc """
+  Checks if two `RDF.Dataset`s are equal.
+
+  Two `RDF.Dataset`s are considered to be equal if they contain the same triples
+  and have the same name.
+  """
+  def equal?(dataset1, dataset2)
+
+  def equal?(%RDF.Dataset{} = dataset1, %RDF.Dataset{} = dataset2) do
+    dataset1 == dataset2
+  end
+
+  def equal?(_, _), do: false
+
+
   defimpl Enumerable do
     def member?(dataset, statement), do: {:ok, RDF.Dataset.include?(dataset, statement)}
     def count(dataset),              do: {:ok, RDF.Dataset.statement_count(dataset)}

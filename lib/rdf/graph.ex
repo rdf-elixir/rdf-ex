@@ -684,6 +684,21 @@ defmodule RDF.Graph do
 
 
   @doc """
+  Checks if two `RDF.Graph`s are equal.
+
+  Two `RDF.Graph`s are considered to be equal if they contain the same triples
+  and have the same name. The prefixes of the graph are irrelevant for equality.
+  """
+  def equal?(graph1, graph2)
+
+  def equal?(%RDF.Graph{} = graph1, %RDF.Graph{} = graph2) do
+    clear_prefixes(graph1) == clear_prefixes(graph2)
+  end
+
+  def equal?(_, _), do: false
+
+
+  @doc """
   Adds `prefixes` to the given `graph`.
 
   The `prefixes` mappings can be given as any structure convertible to a

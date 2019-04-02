@@ -739,6 +739,17 @@ defmodule RDF.DatasetTest do
   end
 
 
+  test "equal/2" do
+    assert Dataset.new({EX.S, EX.p, EX.O}) |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}))
+    assert Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1)
+           |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1))
+
+    refute Dataset.new({EX.S, EX.p, EX.O}) |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O2}))
+    refute Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1)
+           |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset2))
+  end
+
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Dataset.new(name: EX.foo)) == 0
