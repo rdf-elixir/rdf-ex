@@ -153,6 +153,17 @@ defmodule RDF.DataTest do
                  RDF.Term.value(EX.p3) => ["_:foo", "bar"],
                }
     end
+
+    test "equal/2", %{description: description, graph: graph, dataset: dataset} do
+      assert RDF.Data.equal?(description, description)
+      assert RDF.Data.equal?(description, Graph.new(description))
+      assert RDF.Data.equal?(description, Graph.new(description, name: EX.Graph))
+      assert RDF.Data.equal?(description, Dataset.new(description))
+
+      refute RDF.Data.equal?(description, description |> EX.p4(EX.O4))
+      refute RDF.Data.equal?(description, graph)
+      refute RDF.Data.equal?(description, dataset)
+    end
   end
 
 
@@ -303,6 +314,19 @@ defmodule RDF.DataTest do
                    ],
                  },
                }
+    end
+
+    test "equal/2", %{graph: graph, description: description, dataset: dataset} do
+      assert RDF.Data.equal?(graph, graph)
+      assert RDF.Data.equal?(graph, RDF.Graph.new(graph, name: EX.Graph))
+      assert RDF.Data.equal?(Graph.new(description), description)
+      assert RDF.Data.equal?(Graph.new(description, name: EX.Graph), description)
+      assert RDF.Data.equal?(graph, Dataset.new(graph))
+
+      refute RDF.Data.equal?(graph, graph |> Graph.delete_subjects(EX.S2))
+      refute RDF.Data.equal?(graph |> Graph.delete_subjects(EX.S2), graph)
+      refute RDF.Data.equal?(graph, description)
+      refute RDF.Data.equal?(graph, dataset)
     end
   end
 
@@ -504,6 +528,27 @@ defmodule RDF.DataTest do
                    },
                  }
                }
+    end
+
+    test "equal/2", %{graph: graph, description: description, dataset: dataset} do
+      assert RDF.Data.equal?(dataset, dataset)
+      assert RDF.Data.equal?(dataset, Dataset.new(dataset, name: EX.Dataset))
+      assert RDF.Data.equal?(Dataset.new(description), description)
+      assert RDF.Data.equal?(Dataset.new(graph), graph)
+      assert RDF.Data.equal?(Dataset.new(graph), RDF.Graph.add_prefixes(graph, %{ex: EX}))
+      assert RDF.Data.equal?((Dataset.new(graph)
+                              |> Dataset.add(Graph.new(description, name: EX.Graph1, prefixes: %{ex: EX}))),
+                             (Dataset.new(graph)
+                              |> Dataset.add(Graph.new(description, name: EX.Graph1, prefixes: %{ex: RDF}))))
+
+      refute RDF.Data.equal?(dataset, dataset |> Dataset.delete_graph(EX.NamedGraph))
+      refute RDF.Data.equal?(dataset |> Dataset.delete_graph(EX.NamedGraph), dataset)
+      refute RDF.Data.equal?((Dataset.new(graph)
+                              |> Dataset.add(Graph.new(description, name: EX.Graph1))),
+                             (Dataset.new(graph)
+                              |> Dataset.add(Graph.new(description, name: EX.Graph2))))
+      refute RDF.Data.equal?(dataset, description)
+      refute RDF.Data.equal?(dataset, graph)
     end
   end
 

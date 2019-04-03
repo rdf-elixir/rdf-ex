@@ -101,6 +101,26 @@ defprotocol RDF.Data do
   Returns a nested map of the native Elixir values of a RDF data structure with values mapped with the given function.
   """
   def values(data, mapping)
+
+  @doc """
+  Checks if two RDF data structures are equal.
+
+  Two RDF data structures are considered to be equal if they contain the same triples.
+
+  - comparing two `RDF.Description`s it's just the same as `RDF.Description.equal?/2`
+  - comparing two `RDF.Graph`s differs in `RDF.Graph.equal?/2` in that the graph
+    name is ignored
+  - comparing two `RDF.Dataset`s differs in `RDF.Dataset.equal?/2` in that the
+    dataset name is ignored
+  - a `RDF.Description` is equal to a `RDF.Graph`, if the graph has just one
+    description which equals the given description
+  - a `RDF.Description` is equal to a `RDF.Dataset`, if the dataset has just one
+    graph which contains only the given description
+  - a `RDF.Graph` is equal to a `RDF.Dataset`, if the dataset has just one
+    graph which equals the given graph; note that in this case the graph names
+    must match
+  """
+  def equal?(data1, data2)
 end
 
 defimpl RDF.Data, for: RDF.Description do
@@ -169,6 +189,24 @@ defimpl RDF.Data, for: RDF.Description do
   def statement_count(description), do: RDF.Description.count(description)
   def values(description),          do: RDF.Description.values(description)
   def values(description, mapping), do: RDF.Description.values(description, mapping)
+
+  def equal?(description, %RDF.Description{} = other_description) do
+    RDF.Description.equal?(description, other_description)
+  end
+
+  def equal?(description, %RDF.Graph{} = graph) do
+    with [single_description] <- RDF.Graph.descriptions(graph) do
+      RDF.Description.equal?(description, single_description)
+    else
+      _ -> false
+    end
+  end
+
+  def equal?(description, %RDF.Dataset{} = dataset) do
+    RDF.Data.equal?(dataset, description)
+  end
+
+  def equal?(_, _), do: false
 end
 
 
@@ -231,6 +269,18 @@ defimpl RDF.Data, for: RDF.Graph do
   def statement_count(graph), do: RDF.Graph.triple_count(graph)
   def values(graph),          do: RDF.Graph.values(graph)
   def values(graph, mapping), do: RDF.Graph.values(graph, mapping)
+
+  def equal?(graph, %RDF.Description{} = description),
+    do: RDF.Data.equal?(description, graph)
+
+  def equal?(graph, %RDF.Graph{} = other_graph),
+    do: RDF.Graph.equal?(RDF.Data.Utils.normalize_graph(graph),
+                         RDF.Data.Utils.normalize_graph(other_graph))
+
+  def equal?(graph, %RDF.Dataset{} = dataset),
+    do: RDF.Data.equal?(dataset, graph)
+
+  def equal?(_, _), do: false
 end
 
 
@@ -286,4 +336,43 @@ defimpl RDF.Data, for: RDF.Dataset do
   def statement_count(dataset), do: RDF.Dataset.statement_count(dataset)
   def values(dataset),          do: RDF.Dataset.values(dataset)
   def values(dataset, mapping), do: RDF.Dataset.values(dataset, mapping)
+
+  def equal?(dataset, %RDF.Description{} = description) do
+    with [graph] <- RDF.Dataset.graphs(dataset) do
+      RDF.Data.equal?(description, graph)
+    else
+      _ -> false
+    end
+  end
+
+  def equal?(dataset, %RDF.Graph{} = graph) do
+    with [single_graph] <- RDF.Dataset.graphs(dataset) do
+      RDF.Graph.equal?(graph, single_graph)
+    else
+      _ -> false
+    end
+  end
+
+  def equal?(dataset, %RDF.Dataset{} = other_dataset) do
+    RDF.Dataset.equal?(RDF.Data.Utils.normalize_dataset(dataset),
+                       RDF.Data.Utils.normalize_dataset(other_dataset))
+  end
+
+  def equal?(_, _), do: false
+end
+
+defmodule RDF.Data.Utils do
+  @moduledoc false
+
+  def normalize_graph(graph) do
+    %RDF.Graph{graph | name: nil}
+  end
+
+  def normalize_dataset(%RDF.Dataset{graphs: graphs}) do
+    %RDF.Dataset{name: nil, graphs:
+      Map.new(graphs, fn {name, graph} ->
+        {name, RDF.Graph.clear_prefixes(graph)}
+      end)
+    }
+  end
 end

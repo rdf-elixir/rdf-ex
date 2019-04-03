@@ -14,7 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 	- the structure now has a `prefixes` field with an optional `RDF.PrefixMap`
 	- new functions `add_prefixes/2`, `delete_prefixes/2` and `clear_prefixes/1` 
 - configurable `RDF.default_prefixes`
-- `RDF.Description.equal?/2`, `RDF.Graph.equal?/2` and `RDF.Dataset.equal?/2` 
+- `RDF.Description.equal?/2`, `RDF.Graph.equal?/2`, `RDF.Dataset.equal?/2` and 
+  `RDF.Data.equal?/2` 
 
 
 ### Changed
