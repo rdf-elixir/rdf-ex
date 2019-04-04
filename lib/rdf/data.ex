@@ -274,8 +274,8 @@ defimpl RDF.Data, for: RDF.Graph do
     do: RDF.Data.equal?(description, graph)
 
   def equal?(graph, %RDF.Graph{} = other_graph),
-    do: RDF.Graph.equal?(RDF.Data.Utils.normalize_graph(graph),
-                         RDF.Data.Utils.normalize_graph(other_graph))
+    do: RDF.Graph.equal?(%RDF.Graph{graph | name: nil},
+                         %RDF.Graph{other_graph | name: nil})
 
   def equal?(graph, %RDF.Dataset{} = dataset),
     do: RDF.Data.equal?(dataset, graph)
@@ -354,25 +354,9 @@ defimpl RDF.Data, for: RDF.Dataset do
   end
 
   def equal?(dataset, %RDF.Dataset{} = other_dataset) do
-    RDF.Dataset.equal?(RDF.Data.Utils.normalize_dataset(dataset),
-                       RDF.Data.Utils.normalize_dataset(other_dataset))
+    RDF.Dataset.equal?(%RDF.Dataset{dataset | name: nil},
+                       %RDF.Dataset{other_dataset | name: nil})
   end
 
   def equal?(_, _), do: false
-end
-
-defmodule RDF.Data.Utils do
-  @moduledoc false
-
-  def normalize_graph(graph) do
-    %RDF.Graph{graph | name: nil}
-  end
-
-  def normalize_dataset(%RDF.Dataset{graphs: graphs}) do
-    %RDF.Dataset{name: nil, graphs:
-      Map.new(graphs, fn {name, graph} ->
-        {name, RDF.Graph.clear_prefixes(graph)}
-      end)
-    }
-  end
 end

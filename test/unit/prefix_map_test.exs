@@ -85,11 +85,6 @@ defmodule RDF.PrefixMapTest do
       end
     end
 
-    @tag skip: "TODO: "
-    test "when a default namespace is given" do
-      assert PrefixMap.add(@example1, :_, @ex_ns2) == {:ok, @example5}
-    end
-
     test "when a mapping of the given prefix to the same namespace already exists" do
       assert PrefixMap.add(@example2, :ex2, "http://example.com/bar#") == {:ok, @example2}
     end

@@ -740,13 +740,21 @@ defmodule RDF.DatasetTest do
 
 
   test "equal/2" do
-    assert Dataset.new({EX.S, EX.p, EX.O}) |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}))
-    assert Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1)
-           |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1))
-
-    refute Dataset.new({EX.S, EX.p, EX.O}) |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O2}))
-    refute Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset1)
-           |> Dataset.equal?(Dataset.new({EX.S, EX.p, EX.O}, name: EX.Dataset2))
+    triple = {EX.S, EX.p, EX.O}
+    assert Dataset.equal?(Dataset.new(triple), Dataset.new(triple))
+    assert Dataset.equal?(Dataset.new(triple, name: EX.Dataset1),
+                          Dataset.new(triple, name: EX.Dataset1))
+    assert Dataset.equal?(
+             Dataset.new(Graph.new(triple, name: EX.Graph1, prefixes: %{ex: EX})),
+             Dataset.new(Graph.new(triple, name: EX.Graph1, prefixes: %{ex: RDF}))
+           )
+    refute Dataset.equal?(Dataset.new(triple), Dataset.new({EX.S, EX.p, EX.O2}))
+    refute Dataset.equal?(Dataset.new(triple, name: EX.Dataset1),
+                          Dataset.new(triple, name: EX.Dataset2))
+    refute Dataset.equal?(
+             Dataset.new(Graph.new(triple, name: EX.Graph1)),
+             Dataset.new(Graph.new(triple, name: EX.Graph2))
+           )
   end
 
 
