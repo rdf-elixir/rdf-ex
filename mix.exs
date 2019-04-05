@@ -63,11 +63,11 @@ defmodule RDF.Mixfile do
 
       {:dialyxir, "~> 0.5",       only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0",          only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.19",        only: :dev, runtime: false},
+      {:ex_doc, "~> 0.20",        only: :dev, runtime: false},
       {:excoveralls, "~> 0.10",   only: :test},
       {:inch_ex, "~> 1.0",        only: [:dev, :test]},
 
-      {:benchee, "~> 0.14",       only: :bench},
+      {:benchee, "~> 1.0",        only: :bench},
       {:erlang_term, "~> 1.7",    only: :bench},
     ]
   end
