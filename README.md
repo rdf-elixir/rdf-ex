@@ -22,6 +22,34 @@ For more about RDF.ex and it's related projects, go to <https://rdf-elixir.dev>.
     - [JSON-LD] is implemented in the separate [JSON-LD.ex] package
 
 
+## Upgrading to RDF.ex 0.6
+
+#### `RDF.Graph.new` and `RDF.Dataset.new`
+
+The arguments of the constructor functions of `RDF.Graph` and `RDF.Dataset` have changed. They now take the name of the graph resp. dataset as a `name` option. So, for example this
+
+```elixir
+RDF.Graph.new(EX.GraphName, data)
+```
+
+now has to be written like this
+
+```elixir
+RDF.Graph.new(data, name: EX.GraphName)
+```
+
+An option argument was needed for the new `prefixes` option and was impossible to provide in a maintainable way with the old interface.
+
+See [this section of the guide](https://rdf-elixir.dev/rdf-ex/serializations.html#managing-prefixes) for more on the new prefix management features.
+
+#### Equality of graphs and datasets
+
+With prefixes being added to the `RDF.Graph` data structure, you can no longer rely on `==` for equality comparisons between graphs and datasets, since graphs with the same data but different prefixes will be unequal in terms of `==`. You should use the new `RDF.Graph.equal?/2` and `RDF.Dataset.equal?/2` functions instead. 
+
+See [this section of the guide](https://rdf-elixir.dev/rdf-ex/data-structures.html#equality) for more on that.
+
+
+
 ## Contributing
 
 There's still much to do for a complete RDF ecosystem for Elixir, which means there are plenty of opportunities for you to contribute. Here are some suggestions:
