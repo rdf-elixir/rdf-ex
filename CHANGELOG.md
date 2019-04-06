@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.6.0 - 2019-04-06
 
 ### Added
 
@@ -37,7 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   are not supported in atoms on these versions  	
 
 
-[Compare v0.5.4...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...HEAD)
+[Compare v0.5.4...v0.6.0](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...v0.6.0)
 
 
 
