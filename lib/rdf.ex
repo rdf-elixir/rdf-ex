@@ -34,7 +34,7 @@ defmodule RDF do
   This top-level module provides shortcut functions for the construction of the
   basic elements and structures of RDF and some general helper functions.
 
-  For a general introduction you may refer to the [README](readme.html).
+  For a general introduction you may refer to the guides on the [homepage](https://rdf-elixir.dev).
   """
 
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,

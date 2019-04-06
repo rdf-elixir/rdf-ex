@@ -24,7 +24,7 @@ defmodule RDF.Mixfile do
         main: "RDF",
         source_url: @repo_url,
         source_ref: "v#{@version}",
-        extras: ["README.md"],
+        extras: ["CHANGELOG.md"],
       ],
 
       # ExCoveralls
@@ -48,7 +48,11 @@ defmodule RDF.Mixfile do
     [
       maintainers: ["Marcel Otto"],
       licenses: ["MIT"],
-      links: %{"GitHub" => @repo_url},
+      links: %{
+        "Homepage" => "https://rdf-elixir.dev",
+        "GitHub" => @repo_url,
+        "Changelog" => @repo_url <> "/blob/master/CHANGELOG.md",
+      },
       files: ~w[lib src/*.xrl src/*.yrl priv mix.exs VERSION *.md]
     ]
   end
