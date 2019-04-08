@@ -67,7 +67,7 @@ see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Consulting and Partnership
 
-If you need help with your Elixir and Linked Data projects, just contact: <info@cokron.com> or <https://www.cokron.com/kontakt>
+If you need help with your Elixir and Linked Data projects, just contact <info@cokron.com> or visit <https://www.cokron.com/kontakt>
 
 
 
