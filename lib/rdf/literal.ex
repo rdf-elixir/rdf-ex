@@ -319,6 +319,63 @@ defmodule RDF.Literal do
 
   def compare(_, _), do: nil
 
+
+  @doc """
+  Matches the string representation of the given value against a XPath and XQuery regular expression pattern.
+
+  The regular expression language is defined in _XQuery 1.0 and XPath 2.0 Functions and Operators_.
+
+  The `pattern` and the optional `flags` can be given as an Elixir string or as
+  `xsd:string` `RDF.Literal`s.
+
+  see <https://www.w3.org/TR/xpath-functions/#func-matches>
+  """
+  def matches?(value, pattern, flags \\ "")
+
+  def matches?(value, %RDF.Literal{datatype: @xsd_string} = pattern, flags),
+    do: matches?(value, pattern.value, flags)
+
+  def matches?(value, pattern, %RDF.Literal{datatype: @xsd_string} = flags),
+    do: matches?(value, pattern, flags.value)
+
+  def matches?(value, pattern, flags) when is_binary(pattern) and is_binary(flags) do
+    string = to_string(value)
+    case xpath_pattern(pattern, flags) do
+      {:regex, regex} ->
+        Regex.match?(regex, string)
+
+      {:q, pattern} ->
+        String.contains?(string, pattern)
+
+      {:qi, pattern} ->
+        string
+        |> String.downcase()
+        |> String.contains?(String.downcase(pattern))
+
+      _ ->
+        raise "Invalid XQuery regex pattern or flags"
+    end
+  end
+
+  defp xpath_pattern(pattern, flags) do
+    q_pattern(pattern, flags) || xpath_regex_pattern(pattern, flags)
+  end
+
+  defp q_pattern(pattern, flags) do
+    if String.contains?(flags, "q") and String.replace(flags, ~r/[qi]/, "") == "" do
+      {(if String.contains?(flags, "i"), do: :qi, else: :q), pattern}
+    end
+  end
+
+  defp xpath_regex_pattern(pattern, flags) do
+    with {:ok, regex} <- Regex.compile(pattern, xpath_regex_flags(flags)) do
+      {:regex, regex}
+    end
+  end
+
+  defp xpath_regex_flags(flags) do
+    String.replace(flags, "q", "") <> "u"
+  end
 end
 
 defimpl String.Chars, for: RDF.Literal do

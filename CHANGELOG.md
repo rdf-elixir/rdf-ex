@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Literal.matches?/3` for XQuery regex pattern matching
+
+
+[Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)
+
+
+
 ## 0.6.0 - 2019-04-06
 
 ### Added

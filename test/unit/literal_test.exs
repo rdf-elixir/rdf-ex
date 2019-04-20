@@ -232,6 +232,64 @@ defmodule RDF.LiteralTest do
   end
 
 
+  @poem RDF.string """
+    <poem author="Wilhelm Busch">
+    Kaum hat dies der Hahn gesehen,
+    Fängt er auch schon an zu krähen:
+    Kikeriki! Kikikerikih!!
+    Tak, tak, tak! - da kommen sie.
+    </poem>
+    """
+
+  describe "matches?" do
+    test "without flags" do
+      [
+        {~L"abracadabra", ~L"bra",    true},
+        {~L"abracadabra", ~L"^a.*a$", true},
+        {~L"abracadabra", ~L"^bra",   false},
+        {@poem, ~L"Kaum.*krähen",     false},
+        {@poem, ~L"^Kaum.*gesehen,$", false},
+
+        {~L"abracadabra"en, ~L"bra", true},
+        {"abracadabra", "bra",       true},
+        {RDF.integer("42"), ~L"4",   true},
+        {RDF.integer("42"), ~L"en",  false},
+      ]
+      |> Enum.each(fn {literal, pattern, expected_result} ->
+           result = Literal.matches?(literal, pattern)
+           assert result == expected_result,
+            "expected RDF.Literal.matches?(#{inspect literal}, #{inspect pattern}) to return #{inspect expected_result}, but got #{result}"
+         end)
+    end
+
+    test "with flags" do
+      [
+        {@poem, ~L"Kaum.*krähen",     ~L"s", true},
+        {@poem, ~L"^Kaum.*gesehen,$", ~L"m", true},
+        {@poem, ~L"kiki",             ~L"i", true},
+      ]
+      |> Enum.each(fn {literal, pattern, flags, result} ->
+           assert Literal.matches?(literal, pattern, flags) == result
+         end)
+    end
+
+    test "with q flag" do
+      [
+        {~L"abcd",         ~L".*",       ~L"q",  false},
+        {~L"Mr. B. Obama", ~L"B. OBAMA", ~L"iq", true},
+
+        # If the q flag is used together with the m, s, or x flag, that flag has no effect.
+        {~L"abcd",         ~L".*",       ~L"mq",   true},
+        {~L"abcd",         ~L".*",       ~L"qim",  true},
+        {~L"abcd",         ~L".*",       ~L"xqm",  true},
+      ]
+      |> Enum.each(fn {literal, pattern, flags, result} ->
+           assert Literal.matches?(literal, pattern, flags) == result
+         end)
+    end
+  end
+
+
   describe "String.Chars protocol implementation" do
     Enum.each values(:all_plain), fn value ->
       @tag value: value
@@ -258,7 +316,6 @@ defmodule RDF.LiteralTest do
            assert to_string(literal) == rep
          end
        end)
-
   end
 
 end
