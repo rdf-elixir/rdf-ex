@@ -330,15 +330,7 @@ defmodule RDF.Literal do
 
   see <https://www.w3.org/TR/xpath-functions/#func-matches>
   """
-  def matches?(value, pattern, flags \\ "")
-
-  def matches?(value, %RDF.Literal{datatype: @xsd_string} = pattern, flags),
-    do: matches?(value, pattern.value, flags)
-
-  def matches?(value, pattern, %RDF.Literal{datatype: @xsd_string} = flags),
-    do: matches?(value, pattern, flags.value)
-
-  def matches?(value, pattern, flags) when is_binary(pattern) and is_binary(flags) do
+  def matches?(value, pattern, flags \\ "") do
     string = to_string(value)
     case xpath_pattern(pattern, flags) do
       {:regex, regex} ->
@@ -357,7 +349,16 @@ defmodule RDF.Literal do
     end
   end
 
-  defp xpath_pattern(pattern, flags) do
+  @doc false
+  def xpath_pattern(pattern, flags)
+
+  def xpath_pattern(%RDF.Literal{datatype: @xsd_string} = pattern, flags),
+    do: xpath_pattern(pattern.value, flags)
+
+  def xpath_pattern(pattern, %RDF.Literal{datatype: @xsd_string} = flags),
+    do: xpath_pattern(pattern, flags.value)
+
+  def xpath_pattern(pattern, flags) when is_binary(pattern) and is_binary(flags) do
     q_pattern(pattern, flags) || xpath_regex_pattern(pattern, flags)
   end
 
