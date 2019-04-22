@@ -73,4 +73,18 @@ defmodule RDF.Integer do
   @impl RDF.Datatype
   def compare(left, right), do: RDF.Numeric.compare(left, right)
 
+
+  @doc """
+  The number of digits in the XML Schema canonical form of the literal value.
+  """
+  def digit_count(%RDF.Literal{datatype: @id} = literal) do
+    if valid?(literal) do
+      literal
+      |> canonical()
+      |> lexical()
+      |> String.replace("-", "")
+      |> String.length()
+    end
+  end
+
 end

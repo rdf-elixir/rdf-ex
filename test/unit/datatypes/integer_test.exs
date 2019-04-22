@@ -76,6 +76,14 @@ defmodule RDF.IntegerTest do
     end
   end
 
+  test "digit_count/1" do
+    assert RDF.Integer.digit_count(RDF.integer("2")) == 1
+    assert RDF.Integer.digit_count(RDF.integer("23")) == 2
+    assert RDF.Integer.digit_count(RDF.integer("023")) == 2
+    assert RDF.Integer.digit_count(RDF.integer("+023")) == 2
+    assert RDF.Integer.digit_count(RDF.integer("-023")) == 2
+    assert RDF.Integer.digit_count(RDF.integer("NaN")) == nil
+  end
 
   describe "equality" do
     test "two literals are equal when they have the same datatype and lexical form" do

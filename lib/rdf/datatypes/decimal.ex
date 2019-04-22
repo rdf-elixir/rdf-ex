@@ -8,6 +8,7 @@ defmodule RDF.Decimal do
 
   alias Elixir.Decimal, as: D
 
+  @xsd_integer RDF.Datatype.NS.XSD.integer
 
   @impl RDF.Datatype
   def convert(value, opts)
@@ -112,5 +113,38 @@ defmodule RDF.Decimal do
 
   @impl RDF.Datatype
   def compare(left, right), do: RDF.Numeric.compare(left, right)
+
+  @doc """
+  The number of digits in the XML Schema canonical form of the literal value.
+  """
+  def digit_count(%RDF.Literal{datatype: @id} = literal) do
+    if valid?(literal) do
+      literal
+      |> canonical()
+      |> lexical()
+      |> String.replace(".", "")
+      |> String.replace("-", "")
+      |> String.length()
+    end
+  end
+
+  def digit_count(%RDF.Literal{datatype: @xsd_integer} = literal),
+    do: RDF.Integer.digit_count(literal)
+
+  @doc """
+  The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
+  """
+  def fraction_digit_count(%RDF.Literal{datatype: @id, value: value} = literal) do
+    if valid?(literal) do
+      [_, fraction] =
+        literal
+        |> canonical()
+        |> lexical()
+        |> String.split(".")
+      String.length(fraction)
+    end
+  end
+
+  def fraction_digit_count(%RDF.Literal{datatype: @xsd_integer}), do: 0
 
 end

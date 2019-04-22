@@ -122,6 +122,32 @@ defmodule RDF.DecimalTest do
     end
   end
 
+  test "digit_count/1" do
+    assert RDF.Decimal.digit_count(RDF.decimal("1.2345")) == 5
+    assert RDF.Decimal.digit_count(RDF.decimal("-1.2345")) == 5
+    assert RDF.Decimal.digit_count(RDF.decimal("+1.2345")) == 5
+    assert RDF.Decimal.digit_count(RDF.decimal("01.23450")) == 5
+    assert RDF.Decimal.digit_count(RDF.decimal("01.23450")) == 5
+    assert RDF.Decimal.digit_count(RDF.decimal("NAN")) == nil
+
+    assert RDF.Decimal.digit_count(RDF.integer("2")) == 1
+    assert RDF.Decimal.digit_count(RDF.integer("23")) == 2
+    assert RDF.Decimal.digit_count(RDF.integer("023")) == 2
+  end
+
+  test "fraction_digit_count/1" do
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("1.2345")) == 4
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("-1.2345")) == 4
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("+1.2345")) == 4
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("01.23450")) == 4
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("0.023450")) == 5
+    assert RDF.Decimal.fraction_digit_count(RDF.decimal("NAN")) == nil
+
+    assert RDF.Decimal.fraction_digit_count(RDF.integer("2")) == 0
+    assert RDF.Decimal.fraction_digit_count(RDF.integer("23")) == 0
+    assert RDF.Decimal.fraction_digit_count(RDF.integer("023")) == 0
+  end
+
 
   defmacrop sigil_d(str, _opts) do
     quote do
@@ -151,5 +177,4 @@ defmodule RDF.DecimalTest do
     assert Decimal.canonical_decimal(~d"1.2E3") == ~d"1200.0"
     assert Decimal.canonical_decimal(~d"-42E+3") == ~d"-42000.0"
   end
-
 end

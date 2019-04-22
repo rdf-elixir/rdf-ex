@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.Literal.matches?/3` for XQuery regex pattern matching
+- `RDF.Decimal.digit_count/1` and `RDF.Decimal.fraction_digit_count/1` for  
+  determining the number of digits of decimal literals
 
 
 [Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)
