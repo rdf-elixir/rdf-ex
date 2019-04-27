@@ -14,6 +14,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   determining the number of digits of decimal literals
 
 
+### Fixed
+
+- language literals were not properly unescaped during Turtle parsing 
+
+
 [Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)
 
 

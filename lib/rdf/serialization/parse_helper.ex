@@ -41,7 +41,7 @@ defmodule RDF.Serialization.ParseHelper do
   def to_literal({:double,  _line, value}), do: RDF.literal(value)
   def to_literal({:boolean,  _line, value}), do: RDF.literal(value)
   def to_literal({:string_literal_quote, _line, value}, {:language, language}),
-    do: RDF.literal(value, language: language)
+    do: value |> string_unescape |> RDF.literal(language: language)
   def to_literal({:string_literal_quote, _line, value}, {:datatype, %IRI{} = type}),
     do: value |> string_unescape |> RDF.literal(datatype: type)
   def to_literal(string_literal_quote_ast, type),
