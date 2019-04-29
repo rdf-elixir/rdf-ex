@@ -134,7 +134,7 @@ defmodule RDF.Decimal do
   @doc """
   The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
   """
-  def fraction_digit_count(%RDF.Literal{datatype: @id, value: value} = literal) do
+  def fraction_digit_count(%RDF.Literal{datatype: @id} = literal) do
     if valid?(literal) do
       [_, fraction] =
         literal
