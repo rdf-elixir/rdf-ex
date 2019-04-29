@@ -226,10 +226,30 @@ defmodule RDF.IRI do
     do: nil
 
 
-  defimpl String.Chars do
-    def to_string(%RDF.IRI{value: value}) do
-      value
-    end
-  end
+  @doc """
+  Returns the given IRI as a string.
 
+  Note that this function can also handle `RDF.Vocabulary.Namespace` terms.
+
+  ## Examples
+
+      iex> RDF.IRI.to_string RDF.IRI.new("http://example.com/#foo")
+      "http://example.com/#foo"
+      iex> RDF.IRI.to_string EX.foo
+      "http://example.com/#foo"
+      iex> RDF.IRI.to_string EX.Foo
+      "http://example.com/#Foo"
+
+  """
+  def to_string(iri)
+
+  def to_string(%RDF.IRI{value: value}),
+    do: value
+
+  def to_string(qname) when is_atom(qname),
+    do: qname |> new() |> __MODULE__.to_string()
+
+  defimpl String.Chars do
+    def to_string(iri), do: RDF.IRI.to_string(iri)
+  end
 end

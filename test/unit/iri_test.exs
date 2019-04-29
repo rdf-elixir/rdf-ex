@@ -313,13 +313,26 @@ defmodule RDF.IRITest do
     end
   end
 
+  describe "to_string/1" do
+    test "with IRIs" do
+      assert IRI.to_string(IRI.new("http://example.com/")) == "http://example.com/"
+    end
 
-  test "to_string/1" do
+    test "with IRI resolvable namespace terms" do
+      assert IRI.to_string(EX.Foo) == "http://example.com/#Foo"
+      assert IRI.to_string(EX.foo) == "http://example.com/#foo"
+    end
+
+    test "with non-resolvable atoms" do
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> IRI.to_string(Foo.Bar) end
+    end
+  end
+
+  test "String.Chars protocol implementation" do
     assert to_string(IRI.new("http://example.com/")) == "http://example.com/"
   end
 
-
-  test "inspect/1" do
+  test "Inspect protocol implementation" do
     assert inspect(IRI.new("http://example.com/")) == "~I<http://example.com/>"
   end
 

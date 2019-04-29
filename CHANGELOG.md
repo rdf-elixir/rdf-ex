@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.IRI.to_string/1` returns the string representation of an `RDF.IRI`  
+  (implicitly resolving vocabulary namespace terms)
 - `RDF.Literal.matches?/3` for XQuery regex pattern matching
 - `RDF.Decimal.digit_count/1` and `RDF.Decimal.fraction_digit_count/1` for  
   determining the number of digits of decimal literals
