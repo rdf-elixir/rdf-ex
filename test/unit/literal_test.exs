@@ -13,6 +13,7 @@ defmodule RDF.LiteralTest do
     RDF.String  => ["foo"],
     RDF.Integer => [42],
     RDF.Double  => [3.14],
+    RDF.Decimal => [Decimal.from_float(3.14)],
     RDF.Boolean => [true, false],
   }
 
@@ -55,6 +56,8 @@ defmodule RDF.LiteralTest do
     test "decimal" do
       assert Literal.new(3.14,   datatype: XSD.decimal) == RDF.Decimal.new(3.14)
       assert Literal.new("3.14", datatype: XSD.decimal) == RDF.Decimal.new("3.14")
+      assert Literal.new(Decimal.from_float(3.14), datatype: XSD.decimal) ==
+               RDF.Decimal.new(Decimal.from_float(3.14))
     end
 
     test "string" do

@@ -48,6 +48,7 @@ defmodule RDF.Literal do
   def new(value) when is_boolean(value), do: RDF.Boolean.new(value)
   def new(value) when is_integer(value), do: RDF.Integer.new(value)
   def new(value) when is_float(value),   do: RDF.Double.new(value)
+  def new(%Decimal{} = value),           do: RDF.Decimal.new(value)
 
   def new(%Date{} = value),              do: RDF.Date.new(value)
   def new(%Time{} = value),              do: RDF.Time.new(value)

@@ -18,7 +18,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
-- language literals were not properly unescaped during Turtle parsing 
+- language literals were not properly unescaped during Turtle parsing
+- `RDF.Literal.new/1` can take decimals and infers the datatype `xsd:decimal` 
+  correctly  
 
 
 [Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)
