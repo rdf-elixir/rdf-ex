@@ -14,10 +14,10 @@ defmodule RDF.Boolean do
   def convert(value, _) when is_boolean(value), do: value
 
   def convert(value, opts) when is_binary(value) do
-    with normalized_value = String.downcase(value) do
+    with value do
       cond do
-        normalized_value in ~W[true 1]  -> true
-        normalized_value in ~W[false 0] -> false
+        value in ~W[true 1]  -> true
+        value in ~W[false 0] -> false
         true ->
           super(value, opts)
       end

@@ -534,11 +534,9 @@ defmodule RDF.Turtle.EncoderTest do
       [
         {true,    "true ."},
         {"true",  "true ."},
-        {"TrUe",  "true ."},
         {"1",     "true ."},
         {false,   "false ."},
         {"false", "false ."},
-        {"FaLsE", "false ."},
         {"0",     "false ."},
       ]
       |> Enum.each(fn {value, output} ->
@@ -550,7 +548,9 @@ defmodule RDF.Turtle.EncoderTest do
     test "invalid booleans" do
       [
         {"string", ~s{"string"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
-        {"42",     ~s{"42"^^<http://www.w3.org/2001/XMLSchema#boolean>}}
+        {"42",     ~s{"42"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
+        {"TrUe",   ~s{"TrUe"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
+        {"FaLsE",  ~s{"FaLsE"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
       ]
       |> Enum.each(fn {value, output} ->
           Graph.new({EX.S, EX.p, RDF.Boolean.new(value)})

@@ -109,13 +109,13 @@ defmodule RDF.EqualityTest do
       {RDF.boolean("foo"), RDF.boolean("bar")},
     ]
     @value_equal_booleans [
-      {RDF.true,       RDF.boolean("TRUE")},
-      {RDF.boolean(1), RDF.true},
+      {RDF.true,       RDF.boolean("1")},
+      {RDF.boolean(0), RDF.false},
       # invalid literals
       {RDF.boolean("foo"), RDF.boolean("foo")},
     ]
     @value_unequal_booleans [
-      {RDF.true,       RDF.boolean("FALSE")},
+      {RDF.true,       RDF.boolean("false")},
       {RDF.boolean(0), RDF.true},
       # invalid literals
       {RDF.boolean("foo"), RDF.boolean("bar")},

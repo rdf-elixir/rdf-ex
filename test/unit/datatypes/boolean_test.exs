@@ -8,12 +8,10 @@ defmodule RDF.BooleanTest do
       1       => { true  , nil     , "true"  },
       "true"  => { true  , nil     , "true"  },
       "false" => { false , nil     , "false" },
-      "tRuE"  => { true  , "tRuE"  , "true"  },
-      "FaLsE" => { false , "FaLsE" , "false" },
       "0"     => { false , "0"     , "false" },
       "1"     => { true  , "1"     , "true"  },
     },
-    invalid: ~w(foo 10) ++ [42, 3.14, "true false", "true foo"]
+    invalid: ~w(foo 10) ++ [42, 3.14, "tRuE", "FaLsE", "true false", "true foo"]
 
   import RDF.Sigils
 
@@ -53,11 +51,9 @@ defmodule RDF.BooleanTest do
 
     test "casting a string with a value from the lexical value space of xsd:boolean" do
       assert RDF.string("true")  |> RDF.Boolean.cast() == RDF.true
-      assert RDF.string("tRuE")  |> RDF.Boolean.cast() == RDF.true
       assert RDF.string("1")     |> RDF.Boolean.cast() == RDF.true
 
       assert RDF.string("false") |> RDF.Boolean.cast() == RDF.false
-      assert RDF.string("FaLsE") |> RDF.Boolean.cast() == RDF.false
       assert RDF.string("0")     |> RDF.Boolean.cast() == RDF.false
     end
 
