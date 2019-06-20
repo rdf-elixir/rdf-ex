@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   correctly
 - `true` and `false` with capital letters are no longer valid `RDF.Boolean`s 
   following the XSD specification; the same applies for booleans in Turtle
+- `+INF` is no longer a valid `RDF.Double` (positive infinity doesn't expect a sign) 
 
 
 [Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)

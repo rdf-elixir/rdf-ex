@@ -40,7 +40,6 @@ defmodule RDF.Double do
       :error ->
         case String.upcase(value) do
           "INF"   -> :positive_infinity
-          "+INF"  -> :positive_infinity
           "-INF"  -> :negative_infinity
           "NAN"   -> :nan
           _       -> super(value, opts)

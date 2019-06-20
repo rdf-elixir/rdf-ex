@@ -25,11 +25,10 @@ defmodule RDF.DoubleTest do
       "3E1"              => { 3.0E1              , "3E1"       , "3.0E1"     },
       "INF"              => { :positive_infinity , nil         , "INF"       },
       "Inf"              => { :positive_infinity , "Inf"       , "INF"       },
-      "+INF"             => { :positive_infinity , "+INF"      , "INF"       },
       "-INF"             => { :negative_infinity , nil         , "-INF"      },
       "NaN"              => { :nan               , nil         , "NaN"       },
     },
-    invalid: ~w(foo 12.xyz 1.0ez) ++ [true, false, "1.1e1 foo", "foo 1.1e1"]
+    invalid: ~w(foo 12.xyz 1.0ez +INF) ++ [true, false, "1.1e1 foo", "foo 1.1e1"]
 
 
   describe "equality" do
@@ -63,7 +62,7 @@ defmodule RDF.DoubleTest do
     test "casting a double returns the input as it is" do
       assert RDF.double(3.14)   |> RDF.Double.cast() == RDF.double(3.14)
       assert RDF.double("NAN")  |> RDF.Double.cast() == RDF.double("NAN")
-      assert RDF.double("+INF") |> RDF.Double.cast() == RDF.double("+INF")
+      assert RDF.double("-INF") |> RDF.Double.cast() == RDF.double("-INF")
     end
 
     test "casting a boolean" do

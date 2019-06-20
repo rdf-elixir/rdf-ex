@@ -92,7 +92,7 @@ defmodule RDF.BooleanTest do
 
       assert RDF.double(1)       |> RDF.Boolean.cast() == RDF.true
       assert RDF.double(0.1)     |> RDF.Boolean.cast() == RDF.true
-      assert RDF.double("+INF")  |> RDF.Boolean.cast() == RDF.true
+      assert RDF.double("-INF")  |> RDF.Boolean.cast() == RDF.true
     end
 
     @tag skip: "TODO: RDF.Float datatype"
