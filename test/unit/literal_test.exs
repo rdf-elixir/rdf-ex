@@ -252,6 +252,7 @@ defmodule RDF.LiteralTest do
         {~L"abracadabra", ~L"^bra",   false},
         {@poem, ~L"Kaum.*krähen",     false},
         {@poem, ~L"^Kaum.*gesehen,$", false},
+        {~L"\u{01D4B8}", ~L"\\U0001D4B8", true},
 
         {~L"abracadabra"en, ~L"bra", true},
         {"abracadabra", "bra",       true},

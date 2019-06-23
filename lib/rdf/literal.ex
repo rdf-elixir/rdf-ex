@@ -370,9 +370,16 @@ defmodule RDF.Literal do
   end
 
   defp xpath_regex_pattern(pattern, flags) do
-    with {:ok, regex} <- Regex.compile(pattern, xpath_regex_flags(flags)) do
+    with {:ok, regex} <-
+           pattern
+           |> convert_utf16_escaping()
+           |> Regex.compile(xpath_regex_flags(flags)) do
       {:regex, regex}
     end
+  end
+
+  defp convert_utf16_escaping(pattern) do
+    String.replace(pattern, ~r/\\U(([0-9]|[A-F]|[a-f]){2})(([0-9]|[A-F]|[a-f]){6})/, "\\u{\\3}")
   end
 
   defp xpath_regex_flags(flags) do
