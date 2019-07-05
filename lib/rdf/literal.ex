@@ -372,14 +372,31 @@ defmodule RDF.Literal do
   defp xpath_regex_pattern(pattern, flags) do
     with {:ok, regex} <-
            pattern
-           |> convert_utf16_escaping()
+           |> convert_utf_escaping()
            |> Regex.compile(xpath_regex_flags(flags)) do
       {:regex, regex}
     end
   end
 
-  defp convert_utf16_escaping(pattern) do
-    String.replace(pattern, ~r/\\U(([0-9]|[A-F]|[a-f]){2})(([0-9]|[A-F]|[a-f]){6})/, "\\u{\\3}")
+  @doc false
+  def convert_utf_escaping(string) do
+    require Integer
+
+    xpath_unicode_regex = ~r/(\\*)\\U([0-9]|[A-F]|[a-f]){2}(([0-9]|[A-F]|[a-f]){6})/
+    [first | possible_matches] =
+      Regex.split(xpath_unicode_regex, string, include_captures: true)
+
+    [first |
+      Enum.map_every(possible_matches, 2, fn possible_xpath_unicode ->
+        [_, escapes, _, codepoint, _] = Regex.run(xpath_unicode_regex, possible_xpath_unicode)
+        if escapes |> String.length() |> Integer.is_odd() do
+          "#{escapes}\\u{#{codepoint}}"
+        else
+          "\\" <> possible_xpath_unicode
+        end
+      end)
+    ]
+    |> Enum.join()
   end
 
   defp xpath_regex_flags(flags) do
