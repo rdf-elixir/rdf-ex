@@ -3,6 +3,8 @@ defmodule RDF.NTriples.Decoder do
 
   use RDF.Serialization.Decoder
 
+  import RDF.Serialization.ParseHelper, only: [error_description: 1]
+
   @impl RDF.Serialization.Decoder
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
@@ -10,9 +12,9 @@ defmodule RDF.NTriples.Decoder do
       {:ok, build_graph(ast)}
     else
       {:error, {error_line, :ntriples_lexer, error_descriptor}, _error_line_again} ->
-        {:error, "N-Triple scanner error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "N-Triple scanner error on line #{error_line}: #{error_description error_descriptor}"}
       {:error, {error_line, :ntriples_parser, error_descriptor}} ->
-        {:error, "N-Triple parser error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "N-Triple parser error on line #{error_line}: #{error_description error_descriptor}"}
     end
   end
 
@@ -25,5 +27,4 @@ defmodule RDF.NTriples.Decoder do
       RDF.Graph.add(graph, triple)
     end
   end
-
 end

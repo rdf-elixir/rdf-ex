@@ -5,6 +5,8 @@ defmodule RDF.Turtle.Decoder do
   
   alias RDF.IRI
 
+  import RDF.Serialization.ParseHelper, only: [error_description: 1]
+
   defmodule State do
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
 
@@ -35,9 +37,9 @@ defmodule RDF.Turtle.Decoder do
       build_graph(ast, base && RDF.iri(base))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
-        {:error, "Turtle scanner error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "Turtle scanner error on line #{error_line}: #{error_description error_descriptor}"}
       {:error, {error_line, :turtle_parser, error_descriptor}} ->
-        {:error, "Turtle parser error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "Turtle parser error on line #{error_line}: #{error_description error_descriptor}"}
     end
   end
 

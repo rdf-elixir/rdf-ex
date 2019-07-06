@@ -87,4 +87,13 @@ defmodule RDF.Serialization.ParseHelper do
   def unescape_8digit_unicode_seq(string) do
     String.replace(string, ~r/\\U([0-9]|[A-F]|[a-f]){2}(([0-9]|[A-F]|[a-f]){6})/, "\\u{\\2}")
   end
+
+
+  def error_description(error_descriptor) when is_list(error_descriptor) do
+    error_descriptor
+    |> Stream.map(&to_string/1)
+    |> Enum.join("")
+  end
+
+  def error_description(error_descriptor), do: inspect(error_descriptor)
 end

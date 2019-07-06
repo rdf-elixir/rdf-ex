@@ -3,6 +3,8 @@ defmodule RDF.NQuads.Decoder do
 
   use RDF.Serialization.Decoder
 
+  import RDF.Serialization.ParseHelper, only: [error_description: 1]
+
   @impl RDF.Serialization.Decoder
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
@@ -10,9 +12,9 @@ defmodule RDF.NQuads.Decoder do
       {:ok, build_dataset(ast)}
     else
       {:error, {error_line, :ntriples_lexer, error_descriptor}, _error_line_again} ->
-        {:error, "N-Quad scanner error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "N-Quad scanner error on line #{error_line}: #{error_description error_descriptor}"}
       {:error, {error_line, :nquads_parser, error_descriptor}} ->
-        {:error, "N-Quad parser error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error, "N-Quad parser error on line #{error_line}: #{error_description error_descriptor}"}
     end
   end
 
@@ -25,5 +27,4 @@ defmodule RDF.NQuads.Decoder do
       RDF.Dataset.add(dataset, quad)
     end
   end
-
 end
