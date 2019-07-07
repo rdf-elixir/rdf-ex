@@ -3,14 +3,16 @@ matrix:
   include:
     - otp_release: 20.0
       elixir: 1.6
-    - otp_release: 21.0
-      elixir: 1.6
-    - otp_release: 21.0
+    - otp_release: 22.0
       elixir: 1.7
+    - otp_release: 22.0
+      elixir: 1.8
     - otp_release: 20.0
-      elixir: 1.8
+      elixir: 1.9
     - otp_release: 21.0
-      elixir: 1.8
+      elixir: 1.9
+    - otp_release: 22.0
+      elixir: 1.9
 sudo: false
 after_script:
   - MIX_ENV=docs mix deps.get
