@@ -33,6 +33,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## 0.6.0 - 2019-04-06
 
+see [here](https://github.com/marcelotto/rdf-ex/wiki/Upgrading-to-RDF.ex-0.6) for
+upgrading notes to RDF.ex 0.6 
+
 ### Added
 
 - `RDF.PrefixMap`
