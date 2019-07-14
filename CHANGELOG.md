@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.6.1 - 2019-07-15
 
 ### Added
 
@@ -27,7 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - slightly improve output of errors during parsing of Turtle, N-Triples and N-Quads  
 
 
-[Compare v0.6.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...HEAD)
+[Compare v0.6.0...v0.6.1](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...v0.6.1)
 
 
 
