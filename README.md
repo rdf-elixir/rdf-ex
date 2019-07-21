@@ -1,3 +1,5 @@
+<img src="rdf-logo.png" align="right" />
+
 # RDF.ex
 
 [![Travis](https://img.shields.io/travis/marcelotto/rdf-ex.svg?style=flat-square)](https://travis-ci.org/marcelotto/rdf-ex)
