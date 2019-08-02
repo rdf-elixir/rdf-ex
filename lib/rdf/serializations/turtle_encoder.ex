@@ -28,7 +28,7 @@ defmodule RDF.Turtle.Encoder do
 
   @impl RDF.Serialization.Encoder
   def encode(data, opts \\ []) do
-    with base         = Keyword.get(opts, :base) |> init_base(),
+    with base         = Keyword.get(opts, :base) |> base_iri(data) |> init_base(),
          prefixes     = Keyword.get(opts, :prefixes) |> prefixes(data) |> init_prefixes(),
          {:ok, state} = State.start_link(data, base, prefixes) do
       try do
@@ -44,6 +44,9 @@ defmodule RDF.Turtle.Encoder do
       end
     end
   end
+
+  defp base_iri(nil, %RDF.Graph{base_iri: base_iri}), do: base_iri
+  defp base_iri(base_iri, _), do: RDF.iri(base_iri)
 
   defp init_base(nil), do: nil
 

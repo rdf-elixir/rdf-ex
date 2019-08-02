@@ -85,6 +85,26 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
+    test "when no base IRI is given, the base IRI from the given graph is used" do
+      assert Turtle.Encoder.encode!(Graph.new([{EX.S1, EX.p1, EX.O1}], prefixes: %{},
+               base_iri: EX.__base_iri__)) ==
+               """
+               @base <#{to_string(EX.__base_iri__)}> .
+               <S1>
+                   <p1> <O1> .
+               """
+    end
+
+    test "when a base IRI is given, it has used instead of the base IRI of the given graph" do
+      assert Turtle.Encoder.encode!(Graph.new([{EX.S1, EX.p1, EX.O1}], prefixes: %{},
+               base_iri: EX.other), base: EX.__base_iri__) ==
+               """
+               @base <#{to_string(EX.__base_iri__)}> .
+               <S1>
+                   <p1> <O1> .
+               """
+    end
+
     test "when no prefixes are given and no prefixes are in the given graph the default_prefixes are used" do
       assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, XSD.string})) ==
                """
