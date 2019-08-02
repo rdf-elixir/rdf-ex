@@ -120,6 +120,16 @@ defmodule RDF.GraphTest do
                %Graph{Graph.new({EX.Subject, EX.predicate, EX.Object}) | prefixes: PrefixMap.new(ex: EX)}
     end
 
+    test "with base_iri" do
+      assert Graph.new(base_iri: EX.base) ==
+               %Graph{base_iri: EX.base}
+      assert Graph.new(prefixes: %{ex: EX}, base_iri: EX.base) ==
+               %Graph{prefixes: PrefixMap.new(ex: EX), base_iri: EX.base}
+
+      assert Graph.new({EX.Subject, EX.predicate, EX.Object}, base_iri: EX.base) ==
+               %Graph{Graph.new({EX.Subject, EX.predicate, EX.Object}) | base_iri: EX.base}
+    end
+
     test "creating a graph from another graph takes the prefixes from the other graph, but overwrites if necessary" do
       prefix_map = PrefixMap.new(ex: EX)
       g = Graph.new(Graph.new(prefixes: prefix_map))
@@ -227,7 +237,13 @@ defmodule RDF.GraphTest do
       assert graph.prefixes == PrefixMap.new(ex: EX)
     end
 
-    test "preserves the name and prefixes on when the data provided is not a graph" do
+    test "preserves the base_iri" do
+      graph = Graph.new()
+              |> Graph.add(Graph.new({EX.Subject, EX.predicate, EX.Object}, base_iri: EX.base))
+      assert graph.base_iri == Graph.new.base_iri
+    end
+
+    test "preserves the name and prefixes when the data provided is not a graph" do
       graph = Graph.new(name: EX.GraphName, prefixes: %{ex: EX})
               |> Graph.add(EX.Subject, EX.predicate, EX.Object)
       assert graph.name == RDF.iri(EX.GraphName)
@@ -302,11 +318,12 @@ defmodule RDF.GraphTest do
       assert graph.prefixes == PrefixMap.new(ex: EX)
     end
 
-    test "preserves the name and prefixes" do
-      graph = Graph.new(name: EX.GraphName, prefixes: %{ex: EX})
+    test "preserves the name, base_iri and prefixes" do
+      graph = Graph.new(name: EX.GraphName, prefixes: %{ex: EX}, base_iri: EX.base)
               |> Graph.put(EX.Subject, EX.predicate, EX.Object)
       assert graph.name == RDF.iri(EX.GraphName)
       assert graph.prefixes == PrefixMap.new(ex: EX)
+      assert graph.base_iri == EX.base
     end
   end
 
@@ -469,6 +486,8 @@ defmodule RDF.GraphTest do
            |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph1))
     assert Graph.new({EX.S, EX.p, EX.O}, prefixes: %{ex: EX})
            |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, prefixes: %{xsd: XSD}))
+    assert Graph.new({EX.S, EX.p, EX.O}, base_iri: EX.base)
+           |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}, base_iri: EX.other_base))
 
     refute Graph.new({EX.S, EX.p, EX.O}) |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O2}))
     refute Graph.new({EX.S, EX.p, EX.O}, name: EX.Graph1)
@@ -517,6 +536,32 @@ defmodule RDF.GraphTest do
 
   test "clear_prefixes/1" do
     assert Graph.clear_prefixes(Graph.new(prefixes: %{ex: EX})) == Graph.new
+  end
+
+  describe "set_base_iri/1" do
+    test "when given an IRI" do
+      graph = Graph.new() |> Graph.set_base_iri(~I<http://example.com/>)
+      assert graph.base_iri == ~I<http://example.com/>
+    end
+
+    test "when given a vocabulary namespace atom" do
+      graph = Graph.new() |> Graph.set_base_iri(EX.Base)
+      assert graph.base_iri == RDF.iri(EX.Base)
+    end
+
+    test "when given nil" do
+      graph = Graph.new() |> Graph.set_base_iri(nil)
+      assert graph.base_iri == nil
+    end
+  end
+
+  test "clear_base_iri/1" do
+    assert Graph.clear_base_iri(Graph.new(base_iri: EX.base)) == Graph.new
+  end
+
+  test "clear_metadata/1" do
+    assert Graph.clear_metadata(Graph.new(base_iri: EX.base, prefixes: %{ex: EX})) ==
+             Graph.new
   end
 
   describe "Enumerable protocol" do

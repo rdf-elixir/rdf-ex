@@ -11,7 +11,7 @@ defmodule RDF.Graph do
 
   """
 
-  defstruct name: nil, descriptions: %{}, prefixes: nil
+  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
 
   @behaviour Access
 
@@ -68,6 +68,8 @@ defmodule RDF.Graph do
   - `name`: the name of the graph to be created
   - `prefixes`: some prefix mappings which should be stored alongside the graph
     and will be used for example when serializing in a format with prefix support
+  - `base_iri`: a base IRI which should be stored alongside the graph
+    and will be used for example when serializing in a format with base IRI support
 
   ## Examples
 
@@ -77,6 +79,7 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S1, EX.p1, EX.O1}, {EX.S2, EX.p2, EX.O2}])
       RDF.Graph.new(RDF.Description.new(EX.S, EX.P, EX.O))
       RDF.Graph.new([graph, description, triple])
+      RDF.Graph.new({EX.S, EX.p, EX.O}, name: EX.GraphName, base_iri: EX.base)
 
   """
   def new(data, options)
@@ -84,6 +87,7 @@ defmodule RDF.Graph do
   def new(%RDF.Graph{} = graph, options) do
     %RDF.Graph{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
     |> add_prefixes(Keyword.get(options, :prefixes))
+    |> set_base_iri(Keyword.get(options, :base_iri))
   end
 
   def new(data, options) do
@@ -692,7 +696,7 @@ defmodule RDF.Graph do
   def equal?(graph1, graph2)
 
   def equal?(%RDF.Graph{} = graph1, %RDF.Graph{} = graph2) do
-    clear_prefixes(graph1) == clear_prefixes(graph2)
+    clear_metadata(graph1) == clear_metadata(graph2)
   end
 
   def equal?(_, _), do: false
@@ -747,6 +751,35 @@ defmodule RDF.Graph do
     %RDF.Graph{graph | prefixes: nil}
   end
 
+  @doc """
+  Sets the base IRI of the given `graph`.
+  """
+  def set_base_iri(graph, base_iri)
+
+  def set_base_iri(%RDF.Graph{} = graph, nil) do
+    %RDF.Graph{graph | base_iri: nil}
+  end
+
+  def set_base_iri(%RDF.Graph{} = graph, base_iri) do
+    %RDF.Graph{graph | base_iri: RDF.IRI.new(base_iri)}
+  end
+
+  @doc """
+  Clears the base IRI of the given `graph`.
+  """
+  def clear_base_iri(%RDF.Graph{} = graph) do
+    %RDF.Graph{graph | base_iri: nil}
+  end
+
+  @doc """
+  Clears the base IRI and all prefixes of the given `graph`.
+  """
+  def clear_metadata(%RDF.Graph{} = graph) do
+    graph
+    |> clear_base_iri()
+    |> clear_prefixes()
+  end
+
 
   defimpl Enumerable do
     def member?(graph, triple),  do: {:ok, RDF.Graph.include?(graph, triple)}
@@ -765,9 +798,7 @@ defmodule RDF.Graph do
     def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(graph, &1, fun)}
     end
-
   end
-
 
   defimpl Collectable do
     def into(original) do
@@ -782,6 +813,4 @@ defmodule RDF.Graph do
       {original, collector_fun}
     end
   end
-
 end
-

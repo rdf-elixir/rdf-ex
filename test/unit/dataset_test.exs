@@ -748,6 +748,10 @@ defmodule RDF.DatasetTest do
              Dataset.new(Graph.new(triple, name: EX.Graph1, prefixes: %{ex: EX})),
              Dataset.new(Graph.new(triple, name: EX.Graph1, prefixes: %{ex: RDF}))
            )
+    assert Dataset.equal?(
+             Dataset.new(Graph.new(triple, name: EX.Graph1, base_iri: EX.base)),
+             Dataset.new(Graph.new(triple, name: EX.Graph1, base_iri: EX.other_base))
+           )
     refute Dataset.equal?(Dataset.new(triple), Dataset.new({EX.S, EX.p, EX.O2}))
     refute Dataset.equal?(Dataset.new(triple, name: EX.Dataset1),
                           Dataset.new(triple, name: EX.Dataset2))

@@ -5,6 +5,20 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- field `base_iri` on `RDF.Graph` structure which can be set via new `base_iri` 
+  option on `RDF.Graph.new` or the the new functions `RDF.Graph.set_base_iri/2` 
+  and `RDF.Graph.clear_base_iri/1`
+- `RDF.Graph.clear_metadata/1` which clears the base IRI and the prefixes
+
+
+[Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)
+
+
+
 ## 0.6.1 - 2019-07-15
 
 ### Added

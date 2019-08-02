@@ -788,16 +788,16 @@ defmodule RDF.Dataset do
   def equal?(dataset1, dataset2)
 
   def equal?(%RDF.Dataset{} = dataset1, %RDF.Dataset{} = dataset2) do
-    clear_prefixes(dataset1) == clear_prefixes(dataset2)
+    clear_metadata(dataset1) == clear_metadata(dataset2)
   end
 
   def equal?(_, _), do: false
 
-  defp clear_prefixes(%RDF.Dataset{graphs: graphs} = dataset) do
+  defp clear_metadata(%RDF.Dataset{graphs: graphs} = dataset) do
     %RDF.Dataset{dataset |
       graphs:
         Map.new(graphs, fn {name, graph} ->
-          {name, RDF.Graph.clear_prefixes(graph)}
+          {name, RDF.Graph.clear_metadata(graph)}
         end)
     }
   end
