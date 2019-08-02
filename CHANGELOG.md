@@ -17,9 +17,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- `RDF.Turtle.Decoder` saves the base IRI now
+- `RDF.Turtle.Decoder` saves the base IRI in the `RDF.Graph` now
 - `RDF.Turtle.Encoder` now takes the base IRI to be serialized from the graph when 
-  no base IRI is given with the `base` option 
+  no base IRI is given with the `base` option or its new alias `base_iri`
 
 
 [Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)

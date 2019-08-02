@@ -28,8 +28,10 @@ defmodule RDF.Turtle.Encoder do
 
   @impl RDF.Serialization.Encoder
   def encode(data, opts \\ []) do
-    with base         = Keyword.get(opts, :base) |> base_iri(data) |> init_base(),
-         prefixes     = Keyword.get(opts, :prefixes) |> prefixes(data) |> init_prefixes(),
+    with base         = Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
+                        |> base_iri(data) |> init_base_iri(),
+         prefixes     = Keyword.get(opts, :prefixes)
+                        |> prefixes(data) |> init_prefixes(),
          {:ok, state} = State.start_link(data, base, prefixes) do
       try do
         State.preprocess(state)
@@ -48,16 +50,15 @@ defmodule RDF.Turtle.Encoder do
   defp base_iri(nil, %RDF.Graph{base_iri: base_iri}), do: base_iri
   defp base_iri(base_iri, _), do: RDF.iri(base_iri)
 
-  defp init_base(nil), do: nil
+  defp init_base_iri(nil), do: nil
 
-  defp init_base(base) do
-    with base = to_string(base) do
-      if String.ends_with?(base, ~w[/ #]) do
-        {:ok, base}
-      else
-        IO.warn("invalid base: #{base}")
-        {:bad, base}
-      end
+  defp init_base_iri(base_iri) do
+    base_iri = to_string(base_iri)
+    if String.ends_with?(base_iri, ~w[/ #]) do
+      {:ok, base_iri}
+    else
+      IO.warn("invalid base_iri: #{base_iri}")
+      {:bad, base_iri}
     end
   end
 

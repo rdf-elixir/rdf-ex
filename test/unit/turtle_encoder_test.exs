@@ -97,7 +97,7 @@ defmodule RDF.Turtle.EncoderTest do
 
     test "when a base IRI is given, it has used instead of the base IRI of the given graph" do
       assert Turtle.Encoder.encode!(Graph.new([{EX.S1, EX.p1, EX.O1}], prefixes: %{},
-               base_iri: EX.other), base: EX.__base_iri__) ==
+               base_iri: EX.other), base_iri: EX.__base_iri__) ==
                """
                @base <#{to_string(EX.__base_iri__)}> .
                <S1>
@@ -164,7 +164,7 @@ defmodule RDF.Turtle.EncoderTest do
                 {EX.S2, RDF.type, RDFS.Class},
                 {EX.S3, RDF.type, RDF.Property},
               ]),
-                base: EX.__base_iri__,
+                base_iri: EX.__base_iri__,
                 prefixes: %{
                   rdf:  RDF.__base_iri__,
                   rdfs: RDFS.__base_iri__,
@@ -240,7 +240,7 @@ defmodule RDF.Turtle.EncoderTest do
     "relative IRIs with base" => %{
       input: "<http://a/b> <http://a/c> <http://a/d> .",
       matches: [ ~r(@base\s+<http://a/>\s+\.), ~r(<b>\s+<c>\s+<d>\s+\.)m],
-      base: "http://a/"
+      base_iri: "http://a/"
     },
     "pname IRIs with prefix" => %{
       input: "<http://example.com/b> <http://example.com/c> <http://example.com/d> .",
@@ -676,12 +676,12 @@ defmodule RDF.Turtle.EncoderTest do
 
   defp assert_serialization(graph, opts) do
     with prefixes    = Keyword.get(opts, :prefixes, %{}),
-         base        = Keyword.get(opts, :base),
+         base_iri    = Keyword.get(opts, :base_iri),
          matches     = Keyword.get(opts, :matches, []),
          neg_matches = Keyword.get(opts, :neg_matches, [])
     do
       assert {:ok, serialized} =
-                Turtle.write_string(graph, prefixes: prefixes, base: base)
+                Turtle.write_string(graph, prefixes: prefixes, base_iri: base_iri)
 
       matches
       |> Stream.map(fn
