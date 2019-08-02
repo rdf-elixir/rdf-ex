@@ -15,6 +15,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Graph.clear_metadata/1` which clears the base IRI and the prefixes
 
 
+### Changed
+
+- `RDF.Turtle.Decoder` saves the base IRI now
+
+
 [Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)
 
 

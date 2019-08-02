@@ -360,31 +360,32 @@ defmodule RDF.Turtle.DecoderTest do
     test "without explicit in-doc base, but document_base option given" do
       assert Turtle.Decoder.decode!("""
         <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
-      """, base: "http://example.org/") == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """, base: "http://example.org/") ==
+        Graph.new({EX.Aaron, RDF.type, EX.Person}, base_iri: ~I<http://example.org/>)
     end
 
     test "with @base given" do
       assert Turtle.Decoder.decode!("""
         @base <http://example.org/> .
         <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, base_iri: ~I<http://example.org/>)
 
       assert Turtle.Decoder.decode!("""
         @base <http://example.org/#> .
         <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, base_iri: ~I<http://example.org/#>)
     end
 
     test "with BASE given" do
       assert Turtle.Decoder.decode!("""
         BASE <http://example.org/>
         <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, base_iri: ~I<http://example.org/>)
 
       assert Turtle.Decoder.decode!("""
         base <http://example.org/#>
         <#Aaron> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#Person> .
-      """) == Graph.new({EX.Aaron, RDF.type, EX.Person})
+      """) == Graph.new({EX.Aaron, RDF.type, EX.Person}, base_iri: ~I<http://example.org/#>)
     end
 
     test "when a given base is itself relative" do
