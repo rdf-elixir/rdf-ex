@@ -40,6 +40,8 @@ defmodule RDF do
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset, PrefixMap}
 
+  defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
+
 
   @standard_prefixes PrefixMap.new(
                        xsd:  IRI.new("http://www.w3.org/2001/XMLSchema#"),

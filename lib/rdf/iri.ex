@@ -27,7 +27,7 @@ defmodule RDF.IRI do
   @scheme_regex Regex.recompile!(~r/^([a-z][a-z0-9\+\-\.]*):/i)
 
   @doc """
-  The default base IRI to be used when reading a serialization and no `base` option is provided.
+  The default base IRI to be used when reading a serialization and no `base_iri` option is provided.
 
   The value can be set via the `default_base_iri` configuration. For example:
 

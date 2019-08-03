@@ -33,8 +33,8 @@ defmodule RDF.Turtle.Decoder do
   def decode(content, opts) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens),
-         base = Map.get(opts, :base) do
-      build_graph(ast, base && RDF.iri(base))
+         base_iri = Map.get(opts, :base, Map.get(opts, :base_iri, RDF.default_base_iri())) do
+      build_graph(ast, base_iri && RDF.iri(base_iri))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
         {:error, "Turtle scanner error on line #{error_line}: #{error_description error_descriptor}"}
@@ -48,9 +48,9 @@ defmodule RDF.Turtle.Decoder do
   def parse([]),     do: {:ok, []}
   def parse(tokens), do: tokens |> :turtle_parser.parse
 
-  defp build_graph(ast, base) do
+  defp build_graph(ast, base_iri) do
     {graph, %State{namespaces: namespaces, base_iri: base_iri}} =
-      Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base}}, fn
+      Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base_iri}}, fn
         {:triples, triples_ast}, {graph, state} ->
           with {statements, state} = triples(triples_ast, state) do
             {RDF.Graph.add(graph, statements), state}
