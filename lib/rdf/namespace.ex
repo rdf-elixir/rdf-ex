@@ -1,6 +1,6 @@
 defmodule RDF.Namespace do
   @moduledoc """
-  A behaviour for resolvers of module atoms to `RDF.IRI`s.
+  A behaviour for resolvers of atoms to `RDF.IRI`s.
 
   Currently there's only one type of such namespaces: `RDF.Vocabulary.Namespace`,
   but other types are thinkable and might be implemented in the future, eg.

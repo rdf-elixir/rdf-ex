@@ -570,14 +570,14 @@ defmodule RDF.Graph do
 
   ## Examples
 
-    iex> RDF.Graph.new([
-    ...>   {EX.S1, EX.p1, EX.O1},
-    ...>   {EX.S2, EX.p1, EX.O2},
-    ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
-    ...>   {EX.S3, EX.p1, "foo"}
-    ...> ]) |> RDF.Graph.resources
-    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
-      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
+      iex> RDF.Graph.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p1, EX.O2},
+      ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
+      ...>   {EX.S3, EX.p1, "foo"}
+      ...> ]) |> RDF.Graph.resources
+      MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
+        RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
   def resources(graph = %RDF.Graph{descriptions: descriptions}) do
     Enum.reduce(descriptions, MapSet.new, fn ({_, description}, acc) ->
