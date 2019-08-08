@@ -753,6 +753,8 @@ defmodule RDF.Graph do
 
   @doc """
   Sets the base IRI of the given `graph`.
+
+  The `base_iri` can be given as anything accepted by `RDF.IRI.coerce_base/1`.
   """
   def set_base_iri(graph, base_iri)
 
@@ -761,7 +763,7 @@ defmodule RDF.Graph do
   end
 
   def set_base_iri(%RDF.Graph{} = graph, base_iri) do
-    %RDF.Graph{graph | base_iri: RDF.IRI.new(base_iri)}
+    %RDF.Graph{graph | base_iri: RDF.IRI.coerce_base(base_iri)}
   end
 
   @doc """

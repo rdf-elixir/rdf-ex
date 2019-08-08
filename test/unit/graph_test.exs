@@ -544,9 +544,14 @@ defmodule RDF.GraphTest do
       assert graph.base_iri == ~I<http://example.com/>
     end
 
-    test "when given a vocabulary namespace atom" do
+    test "when given a term atom under a vocabulary namespace" do
       graph = Graph.new() |> Graph.set_base_iri(EX.Base)
       assert graph.base_iri == RDF.iri(EX.Base)
+    end
+
+    test "when given a vocabulary namespace module" do
+      graph = Graph.new() |> Graph.set_base_iri(EX)
+      assert graph.base_iri == RDF.iri(EX.__base_iri__)
     end
 
     test "when given nil" do
