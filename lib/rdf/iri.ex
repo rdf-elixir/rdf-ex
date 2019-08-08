@@ -66,6 +66,25 @@ defmodule RDF.IRI do
 
 
   @doc """
+  Coerces an IRI serving as a base IRI.
+
+  As opposed to `new/1` this also accepts bare `RDF.Vocabulary.Namespace` modules
+  and uses the base IRI from their definition.
+  """
+  def coerce_base(base_iri)
+
+  def coerce_base(module) when is_atom(module) do
+    if RDF.Vocabulary.Namespace.vocabulary_namespace?(module) do
+      apply(module, :__base_iri__, [])
+      |> new()
+    else
+      new(module)
+    end
+  end
+  def coerce_base(base_iri), do: new(base_iri)
+
+
+  @doc """
   Returns the given value unchanged if it's a valid IRI, otherwise raises an exception.
 
   ## Examples

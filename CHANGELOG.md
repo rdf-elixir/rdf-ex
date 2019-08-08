@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   option on `RDF.Graph.new` or the the new functions `RDF.Graph.set_base_iri/2` 
   and `RDF.Graph.clear_base_iri/1`
 - `RDF.Graph.clear_metadata/1` which clears the base IRI and the prefixes
+- `RDF.IRI.coerce_base/1` which coerces base IRIs; as opposed to `RDF.IRI.new/1`
+  it also accepts bare `RDF.Vocabulary.Namespace` modules
 
 
 ### Changed
@@ -24,6 +26,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 	- from the `base_iri` field of the given graph
 	- from the `RDF.default_base_iri` returning the one from the application 
 	  configuration
+- `RDF.PrefixMap.new` and `RDF.PrefixMap.add` now also terms from 
+  `RDF.Vocabulary.Namespace`s as namespaces
 
 
 [Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)

@@ -80,7 +80,7 @@ defmodule RDF.PrefixMapTest do
     end
 
     test "when the IRI namespace is given as an atom" do
-      assert_raise ArgumentError, "Invalid prefix mapping for :ex, :foo is not a vocabulary namespace", fn ->
+      assert_raise RDF.Namespace.UndefinedTermError, "foo is not a term on a RDF.Namespace", fn ->
         PrefixMap.add(@example1, :ex, :foo)
       end
     end

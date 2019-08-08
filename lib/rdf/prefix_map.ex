@@ -33,23 +33,11 @@ defmodule RDF.PrefixMap do
     map |> Map.new() |> new()
   end
 
-  defp normalize({prefix, %IRI{} = namespace}) when is_atom(prefix),
-    do: {prefix, namespace}
+  defp normalize({prefix, namespace}) when is_atom(prefix),
+    do: {prefix, IRI.coerce_base(namespace)}
 
   defp normalize({prefix, namespace}) when is_binary(prefix),
     do: normalize({String.to_atom(prefix), namespace})
-
-  defp normalize({prefix, namespace}) when is_binary(namespace),
-    do: normalize({prefix, IRI.new(namespace)})
-
-  defp normalize({prefix, namespace}) when is_atom(namespace) do
-    if RDF.Vocabulary.Namespace.vocabulary_namespace?(namespace) do
-      normalize({prefix, apply(namespace, :__base_iri__, [])})
-    else
-      raise ArgumentError,
-            "Invalid prefix mapping for #{inspect(prefix)}, #{inspect(namespace)} is not a vocabulary namespace"
-    end
-  end
 
   defp normalize({prefix, namespace}),
     do:

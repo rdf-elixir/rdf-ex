@@ -106,6 +106,44 @@ defmodule RDF.IRITest do
   end
 
 
+  describe "coerce_base/1" do
+    test "with a string" do
+      assert IRI.coerce_base("http://example.com/") == IRI.new("http://example.com/")
+    end
+
+    test "with a RDF.IRI" do
+      assert IRI.coerce_base(IRI.new("http://example.com/")) == IRI.new("http://example.com/")
+    end
+
+    test "with a URI" do
+      assert IRI.coerce_base(URI.parse("http://example.com/")) ==
+               IRI.new(URI.parse("http://example.com/"))
+    end
+
+    test "with a resolvable atom" do
+      assert IRI.coerce_base(EX.Foo) == IRI.new(EX.Foo)
+    end
+
+    test "with a non-resolvable atom" do
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> IRI.coerce_base(Foo.Bar) end
+    end
+
+    test "with Elixirs special atoms" do
+      assert_raise FunctionClauseError, fn -> IRI.coerce_base(true) end
+      assert_raise FunctionClauseError, fn -> IRI.coerce_base(false) end
+      assert_raise FunctionClauseError, fn -> IRI.coerce_base(nil) end
+    end
+
+    test "with a RDF.Vocabulary.Namespace module" do
+      assert IRI.coerce_base(EX) == IRI.new(EX.__base_iri__)
+    end
+
+    test "with a RDF.Vocabulary.Namespace module which is not loaded yet" do
+      assert IRI.coerce_base(RDF.NS.SKOS) == ~I<http://www.w3.org/2004/02/skos/core#>
+    end
+  end
+
+
   describe "valid!/1" do
     test "with valid iris" do
       Enum.each(valid_iris(), fn valid_iri ->
@@ -276,7 +314,6 @@ defmodule RDF.IRITest do
       end)
     end
   end
-
 
   describe "parse/1" do
     test "with absolute and relative iris" do
