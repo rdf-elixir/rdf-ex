@@ -9,19 +9,19 @@
 
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
 
-For more about RDF.ex and it's related projects, go to <https://rdf-elixir.dev>.
+The API documentation can be found [here](https://hexdocs.pm/rdf/). For a guide and more information about RDF.ex and it's related projects, go to <https://rdf-elixir.dev>.
 
 ## Features
 
 - fully compatible with the RDF 1.1 specification
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
-- ability to execute SPARQL queries against the in-memory data structures via the [SPARQL.ex] package or against any SPARQL endpoint via the [SPARQL.Client] package
+- ability to execute [SPARQL] queries against the in-memory data structures via the [SPARQL.ex] package or against any SPARQL endpoint via the [SPARQL.Client] package
 - support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
 - XML schema datatypes for RDF literals (not yet all supported)
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
-- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats
-    - [JSON-LD] is implemented in the separate [JSON-LD.ex] package
+- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats; [JSON-LD] is implemented in the separate [JSON-LD.ex] package
+- ability to validate data against [ShEx] schemas via the [ShEx.ex] package
 
 
 ## Contributing
@@ -54,6 +54,7 @@ If you need help with your Elixir and Linked Data projects, just contact <info@c
 [JSON-LD.ex]:           https://hex.pm/packages/json_ld
 [SPARQL.ex]:            https://hex.pm/packages/sparql
 [SPARQL.Client]:        https://hex.pm/packages/sparql_client
+[ShEx.ex]:              https://hex.pm/packages/shex
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
 [Turtle]:               https://www.w3.org/TR/turtle/
@@ -61,3 +62,5 @@ If you need help with your Elixir and Linked Data projects, just contact <info@c
 [JSON-LD]:              http://www.w3.org/TR/json-ld/
 [RDFa]:                 https://www.w3.org/TR/rdfa-syntax/
 [RDF-XML]:              https://www.w3.org/TR/rdf-syntax-grammar/
+[SPARQL]:               https://www.w3.org/TR/sparql11-overview/
+[ShEx]:                 https://shex.io/
