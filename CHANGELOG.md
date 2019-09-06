@@ -26,8 +26,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 	- from the `base_iri` field of the given graph
 	- from the `RDF.default_base_iri` returning the one from the application 
 	  configuration
-- `RDF.PrefixMap.new` and `RDF.PrefixMap.add` now also terms from 
+- `RDF.PrefixMap.new` and `RDF.PrefixMap.add` now also accepts terms from 
   `RDF.Vocabulary.Namespace`s as namespaces
+
+
+### Fixed
+
+- Vocabulary namespace modules weren't always detected properly
 
 
 [Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)

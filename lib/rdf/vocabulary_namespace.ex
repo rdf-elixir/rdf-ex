@@ -574,7 +574,7 @@ defmodule RDF.Vocabulary.Namespace do
 
   @doc false
   def vocabulary_namespace?(name) do
-    Code.ensure_loaded?(name) && function_exported?(name, :__base_iri__, 0)
+    Code.ensure_compiled?(name) && function_exported?(name, :__base_iri__, 0)
   end
 
 end
