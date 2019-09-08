@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.6.2 - 2019-09-08
 
 ### Added
 
@@ -35,7 +35,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - Vocabulary namespace modules weren't always detected properly
 
 
-[Compare v0.6.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...HEAD)
+[Compare v0.6.1...v0.6.2](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...v0.6.2)
 
 
 
