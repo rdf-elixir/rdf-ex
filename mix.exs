@@ -54,7 +54,7 @@ defmodule RDF.Mixfile do
         "GitHub" => @repo_url,
         "Changelog" => @repo_url <> "/blob/master/CHANGELOG.md",
       },
-      files: ~w[lib src/*.xrl src/*.yrl priv mix.exs VERSION *.md]
+      files: ~w[lib src/*.xrl src/*.yrl priv mix.exs .formatter.exs VERSION *.md]
     ]
   end
 
