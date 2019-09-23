@@ -17,7 +17,7 @@ defmodule RDF.IRITest do
       URI.parse("http://www.example.com/foo/"),
       "http://www.example.com/foo#",
       %IRI{value: "http://www.example.com/foo#"},
-      URI.parse("http://www.example.com/foo#") |> IRI.empty_fragment_shim("#"),
+      URI.parse("http://www.example.com/foo#"),
       "https://en.wiktionary.org/wiki/Ῥόδος",
       %IRI{value: "https://en.wiktionary.org/wiki/Ῥόδος"},
       URI.parse("https://en.wiktionary.org/wiki/Ῥόδος"),
@@ -277,7 +277,6 @@ defmodule RDF.IRITest do
             base_iri
             |> to_string
             |> URI.merge(to_string(relative_iri))
-            |> IRI.empty_fragment_shim(relative_iri)
             |> IRI.new
           )
         end
@@ -289,7 +288,6 @@ defmodule RDF.IRITest do
             base_iri
             |> to_string
             |> URI.merge(to_string(absolute_iri))
-            |> IRI.empty_fragment_shim(absolute_iri)
             |> IRI.new
           )
         end
@@ -323,7 +321,6 @@ defmodule RDF.IRITest do
             |> IRI.new
             |> to_string()
             |> URI.parse
-            |> IRI.empty_fragment_shim(iri)
           )
       end)
     end

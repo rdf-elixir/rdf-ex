@@ -168,22 +168,7 @@ defmodule RDF.IRI do
     base
     |> parse()
     |> URI.merge(parse(rel))
-    |> empty_fragment_shim(rel)
     |> new()
-  end
-
-
-  @doc false
-  # shim for https://github.com/elixir-lang/elixir/pull/6419
-  def empty_fragment_shim(_, %URI{} = uri), do: uri
-  def empty_fragment_shim(uri, %RDF.IRI{value: value}),
-    do: empty_fragment_shim(uri, value)
-  def empty_fragment_shim(uri, original) do
-    if String.ends_with?(original, "#") do
-      %URI{uri | fragment: ""}
-    else
-      uri
-    end
   end
 
 
@@ -214,10 +199,10 @@ defmodule RDF.IRI do
   Parses an IRI into its components and returns them as an `URI` struct.
   """
   def parse(iri)
-  def parse(iri) when is_binary(iri),   do: URI.parse(iri) |> empty_fragment_shim(iri)
+  def parse(iri) when is_binary(iri),   do: URI.parse(iri)
   def parse(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: Namespace.resolve_term(qname) |> parse()
-  def parse(%RDF.IRI{value: value}),    do: URI.parse(value) |> empty_fragment_shim(value)
+  def parse(%RDF.IRI{value: value}),    do: URI.parse(value)
   def parse(%URI{} = uri),              do: uri
 
 
