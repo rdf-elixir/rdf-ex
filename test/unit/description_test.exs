@@ -144,7 +144,6 @@ defmodule RDF.DescriptionTest do
       refute description_includes_predication(desc, {EX.predicate, iri(EX.Object3)})
     end
 
-
     test "another description" do
       desc = description([{EX.predicate1, EX.Object1}, {EX.predicate2, EX.Object2}])
         |> Description.add(Description.new({EX.Other, EX.predicate3, EX.Object3}))
@@ -356,6 +355,12 @@ defmodule RDF.DescriptionTest do
     assert Description.new(EX.s) |> Description.values(mapping) == %{}
     assert Description.new({EX.s, EX.p, ~L"Foo"}) |> Description.values(mapping) ==
              %{p: ["Foo"]}
+  end
+
+  test "take/2" do
+    assert Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
+           |> Description.take([EX.p2, EX.p3]) ==
+             Description.new({EX.S, EX.p2, EX.O2})
   end
 
   test "equal/2" do

@@ -5,6 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Description.take/2` creates a description from another one by limiting 
+  its statements to a set of predicates
+- Mix formatter configuration for using `defvocab` without parens 
+
+
+[Compare v0.6.2...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.2...HEAD)
+
+
+
 ## 0.6.2 - 2019-09-08
 
 ### Added

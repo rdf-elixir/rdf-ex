@@ -616,6 +616,15 @@ defmodule RDF.Description do
     end
   end
 
+  @doc """
+  Creates a description from another one by limiting its statements to those using one of the given `predicates`.
+
+  If `predicates` contains properties that are not used in the `description`, they're simply ignored.
+  """
+  def take(%RDF.Description{predications: predications} = description, predicates) do
+    predicates = Enum.map(predicates, &(coerce_predicate/1))
+    %RDF.Description{description | predications: Map.take(predications, predicates)}
+  end
 
   @doc """
   Checks if two `RDF.Description`s are equal.
