@@ -479,6 +479,48 @@ defmodule RDF.GraphTest do
              }
   end
 
+  describe "take/2" do
+    test "with a non-empty subject list" do
+      assert Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+             |> Graph.take([EX.s2, EX.s3]) ==
+               Graph.new([{EX.s2, EX.p, EX.o2}])
+    end
+
+    test "with an empty subject list" do
+      assert Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+             |> Graph.take([]) == Graph.new()
+    end
+
+    test "with nil" do
+      assert Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+             |> Graph.take(nil) ==
+               Graph.new([{EX.s1, EX.p, EX.o1}, {EX.s2, EX.p, EX.o2}])
+    end
+  end
+
+  describe "take/3" do
+    test "with non-empty subject and property lists" do
+      assert Graph.new([{EX.s1, EX.p1, EX.o1}, {EX.s1, EX.p2, EX.o1}, {EX.s2, EX.p1, EX.o2}])
+             |> Graph.take([EX.s1, EX.s3], [EX.p2]) ==
+               Graph.new([{EX.s1, EX.p2, EX.o1}])
+    end
+
+    test "with an empty subject list" do
+      assert Graph.new(
+               [
+                 {EX.s1, EX.p1, EX.o1},
+                 {EX.s1, EX.p2, EX.o1},
+                 {EX.s2, EX.p1, EX.o2}
+               ], name: EX.Graph)
+             |> Graph.take([], [EX.p1]) == Graph.new(name: EX.Graph)
+    end
+
+    test "with nil" do
+      assert Graph.new([{EX.s1, EX.p1, EX.o1}, {EX.s1, EX.p2, EX.o1}, {EX.s2, EX.p1, EX.o2}])
+             |> Graph.take(nil, [EX.p1]) ==
+               Graph.new([{EX.s1, EX.p1, EX.o1}, {EX.s2, EX.p1, EX.o2}])
+    end
+  end
 
   test "equal/2" do
     assert Graph.new({EX.S, EX.p, EX.O}) |> Graph.equal?(Graph.new({EX.S, EX.p, EX.O}))

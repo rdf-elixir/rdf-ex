@@ -686,6 +686,33 @@ defmodule RDF.Graph do
     end
   end
 
+  @doc """
+  Creates a graph from another one by limiting its statements to those using one of the given `subjects`.
+
+  If `subjects` contains IRIs that are not used in the `graph`, they're simply ignored.
+
+  The optional `properties` argument allows to limit also properties of the subject descriptions.
+
+  If `nil` is passed as the `subjects`, the subjects will not be limited.
+  """
+  def take(graph, subjects, properties \\ nil)
+
+  def take(%RDF.Graph{} = graph, nil, nil), do: graph
+
+  def take(%RDF.Graph{descriptions: descriptions} = graph, subjects, nil) do
+    subjects = Enum.map(subjects, &(coerce_subject/1))
+    %RDF.Graph{graph | descriptions: Map.take(descriptions, subjects)}
+  end
+
+  def take(%RDF.Graph{} = graph, subjects, properties) do
+    graph = take(graph, subjects, nil)
+    %RDF.Graph{graph | 
+      descriptions: Map.new(graph.descriptions, fn {subject, description} ->
+        {subject, Description.take(description, properties)}
+      end)
+    }
+  end
+
 
   @doc """
   Checks if two `RDF.Graph`s are equal.

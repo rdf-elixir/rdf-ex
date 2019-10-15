@@ -367,6 +367,15 @@ defmodule RDF.Description do
     |> List.first
   end
 
+
+#  def update(description = %RDF.Description{}, predicate, initial \\ [], fun) do
+#    triple_predicate = coerce_predicate(predicate)
+#    description.predicates
+#    |> Map.update(triple_predicate, initial, fn objects ->
+#    end)
+#  end
+
+
   @doc """
   Gets and updates the objects of the given predicate of a Description, in a single pass.
 
@@ -620,7 +629,13 @@ defmodule RDF.Description do
   Creates a description from another one by limiting its statements to those using one of the given `predicates`.
 
   If `predicates` contains properties that are not used in the `description`, they're simply ignored.
+
+  If `nil` is passed, the description is left untouched.
   """
+  def take(description, predicates)
+
+  def take(%RDF.Description{} = description, nil), do: description
+
   def take(%RDF.Description{predications: predications} = description, predicates) do
     predicates = Enum.map(predicates, &(coerce_predicate/1))
     %RDF.Description{description | predications: Map.take(predications, predicates)}

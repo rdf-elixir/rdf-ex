@@ -357,10 +357,23 @@ defmodule RDF.DescriptionTest do
              %{p: ["Foo"]}
   end
 
-  test "take/2" do
-    assert Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
-           |> Description.take([EX.p2, EX.p3]) ==
-             Description.new({EX.S, EX.p2, EX.O2})
+  describe "take/2" do
+    test "with a non-empty property list" do
+      assert Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
+             |> Description.take([EX.p2, EX.p3]) ==
+               Description.new({EX.S, EX.p2, EX.O2})
+    end
+
+    test "with an empty property list" do
+      assert Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
+             |> Description.take([]) == Description.new(EX.S)
+    end
+
+    test "with nil" do
+      assert Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
+             |> Description.take(nil) ==
+               Description.new([{EX.S, EX.p1, EX.O1}, {EX.S, EX.p2, EX.O2}])
+    end
   end
 
   test "equal/2" do
