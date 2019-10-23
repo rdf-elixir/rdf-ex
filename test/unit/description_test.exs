@@ -317,6 +317,42 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "update/4" do
+    test "list values returned from the update function become new coerced objects of the predicate" do
+      assert Description.new(EX.S, EX.P, [EX.O1, EX.O2])
+             |> Description.update(EX.P,
+                  fn [_object | other] -> [EX.O3 | other] end) ==
+               Description.new(EX.S, EX.P, [EX.O3, EX.O2])
+    end
+
+    test "single values returned from the update function becomes new object of the predicate" do
+      assert Description.new(EX.S, EX.P, [EX.O1, EX.O2])
+             |> Description.update(EX.P, fn _ -> EX.O3 end) ==
+               Description.new(EX.S, EX.P, EX.O3)
+    end
+
+    test "returning an empty list or nil from the update function causes a removal of the predications" do
+      description = EX.S
+                    |> EX.p(EX.O1, EX.O2)
+      assert description
+             |> Description.update(EX.p, fn _ -> [] end) ==
+               Description.new(EX.S, {EX.p, []})
+      assert description
+             |> Description.update(EX.p, fn _ -> nil end) ==
+               Description.new(EX.S, {EX.p, []})
+    end
+
+    test "when the property is not present the initial object value is added for the predicate and the update function not called" do
+      fun = fn _ -> raise "should not be called" end
+      assert Description.new(EX.S)
+             |> Description.update(EX.P, EX.O, fun) ==
+               Description.new(EX.S, EX.P, EX.O)
+
+      assert Description.new(EX.S)
+             |> Description.update(EX.P, fun) ==
+               Description.new(EX.S)
+    end
+  end
 
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}

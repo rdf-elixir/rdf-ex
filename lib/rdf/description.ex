@@ -367,13 +367,49 @@ defmodule RDF.Description do
     |> List.first
   end
 
+  @doc """
+  Updates the objects of the `predicate` in `description` with the given function.
 
-#  def update(description = %RDF.Description{}, predicate, initial \\ [], fun) do
-#    triple_predicate = coerce_predicate(predicate)
-#    description.predicates
-#    |> Map.update(triple_predicate, initial, fn objects ->
-#    end)
-#  end
+  If `predicate` is present in `description` with `objects` as value,
+  `fun` is invoked with argument `objects` and its result is used as the new
+  list of objects of `predicate`. If `predicate` is not present in `description`,
+  `initial` is inserted as the `objects` of `predicate`. The initial value will
+  not be passed through the update function.
+
+  The initial value and the returned objects by the update function will automatically
+  coerced to proper RDF object values before added.
+
+  ## Examples
+
+      iex> RDF.Description.new({EX.S, EX.p, EX.O}) |>
+      ...> RDF.Description.update(EX.p, fn objects -> [EX.O2 | objects] end)
+      RDF.Description.new([{EX.S, EX.p, EX.O}, {EX.S, EX.p, EX.O2}])
+      iex> RDF.Description.new(EX.S) |>
+      ...> RDF.Description.update(EX.p, EX.O, fn _ -> EX.O2 end)
+      RDF.Description.new({EX.S, EX.p, EX.O})
+
+  """
+  def update(description = %RDF.Description{}, predicate, initial \\ nil, fun) do
+    predicate = coerce_predicate(predicate)
+
+    case get(description, predicate) do
+      nil ->
+        if initial do
+          put(description, predicate, initial)
+        else
+          description
+        end
+
+      objects ->
+        objects
+        |> fun.()
+        |> List.wrap()
+        |> case do
+             []      -> delete_predicates(description, predicate)
+             objects -> put(description, predicate, objects)
+           end
+    end
+  end
 
 
   @doc """

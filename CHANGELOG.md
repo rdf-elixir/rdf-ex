@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Description.update/4` updates the objects of a predicate in a description 
+  with a custom update function
 - `RDF.Description.take/2` creates a description from another one by limiting 
   its statements to a set of predicates
 - `RDF.Graph.take/3` creates a graph from another one by limiting 
