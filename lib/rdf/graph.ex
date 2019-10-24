@@ -169,7 +169,7 @@ defmodule RDF.Graph do
 
   When the statements to be added are given as another `RDF.Graph`, the prefixes
   of this graph will be added. In case of conflicting prefix mappings the
-  original  prefix from `graph` will be kept.
+  original prefix from `graph` will be kept.
 
   ## Examples
 
@@ -330,6 +330,63 @@ defmodule RDF.Graph do
   def delete_subjects(%RDF.Graph{descriptions: descriptions} = graph, subject) do
     with subject = coerce_subject(subject) do
       %RDF.Graph{graph | descriptions: Map.delete(descriptions, subject)}
+    end
+  end
+
+
+  @doc """
+  Updates the description of the `subject` in `graph` with the given function.
+
+  If `subject` is present in `graph` with `description` as description,
+  `fun` is invoked with argument `description` and its result is used as the new
+  description of `subject`. If `subject` is not present in `graph`,
+  `initial` is inserted as the description of `subject`. The initial value will
+  not be passed through the update function.
+
+  The initial value and the returned objects by the update function will be tried
+  te coerced to proper RDF descriptions before added. If the initial or returned
+  description is a `RDF.Description` with another subject, the respective
+  statements are added with `subject` as subject.
+
+  ## Examples
+
+      iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
+      ...>   RDF.Graph.update(EX.S,
+      ...>     fn description -> Description.add(description, EX.p, EX.O2) end)
+      RDF.Graph.new([{EX.S, EX.p, EX.O}, {EX.S, EX.p, EX.O2}])
+      iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
+      ...>   RDF.Graph.update(EX.S,
+      ...>     fn _ -> Description.new(EX.S2, EX.p2, EX.O2) end)
+      RDF.Graph.new([{EX.S, EX.p2, EX.O2}])
+      iex> RDF.Graph.new() |>
+      ...>   RDF.Graph.update(EX.S, Description.new({EX.S, EX.p, EX.O}),
+      ...>     fn description -> Description.add(description, EX.p, EX.O2) end)
+      RDF.Graph.new([{EX.S, EX.p, EX.O}])
+
+  """
+  def update(graph = %RDF.Graph{}, subject, initial \\ nil, fun) do
+    subject = coerce_subject(subject)
+
+    case get(graph, subject) do
+      nil ->
+        if initial do
+          add(graph, Description.new(subject, initial))
+        else
+          graph
+        end
+
+      description ->
+        description
+        |> fun.()
+        |> case do
+             nil ->
+               delete_subjects(graph, subject)
+
+             new_description ->
+               graph
+               |> delete_subjects(subject)
+               |> add(Description.new(subject, new_description))
+           end
     end
   end
 

@@ -431,6 +431,69 @@ defmodule RDF.GraphTest do
   end
 
 
+  describe "update/4" do
+    test "a description returned from the update function becomes new description of the subject" do
+      old_description = Description.new({EX.S2, EX.p2, EX.O3})
+      new_description = Description.new({EX.S2, EX.p, EX.O})
+      assert Graph.new([
+               {EX.S1, EX.p1, [EX.O1, EX.O2]},
+               old_description,
+             ])
+             |> Graph.update(EX.S2, fn ^old_description -> new_description end) ==
+               Graph.new([
+                 {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                 new_description,
+               ])
+    end
+
+    test "a description with another subject returned from the update function becomes new description of the subject" do
+      old_description = Description.new({EX.S2, EX.p2, EX.O3})
+      new_description = Description.new({EX.S2, EX.p, EX.O})
+      assert Graph.new([
+               {EX.S1, EX.p1, [EX.O1, EX.O2]},
+               old_description,
+             ])
+             |> Graph.update(EX.S2,
+                  fn ^old_description -> Description.new(EX.S3, new_description) end) ==
+               Graph.new([
+                 {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                 new_description,
+               ])
+    end
+
+    test "a value returned from the update function becomes new coerced description of the subject" do
+      old_description = Description.new({EX.S2, EX.p2, EX.O3})
+      new_description = {EX.p, [EX.O1, EX.O2]}
+      assert Graph.new([
+               {EX.S1, EX.p1, [EX.O1, EX.O2]},
+               old_description,
+             ])
+             |> Graph.update(EX.S2,
+                  fn ^old_description -> new_description end) ==
+               Graph.new([
+                 {EX.S1, EX.p1, [EX.O1, EX.O2]},
+                 Description.new(EX.S2, new_description),
+               ])
+    end
+
+    test "returning nil from the update function causes a removal of the description" do
+      assert Graph.new({EX.S, EX.p, EX.O})
+             |> Graph.update(EX.S, fn _ -> nil end) ==
+               Graph.new()
+    end
+
+    test "when the property is not present the initial object value is added for the predicate and the update function not called" do
+      fun = fn _ -> raise "should not be called" end
+      assert Graph.new()
+             |> Graph.update(EX.S, {EX.P, EX.O}, fun) ==
+               Graph.new(EX.S, EX.P, EX.O)
+
+      assert Graph.new()
+             |> Graph.update(EX.S, fun) ==
+               Graph.new()
+    end
+  end
+
   test "pop" do
     assert Graph.pop(Graph.new) == {nil, Graph.new}
 

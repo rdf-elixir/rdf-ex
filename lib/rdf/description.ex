@@ -373,7 +373,7 @@ defmodule RDF.Description do
   If `predicate` is present in `description` with `objects` as value,
   `fun` is invoked with argument `objects` and its result is used as the new
   list of objects of `predicate`. If `predicate` is not present in `description`,
-  `initial` is inserted as the `objects` of `predicate`. The initial value will
+  `initial` is inserted as the objects of `predicate`. The initial value will
   not be passed through the update function.
 
   The initial value and the returned objects by the update function will automatically
