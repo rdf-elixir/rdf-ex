@@ -140,6 +140,12 @@ defmodule RDF.GraphTest do
     end
   end
 
+  test "clear/1" do
+    opts = [name: EX.Graph, base_iri: EX.base, prefixes: %{ex: EX.prefix}]
+    assert Graph.new({EX.S, EX.p, EX.O}, opts)
+           |> Graph.clear() == Graph.new(opts)
+  end
+
   describe "add" do
     test "a proper triple" do
       assert Graph.add(graph(), iri(EX.Subject), EX.predicate, iri(EX.Object))

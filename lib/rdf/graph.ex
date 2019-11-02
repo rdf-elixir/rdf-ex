@@ -106,6 +106,18 @@ defmodule RDF.Graph do
 
 
   @doc """
+  Removes all triples from `graph`.
+
+  This function is useful for getting an empty graph based on the settings of
+  another graph, as this function keeps graph name name, base IRI and default
+  prefixes as they are and just removes the triples.
+  """
+  def clear(%RDF.Graph{} = graph) do
+    %RDF.Graph{graph | descriptions: %{}}
+  end
+
+
+  @doc """
   Adds triples to a `RDF.Graph`.
   """
   def add(%RDF.Graph{} = graph, subject, predicate, objects),

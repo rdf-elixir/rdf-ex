@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   its statements to a set of predicates
 - `RDF.Graph.take/3` creates a graph from another one by limiting 
   its statements to a set of subjects and optionally also a set of predicates
+- `RDF.Graph.clear/1` removes the triples from a graph
 - Mix formatter configuration for using `defvocab` without parens 
 
 
