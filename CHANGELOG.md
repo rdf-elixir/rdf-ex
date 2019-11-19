@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Diff` data structure for diffs between RDF graphs and descriptions 
 - `RDF.Description.update/4` updates the objects of a predicate in a description 
   with a custom update function
 - `RDF.Graph.update/4` updates the descriptions of a subject in a graph 
