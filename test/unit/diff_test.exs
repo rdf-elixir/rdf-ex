@@ -198,6 +198,14 @@ defmodule RDF.DiffTest do
              )
   end
 
+  test "empty?/1" do
+    assert Diff.empty?(Diff.new()) == true
+    assert Diff.empty?(Diff.new(additions: EX.p(EX.S, EX.O),
+                                deletions: EX.p(EX.S, EX.O))) == false
+    assert Diff.empty?(Diff.new(additions: EX.p(EX.S, EX.O))) == false
+    assert Diff.empty?(Diff.new(deletions: EX.p(EX.S, EX.O))) == false
+  end
+
   describe "apply/2" do
     test "on a graph" do
       assert Diff.new(

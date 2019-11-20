@@ -151,6 +151,15 @@ defmodule RDF.Diff do
   end
 
   @doc """
+  Determines if a diff is empty.
+
+  A `RDF.Diff` is empty, if its `additions` and `deletions` graphs are empty.
+  """
+  def empty?(%__MODULE__{} = diff) do
+    Enum.empty?(diff.additions) and Enum.empty?(diff.deletions)
+  end
+
+  @doc """
   Applies a diff to a `RDF.Graph` or `RDF.Description` by deleting the `deletions` and adding the `additions` of the `diff`.
 
   Deletions of statements which are not present in the given graph or description
