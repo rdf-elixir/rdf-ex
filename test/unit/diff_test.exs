@@ -197,4 +197,89 @@ defmodule RDF.DiffTest do
                ])
              )
   end
+
+  describe "apply/2" do
+    test "on a graph" do
+      assert Diff.new(
+                 additions: Graph.new([
+                   EX.S1
+                   |> EX.p(EX.O3)
+                   |> EX.p3(EX.O),
+                   EX.S3
+                   |> EX.p(EX.O)
+                 ]),
+                 deletions: Graph.new([
+                   EX.S1
+                   |> EX.p(EX.O1)
+                   |> EX.p2(EX.O),
+                   EX.S2
+                   |> EX.p(EX.O)
+                 ]))
+             |> Diff.apply(Graph.new([
+                              EX.S1
+                              |> EX.p(EX.O1, EX.O2)
+                              |> EX.p2(EX.O),
+                              EX.S2
+                              |> EX.p(EX.O)
+                            ])) ==
+               Graph.new([
+                 EX.S1
+                 |> EX.p(EX.O2, EX.O3)
+                 |> EX.p3(EX.O),
+                 EX.S3
+                 |> EX.p(EX.O)
+               ])
+    end
+
+    test "on a description" do
+      assert Diff.new(
+               additions: Graph.new([
+                 EX.S1
+                 |> EX.p(EX.O3)
+                 |> EX.p3(EX.O),
+                 EX.S3
+                 |> EX.p(EX.O)
+               ]),
+               deletions: Graph.new([
+                 EX.S1
+                 |> EX.p(EX.O1)
+                 |> EX.p2(EX.O),
+               ]))
+             |> Diff.apply(
+                  EX.S1
+                  |> EX.p(EX.O1, EX.O2)
+                  |> EX.p2(EX.O)
+                ) ==
+               Graph.new([
+                 EX.S1
+                 |> EX.p(EX.O2, EX.O3)
+                 |> EX.p3(EX.O),
+                 EX.S3
+                 |> EX.p(EX.O)
+               ])
+    end
+
+    test "when the statements to be deleted are not present" do
+      assert Diff.new(
+               additions: Graph.new(
+                 EX.S1
+                 |> EX.p(EX.O4)
+               ),
+               deletions: Graph.new([
+                 EX.S1
+                 |> EX.p(EX.O2, EX.O3)
+                 |> EX.p2(EX.O),
+                 EX.S2
+                 |> EX.p(EX.O)
+               ]))
+             |> Diff.apply(Graph.new(
+               EX.S1
+               |> EX.p(EX.O1, EX.O2)
+             )) ==
+               Graph.new(
+                 EX.S1
+                 |> EX.p(EX.O1, EX.O4)
+               )
+    end
+  end
 end

@@ -30,7 +30,7 @@ defmodule RDF.Diff do
   defp coerce_graph(data), do: Graph.new(data)
 
   @doc """
-  Computes the diff between two `RDF.Graph`s or `RDF.Description`s.
+  Computes a diff between two `RDF.Graph`s or `RDF.Description`s.
 
   The first argument represents the original and the second argument the new version
   of the RDF data to be compared. Any combination of `RDF.Graph`s or
@@ -148,5 +148,26 @@ defmodule RDF.Diff do
       additions: Graph.add(diff1.additions, diff2.additions),
       deletions: Graph.add(diff1.deletions, diff2.deletions)
     )
+  end
+
+  @doc """
+  Applies a diff to a `RDF.Graph` or `RDF.Description` by deleting the `deletions` and adding the `additions` of the `diff`.
+
+  Deletions of statements which are not present in the given graph or description
+  are simply ignored.
+
+  The result of an application is always a `RDF.Graph`, even if a `RDF.Description`
+  is given and the additions from the diff are all about the subject of this description.
+  """
+  def apply(diff, rdf_data)
+
+  def apply(%__MODULE__{} = diff, %Graph{} = graph) do
+    graph
+    |> Graph.delete(diff.deletions)
+    |> Graph.add(diff.additions)
+  end
+
+  def apply(%__MODULE__{} = diff, %Description{} = description) do
+    __MODULE__.apply(diff, Graph.new(description))
   end
 end
