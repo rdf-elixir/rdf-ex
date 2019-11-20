@@ -225,6 +225,8 @@ defmodule RDF do
   defdelegate dataset(arg),                   to: Dataset, as: :new
   defdelegate dataset(arg1, arg2),            to: Dataset, as: :new
 
+  defdelegate diff(arg1, arg2), to: RDF.Diff
+
   defdelegate list?(resource, graph), to: RDF.List, as: :node?
   defdelegate list?(description),     to: RDF.List, as: :node?
 
