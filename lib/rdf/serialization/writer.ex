@@ -35,7 +35,7 @@ defmodule RDF.Serialization.Writer do
   - `:force` - If not set to `true`, an error is raised when the given file
     already exists (default: `false`)
   - `:file_mode` - A list with the Elixir `File.open` modes to be used for writing
-    (default: `[:utf8, :write]`)
+    (default: `[:write, :exclusive]`)
 
   It returns `:ok` if successful or `{:error, reason}` if an error occurs.
   """
@@ -59,7 +59,7 @@ defmodule RDF.Serialization.Writer do
   end
 
   defp file_mode(_encoder, opts) do
-    with file_mode = Keyword.get(opts, :file_mode, ~w[utf8 write exclusive]a) do
+    with file_mode = Keyword.get(opts, :file_mode, ~w[write exclusive]a) do
       if Keyword.get(opts, :force) do
         List.delete(file_mode, :exclusive)
       else
@@ -67,5 +67,4 @@ defmodule RDF.Serialization.Writer do
       end
     end
   end
-
 end
