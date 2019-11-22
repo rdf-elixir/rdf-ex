@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.7.0 - 2019-11-22
 
 ### Added
 
@@ -28,11 +28,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   `write_file/3` and `write_file!/3` functions of all serialization format modules
   like `RDF.NTriples`, `RDF.Turtle`, `JSON.LD` etc. now opens file in a different 
   mode: it no longer opens them with the [`:utf8` option](https://hexdocs.pm/elixir/File.html#open/2).
-  First, this by default slowed down the writing, but more importantly could lead  
-  to unexpected encoding issues. 
-  This is a **breaking change**: If your code relied on this file mode, you can  
-  get the old behaviour, by specifying the `file_mode` on these functions 
-  accordingly as `[:utf8, :write, :exclusive]`. For example, to write a Turtle 
+  First, this by default slowed down the writing, but more importantly could lead
+  to unexpected encoding issues.
+  This is a **breaking change**: If your code relied on this file mode, you can
+  get the old behaviour, by specifying the `file_mode` on these functions
+  accordingly as `[:utf8, :write, :exclusive]`. For example, to write a Turtle
   file with the old behaviour, you can do it like this:
   
 ```elixir
@@ -40,7 +40,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 ``` 
 
 
-[Compare v0.6.2...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.6.2...HEAD)
+[Compare v0.6.2...v0.7.0](https://github.com/marcelotto/rdf-ex/compare/v0.6.2...v0.7.0)
 
 
 
