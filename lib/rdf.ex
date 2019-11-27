@@ -21,6 +21,7 @@ defmodule RDF do
     - `RDF.Dataset`
     - `RDF.Data`
     - `RDF.List`
+    - `RDF.Diff`
   - functions for working with RDF serializations: `RDF.Serialization`
   - behaviours for the definition of RDF serialization formats
     - `RDF.Serialization.Format`
