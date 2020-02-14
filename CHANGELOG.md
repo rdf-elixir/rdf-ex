@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- `RDF.XSD.Time` didn't handle 24h overflows with an offset correctly
+
+
+[Compare v0.7.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.7.0...HEAD)
+
+
+
 ## 0.7.0 - 2019-11-22
 
 ### Added
