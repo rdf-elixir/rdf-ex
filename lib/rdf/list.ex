@@ -7,14 +7,18 @@ defmodule RDF.List do
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
+  alias RDF.{Graph, Description, IRI, BlankNode}
+
+  @type t :: %__MODULE__{
+          head: RDF.IRI.t,
+          graph: RDF.Graph.t
+  }
+
   @enforce_keys [:head]
   defstruct [:head, :graph]
 
-  alias RDF.{Graph, Description, IRI, BlankNode}
-
-  @type t :: module
-
   @rdf_nil RDF.nil
+
 
   @doc """
   Creates a `RDF.List` for a given RDF list node of a given `RDF.Graph`.

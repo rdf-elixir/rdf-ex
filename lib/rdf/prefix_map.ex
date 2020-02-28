@@ -5,9 +5,14 @@ defmodule RDF.PrefixMap do
   `RDF.PrefixMap` implements the `Enumerable` protocol.
   """
 
+  alias RDF.IRI
+
+  @type t :: %__MODULE__{
+          map: map
+  }
+
   defstruct map: %{}
 
-  alias RDF.IRI
 
   @doc """
   Creates an empty `RDF.PrefixMap`.

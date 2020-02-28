@@ -11,14 +11,20 @@ defmodule RDF.Graph do
 
   """
 
-  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
-
   @behaviour Access
 
   alias RDF.Description
   import RDF.Statement
 
-  @type t :: module
+  @type t :: %__MODULE__{
+          name: RDF.IRI.t | nil,
+          descriptions: graph_description,
+          prefixes: RDF.PrefixMap.t | nil,
+          base_iri: RDF.IRI | nil
+  }
+
+  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
+
 
   @doc """
   Creates an empty unnamed `RDF.Graph`.

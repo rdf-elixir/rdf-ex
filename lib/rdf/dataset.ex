@@ -13,14 +13,19 @@ defmodule RDF.Dataset do
 
   """
 
-  defstruct name: nil, graphs: %{}
-
   @behaviour Access
 
   alias RDF.{Graph, Description}
   import RDF.Statement
 
-  @type t :: module
+  @type graphs_key :: RDF.IRI.t | nil
+
+  @type t :: %__MODULE__{
+          name: RDF.IRI.t | nil,
+          graphs: %{graphs_key => RDF.Graph.t}
+  }
+
+  defstruct name: nil, graphs: %{}
 
 
   @doc """

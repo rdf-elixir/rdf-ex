@@ -31,6 +31,7 @@ defmodule RDF.BlankNode.Increment do
   end
 
   @impl BlankNode.Generator.Algorithm
+  # @spec generate(map) :: {RDF.BlankNode.t, map}
   def generate(%{counter: counter} = state) do
     {bnode(counter, state), %{state | counter: counter + 1}}
   end

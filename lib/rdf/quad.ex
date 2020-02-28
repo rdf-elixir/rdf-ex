@@ -8,6 +8,9 @@ defmodule RDF.Quad do
 
   alias RDF.Statement
 
+  @type t :: {Statement.subject, Statement.predicate, Statement.object, Statement.graph_name}
+
+
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
 

@@ -8,7 +8,7 @@ defmodule RDF.BlankNode.Generator.Algorithm do
   @doc """
   Returns the initial state of the algorithm.
   """
-  @callback init(opts :: map | Keyword.t() | nil) :: map
+  @callback init(opts :: map | Keyword.t()) :: map
 
   @doc """
   Generates a blank node.

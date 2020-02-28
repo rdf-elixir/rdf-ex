@@ -10,14 +10,20 @@ defmodule RDF.Description do
   - the `RDF.Data` protocol
   """
 
-  @enforce_keys [:subject]
-  defstruct subject: nil, predications: %{}
-
   @behaviour Access
 
   import RDF.Statement
 
-  @type t :: module
+  @type predications :: %{Statement.predicate => %{Statement.object => nil}}
+
+  @type t :: %__MODULE__{
+          subject: Statement.subject,
+          predications: predications
+  }
+
+  @enforce_keys [:subject]
+  defstruct subject: nil, predications: %{}
+
 
   @doc """
   Creates a new `RDF.Description` about the given subject with optional initial statements.

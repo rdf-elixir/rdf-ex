@@ -8,6 +8,9 @@ defmodule RDF.Triple do
 
   alias RDF.Statement
 
+  @type t :: {Statement.subject, Statement.predicate, Statement.object}
+
+
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
 

@@ -3,11 +3,27 @@ defmodule RDF.Literal do
   RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
   """
 
-  defstruct [:value, :uncanonical_lexical, :datatype, :language]
-
-  @type t :: module
-
   alias RDF.Datatype.NS.XSD
+
+  @type literal_value ::
+          binary
+          | boolean
+          | integer
+          | float
+          | Decimal.t
+          | Date.t
+          | Time.t
+          | DateTime.t
+          | NaiveDateTime.t
+
+  @type t :: %__MODULE__{
+          value: literal_value,
+          datatype: RDF.IRI.t,
+          uncanonical_lexical: binary | nil,
+          language: binary | nil
+  }
+
+  defstruct [:value, :datatype, :uncanonical_lexical, :language]
 
   # to be able to pattern-match on plain types; we can't use RDF.Literal.Guards here since these aren't compiled here yet
   @xsd_string  XSD.string

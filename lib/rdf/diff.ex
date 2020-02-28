@@ -6,9 +6,15 @@ defmodule RDF.Diff do
   with `RDF.Graph`s of added and deleted statements.
   """
 
+  alias RDF.{Description, Graph}
+
+  @type t :: %__MODULE__{
+          additions: RDF.Graph.t,
+          deletions: RDF.Graph.t
+  }
+
   defstruct [:additions, :deletions]
 
-  alias RDF.{Description, Graph}
 
   @doc """
   Creates a `RDF.Diff` struct.

@@ -16,12 +16,14 @@ defmodule RDF.IRI do
   see <https://tools.ietf.org/html/rfc3987>
   """
 
-  @enforce_keys [:value]
-  defstruct [:value]
-
   alias RDF.Namespace
 
-  @type t :: module
+  @type t :: %__MODULE__{
+          value: binary
+  }
+
+  @enforce_keys [:value]
+  defstruct [:value]
 
   # see https://tools.ietf.org/html/rfc3986#appendix-B
   @scheme_regex Regex.recompile!(~r/^([a-z][a-z0-9\+\-\.]*):/i)

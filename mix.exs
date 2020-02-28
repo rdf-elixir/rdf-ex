@@ -15,6 +15,9 @@ defmodule RDF.Mixfile do
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
 
+      # Dialyzer
+      dialyzer: dialyzer(),
+
       # Hex
       package: package(),
       description: description(),
@@ -74,6 +77,16 @@ defmodule RDF.Mixfile do
 
       {:benchee, "~> 1.0",        only: :bench},
       {:erlang_term, "~> 1.7",    only: :bench},
+    ]
+  end
+
+  defp dialyzer do
+    # Dialyzer will emit a warning when the name of the plt file is set
+    # as people misused it in the past. Without setting a name caching of
+    # this file is much more trickier, so we still use this functionality.
+    [
+      plt_add_apps: [:mix],
+      ignore_warnings: ".dialyzer_ignore.exs"
     ]
   end
 

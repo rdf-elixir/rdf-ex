@@ -6,10 +6,12 @@ defmodule RDF.BlankNode do
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>
   """
 
+  @type t :: %__MODULE__{
+          id: binary
+  }
+
   @enforce_keys [:id]
   defstruct [:id]
-
-  @type t :: module
 
   @doc """
   Creates a `RDF.BlankNode` with an arbitrary internal id.
