@@ -86,7 +86,7 @@ defmodule RDF.Mixfile do
     # this file is much more trickier, so we still use this functionality.
     [
       plt_add_apps: [:mix],
-      ignore_warnings: ".dialyzer_ignore.exs"
+      ignore_warnings: ".dialyzer_ignore"
     ]
   end
 
