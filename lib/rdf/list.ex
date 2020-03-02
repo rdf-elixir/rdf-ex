@@ -31,7 +31,7 @@ defmodule RDF.List do
   - does not contain cycles, i.e. `rdf:rest` statements don't refer to
     preceding list nodes
   """
-  @spec new(IRI.t_param, Graph.t) :: t
+  @spec new(IRI.coercible, Graph.t) :: t
   def new(head, graph)
 
   def new(head, graph) when is_atom(head) and head not in ~w[true false nil]a,

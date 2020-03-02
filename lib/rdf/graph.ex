@@ -16,7 +16,7 @@ defmodule RDF.Graph do
   import RDF.Statement
   alias RDF.{Description, IRI, PrefixMap, Statement}
 
-  @type graph_description :: %{IRI.t => Description.t}
+  @type graph_description :: %{Statement.subject => Description.t}
 
   @type t :: %__MODULE__{
           name: IRI.t | nil,
@@ -25,11 +25,11 @@ defmodule RDF.Graph do
           base_iri: IRI.t | nil
   }
 
-  @type t_param :: Statement.t | Description.t | t
+  @type input :: Statement.t | Description.t | t
 
   @type update_description_fun :: (Description.t -> Description.t)
 
-  @type get_and_update_description_fun :: (Description.t -> {Description.t, t_param} | :pop)
+  @type get_and_update_description_fun :: (Description.t -> {Description.t, input} | :pop)
 
   defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
 
@@ -55,7 +55,7 @@ defmodule RDF.Graph do
       RDF.Graph.new(name: EX.GraphName)
 
   """
-  @spec new(t_param | [t_param] | keyword) :: t
+  @spec new(input | [input] | keyword) :: t
   def new(data_or_options)
 
   def new(data_or_options)
@@ -98,7 +98,7 @@ defmodule RDF.Graph do
       RDF.Graph.new({EX.S, EX.p, EX.O}, name: EX.GraphName, base_iri: EX.base)
 
   """
-  @spec new(t_param | [t_param], keyword) :: t
+  @spec new(input | [input], keyword) :: t
   def new(data, options)
 
   def new(%RDF.Graph{} = graph, options) do
@@ -165,7 +165,7 @@ defmodule RDF.Graph do
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
   """
-  @spec add(t, t_param | [t_param]) :: t
+  @spec add(t, input | [input]) :: t
   def add(graph, triples)
 
   def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
@@ -221,7 +221,7 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
 
   """
-  @spec put(t, t_param | [t_param]) :: t
+  @spec put(t, input | [input]) :: t
   def put(graph, statements)
 
   def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
@@ -331,7 +331,7 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   """
-  @spec delete(t, t_param | [t_param]) :: t
+  @spec delete(t, input | [input]) :: t
   def delete(graph, triples)
 
   def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
@@ -543,7 +543,7 @@ defmodule RDF.Graph do
   """
   @impl Access
   @spec get_and_update(t, Statement.coercible_subject, get_and_update_description_fun) ::
-          {Description.t, t_param}
+          {Description.t, input}
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
     with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do

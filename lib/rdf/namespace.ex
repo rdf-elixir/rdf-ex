@@ -7,7 +7,7 @@ defmodule RDF.Namespace do
   namespaces for JSON-LD contexts.
   """
 
-  alias RDF.{Datatype, IRI}
+  alias RDF.IRI
 
   @doc """
   Resolves a term to a `RDF.IRI`.
@@ -27,7 +27,7 @@ defmodule RDF.Namespace do
   delegates to remaining part of the term to `__resolve_term__/1` of this
   determined namespace.
   """
-  @spec resolve_term(IRI.t | Datatype.t) :: IRI.t
+  @spec resolve_term(IRI.t | module) :: IRI.t
   def resolve_term(expr)
 
   def resolve_term(%IRI{} = iri), do: iri

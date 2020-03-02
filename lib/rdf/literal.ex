@@ -381,13 +381,14 @@ defmodule RDF.Literal do
         |> String.downcase()
         |> String.contains?(String.downcase(pattern))
 
-      # _ ->
-      #   raise "Invalid XQuery regex pattern or flags"
+      _ ->
+        raise "Invalid XQuery regex pattern or flags"
     end
   end
 
   @doc false
-  @spec xpath_pattern(t | String.t, t | String.t) :: {:regex, Regex.t} | {:q | :qi, String.t}
+  @spec xpath_pattern(t | String.t, t | String.t) ::
+          {:q | :qi, String.t} | {:regex, Regex.t} | {:error, any}
   def xpath_pattern(pattern, flags)
 
   def xpath_pattern(%RDF.Literal{datatype: @xsd_string} = pattern, flags),

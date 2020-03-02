@@ -9,7 +9,6 @@ defmodule RDF.Vocabulary.Namespace do
   the `RDF.NS` module.
   """
 
-  alias RDF.Datatype
   alias RDF.Utils.ResourceClassifier
 
   @vocabs_dir "priv/vocabs"
@@ -576,7 +575,7 @@ defmodule RDF.Vocabulary.Namespace do
     do: RDF.iri(base_iri <> term)
 
   @doc false
-  @spec vocabulary_namespace?(Datatype.t) :: boolean
+  @spec vocabulary_namespace?(module) :: boolean
   def vocabulary_namespace?(name) do
     Code.ensure_compiled?(name) && function_exported?(name, :__base_iri__, 0)
   end
