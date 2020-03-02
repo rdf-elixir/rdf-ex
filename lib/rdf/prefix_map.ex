@@ -7,8 +7,15 @@ defmodule RDF.PrefixMap do
 
   alias RDF.IRI
 
+  @type prefix    :: atom | String.t
+  @type namespace :: atom | String.t | IRI.t
+
+  @type prefix_map :: %{prefix => namespace}
+
+  @type conflict_resolver :: (prefix, namespace, namespace -> namespace)
+
   @type t :: %__MODULE__{
-          map: map
+          map: prefix_map
   }
 
   defstruct map: %{}
@@ -17,7 +24,8 @@ defmodule RDF.PrefixMap do
   @doc """
   Creates an empty `RDF.PrefixMap`.
   """
-  def new(), do: %__MODULE__{}
+  @spec new :: t
+  def new, do: %__MODULE__{}
 
   @doc """
   Creates a new `RDF.PrefixMap`.
@@ -26,6 +34,7 @@ defmodule RDF.PrefixMap do
   The keys for the prefixes can be given as atoms or strings and will be normalized to atoms.
   The namespaces can be given as `RDF.IRI`s or strings and will be normalized to `RDF.IRI`s.
   """
+  @spec new(t | map | keyword) :: t
   def new(map)
 
   def new(%__MODULE__{} = prefix_map), do: prefix_map
@@ -54,6 +63,7 @@ defmodule RDF.PrefixMap do
   Unless a mapping of the given prefix to a different namespace already exists,
   an ok tuple is returned, other an error tuple.
   """
+  @spec add(t, prefix, namespace) :: {:ok, t} | {:error, String.t}
   def add(prefix_map, prefix, namespace)
 
   def add(%__MODULE__{map: map}, prefix, %IRI{} = namespace) when is_atom(prefix) do
@@ -73,6 +83,7 @@ defmodule RDF.PrefixMap do
   @doc """
   Adds a prefix mapping to the given `RDF.PrefixMap` and raises an exception in error cases.
   """
+  @spec add!(t, prefix, namespace) :: t
   def add!(prefix_map, prefix, namespace) do
     with {:ok, new_prefix_map} <- add(prefix_map, prefix, namespace) do
       new_prefix_map
@@ -94,6 +105,7 @@ defmodule RDF.PrefixMap do
 
   See also `merge/3` which allows you to resolve conflicts with a function.
   """
+  @spec merge(t, t | map | keyword) :: {:ok, t} | {:error, [atom | String.t]}
   def merge(prefix_map1, prefix_map2)
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}) do
@@ -133,6 +145,7 @@ defmodule RDF.PrefixMap do
   If everything could be merged, an `:ok` tuple is returned.
 
   """
+  @spec merge(t, t | map | keyword, conflict_resolver | nil) :: {:ok, t} | {:error, [atom | String.t]}
   def merge(prefix_map1, prefix_map2, conflict_resolver)
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, conflict_resolver)
@@ -185,20 +198,22 @@ defmodule RDF.PrefixMap do
 
   See `merge/2` and `merge/3` for more information on merging prefix maps.
   """
+  @spec merge!(t, t | map | keyword, conflict_resolver | nil) :: t
   def merge!(prefix_map1, prefix_map2, conflict_resolver \\ nil) do
     with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2, conflict_resolver) do
       new_prefix_map
     else
       {:error, conflicts} ->
-        raise "conflicting prefix mappings: #{
-                conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")
-              }"
+        conflicts = conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")
+
+        raise "conflicting prefix mappings: #{conflicts}"
     end
   end
 
   @doc """
   Deletes a prefix mapping from the given `RDF.PrefixMap`.
   """
+  @spec delete(t, prefix) :: t
   def delete(prefix_map, prefix)
 
   def delete(%__MODULE__{map: map}, prefix) when is_atom(prefix) do
@@ -214,6 +229,7 @@ defmodule RDF.PrefixMap do
 
   If `prefixes` contains prefixes that are not in `prefix_map`, they're simply ignored.
   """
+  @spec drop(t, [prefix]) :: t
   def drop(prefix_map, prefixes)
 
   def drop(%__MODULE__{map: map}, prefixes) do
@@ -234,6 +250,7 @@ defmodule RDF.PrefixMap do
 
   Returns `nil`, when the given `prefix` is not present in `prefix_map`.
   """
+  @spec namespace(t, prefix) :: namespace | nil
   def namespace(prefix_map, prefix)
 
   def namespace(%__MODULE__{map: map}, prefix) when is_atom(prefix) do
@@ -249,6 +266,7 @@ defmodule RDF.PrefixMap do
 
   Returns `nil`, when the given `namespace` is not present in `prefix_map`.
   """
+  @spec prefix(t, namespace) :: prefix | nil
   def prefix(prefix_map, namespace)
 
   def prefix(%__MODULE__{map: map}, %IRI{} = namespace) do
@@ -262,6 +280,7 @@ defmodule RDF.PrefixMap do
   @doc """
   Returns whether the given prefix exists in the given `RDF.PrefixMap`.
   """
+  @spec has_prefix?(t, prefix) :: boolean
   def has_prefix?(prefix_map, prefix)
 
   def has_prefix?(%__MODULE__{map: map}, prefix) when is_atom(prefix) do
@@ -275,6 +294,7 @@ defmodule RDF.PrefixMap do
   @doc """
   Returns all prefixes from the given `RDF.PrefixMap`.
   """
+  @spec prefixes(t) :: [prefix]
   def prefixes(%__MODULE__{map: map}) do
     Map.keys(map)
   end
@@ -282,6 +302,7 @@ defmodule RDF.PrefixMap do
   @doc """
   Returns all namespaces from the given `RDF.PrefixMap`.
   """
+  @spec namespaces(t) :: [namespace]
   def namespaces(%__MODULE__{map: map}) do
     Map.values(map)
   end

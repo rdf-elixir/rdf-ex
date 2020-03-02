@@ -5,17 +5,22 @@ defmodule RDF.Statement do
   A RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """
 
-  alias RDF.{Triple, Quad, IRI, BlankNode, Literal}
+  alias RDF.{BlankNode, IRI, Literal, Quad, Term, Triple}
 
   @type subject    :: IRI.t | BlankNode.t
-  @type predicate  :: IRI.t
+  @type predicate  :: IRI.t | BlankNode.t
   @type object     :: IRI.t | BlankNode.t | Literal.t
   @type graph_name :: IRI.t | BlankNode.t
 
   @type coercible_subject    :: subject    | atom | String.t
   @type coercible_predicate  :: predicate  | atom | String.t
-  @type coercible_object     :: object     | atom | String.t # TODO: all basic Elixir types coercible to Literals
+  @type coercible_object     :: object     | Literal.literal_value
   @type coercible_graph_name :: graph_name | atom | String.t
+
+  @type qualified_term :: {atom, Term.t | nil}
+  @type term_mapping   :: (qualified_term -> Literal.literal_value | nil)
+
+  @type t :: Triple.t | Quad.t
 
 
   @doc """
@@ -30,11 +35,14 @@ defmodule RDF.Statement do
       iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
+  @spec coerce(Triple.coercible_t) :: Triple.t
+  @spec coerce(Quad.coercible_t) :: Quad.t
   def coerce(statement)
   def coerce({_, _, _} = triple),  do: Triple.new(triple)
   def coerce({_, _, _, _} = quad), do: Quad.new(quad)
 
   @doc false
+  @spec coerce_subject(coercible_subject) :: subject
   def coerce_subject(iri)
   def coerce_subject(iri = %IRI{}), do: iri
   def coerce_subject(bnode = %BlankNode{}), do: bnode
@@ -43,6 +51,7 @@ defmodule RDF.Statement do
   def coerce_subject(arg), do: raise RDF.Triple.InvalidSubjectError, subject: arg
 
   @doc false
+  @spec coerce_predicate(coercible_predicate) :: predicate
   def coerce_predicate(iri)
   def coerce_predicate(iri = %IRI{}), do: iri
   # Note: Although, RDF does not allow blank nodes for properties, JSON-LD allows
@@ -53,6 +62,7 @@ defmodule RDF.Statement do
   def coerce_predicate(arg), do: raise RDF.Triple.InvalidPredicateError, predicate: arg
 
   @doc false
+  @spec coerce_object(coercible_object) :: object
   def coerce_object(iri)
   def coerce_object(iri = %IRI{}), do: iri
   def coerce_object(literal = %Literal{}), do: literal
@@ -62,6 +72,7 @@ defmodule RDF.Statement do
   def coerce_object(arg), do: Literal.new(arg)
 
   @doc false
+  @spec coerce_graph_name(coercible_graph_name) :: graph_name
   def coerce_graph_name(iri)
   def coerce_graph_name(nil), do: nil
   def coerce_graph_name(iri = %IRI{}), do: iri
@@ -105,12 +116,14 @@ defmodule RDF.Statement do
       {"S", :p, 42, ~I<http://example.com/Graph>}
 
   """
+  @spec values(t | any, term_mapping) :: Triple.t_values | Quad.t_values | nil
   def values(statement, mapping \\ &default_term_mapping/1)
   def values({_, _, _} = triple, mapping),  do: RDF.Triple.values(triple, mapping)
   def values({_, _, _, _} = quad, mapping), do: RDF.Quad.values(quad, mapping)
   def values(_, _), do: nil
 
   @doc false
+  @spec default_term_mapping(qualified_term) :: Literal.literal_value | nil
   def default_term_mapping(qualified_term)
   def default_term_mapping({:graph_name, nil}), do: nil
   def default_term_mapping({_, term}), do: RDF.Term.value(term)
@@ -123,6 +136,7 @@ defmodule RDF.Statement do
   position only IRIs and blank nodes allowed, while on the predicate and graph
   context position only IRIs allowed. The object position can be any RDF term.
   """
+  @spec valid?(Triple.t | Quad.t | any) :: boolean
   def valid?(tuple)
 
   def valid?({subject, predicate, object}) do
@@ -136,18 +150,22 @@ defmodule RDF.Statement do
 
   def valid?(_), do: false
 
+  @spec valid_subject?(subject | any) :: boolean
   def valid_subject?(%IRI{}),       do: true
   def valid_subject?(%BlankNode{}), do: true
   def valid_subject?(_),            do: false
 
+  @spec valid_predicate?(predicate | any) :: boolean
   def valid_predicate?(%IRI{}),     do: true
   def valid_predicate?(_),          do: false
 
+  @spec valid_object?(object | any) :: boolean
   def valid_object?(%IRI{}),        do: true
   def valid_object?(%BlankNode{}),  do: true
   def valid_object?(%Literal{}),    do: true
   def valid_object?(_),             do: false
 
+  @spec valid_graph_name?(graph_name | any) :: boolean
   def valid_graph_name?(%IRI{}),    do: true
   def valid_graph_name?(_),         do: false
 

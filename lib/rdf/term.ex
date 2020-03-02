@@ -109,6 +109,8 @@ defimpl RDF.Term, for: RDF.BlankNode do
 end
 
 defimpl RDF.Term, for: Reference do
+  @dialyzer {:nowarn_function, equal_value?: 2}
+  @dialyzer {:nowarn_function, coerce: 1}
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
   def coerce(term),               do: RDF.BlankNode.new(term)

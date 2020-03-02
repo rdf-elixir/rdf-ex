@@ -82,6 +82,7 @@ defmodule RDF.Turtle.Encoder.State do
 
   @list_properties MapSet.new([RDF.first, RDF.rest])
 
+  @dialyzer {:nowarn_function, to_list?: 2}
   defp to_list?(%Description{} = description, 1) do
     Description.count(description) == 2 and
       Description.predicates(description) |> MapSet.equal?(@list_properties)

@@ -53,6 +53,7 @@ defmodule RDF.Utils.ResourceClassifier do
     |> Enum.map(&RDF.iri/1)
     |> MapSet.new
 
+  @dialyzer {:nowarn_function, property_by_rdf_type?: 1}
   defp property_by_rdf_type?(nil), do: nil
   defp property_by_rdf_type?(types) do
      not (

@@ -175,6 +175,7 @@ defmodule RDF.Turtle.Encoder do
     |> Enum.join(" ;" <> newline_indent(nesting))
   end
 
+  @dialyzer {:nowarn_function, order_predications: 1}
   defp order_predications(predications) do
     sorted_predications =
       @predicate_order
@@ -223,6 +224,7 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
+  @dialyzer {:nowarn_function, list_subject_description: 1}
   defp list_subject_description(description) do
     with description = Description.delete_predicates(description, [RDF.first, RDF.rest]) do
       if Enum.count(description.predications) == 0 do

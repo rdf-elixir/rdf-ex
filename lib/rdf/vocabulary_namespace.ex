@@ -9,6 +9,7 @@ defmodule RDF.Vocabulary.Namespace do
   the `RDF.NS` module.
   """
 
+  alias RDF.Datatype
   alias RDF.Utils.ResourceClassifier
 
   @vocabs_dir "priv/vocabs"
@@ -295,6 +296,7 @@ defmodule RDF.Vocabulary.Namespace do
     terms
   end
 
+  @dialyzer {:nowarn_function, valid_term?: 1}
   defp valid_term?(term) do
     not MapSet.member?(@invalid_terms, term)
   end
@@ -567,12 +569,14 @@ defmodule RDF.Vocabulary.Namespace do
   defp vocab_term?(_), do: false
 
   @doc false
+  @spec term_to_iri(String.t, String.t | atom) :: RDF.IRI.t
   def term_to_iri(base_iri, term) when is_atom(term),
     do: term_to_iri(base_iri, Atom.to_string(term))
   def term_to_iri(base_iri, term),
     do: RDF.iri(base_iri <> term)
 
   @doc false
+  @spec vocabulary_namespace?(Datatype.t) :: boolean
   def vocabulary_namespace?(name) do
     Code.ensure_compiled?(name) && function_exported?(name, :__base_iri__, 0)
   end

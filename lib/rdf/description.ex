@@ -13,8 +13,16 @@ defmodule RDF.Description do
   @behaviour Access
 
   import RDF.Statement
+  alias RDF.{Statement, Triple}
 
   @type predications :: %{Statement.predicate => %{Statement.object => nil}}
+
+  @type statements ::
+          {Statement.coercible_predicate,
+           Statement.coercible_object | [Statement.coercible_predicate]}
+          | Statement.t
+          | predications
+          | t
 
   @type t :: %__MODULE__{
           subject: Statement.subject,
@@ -30,21 +38,22 @@ defmodule RDF.Description do
 
   When given a list of statements, the first one must contain a subject.
   """
-  @spec new(RDF.Statement.coercible_subject) :: RDF.Description.t
+  @spec new(Statement.coercible_subject | statements | [statements]) :: t
   def new(subject)
 
   def new({subject, predicate, object}),
     do: new(subject) |> add(predicate, object)
   def new([statement | more_statements]),
     do: new(statement) |> add(more_statements)
-  def new(%RDF.Description{} = description),
+  def new(%__MODULE__{} = description),
     do: description
   def new(subject),
-    do: %RDF.Description{subject: coerce_subject(subject)}
+    do: %__MODULE__{subject: coerce_subject(subject)}
 
   @doc """
   Creates a new `RDF.Description` about the given subject with optional initial statements.
   """
+  @spec new(Statement.coercible_subject, statements | [statements]) :: t
   def new(subject, {predicate, objects}),
     do: new(subject) |> add(predicate, objects)
   def new(subject, statements) when is_list(statements),
@@ -57,8 +66,13 @@ defmodule RDF.Description do
   @doc """
   Creates a new `RDF.Description` about the given subject with optional initial statements.
   """
+  @spec new(
+          Statement.coercible_subject | statements | [statements],
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def new(%RDF.Description{} = description, predicate, objects),
-    do: RDF.Description.add(description, predicate, objects)
+    do: add(description, predicate, objects)
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
 
@@ -73,6 +87,11 @@ defmodule RDF.Description do
       iex> RDF.Description.add(RDF.Description.new({EX.S, EX.P, EX.O1}), EX.P, [EX.O2, EX.O3])
       RDF.Description.new([{EX.S, EX.P, EX.O1}, {EX.S, EX.P, EX.O2}, {EX.S, EX.P, EX.O3}])
   """
+  @spec add(
+          t,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def add(description, predicate, objects)
 
   def add(description, predicate, objects) when is_list(objects) do
@@ -101,6 +120,7 @@ defmodule RDF.Description do
   are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Graph`
   containing both descriptions.
   """
+  @spec add(t, statements | [statements]) :: t
   def add(description, statements)
 
   def add(description, {predicate, object}),
@@ -145,6 +165,11 @@ defmodule RDF.Description do
       iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P1, EX.O1}), EX.P2, EX.O2)
       RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
   """
+  @spec put(
+          t,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def put(description, predicate, objects)
 
   def put(%RDF.Description{subject: subject, predications: predications},
@@ -176,6 +201,7 @@ defmodule RDF.Description do
       ...>   RDF.Description.put(%{EX.P2 => [EX.O3, EX.O4]})
       RDF.Description.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O3}, {EX.S, EX.P2, EX.O4}])
   """
+  @spec put(t, statements | [statements]) :: t
   def put(description, statements)
 
   def put(%RDF.Description{} = description, {predicate, object}),
@@ -224,6 +250,11 @@ defmodule RDF.Description do
   @doc """
   Deletes statements from a `RDF.Description`.
   """
+  @spec delete(
+          t,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def delete(description, predicate, objects)
 
   def delete(description, predicate, objects) when is_list(objects) do
@@ -261,6 +292,7 @@ defmodule RDF.Description do
   are deleted. If you want to delete only a matching description subject, you can
   use `RDF.Data.delete/2`.
   """
+  @spec delete(t, statements | [statements]) :: t
   def delete(description, statements)
 
   def delete(desc = %RDF.Description{}, {predicate, object}),
@@ -297,6 +329,7 @@ defmodule RDF.Description do
   @doc """
   Deletes all statements with the given properties.
   """
+  @spec delete_predicates(t, Statement.coercible_predicate | [Statement.coercible_predicate]) :: t
   def delete_predicates(description, properties)
 
   def delete_predicates(%RDF.Description{} = description, properties) when is_list(properties) do
@@ -328,6 +361,7 @@ defmodule RDF.Description do
       :error
   """
   @impl Access
+  @spec fetch(t, Statement.coercible_predicate) :: {:ok, [Statement.object]} | :error
   def fetch(%RDF.Description{predications: predications}, predicate) do
     with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
@@ -348,6 +382,7 @@ defmodule RDF.Description do
       iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo, :bar)
       :bar
   """
+  @spec get(t, Statement.coercible_predicate, any) :: [Statement.object] | any
   def get(description = %RDF.Description{}, predicate, default \\ nil) do
     case fetch(description, predicate) do
       {:ok, value} -> value
@@ -367,6 +402,7 @@ defmodule RDF.Description do
       iex> RDF.Description.first(RDF.Description.new(EX.S), EX.foo)
       nil
   """
+  @spec first(t, Statement.coercible_predicate) :: Statement.object | nil
   def first(description = %RDF.Description{}, predicate) do
     description
     |> get(predicate, [])
@@ -395,6 +431,12 @@ defmodule RDF.Description do
       RDF.Description.new({EX.S, EX.p, EX.O})
 
   """
+  @spec update(
+          t,
+          Statement.coercible_predicate,
+          Statement.coercible_object | nil,
+          ([Statement.Object] -> [Statement.Object])
+        ) :: t
   def update(description = %RDF.Description{}, predicate, initial \\ nil, fun) do
     predicate = coerce_predicate(predicate)
 
@@ -444,6 +486,11 @@ defmodule RDF.Description do
       {[RDF.iri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
   """
   @impl Access
+  @spec get_and_update(
+          t,
+          Statement.coercible_predicate,
+          ([Statement.Object] -> {[Statement.Object], t} | :pop)
+        ) :: {[Statement.Object], t}
   def get_and_update(description = %RDF.Description{}, predicate, fun) do
     with triple_predicate = coerce_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
@@ -458,6 +505,7 @@ defmodule RDF.Description do
   @doc """
   Pops an arbitrary triple from a `RDF.Description`.
   """
+  @spec pop(t) :: {Triple.t | [Statement.Object] | nil, t}
   def pop(description)
 
   def pop(description = %RDF.Description{predications: predications})
@@ -511,6 +559,7 @@ defmodule RDF.Description do
       ...>   RDF.Description.predicates
       MapSet.new([EX.p1, EX.p2])
   """
+  @spec predicates(t) :: MapSet.t
   def predicates(%RDF.Description{predications: predications}),
     do: predications |> Map.keys |> MapSet.new
 
@@ -530,12 +579,14 @@ defmodule RDF.Description do
       ...> ]) |> RDF.Description.objects
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
+  @spec objects(t) :: MapSet.t
   def objects(%RDF.Description{} = description),
     do: objects(description, &RDF.resource?/1)
 
   @doc """
   The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
   """
+  @spec objects(t, (Statement.object -> boolean)) :: MapSet.t
   def objects(%RDF.Description{predications: predications}, filter_fn) do
     Enum.reduce predications, MapSet.new, fn ({_, objects}, acc) ->
       objects
@@ -560,6 +611,7 @@ defmodule RDF.Description do
       ...> ]) |> RDF.Description.resources
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
   """
+  @spec resources(t) :: MapSet.t
   def resources(description) do
     description
     |> objects
@@ -569,6 +621,7 @@ defmodule RDF.Description do
   @doc """
   The list of all triples within a `RDF.Description`.
   """
+  @spec triples(t) :: keyword
   def triples(description = %RDF.Description{}), do: Enum.to_list(description)
 
   defdelegate statements(description), to: RDF.Description, as: :triples
@@ -577,6 +630,7 @@ defmodule RDF.Description do
   @doc """
   Returns the number of statements of a `RDF.Description`.
   """
+  @spec count(t) :: non_neg_integer
   def count(%RDF.Description{predications: predications}) do
     Enum.reduce predications, 0,
       fn ({_, objects}, count) -> count + Enum.count(objects) end
@@ -586,6 +640,7 @@ defmodule RDF.Description do
   @doc """
   Checks if the given statement exists within a `RDF.Description`.
   """
+  @spec include?(t, statements) :: boolean
   def include?(description, statement)
 
   def include?(%RDF.Description{predications: predications},
@@ -617,6 +672,7 @@ defmodule RDF.Description do
         iex> RDF.Description.new(EX.S1, EX.p1, EX.O1) |> RDF.Description.describes?(EX.S2)
         false
   """
+  @spec describes?(t, Statement.subject) :: boolean
   def describes?(%RDF.Description{subject: subject}, other_subject) do
     with other_subject = coerce_subject(other_subject) do
       subject == other_subject
@@ -656,6 +712,7 @@ defmodule RDF.Description do
       %{p: ["Foo"]}
 
   """
+  @spec values(t, Statement.term_mapping) :: map
   def values(description, mapping \\ &RDF.Statement.default_term_mapping/1)
 
   def values(%RDF.Description{predications: predications}, mapping) do
@@ -674,6 +731,7 @@ defmodule RDF.Description do
 
   If `nil` is passed, the description is left untouched.
   """
+  @spec take(t, [Statement.coercible_predicate] | nil) :: t
   def take(description, predicates)
 
   def take(%RDF.Description{} = description, nil), do: description
@@ -688,6 +746,7 @@ defmodule RDF.Description do
 
   Two `RDF.Description`s are considered to be equal if they contain the same triples.
   """
+  @spec equal?(t, t) :: boolean
   def equal?(description1, description2)
 
   def equal?(%RDF.Description{} = description1, %RDF.Description{} = description2) do

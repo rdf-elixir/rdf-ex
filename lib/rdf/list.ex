@@ -7,11 +7,11 @@ defmodule RDF.List do
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
-  alias RDF.{Graph, Description, IRI, BlankNode}
+  alias RDF.{BlankNode, Description, Graph, IRI}
 
   @type t :: %__MODULE__{
-          head: RDF.IRI.t,
-          graph: RDF.Graph.t
+          head: IRI.t,
+          graph: Graph.t
   }
 
   @enforce_keys [:head]
@@ -31,6 +31,7 @@ defmodule RDF.List do
   - does not contain cycles, i.e. `rdf:rest` statements don't refer to
     preceding list nodes
   """
+  @spec new(IRI.t_param, Graph.t) :: t
   def new(head, graph)
 
   def new(head, graph) when is_atom(head) and head not in ~w[true false nil]a,
@@ -70,6 +71,7 @@ defmodule RDF.List do
   the head node of the empty list is always `RDF.nil`.
 
   """
+  @spec from(Enumerable.t, keyword) :: t
   def from(list, opts \\ []) do
     with head  = Keyword.get(opts, :head,  RDF.bnode),
          graph = Keyword.get(opts, :graph, RDF.graph),
@@ -118,6 +120,7 @@ defmodule RDF.List do
 
   Nested lists are converted recursively.
   """
+  @spec values(t) :: Enumerable.t
   def values(%RDF.List{graph: graph} = list) do
     Enum.map list, fn node_description ->
       value = Description.first(node_description, RDF.first)
@@ -135,6 +138,7 @@ defmodule RDF.List do
   @doc """
   The RDF nodes constituting a `RDF.List` as an Elixir list.
   """
+  @spec nodes(t) :: [BlankNode.t]
   def nodes(%RDF.List{} = list) do
     Enum.map list, fn node_description -> node_description.subject end
   end
@@ -143,16 +147,18 @@ defmodule RDF.List do
   @doc """
   Checks if a list is the empty list.
   """
+  @spec empty?(t) :: boolean
   def empty?(%RDF.List{head: @rdf_nil}), do: true
-  def empty?(_),                         do: false
+  def empty?(%RDF.List{}),               do: false
 
 
   @doc """
   Checks if the given list consists of list nodes which are all blank nodes.
   """
+  @spec valid?(t) :: boolean
   def valid?(%RDF.List{head: @rdf_nil}), do: true
 
-  def valid?(list) do
+  def valid?(%RDF.List{} = list) do
     Enum.all? list, fn node_description ->
       RDF.bnode?(node_description.subject)
     end
@@ -168,6 +174,7 @@ defmodule RDF.List do
   Note: This function doesn't indicate if the list is valid.
    See `new/2` and `valid?/2` for validations.
   """
+  @spec node?(any, Graph.t) :: boolean
   def node?(list_node, graph)
 
   def node?(@rdf_nil, _),

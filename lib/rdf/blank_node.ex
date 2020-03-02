@@ -7,7 +7,7 @@ defmodule RDF.BlankNode do
   """
 
   @type t :: %__MODULE__{
-          id: binary
+          id: String.t
   }
 
   @enforce_keys [:id]
@@ -16,6 +16,7 @@ defmodule RDF.BlankNode do
   @doc """
   Creates a `RDF.BlankNode` with an arbitrary internal id.
   """
+  @spec new :: t
   def new,
     do: new(make_ref())
 
@@ -27,6 +28,7 @@ defmodule RDF.BlankNode do
       iex> RDF.bnode(:foo)
       %RDF.BlankNode{id: "foo"}
   """
+  @spec new(reference | String.t | atom | integer) :: t
   def new(id)
 
   def new(id) when is_binary(id),
@@ -44,6 +46,7 @@ defmodule RDF.BlankNode do
 
   Returns `nil` when the given arguments are not comparable as blank nodes.
   """
+  @spec equal_value?(t, t) :: boolean | nil
   def equal_value?(left, right)
 
   def equal_value?(%RDF.BlankNode{id: left}, %RDF.BlankNode{id: right}),

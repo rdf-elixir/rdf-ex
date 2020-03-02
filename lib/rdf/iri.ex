@@ -16,11 +16,13 @@ defmodule RDF.IRI do
   see <https://tools.ietf.org/html/rfc3987>
   """
 
-  alias RDF.Namespace
+  alias RDF.{Datatype, Namespace}
 
   @type t :: %__MODULE__{
-          value: binary
+          value: String.t
   }
+
+  @type t_param :: String.t | Datatype.t | URI.t | t
 
   @enforce_keys [:value]
   defstruct [:value]
@@ -45,6 +47,7 @@ defmodule RDF.IRI do
   @doc """
   Creates a `RDF.IRI`.
   """
+  @spec new(t_param) :: t
   def new(iri)
   def new(iri) when is_binary(iri),   do: %RDF.IRI{value: iri}
   def new(qname) when is_atom(qname) and qname not in [nil, true, false],
@@ -59,6 +62,7 @@ defmodule RDF.IRI do
 
   see `valid?/1`
   """
+  @spec new!(t_param) :: t
   def new!(iri)
   def new!(iri) when is_binary(iri),   do: iri |> valid!() |> new()
   def new!(qname) when is_atom(qname) and qname not in [nil, true, false],
@@ -73,6 +77,7 @@ defmodule RDF.IRI do
   As opposed to `new/1` this also accepts bare `RDF.Vocabulary.Namespace` modules
   and uses the base IRI from their definition.
   """
+  @spec coerce_base(t_param) :: t
   def coerce_base(base_iri)
 
   def coerce_base(module) when is_atom(module) do
@@ -98,6 +103,7 @@ defmodule RDF.IRI do
       iex> RDF.IRI.valid!("not an iri")
       ** (RDF.IRI.InvalidError) Invalid IRI: "not an iri"
   """
+  @spec valid!(t_param) :: t_param
   def valid!(iri) do
     if not valid?(iri), do: raise RDF.IRI.InvalidError, "Invalid IRI: #{inspect iri}"
     iri
@@ -116,6 +122,7 @@ defmodule RDF.IRI do
       iex> RDF.IRI.valid?("not an iri")
       false
   """
+  @spec valid?(t_param) :: boolean
   def valid?(iri), do: absolute?(iri)  # TODO: Provide a more elaborate validation
 
 
@@ -125,6 +132,7 @@ defmodule RDF.IRI do
   An absolute IRI is defined in [RFC3987](http://www.ietf.org/rfc/rfc3987.txt)
   containing a scheme along with a path and optional query and fragment segments.
   """
+  @spec absolute?(any) :: boolean
   def absolute?(iri)
 
   def absolute?(value) when is_binary(value), do: not is_nil(scheme(value))
@@ -151,6 +159,7 @@ defmodule RDF.IRI do
 
   If the given is not an absolute IRI `nil` is returned.
   """
+  @spec absolute(t_param, t_param) :: t | nil
   def absolute(iri, base) do
     cond do
       absolute?(iri)      -> new(iri)
@@ -166,6 +175,7 @@ defmodule RDF.IRI do
   This function merges two IRIs as per
   [RFC 3986, section 5.2](https://tools.ietf.org/html/rfc3986#section-5.2).
   """
+  @spec merge(t_param, t_param) :: t
   def merge(base, rel) do
     base
     |> parse()
@@ -186,6 +196,7 @@ defmodule RDF.IRI do
       iex> RDF.IRI.scheme("not an iri")
       nil
   """
+  @spec scheme(t_param) :: String.t | nil
   def scheme(iri)
   def scheme(%RDF.IRI{value: value}),    do: scheme(value)
   def scheme(%URI{scheme: scheme}),      do: scheme
@@ -200,6 +211,7 @@ defmodule RDF.IRI do
   @doc """
   Parses an IRI into its components and returns them as an `URI` struct.
   """
+  @spec parse(t_param) :: URI.t
   def parse(iri)
   def parse(iri) when is_binary(iri),   do: URI.parse(iri)
   def parse(qname) when is_atom(qname) and qname not in [nil, true, false],
@@ -215,6 +227,7 @@ defmodule RDF.IRI do
 
   see <https://www.w3.org/TR/rdf-concepts/#section-Graph-URIref>
   """
+  @spec equal_value?(t | RDF.Literal.t, t | RDF.Literal.t) :: boolean | nil
   def equal_value?(left, right)
 
   def equal_value?(%RDF.IRI{value: left}, %RDF.IRI{value: right}),
@@ -247,6 +260,7 @@ defmodule RDF.IRI do
       "http://example.com/#Foo"
 
   """
+  @spec to_string(t | Datatype.t) :: String.t
   def to_string(iri)
 
   def to_string(%RDF.IRI{value: value}),
