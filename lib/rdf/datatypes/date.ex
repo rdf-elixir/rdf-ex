@@ -7,6 +7,8 @@ defmodule RDF.Date do
 
   import RDF.Literal.Guards
 
+  @type value :: Date.t | {Date.t, String.t}
+
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @xsd_datetime RDF.Datatype.NS.XSD.dateTime
 

@@ -8,7 +8,10 @@ defmodule RDF.Decimal do
 
   alias Elixir.Decimal, as: D
 
+  @type value :: Decimal.t | :nan
+
   @xsd_integer RDF.Datatype.NS.XSD.integer
+
 
   @impl RDF.Datatype
   def convert(value, opts)

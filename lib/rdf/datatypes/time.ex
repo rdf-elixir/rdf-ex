@@ -7,6 +7,8 @@ defmodule RDF.Time do
 
   import RDF.Literal.Guards
 
+  @type value :: Time.t
+
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 

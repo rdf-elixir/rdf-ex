@@ -7,6 +7,8 @@ defmodule RDF.Integer do
 
   import RDF.Literal.Guards
 
+  @type value :: integer
+
 
   @impl RDF.Datatype
   def convert(value, opts)

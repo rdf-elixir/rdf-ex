@@ -7,17 +7,14 @@ defmodule RDF.Literal do
   alias RDF.IRI
 
   @type literal_value ::
-          boolean
-          | integer
-          | float
-          | String.t
-          | Decimal.t
-          | Date.t
-          | Time.t
-          | DateTime.t
-          | NaiveDateTime.t
-          | {Date.t, String.t}
-          | :nan
+          RDF.Boolean.value
+          | RDF.Integer.value
+          | RDF.Double.value
+          | RDF.String.value
+          | RDF.Decimal.value
+          | RDF.Date.value
+          | RDF.Time.value
+          | RDF.DateTime.value
 
   @type t :: %__MODULE__{
           value: literal_value,

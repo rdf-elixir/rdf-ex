@@ -7,6 +7,8 @@ defmodule RDF.String do
 
   alias RDF.Datatype.NS.XSD
 
+  @type value :: String.t
+
 
   def new(value, opts) when is_list(opts),
     do: new(value, Map.new(opts))
