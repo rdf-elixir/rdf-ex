@@ -6,9 +6,15 @@ defmodule RDF.Diff do
   with `RDF.Graph`s of added and deleted statements.
   """
 
+  alias RDF.{Description, Graph}
+
+  @type t :: %__MODULE__{
+          additions: Graph.t,
+          deletions: Graph.t
+  }
+
   defstruct [:additions, :deletions]
 
-  alias RDF.{Description, Graph}
 
   @doc """
   Creates a `RDF.Diff` struct.
@@ -17,6 +23,7 @@ defmodule RDF.Diff do
   `additions` and `deletions` keywords. The statements for the additions and
   deletions can be provided in any form supported by the `RDF.Graph.new/1` function.
   """
+  @spec new(keyword) :: t
   def new(diff \\ []) do
     %__MODULE__{
       additions: Keyword.get(diff, :additions) |> coerce_graph(),
@@ -52,6 +59,8 @@ defmodule RDF.Diff do
       deletions: RDF.graph({EX.S1, EX.p1, EX.O1})
     }
   """
+  @dialyzer {:nowarn_function, diff: 2}
+  @spec diff(Description.t | Graph.t, Description.t | Graph.t) :: t
   def diff(original_rdf_data, new_rdf_data)
 
   def diff(%Description{} = description, description), do: new()
@@ -143,6 +152,7 @@ defmodule RDF.Diff do
   The diffs are merged by adding up the `additions` and `deletions` of both
   diffs respectively.
   """
+  @spec merge(t, t) :: t
   def merge(%__MODULE__{} = diff1, %__MODULE__{} = diff2) do
     new(
       additions: Graph.add(diff1.additions, diff2.additions),
@@ -155,6 +165,7 @@ defmodule RDF.Diff do
 
   A `RDF.Diff` is empty, if its `additions` and `deletions` graphs are empty.
   """
+  @spec empty?(t) :: boolean
   def empty?(%__MODULE__{} = diff) do
     Enum.empty?(diff.additions) and Enum.empty?(diff.deletions)
   end
@@ -168,6 +179,7 @@ defmodule RDF.Diff do
   The result of an application is always a `RDF.Graph`, even if a `RDF.Description`
   is given and the additions from the diff are all about the subject of this description.
   """
+  @spec apply(t, Description.t | Graph.t) :: Graph.t
   def apply(diff, rdf_data)
 
   def apply(%__MODULE__{} = diff, %Graph{} = graph) do

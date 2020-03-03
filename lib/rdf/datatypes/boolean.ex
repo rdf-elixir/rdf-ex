@@ -7,6 +7,8 @@ defmodule RDF.Boolean do
 
   import RDF.Literal.Guards
 
+  @type value :: boolean
+
 
   @impl RDF.Datatype
   def convert(value, opts)

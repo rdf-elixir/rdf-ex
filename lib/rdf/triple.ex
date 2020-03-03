@@ -6,7 +6,16 @@ defmodule RDF.Triple do
   RDF values for subject, predicate and object.
   """
 
-  alias RDF.Statement
+  alias RDF.{Literal, Statement}
+
+  @type t :: {Statement.subject, Statement.predicate, Statement.object}
+
+  @type coercible_t ::
+          {Statement.coercible_subject, Statement.coercible_predicate,
+           Statement.coercible_object}
+
+  @type t_values :: {String.t, String.t, Literal.literal_value}
+
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
@@ -22,6 +31,11 @@ defmodule RDF.Triple do
       iex> RDF.Triple.new(EX.S, EX.p, 42)
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
+  @spec new(
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object
+        ) :: t
   def new(subject, predicate, object) do
     {
       Statement.coerce_subject(subject),
@@ -44,6 +58,7 @@ defmodule RDF.Triple do
       iex> RDF.Triple.new {EX.S, EX.p, 42}
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
+  @spec new(coercible_t) :: t
   def new({subject, predicate, object}), do: new(subject, predicate, object)
 
 
@@ -72,6 +87,7 @@ defmodule RDF.Triple do
       {"S", "p", 42}
 
   """
+  @spec values(t | any, Statement.term_mapping) :: t_values | nil
   def values(triple, mapping \\ &Statement.default_term_mapping/1)
 
   def values({subject, predicate, object}, mapping) do
@@ -95,6 +111,7 @@ defmodule RDF.Triple do
   position only IRIs and blank nodes allowed, while on the predicate position
   only IRIs allowed. The object position can be any RDF term.
   """
+  @spec valid?(t | any) :: boolean
   def valid?(tuple)
   def valid?({_, _, _} = triple), do: Statement.valid?(triple)
   def valid?(_), do: false

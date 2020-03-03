@@ -7,6 +7,8 @@ defmodule RDF.Double do
 
   import RDF.Literal.Guards
 
+  @type value :: float
+
 
   def build_literal_by_value(value, opts) do
     case convert(value, opts) do

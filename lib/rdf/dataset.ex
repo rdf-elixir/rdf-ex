@@ -13,21 +13,30 @@ defmodule RDF.Dataset do
 
   """
 
-  defstruct name: nil, graphs: %{}
-
   @behaviour Access
 
-  alias RDF.{Graph, Description}
+  alias RDF.{Description, Graph, IRI, Statement}
   import RDF.Statement
 
-  @type t :: module
+  @type graph_name :: IRI.t | nil
+
+  @type t :: %__MODULE__{
+          name: graph_name,
+          graphs: %{graph_name => Graph.t}
+  }
+
+  @type input :: Graph.input | t
+
+  @type update_graph_fun :: (Graph.t -> {Graph.t, input} | :pop)
+
+  defstruct name: nil, graphs: %{}
 
 
   @doc """
   Creates an empty unnamed `RDF.Dataset`.
   """
-  def new,
-    do: %RDF.Dataset{}
+  @spec new :: t
+  def new, do: %RDF.Dataset{}
 
   @doc """
   Creates an `RDF.Dataset`.
@@ -44,6 +53,7 @@ defmodule RDF.Dataset do
       RDF.Graph.new(name: EX.GraphName)
 
   """
+  @spec new(input | [input] | keyword) :: t
   def new(data_or_options)
 
   def new(data_or_options)
@@ -73,6 +83,7 @@ defmodule RDF.Dataset do
   - `name`: the name of the dataset to be created
 
   """
+  @spec new(input | [input], keyword) :: t
   def new(data, options)
 
   def new(%RDF.Dataset{} = graph, options) do
@@ -93,6 +104,7 @@ defmodule RDF.Dataset do
   destination graph to which the statements are added, ignoring the graph context
   of given quads or the name of given graphs.
   """
+  @spec add(t, input | [input], boolean | nil) :: t
   def add(dataset, statements, graph_context \\ false)
 
   def add(dataset, statements, graph_context) when is_list(statements) do
@@ -174,6 +186,7 @@ defmodule RDF.Dataset do
       ...>   RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
   """
+  @spec put(t, input | [input], Statement.coercible_graph_name | boolean | nil) :: t
   def put(dataset, statements, graph_context \\ false)
 
   def put(%RDF.Dataset{} = dataset, {subject, predicate, objects}, false),
@@ -294,6 +307,7 @@ defmodule RDF.Dataset do
   are deleted. If you want to delete only datasets with matching names, you can
   use `RDF.Data.delete/2`.
   """
+  @spec delete(t, input | [input],  Statement.coercible_graph_name | boolean | nil) :: t
   def delete(dataset, statements, graph_context \\ false)
 
   def delete(%RDF.Dataset{} = dataset, statements, graph_context) when is_list(statements) do
@@ -357,6 +371,7 @@ defmodule RDF.Dataset do
   @doc """
   Deletes the given graph.
   """
+  @spec delete_graph(t, Statement.graph_name | [Statement.graph_name] | nil) :: t
   def delete_graph(graph, graph_names)
 
   def delete_graph(%RDF.Dataset{} = dataset, graph_names) when is_list(graph_names) do
@@ -374,6 +389,7 @@ defmodule RDF.Dataset do
   @doc """
   Deletes the default graph.
   """
+  @spec delete_default_graph(t) :: t
   def delete_default_graph(%RDF.Dataset{} = graph),
     do: delete_graph(graph, nil)
 
@@ -394,6 +410,7 @@ defmodule RDF.Dataset do
       :error
   """
   @impl Access
+  @spec fetch(t, Statement.graph_name | nil) :: {:ok, Graph.t} | :error
   def fetch(%RDF.Dataset{graphs: graphs}, graph_name) do
     Access.fetch(graphs, coerce_graph_name(graph_name))
   end
@@ -416,6 +433,7 @@ defmodule RDF.Dataset do
       iex> RDF.Dataset.get(dataset, EX.Foo, :bar)
       :bar
   """
+  @spec get(t, Statement.graph_name | nil, Graph.t | nil) :: Graph.t | nil
   def get(%RDF.Dataset{} = dataset, graph_name, default \\ nil) do
     case fetch(dataset, graph_name) do
       {:ok, value} -> value
@@ -426,12 +444,14 @@ defmodule RDF.Dataset do
   @doc """
   The graph with given name.
   """
+  @spec graph(t, Statement.graph_name | nil) :: Graph.t
   def graph(%RDF.Dataset{graphs: graphs}, graph_name),
     do: Map.get(graphs, coerce_graph_name(graph_name))
 
   @doc """
   The default graph of a `RDF.Dataset`.
   """
+  @spec default_graph(t) :: Graph.t
   def default_graph(%RDF.Dataset{graphs: graphs}),
     do: Map.get(graphs, nil, Graph.new)
 
@@ -439,6 +459,7 @@ defmodule RDF.Dataset do
   @doc """
   The set of all graphs.
   """
+  @spec graphs(t) :: [Graph.t]
   def graphs(%RDF.Dataset{graphs: graphs}), do: Map.values(graphs)
 
 
@@ -465,6 +486,7 @@ defmodule RDF.Dataset do
       {RDF.Graph.new({EX.S, EX.P, EX.O}, name: EX.Graph), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   @impl Access
+  @spec get_and_update(t, Statement.graph_name | nil, update_graph_fun) :: {Graph.t, input}
   def get_and_update(%RDF.Dataset{} = dataset, graph_name, fun) do
     with graph_context = coerce_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
@@ -482,6 +504,7 @@ defmodule RDF.Dataset do
   @doc """
   Pops an arbitrary statement from a `RDF.Dataset`.
   """
+  @spec pop(t) :: {Statement.t | nil, t}
   def pop(dataset)
 
   def pop(%RDF.Dataset{graphs: graphs} = dataset)
@@ -515,6 +538,7 @@ defmodule RDF.Dataset do
       {nil, dataset}
   """
   @impl Access
+  @spec pop(t, Statement.coercible_graph_name) :: {Statement.t | nil, t}
   def pop(%RDF.Dataset{name: name, graphs: graphs} = dataset, graph_name) do
     case Access.pop(graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
@@ -538,6 +562,7 @@ defmodule RDF.Dataset do
       ...>   RDF.Dataset.statement_count
       3
   """
+  @spec statement_count(t) :: non_neg_integer
   def statement_count(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, 0, fn ({_, graph}, count) ->
       count + Graph.triple_count(graph)
@@ -636,6 +661,7 @@ defmodule RDF.Dataset do
          {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
+  @spec statements(t) :: [Statement.t]
   def statements(%RDF.Dataset{graphs: graphs}) do
     Enum.reduce graphs, [], fn ({_, graph}, all_statements) ->
       statements = Graph.triples(graph)
@@ -660,6 +686,7 @@ defmodule RDF.Dataset do
         ...> RDF.Dataset.include?(dataset, {EX.S1, EX.p1, EX.O1, EX.Graph})
         true
   """
+  @spec include?(t, Statement.t, Statement.coercible_graph_name | nil) :: boolean
   def include?(dataset, statement, graph_context \\ nil)
 
   def include?(%RDF.Dataset{graphs: graphs}, triple = {_, _, _}, graph_context) do
@@ -686,6 +713,7 @@ defmodule RDF.Dataset do
         iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Dataset.describes?(EX.S2)
         false
   """
+  @spec describes?(t, Statement.t, Statement.coercible_graph_name | nil) :: boolean
   def describes?(%RDF.Dataset{graphs: graphs}, subject, graph_context \\ nil) do
     with graph_context = coerce_graph_name(graph_context) do
       if graph = graphs[graph_context] do
@@ -708,6 +736,7 @@ defmodule RDF.Dataset do
         ...> RDF.Dataset.who_describes(dataset, EX.S1)
         [nil, RDF.iri(EX.Graph1)]
   """
+  @spec who_describes(t, Statement.coercible_subject) :: [Graph.t]
   def who_describes(%RDF.Dataset{graphs: graphs}, subject) do
     with subject = coerce_subject(subject) do
       graphs
@@ -770,6 +799,7 @@ defmodule RDF.Dataset do
       }
 
   """
+  @spec values(t, Statement.term_mapping) :: map
   def values(dataset, mapping \\ &RDF.Statement.default_term_mapping/1)
 
   def values(%RDF.Dataset{graphs: graphs}, mapping) do
@@ -785,6 +815,7 @@ defmodule RDF.Dataset do
   Two `RDF.Dataset`s are considered to be equal if they contain the same triples
   and have the same name.
   """
+  @spec equal?(t | any, t | any) :: boolean
   def equal?(dataset1, dataset2)
 
   def equal?(%RDF.Dataset{} = dataset1, %RDF.Dataset{} = dataset2) do

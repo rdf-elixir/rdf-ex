@@ -7,6 +7,8 @@ defmodule RDF.DateTime do
 
   import RDF.Literal.Guards
 
+  @type value :: DateTime.t | NaiveDateTime.t
+
   @xsd_date RDF.Datatype.NS.XSD.date
 
 

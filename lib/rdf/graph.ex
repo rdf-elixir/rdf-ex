@@ -11,18 +11,33 @@ defmodule RDF.Graph do
 
   """
 
-  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
-
   @behaviour Access
 
-  alias RDF.Description
   import RDF.Statement
+  alias RDF.{Description, IRI, PrefixMap, Statement}
 
-  @type t :: module
+  @type graph_description :: %{Statement.subject => Description.t}
+
+  @type t :: %__MODULE__{
+          name: IRI.t | nil,
+          descriptions: graph_description,
+          prefixes: PrefixMap.t | nil,
+          base_iri: IRI.t | nil
+  }
+
+  @type input :: Statement.t | Description.t | t
+
+  @type update_description_fun :: (Description.t -> Description.t)
+
+  @type get_and_update_description_fun :: (Description.t -> {Description.t, input} | :pop)
+
+  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
+
 
   @doc """
   Creates an empty unnamed `RDF.Graph`.
   """
+  @spec new :: t
   def new, do: %RDF.Graph{}
 
   @doc """
@@ -40,6 +55,7 @@ defmodule RDF.Graph do
       RDF.Graph.new(name: EX.GraphName)
 
   """
+  @spec new(input | [input] | keyword) :: t
   def new(data_or_options)
 
   def new(data_or_options)
@@ -82,6 +98,7 @@ defmodule RDF.Graph do
       RDF.Graph.new({EX.S, EX.p, EX.O}, name: EX.GraphName, base_iri: EX.base)
 
   """
+  @spec new(input | [input], keyword) :: t
   def new(data, options)
 
   def new(%RDF.Graph{} = graph, options) do
@@ -101,6 +118,12 @@ defmodule RDF.Graph do
 
   See `new/2` for available arguments.
   """
+  @spec new(
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object],
+          keyword
+        ) :: t
   def new(subject, predicate, objects, options \\ []),
     do: new([], options) |> add(subject, predicate, objects)
 
@@ -112,6 +135,7 @@ defmodule RDF.Graph do
   another graph, as this function keeps graph name name, base IRI and default
   prefixes as they are and just removes the triples.
   """
+  @spec clear(t) :: t
   def clear(%RDF.Graph{} = graph) do
     %RDF.Graph{graph | descriptions: %{}}
   end
@@ -120,6 +144,12 @@ defmodule RDF.Graph do
   @doc """
   Adds triples to a `RDF.Graph`.
   """
+  @spec add(
+          t,
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def add(%RDF.Graph{} = graph, subject, predicate, objects),
     do: add(graph, {subject, predicate, objects})
 
@@ -135,6 +165,7 @@ defmodule RDF.Graph do
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
   """
+  @spec add(t, input | [input]) :: t
   def add(graph, triples)
 
   def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
@@ -190,6 +221,7 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
 
   """
+  @spec put(t, input | [input]) :: t
   def put(graph, statements)
 
   def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
@@ -227,6 +259,7 @@ defmodule RDF.Graph do
   @doc """
   Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
   """
+  @spec put(t, Statement.coercible_subject, Description.statements | [Description.statements]) :: t
   def put(graph, subject, predications)
 
   def put(%RDF.Graph{descriptions: descriptions} = graph, subject, predications)
@@ -267,6 +300,12 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
 
   """
+  @spec put(
+          t,
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def put(%RDF.Graph{} = graph, subject, predicate, objects),
     do: put(graph, {subject, predicate, objects})
 
@@ -274,6 +313,12 @@ defmodule RDF.Graph do
   @doc """
   Deletes statements from a `RDF.Graph`.
   """
+  @spec delete(
+          t,
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object | [Statement.coercible_object]
+        ) :: t
   def delete(graph, subject, predicate, object),
     do: delete(graph, {subject, predicate, object})
 
@@ -286,6 +331,7 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   """
+  @spec delete(t, input | [input]) :: t
   def delete(graph, triples)
 
   def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
@@ -331,6 +377,10 @@ defmodule RDF.Graph do
   @doc """
   Deletes all statements with the given subjects.
   """
+  @spec delete_subjects(
+        t,
+        Statement.coercible_subject | [Statement.coercible_subject]
+      ) :: t
   def delete_subjects(graph, subjects)
 
   def delete_subjects(%RDF.Graph{} = graph, subjects) when is_list(subjects) do
@@ -376,6 +426,12 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S, EX.p, EX.O}])
 
   """
+  @spec update(
+          t,
+          Statement.coercible_subject,
+          Description.statements | [Description.statements] | nil,
+          update_description_fun
+        ) :: t
   def update(graph = %RDF.Graph{}, subject, initial \\ nil, fun) do
     subject = coerce_subject(subject)
 
@@ -418,6 +474,7 @@ defmodule RDF.Graph do
 
   """
   @impl Access
+  @spec fetch(t, Statement.coercible_subject) :: {:ok, Description.t} | :error
   def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
     Access.fetch(descriptions, coerce_subject(subject))
   end
@@ -438,6 +495,7 @@ defmodule RDF.Graph do
       :bar
 
   """
+  @spec get(t, Statement.coercible_subject, Description.t | nil) :: Description.t | nil
   def get(%RDF.Graph{} = graph, subject, default \\ nil) do
     case fetch(graph, subject) do
       {:ok, value} -> value
@@ -448,12 +506,14 @@ defmodule RDF.Graph do
   @doc """
   The `RDF.Description` of the given subject.
   """
+  @spec description(t, Statement.coercible_subject) :: Description.t | nil
   def description(%RDF.Graph{descriptions: descriptions}, subject),
     do: Map.get(descriptions, coerce_subject(subject))
 
   @doc """
   All `RDF.Description`s within a `RDF.Graph`.
   """
+  @spec descriptions(t) :: [Description.t]
   def descriptions(%RDF.Graph{descriptions: descriptions}),
     do: Map.values(descriptions)
 
@@ -482,6 +542,8 @@ defmodule RDF.Graph do
 
   """
   @impl Access
+  @spec get_and_update(t, Statement.coercible_subject, get_and_update_description_fun) ::
+          {Description.t, input}
   def get_and_update(%RDF.Graph{} = graph, subject, fun) do
     with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
@@ -499,6 +561,7 @@ defmodule RDF.Graph do
   @doc """
   Pops an arbitrary triple from a `RDF.Graph`.
   """
+  @spec pop(t) :: {Statement.t | nil, t}
   def pop(graph)
 
   def pop(%RDF.Graph{descriptions: descriptions} = graph)
@@ -530,6 +593,7 @@ defmodule RDF.Graph do
 
   """
   @impl Access
+  @spec pop(t, Statement.coercible_subject) :: {Description.t | nil, t}
   def pop(%RDF.Graph{descriptions: descriptions} = graph, subject) do
     case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->
@@ -553,6 +617,7 @@ defmodule RDF.Graph do
       2
 
   """
+  @spec subject_count(t) :: non_neg_integer
   def subject_count(%RDF.Graph{descriptions: descriptions}),
     do: Enum.count(descriptions)
 
@@ -569,6 +634,7 @@ defmodule RDF.Graph do
       3
 
   """
+  @spec triple_count(t) :: non_neg_integer
   def triple_count(%RDF.Graph{descriptions: descriptions}) do
     Enum.reduce descriptions, 0, fn ({_subject, description}, count) ->
       count + Description.count(description)
@@ -670,7 +736,8 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
-  def triples(graph = %RDF.Graph{}), do: Enum.to_list(graph)
+  @spec triples(t) :: [Statement.t]
+  def triples(%RDF.Graph{} = graph), do: Enum.to_list(graph)
 
   defdelegate statements(graph), to: RDF.Graph, as: :triples
 
@@ -678,6 +745,7 @@ defmodule RDF.Graph do
   @doc """
   Checks if the given statement exists within a `RDF.Graph`.
   """
+  @spec include?(t, Statement.t) :: boolean
   def include?(%RDF.Graph{descriptions: descriptions},
               triple = {subject, _, _}) do
     with subject = coerce_subject(subject),
@@ -698,6 +766,7 @@ defmodule RDF.Graph do
         iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}]) |> RDF.Graph.describes?(EX.S2)
         false
   """
+  @spec describes?(t, Statement.coercible_subject) :: boolean
   def describes?(%RDF.Graph{descriptions: descriptions}, subject) do
     with subject = coerce_subject(subject) do
       Map.has_key?(descriptions, subject)
@@ -747,6 +816,7 @@ defmodule RDF.Graph do
       }
 
   """
+  @spec values(t, Statement.term_mapping) :: map
   def values(graph, mapping \\ &RDF.Statement.default_term_mapping/1)
 
   def values(%RDF.Graph{descriptions: descriptions}, mapping) do
@@ -764,6 +834,7 @@ defmodule RDF.Graph do
 
   If `nil` is passed as the `subjects`, the subjects will not be limited.
   """
+  @spec take(t, [Statement.coercible_subject] | nil, [Statement.coercible_predicate] | nil) :: t
   def take(graph, subjects, properties \\ nil)
 
   def take(%RDF.Graph{} = graph, nil, nil), do: graph
@@ -789,6 +860,7 @@ defmodule RDF.Graph do
   Two `RDF.Graph`s are considered to be equal if they contain the same triples
   and have the same name. The prefixes of the graph are irrelevant for equality.
   """
+  @spec equal?(t | any, t | any) :: boolean
   def equal?(graph1, graph2)
 
   def equal?(%RDF.Graph{} = graph1, %RDF.Graph{} = graph2) do
@@ -808,6 +880,11 @@ defmodule RDF.Graph do
   the new one. This behaviour can be customized by providing a `conflict_resolver`
   function. See `RDF.PrefixMap.merge/3` for more on that.
   """
+  @spec add_prefixes(
+          t,
+          PrefixMap.t | map | keyword | nil,
+          PrefixMap.conflict_resolver | nil
+        ) :: t
   def add_prefixes(graph, prefixes, conflict_resolver \\ nil)
 
   def add_prefixes(%RDF.Graph{} = graph, nil, _), do: graph
@@ -832,6 +909,7 @@ defmodule RDF.Graph do
   The `prefixes` can be a single prefix or a list of prefixes.
   Prefixes not in prefixes of the graph are simply ignored.
   """
+  @spec delete_prefixes(t, PrefixMap.t) :: t
   def delete_prefixes(graph, prefixes)
 
   def delete_prefixes(%RDF.Graph{prefixes: nil} = graph, _), do: graph
@@ -843,6 +921,7 @@ defmodule RDF.Graph do
   @doc """
   Clears all prefixes of the given `graph`.
   """
+  @spec clear_prefixes(t) :: t
   def clear_prefixes(%RDF.Graph{} = graph) do
     %RDF.Graph{graph | prefixes: nil}
   end
@@ -852,6 +931,7 @@ defmodule RDF.Graph do
 
   The `base_iri` can be given as anything accepted by `RDF.IRI.coerce_base/1`.
   """
+  @spec set_base_iri(t, IRI.t | nil) :: t
   def set_base_iri(graph, base_iri)
 
   def set_base_iri(%RDF.Graph{} = graph, nil) do
@@ -865,6 +945,7 @@ defmodule RDF.Graph do
   @doc """
   Clears the base IRI of the given `graph`.
   """
+  @spec clear_base_iri(t) :: t
   def clear_base_iri(%RDF.Graph{} = graph) do
     %RDF.Graph{graph | base_iri: nil}
   end
@@ -872,6 +953,7 @@ defmodule RDF.Graph do
   @doc """
   Clears the base IRI and all prefixes of the given `graph`.
   """
+  @spec clear_metadata(t) :: t
   def clear_metadata(%RDF.Graph{} = graph) do
     graph
     |> clear_base_iri()

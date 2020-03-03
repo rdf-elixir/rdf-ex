@@ -6,7 +6,16 @@ defmodule RDF.Quad do
   RDF values for subject, predicate, object and a graph context.
   """
 
-  alias RDF.Statement
+  alias RDF.{Literal, Statement}
+
+  @type t :: {Statement.subject, Statement.predicate, Statement.object, Statement.graph_name}
+
+  @type coercible_t ::
+          {Statement.coercible_subject, Statement.coercible_predicate,
+           Statement.coercible_object, Statement.coercible_graph_name}
+
+  @type t_values :: {String.t, String.t, Literal.literal_value, String.t}
+
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
@@ -22,6 +31,12 @@ defmodule RDF.Quad do
       iex> RDF.Quad.new(EX.S, EX.p, 42, EX.Graph)
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
+  @spec new(
+          Statement.coercible_subject,
+          Statement.coercible_predicate,
+          Statement.coercible_object,
+          Statement.coercible_graph_name
+        ) :: t
   def new(subject, predicate, object, graph_context) do
     {
       Statement.coerce_subject(subject),
@@ -45,6 +60,7 @@ defmodule RDF.Quad do
       iex> RDF.Quad.new {EX.S, EX.p, 42, EX.Graph}
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
+  @spec new(coercible_t) :: t
   def new({subject, predicate, object, graph_context}),
     do: new(subject, predicate, object, graph_context)
 
@@ -78,6 +94,7 @@ defmodule RDF.Quad do
       {:S, :p, 42, ~I<http://example.com/Graph>}
 
   """
+  @spec values(t | any, Statement.term_mapping) :: t_values | nil
   def values(quad, mapping \\ &Statement.default_term_mapping/1)
 
   def values({subject, predicate, object, graph_context}, mapping) do
@@ -102,6 +119,7 @@ defmodule RDF.Quad do
   position only IRIs and blank nodes allowed, while on the predicate and graph
   context position only IRIs allowed. The object position can be any RDF term.
   """
+  @spec valid?(t | any) :: boolean
   def valid?(tuple)
   def valid?({_, _, _, _} = quad), do: Statement.valid?(quad)
   def valid?(_), do: false

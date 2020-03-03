@@ -6,23 +6,25 @@ defmodule RDF.Datatype do
   the validation, conversion and canonicalization of typed `RDF.Literal`s.
   """
 
-  alias RDF.Literal
+  alias RDF.{IRI, Literal}
   alias RDF.Datatype.NS.XSD
+
+  @type t :: module
 
   @doc """
   The IRI of the datatype.
   """
-  @callback id :: RDF.IRI.t
+  @callback id :: IRI.t
 
   @doc """
   Produces the lexical form of a `RDF.Literal`.
   """
-  @callback lexical(literal :: RDF.Literal.t) :: any
+  @callback lexical(Literal.t) :: any
 
   @doc """
   Produces the lexical form of a value.
   """
-  @callback canonical_lexical(any) :: binary
+  @callback canonical_lexical(any) :: String.t | nil
 
   @doc """
   Produces the lexical form of an invalid value of a typed Literal.
@@ -30,12 +32,12 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro just returns `to_string`
   representation of the value.
   """
-  @callback invalid_lexical(any) :: binary
+  @callback invalid_lexical(any) :: String.t | nil
 
   @doc """
   Produces the canonical form of a `RDF.Literal`.
   """
-  @callback canonical(RDF.Literal.t) :: RDF.Literal.t
+  @callback canonical(Literal.t) :: Literal.t | nil
 
   @doc """
   Converts a value into a proper native value.
@@ -58,13 +60,13 @@ defmodule RDF.Datatype do
   If the given literal is invalid or can not be converted into this datatype
   `nil` is returned.
   """
-  @callback cast(RDF.Literal.t) :: RDF.Literal.t
+  @callback cast(Literal.t) :: Literal.t | nil
 
 
   @doc """
   Determines if the value of a `RDF.Literal` is a member of lexical value space of its datatype.
   """
-  @callback valid?(literal :: RDF.Literal.t) :: boolean
+  @callback valid?(literal :: Literal.t) :: boolean | nil
 
   @doc """
   Checks if the value of two `RDF.Literal`s of this datatype are equal.
@@ -76,7 +78,7 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro compares the values of the
   `canonical/1` forms of the given literals of this datatype.
   """
-  @callback equal_value?(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: boolean | nil
+  @callback equal_value?(literal1 :: Literal.t, literal2 :: Literal.t) :: boolean | nil
 
   @doc """
   Compares two `RDF.Literal`s.
@@ -92,7 +94,7 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro compares the values of the
   `canonical/1` forms of the given literals of this datatype.
   """
-  @callback compare(literal1 :: RDF.Literal.t, literal2 :: RDF.Literal.t) :: :lt | :gt | :eq  | :indeterminate | nil
+  @callback compare(literal1 :: Literal.t, literal2 :: Literal.t) :: :lt | :gt | :eq  | :indeterminate | nil
 
 
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
@@ -113,21 +115,25 @@ defmodule RDF.Datatype do
   @doc """
   The mapping of IRIs of datatypes to their `RDF.Datatype`.
   """
+  @spec mapping :: %{IRI.t => t}
   def mapping, do: @mapping
 
   @doc """
   The IRIs of all datatypes with a `RDF.Datatype` defined.
   """
+  @spec ids :: [IRI.t]
   def ids,     do: Map.keys(@mapping)
 
   @doc """
   All defined `RDF.Datatype` modules.
   """
+  @spec modules :: [t]
   def modules, do: Map.values(@mapping)
 
   @doc """
   Returns the `RDF.Datatype` for a directly datatype IRI or the datatype IRI of a `RDF.Literal`.
   """
+  @spec get(Literal.t | IRI.t) :: t
   def get(%Literal{datatype: id}), do: get(id)
   def get(id), do: @mapping[id]
 

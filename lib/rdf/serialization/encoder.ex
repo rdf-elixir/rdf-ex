@@ -11,7 +11,8 @@ defmodule RDF.Serialization.Encoder do
   It returns an `{:ok, string}` tuple, with `string` being the serialized
   `RDF.Graph` or `RDF.Dataset`, or `{:error, reason}` if an error occurs.
   """
-  @callback encode(RDF.Graph.t | RDF.Dataset.t, keyword) :: keyword(String.t)
+  @callback encode(RDF.Graph.t | RDF.Dataset.t, keyword) ::
+              {:ok, String.t} | {:error, any}
 
   @doc """
   Encodes a `RDF.Graph` or `RDF.Dataset`.

@@ -3,11 +3,27 @@ defmodule RDF.Literal do
   RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
   """
 
-  defstruct [:value, :uncanonical_lexical, :datatype, :language]
-
-  @type t :: module
-
   alias RDF.Datatype.NS.XSD
+  alias RDF.IRI
+
+  @type literal_value ::
+          RDF.Boolean.value
+          | RDF.Integer.value
+          | RDF.Double.value
+          | RDF.String.value
+          | RDF.Decimal.value
+          | RDF.Date.value
+          | RDF.Time.value
+          | RDF.DateTime.value
+
+  @type t :: %__MODULE__{
+          value: literal_value,
+          datatype: IRI.t,
+          uncanonical_lexical: String.t | nil,
+          language: String.t | nil
+  }
+
+  defstruct [:value, :datatype, :uncanonical_lexical, :language]
 
   # to be able to pattern-match on plain types; we can't use RDF.Literal.Guards here since these aren't compiled here yet
   @xsd_string  XSD.string
@@ -40,6 +56,7 @@ defmodule RDF.Literal do
       %RDF.Literal{value: 42, datatype: XSD.integer}
 
   """
+  @spec new(literal_value | t) :: t
   def new(value)
 
   def new(%RDF.Literal{} = literal),     do: literal
@@ -63,6 +80,7 @@ defmodule RDF.Literal do
   @doc """
   Creates a new `RDF.Literal` with the given datatype or language tag.
   """
+  @spec new(literal_value | t, map | keyword) :: t
   def new(value, opts)
 
   def new(value, opts) when is_list(opts),
@@ -118,6 +136,7 @@ defmodule RDF.Literal do
       ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.Literal{value: "foo", datatype: ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>, language: nil}
 
   """
+  @spec new!(literal_value | t, map | keyword) :: t
   def new!(value, opts \\ %{}) do
     with %RDF.Literal{} = literal <- new(value, opts) do
       if valid?(literal) do
@@ -134,6 +153,7 @@ defmodule RDF.Literal do
   @doc """
   Returns the lexical representation of the given literal according to its datatype.
   """
+  @spec lexical(t) :: String.t
   def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil, datatype: id} = literal) do
     case RDF.Datatype.get(id) do
       nil      -> to_string(value)
@@ -146,6 +166,7 @@ defmodule RDF.Literal do
   @doc """
   Returns the given literal in its canonical lexical representation.
   """
+  @spec canonical(t) :: t
   def canonical(%RDF.Literal{uncanonical_lexical: nil} = literal), do: literal
   def canonical(%RDF.Literal{datatype: id} = literal) do
     case RDF.Datatype.get(id) do
@@ -158,13 +179,15 @@ defmodule RDF.Literal do
   @doc """
   Returns if the given literal is in its canonical lexical representation.
   """
+  @spec canonical?(t) :: boolean
   def canonical?(%RDF.Literal{uncanonical_lexical: nil}), do: true
-  def canonical?(_),                                      do: false
+  def canonical?(%RDF.Literal{} = _),                     do: false
 
 
   @doc """
   Returns if the value of the given literal is a valid according to its datatype.
   """
+  @spec valid?(t) :: boolean
   def valid?(%RDF.Literal{datatype: id} = literal) do
     case RDF.Datatype.get(id) do
       nil      -> true
@@ -180,8 +203,9 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/sparql11-query/#simple_literal>
   """
+  @spec simple?(t) :: boolean
   def simple?(%RDF.Literal{datatype: @xsd_string}), do: true
-  def simple?(_), do: false
+  def simple?(%RDF.Literal{} = _),                  do: false
 
 
   @doc """
@@ -189,8 +213,9 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
   """
+  @spec has_language?(t) :: boolean
   def has_language?(%RDF.Literal{datatype: @lang_string}), do: true
-  def has_language?(_), do: false
+  def has_language?(%RDF.Literal{} = _),                   do: false
 
 
   @doc """
@@ -200,6 +225,7 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-typed-literal>
   """
+  @spec has_datatype?(t) :: boolean
   def has_datatype?(literal) do
     not plain?(literal) and not has_language?(literal)
   end
@@ -213,10 +239,12 @@ defmodule RDF.Literal do
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
   """
+  @spec plain?(t) :: boolean
   def plain?(%RDF.Literal{datatype: datatype})
     when datatype in @plain_types, do: true
-  def plain?(_), do: false
+  def plain?(%RDF.Literal{} = _), do: false
 
+  @spec typed?(t) :: boolean
   def typed?(literal), do: not plain?(literal)
 
 
@@ -229,6 +257,7 @@ defmodule RDF.Literal do
 
   see <https://www.w3.org/TR/rdf-concepts/#section-Literal-Equality>
   """
+  @spec equal_value?(t | IRI.t | any, t | IRI.t | any) :: boolean | nil
   def equal_value?(left, right)
 
   def equal_value?(%RDF.Literal{datatype: id1} = literal1, %RDF.Literal{datatype: id2} = literal2) do
@@ -266,6 +295,7 @@ defmodule RDF.Literal do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
+  @spec less_than?(t | any, t | any) :: boolean | nil
   def less_than?(literal1, literal2) do
     case compare(literal1, literal2) do
       :lt -> true
@@ -280,6 +310,7 @@ defmodule RDF.Literal do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
+  @spec greater_than?(t | any, t | any) :: boolean | nil
   def greater_than?(literal1, literal2) do
     case compare(literal1, literal2) do
       :gt -> true
@@ -300,6 +331,7 @@ defmodule RDF.Literal do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
+  @spec compare(t | any, t | any) :: :eq | :lt | :gt | nil
   def compare(left, right)
 
   def compare(%RDF.Literal{datatype: id1} = literal1, %RDF.Literal{datatype: id2} = literal2) do
@@ -331,6 +363,7 @@ defmodule RDF.Literal do
 
   see <https://www.w3.org/TR/xpath-functions/#func-matches>
   """
+  @spec matches?(t | String.t, t | String.t, t | String.t) :: boolean
   def matches?(value, pattern, flags \\ "") do
     string = to_string(value)
     case xpath_pattern(pattern, flags) do
@@ -351,6 +384,8 @@ defmodule RDF.Literal do
   end
 
   @doc false
+  @spec xpath_pattern(t | String.t, t | String.t) ::
+          {:q | :qi, String.t} | {:regex, Regex.t} | {:error, any}
   def xpath_pattern(pattern, flags)
 
   def xpath_pattern(%RDF.Literal{datatype: @xsd_string} = pattern, flags),
@@ -379,6 +414,7 @@ defmodule RDF.Literal do
   end
 
   @doc false
+  @spec convert_utf_escaping(String.t) :: String.t
   def convert_utf_escaping(string) do
     require Integer
 

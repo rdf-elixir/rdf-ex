@@ -35,11 +35,13 @@ defmodule RDF.Numeric do
   @doc """
   The list of all numeric datatypes.
   """
+  @dialyzer {:nowarn_function, types: 0}
   def types(), do: MapSet.to_list(@types)
 
   @doc """
   Returns if a given datatype is a numeric datatype.
   """
+  @dialyzer {:nowarn_function, type?: 1}
   def type?(type), do: MapSet.member?(@types, type)
 
   @doc """
