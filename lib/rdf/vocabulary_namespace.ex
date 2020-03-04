@@ -577,7 +577,10 @@ defmodule RDF.Vocabulary.Namespace do
   @doc false
   @spec vocabulary_namespace?(module) :: boolean
   def vocabulary_namespace?(name) do
-    Code.ensure_compiled?(name) && function_exported?(name, :__base_iri__, 0)
+    case Code.ensure_compiled(name) do
+      {:module, name} -> function_exported?(name, :__base_iri__, 0)
+      _ -> false
+    end
   end
 
 end
