@@ -521,7 +521,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp rdf_data_env do
-    import RDF.Sigils # TODO: Can we get rid of the warning about this line somehow? It is plain false.
+    import RDF.Sigils, warn: false
     __ENV__
   end
 
