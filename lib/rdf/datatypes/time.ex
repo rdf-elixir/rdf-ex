@@ -8,12 +8,14 @@ defmodule RDF.Time do
   import RDF.Literal.Guards
 
   @type value :: Time.t
+  @type input :: value | String.t
 
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(%Time{} = value, %{tz: tz} = opts) do
@@ -120,6 +122,7 @@ defmodule RDF.Time do
   @doc """
   Extracts the timezone string from a `RDF.Time` literal.
   """
+  @spec tz(Literal.t) :: String.t | nil
   def tz(time_literal) do
     if valid?(time_literal) do
       time_literal
@@ -132,6 +135,7 @@ defmodule RDF.Time do
   @doc """
   Converts a time literal to a canonical string, preserving the zone information.
   """
+  @spec canonical_lexical_with_zone(Literal.t) :: String.t | nil
   def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
       when is_xsd_time(datatype) do
     case tz(literal) do

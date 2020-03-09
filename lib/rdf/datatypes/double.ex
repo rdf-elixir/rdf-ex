@@ -7,7 +7,8 @@ defmodule RDF.Double do
 
   import RDF.Literal.Guards
 
-  @type value :: float
+  @type value :: float | :positive_infinity | :negative_infinity | :nan
+  @type input :: value | number | String.t
 
 
   def build_literal_by_value(value, opts) do
@@ -22,6 +23,7 @@ defmodule RDF.Double do
   end
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(value, _) when is_float(value),   do: value
@@ -57,6 +59,7 @@ defmodule RDF.Double do
 
 
   @impl RDF.Datatype
+  @spec canonical_lexical(value) :: String.t
   def canonical_lexical(value)
 
   def canonical_lexical(:nan),                       do: "NaN"

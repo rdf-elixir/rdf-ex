@@ -58,9 +58,11 @@ defmodule RDF.Vocabulary.Namespace do
         end
 
         @base_iri unquote(base_iri)
+        @spec __base_iri__ :: String.t
         def __base_iri__, do: @base_iri
 
         @strict unquote(strict)
+        @spec __strict__ :: boolean
         def __strict__, do: @strict
 
         @terms unquote(Macro.escape(terms))
@@ -72,6 +74,7 @@ defmodule RDF.Vocabulary.Namespace do
         @doc """
         Returns all known IRIs of the vocabulary.
         """
+        @spec __iris__ :: [Elixir.RDF.IRI.t]
         def __iris__ do
           @terms
           |> Enum.map(fn
@@ -84,6 +87,7 @@ defmodule RDF.Vocabulary.Namespace do
         define_vocab_terms unquote(lowercased_terms), unquote(base_iri)
 
         @impl Elixir.RDF.Namespace
+        @dialyzer {:nowarn_function, __resolve_term__: 1}
         def __resolve_term__(term) do
           case @terms[term] do
             nil ->

@@ -31,6 +31,7 @@ defmodule RDF.String do
 
 
   @impl RDF.Datatype
+  @spec convert(any, map) :: value
   def convert(value, _), do: to_string(value)
 
 

@@ -8,11 +8,13 @@ defmodule RDF.DateTime do
   import RDF.Literal.Guards
 
   @type value :: DateTime.t | NaiveDateTime.t
+  @type input :: value | String.t
 
   @xsd_date RDF.Datatype.NS.XSD.date
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   # Special case for date and dateTime, for which 0 is not a valid year
@@ -65,6 +67,7 @@ defmodule RDF.DateTime do
 
 
   @impl RDF.Datatype
+  @spec canonical_lexical(value) :: String.t
   def canonical_lexical(value)
 
   def canonical_lexical(%DateTime{} = value) do
@@ -112,6 +115,7 @@ defmodule RDF.DateTime do
   @doc """
   Builds a `RDF.DateTime` literal for current moment in time.
   """
+  @spec now :: Literal.t
   def now() do
     new(DateTime.utc_now())
   end
@@ -120,6 +124,7 @@ defmodule RDF.DateTime do
   @doc """
   Extracts the timezone string from a `RDF.DateTime` literal.
   """
+  @spec tz(Literal.t) :: String.t | nil
   def tz(literal)
 
   def tz(%Literal{value: %NaiveDateTime{}}), do: ""
@@ -136,6 +141,7 @@ defmodule RDF.DateTime do
   @doc """
   Converts a datetime literal to a canonical string, preserving the zone information.
   """
+  @spec canonical_lexical_with_zone(Literal.t) :: String.t | nil
   def canonical_lexical_with_zone(%Literal{datatype: datatype} = literal)
       when is_xsd_datetime(datatype) do
     case tz(literal) do
