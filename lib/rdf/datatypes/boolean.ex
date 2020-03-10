@@ -6,7 +6,6 @@ defmodule RDF.Boolean do
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.boolean
 
   import Literal.Guards
-  alias Literal
 
   @type value :: boolean
   @type input :: value | String.t | number
@@ -95,7 +94,7 @@ defmodule RDF.Boolean do
 
   see <https://www.w3.org/TR/xpath-functions/#func-not>
   """
-  @spec fn_not(value | input | Literal.t | any) :: Literal.t | nil
+  @spec fn_not(Literal.t | any) :: Literal.t | nil
   def fn_not(value) do
     case ebv(value) do
       %Literal{value: true}  -> RDF.Boolean.Value.false
@@ -127,7 +126,7 @@ defmodule RDF.Boolean do
   see <https://www.w3.org/TR/sparql11-query/#func-logical-and>
 
   """
-  @spec logical_and(value | input | Literal.t | any, value | input | Literal.t | any) ::
+  @spec logical_and(Literal.t | any, Literal.t | any) ::
           Literal.t | nil
   def logical_and(left, right) do
     case ebv(left) do
@@ -171,7 +170,7 @@ defmodule RDF.Boolean do
   see <https://www.w3.org/TR/sparql11-query/#func-logical-or>
 
   """
-  @spec logical_or(value | input | Literal.t | any, value | input | Literal.t | any) ::
+  @spec logical_or(Literal.t | any, Literal.t | any) ::
           Literal.t | nil
   def logical_or(left, right) do
     case ebv(left) do
@@ -209,7 +208,7 @@ defmodule RDF.Boolean do
   - <https://www.w3.org/TR/sparql11-query/#ebv>
 
   """
-  @spec ebv(value | input | Literal.t | any) :: Literal.t | nil
+  @spec ebv(Literal.t | any) :: Literal.t | nil
   def ebv(value)
 
   def ebv(true),  do: RDF.Boolean.Value.true
@@ -245,7 +244,7 @@ defmodule RDF.Boolean do
   @doc """
   Alias for `ebv/1`.
   """
-  @spec effective(value | input | Literal.t | any) :: Literal.t | nil
+  @spec effective(Literal.t | any) :: Literal.t | nil
   def effective(value), do: ebv(value)
 
 end

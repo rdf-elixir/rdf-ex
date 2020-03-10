@@ -29,7 +29,7 @@ defmodule RDF.Serialization.Decoder do
       @behaviour unquote(__MODULE__)
 
       @impl unquote(__MODULE__)
-      @spec decode!(String.t) :: RDF.Graph.t | RDF.Dataset.t
+      @spec decode!(String.t, keyword | map) :: RDF.Graph.t | RDF.Dataset.t
       def decode!(content, opts \\ []) do
         case decode(content, opts) do
           {:ok,    data}   -> data
