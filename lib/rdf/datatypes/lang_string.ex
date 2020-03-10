@@ -5,6 +5,8 @@ defmodule RDF.LangString do
 
   use RDF.Datatype, id: RDF.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
 
+  @type value :: String.t
+
 
   def build_literal(value, lexical, %{language: language} = opts)
       when is_binary(language) and language != "" do
@@ -17,6 +19,7 @@ defmodule RDF.LangString do
 
 
   @impl RDF.Datatype
+  @spec convert(any, map) :: value
   def convert(value, _), do: to_string(value)
 
 
@@ -43,6 +46,7 @@ defmodule RDF.LangString do
 
   see <https://www.w3.org/TR/sparql11-query/#func-langMatches>
   """
+  @spec match_language?(Literal.t | String.t, String.t) :: boolean
   def match_language?(language_tag, language_range)
 
   def match_language?(%Literal{language: nil}, _), do: false

@@ -3,6 +3,7 @@ defmodule RDF.Serialization.Decoder do
   A behaviour for decoders of strings encoded in a specific `RDF.Serialization` format.
   """
 
+  alias RDF.{Dataset, Graph}
 
   @doc """
   Decodes a serialized `RDF.Graph` or `RDF.Dataset` from the given string.
@@ -10,8 +11,7 @@ defmodule RDF.Serialization.Decoder do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
-  @callback decode(String.t, keyword) :: {:ok, RDF.Graph.t | RDF.Dataset.t} |
-                                         {:error, any}
+  @callback decode(String.t, keyword | map) :: {:ok, Graph.t | Dataset.t} | {:error, any}
 
   @doc """
   Decodes a serialized `RDF.Graph` or `RDF.Dataset` from the given string.
@@ -21,7 +21,7 @@ defmodule RDF.Serialization.Decoder do
   Note: The `__using__` macro automatically provides an overridable default
   implementation based on the non-bang `decode` function.
   """
-  @callback decode!(String.t, keyword) :: RDF.Graph.t | RDF.Dataset.t
+  @callback decode!(String.t, keyword | map) :: RDF.Graph.t | RDF.Dataset.t
 
 
   defmacro __using__(_) do
@@ -29,6 +29,7 @@ defmodule RDF.Serialization.Decoder do
       @behaviour unquote(__MODULE__)
 
       @impl unquote(__MODULE__)
+      @spec decode!(String.t, keyword | map) :: RDF.Graph.t | RDF.Dataset.t
       def decode!(content, opts \\ []) do
         case decode(content, opts) do
           {:ok,    data}   -> data

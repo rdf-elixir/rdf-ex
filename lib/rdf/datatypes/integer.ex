@@ -8,9 +8,11 @@ defmodule RDF.Integer do
   import RDF.Literal.Guards
 
   @type value :: integer
+  @type input :: value | String.t
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(value, _) when is_integer(value), do: value
@@ -79,6 +81,7 @@ defmodule RDF.Integer do
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
   """
+  @spec digit_count(Literal.t) :: non_neg_integer
   def digit_count(%RDF.Literal{datatype: @id} = literal) do
     if valid?(literal) do
       literal

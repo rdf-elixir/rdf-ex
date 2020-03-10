@@ -8,12 +8,14 @@ defmodule RDF.Date do
   import RDF.Literal.Guards
 
   @type value :: Date.t | {Date.t, String.t}
+  @type input :: value | String.t
 
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @xsd_datetime RDF.Datatype.NS.XSD.dateTime
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(%Date{} = value, %{tz: "+00:00"} = opts) do
@@ -54,6 +56,7 @@ defmodule RDF.Date do
 
 
   @impl RDF.Datatype
+  @spec canonical_lexical(value) :: String.t
   def canonical_lexical(value)
 
   def canonical_lexical(%Date{} = value) do

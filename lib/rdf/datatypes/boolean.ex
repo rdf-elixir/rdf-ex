@@ -5,12 +5,14 @@ defmodule RDF.Boolean do
 
   use RDF.Datatype, id: RDF.Datatype.NS.XSD.boolean
 
-  import RDF.Literal.Guards
+  import Literal.Guards
 
   @type value :: boolean
+  @type input :: value | String.t | number
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(value, _) when is_boolean(value), do: value
@@ -35,9 +37,9 @@ defmodule RDF.Boolean do
   @impl RDF.Datatype
   def cast(literal)
 
-  def cast(%RDF.Literal{datatype: datatype} = literal) do
+  def cast(%Literal{datatype: datatype} = literal) do
     cond do
-      not RDF.Literal.valid?(literal) ->
+      not Literal.valid?(literal) ->
         nil
 
       is_xsd_boolean(datatype) ->
@@ -92,11 +94,12 @@ defmodule RDF.Boolean do
 
   see <https://www.w3.org/TR/xpath-functions/#func-not>
   """
+  @spec fn_not(Literal.t | any) :: Literal.t | nil
   def fn_not(value) do
     case ebv(value) do
-      %RDF.Literal{value: true}  -> RDF.Boolean.Value.false
-      %RDF.Literal{value: false} -> RDF.Boolean.Value.true
-      nil                        -> nil
+      %Literal{value: true}  -> RDF.Boolean.Value.false
+      %Literal{value: false} -> RDF.Boolean.Value.true
+      nil                    -> nil
     end
   end
 
@@ -123,20 +126,22 @@ defmodule RDF.Boolean do
   see <https://www.w3.org/TR/sparql11-query/#func-logical-and>
 
   """
+  @spec logical_and(Literal.t | any, Literal.t | any) ::
+          Literal.t | nil
   def logical_and(left, right) do
     case ebv(left) do
-      %RDF.Literal{value: false} ->
+      %Literal{value: false} ->
         RDF.false
 
-      %RDF.Literal{value: true}  ->
+      %Literal{value: true}  ->
         case ebv(right) do
-          %RDF.Literal{value: true}  -> RDF.true
-          %RDF.Literal{value: false} -> RDF.false
-          nil                        -> nil
+          %Literal{value: true}  -> RDF.true
+          %Literal{value: false} -> RDF.false
+          nil                    -> nil
         end
 
       nil ->
-        if match?(%RDF.Literal{value: false}, ebv(right)) do
+        if match?(%Literal{value: false}, ebv(right)) do
           RDF.false
         end
     end
@@ -165,20 +170,22 @@ defmodule RDF.Boolean do
   see <https://www.w3.org/TR/sparql11-query/#func-logical-or>
 
   """
+  @spec logical_or(Literal.t | any, Literal.t | any) ::
+          Literal.t | nil
   def logical_or(left, right) do
     case ebv(left) do
-      %RDF.Literal{value: true} ->
+      %Literal{value: true} ->
         RDF.true
 
-      %RDF.Literal{value: false}  ->
+      %Literal{value: false}  ->
         case ebv(right) do
-          %RDF.Literal{value: true}  -> RDF.true
-          %RDF.Literal{value: false} -> RDF.false
+          %Literal{value: true}  -> RDF.true
+          %Literal{value: false} -> RDF.false
           nil                        -> nil
         end
 
       nil ->
-        if match?(%RDF.Literal{value: true}, ebv(right)) do
+        if match?(%Literal{value: true}, ebv(right)) do
           RDF.true
         end
     end
@@ -201,23 +208,24 @@ defmodule RDF.Boolean do
   - <https://www.w3.org/TR/sparql11-query/#ebv>
 
   """
+  @spec ebv(Literal.t | any) :: Literal.t | nil
   def ebv(value)
 
   def ebv(true),  do: RDF.Boolean.Value.true
   def ebv(false), do: RDF.Boolean.Value.false
 
-  def ebv(%RDF.Literal{value: nil, datatype: @xsd_boolean}), do: RDF.Boolean.Value.false
-  def ebv(%RDF.Literal{datatype: @xsd_boolean} = literal),   do: literal
+  def ebv(%Literal{value: nil, datatype: @xsd_boolean}), do: RDF.Boolean.Value.false
+  def ebv(%Literal{datatype: @xsd_boolean} = literal),   do: literal
 
-  def ebv(%RDF.Literal{datatype: datatype} = literal) do
+  def ebv(%Literal{datatype: datatype} = literal) do
     cond do
       RDF.Numeric.type?(datatype) ->
-        if RDF.Literal.valid?(literal) and
+        if Literal.valid?(literal) and
             not (literal.value == 0 or literal.value == :nan),
           do: RDF.Boolean.Value.true,
         else: RDF.Boolean.Value.false
 
-      RDF.Literal.plain?(literal) ->
+      Literal.plain?(literal) ->
         if String.length(literal.value) == 0,
           do: RDF.Boolean.Value.false,
         else: RDF.Boolean.Value.true
@@ -228,7 +236,7 @@ defmodule RDF.Boolean do
   end
 
   def ebv(value) when is_binary(value) or is_number(value) do
-    value |> RDF.Literal.new() |> ebv()
+    value |> Literal.new() |> ebv()
   end
 
   def ebv(_), do: nil
@@ -236,6 +244,7 @@ defmodule RDF.Boolean do
   @doc """
   Alias for `ebv/1`.
   """
+  @spec effective(Literal.t | any) :: Literal.t | nil
   def effective(value), do: ebv(value)
 
 end

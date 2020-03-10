@@ -2,10 +2,10 @@ defmodule RDF.Turtle.Decoder do
   @moduledoc false
 
   use RDF.Serialization.Decoder
-  
-  alias RDF.IRI
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
+
+  alias RDF.{Dataset, Graph, IRI}
 
   defmodule State do
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
@@ -25,6 +25,7 @@ defmodule RDF.Turtle.Decoder do
   end
 
   @impl RDF.Serialization.Decoder
+  @spec decode(String.t, keyword | map) :: {:ok, Graph.t | Dataset.t} | {:error, any}
   def decode(content, opts \\ %{})
 
   def decode(content, opts) when is_list(opts),

@@ -11,6 +11,7 @@ defmodule RDF.Numeric do
   import RDF.Literal.Guards
   import Kernel, except: [abs: 1, floor: 1, ceil: 1]
 
+  @type value :: RDF.Decimal.value | RDF.Integer.value | RDF.Double.value
 
   @types MapSet.new [
     XSD.integer,
@@ -47,6 +48,7 @@ defmodule RDF.Numeric do
   @doc """
   Returns if a given literal has a numeric datatype.
   """
+  @spec literal?(Literal.t | any) :: boolean
   def literal?(%Literal{datatype: datatype}), do: type?(datatype)
   def literal?(_),                            do: false
 
@@ -138,6 +140,7 @@ defmodule RDF.Numeric do
 
   def compare(_, _), do: nil
 
+  @dialyzer {:nowarn_function, compare_decimal_value: 2}
   defp compare_decimal_value(%D{} = left, %D{} = right), do: D.cmp(left, right)
   defp compare_decimal_value(%D{} = left, right), do: compare_decimal_value(left, new_decimal(right))
   defp compare_decimal_value(left, %D{} = right), do: compare_decimal_value(new_decimal(left), right)

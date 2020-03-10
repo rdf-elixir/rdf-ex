@@ -8,12 +8,14 @@ defmodule RDF.Decimal do
 
   alias Elixir.Decimal, as: D
 
-  @type value :: Decimal.t | :nan
+  @type value :: Decimal.t
+  @type input :: value | number | String.t
 
   @xsd_integer RDF.Datatype.NS.XSD.integer
 
 
   @impl RDF.Datatype
+  @spec convert(input | any, map) :: value | nil
   def convert(value, opts)
 
   def convert(%D{coef: coef} = value, opts) when coef in ~w[qNaN sNaN inf]a,
@@ -120,6 +122,7 @@ defmodule RDF.Decimal do
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
   """
+  @spec digit_count(Literal.t) :: non_neg_integer
   def digit_count(%RDF.Literal{datatype: @id} = literal) do
     if valid?(literal) do
       literal
@@ -137,6 +140,7 @@ defmodule RDF.Decimal do
   @doc """
   The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
   """
+  @spec fraction_digit_count(Literal.t) :: non_neg_integer
   def fraction_digit_count(%RDF.Literal{datatype: @id} = literal) do
     if valid?(literal) do
       [_, fraction] =

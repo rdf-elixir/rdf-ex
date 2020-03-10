@@ -5,7 +5,10 @@ defmodule RDF.NQuads.Decoder do
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
 
+  alias RDF.{Dataset, Graph}
+
   @impl RDF.Serialization.Decoder
+  @spec decode(String.t, keyword | map) :: {:ok, Graph.t | Dataset.t} | {:error, any}
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast}       <- parse(tokens) do

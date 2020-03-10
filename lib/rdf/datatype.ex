@@ -24,7 +24,7 @@ defmodule RDF.Datatype do
   @doc """
   Produces the lexical form of a value.
   """
-  @callback canonical_lexical(any) :: String.t | nil
+  @callback canonical_lexical(Literal.literal_value) :: String.t | nil
 
   @doc """
   Produces the lexical form of an invalid value of a typed Literal.
@@ -51,7 +51,7 @@ defmodule RDF.Datatype do
     of the lexical value space of an `xsd:boolean`, so the `RDF.Boolean`
     implementation of this datatype calls `super`.
   """
-  @callback convert(any, keyword) :: any
+  @callback convert(any, map) :: any
 
 
   @doc """
@@ -60,13 +60,13 @@ defmodule RDF.Datatype do
   If the given literal is invalid or can not be converted into this datatype
   `nil` is returned.
   """
-  @callback cast(Literal.t) :: Literal.t | nil
+  @callback cast(Literal.t | any) :: Literal.t | nil
 
 
   @doc """
   Determines if the value of a `RDF.Literal` is a member of lexical value space of its datatype.
   """
-  @callback valid?(literal :: Literal.t) :: boolean | nil
+  @callback valid?(Literal.t) :: boolean | nil
 
   @doc """
   Checks if the value of two `RDF.Literal`s of this datatype are equal.
@@ -78,7 +78,7 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro compares the values of the
   `canonical/1` forms of the given literals of this datatype.
   """
-  @callback equal_value?(literal1 :: Literal.t, literal2 :: Literal.t) :: boolean | nil
+  @callback equal_value?(Literal.t, Literal.t) :: boolean | nil
 
   @doc """
   Compares two `RDF.Literal`s.
@@ -94,7 +94,7 @@ defmodule RDF.Datatype do
   The default implementation of the `_using__` macro compares the values of the
   `canonical/1` forms of the given literals of this datatype.
   """
-  @callback compare(literal1 :: Literal.t, literal2 :: Literal.t) :: :lt | :gt | :eq  | :indeterminate | nil
+  @callback compare(Literal.t, Literal.t) :: :lt | :gt | :eq  | :indeterminate | nil
 
 
   @lang_string RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
@@ -122,7 +122,7 @@ defmodule RDF.Datatype do
   The IRIs of all datatypes with a `RDF.Datatype` defined.
   """
   @spec ids :: [IRI.t]
-  def ids,     do: Map.keys(@mapping)
+  def ids, do: Map.keys(@mapping)
 
   @doc """
   All defined `RDF.Datatype` modules.
@@ -151,6 +151,7 @@ defmodule RDF.Datatype do
       def id, do: @id
 
 
+      @spec new(any, map | keyword) :: Literal.t
       def new(value, opts \\ %{})
 
       def new(value, opts) when is_list(opts),
@@ -170,6 +171,8 @@ defmodule RDF.Datatype do
       end
 
 
+      @dialyzer {:nowarn_function, build_literal_by_value: 2}
+      @spec build_literal_by_value(any, map) :: Literal.t
       def build_literal_by_value(value, opts) do
         case convert(value, opts) do
           nil ->
@@ -179,6 +182,7 @@ defmodule RDF.Datatype do
         end
       end
 
+      @dialyzer {:nowarn_function, build_literal_by_lexical: 2}
       def build_literal_by_lexical(lexical, opts) do
         case convert(lexical, opts) do
           nil ->
@@ -192,6 +196,7 @@ defmodule RDF.Datatype do
         end
       end
 
+      @spec build_literal(Literal.literal_value | nil, String.t | nil, map) :: Literal.t
       def build_literal(value, lexical, %{canonicalize: true} = opts) do
         build_literal(value, lexical, Map.delete(opts, :canonicalize))
         |> canonical
@@ -208,11 +213,11 @@ defmodule RDF.Datatype do
       @impl unquote(__MODULE__)
       def lexical(literal)
 
-      def lexical(%RDF.Literal{value: value, uncanonical_lexical: nil}) do
+      def lexical(%Literal{value: value, uncanonical_lexical: nil}) do
         canonical_lexical(value)
       end
 
-      def lexical(%RDF.Literal{uncanonical_lexical: lexical}) do
+      def lexical(%Literal{uncanonical_lexical: lexical}) do
         lexical
       end
 
@@ -250,7 +255,7 @@ defmodule RDF.Datatype do
         canonical(literal1).value == canonical(literal2).value
       end
 
-      def equal_value?(%RDF.Literal{} = left, right) when not is_nil(right) do
+      def equal_value?(%Literal{} = left, right) when not is_nil(right) do
         unless RDF.Term.term?(right) do
           equal_value?(left, RDF.Term.coerce(right))
         end
@@ -259,9 +264,9 @@ defmodule RDF.Datatype do
       def equal_value?(_, _), do: nil
 
 
-      def less_than?(literal1, literal2),    do: RDF.Literal.less_than?(literal1, literal2)
+      def less_than?(literal1, literal2),    do: Literal.less_than?(literal1, literal2)
 
-      def greater_than?(literal1, literal2), do: RDF.Literal.greater_than?(literal1, literal2)
+      def greater_than?(literal1, literal2), do: Literal.greater_than?(literal1, literal2)
 
 
       @impl unquote(__MODULE__)

@@ -4,7 +4,7 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{IRI, Literal, BlankNode, Description}
+  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, Literal}
 
   @indentation_char " "
   @indentation 4
@@ -27,6 +27,7 @@ defmodule RDF.Turtle.Encoder do
 
 
   @impl RDF.Serialization.Encoder
+  @callback encode(Graph.t | Dataset.t, keyword | map) :: {:ok, String.t} | {:error, any}
   def encode(data, opts \\ []) do
     with base         = Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
                         |> base_iri(data) |> init_base_iri(),

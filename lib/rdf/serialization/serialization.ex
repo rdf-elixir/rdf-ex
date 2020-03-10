@@ -3,6 +3,10 @@ defmodule RDF.Serialization do
   General functions for working with RDF serializations.
   """
 
+  alias RDF.{Dataset, Graph}
+
+  @type format :: module
+
   @formats [
     RDF.Turtle,
     JSON.LD,
@@ -21,6 +25,7 @@ defmodule RDF.Serialization do
       [RDF.Turtle, JSON.LD, RDF.NTriples, RDF.NQuads]
 
   """
+  @spec formats :: [format]
   def formats, do: @formats
 
   @doc """
@@ -36,6 +41,7 @@ defmodule RDF.Serialization do
       [RDF.Turtle, RDF.NTriples, RDF.NQuads]
 
   """
+  @spec available_formats :: [format]
   def available_formats do
     Enum.filter @formats, &Code.ensure_loaded?/1
   end
@@ -52,6 +58,7 @@ defmodule RDF.Serialization do
       iex> RDF.Serialization.format(:jsonld)
       nil  # unless json_ld is defined as a dependency of the application
   """
+  @spec format(String.t | atom) :: format | nil
   def format(name)
 
   def format(name) when is_binary(name) do
@@ -77,6 +84,7 @@ defmodule RDF.Serialization do
       iex> RDF.Serialization.format_by_media_type("application/ld+json")
       nil  # unless json_ld is defined as a dependency of the application
   """
+  @spec format_by_media_type(String.t) :: format | nil
   def format_by_media_type(media_type) do
     format_where(fn format -> format.media_type == media_type end)
   end
@@ -93,6 +101,7 @@ defmodule RDF.Serialization do
       iex> RDF.Serialization.format_by_extension("jsonld")
       nil  # unless json_ld is defined as a dependency of the application
   """
+  @spec format_by_extension(String.t) :: format | nil
   def format_by_extension(extension)
 
   def format_by_extension("." <> extension), do: format_by_extension(extension)
@@ -117,6 +126,7 @@ defmodule RDF.Serialization do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
+  @spec read_string(String.t, keyword) :: {:ok, Graph.t | Dataset.t} | {:error, any}
   def read_string(content, opts) do
     with {:ok, format} <- string_format(opts) do
       format.read_string(content, opts)
@@ -131,6 +141,7 @@ defmodule RDF.Serialization do
 
   As opposed to `read_string`, it raises an exception if an error occurs.
   """
+  @spec read_string!(String.t, keyword) :: Graph.t | Dataset.t
   def read_string!(content, opts) do
     with {:ok, format} <- string_format(opts) do
       format.read_string!(content, opts)
@@ -149,6 +160,7 @@ defmodule RDF.Serialization do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
+  @spec read_file(Path.t, keyword) :: {:ok, Graph.t | Dataset.t} | {:error, any}
   def read_file(file, opts \\ []) do
     with {:ok, format} <- file_format(file, opts) do
       format.read_file(file, opts)
@@ -164,6 +176,7 @@ defmodule RDF.Serialization do
 
   As opposed to `read_file`, it raises an exception if an error occurs.
   """
+  @spec read_file!(Path.t, keyword) :: Graph.t | Dataset.t
   def read_file!(file, opts \\ []) do
     with {:ok, format} <- file_format(file, opts) do
       format.read_file!(file, opts)
@@ -181,6 +194,7 @@ defmodule RDF.Serialization do
   It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
+  @spec write_string(Graph.t | Dataset.t, keyword) :: {:ok, String.t} | {:error, any}
   def write_string(data, opts) do
     with {:ok, format} <- string_format(opts) do
       format.write_string(data, opts)
@@ -195,6 +209,7 @@ defmodule RDF.Serialization do
 
   As opposed to `write_string`, it raises an exception if an error occurs.
   """
+  @spec write_string!(Graph.t | Dataset.t, keyword) :: String.t
   def write_string!(data, opts) do
     with {:ok, format} <- string_format(opts) do
       format.write_string!(data, opts)
@@ -219,6 +234,7 @@ defmodule RDF.Serialization do
 
   It returns `:ok` if successful or `{:error, reason}` if an error occurs.
   """
+  @spec write_file(Graph.t | Dataset.t, Path.t, keyword) :: :ok | {:error, any}
   def write_file(data, path, opts \\ []) do
     with {:ok, format} <- file_format(path, opts) do
       format.write_file(data, path, opts)
@@ -236,6 +252,7 @@ defmodule RDF.Serialization do
 
   As opposed to `write_file`, it raises an exception if an error occurs.
   """
+  @spec write_file!(Graph.t | Dataset.t, Path.t, keyword) :: :ok
   def write_file!(data, path, opts \\ []) do
     with {:ok, format} <- file_format(path, opts) do
       format.write_file!(data, path, opts)

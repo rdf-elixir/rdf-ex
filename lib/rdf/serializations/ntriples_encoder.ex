@@ -3,10 +3,10 @@ defmodule RDF.NTriples.Encoder do
 
   use RDF.Serialization.Encoder
 
-  alias RDF.{IRI, Literal, BlankNode}
-
+  alias RDF.{BlankNode, Dataset, Graph, IRI, Literal, Statement, Triple}
 
   @impl RDF.Serialization.Encoder
+  @callback encode(Graph.t | Dataset.t, keyword | map) :: {:ok, String.t} | {:error, any}
   def encode(data, _opts \\ []) do
     result =
       data
@@ -18,10 +18,12 @@ defmodule RDF.NTriples.Encoder do
     {:ok, (if result == "", do: result, else: result <> "\n")}
   end
 
+  @spec statement(Triple.t) :: String.t
   def statement({subject, predicate, object}) do
     "#{term(subject)} #{term(predicate)} #{term(object)} ."
   end
 
+  @spec term(Statement.subject | Statement.predicate | Statement.object) :: String.t
   def term(%IRI{} = iri) do
     "<#{to_string(iri)}>"
   end
