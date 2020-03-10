@@ -15,3 +15,4 @@
 :0: Unknown function 'Elixir.RDF.Term.PID':'__impl__'/1
 :0: Unknown function 'Elixir.RDF.Term.Port':'__impl__'/1
 :0: Unknown function 'Elixir.RDF.Term.Tuple':'__impl__'/1
+:276: Function yyrev/2 will never be called
