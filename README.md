@@ -4,7 +4,6 @@
 
 [![Travis](https://img.shields.io/travis/marcelotto/rdf-ex.svg?style=flat-square)](https://travis-ci.org/marcelotto/rdf-ex)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
-[![Inline docs](http://inch-ci.org/github/marcelotto/rdf-ex.svg)](http://inch-ci.org/github/marcelotto/rdf-ex)
 
 
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
