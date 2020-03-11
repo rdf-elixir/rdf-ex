@@ -5,14 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.7.1 - 2020-03-11
+
+### Added
+
+- proper typespecs so that Dialyzer passes without warnings ([@rustra](https://github.com/rustra))
+
 
 ### Fixed
 
 - `RDF.XSD.Time` didn't handle 24h overflows with an offset correctly
 
 
-[Compare v0.7.0...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.7.0...HEAD)
+[Compare v0.7.0...v0.7.1](https://github.com/marcelotto/rdf-ex/compare/v0.7.0...v0.7.1)
 
 
 
