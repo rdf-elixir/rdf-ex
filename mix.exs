@@ -80,11 +80,9 @@ defmodule RDF.Mixfile do
   end
 
   defp dialyzer do
-    # Dialyzer will emit a warning when the name of the plt file is set
-    # as people misused it in the past. Without setting a name caching of
-    # this file is much more trickier, so we still use this functionality.
     [
       plt_add_apps: [:mix],
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
       ignore_warnings: ".dialyzer_ignore"
     ]
   end

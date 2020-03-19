@@ -21,3 +21,7 @@ after_script:
   - MIX_ENV=docs mix inch.report
 script:
   - MIX_ENV=test mix coveralls.travis
+  - mix dialyzer
+cache:
+  directories:
+    - priv/plts
