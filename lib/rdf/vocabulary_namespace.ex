@@ -32,7 +32,9 @@ defmodule RDF.Vocabulary.Namespace do
         {:data, data}   -> {rdf_data_vocab_terms(data, base_iri), data}
       end
 
-    IO.puts("Compiling vocabulary namespace for #{base_iri}")
+    unless Mix.env() == :test do
+      IO.puts("Compiling vocabulary namespace for #{base_iri}")
+    end
 
     ignored_terms = ignored_terms!(opts)
     terms =
