@@ -235,7 +235,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
           inbits
           inlist
           receive
-          __block__
           __info__
           __MODULE__
           __FILE__
@@ -243,6 +242,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
           __ENV__
           __CALLER__
         ]
+          # This one also passes the tests, but causes some warnings:
+          # __block__
     end
     alias NSofEdgeCases.Example
     alias TestNS.EX
@@ -262,7 +263,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert Example.inbits  == ~I<http://example.com/ex#inbits>
     assert Example.inlist  == ~I<http://example.com/ex#inlist>
     assert Example.receive == ~I<http://example.com/ex#receive>
-    assert Example.__block__   == ~I<http://example.com/ex#__block__>
+#    assert Example.__block__   == ~I<http://example.com/ex#__block__>
     assert Example.__info__    == ~I<http://example.com/ex#__info__>
     assert Example.__MODULE__  == ~I<http://example.com/ex#__MODULE__>
     assert Example.__FILE__    == ~I<http://example.com/ex#__FILE__>

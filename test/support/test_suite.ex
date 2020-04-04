@@ -18,6 +18,9 @@ defmodule RDF.TestSuite do
       strict: false
   end
 
+  @compile {:no_warn_undefined, RDF.TestSuite.NS.MF}
+  @compile {:no_warn_undefined, RDF.TestSuite.NS.RDFT}
+
   alias NS.MF
 
   alias RDF.{Turtle, Graph, Description, IRI}
