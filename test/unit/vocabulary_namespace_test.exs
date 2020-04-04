@@ -7,6 +7,19 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   alias RDF.Description
 
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.EX}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.ExampleFromGraph}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.ExampleFromNTriplesFile}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.NonStrictExampleFromTerms}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.NonStrictExampleFromAliasedTerms}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.StrictExampleFromTerms}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSofEdgeCases.Example}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithAliasesForElixirTerms.Example}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSwithUnderscoreTerms.Example}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedTerm}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredNonStrictLowercasedTerm}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedTermWithAlias}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedAlias}
 
   defmodule TestNS do
     use RDF.Vocabulary.Namespace

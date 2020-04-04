@@ -18,6 +18,8 @@ defmodule RDF.Test.Case do
       import unquote(__MODULE__)
 
       import RDF.Sigils
+
+      @compile {:no_warn_undefined, RDF.Test.Case.EX}
     end
   end
 
