@@ -52,27 +52,8 @@ defimpl Inspect, for: RDF.BlankNode do
 end
 
 defimpl Inspect, for: RDF.Literal do
-  @xsd_string RDF.Datatype.NS.XSD.string
-  @rdf_lang_string RDF.langString
-
-  def inspect(%RDF.Literal{value: value, language: language}, _opts) when not is_nil(language) do
-    ~s[~L"#{value}"#{language}]
-  end
-
-  def inspect(%RDF.Literal{value: value, uncanonical_lexical: lexical, datatype: datatype}, _opts)
-        when not is_nil(lexical) do
-    "%RDF.Literal{value: #{inspect value}, lexical: #{inspect lexical}, datatype: ~I<#{datatype}>}"
-  end
-
-  def inspect(%RDF.Literal{value: value, datatype: datatype, language: language}, _opts) do
-    case datatype do
-      @xsd_string ->
-        ~s[~L"#{value}"]
-      @rdf_lang_string ->
-        "%RDF.Literal{value: #{inspect value}, datatype: ~I<#{datatype}>, language: #{inspect language}}"
-      _ ->
-        "%RDF.Literal{value: #{inspect value}, datatype: ~I<#{datatype}>}"
-    end
+  def inspect(literal, _opts) do
+    "%RDF.Literal{literal: #{inspect literal.literal}, valid: #{RDF.Literal.valid?(literal)}}"
   end
 end
 

@@ -560,7 +560,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"0",     "false ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Boolean.new(value)})
+          Graph.new({EX.S, EX.p, RDF.boolean(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -573,7 +573,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"FaLsE",  ~s{"FaLsE"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Boolean.new(value)})
+          Graph.new({EX.S, EX.p, RDF.boolean(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -591,7 +591,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"0010", "10 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Integer.new(value)})
+          Graph.new({EX.S, EX.p, RDF.integer(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -602,7 +602,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#integer>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Integer.new(value)})
+          Graph.new({EX.S, EX.p, RDF.integer(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -620,7 +620,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"010.020", "10.02 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Literal.new(value, datatype: XSD.decimal)})
+          Graph.new({EX.S, EX.p, RDF.decimal(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -631,7 +631,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#decimal>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Literal.new(value, datatype: XSD.decimal)})
+          Graph.new({EX.S, EX.p, RDF.decimal(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -650,7 +650,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"-1",        "-1.0E0 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Double.new(value)})
+          Graph.new({EX.S, EX.p, RDF.double(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -661,7 +661,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#double>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.Double.new(value)})
+          Graph.new({EX.S, EX.p, RDF.double(value)})
           |> assert_serialization(matches: [output])
          end)
     end

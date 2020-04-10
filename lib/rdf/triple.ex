@@ -6,7 +6,7 @@ defmodule RDF.Triple do
   RDF values for subject, predicate and object.
   """
 
-  alias RDF.{Literal, Statement}
+  alias RDF.Statement
 
   @type t :: {Statement.subject, Statement.predicate, Statement.object}
 
@@ -14,7 +14,7 @@ defmodule RDF.Triple do
           {Statement.coercible_subject, Statement.coercible_predicate,
            Statement.coercible_object}
 
-  @type t_values :: {String.t, String.t, Literal.literal_value}
+  @type t_values :: {String.t, String.t, any}
 
 
   @doc """

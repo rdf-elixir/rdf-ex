@@ -41,13 +41,15 @@ defmodule RDF do
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset, PrefixMap}
 
+  import RDF.Utils.Bootstrapping
+
   defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
 
 
   @standard_prefixes PrefixMap.new(
-                       xsd:  IRI.new("http://www.w3.org/2001/XMLSchema#"),
-                       rdf:  IRI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-                       rdfs: IRI.new("http://www.w3.org/2000/01/rdf-schema#")
+                       xsd:  IRI.new(XSD.namespace()),
+                       rdf:  rdf_iri_base(),
+                       rdfs: rdfs_iri_base()
                      )
 
   @doc """
@@ -235,30 +237,18 @@ defmodule RDF do
   def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
   def list(native_list, opts),      do: RDF.List.from(native_list, opts)
 
-  defdelegate string(value),            to: RDF.String,     as: :new
-  defdelegate string(value, opts),      to: RDF.String,     as: :new
+  for datatype <- RDF.Literal.Datatype.Registry.datatypes() do
+    defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
+  end
+
   defdelegate lang_string(value),       to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
-  defdelegate langString(value),        to: RDF.LangString, as: :new
-  defdelegate langString(value, opts),  to: RDF.LangString, as: :new
-  defdelegate boolean(value),           to: RDF.Boolean,    as: :new
-  defdelegate boolean(value, opts),     to: RDF.Boolean,    as: :new
-  defdelegate integer(value),           to: RDF.Integer,    as: :new
-  defdelegate integer(value, opts),     to: RDF.Integer,    as: :new
-  defdelegate double(value),            to: RDF.Double,     as: :new
-  defdelegate double(value, opts),      to: RDF.Double,     as: :new
-  defdelegate decimal(value),           to: RDF.Decimal,    as: :new
-  defdelegate decimal(value, opts),     to: RDF.Decimal,    as: :new
-  defdelegate date(value),              to: RDF.Date,       as: :new
-  defdelegate date(value, opts),        to: RDF.Date,       as: :new
-  defdelegate time(value),              to: RDF.Time,       as: :new
-  defdelegate time(value, opts),        to: RDF.Time,       as: :new
-  defdelegate date_time(value),         to: RDF.DateTime,   as: :new
-  defdelegate date_time(value, opts),   to: RDF.DateTime,   as: :new
-  defdelegate dateTime(value),          to: RDF.DateTime,   as: :new
-  defdelegate dateTime(value, opts),    to: RDF.DateTime,   as: :new
-  defdelegate datetime(value),          to: RDF.DateTime,   as: :new
-  defdelegate datetime(value, opts),    to: RDF.DateTime,   as: :new
+  defdelegate date_time(value),         to: RDF.XSD.DateTime,   as: :new
+  defdelegate date_time(value, opts),   to: RDF.XSD.DateTime,   as: :new
+  defdelegate datetime(value),          to: RDF.XSD.DateTime,   as: :new
+  defdelegate datetime(value, opts),    to: RDF.XSD.DateTime,   as: :new
+  defdelegate any_uri(value),           to: RDF.XSD.AnyURI,     as: :new
+  defdelegate any_uri(value, opts),     to: RDF.XSD.AnyURI,     as: :new
 
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
 
@@ -271,8 +261,8 @@ defmodule RDF do
     defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
-  defdelegate unquote(:true)(),  to: RDF.Boolean.Value
-  defdelegate unquote(:false)(), to: RDF.Boolean.Value
+  defdelegate unquote(:true)(),  to: RDF.XSD.Boolean.Value
+  defdelegate unquote(:false)(), to: RDF.XSD.Boolean.Value
 
   defdelegate langString(),   to: RDF.NS.RDF
   defdelegate unquote(nil)(), to: RDF.NS.RDF

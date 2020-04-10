@@ -5,9 +5,7 @@ defmodule RDF.Turtle.DecoderTest do
 
   import RDF.Sigils
 
-  alias RDF.{Turtle, Graph}
-  alias RDF.NS.{XSD}
-
+  alias RDF.{Turtle, Graph, NS}
 
   use RDF.Vocabulary.Namespace
 
@@ -218,7 +216,7 @@ defmodule RDF.Turtle.DecoderTest do
       assert Turtle.Decoder.decode!("""
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         <http://example.org/#spiderman> <http://example.org/#p> "42"^^xsd:integer .
-        """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)}, prefixes: %{xsd: XSD})
+        """) == Graph.new({EX.spiderman, EX.p, RDF.literal(42)}, prefixes: %{xsd: NS.XSD})
     end
 
     test "a language tagged literal" do
@@ -242,28 +240,28 @@ defmodule RDF.Turtle.DecoderTest do
     test "boolean" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> true .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.Boolean.new(true)})
+      """) == Graph.new({EX.Foo, EX.bar, RDF.true})
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> false .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.Boolean.new(false)})
+      """) == Graph.new({EX.Foo, EX.bar, RDF.false})
     end
 
     test "integer" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 42 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.Integer.new(42)})
+      """) == Graph.new({EX.Foo, EX.bar, RDF.integer(42)})
     end
 
     test "decimal" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 3.14 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.Literal.new("3.14", datatype: XSD.decimal)})
+      """) == Graph.new({EX.Foo, EX.bar, RDF.decimal("3.14")})
     end
 
     test "double" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 1.2e3 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.Double.new("1.2e3")})
+      """) == Graph.new({EX.Foo, EX.bar, RDF.double("1.2e3")})
     end
   end
 

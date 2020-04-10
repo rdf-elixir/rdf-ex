@@ -54,10 +54,10 @@ defmodule RDF.Sigils do
   defmacro sigil_L(value, language)
 
   defmacro sigil_L({:<<>>, _, [value]}, []) when is_binary(value) do
-    Macro.escape(RDF.String.new(value))
+    Macro.escape(RDF.XSD.String.new(value))
   end
 
   defmacro sigil_L({:<<>>, _, [value]}, language) when is_binary(value) do
-    Macro.escape(RDF.LangString.new(value, %{language: to_string(language)}))
+    Macro.escape(RDF.LangString.new(value, language: to_string(language)))
   end
 end

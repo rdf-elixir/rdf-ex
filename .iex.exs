@@ -1,7 +1,7 @@
 import RDF.Sigils
-import RDF.Literal.Guards
 
-alias RDF.NS.{XSD, RDFS, OWL, SKOS}
+alias RDF.NS
+alias RDF.NS.{RDFS, OWL, SKOS}
 
 alias RDF.{
   Term,
@@ -16,6 +16,8 @@ alias RDF.{
   Description,
   Graph,
   Dataset,
+
+  PrefixMap,
 }
 
 alias RDF.BlankNode, as: BNode

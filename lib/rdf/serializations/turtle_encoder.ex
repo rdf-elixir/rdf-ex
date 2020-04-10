@@ -4,25 +4,29 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, Literal}
+  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, Literal, LangString}
 
   @indentation_char " "
   @indentation 4
 
   @native_supported_datatypes [
-    RDF.Datatype.NS.XSD.boolean,
-    RDF.Datatype.NS.XSD.integer,
-    RDF.Datatype.NS.XSD.double,
-    RDF.Datatype.NS.XSD.decimal
+    XSD.Boolean,
+    XSD.Integer,
+    XSD.Double,
+    XSD.Decimal
   ]
-  @rdf_type RDF.type
-  @rdf_nil  RDF.nil
+  @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
+  @rdf_nil RDF.Utils.Bootstrapping.rdf_iri("nil")
 
   # Defines rdf:type of subjects to be serialized at the beginning of the encoded graph
-  @top_classes [RDF.NS.RDFS.Class] |> Enum.map(&RDF.iri/1)
+  @top_classes [RDF.Utils.Bootstrapping.rdfs_iri("Class")]
 
   # Defines order of predicates at the beginning of a resource description
-  @predicate_order [RDF.type, RDF.NS.RDFS.label, RDF.iri("http://purl.org/dc/terms/title")]
+  @predicate_order [
+    @rdf_type,
+    RDF.Utils.Bootstrapping.rdfs_iri("label"),
+    RDF.iri("http://purl.org/dc/terms/title")
+  ]
   @ordered_properties MapSet.new(@predicate_order)
 
 
@@ -283,19 +287,18 @@ defmodule RDF.Turtle.Encoder do
   defp term(%BlankNode{} = bnode, _, _, _),
     do: to_string(bnode)
 
-  defp term(%Literal{value: value, language: language}, _,_ , _) when not is_nil(language),
-    do: ~s["#{value}"@#{language}]
+  defp term(%Literal{literal: %LangString{} = lang_string}, _, _, _) do
+    ~s["#{lang_string.value}"@#{lang_string.language}]
+  end
 
-  defp term(%Literal{value: value, language: language}, _,_ , _) when not is_nil(language),
-    do: ~s["#{value}"@#{language}]
+  defp term(%Literal{literal: %XSD.String{}} = literal, _, _, _) do
+    literal |> Literal.lexical() |> quoted()
+  end
 
-  defp term(%Literal{datatype: datatype} = literal, _, _,_) when is_xsd_string(datatype),
-    do: literal |> Literal.lexical |> quoted()
-
-  defp term(%Literal{datatype: datatype} = literal, state, _, nesting)
+  defp term(%Literal{literal: %datatype{}} = literal, state, _, nesting)
         when datatype in @native_supported_datatypes do
     if Literal.valid?(literal) do
-      literal |> Literal.canonical |> Literal.lexical
+      literal |> Literal.canonical() |> Literal.lexical()
     else
       typed_literal_term(literal, state, nesting)
     end
@@ -324,8 +327,8 @@ defmodule RDF.Turtle.Encoder do
   defp based_name(_, _), do: nil
 
 
-  defp typed_literal_term(%Literal{datatype: datatype} = literal, state, nesting),
-    do: ~s["#{Literal.lexical(literal)}"^^#{term(datatype, state, :datatype, nesting)}]
+  defp typed_literal_term(%Literal{} = literal, state, nesting),
+    do: ~s["#{Literal.lexical(literal)}"^^#{literal |> Literal.datatype() |> term(state, :datatype, nesting)}]
 
 
   def prefixed_name(iri, prefixes) do

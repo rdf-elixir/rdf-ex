@@ -1,8 +1,10 @@
-defmodule RDF.Datatype.NS do
+defmodule RDF.Literal.Datatype.NS do
   @moduledoc !"""
   Since the capability of RDF.Vocabulary.Namespaces requires the compilation
   of the RDF.NTriples.Decoder and the RDF.NTriples.Decoder depends on RDF.Literals,
   we can't define the XSD namespace in RDF.NS.
+
+  TODO: This is no longer the case. Why can't we remove it resp. move it to RDF.NS now?
   """
 
   use RDF.Vocabulary.Namespace
@@ -58,5 +60,4 @@ defmodule RDF.Datatype.NS do
        QName
        NOTATION
      ]
-
 end

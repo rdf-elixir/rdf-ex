@@ -6,7 +6,7 @@ defmodule RDF.Quad do
   RDF values for subject, predicate, object and a graph context.
   """
 
-  alias RDF.{Literal, Statement}
+  alias RDF.Statement
 
   @type t :: {Statement.subject, Statement.predicate, Statement.object, Statement.graph_name}
 
@@ -14,7 +14,7 @@ defmodule RDF.Quad do
           {Statement.coercible_subject, Statement.coercible_predicate,
            Statement.coercible_object, Statement.coercible_graph_name}
 
-  @type t_values :: {String.t, String.t, Literal.literal_value, String.t}
+  @type t_values :: {String.t, String.t, any, String.t}
 
 
   @doc """

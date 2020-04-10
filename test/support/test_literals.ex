@@ -1,16 +1,19 @@
 defmodule RDF.TestLiterals do
 
-  alias RDF.{Literal}
+  alias RDF.Literal
   alias RDF.NS.XSD
 
   def value(:empty),          do: [""]
   def value(:plain),          do: ["Hello"]
   def value(:empty_lang),     do: ["", [language: "en"]]
   def value(:plain_lang),     do: ["Hello", [language: "en"]]
-  def value(:string),         do: ["String", [datatype: XSD.string]]
+  def value(:typed_string),   do: ["String", [datatype: XSD.string]]
+  def value(:uri),            do: [URI.parse("http://example.com")]
   def value(:true),           do: [true]
   def value(:false),          do: [false]
   def value(:int),            do: [123]
+  def value(:neg_int),        do: [-123]
+  def value(:decimal),        do: [Decimal.from_float(3.14)]
   def value(:long),           do: [9223372036854775807]
   def value(:double),         do: [3.1415]
   def value(:date),           do: [~D[2017-04-13]]
@@ -22,7 +25,7 @@ defmodule RDF.TestLiterals do
   end
 
   def values(:all_simple),
-    do: Enum.map(~W(empty plain string)a, &value/1)
+    do: Enum.map(~W(empty plain typed_string)a, &value/1)
   def values(:all_plain_lang),
     do: Enum.map(~W[empty_lang plain_lang]a, &value/1)
   def values(:all_native),

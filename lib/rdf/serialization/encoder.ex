@@ -29,8 +29,6 @@ defmodule RDF.Serialization.Encoder do
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
 
-      import RDF.Literal.Guards
-
       @impl unquote(__MODULE__)
       @dialyzer {:nowarn_function, encode!: 2}
       @spec encode!(Graph.t | Dataset.t, keyword) :: String.t

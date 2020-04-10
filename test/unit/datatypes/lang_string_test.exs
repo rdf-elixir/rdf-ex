@@ -1,79 +1,73 @@
 defmodule RDF.LangStringTest do
-  use RDF.Datatype.Test.Case, datatype: RDF.LangString, id: RDF.langString
+  use ExUnit.Case
+
+  alias RDF.{Literal, LangString}
+  alias RDF.XSD
 
   @valid %{
-  # input => { language , value   , lexical , canonicalized }
-    "foo" => { "en"     , "foo"   , nil     , "foo"   },
-    0     => { "en"     , "0"     , nil     , "0"     },
-    42    => { "en"     , "42"    , nil     , "42"    },
-    3.14  => { "en"     , "3.14"  , nil     , "3.14"  },
-    true  => { "en"     , "true"  , nil     , "true"  },
-    false => { "en"     , "false" , nil     , "false" },
+  # input => { value   , language }
+    "foo" => { "foo"   , "en"     },
+    0     => { "0"     , "en"     },
+    42    => { "42"    , "en"     },
+    3.14  => { "3.14"  , "en"     },
+    true  => { "true"  , "en"     },
+    false => { "false" , "en"     },
   }
 
-
   describe "new" do
-    Enum.each @valid, fn {input, {language, value, lexical, _}} ->
-      expected_literal =
-        %Literal{value: value, uncanonical_lexical: lexical, datatype: RDF.langString, language: language}
-      @tag example: %{input: input, language: language, output: expected_literal}
-      test "valid: LangString.new(#{inspect input}) == #{inspect expected_literal}",
-            %{example: example} do
-        assert LangString.new(example.input, language: example.language) == example.output
+    test "with value and language" do
+      Enum.each @valid, fn {input, {value, language}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: ^language}} =
+                 LangString.new(input, language: language)
       end
     end
 
-    # valid value with canonical option
-    Enum.each @valid, fn {input, {language, value, _, _}} ->
-      expected_literal =
-        %Literal{value: value, datatype: RDF.langString, language: language}
-      @tag example: %{input: input, language: language, output: expected_literal}
-      test "valid: LangString.new(#{inspect input}, canonicalize: true) == #{inspect expected_literal}",
-            %{example: example} do
-        assert LangString.new(example.input, language: example.language, canonicalize: true) == example.output
+    test "language get normalized to downcase" do
+      Enum.each @valid, fn {input, {value, _}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: "de"}} =
+                 LangString.new(input, language: "DE")
       end
     end
 
-    test "datatype option is ignored" do
-      Enum.each Datatype.ids, fn id ->
-        Enum.each @valid, fn {input, _} ->
-          assert LangString.new(input, language: "en", datatype: id) == LangString.new(input, language: "en")
-        end
+    test "with canonicalize opts" do
+      Enum.each @valid, fn {input, {value, language}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: ^language}} =
+                 LangString.new(input, language: language, canonicalize: true)
       end
     end
 
     test "without a language it produces an invalid literal" do
-      Enum.each @valid, fn {input, _} ->
-        assert %Literal{} = literal = LangString.new(input)
-        refute Literal.valid?(literal)
+      Enum.each @valid, fn {input, {value, _}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: nil}} =
+                 literal = LangString.new(input)
+        assert LangString.valid?(literal) == false
       end
     end
 
     test "with nil as a language it produces an invalid literal" do
-      Enum.each @valid, fn {input, _} ->
-        assert %Literal{} = literal = LangString.new(input, language: nil)
-        refute Literal.valid?(literal)
+      Enum.each @valid, fn {input, {value, _}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: nil}} =
+                 literal = LangString.new(input, language: nil)
+        assert LangString.valid?(literal) == false
       end
     end
 
     test "with the empty string as a language it produces an invalid literal" do
-      Enum.each @valid, fn {input, _} ->
-        assert %Literal{} = literal = LangString.new(input, language: "")
-        refute Literal.valid?(literal)
+      Enum.each @valid, fn {input, {value, _}} ->
+        assert %Literal{literal: %LangString{value: ^value, language: nil}} =
+                 literal = LangString.new(input, language: "")
+        assert LangString.valid?(literal) == false
       end
     end
   end
 
-
   describe "new!" do
     test "with valid values, it behaves the same as new" do
-      Enum.each @valid, fn {input, _} ->
-        assert LangString.new!(input, language: "de") ==
-                LangString.new(input, language: "de")
-        assert LangString.new!(input, language: "de", datatype: RDF.langString) ==
-                LangString.new(input, language: "de")
-        assert LangString.new!(input, language: "de", canonicalize: true) ==
-                LangString.new(input, language: "de", canonicalize: true)
+      Enum.each @valid, fn {input, {_, language}} ->
+        assert LangString.new!(input, language: language) ==
+                LangString.new(input, language: language)
+        assert LangString.new!(input, language: language, canonicalize: true) ==
+                LangString.new(input, language: language, canonicalize: true)
       end
     end
 
@@ -96,57 +90,118 @@ defmodule RDF.LangStringTest do
     end
   end
 
+  test "datatype/1" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.datatype()) == RDF.iri(LangString.id())
+    end
+  end
 
-  describe "lexical" do
-    Enum.each @valid, fn {input, {language, _, lexical, canonicalized}} ->
-      lexical = lexical || canonicalized
-      @tag example: %{input: input, language: language, lexical: lexical}
-      test "of valid LangString.new(#{inspect input}) == #{inspect lexical}",
-            %{example: example} do
-        assert (LangString.new(example.input, language: example.language) |> Literal.lexical) == example.lexical
+  test "language/1" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.language()) == language
+    end
+
+    assert (LangString.new("foo", language: nil) |> LangString.language()) == nil
+    assert (LangString.new("foo", language: "") |> LangString.language()) == nil
+  end
+
+  test "value/1" do
+    Enum.each @valid, fn {input, {value, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.value()) == value
+    end
+  end
+
+  test "lexical/1" do
+    Enum.each @valid, fn {input, {value, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.lexical()) == value
+    end
+  end
+
+  test "canonical/1" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.canonical()) ==
+               LangString.new(input, language: language)
+    end
+  end
+
+  test "canonical?/1" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert (LangString.new(input, language: language) |> LangString.canonical?()) == true
+    end
+  end
+
+  describe "valid?/1" do
+    test "with a language" do
+      Enum.each @valid, fn {input, {_, language}} ->
+        assert (LangString.new(input, language: language) |> LangString.valid?()) == true
+      end
+    end
+
+    test "without a language" do
+      Enum.each @valid, fn {input, _} ->
+        assert (LangString.new(input, language: nil) |> LangString.valid?()) == false
+        assert (LangString.new(input, language: "") |> LangString.valid?()) == false
       end
     end
   end
 
-
-  describe "canonicalization" do
-    Enum.each @valid, fn {input, {language, value, _, _}} ->
-      expected_literal =
-        %Literal{value: value, datatype: RDF.langString, language: language}
-      @tag example: %{input: input, language: language, output: expected_literal}
-      test "LangString #{inspect input} is canonicalized #{inspect expected_literal}",
-            %{example: example} do
-        assert (LangString.new(example.input, language: example.language) |> Literal.canonical) == example.output
+  describe "cast/1" do
+    test "when given a RDF.LangString literal" do
+      Enum.each @valid, fn {input, {_, language}} ->
+        assert LangString.new(input, language: language) |> LangString.cast() ==
+                 LangString.new(input, language: language)
       end
     end
 
-    Enum.each @valid, fn {input, {language, _, _, canonicalized}} ->
-      @tag example: %{input: input, language: language, canonicalized: canonicalized}
-      test "lexical of canonicalized LangString #{inspect input} is #{inspect canonicalized}",
-            %{example: example} do
-        assert (LangString.new(example.input, language: example.language) |> Literal.canonical |> Literal.lexical) ==
-                example.canonicalized
-      end
-    end
-  end
-
-
-  describe "validation" do
-    Enum.each Map.keys(@valid), fn value ->
-      @tag value: value
-      test "#{inspect value} as a RDF.LangString is valid", %{value: value} do
-        assert Literal.valid? LangString.new(value, language: "es")
-      end
+    test "when given a literal with a datatype which is not castable" do
+      assert RDF.XSD.String.new("foo") |> LangString.cast() == nil
+      assert RDF.XSD.Integer.new(12345) |> LangString.cast() == nil
     end
 
-    test "a RDF.LangString without a language is invalid" do
-      Enum.each @valid, fn {_, {_, value, lexical, _}} ->
-        refute Literal.valid?(
-          %Literal{value: value, uncanonical_lexical: lexical, datatype: RDF.langString})
-      end
+    test "with invalid literals" do
+      assert RDF.XSD.Integer.new(3.14) |> LangString.cast() == nil
+      assert RDF.XSD.Decimal.new("NAN") |> LangString.cast() == nil
+      assert RDF.XSD.Double.new(true) |> LangString.cast() == nil
+    end
+
+    test "with non-coercible value" do
+      assert LangString.cast(:foo) == nil
+      assert LangString.cast(make_ref()) == nil
     end
   end
 
+  test "equal_value?/2" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert LangString.equal_value?(
+               LangString.new(input, language: language),
+               LangString.new(input, language: language)) == true
+    end
+
+    assert LangString.equal_value?(
+             LangString.new("foo", language: "en"),
+             LangString.new("foo", language: "de")) == false
+    assert LangString.equal_value?(LangString.new("foo"), LangString.new("foo")) == true
+    assert LangString.equal_value?(LangString.new("foo"), LangString.new("bar")) == false
+    assert LangString.equal_value?(LangString.new("foo"), RDF.XSD.String.new("foo")) == false
+    assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo")) == false
+  end
+
+  test "compare/2" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert LangString.compare(
+               LangString.new(input, language: language),
+               LangString.new(input, language: language)) == :eq
+    end
+
+    assert LangString.compare(LangString.new("foo", language: "en"), LangString.new("bar", language: "en")) == :gt
+    assert LangString.compare(LangString.new("bar", language: "en"), LangString.new("baz", language: "en")) == :lt
+
+    assert LangString.compare(
+             LangString.new("foo", language: "en"),
+             LangString.new("foo", language: "de")) == nil
+    assert LangString.compare(LangString.new("foo"), LangString.new("foo")) == nil
+    assert LangString.compare(LangString.new("foo"), RDF.XSD.String.new("foo")) == nil
+  end
 
   describe "match_language?/2" do
     @positive_examples [
@@ -195,28 +250,27 @@ defmodule RDF.LangStringTest do
       refute LangString.match_language?("de", "")
     end
 
-    test "with a language-tagged literal and a language range" do
+    test "with a RDF.LangString literal and a language range" do
       Enum.each @positive_examples, fn {language_tag, language_range} ->
-        literal = RDF.lang_string("foo", language: language_tag)
+        literal = LangString.new("foo", language: language_tag)
         assert LangString.match_language?(literal, language_range),
           "expected language range #{inspect language_range} to match #{inspect literal}, but it didn't"
       end
       Enum.each @negative_examples, fn {language_tag, language_range} ->
-        literal = RDF.lang_string("foo", language: language_tag)
+        literal = LangString.new("foo", language: language_tag)
         refute LangString.match_language?(literal, language_range),
           "expected language range #{inspect language_range} to not match #{inspect literal}, but it did"
       end
-      refute LangString.match_language?(RDF.lang_string("foo", language: ""), "de")
-      refute LangString.match_language?(RDF.lang_string("foo", language: ""), "*")
-      refute LangString.match_language?(RDF.lang_string("foo", language: nil), "de")
-      refute LangString.match_language?(RDF.lang_string("foo", language: nil), "*")
+      refute LangString.match_language?(LangString.new("foo", language: ""), "de")
+      refute LangString.match_language?(LangString.new("foo", language: ""), "*")
+      refute LangString.match_language?(LangString.new("foo", language: nil), "de")
+      refute LangString.match_language?(LangString.new("foo", language: nil), "*")
     end
 
     test "with a non-language-tagged literal" do
-      refute RDF.string("42") |> LangString.match_language?("de")
-      refute RDF.string("42") |> LangString.match_language?("")
-      refute RDF.integer("42") |> LangString.match_language?("de")
+      refute XSD.String.new("42") |> LangString.match_language?("de")
+      refute XSD.String.new("42") |> LangString.match_language?("")
+      refute XSD.Integer.new("42") |> LangString.match_language?("de")
     end
   end
-
 end

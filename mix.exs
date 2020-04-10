@@ -67,6 +67,7 @@ defmodule RDF.Mixfile do
 
   defp deps do
     [
+      {:xsd, path: "../../../RDF.ex/src/xsd"},
       {:decimal, "~> 1.5"},
 
       {:credo, "~> 1.3",           only: [:dev, :test], runtime: false},

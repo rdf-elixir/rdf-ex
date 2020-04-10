@@ -3,7 +3,7 @@ defmodule RDF.NTriples.Encoder do
 
   use RDF.Serialization.Encoder
 
-  alias RDF.{BlankNode, Dataset, Graph, IRI, Literal, Statement, Triple}
+  alias RDF.{BlankNode, Dataset, Graph, IRI, Literal, Statement, Triple, LangString}
 
   @impl RDF.Serialization.Encoder
   @callback encode(Graph.t | Dataset.t, keyword | map) :: {:ok, String.t} | {:error, any}
@@ -28,20 +28,16 @@ defmodule RDF.NTriples.Encoder do
     "<#{to_string(iri)}>"
   end
 
-  def term(%Literal{value: value, language: language}) when not is_nil(language) do
-    ~s["#{value}"@#{language}]
+  def term(%Literal{literal: %LangString{} = lang_string}) do
+    ~s["#{lang_string.value}"@#{lang_string.language}]
   end
 
-  def term(%Literal{value: value, language: language}) when not is_nil(language) do
-    ~s["#{value}"@#{language}]
+  def term(%Literal{literal: %XSD.String{} = xsd_string}) do
+    ~s["#{xsd_string.value}"]
   end
 
-  def term(%Literal{datatype: datatype} = literal) when is_xsd_string(datatype) do
-    ~s["#{Literal.lexical(literal)}"]
-  end
-
-  def term(%Literal{datatype: datatype} = literal) do
-    ~s["#{Literal.lexical(literal)}"^^<#{to_string(datatype)}>]
+  def term(%Literal{} = literal) do
+    ~s["#{Literal.lexical(literal)}"^^<#{to_string(Literal.datatype(literal))}>]
   end
 
   def term(%BlankNode{} = bnode) do

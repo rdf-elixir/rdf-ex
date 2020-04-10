@@ -20,7 +20,7 @@ defmodule RDF.NS do
   """
   defvocab XSD,
     base_iri: "http://www.w3.org/2001/XMLSchema#",
-    terms:    RDF.Datatype.NS.XSD.__terms__
+    terms:    RDF.Literal.Datatype.NS.XSD.__terms__
 
   @vocabdoc """
   The RDF vocabulary.

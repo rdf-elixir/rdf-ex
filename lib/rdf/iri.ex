@@ -233,13 +233,6 @@ defmodule RDF.IRI do
   def equal_value?(%RDF.IRI{value: left}, %RDF.IRI{value: right}),
     do: left == right
 
-  @xsd_any_uri "http://www.w3.org/2001/XMLSchema#anyURI"
-
-  def equal_value?(%RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}, value: left}, right),
-    do: equal_value?(new(left), right)
-
-  def equal_value?(left, %RDF.Literal{datatype: %RDF.IRI{value: @xsd_any_uri}, value: right}),
-    do: equal_value?(left, new(right))
 
   def equal_value?(_, _),
     do: nil

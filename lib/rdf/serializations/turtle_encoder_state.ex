@@ -80,7 +80,10 @@ defmodule RDF.Turtle.Encoder.State do
          end)
   end
 
-  @list_properties MapSet.new([RDF.first, RDF.rest])
+  @list_properties MapSet.new([
+    RDF.Utils.Bootstrapping.rdf_iri("first"),
+    RDF.Utils.Bootstrapping.rdf_iri("rest")
+  ])
 
   @dialyzer {:nowarn_function, to_list?: 2}
   defp to_list?(%Description{} = description, 1) do

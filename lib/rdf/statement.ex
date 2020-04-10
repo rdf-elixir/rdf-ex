@@ -14,11 +14,11 @@ defmodule RDF.Statement do
 
   @type coercible_subject    :: subject    | atom | String.t
   @type coercible_predicate  :: predicate  | atom | String.t
-  @type coercible_object     :: object     | Literal.literal_value
+  @type coercible_object     :: object     | any
   @type coercible_graph_name :: graph_name | atom | String.t
 
   @type qualified_term :: {atom, Term.t | nil}
-  @type term_mapping   :: (qualified_term -> Literal.literal_value | nil)
+  @type term_mapping   :: (qualified_term -> any | nil)
 
   @type t :: Triple.t | Quad.t
 
@@ -123,7 +123,7 @@ defmodule RDF.Statement do
   def values(_, _), do: nil
 
   @doc false
-  @spec default_term_mapping(qualified_term) :: Literal.literal_value | nil
+  @spec default_term_mapping(qualified_term) :: any | nil
   def default_term_mapping(qualified_term)
   def default_term_mapping({:graph_name, nil}), do: nil
   def default_term_mapping({_, term}), do: RDF.Term.value(term)

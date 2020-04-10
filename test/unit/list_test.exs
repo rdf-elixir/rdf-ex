@@ -190,7 +190,7 @@ defmodule RDF.ListTest do
               RDF.List.from([[1]])
       assert [nested] = get_in(graph_with_list, [bnode, RDF.first])
       assert get_in(graph_with_list, [bnode, RDF.rest]) == [RDF.nil]
-      assert get_in(graph_with_list, [nested, RDF.first]) == [RDF.Integer.new(1)]
+      assert get_in(graph_with_list, [nested, RDF.first]) == [RDF.integer(1)]
       assert get_in(graph_with_list, [nested, RDF.rest]) == [RDF.nil]
 
       assert %RDF.List{head: bnode, graph: graph_with_list} =
@@ -198,9 +198,9 @@ defmodule RDF.ListTest do
       assert get_in(graph_with_list, [bnode, RDF.first]) == [~L"foo"]
       assert [second] = get_in(graph_with_list, [bnode, RDF.rest])
       assert [nested] = get_in(graph_with_list, [second, RDF.first])
-      assert get_in(graph_with_list, [nested, RDF.first]) == [RDF.Integer.new(1)]
+      assert get_in(graph_with_list, [nested, RDF.first]) == [RDF.integer(1)]
       assert [nested_second] = get_in(graph_with_list, [nested, RDF.rest])
-      assert get_in(graph_with_list, [nested_second, RDF.first]) == [RDF.Integer.new(2)]
+      assert get_in(graph_with_list, [nested_second, RDF.first]) == [RDF.integer(2)]
       assert get_in(graph_with_list, [nested_second, RDF.rest])  == [RDF.nil]
       assert [third] = get_in(graph_with_list, [second, RDF.rest])
       assert get_in(graph_with_list, [third, RDF.first]) == [~L"bar"]
@@ -273,17 +273,17 @@ defmodule RDF.ListTest do
 
     test "nested list", %{nested: nested} do
       assert RDF.List.values(nested) ==
-                [~L"foo", [RDF.Integer.new(1), RDF.Integer.new(2)], ~L"bar"]
+                [~L"foo", [RDF.integer(1), RDF.integer(2)], ~L"bar"]
 
       assert RDF.list(["foo", [1, 2]]) |> RDF.List.values ==
-                [~L"foo", [RDF.Integer.new(1), RDF.Integer.new(2)]]
+                [~L"foo", [RDF.integer(1), RDF.integer(2)]]
 
       assert RDF.list([[1, 2], "foo"]) |> RDF.List.values ==
-                [[RDF.Integer.new(1), RDF.Integer.new(2)], ~L"foo"]
+                [[RDF.integer(1), RDF.integer(2)], ~L"foo"]
 
       inner_list = RDF.list([1, 2], head: ~B<inner>)
       assert RDF.list(["foo", ~B<inner>], graph: inner_list.graph)
-             |> RDF.List.values == [~L"foo", [RDF.Integer.new(1), RDF.Integer.new(2)]]
+             |> RDF.List.values == [~L"foo", [RDF.integer(1), RDF.integer(2)]]
     end
   end
 

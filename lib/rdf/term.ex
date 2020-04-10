@@ -122,7 +122,7 @@ defimpl RDF.Term, for: RDF.Literal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Literal.equal_value?(term1, term2)
   def coerce(term),               do: term
-  def value(term),                do: term.value  || RDF.Literal.lexical(term)
+  def value(term),                do: RDF.Literal.value(term) || RDF.Literal.lexical(term)
   def term?(_),                   do: true
 end
 
@@ -146,7 +146,7 @@ end
 defimpl RDF.Term, for: BitString do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.String.new(term)
+  def coerce(term),               do: RDF.XSD.String.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -154,7 +154,7 @@ end
 defimpl RDF.Term, for: Integer do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.Integer.new(term)
+  def coerce(term),               do: RDF.XSD.Integer.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -162,7 +162,7 @@ end
 defimpl RDF.Term, for: Float do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.Double.new(term)
+  def coerce(term),               do: RDF.XSD.Double.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -170,7 +170,7 @@ end
 defimpl RDF.Term, for: Decimal do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.Decimal.new(term)
+  def coerce(term),               do: RDF.XSD.Decimal.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -178,7 +178,7 @@ end
 defimpl RDF.Term, for: DateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.DateTime.new(term)
+  def coerce(term),               do: RDF.XSD.DateTime.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -186,7 +186,7 @@ end
 defimpl RDF.Term, for: NaiveDateTime do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.DateTime.new(term)
+  def coerce(term),               do: RDF.XSD.DateTime.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -194,7 +194,7 @@ end
 defimpl RDF.Term, for: Date do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.Date.new(term)
+  def coerce(term),               do: RDF.XSD.Date.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end
@@ -202,7 +202,15 @@ end
 defimpl RDF.Term, for: Time do
   def equal?(term1, term2),       do: term1 == term2
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
-  def coerce(term),               do: RDF.Time.new(term)
+  def coerce(term),               do: RDF.XSD.Time.new(term)
+  def value(term),                do: term
+  def term?(_),                   do: false
+end
+
+defimpl RDF.Term, for: URI do
+  def equal?(term1, term2),       do: term1 == term2
+  def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
+  def coerce(term),               do: RDF.XSD.AnyURI.new(term)
   def value(term),                do: term
   def term?(_),                   do: false
 end

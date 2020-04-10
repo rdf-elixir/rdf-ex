@@ -473,7 +473,7 @@ defmodule RDF.DataTest do
                        RDF.Term.value(RDF.iri(EX.O2))
                      ],
                      RDF.Term.value(EX.p2) => [RDF.Term.value(RDF.iri(EX.O3))],
-                     RDF.Term.value(EX.p3) => ["_:foo", RDF.Term.value(RDF.iri(EX.O5)), "bar"],
+                     RDF.Term.value(EX.p3) => ["_:foo", "bar", RDF.Term.value(RDF.iri(EX.O5))],
                    },
                    RDF.Term.value(RDF.iri(EX.S3)) => %{
                      RDF.Term.value(EX.p3) => [
@@ -519,7 +519,7 @@ defmodule RDF.DataTest do
                        RDF.Term.value(RDF.iri(EX.O2))
                      ],
                      p2: [RDF.Term.value(RDF.iri(EX.O3))],
-                     p3: ["_:foo", RDF.Term.value(RDF.iri(EX.O5)), "bar"],
+                     p3: ["_:foo", "bar", RDF.Term.value(RDF.iri(EX.O5))],
                    },
                    RDF.Term.value(RDF.iri(EX.S3)) => %{
                      p3: [

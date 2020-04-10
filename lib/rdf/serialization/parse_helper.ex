@@ -2,9 +2,8 @@ defmodule RDF.Serialization.ParseHelper do
   @moduledoc false
 
   alias RDF.IRI
-  alias RDF.Datatype.NS.XSD
 
-  @rdf_type RDF.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+  @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
   def rdf_type, do: @rdf_type
 
 
@@ -47,9 +46,9 @@ defmodule RDF.Serialization.ParseHelper do
   def to_literal(string_literal_quote_ast, type),
     do: {string_literal_quote_ast, type}
 
-  def integer(value),   do: RDF.Integer.new(List.to_string(value))
-  def decimal(value),   do: RDF.Literal.new(List.to_string(value), datatype: XSD.decimal)
-  def double(value),    do: RDF.Double.new(List.to_string(value))
+  def integer(value),   do: RDF.XSD.Integer.new(List.to_string(value))
+  def decimal(value),   do: RDF.XSD.Decimal.new(List.to_string(value))
+  def double(value),    do: RDF.XSD.Double.new(List.to_string(value))
   def boolean('true'),  do: true
   def boolean('false'), do: false
 

@@ -17,7 +17,7 @@ defmodule RDF.List do
   @enforce_keys [:head]
   defstruct [:head, :graph]
 
-  @rdf_nil RDF.nil
+  @rdf_nil RDF.Utils.Bootstrapping.rdf_iri("nil")
 
 
   @doc """
@@ -209,7 +209,7 @@ defmodule RDF.List do
 
 
   defimpl Enumerable do
-    @rdf_nil RDF.nil
+    @rdf_nil RDF.Utils.Bootstrapping.rdf_iri("nil")
 
     def reduce(_, {:halt, acc}, _fun),      do: {:halted, acc}
     def reduce(list, {:suspend, acc}, fun), do: {:suspended, acc, &reduce(list, &1, fun)}
