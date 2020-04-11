@@ -4,7 +4,7 @@ defmodule RDFTest do
   doctest RDF
 
   test "Datatype constructor alias functions" do
-    RDF.Literal.Datatype.Registry.datatypes()
+    RDF.Literal.Datatype.Registry.datatypes() -- [RDF.LangString]
     |> Enum.each(fn datatype ->
          assert apply(RDF, String.to_atom(datatype.name), [1]) == datatype.new(1)
          assert apply(RDF, String.to_atom(Macro.underscore(datatype.name)), [1]) == datatype.new(1)

@@ -20,6 +20,14 @@ defmodule RDF.Literal.GenericTest do
       end
     end
 
+    test "with datatype directly" do
+      Enum.each @valid, fn {input, {_, datatype}} ->
+        datatype_iri = RDF.iri(datatype)
+        assert Generic.new(input, datatype) == Generic.new(input, datatype: datatype)
+        assert Generic.new(input, datatype_iri) == Generic.new(input, datatype: datatype_iri)
+      end
+    end
+
     test "with canonicalize opts" do
       Enum.each @valid, fn {input, {value, datatype}} ->
         datatype_iri = RDF.iri(datatype)
@@ -31,7 +39,7 @@ defmodule RDF.Literal.GenericTest do
     test "without a datatype it produces an invalid literal" do
       Enum.each @valid, fn {input, {value, _}} ->
         assert %Literal{literal: %Generic{value: ^value, datatype: nil}} =
-                 literal = Generic.new(input)
+                 literal = Generic.new(input, [])
         assert Generic.valid?(literal) == false
       end
     end
@@ -65,7 +73,7 @@ defmodule RDF.Literal.GenericTest do
 
     test "without a datatype it raises an error" do
       Enum.each @valid, fn {input, _} ->
-        assert_raise ArgumentError, fn -> Generic.new!(input) end
+        assert_raise ArgumentError, fn -> Generic.new!(input, []) end
       end
     end
 
@@ -169,8 +177,8 @@ defmodule RDF.Literal.GenericTest do
     assert Generic.equal_value?(
              Generic.new("foo", datatype: "http://example.com/foo"),
              Generic.new("foo", datatype: "http://example.com/bar")) == false
-    assert Generic.equal_value?(Generic.new("foo"), Generic.new("foo")) == true
-    assert Generic.equal_value?(Generic.new("foo"), Generic.new("bar")) == false
+    assert Generic.equal_value?(Generic.new("foo", []), Generic.new("foo", [])) == true
+    assert Generic.equal_value?(Generic.new("foo", []), Generic.new("bar", [])) == false
     assert Generic.equal_value?(Generic.new("foo", datatype: "foo"), RDF.XSD.String.new("foo")) == false
   end
 
@@ -187,7 +195,7 @@ defmodule RDF.Literal.GenericTest do
     assert Generic.compare(
              Generic.new("foo", datatype: "en"),
              Generic.new("foo", datatype: "de")) == nil
-    assert Generic.compare(Generic.new("foo"), Generic.new("foo")) == nil
-    assert Generic.compare(Generic.new("foo"), RDF.XSD.String.new("foo")) == nil
+    assert Generic.compare(Generic.new("foo", []), Generic.new("foo", [])) == nil
+    assert Generic.compare(Generic.new("foo", []), RDF.XSD.String.new("foo")) == nil
   end
 end

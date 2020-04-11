@@ -71,7 +71,7 @@ defmodule RDF.Literal.Datatype do
 
   Non-`RDF.Literal.Datatype` literals are tried to be coerced via `RDF.Term.coerce/1` before comparison.
   """
-  @callback equal_value?(Literal.t()  | literal, Literal.t() | literal | any) :: boolean
+  @callback equal_value?(Literal.t() | literal, Literal.t() | literal | any) :: boolean
 
   @doc """
   Compares two datatype literals.

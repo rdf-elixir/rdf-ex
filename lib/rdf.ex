@@ -237,12 +237,11 @@ defmodule RDF do
   def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
   def list(native_list, opts),      do: RDF.List.from(native_list, opts)
 
-  for datatype <- RDF.Literal.Datatype.Registry.datatypes() do
+  for datatype <- RDF.Literal.Datatype.Registry.datatypes() -- [RDF.LangString] do
     defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
   end
 
-  defdelegate lang_string(value),       to: RDF.LangString, as: :new
-  defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
+  defdelegate lang_string(value, opts), to: RDF.LangString,     as: :new
   defdelegate date_time(value),         to: RDF.XSD.DateTime,   as: :new
   defdelegate date_time(value, opts),   to: RDF.XSD.DateTime,   as: :new
   defdelegate datetime(value),          to: RDF.XSD.DateTime,   as: :new

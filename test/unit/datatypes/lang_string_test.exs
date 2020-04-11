@@ -19,6 +19,16 @@ defmodule RDF.LangStringTest do
       Enum.each @valid, fn {input, {value, language}} ->
         assert %Literal{literal: %LangString{value: ^value, language: ^language}} =
                  LangString.new(input, language: language)
+        assert %Literal{literal: %LangString{value: ^value, language: ^language}} =
+                 LangString.new(input, language: String.to_atom(language))
+      end
+    end
+
+    test "with language directly" do
+      Enum.each @valid, fn {input, {_, language}} ->
+        assert LangString.new(input, language) == LangString.new(input, language: language)
+        assert LangString.new(input, String.to_atom(language)) ==
+                 LangString.new(input, language: String.to_atom(language))
       end
     end
 
@@ -39,7 +49,7 @@ defmodule RDF.LangStringTest do
     test "without a language it produces an invalid literal" do
       Enum.each @valid, fn {input, {value, _}} ->
         assert %Literal{literal: %LangString{value: ^value, language: nil}} =
-                 literal = LangString.new(input)
+                 literal = LangString.new(input, [])
         assert LangString.valid?(literal) == false
       end
     end
@@ -73,7 +83,7 @@ defmodule RDF.LangStringTest do
 
     test "without a language it raises an error" do
       Enum.each @valid, fn {input, _} ->
-        assert_raise ArgumentError, fn -> LangString.new!(input) end
+        assert_raise ArgumentError, fn -> LangString.new!(input, []) end
       end
     end
 
@@ -180,10 +190,10 @@ defmodule RDF.LangStringTest do
     assert LangString.equal_value?(
              LangString.new("foo", language: "en"),
              LangString.new("foo", language: "de")) == false
-    assert LangString.equal_value?(LangString.new("foo"), LangString.new("foo")) == true
-    assert LangString.equal_value?(LangString.new("foo"), LangString.new("bar")) == false
-    assert LangString.equal_value?(LangString.new("foo"), RDF.XSD.String.new("foo")) == false
-    assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo")) == false
+    assert LangString.equal_value?(LangString.new("foo", []), LangString.new("foo", [])) == true
+    assert LangString.equal_value?(LangString.new("foo", []), LangString.new("bar", [])) == false
+    assert LangString.equal_value?(LangString.new("foo", []), RDF.XSD.String.new("foo")) == false
+    assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo", [])) == false
   end
 
   test "compare/2" do
@@ -199,8 +209,8 @@ defmodule RDF.LangStringTest do
     assert LangString.compare(
              LangString.new("foo", language: "en"),
              LangString.new("foo", language: "de")) == nil
-    assert LangString.compare(LangString.new("foo"), LangString.new("foo")) == nil
-    assert LangString.compare(LangString.new("foo"), RDF.XSD.String.new("foo")) == nil
+    assert LangString.compare(LangString.new("foo", []), LangString.new("foo", [])) == nil
+    assert LangString.compare(LangString.new("foo", []), RDF.XSD.String.new("foo")) == nil
   end
 
   describe "match_language?/2" do

@@ -24,7 +24,10 @@ defmodule RDF.Literal.Generic do
   @impl Datatype
   def id, do: nil
 
-  def new(value, opts \\ []) do
+  def new(value, datatype_or_opts)
+  def new(value, datatype) when is_binary(datatype), do: new(value, datatype: datatype)
+  def new(value, %IRI{} = datatype), do: new(value, datatype: datatype)
+  def new(value, opts) do
     %Literal{
       literal: %__MODULE__{
         value: value,
@@ -37,8 +40,8 @@ defmodule RDF.Literal.Generic do
   defp normalize_datatype(""), do: nil
   defp normalize_datatype(datatype), do: IRI.new(datatype)
 
-  def new!(value, opts \\ []) do
-    literal = new(value, opts)
+  def new!(value, datatype_or_opts) do
+    literal = new(value, datatype_or_opts)
 
     if valid?(literal) do
       literal

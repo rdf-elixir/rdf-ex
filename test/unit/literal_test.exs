@@ -31,7 +31,7 @@ defmodule RDF.LiteralTest do
     end
 
     test "with typed literals" do
-      Enum.each Datatype.Registry.datatypes(), fn datatype ->
+      Enum.each Datatype.Registry.datatypes() -- [RDF.LangString], fn datatype ->
         literal_type = datatype.literal_type()
         assert %Literal{literal: typed_literal} = Literal.new(literal_type.new("foo"))
         assert typed_literal.__struct__ == literal_type
@@ -101,7 +101,7 @@ defmodule RDF.LiteralTest do
     end
 
     test "construction of a rdf:langString works, but results in an invalid literal" do
-      assert Literal.new("Eule", datatype: RDF.langString) == LangString.new("Eule")
+      assert Literal.new("Eule", datatype: RDF.langString) == LangString.new("Eule", [])
       assert_raise RDF.Literal.InvalidError, fn ->
         Literal.new!("Eule", datatype: RDF.langString)
       end

@@ -27,7 +27,10 @@ defmodule RDF.LangString do
   @impl Datatype
   def id, do: @id
 
-  def new(value, opts \\ []) do
+  def new(value, language_or_opts)
+  def new(value, language) when is_binary(language), do: new(value, language: language)
+  def new(value, language) when is_atom(language), do: new(value, language: language)
+  def new(value, opts) do
     %Literal{
       literal: %__MODULE__{
         value: to_string(value),
@@ -38,10 +41,11 @@ defmodule RDF.LangString do
 
   defp normalize_language(nil), do: nil
   defp normalize_language(""), do: nil
+  defp normalize_language(language) when is_atom(language), do: language |> to_string() |> normalize_language()
   defp normalize_language(language), do: String.downcase(language)
 
-  def new!(value, opts \\ []) do
-    literal = new(value, opts)
+  def new!(value, language_or_opts) do
+    literal = new(value, language_or_opts)
 
     if valid?(literal) do
       literal
