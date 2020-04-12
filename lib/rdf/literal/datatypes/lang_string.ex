@@ -27,6 +27,7 @@ defmodule RDF.LangString do
   @impl Datatype
   def id, do: @id
 
+  @spec new(any, String.t | atom | keyword) :: Literal.t
   def new(value, language_or_opts)
   def new(value, language) when is_binary(language), do: new(value, language: language)
   def new(value, language) when is_atom(language), do: new(value, language: language)
@@ -44,6 +45,7 @@ defmodule RDF.LangString do
   defp normalize_language(language) when is_atom(language), do: language |> to_string() |> normalize_language()
   defp normalize_language(language), do: String.downcase(language)
 
+  @spec new!(any, String.t | atom | keyword) :: Literal.t
   def new!(value, language_or_opts) do
     literal = new(value, language_or_opts)
 

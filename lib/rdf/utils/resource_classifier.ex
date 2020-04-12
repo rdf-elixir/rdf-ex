@@ -37,21 +37,25 @@ defmodule RDF.Utils.ResourceClassifier do
     end
   end
 
-  @property_classes [rdf_iri("Property"), rdfs_iri("ContainerMembershipProperty")] ++
-    Enum.map(~w[
-      ObjectProperty
-      DatatypeProperty
-      AnnotationProperty
-      FunctionalProperty
-      InverseFunctionalProperty
-      SymmetricProperty
-      AsymmetricProperty
-      ReflexiveProperty
-      IrreflexiveProperty
-      TransitiveProperty
-      DeprecatedProperty
-    ], &owl_iri/1)
-    |> MapSet.new
+  @property_classes [
+                      rdf_iri("Property"),
+                      rdfs_iri("ContainerMembershipProperty")
+                    |
+                      Enum.map(~w[
+                        ObjectProperty
+                        DatatypeProperty
+                        AnnotationProperty
+                        FunctionalProperty
+                        InverseFunctionalProperty
+                        SymmetricProperty
+                        AsymmetricProperty
+                        ReflexiveProperty
+                        IrreflexiveProperty
+                        TransitiveProperty
+                        DeprecatedProperty
+                      ], &owl_iri/1)
+                    ]
+                    |> MapSet.new
 
   @dialyzer {:nowarn_function, property_by_rdf_type?: 1}
   defp property_by_rdf_type?(nil), do: nil

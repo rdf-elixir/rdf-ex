@@ -24,6 +24,7 @@ defmodule RDF.Literal.Generic do
   @impl Datatype
   def id, do: nil
 
+  @spec new(any, String.t | IRI.t | keyword) :: Literal.t
   def new(value, datatype_or_opts)
   def new(value, datatype) when is_binary(datatype), do: new(value, datatype: datatype)
   def new(value, %IRI{} = datatype), do: new(value, datatype: datatype)
@@ -40,6 +41,7 @@ defmodule RDF.Literal.Generic do
   defp normalize_datatype(""), do: nil
   defp normalize_datatype(datatype), do: IRI.new(datatype)
 
+  @spec new!(any, String.t | IRI.t | keyword) :: Literal.t
   def new!(value, datatype_or_opts) do
     literal = new(value, datatype_or_opts)
 

@@ -173,27 +173,36 @@ defmodule RDF.Literal do
   ############################################################################
   # functions delegating to the RDF.Datatype of a RDF.Literal
 
+  @spec datatype(t) :: IRI.t()
   defdelegate_to_rdf_datatype :datatype
 
+  @spec language(t) :: String.t() | nil
   defdelegate_to_rdf_datatype :language
 
+  @spec value(t) :: any
   def value(%__MODULE__{literal: %datatype{} = literal}), do: datatype.value(literal)
 
+  @spec lexical(t) :: String.t
   def lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.lexical(literal)
 
+  @spec canonical(t) :: t
   defdelegate_to_rdf_datatype :canonical
 
+  @spec canonical?(t) :: boolean
   def canonical?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical?(literal)
 
+  @spec valid?(t | any) :: boolean
   def valid?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.valid?(literal)
   def valid?(_), do: false
 
+  @spec equal_value?(t, t | any) :: boolean
   def equal_value?(%__MODULE__{literal: %datatype{} = left}, right) do
     Datatype.Registry.rdf_datatype(datatype).equal_value?(left, right)
   end
 
   def equal_value?(_, _), do: false
 
+  @spec compare(t, t) :: Datatype.comparison_result | :indeterminate | nil
   def compare(%__MODULE__{literal: %datatype{} = left}, right) do
     Datatype.Registry.rdf_datatype(datatype).compare(left, right)
   end
@@ -203,7 +212,7 @@ defmodule RDF.Literal do
 
   Returns `nil` when the given arguments are not comparable datatypes.
   """
-  @spec less_than?(t | any, t | any) :: boolean | nil
+  @spec less_than?(t, t) :: boolean | nil
   def less_than?(literal1, literal2) do
     case compare(literal1, literal2) do
       :lt -> true
@@ -217,7 +226,7 @@ defmodule RDF.Literal do
 
   Returns `nil` when the given arguments are not comparable datatypes.
   """
-  @spec greater_than?(t | any, t | any) :: boolean | nil
+  @spec greater_than?(t, t) :: boolean | nil
   def greater_than?(literal1, literal2) do
     case compare(literal1, literal2) do
       :gt -> true

@@ -93,7 +93,6 @@ defmodule RDF.Vocabulary.Namespace do
         def __resolve_term__(term) do
           case @terms[term] do
             nil ->
-              # TODO: Why does this MapSet.member? call produce a warning? It does NOT always yield the same result!
               if @strict or MapSet.member?(@ignored_terms, term) do
                 raise Elixir.RDF.Namespace.UndefinedTermError,
                   "undefined term #{term} in strict vocabulary #{__MODULE__}"
@@ -301,10 +300,7 @@ defmodule RDF.Vocabulary.Namespace do
     terms
   end
 
-  @dialyzer {:nowarn_function, valid_term?: 1}
-  defp valid_term?(term) do
-    not MapSet.member?(@invalid_terms, term)
-  end
+  defp valid_term?(term), do: term not in @invalid_terms
 
   defp handle_invalid_terms!([]), do: nil
 
