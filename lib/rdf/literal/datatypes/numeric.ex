@@ -7,7 +7,7 @@ defmodule RDF.Numeric do
 
   import Kernel, except: [abs: 1, floor: 1, ceil: 1, round: 1]
 
-  @datatypes MapSet.new(XSD.Numeric.datatypes(), &RDF.Literal.Datatype.Registry.rdf_datatype/1)
+  @datatypes XSD.Numeric.datatypes()
 
   @doc """
   The set of all numeric datatypes.

@@ -71,6 +71,11 @@ defmodule RDF.LiteralTest do
                RDF.XSD.Decimal.new(Decimal.from_float(3.14))
     end
 
+    test "unsignedInt" do
+      assert Literal.new(42,   datatype: NS.XSD.unsignedInt) == RDF.XSD.UnsignedInt.new(42)
+      assert Literal.new("42", datatype: NS.XSD.unsignedInt) == RDF.XSD.UnsignedInt.new("42")
+    end
+
     test "string" do
       assert Literal.new("foo", datatype: NS.XSD.string) == RDF.XSD.String.new("foo")
     end

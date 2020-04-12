@@ -239,15 +239,18 @@ defmodule RDF do
 
   for datatype <- RDF.Literal.Datatype.Registry.datatypes() -- [RDF.LangString] do
     defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
+    defdelegate unquote(String.to_atom(datatype.name))(value, opts), to: datatype, as: :new
+
+    elixir_name = Macro.underscore(datatype.name)
+    unless datatype.name == elixir_name do
+      defdelegate unquote(String.to_atom(elixir_name))(value), to: datatype, as: :new
+      defdelegate unquote(String.to_atom(elixir_name))(value, opts), to: datatype, as: :new
+    end
   end
 
   defdelegate lang_string(value, opts), to: RDF.LangString,     as: :new
-  defdelegate date_time(value),         to: RDF.XSD.DateTime,   as: :new
-  defdelegate date_time(value, opts),   to: RDF.XSD.DateTime,   as: :new
   defdelegate datetime(value),          to: RDF.XSD.DateTime,   as: :new
   defdelegate datetime(value, opts),    to: RDF.XSD.DateTime,   as: :new
-  defdelegate any_uri(value),           to: RDF.XSD.AnyURI,     as: :new
-  defdelegate any_uri(value, opts),     to: RDF.XSD.AnyURI,     as: :new
 
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
 
