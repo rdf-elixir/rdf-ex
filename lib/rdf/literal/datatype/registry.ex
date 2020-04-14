@@ -42,11 +42,11 @@ defmodule RDF.Literal.Datatype.Registry do
   def get(id), do: @mapping[id]
 
   @doc false
-  def rdf_datatype(type) do
-    if type in XSD.datatypes() do
-      RDF.Literal.XSD.datatype_module_name(type)
-    else
-      type
+  def rdf_datatype(datatype)
+  Enum.each XSD.datatypes(), fn xsd_datatype ->
+    def rdf_datatype(unquote(xsd_datatype)) do
+      unquote(Literal.XSD.datatype_module_name(xsd_datatype))
     end
   end
+  def rdf_datatype(datatype), do: datatype
 end
