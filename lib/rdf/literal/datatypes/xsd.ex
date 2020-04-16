@@ -73,7 +73,9 @@ defmodule RDF.Literal.XSD do
         def valid?(_), do: false
 
         @impl RDF.Literal.Datatype
-        def cast(%Literal{literal: %unquote(xsd_datatype){}} = literal), do: literal
+        def cast(%Literal{literal: %unquote(xsd_datatype){}} = literal) do
+          if valid?(literal), do: literal
+        end
         def cast(%Literal{literal: literal}) do
           if casted_literal = unquote(xsd_datatype).cast(literal) do
             %Literal{literal: casted_literal}

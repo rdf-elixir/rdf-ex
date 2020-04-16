@@ -86,7 +86,7 @@ defmodule RDF.LangString do
   def valid?(_), do: false
 
   @impl Datatype
-  def cast(%Literal{literal: %__MODULE__{}} = literal), do: literal
+  def cast(%Literal{literal: %__MODULE__{}} = literal), do: if valid?(literal), do: literal
   def cast(_), do: nil
 
   @impl Datatype

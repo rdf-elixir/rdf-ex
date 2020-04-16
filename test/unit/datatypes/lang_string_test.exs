@@ -156,11 +156,15 @@ defmodule RDF.LangStringTest do
   end
 
   describe "cast/1" do
-    test "when given a RDF.LangString literal" do
+    test "when given a valid RDF.LangString literal" do
       Enum.each @valid, fn {input, {_, language}} ->
         assert LangString.new(input, language: language) |> LangString.cast() ==
                  LangString.new(input, language: language)
       end
+    end
+
+    test "when given an valid RDF.LangString literal" do
+      assert LangString.new("foo", language: nil) |> LangString.cast() == nil
     end
 
     test "when given a literal with a datatype which is not castable" do
@@ -170,8 +174,6 @@ defmodule RDF.LangStringTest do
 
     test "with invalid literals" do
       assert RDF.XSD.Integer.new(3.14) |> LangString.cast() == nil
-      assert RDF.XSD.Decimal.new("NAN") |> LangString.cast() == nil
-      assert RDF.XSD.Double.new(true) |> LangString.cast() == nil
     end
 
     test "with non-coercible value" do

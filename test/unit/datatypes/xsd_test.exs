@@ -165,9 +165,10 @@ defmodule RDF.Literal.XSDTest do
     end
 
     test "with invalid literals" do
-      assert RDF.XSD.Integer.new(3.14) |> RDF.XSD.String.cast() == nil
-      assert RDF.XSD.Decimal.new("NAN") |> RDF.XSD.String.cast() == nil
-      assert RDF.XSD.Double.new(true) |> RDF.XSD.String.cast() == nil
+      assert RDF.XSD.Integer.new(3.14) |> RDF.XSD.Integer.cast() == nil
+      assert RDF.XSD.Decimal.new("NAN") |> RDF.XSD.Decimal.cast() == nil
+      assert RDF.XSD.Double.new(true) |> RDF.XSD.Double.cast() == nil
+      assert RDF.XSD.Boolean.new("42") |> RDF.XSD.Boolean.cast() == nil
     end
 
     test "with non-coercible value" do
