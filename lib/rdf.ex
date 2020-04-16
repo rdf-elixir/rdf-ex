@@ -248,6 +248,7 @@ defmodule RDF do
     end
   end
 
+  defdelegate langString(value, opts),  to: RDF.LangString,     as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString,     as: :new
   defdelegate datetime(value),          to: RDF.XSD.DateTime,   as: :new
   defdelegate datetime(value, opts),    to: RDF.XSD.DateTime,   as: :new

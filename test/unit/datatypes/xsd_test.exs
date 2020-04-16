@@ -175,4 +175,40 @@ defmodule RDF.Literal.XSDTest do
       assert_raise RDF.Literal.InvalidError, fn -> assert RDF.XSD.String.cast(make_ref()) end
     end
   end
+
+  describe "RDF.XSD.Boolean" do
+    test "ebv/1" do
+      assert RDF.true |> RDF.XSD.Boolean.ebv() == RDF.true
+      assert RDF.string("foo") |> RDF.XSD.Boolean.ebv() == RDF.true
+      assert false |> RDF.XSD.Boolean.ebv() == RDF.false
+      assert "" |> RDF.XSD.Boolean.ebv() == RDF.false
+      assert 1 |> RDF.XSD.Boolean.ebv() == RDF.true
+      assert self() |> RDF.XSD.Boolean.ebv() == nil
+    end
+
+    test "fn_not/1" do
+      assert RDF.true |> RDF.XSD.Boolean.fn_not() == RDF.false
+      assert false |> RDF.XSD.Boolean.fn_not() == RDF.true
+    end
+
+    test "logical_and/1" do
+      assert RDF.true |> RDF.XSD.Boolean.logical_and(false) == RDF.false
+      assert true |> RDF.XSD.Boolean.logical_and(RDF.true) == RDF.true
+      assert false |> RDF.XSD.Boolean.logical_and(false) == RDF.false
+      assert 42 |> RDF.XSD.Boolean.logical_and(self()) == nil
+    end
+
+    test "logical_or/1" do
+      assert RDF.true |> RDF.XSD.Boolean.logical_or(false) == RDF.true
+      assert true |> RDF.XSD.Boolean.logical_or(RDF.true) == RDF.true
+      assert false |> RDF.XSD.Boolean.logical_or(false) == RDF.false
+      assert self() |> RDF.XSD.Boolean.logical_or(self()) == nil
+    end
+  end
+
+  describe "RDF.XSD.DateTime" do
+    test "now/0" do
+      assert %Literal{literal: %XSD.DateTime{}} = RDF.XSD.DateTime.now()
+    end
+  end
 end
