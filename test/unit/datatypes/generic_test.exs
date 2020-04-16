@@ -143,27 +143,10 @@ defmodule RDF.Literal.GenericTest do
   end
 
   describe "cast/1" do
-    test "when given a RDF.Literal.Generic literal" do
+    test "always return nil (RDF.Literal.Generic does not support cast)" do
       Enum.each @valid, fn {input, {_, datatype}} ->
-        assert (Generic.new(input, datatype: datatype) |> Generic.cast()) ==
-                 Generic.new(input, datatype: datatype)
+        assert (Generic.new(input, datatype: datatype) |> Generic.cast()) == nil
       end
-    end
-
-    test "when given a literal with a datatype which is not castable" do
-      assert RDF.XSD.String.new("foo") |> Generic.cast() == nil
-      assert RDF.XSD.Integer.new(12345) |> Generic.cast() == nil
-    end
-
-    test "with invalid literals" do
-      assert RDF.XSD.Integer.new(3.14) |> Generic.cast() == nil
-      assert RDF.XSD.Decimal.new("NAN") |> Generic.cast() == nil
-      assert RDF.XSD.Double.new(true) |> Generic.cast() == nil
-    end
-
-    test "with non-coercible value" do
-      assert Generic.cast(:foo) == nil
-      assert Generic.cast(make_ref()) == nil
     end
   end
 

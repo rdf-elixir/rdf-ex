@@ -82,7 +82,6 @@ defmodule RDF.Literal.Generic do
   def valid?(_), do: false
 
   @impl Datatype
-  def cast(%Literal{literal: %__MODULE__{}} = literal), do: literal
   def cast(_), do: nil
 
   @impl Datatype
