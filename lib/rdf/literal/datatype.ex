@@ -85,4 +85,7 @@ defmodule RDF.Literal.Datatype do
   them is invalid.
   """
   @callback compare(Literal.t() | literal, Literal.t() | literal) :: comparison_result | :indeterminate | nil
+
+  @callback update(Literal.t() | literal, fun()) :: Literal.t
+  @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t
 end

@@ -254,6 +254,10 @@ defmodule RDF.Literal do
   def matches?(value, pattern, flags) when is_binary(value) and is_binary(pattern) and is_binary(flags),
     do: XSD.Utils.Regex.matches?(value, pattern, flags)
 
+  def update(%__MODULE__{literal: %datatype{} = literal}, fun, opts \\ []) do
+    Datatype.Registry.rdf_datatype(datatype).update(literal, fun, opts)
+  end
+
   defimpl String.Chars do
     def to_string(literal) do
       String.Chars.to_string(literal.literal)

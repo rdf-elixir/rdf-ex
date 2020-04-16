@@ -112,6 +112,16 @@ defmodule RDF.LangString do
 
   def compare(_, _), do: nil
 
+  @impl Datatype
+  def update(literal, fun, opts \\ [])
+  def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
+  def update(%__MODULE__{} = literal, fun, _opts) do
+    literal
+    |> value()
+    |> fun.()
+    |> new(language: literal.language)
+  end
+
   @doc """
   Checks if a language tagged string literal or language tag matches a language range.
 

@@ -97,6 +97,18 @@ defmodule RDF.Literal.XSD do
         def compare(%unquote(xsd_datatype){} = left, right) do
           unquote(xsd_datatype).compare(left, right)
         end
+
+        @impl RDF.Literal.Datatype
+        def update(literal, fun, opts \\ [])
+        def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
+        def update(%unquote(xsd_datatype){} = literal, fun, opts) do
+          case Keyword.get(opts, :as) do
+            :lexical -> lexical(literal)
+            nil -> value(literal)
+          end
+          |> fun.()
+          |> new()
+        end
       end
     | datatype_specific_module_body(xsd_datatype)]
   end

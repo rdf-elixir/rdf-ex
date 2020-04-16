@@ -402,6 +402,39 @@ defmodule RDF.LiteralTest do
     end
   end
 
+  describe "update/2" do
+    test "it updates value and lexical form" do
+      assert RDF.string("foo")
+             |> Literal.update(fn s when is_binary(s) -> s <> "bar" end) ==
+               RDF.string("foobar")
+      assert RDF.integer(1) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
+               RDF.integer(2)
+      assert RDF.byte(42) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
+               RDF.byte(43)
+      assert RDF.integer(1)
+             |> Literal.update(fn i when is_integer(i) -> "0" <> to_string(i) end) ==
+               RDF.integer("01")
+    end
+
+    test "it does not change the datatype of generic literals" do
+      assert RDF.literal("foo", datatype: "http://example.com/dt")
+             |> Literal.update(fn s when is_binary(s) -> s <> "bar" end) ==
+               RDF.literal("foobar", datatype: "http://example.com/dt")
+    end
+
+    test "it does not change the language of language literals" do
+      assert RDF.langString("foo", language: "en")
+             |> Literal.update(fn s when is_binary(s) -> s <> "bar" end) ==
+               RDF.langString("foobar", language: "en")
+    end
+
+    test "with as: :lexical opt it passes the lexical form" do
+      assert RDF.integer(1)
+              |> Literal.update(fn i when is_binary(i) -> "0" <> i end, as: :lexical) ==
+               RDF.integer("01")
+    end
+  end
+
   describe "String.Chars protocol implementation" do
     test "with XSD.Datatype literal" do
       assert Literal.new("foo") |> to_string() == "foo"

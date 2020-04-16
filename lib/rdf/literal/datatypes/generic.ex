@@ -107,6 +107,16 @@ defmodule RDF.Literal.Generic do
 
   def compare(_, _), do: nil
 
+  @impl Datatype
+  def update(literal, fun, opts \\ [])
+  def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
+  def update(%__MODULE__{} = literal, fun, _opts) do
+    literal
+    |> value()
+    |> fun.()
+    |> new(datatype: literal.datatype)
+  end
+
   defimpl String.Chars do
     def to_string(literal) do
       literal.value
