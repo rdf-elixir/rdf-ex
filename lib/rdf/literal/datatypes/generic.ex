@@ -95,7 +95,7 @@ defmodule RDF.Literal.Generic do
   def compare(%__MODULE__{datatype: datatype} = literal1,
               %__MODULE__{datatype: datatype} = literal2) do
     if valid?(literal1) and valid?(literal2) do
-      case {canonical(literal1).literal.value, canonical(literal2).literal.value} do
+      case {literal1.value, literal2.value} do
         {value1, value2} when value1 < value2 -> :lt
         {value1, value2} when value1 > value2 -> :gt
         _ ->
