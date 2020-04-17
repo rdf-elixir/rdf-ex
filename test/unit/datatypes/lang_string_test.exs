@@ -198,6 +198,22 @@ defmodule RDF.LangStringTest do
     assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo", [])) == false
   end
 
+  test "comparable?/2" do
+    Enum.each @valid, fn {input, {_, language}} ->
+      assert LangString.comparable?(
+               LangString.new(input, language: language),
+               LangString.new(input, language: language)) == true
+    end
+
+    assert LangString.comparable?(
+             LangString.new("foo", language: "en"),
+             LangString.new("foo", language: "de")) == true # TODO: This is an assumption. Couldn't find anything in the specs yet.
+
+    assert LangString.comparable?(
+             LangString.new("foo", language: "de"),
+             RDF.string("foo")) == false
+  end
+
   test "compare/2" do
     Enum.each @valid, fn {input, {_, language}} ->
       assert LangString.compare(

@@ -202,6 +202,13 @@ defmodule RDF.Literal do
 
   def equal_value?(_, _), do: false
 
+  @spec comparable?(t, t) :: boolean
+  def comparable?(%__MODULE__{literal: %datatype{} = left}, right) do
+    Datatype.Registry.rdf_datatype(datatype).comparable?(left, right)
+  end
+
+  def comparable?(_, _), do: false
+
   @spec compare(t, t) :: Datatype.comparison_result | :indeterminate | nil
   def compare(%__MODULE__{literal: %datatype{} = left}, right) do
     Datatype.Registry.rdf_datatype(datatype).compare(left, right)

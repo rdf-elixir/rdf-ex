@@ -86,6 +86,15 @@ defmodule RDF.Literal.Datatype do
   """
   @callback compare(Literal.t() | literal, Literal.t() | literal) :: comparison_result | :indeterminate | nil
 
+  @doc """
+  Checks if two datatype literals are comparable.
+
+  This basically mimics the comparability check in terms of the `=` operator of the SPARQL
+  which handles equality comparisons between some datatypes as errors, i.e. considering
+  them as incompatible.
+  """
+  @callback comparable?(Literal.t() | literal, Literal.t() | literal) :: boolean
+
   @callback update(Literal.t() | literal, fun()) :: Literal.t
   @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t
 end

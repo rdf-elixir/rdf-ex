@@ -140,6 +140,15 @@ defmodule RDF.Literal.XSDTest do
     end
   end)
 
+  Enum.each(@examples, fn {rdf_datatype, xsd_datatype, value_type} ->
+    value = value_type |> value() |> List.first()
+    @tag rdf_datatype: rdf_datatype, xsd_datatype: xsd_datatype, value: value
+    test "#{rdf_datatype}.comparable?/2 (#{inspect value})", %{rdf_datatype: rdf_datatype, value: value} do
+      literal = rdf_datatype.new(value)
+      assert rdf_datatype.comparable?(literal, literal) == true
+    end
+  end)
+
   describe "cast/1" do
     test "when given a literal with the same datatype" do
       assert RDF.XSD.String.new("foo") |> RDF.XSD.String.cast() == RDF.XSD.String.new("foo")

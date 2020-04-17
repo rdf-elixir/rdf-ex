@@ -165,6 +165,22 @@ defmodule RDF.Literal.GenericTest do
     assert Generic.equal_value?(Generic.new("foo", datatype: "foo"), RDF.XSD.String.new("foo")) == false
   end
 
+  test "comparable?/2" do
+    Enum.each @valid, fn {input, {_, datatype}} ->
+      assert Generic.comparable?(
+               Generic.new(input, datatype: datatype),
+               Generic.new(input, datatype: datatype)) == true
+    end
+
+    assert Generic.comparable?(
+             Generic.new("foo", datatype: "http://example.com/foo"),
+             Generic.new("foo", datatype: "http://example.com/bar")) == false
+
+    assert Generic.comparable?(
+             Generic.new("foo", datatype: "http://example.com/foo"),
+             RDF.string("foo")) == false
+  end
+
   test "compare/2" do
     Enum.each @valid, fn {input, {_, datatype}} ->
       assert Generic.compare(
