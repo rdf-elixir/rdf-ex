@@ -194,8 +194,8 @@ defmodule RDF.LangStringTest do
              LangString.new("foo", language: "de")) == false
     assert LangString.equal_value?(LangString.new("foo", []), LangString.new("foo", [])) == true
     assert LangString.equal_value?(LangString.new("foo", []), LangString.new("bar", [])) == false
-    assert LangString.equal_value?(LangString.new("foo", []), RDF.XSD.String.new("foo")) == false
-    assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo", [])) == false
+    assert LangString.equal_value?(LangString.new("foo", []), RDF.XSD.String.new("foo")) == nil
+    assert LangString.equal_value?(RDF.XSD.String.new("foo"), LangString.new("foo", [])) == nil
   end
 
   test "compare/2" do

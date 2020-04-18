@@ -311,14 +311,14 @@ defmodule RDF.LiteralTest do
     test "with RDF.LangString literal" do
       assert Literal.equal_value?(Literal.new("foo", language: "en"),
                                   Literal.new("foo", language: "en")) == true
-      assert Literal.equal_value?(Literal.new("foo", language: "en"), Literal.new("foo")) == false
+      assert Literal.equal_value?(Literal.new("foo", language: "en"), Literal.new("foo")) == nil
     end
 
     test "with generic literal" do
       assert Literal.equal_value?(Literal.new("foo", datatype: "http://example.com/dt"),
                                   Literal.new("foo", datatype: "http://example.com/dt")) == true
       assert Literal.equal_value?(Literal.new("foo", datatype: "http://example.com/dt"),
-                                  Literal.new("foo")) == false
+                                  Literal.new("foo")) == nil
     end
   end
 

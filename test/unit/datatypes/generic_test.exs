@@ -159,10 +159,10 @@ defmodule RDF.Literal.GenericTest do
 
     assert Generic.equal_value?(
              Generic.new("foo", datatype: "http://example.com/foo"),
-             Generic.new("foo", datatype: "http://example.com/bar")) == false
+             Generic.new("foo", datatype: "http://example.com/bar")) == nil
     assert Generic.equal_value?(Generic.new("foo", []), Generic.new("foo", [])) == true
     assert Generic.equal_value?(Generic.new("foo", []), Generic.new("bar", [])) == false
-    assert Generic.equal_value?(Generic.new("foo", datatype: "foo"), RDF.XSD.String.new("foo")) == false
+    assert Generic.equal_value?(Generic.new("foo", datatype: "foo"), RDF.XSD.String.new("foo")) == nil
   end
 
   test "compare/2" do

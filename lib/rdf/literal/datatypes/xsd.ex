@@ -90,7 +90,7 @@ defmodule RDF.Literal.XSD do
         def equal_value?(%unquote(xsd_datatype){} = left, right) do
           unquote(xsd_datatype).equal_value?(left, right)
         end
-        def equal_value?(_, _), do: false
+        def equal_value?(_, _), do: nil
 
         @impl RDF.Literal.Datatype
         @dialyzer {:nowarn_function, compare: 2} # TODO: Why is this warning raised
