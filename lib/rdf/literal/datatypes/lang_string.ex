@@ -96,12 +96,6 @@ defmodule RDF.LangString do
   def equal_value?(_, _), do: false
 
   @impl Datatype
-  def comparable?(left, %Literal{literal: right}), do: comparable?(left, right)
-  def comparable?(%Literal{literal: left}, right), do: comparable?(left, right)
-  def comparable?(%__MODULE__{}, %__MODULE__{}), do: true
-  def comparable?(_, _), do: false
-
-  @impl Datatype
   def compare(left, %Literal{literal: right}), do: compare(left, right)
   def compare(%Literal{literal: left}, right), do: compare(left, right)
   def compare(%__MODULE__{language: language_tag} = literal1,

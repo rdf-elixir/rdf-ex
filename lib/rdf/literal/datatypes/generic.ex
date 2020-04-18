@@ -90,14 +90,6 @@ defmodule RDF.Literal.Generic do
   def equal_value?(%__MODULE__{} = left, right), do: left == right
 
   @impl Datatype
-  def comparable?(left, %Literal{literal: right}), do: comparable?(left, right)
-  def comparable?(%Literal{literal: left}, right), do: comparable?(left, right)
-  def comparable?(%__MODULE__{datatype: left_datatype},
-                  %__MODULE__{datatype: right_datatype}),
-    do: left_datatype == right_datatype
-  def comparable?(_, _), do: false
-
-  @impl Datatype
   def compare(left, %Literal{literal: right}), do: compare(left, right)
   def compare(%Literal{literal: left}, right), do: compare(left, right)
   def compare(%__MODULE__{datatype: datatype} = literal1,

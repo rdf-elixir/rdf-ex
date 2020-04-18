@@ -93,14 +93,6 @@ defmodule RDF.Literal.XSD do
         def equal_value?(_, _), do: false
 
         @impl RDF.Literal.Datatype
-        def comparable?(left, %Literal{literal: right}), do: comparable?(left, right)
-        def comparable?(%Literal{literal: left}, right), do: comparable?(left, right)
-        def comparable?(%unquote(xsd_datatype){} = left, right) do
-          XSD.Literal.comparable?(left, right)
-        end
-        def comparable?(_, _), do: false
-
-        @impl RDF.Literal.Datatype
         @dialyzer {:nowarn_function, compare: 2} # TODO: Why is this warning raised
         def compare(left, %Literal{literal: right}), do: compare(left, right)
         def compare(%Literal{literal: left}, right), do: compare(left, right)
