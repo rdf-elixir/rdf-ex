@@ -5,7 +5,7 @@ defmodule RDF.Turtle.DecoderTest do
 
   import RDF.Sigils
 
-  alias RDF.{Turtle, Graph, NS}
+  alias RDF.{Turtle, Graph, NS, XSD}
 
   use RDF.Vocabulary.Namespace
 
@@ -240,28 +240,28 @@ defmodule RDF.Turtle.DecoderTest do
     test "boolean" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> true .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.true})
+      """) == Graph.new({EX.Foo, EX.bar, XSD.true})
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> false .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.false})
+      """) == Graph.new({EX.Foo, EX.bar, XSD.false})
     end
 
     test "integer" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 42 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.integer(42)})
+      """) == Graph.new({EX.Foo, EX.bar, XSD.integer(42)})
     end
 
     test "decimal" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 3.14 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.decimal("3.14")})
+      """) == Graph.new({EX.Foo, EX.bar, XSD.decimal("3.14")})
     end
 
     test "double" do
       assert Turtle.Decoder.decode!("""
         <http://example.org/#Foo> <http://example.org/#bar> 1.2e3 .
-      """) == Graph.new({EX.Foo, EX.bar, RDF.double("1.2e3")})
+      """) == Graph.new({EX.Foo, EX.bar, XSD.double("1.2e3")})
     end
   end
 

@@ -4,16 +4,7 @@ defmodule RDFTest do
   doctest RDF
 
   test "Datatype constructor alias functions" do
-    RDF.Literal.Datatype.Registry.datatypes() -- [RDF.LangString]
-    |> Enum.each(fn datatype ->
-         assert apply(RDF, String.to_atom(datatype.name), [1]) == datatype.new(1)
-         assert apply(RDF, String.to_atom(Macro.underscore(datatype.name)), [1]) == datatype.new(1)
-       end)
-  end
-
-  test "true and false aliases" do
-    assert RDF.true  == RDF.XSD.Boolean.new(true)
-    assert RDF.false == RDF.XSD.Boolean.new(false)
+    assert RDF.langString("foo", language: "en") == RDF.Literal.new("foo", language: "en")
   end
 
   describe "default_prefixes/0" do

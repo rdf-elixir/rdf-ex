@@ -13,14 +13,9 @@ defmodule RDF.NS do
 
   use RDF.Vocabulary.Namespace
 
-  @vocabdoc """
-  The XML Schema datatypes vocabulary.
-
-  See <https://www.w3.org/TR/xmlschema11-2/>
-  """
-  defvocab XSD,
-    base_iri: "http://www.w3.org/2001/XMLSchema#",
-    terms:    RDF.Literal.Datatype.NS.XSD.__terms__
+  # This is needed to ensure that the Turtle compiler is compiled and ready to be used to parse vocabularies.
+  # Without this we randomly get "unable to detect serialization format" errors depending on the parallel compilation order.
+  require RDF.Turtle
 
   @vocabdoc """
   The RDF vocabulary.
@@ -62,4 +57,59 @@ defmodule RDF.NS do
     base_iri: "http://www.w3.org/2004/02/skos/core#",
     file: "skos.ttl"
 
+  @vocabdoc """
+  The XML Schema datatypes vocabulary.
+
+  See <https://www.w3.org/TR/xmlschema11-2/>
+  """
+  defvocab XSD,
+    base_iri: "http://www.w3.org/2001/XMLSchema#",
+    terms: ~w[
+      string
+        normalizedString
+          token
+            language
+            Name
+              NCName
+                ID
+                IDREF
+                  IDREFS
+                ENTITY
+                  ENTITIES
+            NMTOKEN
+              NMTOKENS
+      boolean
+      float
+      double
+      decimal
+        integer
+          long
+            int
+              short
+                byte
+          nonPositiveInteger
+            negativeInteger
+          nonNegativeInteger
+            positiveInteger
+            unsignedLong
+              unsignedInt
+                unsignedShort
+                  unsignedByte
+      duration
+       dayTimeDuration
+       yearMonthDuration
+      dateTime
+      time
+      date
+      gYearMonth
+      gYear
+      gMonthDay
+      gDay
+      gMonth
+      base64Binary
+      hexBinary
+      anyURI
+      QName
+      NOTATION
+    ]
 end

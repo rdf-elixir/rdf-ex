@@ -4,7 +4,7 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, Literal, LangString}
+  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString}
 
   @indentation_char " "
   @indentation 4

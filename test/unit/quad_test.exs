@@ -7,9 +7,9 @@ defmodule RDF.QuadTest do
 
   describe "values/1" do
     test "with a valid RDF.Quad" do
-      assert Quad.values({~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), ~I<http://example.com/Graph>})
+      assert Quad.values({~I<http://example.com/S>, ~I<http://example.com/p>, XSD.integer(42), ~I<http://example.com/Graph>})
              == {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
-      assert Quad.values({~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), nil})
+      assert Quad.values({~I<http://example.com/S>, ~I<http://example.com/p>, XSD.integer(42), nil})
              == {"http://example.com/S", "http://example.com/p", 42, nil}
     end
 
@@ -20,7 +20,7 @@ defmodule RDF.QuadTest do
   end
 
   test "values/2" do
-    assert {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), ~I<http://example.com/Graph>}
+    assert {~I<http://example.com/S>, ~I<http://example.com/p>, XSD.integer(42), ~I<http://example.com/Graph>}
            |> Quad.values(fn
              {:subject, subject} -> subject |> to_string() |> String.last() |> String.to_atom()
              {:predicate, _}     -> :p

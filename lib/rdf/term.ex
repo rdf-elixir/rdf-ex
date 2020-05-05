@@ -28,7 +28,7 @@ defprotocol RDF.Term do
       false
       iex> RDF.Term.term?(RDF.bnode)
       true
-      iex> RDF.Term.term?(RDF.integer(42))
+      iex> RDF.Term.term?(RDF.XSD.integer(42))
       true
       iex> RDF.Term.term?(42)
       false
@@ -68,7 +68,7 @@ defprotocol RDF.Term do
       iex> RDF.Term.coerce("foo")
       ~L"foo"
       iex> RDF.Term.coerce(42)
-      RDF.integer(42)
+      RDF.XSD.integer(42)
 
   """
   def coerce(value)
@@ -84,7 +84,7 @@ defprotocol RDF.Term do
       "http://example.com/"
       iex> RDF.Term.value(~L"foo")
       "foo"
-      iex> RDF.integer(42) |> RDF.Term.value()
+      iex> RDF.XSD.integer(42) |> RDF.Term.value()
       42
 
   """
@@ -119,7 +119,7 @@ defimpl RDF.Term, for: Reference do
 end
 
 defimpl RDF.Term, for: RDF.Literal do
-  def equal?(term1, term2),       do: term1 == term2
+  def equal?(term1, term2),       do: RDF.Literal.equal?(term1, term2)
   def equal_value?(term1, term2), do: RDF.Literal.equal_value?(term1, term2)
   def coerce(term),               do: term
   def value(term),                do: RDF.Literal.value(term) || RDF.Literal.lexical(term)
@@ -132,8 +132,8 @@ defimpl RDF.Term, for: Atom do
   def equal_value?(nil, _),       do: nil
   def equal_value?(term1, term2), do: RDF.Term.equal_value?(coerce(term1), term2)
 
-  def coerce(true),  do: RDF.true
-  def coerce(false), do: RDF.false
+  def coerce(true),  do: RDF.XSD.true
+  def coerce(false), do: RDF.XSD.false
   def coerce(_),     do: nil
 
   def value(true),  do: true

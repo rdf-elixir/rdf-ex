@@ -5,7 +5,9 @@ defmodule RDF.Literal.Generic do
 
   defstruct [:value, :datatype]
 
-  @behaviour RDF.Literal.Datatype
+  use RDF.Literal.Datatype,
+    name: "generic",
+    id: nil
 
   alias RDF.Literal.Datatype
   alias RDF.{Literal, IRI}
@@ -16,16 +18,8 @@ defmodule RDF.Literal.Generic do
              }
 
   @impl Datatype
-  def literal_type, do: __MODULE__
-
-  @impl Datatype
-  def name, do: "generic"
-
-  @impl Datatype
-  def id, do: nil
-
   @spec new(any, String.t | IRI.t | keyword) :: Literal.t
-  def new(value, datatype_or_opts)
+  def new(value, datatype_or_opts \\ [])
   def new(value, datatype) when is_binary(datatype), do: new(value, datatype: datatype)
   def new(value, %IRI{} = datatype), do: new(value, datatype: datatype)
   def new(value, opts) do
@@ -41,8 +35,9 @@ defmodule RDF.Literal.Generic do
   defp normalize_datatype(""), do: nil
   defp normalize_datatype(datatype), do: IRI.new(datatype)
 
+  @impl Datatype
   @spec new!(any, String.t | IRI.t | keyword) :: Literal.t
-  def new!(value, datatype_or_opts) do
+  def new!(value, datatype_or_opts \\ []) do
     literal = new(value, datatype_or_opts)
 
     if valid?(literal) do
@@ -57,10 +52,6 @@ defmodule RDF.Literal.Generic do
   def datatype(%__MODULE__{} = literal), do: literal.datatype
 
   @impl Datatype
-  def language(%Literal{literal: literal}), do: language(literal)
-  def language(%__MODULE__{}), do: nil
-
-  @impl Datatype
   def value(%Literal{literal: literal}), do: value(literal)
   def value(%__MODULE__{} = literal), do: literal.value
 
@@ -70,7 +61,7 @@ defmodule RDF.Literal.Generic do
 
   @impl Datatype
   def canonical(%Literal{literal: %__MODULE__{}} = literal), do: literal
-  def canonical(%__MODULE__{} = literal), do: %Literal{literal: literal}
+  def canonical(%__MODULE__{} = literal), do: literal(literal)
 
   @impl Datatype
   def canonical?(%Literal{literal: literal}), do: canonical?(literal)
@@ -81,16 +72,18 @@ defmodule RDF.Literal.Generic do
   def valid?(%__MODULE__{datatype: %IRI{}}), do: true
   def valid?(_), do: false
 
-  @impl Datatype
+  @doc """
+  Since generic literals don't support casting, always returns `nil`.
+  """
   def cast(_), do: nil
 
   @impl Datatype
-  def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
-  def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
-  def equal_value?(%__MODULE__{datatype: datatype} = left,
-                   %__MODULE__{datatype: datatype} = right),
-    do: left == right
-  def equal_value?(_, _), do: nil
+  def do_cast(_), do: nil
+
+  @impl Datatype
+  def do_equal_value?(%__MODULE__{datatype: datatype} = left,
+                      %__MODULE__{datatype: datatype} = right), do: left == right
+  def do_equal_value?(_, _), do: nil
 
   @impl Datatype
   def compare(left, %Literal{literal: right}), do: compare(left, right)
@@ -117,11 +110,5 @@ defmodule RDF.Literal.Generic do
     |> value()
     |> fun.()
     |> new(datatype: literal.datatype)
-  end
-
-  defimpl String.Chars do
-    def to_string(literal) do
-      literal.value
-    end
   end
 end

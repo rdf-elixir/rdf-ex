@@ -2,15 +2,11 @@
 defmodule RDF.Literal.Datatype.Registry do
   @moduledoc false
 
-  alias RDF.Literal
-  alias RDF.IRI
+  alias RDF.{Literal, IRI, XSD}
 
-  @datatypes [
-    RDF.LangString
-    | Enum.map(XSD.datatypes(), &Literal.XSD.datatype_module_name/1)
-  ]
+  @datatypes [RDF.LangString | Enum.to_list(XSD.datatypes())]
 
-  @mapping Map.new(@datatypes, fn datatype -> {RDF.IRI.new(datatype.id), datatype} end)
+  @mapping Map.new(@datatypes, fn datatype -> {IRI.new(datatype.id), datatype} end)
 
   @doc """
   The mapping of IRIs of datatypes to their `RDF.Literal.Datatype`.
@@ -40,13 +36,4 @@ defmodule RDF.Literal.Datatype.Registry do
   def get(%Literal{} = literal), do: Literal.datatype(literal)
   def get(id) when is_binary(id), do: id |> IRI.new() |> get()
   def get(id), do: @mapping[id]
-
-  @doc false
-  def rdf_datatype(datatype)
-  Enum.each XSD.datatypes(), fn xsd_datatype ->
-    def rdf_datatype(unquote(xsd_datatype)) do
-      unquote(Literal.XSD.datatype_module_name(xsd_datatype))
-    end
-  end
-  def rdf_datatype(datatype), do: datatype
 end

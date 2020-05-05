@@ -6,7 +6,8 @@ defmodule RDF.Turtle.EncoderTest do
   doctest Turtle.Encoder
 
   alias RDF.Graph
-  alias RDF.NS.{XSD, RDFS, OWL}
+  alias RDF.NS
+  alias RDF.NS.{RDFS, OWL}
 
   import RDF.Sigils
 
@@ -47,7 +48,7 @@ defmodule RDF.Turtle.EncoderTest do
                 {EX.S2, EX.p3, EX.O4},
               ]), prefixes: %{
                 ex: EX.__base_iri__,
-                xsd: XSD.__base_iri__
+                xsd: NS.XSD.__base_iri__
               }) ==
               """
               @prefix ex: <#{to_string(EX.__base_iri__)}> .
@@ -66,11 +67,11 @@ defmodule RDF.Turtle.EncoderTest do
       assert Turtle.Encoder.encode!(Graph.new([
                {EX.S1, EX.p1, EX.O1},
                {EX.S1, EX.p1, EX.O2},
-               {EX.S1, EX.p2, XSD.integer},
+               {EX.S1, EX.p2, NS.XSD.integer},
                {EX.S2, EX.p3, EX.O4},
              ], prefixes: %{
                "": EX.__base_iri__,
-               xsd: XSD.__base_iri__
+               xsd: NS.XSD.__base_iri__
              })) ==
                """
                @prefix : <#{to_string(EX.__base_iri__)}> .
@@ -106,11 +107,11 @@ defmodule RDF.Turtle.EncoderTest do
     end
 
     test "when no prefixes are given and no prefixes are in the given graph the default_prefixes are used" do
-      assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, XSD.string})) ==
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p, NS.XSD.string})) ==
                """
                @prefix rdf: <#{to_string(RDF.__base_iri__)}> .
                @prefix rdfs: <#{to_string(RDFS.__base_iri__)}> .
-               @prefix xsd: <#{to_string(XSD.__base_iri__)}> .
+               @prefix xsd: <#{to_string(NS.XSD.__base_iri__)}> .
 
                <http://example.org/#S>
                    <http://example.org/#p> xsd:string .
@@ -546,7 +547,7 @@ defmodule RDF.Turtle.EncoderTest do
             ~r[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> \.],
             ~r["http://foo/"\^\^xsd:anyURI \.]
            ],
-           prefixes: %{xsd: XSD.__base_iri__}
+           prefixes: %{xsd: NS.XSD.__base_iri__}
          )
     end
 
@@ -560,7 +561,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"0",     "false ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.boolean(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.boolean(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -573,7 +574,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"FaLsE",  ~s{"FaLsE"^^<http://www.w3.org/2001/XMLSchema#boolean>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.boolean(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.boolean(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -591,7 +592,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"0010", "10 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.integer(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.integer(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -602,7 +603,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#integer>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.integer(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.integer(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -620,7 +621,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"010.020", "10.02 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.decimal(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.decimal(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -631,7 +632,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#decimal>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.decimal(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.decimal(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -650,7 +651,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"-1",        "-1.0E0 ."},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.double(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.double(value)})
           |> assert_serialization(matches: [output])
          end)
     end
@@ -661,7 +662,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"true",   ~s{"true"^^<http://www.w3.org/2001/XMLSchema#double>}},
       ]
       |> Enum.each(fn {value, output} ->
-          Graph.new({EX.S, EX.p, RDF.double(value)})
+          Graph.new({EX.S, EX.p, RDF.XSD.double(value)})
           |> assert_serialization(matches: [output])
          end)
     end

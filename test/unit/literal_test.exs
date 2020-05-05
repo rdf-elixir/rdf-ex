@@ -4,19 +4,20 @@ defmodule RDF.LiteralTest do
   import RDF.Sigils
   import RDF.TestLiterals
 
-  alias RDF.{Literal, LangString}
+  alias RDF.{Literal, XSD, LangString}
   alias RDF.Literal.{Generic, Datatype}
+  alias Decimal, as: D
 
   doctest RDF.Literal
 
   alias RDF.NS
 
   @examples %{
-    RDF.XSD.String  => ["foo"],
-    RDF.XSD.Integer => [42],
-    RDF.XSD.Double  => [3.14],
-    RDF.XSD.Decimal => [Decimal.from_float(3.14)],
-    RDF.XSD.Boolean => [true, false],
+    XSD.String  => ["foo"],
+    XSD.Integer => [42],
+    XSD.Double  => [3.14],
+    XSD.Decimal => [Decimal.from_float(3.14)],
+    XSD.Boolean => [true, false],
   }
 
   describe "new/1" do
@@ -32,52 +33,51 @@ defmodule RDF.LiteralTest do
 
     test "with typed literals" do
       Enum.each Datatype.Registry.datatypes() -- [RDF.LangString], fn datatype ->
-        literal_type = datatype.literal_type()
-        assert %Literal{literal: typed_literal} = Literal.new(literal_type.new("foo"))
-        assert typed_literal.__struct__ == literal_type
+        assert %Literal{literal: typed_literal} = Literal.new(datatype.new("foo"))
+        assert typed_literal.__struct__ == datatype
       end
     end
 
     test "when options without datatype given" do
-      assert Literal.new(true, []) == RDF.XSD.Boolean.new(true)
-      assert Literal.new(42, [])   == RDF.XSD.Integer.new(42)
-      assert Literal.new!(true, []) == RDF.XSD.Boolean.new!(true)
-      assert Literal.new!(42, [])   == RDF.XSD.Integer.new!(42)
+      assert Literal.new(true, []) == XSD.Boolean.new(true)
+      assert Literal.new(42, [])   == XSD.Integer.new(42)
+      assert Literal.new!(true, []) == XSD.Boolean.new!(true)
+      assert Literal.new!(42, [])   == XSD.Integer.new!(42)
     end
   end
 
   describe "typed construction" do
     test "boolean" do
-      assert Literal.new(true,    datatype: NS.XSD.boolean) == RDF.XSD.Boolean.new(true)
-      assert Literal.new(false,   datatype: NS.XSD.boolean) == RDF.XSD.Boolean.new(false)
-      assert Literal.new("true",  datatype: NS.XSD.boolean) == RDF.XSD.Boolean.new("true")
-      assert Literal.new("false", datatype: NS.XSD.boolean) == RDF.XSD.Boolean.new("false")
+      assert Literal.new(true,    datatype: NS.XSD.boolean) == XSD.Boolean.new(true)
+      assert Literal.new(false,   datatype: NS.XSD.boolean) == XSD.Boolean.new(false)
+      assert Literal.new("true",  datatype: NS.XSD.boolean) == XSD.Boolean.new("true")
+      assert Literal.new("false", datatype: NS.XSD.boolean) == XSD.Boolean.new("false")
     end
 
     test "integer" do
-      assert Literal.new(42,   datatype: NS.XSD.integer) == RDF.XSD.Integer.new(42)
-      assert Literal.new("42", datatype: NS.XSD.integer) == RDF.XSD.Integer.new("42")
+      assert Literal.new(42,   datatype: NS.XSD.integer) == XSD.Integer.new(42)
+      assert Literal.new("42", datatype: NS.XSD.integer) == XSD.Integer.new("42")
     end
 
     test "double" do
-      assert Literal.new(3.14,   datatype: NS.XSD.double) == RDF.XSD.Double.new(3.14)
-      assert Literal.new("3.14", datatype: NS.XSD.double) == RDF.XSD.Double.new("3.14")
+      assert Literal.new(3.14,   datatype: NS.XSD.double) == XSD.Double.new(3.14)
+      assert Literal.new("3.14", datatype: NS.XSD.double) == XSD.Double.new("3.14")
     end
 
     test "decimal" do
-      assert Literal.new(3.14,   datatype: NS.XSD.decimal) == RDF.XSD.Decimal.new(3.14)
-      assert Literal.new("3.14", datatype: NS.XSD.decimal) == RDF.XSD.Decimal.new("3.14")
+      assert Literal.new(3.14,   datatype: NS.XSD.decimal) == XSD.Decimal.new(3.14)
+      assert Literal.new("3.14", datatype: NS.XSD.decimal) == XSD.Decimal.new("3.14")
       assert Literal.new(Decimal.from_float(3.14), datatype: NS.XSD.decimal) ==
-               RDF.XSD.Decimal.new(Decimal.from_float(3.14))
+               XSD.Decimal.new(Decimal.from_float(3.14))
     end
 
     test "unsignedInt" do
-      assert Literal.new(42,   datatype: NS.XSD.unsignedInt) == RDF.XSD.UnsignedInt.new(42)
-      assert Literal.new("42", datatype: NS.XSD.unsignedInt) == RDF.XSD.UnsignedInt.new("42")
+      assert Literal.new(42,   datatype: NS.XSD.unsignedInt) == XSD.UnsignedInt.new(42)
+      assert Literal.new("42", datatype: NS.XSD.unsignedInt) == XSD.UnsignedInt.new("42")
     end
 
     test "string" do
-      assert Literal.new("foo", datatype: NS.XSD.string) == RDF.XSD.String.new("foo")
+      assert Literal.new("foo", datatype: NS.XSD.string) == XSD.String.new("foo")
     end
 
     test "unmapped/unknown datatype" do
@@ -110,6 +110,66 @@ defmodule RDF.LiteralTest do
       assert_raise RDF.Literal.InvalidError, fn ->
         Literal.new!("Eule", datatype: RDF.langString)
       end
+    end
+  end
+
+  describe "coerce/1" do
+    test "with boolean" do
+      assert Literal.coerce(true) == XSD.true()
+      assert Literal.coerce(false) == XSD.false()
+    end
+
+    test "with string" do
+      assert Literal.coerce("foo") == XSD.string("foo")
+    end
+
+    test "with integer" do
+      assert Literal.coerce(42) == XSD.integer(42)
+    end
+
+    test "with float" do
+      assert Literal.coerce(3.14) == XSD.double(3.14)
+    end
+
+    test "with decimal" do
+      assert D.from_float(3.14) |> Literal.coerce() == XSD.decimal(3.14)
+    end
+
+    test "with datetime" do
+      assert DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> Literal.coerce() ==
+               DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> XSD.datetime()
+    end
+
+    test "with naive datetime" do
+      assert ~N"2002-04-02T12:00:00" |> Literal.coerce() ==
+               ~N"2002-04-02T12:00:00" |> XSD.datetime()
+    end
+
+    test "with date" do
+      assert ~D"2002-04-02" |> Literal.coerce() ==
+               ~D"2002-04-02" |> XSD.date()
+    end
+
+    test "with time" do
+      assert ~T"12:00:00" |> Literal.coerce() ==
+               ~T"12:00:00" |> XSD.time()
+    end
+
+    test "with URI" do
+      assert URI.parse("http://example.com") |> Literal.coerce() ==
+               XSD.any_uri("http://example.com")
+    end
+
+    test "with RDF.Literals" do
+      assert XSD.integer(42) |> Literal.coerce() == XSD.integer(42)
+    end
+
+    test "with RDF datatype Literals" do
+      assert %XSD.Integer{value: 42} |> Literal.coerce() == XSD.integer(42)
+    end
+
+    test "with inconvertible values" do
+      assert self() |> Literal.coerce() == nil
     end
   end
 
@@ -241,16 +301,16 @@ defmodule RDF.LiteralTest do
   describe "canonical/1" do
     test "with XSD.Datatype literal" do
       [
-        RDF.XSD.String.new("foo"),
-        RDF.XSD.Byte.new(42),
+        XSD.String.new("foo"),
+        XSD.Byte.new(42),
 
       ]
       |> Enum.each(fn
         canonical_literal ->
           assert Literal.canonical(canonical_literal) == canonical_literal
       end)
-      assert RDF.XSD.Integer.new("042") |> Literal.canonical() == Literal.new(42)
-      assert Literal.new(3.14) |> Literal.canonical() == Literal.new(3.14) |> RDF.XSD.Double.canonical()
+      assert XSD.Integer.new("042") |> Literal.canonical() == Literal.new(42)
+      assert Literal.new(3.14) |> Literal.canonical() == Literal.new(3.14) |> XSD.Double.canonical()
     end
 
     test "with RDF.LangString literal" do
@@ -284,7 +344,7 @@ defmodule RDF.LiteralTest do
     test "with XSD.Datatype literal" do
       assert Literal.new("foo") |> Literal.valid?() == true
       assert Literal.new(42) |> Literal.valid?() == true
-      assert RDF.XSD.Integer.new("foo") |> Literal.valid?() == false
+      assert XSD.Integer.new("foo") |> Literal.valid?() == false
     end
 
     test "with RDF.LangString literal" do
@@ -300,7 +360,7 @@ defmodule RDF.LiteralTest do
   describe "equal_value?/2" do
     test "with XSD.Datatype literal" do
       assert Literal.equal_value?(Literal.new("foo"), Literal.new("foo")) == true
-      assert Literal.equal_value?(Literal.new(42), RDF.XSD.Byte.new(42)) == true
+      assert Literal.equal_value?(Literal.new(42), XSD.Byte.new(42)) == true
       assert Literal.equal_value?(Literal.new("foo"), "foo") == true
       assert Literal.equal_value?(Literal.new(42), 42) == true
       assert Literal.equal_value?(Literal.new(42), 42.0) == true
@@ -325,7 +385,7 @@ defmodule RDF.LiteralTest do
   describe "compare/2" do
     test "with XSD.Datatype literal" do
       assert Literal.compare(Literal.new("foo"), Literal.new("bar")) == :gt
-      assert Literal.compare(Literal.new(42), RDF.XSD.Byte.new(43)) == :lt
+      assert Literal.compare(Literal.new(42), XSD.Byte.new(43)) == :lt
     end
 
     test "with RDF.LangString literal" do
@@ -339,7 +399,7 @@ defmodule RDF.LiteralTest do
     end
   end
 
-  @poem RDF.XSD.String.new """
+  @poem XSD.String.new """
   <poem author="Wilhelm Busch">
   Kaum hat dies der Hahn gesehen,
   Fängt er auch schon an zu krähen:
@@ -365,8 +425,8 @@ defmodule RDF.LiteralTest do
 
         {~L"abracadabra"en, ~L"bra", true},
         {"abracadabra", "bra",       true},
-        {RDF.XSD.Integer.new("42"), ~L"4",   true},
-        {RDF.XSD.Integer.new("42"), ~L"en",  false},
+        {XSD.Integer.new("42"), ~L"4",   true},
+        {XSD.Integer.new("42"), ~L"en",  false},
       ]
       |> Enum.each(fn {literal, pattern, expected_result} ->
         result = Literal.matches?(literal, pattern)
@@ -404,16 +464,16 @@ defmodule RDF.LiteralTest do
 
   describe "update/2" do
     test "it updates value and lexical form" do
-      assert RDF.string("foo")
+      assert XSD.string("foo")
              |> Literal.update(fn s when is_binary(s) -> s <> "bar" end) ==
-               RDF.string("foobar")
-      assert RDF.integer(1) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
-               RDF.integer(2)
-      assert RDF.byte(42) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
-               RDF.byte(43)
-      assert RDF.integer(1)
+               XSD.string("foobar")
+      assert XSD.integer(1) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
+               XSD.integer(2)
+      assert XSD.byte(42) |> Literal.update(fn i when is_integer(i) -> i + 1 end) ==
+               XSD.byte(43)
+      assert XSD.integer(1)
              |> Literal.update(fn i when is_integer(i) -> "0" <> to_string(i) end) ==
-               RDF.integer("01")
+               XSD.integer("01")
     end
 
     test "it does not change the datatype of generic literals" do
@@ -429,9 +489,9 @@ defmodule RDF.LiteralTest do
     end
 
     test "with as: :lexical opt it passes the lexical form" do
-      assert RDF.integer(1)
+      assert XSD.integer(1)
               |> Literal.update(fn i when is_binary(i) -> "0" <> i end, as: :lexical) ==
-               RDF.integer("01")
+               XSD.integer("01")
     end
   end
 
@@ -439,7 +499,7 @@ defmodule RDF.LiteralTest do
     test "with XSD.Datatype literal" do
       assert Literal.new("foo") |> to_string() == "foo"
       assert Literal.new(42) |> to_string() == "42"
-      assert RDF.XSD.Integer.new("foo") |> to_string() == "foo"
+      assert XSD.Integer.new("foo") |> to_string() == "foo"
     end
 
     test "with RDF.LangString literal" do

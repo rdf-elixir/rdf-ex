@@ -47,7 +47,7 @@ defmodule RDF do
 
 
   @standard_prefixes PrefixMap.new(
-                       xsd:  IRI.new(XSD.namespace()),
+                       xsd:  xsd_iri_base(),
                        rdf:  rdf_iri_base(),
                        rdfs: rdfs_iri_base()
                      )
@@ -138,7 +138,7 @@ defmodule RDF do
       false
       iex> RDF.resource?(RDF.bnode)
       true
-      iex> RDF.resource?(RDF.integer(42))
+      iex> RDF.resource?(RDF.XSD.integer(42))
       false
       iex> RDF.resource?(42)
       false
@@ -171,7 +171,7 @@ defmodule RDF do
       false
       iex> RDF.term?(RDF.bnode)
       true
-      iex> RDF.term?(RDF.integer(42))
+      iex> RDF.term?(RDF.XSD.integer(42))
       true
       iex> RDF.term?(42)
       false
@@ -208,6 +208,11 @@ defmodule RDF do
   defdelegate literal(value),       to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
+  def literal?(%Literal{}), do: true
+  def literal?(%RDF.Literal.Generic{}), do: true
+  def literal?(%datatype{}), do: Literal.Datatype.Registry.datatype?(datatype)
+  def literal?(_), do: false
+
   defdelegate triple(s, p, o),  to: Triple, as: :new
   defdelegate triple(tuple),    to: Triple, as: :new
 
@@ -237,23 +242,10 @@ defmodule RDF do
   def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
   def list(native_list, opts),      do: RDF.List.from(native_list, opts)
 
-  for datatype <- RDF.Literal.Datatype.Registry.datatypes() -- [RDF.LangString] do
-    defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
-    defdelegate unquote(String.to_atom(datatype.name))(value, opts), to: datatype, as: :new
-
-    elixir_name = Macro.underscore(datatype.name)
-    unless datatype.name == elixir_name do
-      defdelegate unquote(String.to_atom(elixir_name))(value), to: datatype, as: :new
-      defdelegate unquote(String.to_atom(elixir_name))(value, opts), to: datatype, as: :new
-    end
-  end
-
-  defdelegate langString(value, opts),  to: RDF.LangString,     as: :new
-  defdelegate lang_string(value, opts), to: RDF.LangString,     as: :new
-  defdelegate datetime(value),          to: RDF.XSD.DateTime,   as: :new
-  defdelegate datetime(value, opts),    to: RDF.XSD.DateTime,   as: :new
-
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
+
+  defdelegate langString(value, opts),  to: RDF.LangString, as: :new
+  defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(),                      to: RDF.NS.RDF
@@ -264,10 +256,8 @@ defmodule RDF do
     defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
-  defdelegate unquote(:true)(),  to: RDF.XSD.Boolean.Value
-  defdelegate unquote(:false)(), to: RDF.XSD.Boolean.Value
-
   defdelegate langString(),   to: RDF.NS.RDF
+  defdelegate lang_string(),  to: RDF.NS.RDF, as: :langString
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
   defdelegate __base_iri__(), to: RDF.NS.RDF

@@ -7,7 +7,7 @@ defmodule RDF.StatementTest do
     @iri ~I<http://example.com/Foo>
     @bnode ~B<foo>
     @valid_literal ~L"foo"
-    @invalid_literal RDF.integer("foo")
+    @invalid_literal XSD.integer("foo")
 
     @valid_triples [
       {@iri,   @iri, @iri},

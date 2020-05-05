@@ -3,7 +3,7 @@ defmodule RDF.NTriples.Encoder do
 
   use RDF.Serialization.Encoder
 
-  alias RDF.{BlankNode, Dataset, Graph, IRI, Literal, Statement, Triple, LangString}
+  alias RDF.{BlankNode, Dataset, Graph, IRI, XSD, Literal, Statement, Triple, LangString}
 
   @impl RDF.Serialization.Encoder
   @callback encode(Graph.t | Dataset.t, keyword | map) :: {:ok, String.t} | {:error, any}

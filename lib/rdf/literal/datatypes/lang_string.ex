@@ -5,7 +5,9 @@ defmodule RDF.LangString do
 
   defstruct [:value, :language]
 
-  @behaviour RDF.Literal.Datatype
+  use RDF.Literal.Datatype,
+      name: "langString",
+      id: RDF.Utils.Bootstrapping.rdf_iri("langString")
 
   alias RDF.Literal.Datatype
   alias RDF.Literal
@@ -15,20 +17,9 @@ defmodule RDF.LangString do
                language: String.t
              }
 
-  @iri RDF.Utils.Bootstrapping.rdf_iri("langString")
-  @id to_string(@iri)
-
-  @impl Datatype
-  def literal_type, do: __MODULE__
-
-  @impl Datatype
-  def name, do: "langString"
-
-  @impl Datatype
-  def id, do: @id
-
+  @impl RDF.Literal.Datatype
   @spec new(any, String.t | atom | keyword) :: Literal.t
-  def new(value, language_or_opts)
+  def new(value, language_or_opts \\ [])
   def new(value, language) when is_binary(language), do: new(value, language: language)
   def new(value, language) when is_atom(language), do: new(value, language: language)
   def new(value, opts) do
@@ -45,8 +36,9 @@ defmodule RDF.LangString do
   defp normalize_language(language) when is_atom(language), do: language |> to_string() |> normalize_language()
   defp normalize_language(language), do: String.downcase(language)
 
+  @impl RDF.Literal.Datatype
   @spec new!(any, String.t | atom | keyword) :: Literal.t
-  def new!(value, language_or_opts) do
+  def new!(value, language_or_opts \\ []) do
     literal = new(value, language_or_opts)
 
     if valid?(literal) do
@@ -55,10 +47,6 @@ defmodule RDF.LangString do
       raise ArgumentError, "#{inspect(value)} with language #{inspect literal.literal.language} is not a valid #{inspect(__MODULE__)}"
     end
   end
-
-  @impl Datatype
-  def datatype(%Literal{literal: literal}), do: datatype(literal)
-  def datatype(%__MODULE__{}), do: @iri
 
   @impl Datatype
   def language(%Literal{literal: literal}), do: language(literal)
@@ -74,7 +62,7 @@ defmodule RDF.LangString do
 
   @impl Datatype
   def canonical(%Literal{literal: %__MODULE__{}} = literal), do: literal
-  def canonical(%__MODULE__{} = literal), do: %Literal{literal: literal}
+  def canonical(%__MODULE__{} = literal), do: literal(literal)
 
   @impl Datatype
   def canonical?(%Literal{literal: literal}), do: canonical?(literal)
@@ -86,14 +74,7 @@ defmodule RDF.LangString do
   def valid?(_), do: false
 
   @impl Datatype
-  def cast(%Literal{literal: %__MODULE__{}} = literal), do: if valid?(literal), do: literal
-  def cast(_), do: nil
-
-  @impl Datatype
-  def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
-  def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
-  def equal_value?(%__MODULE__{} = left, %__MODULE__{} = right), do: left == right
-  def equal_value?(_, _), do: nil
+  def do_cast(_), do: nil
 
   @impl Datatype
   def compare(left, %Literal{literal: right}), do: compare(left, right)
@@ -157,10 +138,4 @@ defmodule RDF.LangString do
   end
 
   def match_language?(_, _), do: false
-
-  defimpl String.Chars do
-    def to_string(literal) do
-      literal.value
-    end
-  end
 end

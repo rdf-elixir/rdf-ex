@@ -759,7 +759,7 @@ defmodule RDF.Dataset do
 
       iex> [
       ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
-      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), }
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.XSD.integer(42), }
       ...> ]
       ...> |> RDF.Dataset.new()
       ...> |> RDF.Dataset.values()
@@ -774,7 +774,7 @@ defmodule RDF.Dataset do
 
       iex> [
       ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
-      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.integer(42), }
+      ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.XSD.integer(42), }
       ...> ]
       ...> |> RDF.Dataset.new()
       ...> |> RDF.Dataset.values(fn

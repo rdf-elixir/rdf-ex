@@ -786,7 +786,7 @@ defmodule RDF.Graph do
 
       iex> [
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
-      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
       ...> ]
       ...> |> RDF.Graph.new()
       ...> |> RDF.Graph.values()
@@ -797,7 +797,7 @@ defmodule RDF.Graph do
 
       iex> [
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
-      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.integer(42)}
+      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
       ...> ]
       ...> |> RDF.Graph.new()
       ...> |> RDF.Graph.values(fn
