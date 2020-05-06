@@ -32,9 +32,9 @@ defmodule RDF.LiteralTest do
     end
 
     test "with typed literals" do
-      Enum.each Datatype.Registry.datatypes() -- [RDF.LangString], fn datatype ->
-        assert %Literal{literal: typed_literal} = Literal.new(datatype.new("foo"))
-        assert typed_literal.__struct__ == datatype
+      Enum.each Datatype.Registry.datatypes(), fn datatype ->
+        datatype_literal = datatype.new("foo").literal
+        assert %Literal{literal: ^datatype_literal} = Literal.new(datatype_literal)
       end
     end
 
