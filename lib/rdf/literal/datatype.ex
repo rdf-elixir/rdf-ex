@@ -214,8 +214,8 @@ defmodule RDF.Literal.Datatype do
       def equal_value?(_, nil), do: nil
       def equal_value?(left, right) do
         cond do
-          not RDF.literal?(right) -> equal_value?(left, Literal.coerce(right))
-          not RDF.literal?(left) -> equal_value?(Literal.coerce(left), right)
+          not RDF.literal?(right) and not RDF.term?(right) -> equal_value?(left, Literal.coerce(right))
+          not RDF.literal?(left) and not RDF.term?(left) -> equal_value?(Literal.coerce(left), right)
           true -> do_equal_value?(left, right)
         end
       end

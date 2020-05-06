@@ -3,28 +3,33 @@ defmodule RDF.EqualityTest do
 
   alias RDF.XSD
 
-  describe "RDF.IRI" do
+  describe "RDF.IRI and XSD.AnyURI" do
     @term_equal_iris [
       {RDF.iri("http://example.com/"), RDF.iri("http://example.com/")},
+      {XSD.anyURI("http://example.com/"), XSD.anyURI("http://example.com/")},
     ]
     @value_equal_iris [
       {RDF.iri("http://example.com/"), XSD.anyURI("http://example.com/")},
-      {XSD.anyURI("http://example.com/"), XSD.anyURI("http://example.com/")},
     ]
     @unequal_iris [
       {RDF.iri("http://example.com/foo"), RDF.iri("http://example.com/bar")},
       {RDF.iri("http://example.com/foo"), XSD.anyURI("http://example.com/bar")},
     ]
-    @equal_iris_by_coercion []
-    @unequal_iris_by_coercion []
+    @equal_iris_by_coercion [
+      {RDF.iri("http://example.com/"), URI.parse("http://example.com/")},
+      {XSD.anyURI("http://example.com/"), URI.parse("http://example.com/")},
+    ]
+    @unequal_iris_by_coercion [
+      {RDF.iri("http://example.com/foo"), URI.parse("http://example.com/bar")},
+      {XSD.anyURI("http://example.com/foo"), URI.parse("http://example.com/bar")},
+    ]
     @incomparable_iris [
       {RDF.iri("http://example.com/"), XSD.string("http://example.com/")},
+      {XSD.anyURI("http://example.com/"), XSD.string("http://example.com/")},
     ]
 
     test "term equality", do: assert_term_equal(@term_equal_iris)
-    @tag skip: "TODO: finish value equality of XSD.AnyURI"
     test "value equality", do: assert_value_equal(@value_equal_iris)
-    @tag skip: "TODO: finish value equality of XSD.AnyURI"
     test "inequality", do: assert_unequal(@unequal_iris)
     test "coerced value equality", do: assert_coerced_equal(@equal_iris_by_coercion)
     test "coerced value inequality", do: assert_coerced_unequal(@unequal_iris_by_coercion)

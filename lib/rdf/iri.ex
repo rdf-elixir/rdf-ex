@@ -49,11 +49,11 @@ defmodule RDF.IRI do
   """
   @spec new(coercible) :: t
   def new(iri)
-  def new(iri) when is_binary(iri),   do: %RDF.IRI{value: iri}
+  def new(iri) when is_binary(iri),   do: %__MODULE__{value: iri}
   def new(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: Namespace.resolve_term(qname)
   def new(%URI{} = uri),              do: uri |> URI.to_string |> new
-  def new(%RDF.IRI{} = iri),          do: iri
+  def new(%__MODULE__{} = iri),       do: iri
 
   @doc """
   Creates a `RDF.IRI`, but checks if the given IRI is valid.
@@ -68,7 +68,7 @@ defmodule RDF.IRI do
   def new!(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: new(qname)  # since terms of a namespace are already validated
   def new!(%URI{} = uri),              do: uri |> valid!() |> new()
-  def new!(%RDF.IRI{} = iri),          do: valid!(iri)
+  def new!(%__MODULE__{} = iri),       do: valid!(iri)
 
 
   @doc """
@@ -136,7 +136,7 @@ defmodule RDF.IRI do
   def absolute?(iri)
 
   def absolute?(value) when is_binary(value), do: not is_nil(scheme(value))
-  def absolute?(%RDF.IRI{value: value}),      do: absolute?(value)
+  def absolute?(%__MODULE__{value: value}),   do: absolute?(value)
   def absolute?(%URI{scheme: nil}),           do: false
   def absolute?(%URI{scheme: _}),             do: true
   def absolute?(qname) when is_atom(qname) and qname not in [nil, true, false] do
@@ -198,7 +198,7 @@ defmodule RDF.IRI do
   """
   @spec scheme(coercible) :: String.t | nil
   def scheme(iri)
-  def scheme(%RDF.IRI{value: value}),    do: scheme(value)
+  def scheme(%__MODULE__{value: value}), do: scheme(value)
   def scheme(%URI{scheme: scheme}),      do: scheme
   def scheme(qname) when is_atom(qname), do: Namespace.resolve_term(qname) |> scheme()
   def scheme(iri) when is_binary(iri) do
@@ -216,7 +216,7 @@ defmodule RDF.IRI do
   def parse(iri) when is_binary(iri),   do: URI.parse(iri)
   def parse(qname) when is_atom(qname) and qname not in [nil, true, false],
     do: Namespace.resolve_term(qname) |> parse()
-  def parse(%RDF.IRI{value: value}),    do: URI.parse(value)
+  def parse(%__MODULE__{value: value}), do: URI.parse(value)
   def parse(%URI{} = uri),              do: uri
 
 
@@ -230,9 +230,14 @@ defmodule RDF.IRI do
   @spec equal_value?(t | RDF.Literal.t, t | RDF.Literal.t) :: boolean | nil
   def equal_value?(left, right)
 
-  def equal_value?(%RDF.IRI{value: left}, %RDF.IRI{value: right}),
+  def equal_value?(%__MODULE__{value: left}, %__MODULE__{value: right}),
     do: left == right
 
+  def equal_value?(%__MODULE__{} = left, %RDF.Literal{} = right),
+    do: RDF.Literal.equal_value?(right, left)
+
+  def equal_value?(%__MODULE__{value: left}, %URI{} = right),
+    do: left == URI.to_string(right)
 
   def equal_value?(_, _),
     do: nil
@@ -256,7 +261,7 @@ defmodule RDF.IRI do
   @spec to_string(t | module) :: String.t
   def to_string(iri)
 
-  def to_string(%RDF.IRI{value: value}),
+  def to_string(%__MODULE__{value: value}),
     do: value
 
   def to_string(qname) when is_atom(qname),
