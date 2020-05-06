@@ -239,18 +239,6 @@ defmodule RDF.XSD.Datatype do
       def valid?(%__MODULE__{}), do: true
       def valid?(_), do: false
 
-      def canonical_lexical(literal)
-      def canonical_lexical(%RDF.Literal{literal: literal}), do: canonical_lexical(literal)
-      def canonical_lexical(%__MODULE__{value: nil}), do: nil
-
-      def canonical_lexical(%__MODULE__{value: value, uncanonical_lexical: nil}),
-        do: canonical_mapping(value)
-
-      def canonical_lexical(%__MODULE__{} = literal),
-        do: literal |> canonical() |> lexical()
-
-      def canonical_lexical(_), do: nil
-
       defimpl Inspect do
         "Elixir.Inspect." <> datatype_name = to_string(__MODULE__)
         @datatype_name datatype_name

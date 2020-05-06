@@ -60,6 +60,13 @@ defmodule RDF.Literal.Datatype do
   @callback canonical(Literal.t() | literal) :: Literal.t()
 
   @doc """
+  Returns the canonical lexical form of a `RDF.Literal`.
+
+  If the given literal is invalid, `nil` is returned.
+  """
+  @callback canonical_lexical(Literal.t() | literal) :: String.t() | nil
+
+  @doc """
   Determines if the lexical form of a `RDF.Literal` is the canonical form.
 
   Note: For `RDF.Literal.Generic` literals with the canonical form not defined,
@@ -152,6 +159,17 @@ defmodule RDF.Literal.Datatype do
       @impl unquote(__MODULE__)
       def language(%Literal{literal: literal}), do: language(literal)
       def language(%__MODULE__{}), do: nil
+
+      @impl unquote(__MODULE__)
+      def canonical_lexical(literal)
+      def canonical_lexical(%Literal{literal: literal}), do: canonical_lexical(literal)
+
+      def canonical_lexical(%__MODULE__{} = literal) do
+        if valid?(literal) do
+          literal |> canonical() |> lexical()
+        end
+      end
+      def canonical_lexical(_), do: nil
 
       @doc """
       Casts a datatype literal or coercible value of one type into a datatype literal of another type.

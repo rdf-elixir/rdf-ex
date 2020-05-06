@@ -242,6 +242,20 @@ defmodule RDF.XSD.Datatype.Test.Case do
                        unquote(datatype).new(value)
             end)
           end
+
+          test "canonical_lexical with valid literals" do
+            Enum.each(@valid, fn {input, {_, _, canonicalized}} ->
+              assert unquote(datatype).new(input) |> unquote(datatype).canonical_lexical() ==
+                       canonicalized
+            end)
+          end
+
+          test "canonical_lexical with invalid literals" do
+            Enum.each(@invalid, fn value ->
+              assert unquote(datatype).new(value) |> unquote(datatype).canonical_lexical() ==
+                       nil
+            end)
+          end
         end
 
         describe "general validation" do

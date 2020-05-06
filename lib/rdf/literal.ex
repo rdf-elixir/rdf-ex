@@ -207,6 +207,9 @@ defmodule RDF.Literal do
   @spec canonical(t) :: t
   def canonical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical(literal)
 
+  @spec canonical_lexical(t) :: String.t | nil
+  def canonical_lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical_lexical(literal)
+
   @spec canonical?(t) :: boolean
   def canonical?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical?(literal)
 
@@ -239,7 +242,6 @@ defmodule RDF.Literal do
     compare(left, right) == :lt
   end
 
-
   @doc """
   Checks if the first of two `RDF.Literal`s is greater then the other.
   """
@@ -248,9 +250,8 @@ defmodule RDF.Literal do
     compare(left, right) == :gt
   end
 
-
   @doc """
-  Matches the lexical form of the given `XSD.Datatype` literal against a XPath and XQuery regular expression pattern with flags.
+  Matches the lexical form of the given `RDF.Literal` against a XPath and XQuery regular expression pattern with flags.
 
   The regular expression language is defined in _XQuery 1.0 and XPath 2.0 Functions and Operators_.
 
