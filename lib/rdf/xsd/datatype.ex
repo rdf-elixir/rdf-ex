@@ -76,24 +76,6 @@ defmodule RDF.XSD.Datatype do
   """
   @callback init_invalid_lexical(any, Keyword.t()) :: String.t()
 
-  @doc """
-  Matches the lexical form of the given `RDF.XSD.Datatype` literal against a XPath and XQuery regular expression pattern.
-
-  The regular expression language is defined in _XQuery 1.0 and XPath 2.0 Functions and Operators_.
-
-  see <https://www.w3.org/TR/xpath-functions/#func-matches>
-  """
-  @callback matches?(RDF.XSD.Literal.t(), pattern :: String.t()) :: boolean
-
-  @doc """
-  Matches the lexical form of the given `RDF.XSD.Datatype` literal against a XPath and XQuery regular expression pattern with flags.
-
-  The regular expression language is defined in _XQuery 1.0 and XPath 2.0 Functions and Operators_.
-
-  see <https://www.w3.org/TR/xpath-functions/#func-matches>
-  """
-  @callback matches?(RDF.XSD.Literal.t(), pattern :: String.t(), flags :: String.t()) :: boolean
-
 
   defmacro __using__(opts) do
     quote do
@@ -268,22 +250,6 @@ defmodule RDF.XSD.Datatype do
         do: literal |> canonical() |> lexical()
 
       def canonical_lexical(_), do: nil
-
-      @doc """
-      Matches the string representation of the given value against a XPath and XQuery regular expression pattern.
-
-      The regular expression language is defined in _XQuery 1.0 and XPath 2.0 Functions and Operators_.
-
-      see <https://www.w3.org/TR/xpath-functions/#func-matches>
-      """
-      @impl RDF.XSD.Datatype
-      def matches?(literal, pattern, flags \\ "")
-      def matches?(%RDF.Literal{literal: literal}, pattern, flags), do: matches?(literal, pattern, flags)
-      def matches?(%__MODULE__{} = literal, pattern, flags) do
-        literal
-        |> lexical()
-        |> RDF.XSD.Utils.Regex.matches?(pattern, flags)
-      end
 
       defimpl Inspect do
         "Elixir.Inspect." <> datatype_name = to_string(__MODULE__)

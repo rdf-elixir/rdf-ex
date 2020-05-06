@@ -225,12 +225,6 @@ defmodule RDF.Literal.Datatype do
         |> new()
       end
 
-      @spec less_than?(t, t) :: boolean
-      def less_than?(literal1, literal2), do: Literal.less_than?(literal1, literal2)
-
-      @spec greater_than?(t, t) :: boolean
-      def greater_than?(literal1, literal2), do: Literal.greater_than?(literal1, literal2)
-
       defp literal(datatype_literal), do: %Literal{literal: datatype_literal}
 
       defoverridable datatype: 1,

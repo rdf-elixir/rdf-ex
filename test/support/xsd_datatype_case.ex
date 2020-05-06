@@ -261,13 +261,6 @@ defmodule RDF.XSD.Datatype.Test.Case do
         end
       end
 
-      test "XSD.Datatype.matches?/3" do
-        Enum.each(@valid, fn {input, {_, lexical, canonicalized}} ->
-          lexical = lexical || canonicalized
-          assert unquote(datatype).new(input) |> unquote(datatype).matches?(lexical, "q") == true
-        end)
-      end
-
       test "String.Chars protocol implementation" do
         Enum.each(@valid, fn {input, _} ->
           assert unquote(datatype).new(input) |> to_string() ==
