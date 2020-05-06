@@ -17,6 +17,7 @@ defmodule RDF.IRI do
   """
 
   alias RDF.Namespace
+  import RDF.Guards
 
   @type t :: %__MODULE__{
           value: String.t
@@ -49,11 +50,10 @@ defmodule RDF.IRI do
   """
   @spec new(coercible) :: t
   def new(iri)
-  def new(iri) when is_binary(iri),   do: %__MODULE__{value: iri}
-  def new(qname) when is_atom(qname) and qname not in [nil, true, false],
-    do: Namespace.resolve_term(qname)
-  def new(%URI{} = uri),              do: uri |> URI.to_string |> new
-  def new(%__MODULE__{} = iri),       do: iri
+  def new(iri) when is_binary(iri),         do: %__MODULE__{value: iri}
+  def new(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname)
+  def new(%URI{} = uri),                    do: uri |> URI.to_string |> new
+  def new(%__MODULE__{} = iri),             do: iri
 
   @doc """
   Creates a `RDF.IRI`, but checks if the given IRI is valid.
@@ -64,11 +64,10 @@ defmodule RDF.IRI do
   """
   @spec new!(coercible) :: t
   def new!(iri)
-  def new!(iri) when is_binary(iri),   do: iri |> valid!() |> new()
-  def new!(qname) when is_atom(qname) and qname not in [nil, true, false],
-    do: new(qname)  # since terms of a namespace are already validated
-  def new!(%URI{} = uri),              do: uri |> valid!() |> new()
-  def new!(%__MODULE__{} = iri),       do: valid!(iri)
+  def new!(iri) when is_binary(iri),         do: iri |> valid!() |> new()
+  def new!(qname) when maybe_ns_term(qname), do: new(qname)  # since terms of a namespace are already validated
+  def new!(%URI{} = uri),                    do: uri |> valid!() |> new()
+  def new!(%__MODULE__{} = iri),             do: valid!(iri)
 
 
   @doc """
@@ -80,7 +79,7 @@ defmodule RDF.IRI do
   @spec coerce_base(coercible) :: t
   def coerce_base(base_iri)
 
-  def coerce_base(module) when is_atom(module) do
+  def coerce_base(module) when maybe_ns_term(module) do
     if RDF.Vocabulary.Namespace.vocabulary_namespace?(module) do
       apply(module, :__base_iri__, [])
       |> new()
@@ -139,7 +138,7 @@ defmodule RDF.IRI do
   def absolute?(%__MODULE__{value: value}),   do: absolute?(value)
   def absolute?(%URI{scheme: nil}),           do: false
   def absolute?(%URI{scheme: _}),             do: true
-  def absolute?(qname) when is_atom(qname) and qname not in [nil, true, false] do
+  def absolute?(qname) when maybe_ns_term(qname) do
     qname |> Namespace.resolve_term |> absolute?()
   rescue
     _ -> false
@@ -198,9 +197,9 @@ defmodule RDF.IRI do
   """
   @spec scheme(coercible) :: String.t | nil
   def scheme(iri)
-  def scheme(%__MODULE__{value: value}), do: scheme(value)
-  def scheme(%URI{scheme: scheme}),      do: scheme
-  def scheme(qname) when is_atom(qname), do: Namespace.resolve_term(qname) |> scheme()
+  def scheme(%__MODULE__{value: value}),       do: scheme(value)
+  def scheme(%URI{scheme: scheme}),            do: scheme
+  def scheme(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname) |> scheme()
   def scheme(iri) when is_binary(iri) do
     with [_, scheme] <- Regex.run(@scheme_regex, iri) do
       scheme
@@ -213,11 +212,10 @@ defmodule RDF.IRI do
   """
   @spec parse(coercible) :: URI.t
   def parse(iri)
-  def parse(iri) when is_binary(iri),   do: URI.parse(iri)
-  def parse(qname) when is_atom(qname) and qname not in [nil, true, false],
-    do: Namespace.resolve_term(qname) |> parse()
-  def parse(%__MODULE__{value: value}), do: URI.parse(value)
-  def parse(%URI{} = uri),              do: uri
+  def parse(iri) when is_binary(iri),         do: URI.parse(iri)
+  def parse(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname) |> parse()
+  def parse(%__MODULE__{value: value}),       do: URI.parse(value)
+  def parse(%URI{} = uri),                    do: uri
 
 
   @doc """
@@ -264,7 +262,7 @@ defmodule RDF.IRI do
   def to_string(%__MODULE__{value: value}),
     do: value
 
-  def to_string(qname) when is_atom(qname),
+  def to_string(qname) when maybe_ns_term(qname),
     do: qname |> new() |> __MODULE__.to_string()
 
   defimpl String.Chars do

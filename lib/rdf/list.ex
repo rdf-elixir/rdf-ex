@@ -9,6 +9,8 @@ defmodule RDF.List do
 
   alias RDF.{BlankNode, Description, Graph, IRI}
 
+  import RDF.Guards
+
   @type t :: %__MODULE__{
           head: IRI.t,
           graph: Graph.t
@@ -34,7 +36,7 @@ defmodule RDF.List do
   @spec new(IRI.coercible, Graph.t) :: t
   def new(head, graph)
 
-  def new(head, graph) when is_atom(head) and head not in ~w[true false nil]a,
+  def new(head, graph) when maybe_ns_term(head),
     do: new(RDF.iri(head), graph)
 
   def new(head, graph) do
@@ -85,7 +87,7 @@ defmodule RDF.List do
     {RDF.nil, graph}
   end
 
-  defp do_from(list, head, graph, opts) when is_atom(head) do
+  defp do_from(list, head, graph, opts) when maybe_ns_term(head) do
     do_from(list, RDF.iri!(head), graph, opts)
   end
 
@@ -186,8 +188,7 @@ defmodule RDF.List do
   def node?(%IRI{} = list_node, graph),
     do: do_node?(list_node, graph)
 
-  def node?(list_node, graph)
-    when is_atom(list_node) and list_node not in ~w[true false nil]a,
+  def node?(list_node, graph) when maybe_ns_term(list_node),
     do: do_node?(RDF.iri(list_node), graph)
 
   def node?(_, _), do: false

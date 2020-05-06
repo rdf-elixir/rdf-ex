@@ -41,6 +41,7 @@ defmodule RDF do
   alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
              Description, Graph, Dataset, PrefixMap}
 
+  import RDF.Guards
   import RDF.Utils.Bootstrapping
 
   defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
@@ -146,8 +147,8 @@ defmodule RDF do
   def resource?(value)
   def resource?(%IRI{}),                  do: true
   def resource?(%BlankNode{}),            do: true
-  def resource?(atom) when is_atom(atom) and atom not in ~w[true false nil]a do
-    resource?(Namespace.resolve_term(atom))
+  def resource?(qname) when maybe_ns_term(qname) do
+    resource?(Namespace.resolve_term(qname))
   rescue
     RDF.Namespace.UndefinedTermError -> false
   end

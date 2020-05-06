@@ -9,6 +9,8 @@ defmodule RDF.Namespace do
 
   alias RDF.IRI
 
+  import RDF.Guards
+
   @doc """
   Resolves a term to a `RDF.IRI`.
   """
@@ -32,7 +34,7 @@ defmodule RDF.Namespace do
 
   def resolve_term(%IRI{} = iri), do: iri
 
-  def resolve_term(namespaced_term) when is_atom(namespaced_term) do
+  def resolve_term(namespaced_term) when maybe_ns_term(namespaced_term) do
     namespaced_term
     |> to_string()
     |> do_resolve_term()
