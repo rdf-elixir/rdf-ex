@@ -14,6 +14,7 @@ defmodule RDF.Mixfile do
       start_permanent: Mix.env == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: Mix.compilers ++ [:protocol_ex],
 
       # Dialyzer
       dialyzer: dialyzer(),
@@ -68,6 +69,7 @@ defmodule RDF.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.5"},
+      {:protocol_ex, "~> 0.4"},
 
       {:credo, "~> 1.3",           only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},

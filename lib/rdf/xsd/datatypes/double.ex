@@ -8,7 +8,8 @@ defmodule RDF.XSD.Double do
 
   use RDF.XSD.Datatype.Primitive,
     name: "double",
-    id: RDF.Utils.Bootstrapping.xsd_iri("double")
+    id: RDF.Utils.Bootstrapping.xsd_iri("double"),
+    register: false # core datatypes don't need to be registered
 
   @special_values ~W[positive_infinity negative_infinity nan]a
 

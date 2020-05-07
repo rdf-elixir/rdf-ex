@@ -7,7 +7,8 @@ defmodule RDF.XSD.Time do
 
   use RDF.XSD.Datatype.Primitive,
     name: "time",
-    id: RDF.Utils.Bootstrapping.xsd_iri("time")
+    id: RDF.Utils.Bootstrapping.xsd_iri("time"),
+    register: false # core datatypes don't need to be registered
 
   # TODO: Are GMT/UTC actually allowed? Maybe because it is supported by Elixir's Datetime ...
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/

@@ -1,6 +1,7 @@
 defmodule RDF.Literal.Datatype.RegistryTest do
-  use ExUnit.Case
+  use RDF.Test.Case
 
+  alias RDF.TestDatatypes.Age
   alias RDF.Literal.Datatype
   alias RDF.NS
 
@@ -36,20 +37,40 @@ defmodule RDF.Literal.Datatype.RegistryTest do
 
 
   describe "get/1" do
-    test "IRIs of supported datatypes from the XSD namespace" do
-      Enum.each(@supported_xsd_datatypes, fn xsd_datatype_iri ->
-        assert xsd_datatype = Datatype.Registry.get(xsd_datatype_iri)
-        assert xsd_datatype == Datatype.Registry.get(to_string(xsd_datatype_iri))
-        assert RDF.iri(xsd_datatype.id) == xsd_datatype_iri
-
+    test "core datatypes" do
+      Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
+        assert datatype == Datatype.Registry.get(datatype.id)
+        assert datatype == Datatype.Registry.get(to_string(datatype.id))
       end)
     end
 
-    test "IRIs of unsupported datatypes from the XSD namespace" do
+    test "supported datatypes from the XSD namespace" do
+      Enum.each(@supported_xsd_datatypes, fn xsd_datatype_iri ->
+        assert xsd_datatype = Datatype.Registry.get(xsd_datatype_iri)
+        assert xsd_datatype.id == xsd_datatype_iri
+      end)
+    end
+
+    test "unsupported datatypes from the XSD namespace" do
       Enum.each(@unsupported_xsd_datatypes, fn xsd_datatype_iri ->
         refute Datatype.Registry.get(xsd_datatype_iri)
         refute Datatype.Registry.get(to_string(xsd_datatype_iri))
       end)
     end
+
+    test "with IRI of custom datatype" do
+      assert Age == Datatype.Registry.get(Age.id)
+    end
+
+    test "with namespace terms" do
+      assert Age == Datatype.Registry.get(EX.Age)
+    end
+  end
+
+  test "core datatypes are handled differently and should not be registered (for performance reasons)" do
+    Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
+      refute Datatype.Registry.Registration.datatype(datatype.id)
+      refute Datatype.Registry.Registration.datatype(to_string(datatype.id))
+    end)
   end
 end

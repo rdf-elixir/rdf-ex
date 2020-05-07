@@ -1,33 +1,45 @@
-# TODO: This registry should be managed automatically/dynamically and be extendable, to allow user-defined datatypes ...
 defmodule RDF.Literal.Datatype.Registry do
   @moduledoc false
 
   alias RDF.{Literal, IRI, XSD}
+  alias RDF.Literal.Datatype.Registry.Registration
 
-  @datatypes [RDF.LangString | Enum.to_list(XSD.datatypes())]
+  import RDF.Guards
 
-  @mapping Map.new(@datatypes, fn datatype -> {IRI.new(datatype.id), datatype} end)
-
-  @doc """
-  The mapping of IRIs of datatypes to their `RDF.Literal.Datatype`.
-  """
-  @spec mapping :: %{IRI.t => Literal.Datatype.t}
-  def mapping, do: @mapping
+  @core_datatypes [RDF.LangString | Enum.to_list(XSD.datatypes())]
+  @mapping Map.new(@core_datatypes, fn datatype -> {IRI.new(datatype.id), datatype} end)
 
   @doc """
-  The IRIs of all datatypes with a `RDF.Literal.Datatype` defined.
+  The IRIs of all core `RDF.Literal.Datatype`s.
   """
-  @spec ids :: [IRI.t]
-  def ids, do: Map.keys(@mapping)
+  @spec core_ids :: [IRI.t]
+  def core_ids, do: Map.keys(@mapping)
 
   @doc """
-  All defined `RDF.Literal.Datatype` modules.
+  All core `RDF.Literal.Datatype` modules.
   """
-  @spec datatypes :: Enum.t
-  def datatypes, do: @datatypes
+  @spec core_datatypes :: Enum.t
+  def core_datatypes, do: @core_datatypes
 
+  @doc """
+  Checks if the given module is core datatype.
+  """
+  @spec core_datatype?(module) :: boolean
+  def core_datatype?(module), do: module in @core_datatypes
+
+  @doc """
+  Checks if the given module is a core datatype or a registered custom datatype implementing the `RDF.Literal.Datatype` behaviour.
+  """
   @spec datatype?(module) :: boolean
-  def datatype?(module), do: module in @datatypes
+  def datatype?(module) do
+    core_datatype?(module) or implements_datatype_behaviour?(module)
+  end
+
+  @spec literal?(module) :: boolean
+  def literal?(%Literal{}), do: true
+  def literal?(%Literal.Generic{}), do: true
+  def literal?(%datatype{}), do: datatype?(datatype)
+  def literal?(_), do: false
 
   @doc """
   Returns the `RDF.Literal.Datatype` for a directly datatype IRI or the datatype IRI of a `RDF.Literal`.
@@ -35,5 +47,19 @@ defmodule RDF.Literal.Datatype.Registry do
   @spec get(Literal.t | IRI.t | String.t) :: Literal.Datatype.t
   def get(%Literal{} = literal), do: Literal.datatype(literal)
   def get(id) when is_binary(id), do: id |> IRI.new() |> get()
-  def get(id), do: @mapping[id]
+  def get(id) when maybe_ns_term(id), do: id |> IRI.new() |> get()
+  def get(id), do: @mapping[id] || get_custom_datatype(id)
+
+  defp get_custom_datatype(id) do
+    id
+    |> to_string()
+    |> Registration.datatype()
+  end
+
+  defp implements_datatype_behaviour?(module) do
+    module.module_info[:attributes]
+    |> Keyword.get_values(:behaviour)
+    |> List.flatten()
+    |> Enum.member?(RDF.Literal.Datatype)
+  end
 end

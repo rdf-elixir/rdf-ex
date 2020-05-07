@@ -209,10 +209,7 @@ defmodule RDF do
   defdelegate literal(value),       to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
-  def literal?(%Literal{}), do: true
-  def literal?(%RDF.Literal.Generic{}), do: true
-  def literal?(%datatype{}), do: Literal.Datatype.Registry.datatype?(datatype)
-  def literal?(_), do: false
+  defdelegate literal?(literal), to: Literal.Datatype.Registry
 
   defdelegate triple(s, p, o),  to: Triple, as: :new
   defdelegate triple(tuple),    to: Triple, as: :new

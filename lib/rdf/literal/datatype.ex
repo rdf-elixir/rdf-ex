@@ -140,6 +140,17 @@ defmodule RDF.Literal.Datatype do
   defmacro __using__(opts) do
     name = Keyword.fetch!(opts, :name)
     id = Keyword.fetch!(opts, :id)
+    do_register = Keyword.get(opts, :register, not is_nil(id))
+    datatype = __CALLER__.module
+
+    # TODO: find an alternative to Code.eval_quoted - We want to support that id can be passed via a function call
+    unquoted_id =
+      if do_register do
+        id
+        |> Code.eval_quoted([], __ENV__)
+        |> elem(0)
+        |> to_string()
+      end
 
     quote do
       @behaviour unquote(__MODULE__)
@@ -256,6 +267,15 @@ defmodule RDF.Literal.Datatype do
       defimpl String.Chars do
         def to_string(literal) do
           literal.__struct__.lexical(literal)
+        end
+      end
+
+      if unquote(do_register) do
+        import ProtocolEx
+
+        defimpl_ex Registration, unquote(unquoted_id),
+                   for: RDF.Literal.Datatype.Registry.Registration do
+          def datatype(id), do: unquote(datatype)
         end
       end
     end

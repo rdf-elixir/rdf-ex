@@ -92,12 +92,6 @@ defmodule RDF.Literal do
 
   def coerce(%__MODULE__{} = literal), do: literal
 
-  Enum.each(Datatype.Registry.datatypes(), fn datatype ->
-    def coerce(%unquote(datatype){} = literal) do
-      %__MODULE__{literal: literal}
-    end
-  end)
-
   def coerce(value) when is_binary(value),  do: RDF.XSD.String.new(value)
   def coerce(value) when is_boolean(value), do: RDF.XSD.Boolean.new(value)
   def coerce(value) when is_integer(value), do: RDF.XSD.Integer.new(value)
@@ -108,7 +102,22 @@ defmodule RDF.Literal do
   def coerce(%DateTime{} = value),          do: RDF.XSD.DateTime.new(value)
   def coerce(%NaiveDateTime{} = value),     do: RDF.XSD.DateTime.new(value)
   def coerce(%URI{} = value),               do: RDF.XSD.AnyURI.new(value)
-  def coerce(_),                            do: nil
+
+  # Although the following catch-all-clause for all structs could handle the core datatypes
+  # we're generating dedicated clauses for them here, as they are approx. 15% faster
+  Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
+    def coerce(%unquote(datatype){} = datatype_literal) do
+      %__MODULE__{literal: datatype_literal}
+    end
+  end)
+
+  def coerce(%_datatype{} = datatype_literal) do
+    if Datatype.Registry.literal?(datatype_literal) do
+      %__MODULE__{literal: datatype_literal}
+    end
+  end
+
+  def coerce(_), do: nil
 
 
   @doc """

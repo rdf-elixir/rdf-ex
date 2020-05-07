@@ -7,7 +7,8 @@ defmodule RDF.LangString do
 
   use RDF.Literal.Datatype,
       name: "langString",
-      id: RDF.Utils.Bootstrapping.rdf_iri("langString")
+      id: RDF.Utils.Bootstrapping.rdf_iri("langString"),
+      register: false # core datatypes don't need to be registered
 
   alias RDF.Literal.Datatype
   alias RDF.Literal
