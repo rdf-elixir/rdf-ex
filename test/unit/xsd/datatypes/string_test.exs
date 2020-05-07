@@ -109,6 +109,10 @@ defmodule RDF.XSD.StringTest do
       assert XSD.time("00:00:00+01:00") |> XSD.String.cast() == XSD.string("00:00:00+01:00")
     end
 
+    test "casting an IRI" do
+      assert RDF.iri("http://example.com") |> XSD.String.cast() == XSD.string("http://example.com")
+    end
+
     test "with invalid literals" do
       assert XSD.integer(3.14) |> XSD.String.cast() == nil
       assert XSD.decimal("NAN") |> XSD.String.cast() == nil

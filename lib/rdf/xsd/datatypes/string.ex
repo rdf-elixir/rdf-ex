@@ -21,6 +21,8 @@ defmodule RDF.XSD.String do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
+  def do_cast(%RDF.IRI{value: value}), do: new(value)
+
   def do_cast(%RDF.XSD.Decimal{} = xsd_decimal) do
     try do
       xsd_decimal.value
