@@ -16,6 +16,10 @@ defmodule RDF.XSD.ComparisonTest do
 
       assert_equal({XSD.string("foo"), XSD.string("foo")})
     end
+
+    test "invalid comparison between string and langString literals" do
+      assert_incomparable({XSD.string("foo"), RDF.langString("foo", :en)})
+    end
   end
 
   describe "XSD.Boolean" do
