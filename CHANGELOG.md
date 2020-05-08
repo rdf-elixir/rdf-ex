@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Changed
+
+- `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
+  `RDF.Namespace.resolve_term!/1` with the old behaviour was added
+
+[Compare v0.7.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.7.1...HEAD)
+
+
+
 ## 0.7.1 - 2020-03-11
 
 ### Added
@@ -65,7 +76,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 ### Added
 
 - field `base_iri` on `RDF.Graph` structure which can be set via new `base_iri` 
-  option on `RDF.Graph.new` or the the new functions `RDF.Graph.set_base_iri/2` 
+  option on `RDF.Graph.new` or the new functions `RDF.Graph.set_base_iri/2` 
   and `RDF.Graph.clear_base_iri/1`
 - `RDF.Graph.clear_metadata/1` which clears the base IRI and the prefixes
 - `RDF.IRI.coerce_base/1` which coerces base IRIs; as opposed to `RDF.IRI.new/1`
@@ -77,7 +88,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 - `RDF.Turtle.Decoder` saves the base IRI in the `RDF.Graph` now
 - `RDF.Turtle.Encoder` now takes the base IRI to be used during serialization in  
   the following order of precedence:
-	- from the the `base` option or its new alias `base_iri`
+	- from the `base` option or its new alias `base_iri`
 	- from the `base_iri` field of the given graph
 	- from the `RDF.default_base_iri` returning the one from the application 
 	  configuration

@@ -94,15 +94,18 @@ defmodule RDF.Vocabulary.Namespace do
           case @terms[term] do
             nil ->
               if @strict or MapSet.member?(@ignored_terms, term) do
-                raise Elixir.RDF.Namespace.UndefinedTermError,
-                  "undefined term #{term} in strict vocabulary #{__MODULE__}"
+                {:error,
+                  %Elixir.RDF.Namespace.UndefinedTermError{
+                    message: "undefined term #{term} in strict vocabulary #{__MODULE__}"
+                  }
+                }
               else
-                term_to_iri(@base_iri, term)
+                {:ok, term_to_iri(@base_iri, term)}
               end
             true ->
-              term_to_iri(@base_iri, term)
+              {:ok, term_to_iri(@base_iri, term)}
             original_term ->
-              term_to_iri(@base_iri, original_term)
+              {:ok, term_to_iri(@base_iri, original_term)}
           end
         end
 

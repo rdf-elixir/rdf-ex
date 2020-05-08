@@ -770,14 +770,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
         StrictExampleFromTerms.undefined
       end
 
+      assert {:error, %RDF.Namespace.UndefinedTermError{}} =
+               RDF.Namespace.resolve_term(TestNS.ExampleFromGraph.Undefined)
+      assert {:error, %RDF.Namespace.UndefinedTermError{}} =
+               RDF.Namespace.resolve_term(ExampleFromNTriplesFile.Undefined)
+      assert {:error, %RDF.Namespace.UndefinedTermError{}} =
+               RDF.Namespace.resolve_term(StrictExampleFromTerms.Undefined)
+
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.Namespace.resolve_term(TestNS.ExampleFromGraph.Undefined)
+        RDF.Namespace.resolve_term!(TestNS.ExampleFromGraph.Undefined)
       end
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.Namespace.resolve_term(ExampleFromNTriplesFile.Undefined)
+        RDF.Namespace.resolve_term!(ExampleFromNTriplesFile.Undefined)
       end
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.Namespace.resolve_term(StrictExampleFromTerms.Undefined)
+        RDF.Namespace.resolve_term!(StrictExampleFromTerms.Undefined)
       end
     end
 

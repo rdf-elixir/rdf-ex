@@ -145,15 +145,16 @@ defmodule RDF do
       false
   """
   def resource?(value)
-  def resource?(%IRI{}),                  do: true
-  def resource?(%BlankNode{}),            do: true
+  def resource?(%IRI{}), do: true
+  def resource?(%BlankNode{}), do: true
   def resource?(qname) when maybe_ns_term(qname) do
-    resource?(Namespace.resolve_term(qname))
-  rescue
-    RDF.Namespace.UndefinedTermError -> false
+    case Namespace.resolve_term(qname) do
+      {:ok, iri} -> resource?(iri)
+      _ -> false
+    end
   end
 
-  def resource?(_),                       do: false
+  def resource?(_), do: false
 
   @doc """
   Checks if the given value is a RDF term.

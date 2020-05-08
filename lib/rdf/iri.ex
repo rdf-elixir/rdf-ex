@@ -51,7 +51,7 @@ defmodule RDF.IRI do
   @spec new(coercible) :: t
   def new(iri)
   def new(iri) when is_binary(iri),         do: %__MODULE__{value: iri}
-  def new(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname)
+  def new(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname)
   def new(%URI{} = uri),                    do: uri |> URI.to_string |> new
   def new(%__MODULE__{} = iri),             do: iri
 
@@ -139,9 +139,10 @@ defmodule RDF.IRI do
   def absolute?(%URI{scheme: nil}),           do: false
   def absolute?(%URI{scheme: _}),             do: true
   def absolute?(qname) when maybe_ns_term(qname) do
-    qname |> Namespace.resolve_term |> absolute?()
-  rescue
-    _ -> false
+    case Namespace.resolve_term(qname) do
+      {:ok, iri} -> absolute?(iri)
+      _ -> false
+    end
   end
   def absolute?(_), do: false
 
@@ -199,7 +200,7 @@ defmodule RDF.IRI do
   def scheme(iri)
   def scheme(%__MODULE__{value: value}),       do: scheme(value)
   def scheme(%URI{scheme: scheme}),            do: scheme
-  def scheme(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname) |> scheme()
+  def scheme(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname) |> scheme()
   def scheme(iri) when is_binary(iri) do
     with [_, scheme] <- Regex.run(@scheme_regex, iri) do
       scheme
@@ -213,7 +214,7 @@ defmodule RDF.IRI do
   @spec parse(coercible) :: URI.t
   def parse(iri)
   def parse(iri) when is_binary(iri),         do: URI.parse(iri)
-  def parse(qname) when maybe_ns_term(qname), do: Namespace.resolve_term(qname) |> parse()
+  def parse(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname) |> parse()
   def parse(%__MODULE__{value: value}),       do: URI.parse(value)
   def parse(%URI{} = uri),                    do: uri
 

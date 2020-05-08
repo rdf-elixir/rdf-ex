@@ -14,7 +14,7 @@ defmodule RDF.Namespace do
   @doc """
   Resolves a term to a `RDF.IRI`.
   """
-  @callback __resolve_term__(atom) :: IRI.t
+  @callback __resolve_term__(atom) :: {:ok, IRI.t} | {:error, Exception.t}
 
   @doc """
   All terms of a `RDF.Namespace`.
@@ -29,10 +29,10 @@ defmodule RDF.Namespace do
   delegates to remaining part of the term to `__resolve_term__/1` of this
   determined namespace.
   """
-  @spec resolve_term(IRI.t | module) :: IRI.t
+  @spec resolve_term(IRI.t | module) :: {:ok, IRI.t} | {:error, Exception.t}
   def resolve_term(expr)
 
-  def resolve_term(%IRI{} = iri), do: iri
+  def resolve_term(%IRI{} = iri), do: {:ok, iri}
 
   def resolve_term(namespaced_term) when maybe_ns_term(namespaced_term) do
     namespaced_term
@@ -40,18 +40,35 @@ defmodule RDF.Namespace do
     |> do_resolve_term()
   end
 
+  @doc """
+  Resolves a qualified term to a `RDF.IRI` or raises an error when that's not possible.
+
+  See `resolve_term/1` for more.
+  """
+  @spec resolve_term(IRI.t | module) :: IRI.t
+  def resolve_term!(expr) do
+    with {:ok, iri} <- resolve_term(expr) do
+      iri
+    else
+      {:error, error} -> raise error
+    end
+  end
 
   defp do_resolve_term("Elixir." <> _ = namespaced_term) do
     {term, namespace} =
       namespaced_term
       |> Module.split
       |> List.pop_at(-1)
+
     do_resolve_term(Module.concat(namespace), String.to_atom(term))
   end
 
   defp do_resolve_term(namespaced_term) do
-    raise RDF.Namespace.UndefinedTermError,
-      "#{namespaced_term} is not a term on a RDF.Namespace"
+    {:error,
+      %RDF.Namespace.UndefinedTermError{
+        message: "#{namespaced_term} is not a term on a RDF.Namespace"
+      }
+    }
   end
 
   defp do_resolve_term(RDF, term), do: do_resolve_term(RDF.NS.RDF, term)
@@ -66,9 +83,9 @@ defmodule RDF.Namespace do
     if is_module and Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
       namespace.__resolve_term__(term)
     else
-      raise RDF.Namespace.UndefinedTermError,
-        "#{namespace} is not a RDF.Namespace"
+      {:error,
+        %RDF.Namespace.UndefinedTermError{message: "#{namespace} is not a RDF.Namespace"}
+      }
     end
   end
-
 end
