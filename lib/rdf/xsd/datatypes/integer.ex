@@ -10,8 +10,7 @@ defmodule RDF.XSD.Integer do
 
   use RDF.XSD.Datatype.Primitive,
     name: "integer",
-    id: RDF.Utils.Bootstrapping.xsd_iri("integer"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("integer")
 
   def_applicable_facet RDF.XSD.Facets.MinInclusive
   def_applicable_facet RDF.XSD.Facets.MaxInclusive

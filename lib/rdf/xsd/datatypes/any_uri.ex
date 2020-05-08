@@ -11,8 +11,7 @@ defmodule RDF.XSD.AnyURI do
 
   use RDF.XSD.Datatype.Primitive,
     name: "anyURI",
-    id: RDF.Utils.Bootstrapping.xsd_iri("anyURI"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("anyURI")
 
   @impl RDF.XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value

@@ -66,11 +66,4 @@ defmodule RDF.Literal.Datatype.RegistryTest do
       assert Age == Datatype.Registry.get(EX.Age)
     end
   end
-
-  test "core datatypes are handled differently and should not be registered (for performance reasons)" do
-    Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
-      refute Datatype.Registry.Registration.datatype(datatype.id)
-      refute Datatype.Registry.Registration.datatype(to_string(datatype.id))
-    end)
-  end
 end

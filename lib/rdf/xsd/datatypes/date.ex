@@ -11,8 +11,7 @@ defmodule RDF.XSD.Date do
 
   use RDF.XSD.Datatype.Primitive,
     name: "date",
-    id: RDF.Utils.Bootstrapping.xsd_iri("date"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("date")
 
 
   # TODO: Are GMT/UTC actually allowed? Maybe because it is supported by Elixir's Datetime ...

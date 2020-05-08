@@ -7,8 +7,7 @@ defmodule RDF.XSD.DateTime do
 
   use RDF.XSD.Datatype.Primitive,
     name: "dateTime",
-    id: RDF.Utils.Bootstrapping.xsd_iri("dateTime"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("dateTime")
 
   @impl RDF.XSD.Datatype
   def lexical_mapping(lexical, opts) do

@@ -7,8 +7,7 @@ defmodule RDF.XSD.String do
 
   use RDF.XSD.Datatype.Primitive,
     name: "string",
-    id: RDF.Utils.Bootstrapping.xsd_iri("string"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("string")
 
   @impl RDF.XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value

@@ -9,6 +9,5 @@ defmodule RDF.XSD.Float do
   use RDF.XSD.Datatype.Restriction,
     name: "float",
     id: RDF.Utils.Bootstrapping.xsd_iri("float"),
-    base: RDF.XSD.Double,
-    register: false # core datatypes don't need to be registered
+    base: RDF.XSD.Double
 end

@@ -7,8 +7,7 @@ defmodule RDF.XSD.Decimal do
 
   use RDF.XSD.Datatype.Primitive,
     name: "decimal",
-    id: RDF.Utils.Bootstrapping.xsd_iri("decimal"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("decimal")
 
   alias Elixir.Decimal, as: D
 

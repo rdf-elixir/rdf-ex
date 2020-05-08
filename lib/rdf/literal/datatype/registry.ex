@@ -1,7 +1,7 @@
 defmodule RDF.Literal.Datatype.Registry do
   @moduledoc false
 
-  alias RDF.{Literal, IRI, XSD}
+  alias RDF.{Literal, IRI, XSD, Namespace}
   alias RDF.Literal.Datatype.Registry.Registration
 
   import RDF.Guards
@@ -46,15 +46,9 @@ defmodule RDF.Literal.Datatype.Registry do
   """
   @spec get(Literal.t | IRI.t | String.t) :: Literal.Datatype.t
   def get(%Literal{} = literal), do: Literal.datatype(literal)
-  def get(id) when is_binary(id), do: id |> IRI.new() |> get()
-  def get(id) when maybe_ns_term(id), do: id |> IRI.new() |> get()
-  def get(id), do: @mapping[id] || get_custom_datatype(id)
-
-  defp get_custom_datatype(id) do
-    id
-    |> to_string()
-    |> Registration.datatype()
-  end
+  def get(%IRI{} = id), do: id |> to_string() |> get()
+  def get(id) when maybe_ns_term(id), do: id |> Namespace.resolve_term!() |> get()
+  def get(id) when is_binary(id), do: Registration.datatype(id)
 
   defp implements_datatype_behaviour?(module) do
     module.module_info[:attributes]

@@ -8,8 +8,7 @@ defmodule RDF.XSD.Boolean do
 
   use RDF.XSD.Datatype.Primitive,
     name: "boolean",
-    id: RDF.Utils.Bootstrapping.xsd_iri("boolean"),
-    register: false # core datatypes don't need to be registered
+    id: RDF.Utils.Bootstrapping.xsd_iri("boolean")
 
   @impl RDF.XSD.Datatype
   def lexical_mapping(lexical, _) do
