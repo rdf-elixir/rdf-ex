@@ -76,6 +76,7 @@ defmodule RDF.XSD.Datatype do
   """
   @callback init_invalid_lexical(any, Keyword.t()) :: String.t()
 
+  defdelegate get(id), to: RDF.Literal.Datatype.Registry, as: :xsd_datatype
 
   defmacro __using__(opts) do
     quote do

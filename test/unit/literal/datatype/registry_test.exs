@@ -66,4 +66,22 @@ defmodule RDF.Literal.Datatype.RegistryTest do
       assert Age == Datatype.Registry.datatype(EX.Age)
     end
   end
+
+  describe "xsd_datatype/1" do
+    test "when a core XSD datatype with the given IRI exists" do
+      assert XSD.String = Datatype.Registry.xsd_datatype(NS.XSD.string)
+    end
+
+    test "when a custom XSD datatype with the given IRI exists" do
+      assert Age = Datatype.Registry.xsd_datatype(EX.Age)
+    end
+
+    test "when  datatype with the given IRI exists, but it is not an XSD datatype" do
+      refute Datatype.Registry.xsd_datatype(RDF.langString)
+    end
+
+    test "when no datatype with the given IRI exists" do
+      refute Datatype.Registry.xsd_datatype(EX.foo)
+    end
+  end
 end

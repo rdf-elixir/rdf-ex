@@ -25,7 +25,7 @@ defmodule RDF.Literal.Datatype.Registry do
   """
   @spec datatype?(module) :: boolean
   def datatype?(module) do
-    core_datatype?(module) or implements_datatype_behaviour?(module)
+    core_datatype?(module) or implements_behaviour?(module, Literal.Datatype)
   end
 
   @spec literal?(module) :: boolean
@@ -43,10 +43,22 @@ defmodule RDF.Literal.Datatype.Registry do
   def datatype(id) when maybe_ns_term(id), do: id |> Namespace.resolve_term!() |> datatype()
   def datatype(id) when is_binary(id), do: Registration.datatype(id)
 
-  defp implements_datatype_behaviour?(module) do
+  @doc """
+  Returns the `RDF.XSD.Datatype` for a datatype IRI.
+  """
+  @spec xsd_datatype(Literal.t | IRI.t | String.t) :: XSD.Datatype.t
+  def xsd_datatype(id) do
+    datatype = datatype(id)
+
+    if datatype && implements_behaviour?(datatype, XSD.Datatype) do
+      datatype
+    end
+  end
+
+  defp implements_behaviour?(module, behaviour) do
     module.module_info[:attributes]
     |> Keyword.get_values(:behaviour)
     |> List.flatten()
-    |> Enum.member?(RDF.Literal.Datatype)
+    |> Enum.member?(behaviour)
   end
 end
