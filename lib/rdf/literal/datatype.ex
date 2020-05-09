@@ -137,6 +137,8 @@ defmodule RDF.Literal.Datatype do
   """
   @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t
 
+  defdelegate get(id), to: Literal.Datatype.Registry, as: :datatype
+
   defmacro __using__(opts) do
     name = Keyword.fetch!(opts, :name)
     id = Keyword.fetch!(opts, :id)

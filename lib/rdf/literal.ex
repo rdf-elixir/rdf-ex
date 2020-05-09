@@ -51,7 +51,7 @@ defmodule RDF.Literal do
         end
 
       datatype = Keyword.get(opts, :datatype) ->
-        case Datatype.Registry.get(datatype) do
+        case Datatype.get(datatype) do
           nil      -> Generic.new(value, opts)
           datatype -> datatype.new(value, opts)
         end
