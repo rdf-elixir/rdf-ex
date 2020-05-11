@@ -96,9 +96,7 @@ defmodule RDF.XSD.StringTest do
       assert XSD.date("2000-01-01+01:00") |> XSD.String.cast() == XSD.string("2000-01-01+01:00")
       assert XSD.date("0001-01-01") |> XSD.String.cast() == XSD.string("0001-01-01")
 
-      unless Version.compare(System.version(), "1.7.2") == :lt do
-        assert XSD.date("-0001-01-01") |> XSD.String.cast() == XSD.string("-0001-01-01")
-      end
+      assert XSD.date("-0001-01-01") |> XSD.String.cast() == XSD.string("-0001-01-01")
     end
 
     test "casting a time" do

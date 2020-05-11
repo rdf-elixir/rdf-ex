@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- Elixir versions < 1.8 are no longer supported
 - `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
   `RDF.Namespace.resolve_term!/1` with the old behaviour was added
 
