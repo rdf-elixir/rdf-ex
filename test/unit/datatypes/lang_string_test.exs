@@ -109,9 +109,9 @@ defmodule RDF.LangStringTest do
     end
   end
 
-  test "datatype/1" do
+  test "datatype_id/1" do
     Enum.each @valid, fn {input, {_, language}} ->
-      assert (LangString.new(input, language: language) |> LangString.datatype()) == RDF.iri(LangString.id())
+      assert (LangString.new(input, language: language) |> LangString.datatype_id()) == RDF.iri(LangString.id())
     end
   end
 

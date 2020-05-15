@@ -166,7 +166,7 @@ defmodule RDF.Literal.Datatype.Registry do
   Returns the `RDF.Literal.Datatype` for a datatype IRI.
   """
   @spec datatype(Literal.t | IRI.t | String.t) :: Literal.Datatype.t
-  def datatype(%Literal{} = literal), do: Literal.datatype(literal)
+  def datatype(%Literal{} = literal), do: literal.literal.__struct__
   def datatype(%IRI{} = id), do: id |> to_string() |> datatype()
   def datatype(id) when maybe_ns_term(id), do: id |> Namespace.resolve_term!() |> datatype()
   def datatype(id) when is_binary(id), do: Registration.datatype(id)

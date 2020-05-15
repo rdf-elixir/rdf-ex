@@ -48,7 +48,7 @@ defmodule RDF.Literal.Datatype do
   @doc """
   The datatype IRI of the given `RDF.Literal`.
   """
-  @callback datatype(Literal.t | literal) :: IRI.t()
+  @callback datatype_id(Literal.t | literal) :: IRI.t()
 
   @doc """
   The language of the given `RDF.Literal` if present.
@@ -203,8 +203,8 @@ defmodule RDF.Literal.Datatype do
       end
 
       @impl unquote(__MODULE__)
-      def datatype(%Literal{literal: literal}), do: datatype(literal)
-      def datatype(%__MODULE__{}), do: @id
+      def datatype_id(%Literal{literal: literal}), do: datatype_id(literal)
+      def datatype_id(%__MODULE__{}), do: @id
 
       @impl unquote(__MODULE__)
       def language(%Literal{literal: literal}), do: language(literal)
@@ -298,7 +298,7 @@ defmodule RDF.Literal.Datatype do
       # RDF.Literal/new/1, to bypass the unnecessary datatype checks.
       defp literal(datatype_literal), do: %Literal{literal: datatype_literal}
 
-      defoverridable datatype: 1,
+      defoverridable datatype_id: 1,
                      language: 1,
                      cast: 1,
                      do_cast: 1,

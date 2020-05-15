@@ -145,9 +145,9 @@ defmodule RDF.XSD.Datatype.Test.Case do
           end
         end
 
-        test "datatype/1" do
+        test "datatype_id/1" do
           Enum.each(@valid, fn {input, _} ->
-            assert (unquote(datatype).new(input) |> unquote(datatype).datatype()) == RDF.iri(unquote(datatype_iri))
+            assert (unquote(datatype).new(input) |> unquote(datatype).datatype_id()) == RDF.iri(unquote(datatype_iri))
           end)
         end
 

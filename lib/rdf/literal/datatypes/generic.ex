@@ -48,8 +48,8 @@ defmodule RDF.Literal.Generic do
   end
 
   @impl Datatype
-  def datatype(%Literal{literal: literal}), do: datatype(literal)
-  def datatype(%__MODULE__{} = literal), do: literal.datatype
+  def datatype_id(%Literal{literal: literal}), do: datatype_id(literal)
+  def datatype_id(%__MODULE__{} = literal), do: literal.datatype
 
   @impl Datatype
   def value(%Literal{literal: literal}), do: value(literal)

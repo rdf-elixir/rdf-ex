@@ -37,7 +37,7 @@ defmodule RDF.NTriples.Encoder do
   end
 
   def term(%Literal{} = literal) do
-    ~s["#{Literal.lexical(literal)}"^^<#{to_string(Literal.datatype(literal))}>]
+    ~s["#{Literal.lexical(literal)}"^^<#{to_string(Literal.datatype_id(literal))}>]
   end
 
   def term(%BlankNode{} = bnode) do

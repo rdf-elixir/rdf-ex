@@ -99,9 +99,9 @@ defmodule RDF.Literal.GenericTest do
     end
   end
 
-  test "datatype/1" do
+  test "datatype_id/1" do
     Enum.each @valid, fn {input, {_, datatype}} ->
-      assert (Generic.new(input, datatype: datatype) |> Generic.datatype()) == RDF.iri(datatype)
+      assert (Generic.new(input, datatype: datatype) |> Generic.datatype_id()) == RDF.iri(datatype)
     end
   end
 

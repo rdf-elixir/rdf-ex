@@ -66,6 +66,14 @@ defmodule RDF.Literal.Datatype.RegistryTest do
     test "with namespace terms" do
       assert Age == Datatype.Registry.datatype(EX.Age)
     end
+
+    test "with a RDF.Literal" do
+      assert XSD.String == Datatype.Registry.datatype(XSD.string("foo"))
+      assert XSD.Integer == Datatype.Registry.datatype(XSD.integer(42))
+      assert XSD.Byte == Datatype.Registry.datatype(XSD.byte(42))
+      assert RDF.LangString == Datatype.Registry.datatype(~L"foo"en)
+      assert RDF.Literal.Generic == Datatype.Registry.datatype(RDF.literal("foo", datatype: "http://example.com"))
+    end
   end
 
   test "datatype?/1" do

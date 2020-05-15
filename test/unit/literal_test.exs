@@ -227,11 +227,11 @@ defmodule RDF.LiteralTest do
     end
   end
 
-  describe "datatype/1" do
+  describe "datatype_id/1" do
     Enum.each literals(:all_simple), fn literal ->
       @tag literal: literal
       test "simple literal #{inspect literal} has datatype xsd:string", %{literal: literal} do
-        assert Literal.datatype(literal) == NS.XSD.string
+        assert Literal.datatype_id(literal) == NS.XSD.string
       end
     end
 
@@ -249,7 +249,7 @@ defmodule RDF.LiteralTest do
          @tag data: %{literal: literal = Literal.new(value), type: type}
          test "Literal for #{inspect literal} has datatype xsd:#{type}",
               %{data: %{literal: literal, type: type}} do
-           assert Literal.datatype(literal) == apply(NS.XSD, String.to_atom(type), [])
+           assert Literal.datatype_id(literal) == apply(NS.XSD, String.to_atom(type), [])
          end
        end)
   end

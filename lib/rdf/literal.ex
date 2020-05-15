@@ -214,8 +214,8 @@ defmodule RDF.Literal do
   ############################################################################
   # functions delegating to the RDF.Literal.Datatype of a RDF.Literal
 
-  @spec datatype(t) :: IRI.t()
-  def datatype(%__MODULE__{literal: %datatype{} = literal}), do: datatype.datatype(literal)
+  @spec datatype_id(t) :: IRI.t()
+  def datatype_id(%__MODULE__{literal: %datatype{} = literal}), do: datatype.datatype_id(literal)
 
   @spec language(t) :: String.t() | nil
   def language(%__MODULE__{literal: %datatype{} = literal}), do: datatype.language(literal)
