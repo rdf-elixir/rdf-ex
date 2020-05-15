@@ -12,11 +12,10 @@ defmodule RDF.Literal.GenericTest do
   describe "new" do
     test "with value and datatype" do
       Enum.each @valid, fn {input, {value, datatype}} ->
-        datatype_iri = RDF.iri(datatype)
-        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype_iri}} =
-                 Generic.new(input, datatype: datatype_iri)
-        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype_iri}} =
+        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype}} =
                  Generic.new(input, datatype: datatype)
+        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype}} =
+                 Generic.new(input, datatype: RDF.iri(datatype))
       end
     end
 
@@ -30,8 +29,7 @@ defmodule RDF.Literal.GenericTest do
 
     test "with canonicalize opts" do
       Enum.each @valid, fn {input, {value, datatype}} ->
-        datatype_iri = RDF.iri(datatype)
-        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype_iri}} =
+        assert %Literal{literal: %Generic{value: ^value, datatype: ^datatype}} =
                  Generic.new(input, datatype: datatype, canonicalize: true)
       end
     end

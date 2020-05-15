@@ -33,7 +33,8 @@ defmodule RDF.Literal.Generic do
 
   defp normalize_datatype(nil), do: nil
   defp normalize_datatype(""), do: nil
-  defp normalize_datatype(datatype), do: IRI.new(datatype)
+  defp normalize_datatype(%IRI{} = datatype), do: to_string(datatype)
+  defp normalize_datatype(datatype), do: datatype
 
   @impl Datatype
   @spec new!(any, String.t | IRI.t | keyword) :: Literal.t
@@ -49,7 +50,7 @@ defmodule RDF.Literal.Generic do
 
   @impl Datatype
   def datatype_id(%Literal{literal: literal}), do: datatype_id(literal)
-  def datatype_id(%__MODULE__{} = literal), do: literal.datatype
+  def datatype_id(%__MODULE__{} = literal), do: RDF.iri(literal.datatype)
 
   @impl Datatype
   def value(%Literal{literal: literal}), do: value(literal)
@@ -69,7 +70,7 @@ defmodule RDF.Literal.Generic do
 
   @impl Datatype
   def valid?(%Literal{literal: %__MODULE__{} = literal}), do: valid?(literal)
-  def valid?(%__MODULE__{datatype: %IRI{}}), do: true
+  def valid?(%__MODULE__{datatype: datatype}) when is_binary(datatype), do: true
   def valid?(_), do: false
 
   @doc """
