@@ -100,6 +100,15 @@ defmodule RDF.LangStringTest do
     end
   end
 
+  test "datatype?/1" do
+    assert LangString.datatype?(LangString) == true
+    Enum.each @valid, fn {input, {_, language}} ->
+      literal = LangString.new(input, language: language)
+      assert LangString.datatype?(literal) == true
+      assert LangString.datatype?(literal.literal) == true
+    end
+  end
+
   test "datatype/1" do
     Enum.each @valid, fn {input, {_, language}} ->
       assert (LangString.new(input, language: language) |> LangString.datatype()) == RDF.iri(LangString.id())

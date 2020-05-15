@@ -24,6 +24,9 @@ defmodule RDF.XSD.Datatype.Primitive do
       def base_primitive, do: __MODULE__
 
       @impl RDF.XSD.Datatype
+      def derived_from?(_), do: false
+
+      @impl RDF.XSD.Datatype
       def init_valid_lexical(value, lexical, opts)
       def init_valid_lexical(_value, nil, _opts), do: nil
       def init_valid_lexical(_value, lexical, _opts), do: lexical
@@ -40,8 +43,8 @@ defmodule RDF.XSD.Datatype.Primitive do
 
       @impl RDF.Literal.Datatype
       def do_cast(value) do
-        if RDF.XSD.literal?(value) do
-          if derived?(value) do
+        if RDF.Literal.datatype?(value) do
+          if datatype?(value) do
             build_valid(value.value, value.uncanonical_lexical, [])
           end
         else

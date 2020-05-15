@@ -5,19 +5,9 @@ defmodule RDF.XSD do
   see <https://www.w3.org/TR/xmlschema-2/>
   """
 
-  alias __MODULE__
-  alias RDF.{IRI, Literal}
+  import RDF.Utils.Guards
 
-  @datatypes [
-               XSD.Boolean,
-               XSD.String,
-               XSD.Date,
-               XSD.Time,
-               XSD.DateTime,
-               XSD.AnyURI
-             ]
-             |> MapSet.new()
-             |> MapSet.union(XSD.Numeric.datatypes())
+  alias __MODULE__
 
   @facets [
     XSD.Facets.MinInclusive,
@@ -32,39 +22,15 @@ defmodule RDF.XSD do
 
   @facets_by_name Map.new(@facets, fn facet -> {facet.name(), facet} end)
 
-  def facet(name) when is_atom(name), do: @facets_by_name[to_string(name)]
+  def facet(name) when is_ordinary_atom(name), do: @facets_by_name[to_string(name)]
   def facet(name), do: @facets_by_name[name]
 
   @doc """
-  The list of all XSD datatypes.
+  Returns if the given value is a `RDF.XSD.Datatype` struct or `RDF.Literal` with a `RDF.XSD.Datatype`.
   """
-  @spec datatypes() :: Enum.t()
-  def datatypes(), do: @datatypes
+  defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :xsd_datatype?
 
-  @datatypes_by_name Map.new(@datatypes, fn datatype -> {datatype.name(), datatype} end)
-  @datatypes_by_iri Map.new(@datatypes, fn datatype -> {datatype.id(), datatype} end)
-
-  def datatype_by_name(name) when is_atom(name), do: @datatypes_by_name[to_string(name)]
-  def datatype_by_name(name), do: @datatypes_by_name[name]
-  def datatype_by_iri(iri) when is_binary(iri), do: @datatypes_by_iri[IRI.new(iri)]
-  def datatype_by_iri(%IRI{} = iri), do: @datatypes_by_iri[iri]
-
-  @doc """
-  Returns if a given datatype is a XSD datatype.
-  """
-  def datatype?(datatype), do: datatype in @datatypes
-
-  @doc """
-  Returns if a given argument is a `RDF.XSD.datatype` literal.
-  """
-  def literal?(%Literal{literal: %datatype{}}), do: datatype?(datatype)
-  def literal?(%datatype{}), do: datatype?(datatype)
-  def literal?(_), do: false
-
-  @doc false
-  def valid?(%datatype{} = datatype_literal), do: datatype.valid?(datatype_literal)
-
-  for datatype <- @datatypes do
+  for datatype <- RDF.Literal.Datatype.Registry.builtin_xsd_datatypes() do
     defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
     defdelegate unquote(String.to_atom(datatype.name))(value, opts), to: datatype, as: :new
 

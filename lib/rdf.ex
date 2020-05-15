@@ -207,10 +207,14 @@ defmodule RDF do
   defdelegate bnode(),   to: BlankNode, as: :new
   defdelegate bnode(id), to: BlankNode, as: :new
 
+  @doc """
+  Checks if the given value is a RDF literal.
+  """
+  def literal?(%Literal{}), do: true
+  def literal?(_), do: false
+
   defdelegate literal(value),       to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
-
-  defdelegate literal?(literal), to: Literal.Datatype.Registry
 
   defdelegate triple(s, p, o),  to: Triple, as: :new
   defdelegate triple(tuple),    to: Triple, as: :new

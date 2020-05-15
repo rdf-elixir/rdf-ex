@@ -90,6 +90,15 @@ defmodule RDF.Literal.GenericTest do
     end
   end
 
+  test "datatype?/1" do
+    assert Generic.datatype?(Generic) == true
+    Enum.each @valid, fn {input, {_, datatype}} ->
+      literal = Generic.new(input, datatype: datatype)
+      assert Generic.datatype?(literal) == true
+      assert Generic.datatype?(literal.literal) == true
+    end
+  end
+
   test "datatype/1" do
     Enum.each @valid, fn {input, {_, datatype}} ->
       assert (Generic.new(input, datatype: datatype) |> Generic.datatype()) == RDF.iri(datatype)

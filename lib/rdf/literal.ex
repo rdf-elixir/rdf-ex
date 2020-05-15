@@ -103,16 +103,16 @@ defmodule RDF.Literal do
   def coerce(%NaiveDateTime{} = value),     do: RDF.XSD.DateTime.new(value)
   def coerce(%URI{} = value),               do: RDF.XSD.AnyURI.new(value)
 
-  # Although the following catch-all-clause for all structs could handle the core datatypes
+  # Although the following catch-all-clause for all structs could handle the builtin datatypes
   # we're generating dedicated clauses for them here, as they are approx. 15% faster
-  Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
+  Enum.each(Datatype.Registry.builtin_datatypes(), fn datatype ->
     def coerce(%unquote(datatype){} = datatype_literal) do
       %__MODULE__{literal: datatype_literal}
     end
   end)
 
-  def coerce(%_datatype{} = datatype_literal) do
-    if Datatype.Registry.literal?(datatype_literal) do
+  def coerce(%datatype{} = datatype_literal) do
+    if Datatype.Registry.datatype_struct?(datatype) do
       %__MODULE__{literal: datatype_literal}
     end
   end
@@ -149,6 +149,23 @@ defmodule RDF.Literal do
   end
 
   @doc """
+  Returns if the given value is a `RDF.Literal` or `RDF.Literal.Datatype` struct.
+
+  If you simply want to check for a `RDF.Literal` use pattern matching or `RDF.literal?/1`.
+  This function is a bit slower than those and most of the time only needed when
+  implementing `RDF.Literal.Datatype`s where you have to deal with the raw,
+  i.e. unwrapped `RDF.Literal.Datatype` structs.
+  """
+  defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :datatype?
+
+  @doc """
+  Returns if the literal uses the `RDF.Literal.Generic` datatype or on of the dedicated builtin or custom `RDF.Literal.Datatype`s.
+  """
+  @spec generic?(t) :: boolean
+  def generic?(%__MODULE__{literal: %RDF.Literal.Generic{}}), do: true
+  def generic?(%__MODULE__{}), do: false
+
+  @doc """
   Returns if a literal is a language-tagged literal.
 
   see <http://www.w3.org/TR/rdf-concepts/#dfn-plain-literal>
@@ -178,7 +195,7 @@ defmodule RDF.Literal do
   """
   @spec simple?(t) :: boolean
   def simple?(%__MODULE__{literal: %RDF.XSD.String{}}), do: true
-  def simple?(%__MODULE__{} = _),                    do: false
+  def simple?(%__MODULE__{}),                           do: false
 
 
   @doc """
@@ -192,11 +209,7 @@ defmodule RDF.Literal do
   @spec plain?(t) :: boolean
   def plain?(%__MODULE__{literal: %RDF.XSD.String{}}), do: true
   def plain?(%__MODULE__{literal: %LangString{}}), do: true
-  def plain?(%__MODULE__{} = _), do: false
-
-  @spec typed?(t) :: boolean
-  def typed?(literal), do: not plain?(literal)
-
+  def plain?(%__MODULE__{}), do: false
 
   ############################################################################
   # functions delegating to the RDF.Literal.Datatype of a RDF.Literal

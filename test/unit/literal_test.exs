@@ -30,8 +30,8 @@ defmodule RDF.LiteralTest do
       end
     end
 
-    test "with core datatype literals" do
-      Enum.each Datatype.Registry.core_datatypes(), fn datatype ->
+    test "with builtin datatype literals" do
+      Enum.each Datatype.Registry.builtin_datatypes(), fn datatype ->
         datatype_literal = datatype.new("foo").literal
         assert %Literal{literal: ^datatype_literal} = Literal.new(datatype_literal)
       end

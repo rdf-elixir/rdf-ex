@@ -15,6 +15,7 @@ defmodule RDF.XSD.Datatype do
 
   @type comparison_result :: :lt | :gt | :eq
 
+  import RDF.Utils.Guards
 
   @doc """
   Returns if the `RDF.XSD.Datatype` is a primitive datatype.
@@ -34,14 +35,12 @@ defmodule RDF.XSD.Datatype do
   @callback base_primitive :: t()
 
   @doc """
-  Checks if a `RDF.XSD.Datatype` is directly or indirectly derived from another `RDF.XSD.Datatype`.
+  Checks if the `RDF.XSD.Datatype` is directly or indirectly derived from the given `RDF.XSD.Datatype`.
+
+  Note that this is just a basic datatype reflection function on the module level
+  and does not work with `RDF.Literal`s. See `c:RDF.Literal.Datatype.datatype?/1` instead.
   """
   @callback derived_from?(t()) :: boolean
-
-  @doc """
-  Checks if the datatype of a given literal is derived from a `RDF.XSD.Datatype`.
-  """
-  @callback derived?(RDF.XSD.Literal.t()) :: boolean
 
   @doc """
   The set of applicable facets of a `RDF.XSD.Datatype`.
@@ -95,18 +94,21 @@ defmodule RDF.XSD.Datatype do
               uncanonical_lexical: RDF.XSD.Datatype.uncanonical_lexical()
             }
 
-      @impl unquote(__MODULE__)
-      def derived_from?(datatype)
+      @doc !"""
+      This function is just used to check if a module is a RDF.XSD.Datatype.
 
-      def derived_from?(__MODULE__), do: true
+      See `RDF.Literal.Datatype.Registry.is_xsd_datatype?/1`.
+      """
+      def __xsd_datatype_indicator__, do: true
 
-      def derived_from?(datatype) do
-        base = base()
-        not is_nil(base) and base.derived_from?(datatype)
+      @impl RDF.Literal.Datatype
+      def datatype?(%RDF.Literal{literal: literal}), do: datatype?(literal)
+      def datatype?(%datatype{}), do: datatype?(datatype)
+      def datatype?(__MODULE__), do: true
+      def datatype?(datatype) when maybe_module(datatype) do
+        RDF.XSD.datatype?(datatype) and datatype.derived_from?(__MODULE__)
       end
-
-      @impl unquote(__MODULE__)
-      def derived?(literal), do: RDF.XSD.Datatype.derived_from?(literal, __MODULE__)
+      def datatype?(_), do: false
 
       # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
       # always returns true there, so the other branch is unnecessary. This could
@@ -252,14 +254,4 @@ defmodule RDF.XSD.Datatype do
       end
     end
   end
-
-  @spec base_primitive(t()) :: t()
-  def base_primitive(%RDF.Literal{literal: literal}), do: base_primitive(literal)
-  def base_primitive(%datatype{}), do: base_primitive(datatype)
-  def base_primitive(datatype), do: datatype.base_primitive()
-
-  @spec derived_from?(t() | literal() | RDF.Literal.t(), t()) :: boolean
-  def derived_from?(%RDF.Literal{literal: literal}, super_datatype), do: derived_from?(literal, super_datatype)
-  def derived_from?(%datatype{}, super_datatype), do: derived_from?(datatype, super_datatype)
-  def derived_from?(datatype, super_datatype) when is_atom(datatype), do: datatype.derived_from?(super_datatype)
 end

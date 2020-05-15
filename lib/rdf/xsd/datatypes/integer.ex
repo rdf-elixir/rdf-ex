@@ -74,7 +74,7 @@ defmodule RDF.XSD.Integer do
   """
   @spec digit_count(RDF.XSD.Literal.t()) :: non_neg_integer | nil
   def digit_count(%datatype{} = literal) do
-    if derived?(literal) and datatype.valid?(literal) do
+    if datatype?(literal) and datatype.valid?(literal) do
       literal
       |> datatype.canonical()
       |> datatype.lexical()

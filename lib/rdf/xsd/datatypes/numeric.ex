@@ -3,67 +3,13 @@ defmodule RDF.XSD.Numeric do
   Collection of functions for numeric literals.
   """
 
+  @type t :: module
+
   alias Elixir.Decimal, as: D
 
   import Kernel, except: [abs: 1, floor: 1, ceil: 1]
 
-  @datatypes MapSet.new([
-               RDF.XSD.Decimal,
-               RDF.XSD.Integer,
-               RDF.XSD.Long,
-               RDF.XSD.Int,
-               RDF.XSD.Short,
-               RDF.XSD.Byte,
-               RDF.XSD.NonNegativeInteger,
-               RDF.XSD.PositiveInteger,
-               RDF.XSD.UnsignedLong,
-               RDF.XSD.UnsignedInt,
-               RDF.XSD.UnsignedShort,
-               RDF.XSD.UnsignedByte,
-               RDF.XSD.NonPositiveInteger,
-               RDF.XSD.NegativeInteger,
-               RDF.XSD.Double,
-               RDF.XSD.Float
-             ])
-
-  @type t ::
-          RDF.XSD.Decimal.t()
-          | RDF.XSD.Integer.t()
-          | RDF.XSD.Long.t()
-          | RDF.XSD.Int.t()
-          | RDF.XSD.Short.t()
-          | RDF.XSD.Byte.t()
-          | RDF.XSD.NonNegativeInteger.t()
-          | RDF.XSD.PositiveInteger.t()
-          | RDF.XSD.UnsignedLong.t()
-          | RDF.XSD.UnsignedInt.t()
-          | RDF.XSD.UnsignedShort.t()
-          | RDF.XSD.UnsignedByte.t()
-          | RDF.XSD.NonPositiveInteger.t()
-          | RDF.XSD.NegativeInteger.t()
-          | RDF.XSD.Double.t()
-          | RDF.XSD.Float.t()
-
-  @doc """
-  The set of all numeric datatypes.
-  """
-  @spec datatypes() :: Enum.t
-  def datatypes(), do: @datatypes
-
-  @doc """
-  Returns if a given datatype is a numeric datatype.
-  """
-  @spec datatype?(RDF.XSD.Datatype.t() | any) :: boolean
-  def datatype?(datatype), do: datatype in @datatypes
-
-  @doc """
-  Returns if a given XSD literal has a numeric datatype.
-  """
-  @spec literal?(RDF.Literal.t() | any) :: boolean
-  def literal?(literal)
-  def literal?(%RDF.Literal{literal: literal}), do: literal?(literal)
-  def literal?(%datatype{}), do: datatype?(datatype)
-  def literal?(_), do: false
+  defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :numeric_datatype?
 
   @doc """
   Tests for numeric value equality of two numeric XSD datatyped literals.
@@ -346,8 +292,8 @@ defmodule RDF.XSD.Numeric do
 
   def abs(value) do
     cond do
-      literal?(value) ->
-        if RDF.XSD.valid?(value) do
+      datatype?(value) ->
+        if RDF.Literal.Datatype.valid?(value) do
           %datatype{} = value
 
           case value.value do
@@ -367,7 +313,7 @@ defmodule RDF.XSD.Numeric do
           end
         end
 
-      RDF.XSD.literal?(value) ->
+      RDF.Literal.datatype?(value) ->
         nil
 
       true ->
@@ -424,8 +370,8 @@ defmodule RDF.XSD.Numeric do
 
   def round(value, precision) do
     cond do
-      literal?(value) ->
-        if RDF.XSD.valid?(value) do
+      datatype?(value) ->
+        if RDF.Literal.Datatype.valid?(value) do
           if precision < 0 do
             value.value
             |> new_decimal()
@@ -437,7 +383,7 @@ defmodule RDF.XSD.Numeric do
           end
         end
 
-      RDF.XSD.literal?(value) ->
+      RDF.Literal.datatype?(value) ->
         nil
 
       true ->
@@ -494,12 +440,12 @@ defmodule RDF.XSD.Numeric do
 
   def ceil(value) do
     cond do
-      literal?(value) ->
-        if RDF.XSD.valid?(value) do
+      datatype?(value) ->
+        if RDF.Literal.Datatype.valid?(value) do
           literal(value)
         end
 
-      RDF.XSD.literal?(value) ->
+      RDF.Literal.datatype?(value) ->
         nil
 
       true ->
@@ -550,10 +496,10 @@ defmodule RDF.XSD.Numeric do
 
   def floor(value) do
     cond do
-      literal?(value) ->
-        if RDF.XSD.valid?(value), do: literal(value)
+      datatype?(value) ->
+        if RDF.Literal.Datatype.valid?(value), do: literal(value)
 
-      RDF.XSD.literal?(value) ->
+      RDF.Literal.datatype?(value) ->
         nil
 
       true ->
@@ -578,8 +524,8 @@ defmodule RDF.XSD.Numeric do
     cond do
       is_nil(left) -> nil
       is_nil(right) -> nil
-      not RDF.XSD.literal?(left) -> arithmetic_operation(op, RDF.Literal.coerce(left), right, fun)
-      not RDF.XSD.literal?(right) -> arithmetic_operation(op, left, RDF.Literal.coerce(right), fun)
+      not RDF.Literal.datatype?(left) -> arithmetic_operation(op, RDF.Literal.coerce(left), right, fun)
+      not RDF.Literal.datatype?(right) -> arithmetic_operation(op, left, RDF.Literal.coerce(right), fun)
       true -> false
     end
   end

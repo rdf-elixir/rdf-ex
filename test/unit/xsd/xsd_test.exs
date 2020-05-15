@@ -3,8 +3,8 @@ defmodule RDF.XSDTest do
 
   doctest RDF.XSD
 
-  test "Datatype constructor alias functions" do
-    Enum.each(XSD.datatypes(), fn datatype ->
+  test "builtin datatype constructor alias functions" do
+    Enum.each(RDF.Literal.Datatype.Registry.builtin_xsd_datatypes(), fn datatype ->
       assert apply(XSD, String.to_atom(datatype.name), [1]) == datatype.new(1)
       assert apply(XSD, String.to_atom(Macro.underscore(datatype.name)), [1]) == datatype.new(1)
     end)

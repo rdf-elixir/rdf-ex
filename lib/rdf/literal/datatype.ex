@@ -35,6 +35,17 @@ defmodule RDF.Literal.Datatype do
   @callback do_cast(literal | any) :: Literal.t() | nil
 
   @doc """
+  Checks if the given `RDF.Literal` has the datatype for which the `RDF.Literal.Datatype` is implemented or is derived from it.
+
+  ## Example
+
+      iex> RDF.XSD.byte(42) |> RDF.XSD.Integer.datatype?()
+      true
+
+  """
+  @callback datatype?(Literal.t | t | literal) :: boolean
+
+  @doc """
   The datatype IRI of the given `RDF.Literal`.
   """
   @callback datatype(Literal.t | literal) :: IRI.t()
@@ -139,6 +150,15 @@ defmodule RDF.Literal.Datatype do
 
   defdelegate get(id), to: Literal.Datatype.Registry, as: :datatype
 
+  @doc !"""
+  As opposed to RDF.Literal.valid?/1 this function operates on the datatype structs ...
+
+  It's meant for internal use only and doesn't perform checks if the struct
+  passed is actually a `RDF.Literal.Datatype` struct.
+  """
+  def valid?(%datatype{} = datatype_literal), do: datatype.valid?(datatype_literal)
+
+
   defmacro __using__(opts) do
     name = Keyword.fetch!(opts, :name)
     id = Keyword.fetch!(opts, :id)
@@ -157,6 +177,13 @@ defmodule RDF.Literal.Datatype do
     quote do
       @behaviour unquote(__MODULE__)
 
+      @doc !"""
+      This function is just used to check if a module is a RDF.Literal.Datatype.
+
+      See `RDF.Literal.Datatype.Registry.is_rdf_literal_datatype?/1`.
+      """
+      def __rdf_literal_datatype_indicator__, do: true
+
       @name unquote(name)
       @impl unquote(__MODULE__)
       def name, do: @name
@@ -164,6 +191,16 @@ defmodule RDF.Literal.Datatype do
       @id if unquote(id), do: RDF.IRI.new(unquote(id))
       @impl unquote(__MODULE__)
       def id, do: @id
+
+      # RDF.XSD.Datatypes offers another default implementation, but since it is
+      # still in a macro implementation defoverridable doesn't work
+      unless RDF.XSD.Datatype in @behaviour do
+        @impl unquote(__MODULE__)
+        def datatype?(%Literal{literal: literal}), do: datatype?(literal)
+        def datatype?(%datatype{}), do: datatype?(datatype)
+        def datatype?(__MODULE__), do: true
+        def datatype?(_), do: false
+      end
 
       @impl unquote(__MODULE__)
       def datatype(%Literal{literal: literal}), do: datatype(literal)
@@ -227,8 +264,8 @@ defmodule RDF.Literal.Datatype do
       def equal_value?(_, nil), do: nil
       def equal_value?(left, right) do
         cond do
-          not RDF.literal?(right) and not RDF.term?(right) -> equal_value?(left, Literal.coerce(right))
-          not RDF.literal?(left) and not RDF.term?(left) -> equal_value?(Literal.coerce(left), right)
+          not Literal.datatype?(right) and not RDF.term?(right) -> equal_value?(left, Literal.coerce(right))
+          not Literal.datatype?(left) and not RDF.term?(left) -> equal_value?(Literal.coerce(left), right)
           true -> do_equal_value?(left, right)
         end
       end
@@ -256,6 +293,9 @@ defmodule RDF.Literal.Datatype do
         |> new()
       end
 
+      # This is a private RDF.Literal constructor, which should be used to build
+      # the RDF.Literals from the datatype literal structs instead of the
+      # RDF.Literal/new/1, to bypass the unnecessary datatype checks.
       defp literal(datatype_literal), do: %Literal{literal: datatype_literal}
 
       defoverridable datatype: 1,

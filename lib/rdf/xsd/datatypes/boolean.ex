@@ -41,7 +41,7 @@ defmodule RDF.XSD.Boolean do
   end
 
   def do_cast(literal_or_value) do
-    if RDF.XSD.Numeric.literal?(literal_or_value) do
+    if RDF.XSD.Numeric.datatype?(literal_or_value) do
       new(literal_or_value.value not in [0, 0.0, :nan])
     else
       super(literal_or_value)
@@ -82,7 +82,7 @@ defmodule RDF.XSD.Boolean do
   def ebv(%datatype{} = literal) do
     if RDF.XSD.Numeric.datatype?(datatype) do
       if datatype.valid?(literal) and
-           not (literal.value == 0 or literal.value == :nan),
+           not (datatype.value(literal) == 0 or datatype.value(literal) == :nan),
          do: RDF.XSD.Boolean.Value.true(),
          else: RDF.XSD.Boolean.Value.false()
     end

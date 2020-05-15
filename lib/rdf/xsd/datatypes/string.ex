@@ -65,7 +65,7 @@ defmodule RDF.XSD.String do
   end
 
   def do_cast(%datatype{} = literal) do
-    if RDF.XSD.datatype?(datatype) do
+    if RDF.Literal.Datatype.Registry.xsd_datatype_struct?(datatype) do
       default_canonical_cast(literal, datatype)
     end
   end

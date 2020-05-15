@@ -21,6 +21,10 @@ defmodule RDF.XSD.Datatype.Restriction do
       def base_primitive, do: @base.base_primitive()
 
       @impl RDF.XSD.Datatype
+      def derived_from?(@base), do: true
+      def derived_from?(datatype), do: @base.derived_from?(datatype)
+
+      @impl RDF.XSD.Datatype
       def applicable_facets, do: @base.applicable_facets()
 
       @impl RDF.XSD.Datatype

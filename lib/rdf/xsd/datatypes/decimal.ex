@@ -107,8 +107,8 @@ defmodule RDF.XSD.Decimal do
 
   def digit_count(literal) do
     cond do
-      RDF.XSD.Integer.derived?(literal) -> RDF.XSD.Integer.digit_count(literal)
-      derived?(literal) -> do_digit_count(literal)
+      RDF.XSD.Integer.datatype?(literal) -> RDF.XSD.Integer.digit_count(literal)
+      datatype?(literal) -> do_digit_count(literal)
       true -> nil
     end
   end
@@ -132,8 +132,8 @@ defmodule RDF.XSD.Decimal do
 
   def fraction_digit_count(literal) do
     cond do
-      RDF.XSD.Integer.derived?(literal) -> 0
-      derived?(literal) -> do_fraction_digit_count(literal)
+      RDF.XSD.Integer.datatype?(literal) -> 0
+      datatype?(literal) -> do_fraction_digit_count(literal)
       true -> nil
     end
   end

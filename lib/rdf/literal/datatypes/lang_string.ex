@@ -9,6 +9,8 @@ defmodule RDF.LangString do
       name: "langString",
       id: RDF.Utils.Bootstrapping.rdf_iri("langString")
 
+  import RDF.Utils.Guards
+
   alias RDF.Literal.Datatype
   alias RDF.Literal
 
@@ -21,7 +23,7 @@ defmodule RDF.LangString do
   @spec new(any, String.t | atom | keyword) :: Literal.t
   def new(value, language_or_opts \\ [])
   def new(value, language) when is_binary(language), do: new(value, language: language)
-  def new(value, language) when is_atom(language), do: new(value, language: language)
+  def new(value, language) when is_ordinary_atom(language), do: new(value, language: language)
   def new(value, opts) do
     %Literal{
       literal: %__MODULE__{
@@ -33,7 +35,7 @@ defmodule RDF.LangString do
 
   defp normalize_language(nil), do: nil
   defp normalize_language(""), do: nil
-  defp normalize_language(language) when is_atom(language), do: language |> to_string() |> normalize_language()
+  defp normalize_language(language) when is_ordinary_atom(language), do: language |> to_string() |> normalize_language()
   defp normalize_language(language), do: String.downcase(language)
 
   @impl RDF.Literal.Datatype

@@ -1,4 +1,5 @@
 defmodule RDF.Guards do
-  defguard maybe_ns_term(term)
-      when is_atom(term) and term not in [nil, true, false]
+  import RDF.Utils.Guards
+
+  defguard maybe_ns_term(term) when maybe_module(term)
 end

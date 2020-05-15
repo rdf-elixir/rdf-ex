@@ -4,6 +4,7 @@ defmodule RDF.Literal.Datatype.RegistryTest do
   alias RDF.TestDatatypes.Age
   alias RDF.Literal.Datatype
   alias RDF.NS
+  alias RDF.TestDatatypes
 
   @unsupported_xsd_datatypes ~w[
       ENTITIES
@@ -37,8 +38,8 @@ defmodule RDF.Literal.Datatype.RegistryTest do
 
 
   describe "datatype/1" do
-    test "core datatypes" do
-      Enum.each(Datatype.Registry.core_datatypes(), fn datatype ->
+    test "builtin datatypes" do
+      Enum.each(Datatype.Registry.builtin_datatypes(), fn datatype ->
         assert datatype == Datatype.Registry.datatype(datatype.id)
         assert datatype == Datatype.Registry.datatype(to_string(datatype.id))
       end)
@@ -67,21 +68,40 @@ defmodule RDF.Literal.Datatype.RegistryTest do
     end
   end
 
-  describe "xsd_datatype/1" do
-    test "when a core XSD datatype with the given IRI exists" do
-      assert XSD.String = Datatype.Registry.xsd_datatype(NS.XSD.string)
-    end
+  test "datatype?/1" do
+    assert Datatype.Registry.datatype?(XSD.string("foo"))
+    assert Datatype.Registry.datatype?(~L"foo"en)
+    assert Datatype.Registry.datatype?(XSD.integer(42))
+    assert Datatype.Registry.datatype?(XSD.byte(42))
+    assert Datatype.Registry.datatype?(TestDatatypes.Age.new(42))
+    assert Datatype.Registry.datatype?(RDF.literal("foo", datatype: "http://example.com"))
+    refute Datatype.Registry.datatype?(~r/foo/)
+    refute Datatype.Registry.datatype?(:foo)
+    refute Datatype.Registry.datatype?(42)
+  end
 
-    test "when a custom XSD datatype with the given IRI exists" do
-      assert Age = Datatype.Registry.xsd_datatype(EX.Age)
-    end
+  test "xsd_datatype?/1" do
+    assert Datatype.Registry.xsd_datatype?(XSD.string("foo"))
+    assert Datatype.Registry.xsd_datatype?(XSD.integer(42))
+    assert Datatype.Registry.xsd_datatype?(XSD.byte(42))
+    assert Datatype.Registry.xsd_datatype?(TestDatatypes.Age.new(42))
+    refute Datatype.Registry.xsd_datatype?(~L"foo"en)
+    refute Datatype.Registry.xsd_datatype?(RDF.literal("foo", datatype: "http://example.com"))
+    refute Datatype.Registry.xsd_datatype?(~r/foo/)
+    refute Datatype.Registry.xsd_datatype?(:foo)
+    refute Datatype.Registry.xsd_datatype?(42)
+  end
 
-    test "when  datatype with the given IRI exists, but it is not an XSD datatype" do
-      refute Datatype.Registry.xsd_datatype(RDF.langString)
-    end
 
-    test "when no datatype with the given IRI exists" do
-      refute Datatype.Registry.xsd_datatype(EX.foo)
-    end
+  test "numeric_datatype?/1" do
+    assert Datatype.Registry.numeric_datatype?(XSD.integer(42))
+    assert Datatype.Registry.numeric_datatype?(XSD.byte(42))
+    assert Datatype.Registry.numeric_datatype?(TestDatatypes.Age.new(42))
+    refute Datatype.Registry.numeric_datatype?(XSD.string("foo"))
+    refute Datatype.Registry.numeric_datatype?(~L"foo"en)
+    refute Datatype.Registry.numeric_datatype?(RDF.literal("foo", datatype: "http://example.com"))
+    refute Datatype.Registry.numeric_datatype?(~r/foo/)
+    refute Datatype.Registry.numeric_datatype?(:foo)
+    refute Datatype.Registry.numeric_datatype?(42)
   end
 end

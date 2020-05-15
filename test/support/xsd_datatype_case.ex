@@ -33,9 +33,14 @@ defmodule RDF.XSD.Datatype.Test.Case do
         @invalid unquote(invalid)
 
         test "registration" do
-          assert unquote(datatype) in XSD.datatypes()
-          assert XSD.datatype_by_name(unquote(datatype_name)) == unquote(datatype)
-          assert XSD.datatype_by_iri(unquote(datatype_iri)) == unquote(datatype)
+          assert unquote(datatype) in RDF.Literal.Datatype.Registry.builtin_datatypes()
+          assert unquote(datatype) in RDF.Literal.Datatype.Registry.builtin_xsd_datatypes()
+
+          assert unquote(datatype) |> RDF.Literal.Datatype.Registry.builtin_datatype?()
+          assert unquote(datatype) |> RDF.Literal.Datatype.Registry.builtin_xsd_datatype?()
+
+          assert RDF.Literal.Datatype.get(unquote(datatype_iri)) == unquote(datatype)
+          assert XSD.Datatype.get(unquote(datatype_iri)) == unquote(datatype)
         end
 
         test "primitive/0" do
@@ -59,11 +64,31 @@ defmodule RDF.XSD.Datatype.Test.Case do
         end
 
         test "derived_from?/1" do
-          assert unquote(datatype).derived_from?(unquote(datatype)) == true
+          assert unquote(datatype).derived_from?(unquote(datatype)) == false
 
           unless unquote(primitive) do
             assert unquote(datatype).derived_from?(unquote(base)) == true
             assert unquote(datatype).derived_from?(unquote(base_primitive)) == true
+          end
+        end
+
+        describe "datatype?/1" do
+          test "with itself" do
+            assert unquote(datatype).datatype?(unquote(datatype)) == true
+          end
+
+          test "with non-RDF values" do
+            assert unquote(datatype).datatype?(self()) == false
+            assert unquote(datatype).datatype?(Elixir.Enum) == false
+            assert unquote(datatype).datatype?(:foo) == false
+          end
+
+          unless unquote(primitive) do
+            test "on a base datatype" do
+              # We're using apply here to suppress "nil.datatype?/1 is undefined" warnings caused by the primitives
+              assert apply(unquote(base), :datatype?, [unquote(datatype)]) == true
+              assert apply(unquote(base_primitive), :datatype?, [unquote(datatype)]) == true
+            end
           end
         end
 
@@ -88,15 +113,47 @@ defmodule RDF.XSD.Datatype.Test.Case do
           assert unquote(datatype).id() == RDF.iri(unquote(datatype_iri))
         end
 
-        test "language/1" do
-          Enum.each(@valid, fn {input, _} ->
-            assert (unquote(datatype).new(input) |> unquote(datatype).language()) == nil
-          end)
+        describe "general datatype?/1" do
+          test "on the exact same datatype" do
+            assert (unquote(datatype).datatype?(unquote(datatype))) == true
+            Enum.each(@valid, fn {input, _} ->
+              literal = unquote(datatype).new(input)
+              assert (unquote(datatype).datatype?(literal)) == true
+              assert (unquote(datatype).datatype?(literal.literal)) == true
+            end)
+          end
+
+          unless unquote(primitive) do
+            test "on the base datatype" do
+              assert (unquote(base).datatype?(unquote(datatype))) == true
+              Enum.each(@valid, fn {input, _} ->
+                literal = unquote(datatype).new(input)
+                assert (unquote(base).datatype?(literal)) == true
+                assert (unquote(base).datatype?(literal.literal)) == true
+              end)
+            end
+
+            test "on the base primitive datatype" do
+              assert (unquote(base_primitive).datatype?(unquote(datatype))) == true
+              Enum.each(@valid, fn {input, _} ->
+                literal = unquote(datatype).new(input)
+                assert (unquote(base_primitive).datatype?(literal)) == true
+                assert (unquote(base_primitive).datatype?(literal.literal)) == true
+              end)
+            end
+
+          end
         end
 
         test "datatype/1" do
           Enum.each(@valid, fn {input, _} ->
             assert (unquote(datatype).new(input) |> unquote(datatype).datatype()) == RDF.iri(unquote(datatype_iri))
+          end)
+        end
+
+        test "language/1" do
+          Enum.each(@valid, fn {input, _} ->
+            assert (unquote(datatype).new(input) |> unquote(datatype).language()) == nil
           end)
         end
 

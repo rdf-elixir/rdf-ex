@@ -5,34 +5,162 @@ defmodule RDF.Literal.Datatype.Registry do
   alias RDF.Literal.Datatype.Registry.Registration
 
   import RDF.Guards
+  import RDF.Utils.Guards
 
-  @core_datatypes [RDF.LangString | Enum.to_list(XSD.datatypes())]
+  @primitive_numeric_datatypes [
+    RDF.XSD.Integer,
+    RDF.XSD.Decimal,
+    RDF.XSD.Double
+  ]
+
+  @builtin_numeric_datatypes @primitive_numeric_datatypes ++ [
+    RDF.XSD.Long,
+    RDF.XSD.Int,
+    RDF.XSD.Short,
+    RDF.XSD.Byte,
+    RDF.XSD.NonNegativeInteger,
+    RDF.XSD.PositiveInteger,
+    RDF.XSD.UnsignedLong,
+    RDF.XSD.UnsignedInt,
+    RDF.XSD.UnsignedShort,
+    RDF.XSD.UnsignedByte,
+    RDF.XSD.NonPositiveInteger,
+    RDF.XSD.NegativeInteger,
+    RDF.XSD.Float
+  ]
+
+  @builtin_xsd_datatypes [
+               XSD.Boolean,
+               XSD.String,
+               XSD.Date,
+               XSD.Time,
+               XSD.DateTime,
+               XSD.AnyURI
+             ] ++ @builtin_numeric_datatypes
+
+  @builtin_datatypes [RDF.LangString | @builtin_xsd_datatypes]
 
   @doc """
-  All core `RDF.Literal.Datatype` modules.
+  Returns a list of all builtin `RDF.Literal.Datatype` modules.
   """
-  @spec core_datatypes :: Enum.t
-  def core_datatypes, do: @core_datatypes
+  @spec builtin_datatypes :: [RDF.Literal.Datatype.t]
+  def builtin_datatypes, do: @builtin_datatypes
 
   @doc """
-  Checks if the given module is core datatype.
-  """
-  @spec core_datatype?(module) :: boolean
-  def core_datatype?(module), do: module in @core_datatypes
+  Checks if the given module is a builtin datatype.
 
-  @doc """
-  Checks if the given module is a core datatype or a registered custom datatype implementing the `RDF.Literal.Datatype` behaviour.
+  Note: This doesn't include `RDF.Literal.Generic`.
   """
-  @spec datatype?(module) :: boolean
-  def datatype?(module) do
-    core_datatype?(module) or implements_behaviour?(module, Literal.Datatype)
+  @spec builtin_datatype?(module) :: boolean
+  def builtin_datatype?(module)
+
+  for datatype <- @builtin_datatypes do
+    def builtin_datatype?(unquote(datatype)), do: true
   end
 
-  @spec literal?(module) :: boolean
-  def literal?(%Literal{}), do: true
-  def literal?(%Literal.Generic{}), do: true
-  def literal?(%datatype{}), do: datatype?(datatype)
-  def literal?(_), do: false
+  def builtin_datatype?(_), do: false
+
+  @doc """
+  Checks if the given module is a builtin datatype or a registered custom datatype implementing the `RDF.Literal.Datatype` behaviour.
+  """
+  @spec datatype?(Literal.t | Literal.Datatype.literal | module) :: boolean
+  def datatype?(value)
+
+  # We assume literals were created properly which means they have a proper RDF.Literal.Datatype
+  def datatype?(%Literal{}), do: true
+  def datatype?(value), do: datatype_struct?(value)
+
+  @doc false
+  @spec datatype_struct?(Literal.Datatype.literal | module) :: boolean
+  def datatype_struct?(value)
+
+  def datatype_struct?(%datatype{}), do: datatype_struct?(datatype)
+
+  def datatype_struct?(Literal.Generic), do: true
+
+  def datatype_struct?(module) when maybe_module(module) do
+    builtin_datatype?(module) or is_rdf_literal_datatype?(module)
+  end
+
+  def datatype_struct?(_), do: false
+
+  @doc """
+  Returns a list of all builtin `RDF.XSD.Datatype` modules.
+  """
+  @spec builtin_xsd_datatypes :: [RDF.Literal.Datatype.t]
+  def builtin_xsd_datatypes, do: @builtin_xsd_datatypes
+
+  @doc false
+  @spec builtin_xsd_datatype?(module) :: boolean
+  def builtin_xsd_datatype?(module)
+
+  for datatype <- @builtin_xsd_datatypes do
+    def builtin_xsd_datatype?(unquote(datatype)), do: true
+  end
+
+  def builtin_xsd_datatype?(_), do: false
+
+  @doc """
+  Checks if the given module is a builtin XSD datatype or a registered custom datatype implementing the `RDF.XSD.Datatype` behaviour.
+  """
+  @spec xsd_datatype?(Literal.t | XSD.Datatype.literal | module) :: boolean
+  def xsd_datatype?(value)
+  def xsd_datatype?(%Literal{literal: datatype_struct}), do: xsd_datatype?(datatype_struct)
+  def xsd_datatype?(value), do: xsd_datatype_struct?(value)
+
+  @doc false
+  @spec xsd_datatype_struct?(RDF.Literal.t() | XSD.Datatype.literal | module) :: boolean
+  def xsd_datatype_struct?(value)
+
+  def xsd_datatype_struct?(%datatype{}), do: xsd_datatype_struct?(datatype)
+
+  def xsd_datatype_struct?(module) when maybe_module(module) do
+    builtin_xsd_datatype?(module) or is_xsd_datatype?(module)
+  end
+
+  def xsd_datatype_struct?(_), do: false
+
+  @doc """
+  Returns a list of all numeric datatype modules.
+  """
+  @spec builtin_numeric_datatypes() :: [RDF.Literal.Datatype.t]
+  def builtin_numeric_datatypes(), do: @builtin_numeric_datatypes
+
+  @doc """
+  The set of all primitive numeric datatypes.
+  """
+  @spec primitive_numeric_datatypes() :: [RDF.Literal.Datatype.t]
+  def primitive_numeric_datatypes(), do: @primitive_numeric_datatypes
+
+  @doc false
+  @spec builtin_numeric_datatype?(module) :: boolean
+  def builtin_numeric_datatype?(module)
+
+  for datatype <- @builtin_numeric_datatypes do
+    def builtin_numeric_datatype?(unquote(datatype)), do: true
+  end
+
+  def builtin_numeric_datatype?(_), do: false
+
+
+  @doc """
+  Returns if a given literal or datatype has or is a numeric datatype.
+  """
+  @spec numeric_datatype?(RDF.Literal.t() | RDF.XSD.Datatype.t() | any) :: boolean
+  def numeric_datatype?(literal)
+  def numeric_datatype?(%RDF.Literal{literal: literal}), do: numeric_datatype?(literal)
+  def numeric_datatype?(%datatype{}), do: numeric_datatype?(datatype)
+
+  def numeric_datatype?(datatype) when maybe_module(datatype) do
+    builtin_numeric_datatype?(datatype) or (
+      xsd_datatype?(datatype) and
+        Enum.any?(@primitive_numeric_datatypes, fn numeric_primitive ->
+          datatype.derived_from?(numeric_primitive)
+        end)
+    )
+  end
+
+  def numeric_datatype?(_), do: false
 
   @doc """
   Returns the `RDF.Literal.Datatype` for a datatype IRI.
@@ -50,15 +178,31 @@ defmodule RDF.Literal.Datatype.Registry do
   def xsd_datatype(id) do
     datatype = datatype(id)
 
-    if datatype && implements_behaviour?(datatype, XSD.Datatype) do
+    if datatype && is_xsd_datatype?(datatype) do
       datatype
     end
   end
 
-  defp implements_behaviour?(module, behaviour) do
-    module.module_info[:attributes]
-    |> Keyword.get_values(:behaviour)
-    |> List.flatten()
-    |> Enum.member?(behaviour)
+  # TODO: Find a better/faster solution for checking datatype modules which includes unknown custom datatypes.
+  # Although checking for the presence of a function via __info__(:functions) is
+  # the fastest way to reflect a module type on average over the positive and negative
+  # case (being roughly comparable to a map access), we would still have to rescue
+  # from an UndefinedFunctionError since its raised by trying to access __info__
+  # on plain (non-module) atoms, so we can do the check by rescueing in the first place.
+  # Although the positive is actually faster than the __info__(:functions) check,
+  # the negative is more than 7 times slower.
+  # (Properly checking for the behaviour attribute with module_info[:attributes]
+  # is more than 200 times slower.)
+
+  defp is_rdf_literal_datatype?(module) do
+    module.__rdf_literal_datatype_indicator__()
+  rescue
+    UndefinedFunctionError -> false
+  end
+
+  defp is_xsd_datatype?(module) do
+    module.__xsd_datatype_indicator__()
+  rescue
+    UndefinedFunctionError -> false
   end
 end
