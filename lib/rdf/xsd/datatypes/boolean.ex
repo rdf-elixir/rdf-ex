@@ -4,7 +4,7 @@ defmodule RDF.XSD.Boolean do
   """
 
   @type valid_value :: boolean
-  @type input_value :: RDF.XSD.Literal.t() | valid_value | number | String.t() | any
+  @type input_value :: RDF.Literal.t() | valid_value | number | String.t() | any
 
   use RDF.XSD.Datatype.Primitive,
     name: "boolean",
@@ -62,7 +62,7 @@ defmodule RDF.XSD.Boolean do
   - <https://www.w3.org/TR/sparql11-query/#ebv>
 
   """
-  @spec ebv(input_value) :: t() | nil
+  @spec ebv(input_value) :: RDF.Literal.t() | nil
   def ebv(value)
 
   def ebv(%RDF.Literal{literal: literal}), do: ebv(literal)
@@ -97,7 +97,7 @@ defmodule RDF.XSD.Boolean do
   @doc """
   Alias for `ebv/1`.
   """
-  @spec effective(input_value) :: t() | nil
+  @spec effective(input_value) :: RDF.Literal.t() | nil
   def effective(value), do: ebv(value)
 
   @doc """

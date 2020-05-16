@@ -72,7 +72,7 @@ defmodule RDF.XSD.Integer do
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
   """
-  @spec digit_count(RDF.XSD.Literal.t()) :: non_neg_integer | nil
+  @spec digit_count(RDF.Literal.t()) :: non_neg_integer | nil
   def digit_count(%datatype{} = literal) do
     if datatype?(literal) and datatype.valid?(literal) do
       literal

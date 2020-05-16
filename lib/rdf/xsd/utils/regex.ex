@@ -4,7 +4,7 @@ defmodule RDF.XSD.Utils.Regex do
 
   This is not intended to be used directly.
   Use `c:RDF.XSD.Datatype.matches?/3` implementations on the datatypes or
-  `RDF.XSD.Literal.matches?/3` instead.
+  `RDF.Literal.matches?/3` instead.
   """
 
   @doc """

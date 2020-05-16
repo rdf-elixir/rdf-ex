@@ -85,7 +85,7 @@ defmodule RDF.XSD.DateTime do
   @doc """
   Builds a `RDF.XSD.DateTime` literal for current moment in time.
   """
-  @spec now() :: t()
+  @spec now() :: RDF.Literal.t()
   def now() do
     new(DateTime.utc_now())
   end

@@ -102,7 +102,7 @@ defmodule RDF.XSD.Decimal do
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
   """
-  @spec digit_count(RDF.XSD.Literal.t()) :: non_neg_integer | nil
+  @spec digit_count(RDF.Literal.t()) :: non_neg_integer | nil
   def digit_count(%__MODULE__{} = literal), do: do_digit_count(literal)
 
   def digit_count(literal) do
@@ -127,7 +127,7 @@ defmodule RDF.XSD.Decimal do
   @doc """
   The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
   """
-  @spec fraction_digit_count(RDF.XSD.Literal.t()) :: non_neg_integer | nil
+  @spec fraction_digit_count(RDF.Literal.t()) :: non_neg_integer | nil
   def fraction_digit_count(%__MODULE__{} = literal), do: do_fraction_digit_count(literal)
 
   def fraction_digit_count(literal) do

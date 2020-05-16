@@ -834,7 +834,7 @@ defmodule RDF.Graph do
 
   If `nil` is passed as the `subjects`, the subjects will not be limited.
   """
-  @spec take(t, [Statement.coercible_subject] | nil, [Statement.coercible_predicate] | nil) :: t
+  @spec take(t, [Statement.coercible_subject] | Enum.t | nil, [Statement.coercible_predicate] | Enum.t | nil) :: t
   def take(graph, subjects, properties \\ nil)
 
   def take(%RDF.Graph{} = graph, nil, nil), do: graph

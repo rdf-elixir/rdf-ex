@@ -731,7 +731,7 @@ defmodule RDF.Description do
 
   If `nil` is passed, the description is left untouched.
   """
-  @spec take(t, [Statement.coercible_predicate] | nil) :: t
+  @spec take(t, [Statement.coercible_predicate] | Enum.t | nil) :: t
   def take(description, predicates)
 
   def take(%RDF.Description{} = description, nil), do: description

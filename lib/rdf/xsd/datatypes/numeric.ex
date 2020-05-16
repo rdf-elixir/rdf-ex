@@ -68,7 +68,7 @@ defmodule RDF.XSD.Numeric do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
-  @spec compare(t, t) :: RDF.XSD.Datatype.comparison_result() | nil
+  @spec compare(RDF.Literal.t | t, RDF.Literal.t | t) :: RDF.XSD.Datatype.comparison_result() | nil
   def compare(left, right)
   def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
   def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)

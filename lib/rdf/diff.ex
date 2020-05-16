@@ -59,7 +59,6 @@ defmodule RDF.Diff do
       deletions: RDF.graph({EX.S1, EX.p1, EX.O1})
     }
   """
-  @dialyzer {:nowarn_function, diff: 2}
   @spec diff(Description.t | Graph.t, Description.t | Graph.t) :: t
   def diff(original_rdf_data, new_rdf_data)
 

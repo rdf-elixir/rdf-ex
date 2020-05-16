@@ -102,7 +102,7 @@ defmodule RDF.Literal.Datatype do
   This function is called by auto-generated `equal_value?/2` function on the
   implementations, which already deals with basic cases and coercion.
   """
-  @callback do_equal_value?(literal, literal) :: boolean
+  @callback do_equal_value?(literal, literal) :: boolean | nil
 
   @doc """
   Compares two `RDF.Literal`s.
@@ -229,6 +229,8 @@ defmodule RDF.Literal.Datatype do
 
       Implementations define the casting for a given value with the `c:do_cast/1` callback.
       """
+      @spec cast(any) :: Literal.t() | nil
+      @dialyzer {:nowarn_function, cast: 1}
       def cast(literal_or_value)
       def cast(%Literal{literal: literal}), do: cast(literal)
       def cast(%__MODULE__{} = datatype_literal),

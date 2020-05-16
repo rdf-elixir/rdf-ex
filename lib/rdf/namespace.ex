@@ -45,7 +45,7 @@ defmodule RDF.Namespace do
 
   See `resolve_term/1` for more.
   """
-  @spec resolve_term(IRI.t | module) :: IRI.t
+  @spec resolve_term!(IRI.t | module) :: IRI.t
   def resolve_term!(expr) do
     with {:ok, iri} <- resolve_term(expr) do
       iri

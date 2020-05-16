@@ -164,7 +164,7 @@ defmodule RDF.XSD.Datatype do
       end
 
       @doc false
-      @spec build_valid(any, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) :: t()
+      @spec build_valid(any, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) :: RDF.Literal.t()
       def build_valid(value, lexical, opts) do
         if Keyword.get(opts, :canonicalize) do
           literal(%__MODULE__{value: value})
@@ -181,6 +181,7 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
+      @dialyzer {:nowarn_function, build_invalid: 2}
       defp build_invalid(lexical, opts) do
         literal(%__MODULE__{uncanonical_lexical: init_invalid_lexical(lexical, opts)})
       end
@@ -214,7 +215,6 @@ defmodule RDF.XSD.Datatype do
       def lexical(%__MODULE__{uncanonical_lexical: lexical}), do: lexical
 
       @impl RDF.Literal.Datatype
-      @spec canonical(t()) :: t()
       def canonical(literal)
 
       def canonical(%RDF.Literal{literal: %__MODULE__{uncanonical_lexical: nil}} = literal),
