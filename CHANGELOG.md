@@ -13,6 +13,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
   `RDF.Namespace.resolve_term!/1` with the old behaviour was added
 
+### Fixed
+
+- BEAM error warnings when trying to use top-level modules as vocabulary terms 
+
+
 [Compare v0.7.1...HEAD](https://github.com/marcelotto/rdf-ex/compare/v0.7.1...HEAD)
 
 

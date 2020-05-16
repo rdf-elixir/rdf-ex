@@ -73,6 +73,14 @@ defmodule RDF.Namespace do
 
   defp do_resolve_term(RDF, term), do: do_resolve_term(RDF.NS.RDF, term)
 
+  defp do_resolve_term(Elixir, term) do
+    {:error,
+      %RDF.Namespace.UndefinedTermError{message:
+        "#{term} is not a RDF.Namespace; top-level modules can't be RDF.Namespaces"
+      }
+    }
+  end
+
   defp do_resolve_term(namespace, term) do
     is_module =
       case Code.ensure_compiled(namespace) do

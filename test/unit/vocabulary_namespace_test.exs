@@ -752,6 +752,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(ExUnit.Test) end
   end
 
+  test "resolving an top-level module" do
+    assert_raise RDF.Namespace.UndefinedTermError,
+                 "ExUnit is not a RDF.Namespace; top-level modules can't be RDF.Namespaces",
+                 fn -> RDF.iri(ExUnit) end
+  end
+
   test "resolving an non-existing RDF.Namespace module" do
     assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(NonExisting.Test) end
   end
