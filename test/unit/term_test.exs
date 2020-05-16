@@ -18,6 +18,16 @@ defmodule RDF.TermTest do
       assert RDF.Term.coerce(~L"foo") == ~L"foo"
     end
 
+    test "with a resolvable vocabulary namespace term atom" do
+      assert RDF.Term.coerce(EX.Foo) == RDF.iri(EX.Foo)
+    end
+
+    test "with a non-resolvable atom" do
+      refute RDF.Term.coerce(nil)
+      refute RDF.Term.coerce(Foo)
+      refute RDF.Term.coerce(:foo)
+    end
+
     test "with boolean" do
       assert RDF.Term.coerce(true) == XSD.true
       assert RDF.Term.coerce(false) == XSD.false
@@ -81,6 +91,16 @@ defmodule RDF.TermTest do
 
     test "with an invalid RDF.Literal" do
       assert XSD.integer("foo") |> RDF.Term.value() == "foo"
+    end
+
+    test "with a resolvable vocabulary namespace term atom" do
+      assert RDF.Term.value(EX.Foo) == EX.Foo |> RDF.iri() |> to_string()
+    end
+
+    test "with a non-resolvable atom" do
+      refute RDF.Term.value(nil)
+      refute RDF.Term.value(Foo)
+      refute RDF.Term.value(:foo)
     end
 
     test "with boolean" do

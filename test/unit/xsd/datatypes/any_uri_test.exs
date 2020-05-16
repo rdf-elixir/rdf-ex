@@ -8,9 +8,11 @@ defmodule RDF.XSD.AnyURITest do
       "http://example.com/foo" =>
         {URI.parse("http://example.com/foo"), nil, "http://example.com/foo"},
       URI.parse("http://example.com/foo") =>
-        {URI.parse("http://example.com/foo"), nil, "http://example.com/foo"}
+        {URI.parse("http://example.com/foo"), nil, "http://example.com/foo"},
+      RDF.List =>
+        {URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#List"), nil, "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"},
     },
-    invalid: [42, 3.14, true, false]
+    invalid: [42, 3.14, Foo, :foo, true, false]
 
 
   describe "cast/1" do

@@ -168,6 +168,15 @@ defmodule RDF.LiteralTest do
                XSD.any_uri("http://example.com")
     end
 
+    test "with a resolvable vocabulary namespace term atom" do
+      assert Literal.coerce(EX.Foo) == EX.Foo |> RDF.iri() |> IRI.parse() |> XSD.any_uri()
+    end
+
+    test "with a non-resolvable atom" do
+      refute Literal.coerce(Foo)
+      refute Literal.coerce(:foo)
+    end
+
     test "with RDF.Literals" do
       assert XSD.integer(42) |> Literal.coerce() == XSD.integer(42)
     end
@@ -177,7 +186,8 @@ defmodule RDF.LiteralTest do
     end
 
     test "with inconvertible values" do
-      assert self() |> Literal.coerce() == nil
+      refute Literal.coerce(nil)
+      refute Literal.coerce(self())
     end
   end
 

@@ -18,10 +18,14 @@ defmodule RDF.EqualityTest do
     @equal_iris_by_coercion [
       {RDF.iri("http://example.com/"), URI.parse("http://example.com/")},
       {XSD.anyURI("http://example.com/"), URI.parse("http://example.com/")},
+      {RDF.iri("http://example.com/Foo"), EX.Foo},
+      {XSD.anyURI("http://example.com/Foo"), EX.Foo},
     ]
     @unequal_iris_by_coercion [
       {RDF.iri("http://example.com/foo"), URI.parse("http://example.com/bar")},
       {XSD.anyURI("http://example.com/foo"), URI.parse("http://example.com/bar")},
+      {RDF.iri("http://example.com/Bar"), EX.Foo},
+      {XSD.anyURI("http://example.com/Bar"), EX.Foo},
     ]
     @incomparable_iris [
       {RDF.iri("http://example.com/"), XSD.string("http://example.com/")},

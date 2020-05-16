@@ -8,6 +8,8 @@ defmodule RDF.Literal do
   alias RDF.{IRI, LangString}
   alias RDF.Literal.{Generic, Datatype}
 
+  import RDF.Guards
+
   @type t :: %__MODULE__{:literal => Datatype.literal()}
 
   @rdf_lang_string RDF.Utils.Bootstrapping.rdf_iri("langString")
@@ -102,6 +104,13 @@ defmodule RDF.Literal do
   def coerce(%DateTime{} = value),          do: RDF.XSD.DateTime.new(value)
   def coerce(%NaiveDateTime{} = value),     do: RDF.XSD.DateTime.new(value)
   def coerce(%URI{} = value),               do: RDF.XSD.AnyURI.new(value)
+
+  def coerce(value) when maybe_ns_term(value) do
+    case RDF.Namespace.resolve_term(value) do
+      {:ok, iri} -> iri |> IRI.parse() |> coerce()
+      _ -> nil
+    end
+  end
 
   # Although the following catch-all-clause for all structs could handle the builtin datatypes
   # we're generating dedicated clauses for them here, as they are approx. 15% faster

@@ -9,6 +9,8 @@ defmodule RDF.XSD.AnyURI do
 
   alias RDF.IRI
 
+  import RDF.Guards
+
   use RDF.XSD.Datatype.Primitive,
     name: "anyURI",
     id: RDF.Utils.Bootstrapping.xsd_iri("anyURI")
@@ -20,6 +22,14 @@ defmodule RDF.XSD.AnyURI do
   @impl RDF.XSD.Datatype
   @spec elixir_mapping(any, Keyword.t()) :: value
   def elixir_mapping(%URI{} = uri, _), do: uri
+
+  def elixir_mapping(value, _) when maybe_ns_term(value) do
+    case RDF.Namespace.resolve_term(value) do
+      {:ok, iri} -> IRI.parse(iri)
+      _ -> @invalid_value
+    end
+  end
+
   def elixir_mapping(_, _), do: @invalid_value
 
   @impl RDF.Literal.Datatype
@@ -34,6 +44,16 @@ defmodule RDF.XSD.AnyURI do
 
   def do_equal_value?(%__MODULE__{} = any_uri, %IRI{value: iri}),
     do: lexical(any_uri) == iri
+
+  def do_equal_value?(left, %__MODULE__{} = right) when maybe_ns_term(left),
+      do: equal_value?(right, left)
+
+  def do_equal_value?(%__MODULE__{} = left, right) when maybe_ns_term(right) do
+    case RDF.Namespace.resolve_term(right) do
+      {:ok, iri} -> equal_value?(left, iri)
+      _ -> nil
+    end
+  end
 
   def do_equal_value?(literal1, literal2), do: super(literal1, literal2)
 end

@@ -134,11 +134,18 @@ defimpl RDF.Term, for: Atom do
 
   def coerce(true),  do: RDF.XSD.true
   def coerce(false), do: RDF.XSD.false
-  def coerce(_),     do: nil
+  def coerce(nil),   do: nil
+  def coerce(term) do
+    case RDF.Namespace.resolve_term(term) do
+      {:ok, iri} -> iri
+      _ -> nil
+    end
+  end
 
   def value(true),  do: true
   def value(false), do: false
-  def value(_),     do: nil
+  def value(nil),   do: nil
+  def value(term),  do: RDF.Term.value(coerce(term))
 
   def term?(_), do: false
 end

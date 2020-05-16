@@ -238,6 +238,16 @@ defmodule RDF.IRI do
   def equal_value?(%__MODULE__{value: left}, %URI{} = right),
     do: left == URI.to_string(right)
 
+  def equal_value?(left, %__MODULE__{} = right) when maybe_ns_term(left),
+      do: equal_value?(right, left)
+
+  def equal_value?(%__MODULE__{} = left, right) when maybe_ns_term(right) do
+    case Namespace.resolve_term(right) do
+      {:ok, iri} -> equal_value?(left, iri)
+      _ -> nil
+    end
+  end
+
   def equal_value?(_, _),
     do: nil
 
