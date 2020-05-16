@@ -1,5 +1,5 @@
 defmodule RDF.Literal.GenericTest do
-  use ExUnit.Case
+  use RDF.Test.Case
 
   alias RDF.Literal
   alias RDF.Literal.Generic
@@ -25,6 +25,13 @@ defmodule RDF.Literal.GenericTest do
         assert Generic.new(input, datatype) == Generic.new(input, datatype: datatype)
         assert Generic.new(input, datatype_iri) == Generic.new(input, datatype: datatype_iri)
       end
+    end
+
+    test "with datatype as a vocabulary term" do
+      datatype = EX.Datatype |> RDF.iri() |> to_string()
+      assert %Literal{literal: %Generic{value: "foo", datatype: ^datatype}} =
+               Generic.new("foo", datatype: EX.Datatype)
+      assert Generic.new("foo", EX.Datatype) == Generic.new("foo", datatype: EX.Datatype)
     end
 
     test "with canonicalize opts" do

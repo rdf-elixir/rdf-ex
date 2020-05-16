@@ -11,6 +11,7 @@ defmodule RDF.Literal.Generic do
 
   alias RDF.Literal.Datatype
   alias RDF.{Literal, IRI}
+  import RDF.Guards
 
   @type t :: %__MODULE__{
                value: String.t,
@@ -20,8 +21,9 @@ defmodule RDF.Literal.Generic do
   @impl Datatype
   @spec new(any, String.t | IRI.t | keyword) :: Literal.t
   def new(value, datatype_or_opts \\ [])
-  def new(value, datatype) when is_binary(datatype), do: new(value, datatype: datatype)
   def new(value, %IRI{} = datatype), do: new(value, datatype: datatype)
+  def new(value, datatype) when is_binary(datatype) or maybe_ns_term(datatype),
+    do: new(value, datatype: datatype)
   def new(value, opts) do
     %Literal{
       literal: %__MODULE__{
@@ -34,6 +36,7 @@ defmodule RDF.Literal.Generic do
   defp normalize_datatype(nil), do: nil
   defp normalize_datatype(""), do: nil
   defp normalize_datatype(%IRI{} = datatype), do: to_string(datatype)
+  defp normalize_datatype(datatype) when maybe_ns_term(datatype), do: datatype |> RDF.iri() |> to_string()
   defp normalize_datatype(datatype), do: datatype
 
   @impl Datatype
