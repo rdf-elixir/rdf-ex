@@ -12,6 +12,20 @@ defmodule RDF.XSD.Double do
 
   @special_values ~W[positive_infinity negative_infinity nan]a
 
+
+  def_applicable_facet RDF.XSD.Facets.MinInclusive
+  def_applicable_facet RDF.XSD.Facets.MaxInclusive
+
+  @doc false
+  def min_inclusive_conform?(min_inclusive, value, _lexical) do
+    value >= min_inclusive
+  end
+
+  @doc false
+  def max_inclusive_conform?(max_inclusive, value, _lexical) do
+    value <= max_inclusive
+  end
+
   @impl RDF.XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case Float.parse(lexical) do

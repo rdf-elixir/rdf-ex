@@ -11,6 +11,21 @@ defmodule RDF.XSD.Decimal do
 
   alias Elixir.Decimal, as: D
 
+
+  def_applicable_facet RDF.XSD.Facets.MinInclusive
+  def_applicable_facet RDF.XSD.Facets.MaxInclusive
+
+  @doc false
+  def min_inclusive_conform?(min_inclusive, value, _lexical) do
+    not (D.cmp(value, D.new(min_inclusive)) == :lt)
+  end
+
+  @doc false
+  def max_inclusive_conform?(max_inclusive, value, _lexical) do
+    not (D.cmp(value, D.new(max_inclusive)) == :gt)
+  end
+
+
   @impl RDF.XSD.Datatype
   def lexical_mapping(lexical, opts) do
     if String.contains?(lexical, ~w[e E]) do

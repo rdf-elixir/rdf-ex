@@ -6,6 +6,11 @@ defmodule RDF.XSD.DecimalTest do
     name: "decimal",
     primitive: true,
     comparable_datatypes: [RDF.XSD.Integer, RDF.XSD.Double],
+    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    facets: %{
+      min_inclusive: nil,
+      max_inclusive: nil
+    },
     valid: %{
       # input => {value, lexical, canonicalized}
       0 => {Elixir.Decimal.from_float(0.0), nil, "0.0"},

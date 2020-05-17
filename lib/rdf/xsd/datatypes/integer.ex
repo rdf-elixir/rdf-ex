@@ -15,10 +15,12 @@ defmodule RDF.XSD.Integer do
   def_applicable_facet RDF.XSD.Facets.MinInclusive
   def_applicable_facet RDF.XSD.Facets.MaxInclusive
 
+  @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
     value >= min_inclusive
   end
 
+  @doc false
   def max_inclusive_conform?(max_inclusive, value, _lexical) do
     value <= max_inclusive
   end

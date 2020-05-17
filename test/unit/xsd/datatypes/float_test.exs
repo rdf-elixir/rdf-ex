@@ -5,8 +5,11 @@ defmodule RDF.XSD.FloatTest do
     base: RDF.XSD.Double,
     base_primitive: RDF.XSD.Double,
     comparable_datatypes: [RDF.XSD.Integer, RDF.XSD.Decimal],
-    applicable_facets: [],
-    facets: %{},
+    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    facets: %{
+      min_inclusive: nil,
+      max_inclusive: nil
+    },
     valid: RDF.XSD.TestData.valid_floats(),
     invalid: RDF.XSD.TestData.invalid_floats()
 end
