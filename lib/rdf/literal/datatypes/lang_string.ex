@@ -126,7 +126,7 @@ defmodule RDF.LangString do
     do: match_language?(language_tag, language_range)
 
   def match_language?("", "*"), do: false
-  def match_language?(_, "*"),  do: true
+  def match_language?(str, "*") when is_binary(str), do: true
 
   def match_language?(language_tag, language_range)
       when is_binary(language_tag) and is_binary(language_range) do

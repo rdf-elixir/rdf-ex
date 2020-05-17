@@ -291,6 +291,7 @@ defmodule RDF.LangStringTest do
     test "with a non-language-tagged literal" do
       refute XSD.String.new("42") |> LangString.match_language?("de")
       refute XSD.String.new("42") |> LangString.match_language?("")
+      refute XSD.String.new("42") |> LangString.match_language?("*")
       refute XSD.Integer.new("42") |> LangString.match_language?("de")
     end
   end
