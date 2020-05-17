@@ -9,6 +9,25 @@ defmodule RDF.XSD.String do
     name: "string",
     id: RDF.Utils.Bootstrapping.xsd_iri("string")
 
+  def_applicable_facet RDF.XSD.Facets.MinLength
+  def_applicable_facet RDF.XSD.Facets.MaxLength
+  def_applicable_facet RDF.XSD.Facets.Length
+
+  @doc false
+  def min_length_conform?(min_length, value, _lexical) do
+    String.length(value) >= min_length
+  end
+
+  @doc false
+  def max_length_conform?(max_length, value, _lexical) do
+    String.length(value) <= max_length
+  end
+
+  @doc false
+  def length_conform?(length, value, _lexical) do
+    String.length(value) == length
+  end
+
   @impl RDF.XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value
   def lexical_mapping(lexical, _), do: to_string(lexical)

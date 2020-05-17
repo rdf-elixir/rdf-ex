@@ -1,4 +1,13 @@
 defmodule RDF.TestDatatypes do
+  defmodule Initials do
+    use RDF.XSD.Datatype.Restriction,
+        name: "initials",
+        id: "http://example.com/initials",
+        base: RDF.XSD.String
+
+    def_facet_constraint RDF.XSD.Facets.Length, 2
+  end
+
   defmodule Age do
     use RDF.XSD.Datatype.Restriction,
         name: "age",

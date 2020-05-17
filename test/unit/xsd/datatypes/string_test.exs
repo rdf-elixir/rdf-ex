@@ -3,6 +3,16 @@ defmodule RDF.XSD.StringTest do
     datatype: RDF.XSD.String,
     name: "string",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.MinLength,
+      RDF.XSD.Facets.MaxLength,
+      RDF.XSD.Facets.Length,
+    ],
+    facets: %{
+      max_length: nil,
+      min_length: nil,
+      length: nil
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       "foo" => {"foo", nil, "foo"},
