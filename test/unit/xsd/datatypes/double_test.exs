@@ -4,10 +4,17 @@ defmodule RDF.XSD.DoubleTest do
     name: "double",
     primitive: true,
     comparable_datatypes: [RDF.XSD.Integer, RDF.XSD.Decimal],
-    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    applicable_facets: [
+      RDF.XSD.Facets.MinInclusive,
+      RDF.XSD.Facets.MaxInclusive,
+      RDF.XSD.Facets.MinExclusive,
+      RDF.XSD.Facets.MaxExclusive,
+    ],
     facets: %{
       min_inclusive: nil,
-      max_inclusive: nil
+      max_inclusive: nil,
+      min_exclusive: nil,
+      max_exclusive: nil
     },
     valid: RDF.XSD.TestData.valid_floats(),
     invalid: RDF.XSD.TestData.invalid_floats()

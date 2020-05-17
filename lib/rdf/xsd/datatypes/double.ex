@@ -15,6 +15,8 @@ defmodule RDF.XSD.Double do
 
   def_applicable_facet RDF.XSD.Facets.MinInclusive
   def_applicable_facet RDF.XSD.Facets.MaxInclusive
+  def_applicable_facet RDF.XSD.Facets.MinExclusive
+  def_applicable_facet RDF.XSD.Facets.MaxExclusive
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
@@ -25,6 +27,17 @@ defmodule RDF.XSD.Double do
   def max_inclusive_conform?(max_inclusive, value, _lexical) do
     value <= max_inclusive
   end
+
+  @doc false
+  def min_exclusive_conform?(min_exclusive, value, _lexical) do
+    value > min_exclusive
+  end
+
+  @doc false
+  def max_exclusive_conform?(max_exclusive, value, _lexical) do
+    value < max_exclusive
+  end
+
 
   @impl RDF.XSD.Datatype
   def lexical_mapping(lexical, opts) do

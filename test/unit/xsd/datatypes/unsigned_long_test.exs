@@ -5,10 +5,17 @@ defmodule RDF.XSD.UnsignedLongTest do
     base: RDF.XSD.NonNegativeInteger,
     base_primitive: RDF.XSD.Integer,
     comparable_datatypes: [RDF.XSD.Decimal, RDF.XSD.Double],
-    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    applicable_facets: [
+      RDF.XSD.Facets.MinInclusive,
+      RDF.XSD.Facets.MaxInclusive,
+      RDF.XSD.Facets.MinExclusive,
+      RDF.XSD.Facets.MaxExclusive,
+    ],
     facets: %{
       min_inclusive: 0,
-      max_inclusive: 18_446_744_073_709_551_615
+      max_inclusive: 18_446_744_073_709_551_615,
+      min_exclusive: nil,
+      max_exclusive: nil
     },
     valid: RDF.XSD.TestData.valid_unsigned_longs(),
     invalid: RDF.XSD.TestData.invalid_unsigned_longs()

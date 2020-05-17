@@ -5,10 +5,17 @@ defmodule RDF.XSD.PositiveIntegerTest do
     base: RDF.XSD.NonNegativeInteger,
     base_primitive: RDF.XSD.Integer,
     comparable_datatypes: [RDF.XSD.Decimal, RDF.XSD.Double],
-    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    applicable_facets: [
+      RDF.XSD.Facets.MinInclusive,
+      RDF.XSD.Facets.MaxInclusive,
+      RDF.XSD.Facets.MinExclusive,
+      RDF.XSD.Facets.MaxExclusive,
+    ],
     facets: %{
       min_inclusive: 1,
-      max_inclusive: nil
+      max_inclusive: nil,
+      min_exclusive: nil,
+      max_exclusive: nil
     },
     valid: RDF.XSD.TestData.valid_positive_integers(),
     invalid: RDF.XSD.TestData.invalid_positive_integers()

@@ -4,10 +4,17 @@ defmodule RDF.XSD.IntegerTest do
     name: "integer",
     primitive: true,
     comparable_datatypes: [RDF.XSD.Decimal, RDF.XSD.Double],
-    applicable_facets: [RDF.XSD.Facets.MinInclusive, RDF.XSD.Facets.MaxInclusive],
+    applicable_facets: [
+      RDF.XSD.Facets.MinInclusive,
+      RDF.XSD.Facets.MaxInclusive,
+      RDF.XSD.Facets.MinExclusive,
+      RDF.XSD.Facets.MaxExclusive,
+    ],
     facets: %{
       min_inclusive: nil,
-      max_inclusive: nil
+      max_inclusive: nil,
+      min_exclusive: nil,
+      max_exclusive: nil
     },
     valid: RDF.XSD.TestData.valid_integers(),
     invalid: RDF.XSD.TestData.invalid_integers()
