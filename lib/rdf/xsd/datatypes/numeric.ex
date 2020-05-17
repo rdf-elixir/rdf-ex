@@ -5,11 +5,12 @@ defmodule RDF.XSD.Numeric do
 
   @type t :: module
 
+  alias RDF.{XSD, Literal}
   alias Elixir.Decimal, as: D
 
   import Kernel, except: [abs: 1, floor: 1, ceil: 1]
 
-  defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :numeric_datatype?
+  defdelegate datatype?(value), to: Literal.Datatype.Registry, as: :numeric_datatype?
 
   @doc """
   Tests for numeric value equality of two numeric XSD datatyped literals.
@@ -21,8 +22,8 @@ defmodule RDF.XSD.Numeric do
   """
   @spec equal_value?(t() | any, t() | any) :: boolean
   def equal_value?(left, right)
-  def equal_value?(left, %RDF.Literal{literal: right}), do: equal_value?(left, right)
-  def equal_value?(%RDF.Literal{literal: left}, right), do: equal_value?(left, right)
+  def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
+  def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
   def equal_value?(nil, _), do: nil
   def equal_value?(_, nil), do: nil
 
@@ -34,7 +35,7 @@ defmodule RDF.XSD.Numeric do
   end
 
   def equal_value?(%left_datatype{value: left}, %right_datatype{value: right})
-      when left_datatype == RDF.XSD.Decimal or right_datatype == RDF.XSD.Decimal,
+      when left_datatype == XSD.Decimal or right_datatype == XSD.Decimal,
       do: not is_nil(left) and not is_nil(right) and equal_decimal_value?(left, right)
 
   def equal_value?(%left_datatype{value: left}, %right_datatype{value: right}) do
@@ -44,7 +45,7 @@ defmodule RDF.XSD.Numeric do
   end
 
   def equal_value?(left, right),
-    do: equal_value?(RDF.Literal.coerce(left), RDF.Literal.coerce(right))
+    do: equal_value?(Literal.coerce(left), Literal.coerce(right))
 
   defp equal_decimal_value?(%D{} = left, %D{} = right), do: D.equal?(left, right)
 
@@ -68,13 +69,13 @@ defmodule RDF.XSD.Numeric do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
-  @spec compare(RDF.Literal.t | t, RDF.Literal.t | t) :: RDF.XSD.Datatype.comparison_result() | nil
+  @spec compare(Literal.t | t, Literal.t | t) :: XSD.Datatype.comparison_result() | nil
   def compare(left, right)
-  def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
-  def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
+  def compare(left, %Literal{literal: right}), do: compare(left, right)
+  def compare(%Literal{literal: left}, right), do: compare(left, right)
 
   def compare(
-        %RDF.XSD.Decimal{value: left},
+        %XSD.Decimal{value: left},
         %right_datatype{value: right}
       ) do
     if datatype?(right_datatype) do
@@ -84,7 +85,7 @@ defmodule RDF.XSD.Numeric do
 
   def compare(
         %left_datatype{value: left},
-        %RDF.XSD.Decimal{value: right}
+        %XSD.Decimal{value: right}
       ) do
     if datatype?(left_datatype) do
       compare_decimal_value(left, right)
@@ -118,14 +119,14 @@ defmodule RDF.XSD.Numeric do
   defp compare_decimal_value(_, _), do: nil
 
   @spec zero?(any) :: boolean
-  def zero?(%RDF.Literal{literal: literal}), do: zero?(literal)
+  def zero?(%Literal{literal: literal}), do: zero?(literal)
   def zero?(%{value: value}), do: zero_value?(value)
   defp zero_value?(zero) when zero == 0, do: true
   defp zero_value?(%D{coef: 0}), do: true
   defp zero_value?(_), do: false
 
   @spec negative_zero?(any) :: boolean
-  def negative_zero?(%RDF.Literal{literal: literal}), do: negative_zero?(literal)
+  def negative_zero?(%Literal{literal: literal}), do: negative_zero?(literal)
   def negative_zero?(%{value: zero, uncanonical_lexical: "-" <> _}) when zero == 0, do: true
   def negative_zero?(%{value: %D{sign: -1, coef: 0}}), do: true
   def negative_zero?(_), do: false
@@ -254,7 +255,7 @@ defmodule RDF.XSD.Numeric do
       arg1, arg2, result_type ->
         if zero_value?(arg2) do
           cond do
-            result_type not in [RDF.XSD.Double, RDF.XSD.Float] -> nil
+            result_type not in [XSD.Double, XSD.Float] -> nil
             zero_value?(arg1) -> :nan
             negative_zero and arg1 < 0 -> :positive_infinity
             negative_zero -> :negative_infinity
@@ -278,22 +279,13 @@ defmodule RDF.XSD.Numeric do
   """
   def abs(literal)
 
-  def abs(%RDF.Literal{literal: literal}), do: abs(literal)
-
-  def abs(%RDF.XSD.Decimal{} = literal) do
-    if RDF.XSD.Decimal.valid?(literal) do
-      literal.value
-      |> D.abs()
-      |> RDF.XSD.Decimal.new()
-    end
-  end
-
+  def abs(%Literal{literal: literal}), do: abs(literal)
   def abs(nil), do: nil
 
   def abs(value) do
     cond do
       datatype?(value) ->
-        if RDF.Literal.Datatype.valid?(value) do
+        if Literal.Datatype.valid?(value) do
           %datatype{} = value
 
           case value.value do
@@ -304,21 +296,29 @@ defmodule RDF.XSD.Numeric do
               literal(value)
 
             :negative_infinity ->
-              datatype.new(:positive_infinity)
+              datatype.base_primitive().new(:positive_infinity)
+
+            %D{} = value ->
+              value
+              |> D.abs()
+              |> datatype.base_primitive().new()
 
             value ->
+              target_datatype = if XSD.Float.datatype?(datatype),
+                                   do: XSD.Float, else: datatype.base_primitive()
               value
               |> Kernel.abs()
-              |> datatype.new()
+              |> target_datatype.new()
           end
         end
 
-      RDF.Literal.datatype?(value) ->
+      # non-numeric datatypes
+      Literal.datatype?(value) ->
         nil
 
       true ->
         value
-        |> RDF.Literal.coerce()
+        |> Literal.coerce()
         |> abs()
     end
   end
@@ -340,55 +340,56 @@ defmodule RDF.XSD.Numeric do
   """
   def round(literal, precision \\ 0)
 
-  def round(%RDF.Literal{literal: literal}, precision), do: round(literal, precision)
-
-  def round(%RDF.XSD.Decimal{} = literal, precision) do
-    if RDF.XSD.Decimal.valid?(literal) do
-      literal.value
-      |> xpath_round(precision)
-      |> to_string()
-      |> RDF.XSD.Decimal.new()
-    end
-  end
-
-  def round(%datatype{value: value} = datatype_literal, _)
-      when datatype in [RDF.XSD.Double, RDF.XSD.Float] and
-             value in ~w[nan positive_infinity negative_infinity]a,
-      do: literal(datatype_literal)
-
-  def round(%datatype{} = literal, precision) when datatype in [RDF.XSD.Double, RDF.XSD.Float] do
-    if datatype.valid?(literal) do
-      literal.value
-      |> new_decimal()
-      |> xpath_round(precision)
-      |> D.to_float()
-      |> datatype.new()
-    end
-  end
-
+  def round(%Literal{literal: literal}, precision), do: round(literal, precision)
   def round(nil, _), do: nil
 
   def round(value, precision) do
     cond do
       datatype?(value) ->
-        if RDF.Literal.Datatype.valid?(value) do
-          if precision < 0 do
-            value.value
-            |> new_decimal()
-            |> xpath_round(precision)
-            |> D.to_integer()
-            |> RDF.XSD.Integer.new()
-          else
-            literal(value)
+        if Literal.Datatype.valid?(value) do
+          %datatype{value: literal_value} = value
+
+          cond do
+            XSD.Integer.datatype?(datatype) ->
+              if precision < 0 do
+                literal_value
+                |> new_decimal()
+                |> xpath_round(precision)
+                |> D.to_integer()
+                |> XSD.Integer.new()
+              else
+                literal(value)
+              end
+
+            XSD.Decimal.datatype?(datatype) ->
+              literal_value
+              |> xpath_round(precision)
+              |> to_string()
+              |> XSD.Decimal.new()
+
+            (float_datatype = XSD.Float.datatype?(datatype)) or
+                              XSD.Double.datatype?(datatype) ->
+              if literal_value in ~w[nan positive_infinity negative_infinity]a do
+                literal(value)
+              else
+                target_datatype = if float_datatype, do: XSD.Float, else: XSD.Double
+
+                literal_value
+                |> new_decimal()
+                |> xpath_round(precision)
+                |> D.to_float()
+                |> target_datatype.new()
+              end
           end
         end
 
-      RDF.Literal.datatype?(value) ->
+      # non-numeric datatypes
+      Literal.datatype?(value) ->
         nil
 
       true ->
         value
-        |> RDF.Literal.coerce()
+        |> Literal.coerce()
         |> round(precision)
     end
   end
@@ -410,47 +411,48 @@ defmodule RDF.XSD.Numeric do
   """
   def ceil(literal)
 
-  def ceil(%RDF.Literal{literal: literal}), do: ceil(literal)
-
-  def ceil(%RDF.XSD.Decimal{} = literal) do
-    if RDF.XSD.Decimal.valid?(literal) do
-      literal.value
-      |> D.round(0, if(literal.value.sign == -1, do: :down, else: :up))
-      |> D.to_string()
-      |> RDF.XSD.Decimal.new()
-    end
-  end
-
-  def ceil(%datatype{value: value} = datatype_literal)
-      when datatype in [RDF.XSD.Double, RDF.XSD.Float] and
-             value in ~w[nan positive_infinity negative_infinity]a,
-      do: literal(datatype_literal)
-
-  def ceil(%datatype{} = literal) when datatype in [RDF.XSD.Double, RDF.XSD.Float] do
-    if datatype.valid?(literal) do
-      literal.value
-      |> Float.ceil()
-      |> trunc()
-      |> to_string()
-      |> datatype.new()
-    end
-  end
-
+  def ceil(%Literal{literal: literal}), do: ceil(literal)
   def ceil(nil), do: nil
 
   def ceil(value) do
     cond do
       datatype?(value) ->
-        if RDF.Literal.Datatype.valid?(value) do
-          literal(value)
+        if Literal.Datatype.valid?(value) do
+          %datatype{value: literal_value} = value
+
+          cond do
+            XSD.Integer.datatype?(datatype) ->
+              literal(value)
+
+            XSD.Decimal.datatype?(datatype) ->
+              literal_value
+              |> D.round(0, if(literal_value.sign == -1, do: :down, else: :up))
+              |> D.to_string()
+              |> XSD.Decimal.new()
+
+            (float_datatype = XSD.Float.datatype?(datatype)) or
+                              XSD.Double.datatype?(datatype) ->
+              if literal_value in ~w[nan positive_infinity negative_infinity]a do
+                literal(value)
+              else
+                target_datatype = if float_datatype, do: XSD.Float, else: XSD.Double
+
+                literal_value
+                |> Float.ceil()
+                |> trunc()
+                |> to_string()
+                |> target_datatype.new()
+              end
+          end
         end
 
-      RDF.Literal.datatype?(value) ->
+      # non-numeric datatypes
+      Literal.datatype?(value) ->
         nil
 
       true ->
         value
-        |> RDF.Literal.coerce()
+        |> Literal.coerce()
         |> ceil()
     end
   end
@@ -466,51 +468,54 @@ defmodule RDF.XSD.Numeric do
   """
   def floor(literal)
 
-  def floor(%RDF.Literal{literal: literal}), do: floor(literal)
-
-  def floor(%RDF.XSD.Decimal{} = literal) do
-    if RDF.XSD.Decimal.valid?(literal) do
-      literal.value
-      |> D.round(0, if(literal.value.sign == -1, do: :up, else: :down))
-      |> D.to_string()
-      |> RDF.XSD.Decimal.new()
-    end
-  end
-
-  def floor(%datatype{value: value} = datatype_literal)
-    when datatype in [RDF.XSD.Double, RDF.XSD.Float] and
-           value in ~w[nan positive_infinity negative_infinity]a,
-    do: literal(datatype_literal)
-
-  def floor(%datatype{} = literal) when datatype in [RDF.XSD.Double, RDF.XSD.Float] do
-    if datatype.valid?(literal) do
-      literal.value
-      |> Float.floor()
-      |> trunc()
-      |> to_string()
-      |> datatype.new()
-    end
-  end
-
+  def floor(%Literal{literal: literal}), do: floor(literal)
   def floor(nil), do: nil
 
   def floor(value) do
     cond do
       datatype?(value) ->
-        if RDF.Literal.Datatype.valid?(value), do: literal(value)
+        if Literal.Datatype.valid?(value) do
+          %datatype{value: literal_value} = value
 
-      RDF.Literal.datatype?(value) ->
+          cond do
+            XSD.Integer.datatype?(datatype) ->
+              literal(value)
+
+            XSD.Decimal.datatype?(datatype) ->
+              literal_value
+              |> D.round(0, if(literal_value.sign == -1, do: :up, else: :down))
+              |> D.to_string()
+              |> XSD.Decimal.new()
+
+            (float_datatype = XSD.Float.datatype?(datatype)) or
+                              XSD.Double.datatype?(datatype) ->
+              if literal_value in ~w[nan positive_infinity negative_infinity]a do
+                literal(value)
+              else
+                target_datatype = if float_datatype, do: XSD.Float, else: XSD.Double
+
+                literal_value
+                |> Float.floor()
+                |> trunc()
+                |> to_string()
+                |> target_datatype.new()
+              end
+          end
+        end
+
+      # non-numeric datatypes
+      Literal.datatype?(value) ->
         nil
 
       true ->
         value
-        |> RDF.Literal.coerce()
+        |> Literal.coerce()
         |> floor()
     end
   end
 
-  defp arithmetic_operation(op, %RDF.Literal{literal: literal1}, literal2, fun), do: arithmetic_operation(op, literal1, literal2, fun)
-  defp arithmetic_operation(op, literal1, %RDF.Literal{literal: literal2}, fun), do: arithmetic_operation(op, literal1, literal2, fun)
+  defp arithmetic_operation(op, %Literal{literal: literal1}, literal2, fun), do: arithmetic_operation(op, literal1, literal2, fun)
+  defp arithmetic_operation(op, literal1, %Literal{literal: literal2}, fun), do: arithmetic_operation(op, literal1, literal2, fun)
   defp arithmetic_operation(op, %datatype1{} = literal1, %datatype2{} = literal2, fun) do
     if datatype?(datatype1) and datatype?(datatype2) do
       result_type = result_type(op, datatype1, datatype2)
@@ -524,36 +529,36 @@ defmodule RDF.XSD.Numeric do
     cond do
       is_nil(left) -> nil
       is_nil(right) -> nil
-      not RDF.Literal.datatype?(left) -> arithmetic_operation(op, RDF.Literal.coerce(left), right, fun)
-      not RDF.Literal.datatype?(right) -> arithmetic_operation(op, left, RDF.Literal.coerce(right), fun)
+      not Literal.datatype?(left) -> arithmetic_operation(op, Literal.coerce(left), right, fun)
+      not Literal.datatype?(right) -> arithmetic_operation(op, left, Literal.coerce(right), fun)
       true -> false
     end
   end
 
-  defp type_conversion(%RDF.XSD.Decimal{} = left_decimal, %{value: right_value}, RDF.XSD.Decimal),
-    do: {left_decimal, RDF.XSD.Decimal.new(right_value).literal}
+  defp type_conversion(%XSD.Decimal{} = left_decimal, %{value: right_value}, XSD.Decimal),
+    do: {left_decimal, XSD.Decimal.new(right_value).literal}
 
-  defp type_conversion(%{value: left_value}, %RDF.XSD.Decimal{} = right_decimal, RDF.XSD.Decimal),
-    do: {RDF.XSD.Decimal.new(left_value).literal, right_decimal}
+  defp type_conversion(%{value: left_value}, %XSD.Decimal{} = right_decimal, XSD.Decimal),
+    do: {XSD.Decimal.new(left_value).literal, right_decimal}
 
-  defp type_conversion(%RDF.XSD.Decimal{value: left_decimal}, right, datatype)
-       when datatype in [RDF.XSD.Double, RDF.XSD.Float],
-       do: {(left_decimal |> D.to_float() |> RDF.XSD.Double.new()).literal, right}
+  defp type_conversion(%XSD.Decimal{value: left_decimal}, right, datatype)
+       when datatype in [XSD.Double, XSD.Float],
+       do: {(left_decimal |> D.to_float() |> XSD.Double.new()).literal, right}
 
-  defp type_conversion(left, %RDF.XSD.Decimal{value: right_decimal}, datatype)
-       when datatype in [RDF.XSD.Double, RDF.XSD.Float],
-       do: {left, (right_decimal |> D.to_float() |> RDF.XSD.Double.new()).literal}
+  defp type_conversion(left, %XSD.Decimal{value: right_decimal}, datatype)
+       when datatype in [XSD.Double, XSD.Float],
+       do: {left, (right_decimal |> D.to_float() |> XSD.Double.new()).literal}
 
   defp type_conversion(left, right, _), do: {left, right}
 
-  defp result_type(_, RDF.XSD.Double, _), do: RDF.XSD.Double
-  defp result_type(_, _, RDF.XSD.Double), do: RDF.XSD.Double
-  defp result_type(_, RDF.XSD.Float, _), do: RDF.XSD.Float
-  defp result_type(_, _, RDF.XSD.Float), do: RDF.XSD.Float
-  defp result_type(_, RDF.XSD.Decimal, _), do: RDF.XSD.Decimal
-  defp result_type(_, _, RDF.XSD.Decimal), do: RDF.XSD.Decimal
-  defp result_type(:/, _, _), do: RDF.XSD.Decimal
-  defp result_type(_, _, _), do: RDF.XSD.Integer
+  defp result_type(_, XSD.Double, _), do: XSD.Double
+  defp result_type(_, _, XSD.Double), do: XSD.Double
+  defp result_type(_, XSD.Float, _), do: XSD.Float
+  defp result_type(_, _, XSD.Float), do: XSD.Float
+  defp result_type(_, XSD.Decimal, _), do: XSD.Decimal
+  defp result_type(_, _, XSD.Decimal), do: XSD.Decimal
+  defp result_type(:/, _, _), do: XSD.Decimal
+  defp result_type(_, _, _), do: XSD.Integer
 
-  defp literal(value), do: %RDF.Literal{literal: value}
+  defp literal(value), do: %Literal{literal: value}
 end

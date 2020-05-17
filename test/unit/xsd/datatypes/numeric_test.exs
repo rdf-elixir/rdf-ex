@@ -3,6 +3,7 @@ defmodule RDF.XSD.NumericTest do
 
   alias RDF.XSD
   alias XSD.Numeric
+  alias RDF.TestDatatypes.{Age, DecimalUnitInterval, DoubleUnitInterval, FloatUnitInterval}
 
   alias Decimal, as: D
 
@@ -59,14 +60,24 @@ defmodule RDF.XSD.NumericTest do
   describe "add/2" do
     test "xsd:integer literal + xsd:integer literal" do
       assert Numeric.add(XSD.integer(1), XSD.integer(2)) == XSD.integer(3)
+      assert Numeric.add(XSD.integer(1), XSD.byte(2)) == XSD.integer(3)
+      assert Numeric.add(XSD.byte(1), XSD.integer(2)) == XSD.integer(3)
+      assert Numeric.add(XSD.integer(1), Age.new(2)) == XSD.integer(3)
     end
 
     test "xsd:decimal literal + xsd:integer literal" do
       assert Numeric.add(XSD.decimal(1.1), XSD.integer(2)) == XSD.decimal(3.1)
+      assert Numeric.add(XSD.decimal(1.1), XSD.positiveInteger(2)) == XSD.decimal(3.1)
+      assert Numeric.add(XSD.decimal(1.1), Age.new(2)) == XSD.decimal(3.1)
+      assert Numeric.add(XSD.positiveInteger(2), XSD.decimal(1.1)) == XSD.decimal(3.1)
     end
 
     test "xsd:double literal + xsd:integer literal" do
       assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), XSD.integer(2))
+      assert_in_delta RDF.Literal.value(result),
+                      RDF.Literal.value(XSD.double(3.1)), 0.000000000000001
+
+      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), Age.new(2))
       assert_in_delta RDF.Literal.value(result),
                       RDF.Literal.value(XSD.double(3.1)), 0.000000000000001
     end
@@ -99,6 +110,7 @@ defmodule RDF.XSD.NumericTest do
       assert Numeric.add(@negative_infinity, XSD.double(3.14)) == @negative_infinity
       assert Numeric.add(XSD.double(0), @negative_infinity) == @negative_infinity
       assert Numeric.add(XSD.double(3.14), @negative_infinity) == @negative_infinity
+      assert Numeric.add(@negative_infinity, Age.new(0)) == @negative_infinity
     end
 
     test "if both operands are INF, INF is returned" do
@@ -130,10 +142,13 @@ defmodule RDF.XSD.NumericTest do
   describe "subtract/2" do
     test "xsd:integer literal - xsd:integer literal" do
       assert Numeric.subtract(XSD.integer(3), XSD.integer(2)) == XSD.integer(1)
+      assert Numeric.subtract(XSD.integer(3), XSD.short(2)) == XSD.integer(1)
+      assert Numeric.subtract(XSD.integer(3), Age.new(2)) == XSD.integer(1)
     end
 
     test "xsd:decimal literal - xsd:integer literal" do
       assert Numeric.subtract(XSD.decimal(3.3), XSD.integer(2)) == XSD.decimal(1.3)
+      assert Numeric.subtract(XSD.decimal(3.3), XSD.positiveInteger(2)) == XSD.decimal(1.3)
     end
 
     test "xsd:double literal - xsd:integer literal" do
@@ -181,6 +196,7 @@ defmodule RDF.XSD.NumericTest do
   describe "multiply/2" do
     test "xsd:integer literal * xsd:integer literal" do
       assert Numeric.multiply(XSD.integer(2), XSD.integer(3)) == XSD.integer(6)
+      assert Numeric.multiply(Age.new(2), XSD.integer(3)) == XSD.integer(6)
     end
 
     test "xsd:decimal literal * xsd:integer literal" do
@@ -247,6 +263,7 @@ defmodule RDF.XSD.NumericTest do
   describe "divide/2" do
     test "xsd:integer literal / xsd:integer literal" do
       assert Numeric.divide(XSD.integer(4), XSD.integer(2)) == XSD.decimal(2.0)
+      assert Numeric.divide(XSD.integer(4), Age.new(2)) == XSD.decimal(2.0)
     end
 
     test "xsd:decimal literal / xsd:integer literal" do
@@ -374,11 +391,13 @@ defmodule RDF.XSD.NumericTest do
       assert XSD.decimal(-3.14) |> Numeric.abs() == XSD.decimal(3.14)
     end
 
-    @tag skip: "TODO: type-promotion"
     test "with derived numerics" do
-      assert XSD.byte(-42) |> Numeric.abs() == XSD.byte(42)
-      assert XSD.byte("-42") |> Numeric.abs() == XSD.byte(42)
+      assert XSD.byte(-42) |> Numeric.abs() == XSD.integer(42)
+      assert XSD.byte("-42") |> Numeric.abs() == XSD.integer(42)
       assert XSD.non_positive_integer(-42) |> Numeric.abs() == XSD.integer(42)
+      assert DecimalUnitInterval.new(0.14) |> Numeric.abs() == XSD.decimal(0.14)
+      assert DoubleUnitInterval.new(0.14) |> Numeric.abs() == XSD.double(0.14)
+      assert FloatUnitInterval.new(0.14) |> Numeric.abs() == XSD.float(0.14)
     end
 
     test "with invalid numeric literals" do
@@ -417,6 +436,14 @@ defmodule RDF.XSD.NumericTest do
       assert XSD.decimal(2.5) |> Numeric.round() == XSD.decimal("3")
       assert XSD.decimal(2.4999) |> Numeric.round() == XSD.decimal("2")
       assert XSD.decimal(-2.5) |> Numeric.round() == XSD.decimal("-2")
+    end
+
+    test "with derived numerics" do
+      assert XSD.byte(42) |> Numeric.round() == XSD.byte(42)
+      assert XSD.non_positive_integer(-42) |> Numeric.round() == XSD.non_positive_integer(-42)
+      assert DecimalUnitInterval.new(0.14) |> Numeric.round() == XSD.decimal("0")
+      assert DoubleUnitInterval.new(0.14) |> Numeric.round() == XSD.double(0)
+      assert FloatUnitInterval.new(0.14) |> Numeric.round() == XSD.float(0)
     end
 
     test "with invalid numeric literals" do
@@ -466,6 +493,14 @@ defmodule RDF.XSD.NumericTest do
       assert XSD.decimal(-2.55) |> Numeric.round(1) == XSD.decimal("-2.5")
     end
 
+    test "with derived numerics" do
+      assert XSD.byte(42) |> Numeric.round(2) == XSD.byte(42)
+      assert XSD.non_positive_integer(-42) |> Numeric.round(2) == XSD.non_positive_integer(-42)
+      assert DecimalUnitInterval.new(0.14) |> Numeric.round(1) == XSD.decimal(0.1)
+      assert DoubleUnitInterval.new(0.14) |> Numeric.round(1) == XSD.double(0.1)
+      assert FloatUnitInterval.new(0.14) |> Numeric.round(1) == XSD.float(0.1)
+    end
+
     test "with invalid numeric literals" do
       assert XSD.integer("-3.14") |> Numeric.round(1) == nil
       assert XSD.double("foo") |> Numeric.round(2) == nil
@@ -510,6 +545,14 @@ defmodule RDF.XSD.NumericTest do
       assert XSD.decimal(-10.5) |> Numeric.ceil() == XSD.decimal("-10")
     end
 
+    test "with derived numerics" do
+      assert XSD.byte(42) |> Numeric.ceil() == XSD.byte(42)
+      assert XSD.non_positive_integer(-42) |> Numeric.ceil() == XSD.non_positive_integer(-42)
+      assert DoubleUnitInterval.new(0.14) |> Numeric.ceil() == XSD.double("1")
+      assert DoubleUnitInterval.new(0.4) |> Numeric.ceil() == XSD.double("1")
+      assert FloatUnitInterval.new(0.5) |> Numeric.ceil() == XSD.float("1")
+    end
+
     test "with invalid numeric literals" do
       assert XSD.integer("-3.14") |> Numeric.ceil() == nil
       assert XSD.double("foo") |> Numeric.ceil() == nil
@@ -552,6 +595,14 @@ defmodule RDF.XSD.NumericTest do
     test "with xsd:decimal" do
       assert XSD.decimal(10.5) |> Numeric.floor() == XSD.decimal("10")
       assert XSD.decimal(-10.5) |> Numeric.floor() == XSD.decimal("-11")
+    end
+
+    test "with derived numerics" do
+      assert XSD.byte(42) |> Numeric.floor() == XSD.byte(42)
+      assert XSD.non_positive_integer(-42) |> Numeric.floor() == XSD.non_positive_integer(-42)
+      assert DoubleUnitInterval.new(0.14) |> Numeric.floor() == XSD.double("0")
+      assert DoubleUnitInterval.new(0.4) |> Numeric.floor() == XSD.double("0")
+      assert FloatUnitInterval.new(0.5) |> Numeric.floor() == XSD.float("0")
     end
 
     test "with invalid numeric literals" do
