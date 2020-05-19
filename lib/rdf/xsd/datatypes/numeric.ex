@@ -535,30 +535,56 @@ defmodule RDF.XSD.Numeric do
     end
   end
 
-  defp type_conversion(%XSD.Decimal{} = left_decimal, %{value: right_value}, XSD.Decimal),
-    do: {left_decimal, XSD.Decimal.new(right_value).literal}
+  defp type_conversion(left, right, XSD.Decimal) do
+    {
+      if XSD.Decimal.datatype?(left) do
+        left
+      else
+        XSD.Decimal.new(left.value).literal
+      end,
+      if XSD.Decimal.datatype?(right) do
+        right
+      else
+        XSD.Decimal.new(right.value).literal
+      end
+    }
+  end
 
-  defp type_conversion(%{value: left_value}, %XSD.Decimal{} = right_decimal, XSD.Decimal),
-    do: {XSD.Decimal.new(left_value).literal, right_decimal}
-
-  defp type_conversion(%XSD.Decimal{value: left_decimal}, right, datatype)
-       when datatype in [XSD.Double, XSD.Float],
-       do: {(left_decimal |> D.to_float() |> XSD.Double.new()).literal, right}
-
-  defp type_conversion(left, %XSD.Decimal{value: right_decimal}, datatype)
-       when datatype in [XSD.Double, XSD.Float],
-       do: {left, (right_decimal |> D.to_float() |> XSD.Double.new()).literal}
+  defp type_conversion(left, right, datatype) when datatype in [XSD.Double, XSD.Float] do
+    {
+      if XSD.Decimal.datatype?(left) do
+        (left.value |> D.to_float() |> XSD.Double.new()).literal
+      else
+        left
+      end,
+      if XSD.Decimal.datatype?(right) do
+        (right.value |> D.to_float() |> XSD.Double.new()).literal
+      else
+        right
+      end
+    }
+  end
 
   defp type_conversion(left, right, _), do: {left, right}
 
-  defp result_type(_, XSD.Double, _), do: XSD.Double
-  defp result_type(_, _, XSD.Double), do: XSD.Double
-  defp result_type(_, XSD.Float, _), do: XSD.Float
-  defp result_type(_, _, XSD.Float), do: XSD.Float
-  defp result_type(_, XSD.Decimal, _), do: XSD.Decimal
-  defp result_type(_, _, XSD.Decimal), do: XSD.Decimal
-  defp result_type(:/, _, _), do: XSD.Decimal
-  defp result_type(_, _, _), do: XSD.Integer
+  @doc false
+  def result_type(op, left, right), do: do_result_type(op, base_primitive(left), base_primitive(right))
+
+  defp do_result_type(_, XSD.Double, _), do: XSD.Double
+  defp do_result_type(_, _, XSD.Double), do: XSD.Double
+  defp do_result_type(_, XSD.Float, _), do: XSD.Float
+  defp do_result_type(_, _, XSD.Float), do: XSD.Float
+  defp do_result_type(_, XSD.Decimal, _), do: XSD.Decimal
+  defp do_result_type(_, _, XSD.Decimal), do: XSD.Decimal
+  defp do_result_type(:/, _, _), do: XSD.Decimal
+  defp do_result_type(_, _, _), do: XSD.Integer
+
+  defp base_primitive(datatype) do
+    primitive = datatype.base_primitive()
+    if primitive == XSD.Double and XSD.Float.datatype?(datatype),
+       do: XSD.Float,
+       else: primitive
+  end
 
   defp literal(value), do: %Literal{literal: value}
 end
