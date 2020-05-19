@@ -517,7 +517,8 @@ defmodule RDF.XSD.Numeric do
   defp arithmetic_operation(op, %Literal{literal: literal1}, literal2, fun), do: arithmetic_operation(op, literal1, literal2, fun)
   defp arithmetic_operation(op, literal1, %Literal{literal: literal2}, fun), do: arithmetic_operation(op, literal1, literal2, fun)
   defp arithmetic_operation(op, %datatype1{} = literal1, %datatype2{} = literal2, fun) do
-    if datatype?(datatype1) and datatype?(datatype2) do
+    if datatype?(datatype1) and datatype?(datatype2) and
+       Literal.Datatype.valid?(literal1) and Literal.Datatype.valid?(literal2) do
       result_type = result_type(op, datatype1, datatype2)
       {arg1, arg2} = type_conversion(literal1, literal2, result_type)
       result = fun.(arg1.value, arg2.value, result_type)

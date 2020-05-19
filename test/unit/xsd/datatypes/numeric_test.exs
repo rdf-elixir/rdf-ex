@@ -130,7 +130,7 @@ defmodule RDF.XSD.NumericTest do
       assert Numeric.add(@negative_infinity, XSD.double(3.14)) == @negative_infinity
       assert Numeric.add(XSD.double(0), @negative_infinity) == @negative_infinity
       assert Numeric.add(XSD.double(3.14), @negative_infinity) == @negative_infinity
-      assert Numeric.add(@negative_infinity, Age.new(0)) == @negative_infinity
+      assert Numeric.add(@negative_infinity, Age.new(1)) == @negative_infinity
     end
 
     test "if both operands are INF, INF is returned" do
@@ -156,6 +156,14 @@ defmodule RDF.XSD.NumericTest do
       assert Numeric.add(42, :foo) == nil
       assert Numeric.add(:foo, 42) == nil
       assert Numeric.add(:foo, :bar) == nil
+    end
+
+    test "with invalid numeric literals" do
+      refute Numeric.add(XSD.integer("foo"), XSD.integer("bar"))
+      refute Numeric.add(XSD.integer("foo"), XSD.integer(1))
+      refute Numeric.add(XSD.integer(1), XSD.integer("foo"))
+      refute Numeric.add(XSD.integer(1), XSD.byte(300))
+      refute Numeric.add(XSD.integer(1), Age.new(200))
     end
   end
 

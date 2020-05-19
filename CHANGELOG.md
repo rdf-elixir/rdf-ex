@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
+- numeric operations on invalid numeric literals no longer fail, but return `nil` instead    
 - BEAM error warnings when trying to use top-level modules as vocabulary terms 
 
 
