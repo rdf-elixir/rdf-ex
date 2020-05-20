@@ -22,6 +22,7 @@ defmodule RDF.XSD.AnyURI do
   @impl RDF.XSD.Datatype
   @spec elixir_mapping(any, Keyword.t()) :: value
   def elixir_mapping(%URI{} = uri, _), do: uri
+  def elixir_mapping(%IRI{} = iri, _), do: IRI.parse(iri)
 
   def elixir_mapping(value, _) when maybe_ns_term(value) do
     case RDF.Namespace.resolve_term(value) do
@@ -33,7 +34,6 @@ defmodule RDF.XSD.AnyURI do
   def elixir_mapping(_, _), do: @invalid_value
 
   @impl RDF.Literal.Datatype
-  def do_cast(%IRI{} = iri), do: new(iri.value)
   def do_cast(value), do: super(value)
 
   @impl RDF.Literal.Datatype

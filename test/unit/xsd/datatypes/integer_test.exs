@@ -85,18 +85,6 @@ defmodule RDF.XSD.IntegerTest do
     test "with literals of unsupported datatypes" do
       assert XSD.date("2020-01-01") |> XSD.Integer.cast() == nil
     end
-
-    test "with coercible value" do
-      assert XSD.Integer.cast("42") == XSD.integer(42)
-      assert XSD.Integer.cast(3.14) == XSD.integer(3)
-      assert XSD.Integer.cast(true) == XSD.integer(1)
-      assert XSD.Integer.cast(false) == XSD.integer(0)
-    end
-
-    test "with non-coercible value" do
-      assert XSD.Integer.cast(:foo) == nil
-      assert XSD.Integer.cast(make_ref()) == nil
-    end
   end
 
   test "digit_count/1" do

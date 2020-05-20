@@ -24,15 +24,17 @@ defmodule RDF.Literal.Datatype do
   @callback new!(any, Keyword.t()) :: Literal.t()
 
   @doc """
-  Casts a datatype literal or coercible value of one type into a datatype literal of another type.
+  Casts a datatype literal of one type into a datatype literal of another type.
 
-  If the given literal or value is invalid or can not be converted into this datatype an
-  implementation should return `nil`.
+  This function is called by the auto-generated `cast/1` function on the implementations, which already deals with the basic cases.
+  So, implementations can assume the passed argument is a valid `RDF.Literal.Datatype` struct.
 
-  This function is called by auto-generated `cast/1` function on the implementations,
-  which already deals with basic cases and coercion.
+  If the given literal can not be converted into this datatype an implementation should return `nil`.
+
+  A final catch-all clause should delegate to `super`. For example `RDF.XSD.Datatype`s will handle casting from derived
+  datatypes in the default implementation.
   """
-  @callback do_cast(literal | any) :: Literal.t() | nil
+  @callback do_cast(literal) :: Literal.t() | nil
 
   @doc """
   Checks if the given `RDF.Literal` has the datatype for which the `RDF.Literal.Datatype` is implemented or is derived from it.
@@ -222,32 +224,33 @@ defmodule RDF.Literal.Datatype do
       def canonical_lexical(_), do: nil
 
       @doc """
-      Casts a datatype literal or coercible value of one type into a datatype literal of another type.
+      Casts a datatype literal of one type into a datatype literal of another type.
 
-      Returns `nil` when the given arguments are not comparable as literals of this
-      datatype or when the given argument is an invalid literal.
+      Returns `nil` when the given arguments are not castable into this datatype or when the given argument is an
+      invalid literal.
 
       Implementations define the casting for a given value with the `c:do_cast/1` callback.
       """
-      @spec cast(any) :: Literal.t() | nil
+      @spec cast(Literal.t | Literal.Datatype.literal) :: Literal.t() | nil
       @dialyzer {:nowarn_function, cast: 1}
       def cast(literal_or_value)
       def cast(%Literal{literal: literal}), do: cast(literal)
       def cast(%__MODULE__{} = datatype_literal),
           do: if(valid?(datatype_literal), do: literal(datatype_literal))
-      def cast(nil), do: nil
-      def cast(value) do
-        case do_cast(value) do
-          %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
-          %Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
-          _ -> nil
+      def cast(%struct{} = datatype_literal) do
+        if Literal.datatype?(struct) and Literal.Datatype.valid?(datatype_literal) do
+          case do_cast(datatype_literal) do
+            %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
+            %Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
+            _ -> nil
+          end
         end
       end
 
+      def cast(_), do: nil
+
       @impl unquote(__MODULE__)
-      def do_cast(value) do
-        value |> Literal.coerce() |> cast()
-      end
+      def do_cast(value), do: nil
 
       @doc """
       Checks if two datatype literals are equal in terms of the values of their value space.

@@ -113,15 +113,6 @@ defmodule RDF.XSD.DateTimeTest do
       assert XSD.integer(1) |> XSD.DateTime.cast() == nil
       assert XSD.decimal(3.14) |> XSD.DateTime.cast() == nil
     end
-
-    test "with coercible value" do
-      assert XSD.DateTime.cast("2010-01-01T12:34:56") == XSD.datetime("2010-01-01T12:34:56")
-    end
-
-    test "with non-coercible value" do
-      assert XSD.DateTime.cast(:foo) == nil
-      assert XSD.DateTime.cast(make_ref()) == nil
-    end
   end
 
   test "now/0" do

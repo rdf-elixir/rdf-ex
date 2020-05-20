@@ -117,17 +117,5 @@ defmodule RDF.XSD.PositiveIntegerTest do
     test "with literals of unsupported datatypes" do
       assert XSD.date("2020-01-01") |> XSD.PositiveInteger.cast() == nil
     end
-
-    test "with coercible value" do
-      assert XSD.PositiveInteger.cast("42") == XSD.positive_integer(42)
-      assert XSD.PositiveInteger.cast(3.14) == XSD.positive_integer(3)
-      assert XSD.PositiveInteger.cast(true) == XSD.positive_integer(1)
-      assert XSD.PositiveInteger.cast(false) == nil
-    end
-
-    test "with non-coercible value" do
-      assert XSD.PositiveInteger.cast(:foo) == nil
-      assert XSD.PositiveInteger.cast(make_ref()) == nil
-    end
   end
 end

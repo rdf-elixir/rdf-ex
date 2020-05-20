@@ -43,12 +43,8 @@ defmodule RDF.XSD.Datatype.Primitive do
 
       @impl RDF.Literal.Datatype
       def do_cast(value) do
-        if RDF.Literal.datatype?(value) do
-          if datatype?(value) do
-            build_valid(value.value, value.uncanonical_lexical, [])
-          end
-        else
-          value |> RDF.Literal.coerce() |> cast()
+        if datatype?(value) do # i.e. derived datatype
+          build_valid(value.value, value.uncanonical_lexical, [])
         end
       end
 

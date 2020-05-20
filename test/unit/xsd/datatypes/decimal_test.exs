@@ -127,16 +127,6 @@ defmodule RDF.XSD.DecimalTest do
     test "with literals of unsupported datatypes" do
       assert XSD.date("2020-01-01") |> XSD.Decimal.cast() == nil
     end
-
-    test "with coercible value" do
-      assert XSD.Decimal.cast("3.14") == XSD.decimal(3.14)
-      assert XSD.Decimal.cast("42") == XSD.decimal(42.0)
-    end
-
-    test "with non-coercible value" do
-      assert XSD.Decimal.cast(:foo) == nil
-      assert XSD.Decimal.cast(make_ref()) == nil
-    end
   end
 
   test "digit_count/1" do

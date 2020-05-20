@@ -186,20 +186,6 @@ defmodule RDF.XSD.Datatype do
         literal(%__MODULE__{uncanonical_lexical: init_invalid_lexical(lexical, opts)})
       end
 
-      def cast(literal_or_value)
-      def cast(%RDF.Literal{literal: literal}), do: cast(literal)
-      # Invalid values can not be casted in general
-      def cast(%{value: @invalid_value}), do: nil
-      def cast(%__MODULE__{} = datatype_literal), do: literal(datatype_literal)
-      def cast(nil), do: nil
-      def cast(value) do
-        case do_cast(value) do
-          %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
-          %RDF.Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
-          _ -> nil
-        end
-      end
-
       @impl RDF.Literal.Datatype
       def value(%RDF.Literal{literal: literal}), do: value(literal)
       def value(%__MODULE__{} = literal), do: literal.value

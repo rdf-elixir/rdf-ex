@@ -117,26 +117,10 @@ defmodule RDF.XSD.StringTest do
       assert XSD.time("00:00:00+01:00") |> XSD.String.cast() == XSD.string("00:00:00+01:00")
     end
 
-    test "casting an IRI" do
-      assert RDF.iri("http://example.com") |> XSD.String.cast() == XSD.string("http://example.com")
-    end
-
     test "with invalid literals" do
       assert XSD.integer(3.14) |> XSD.String.cast() == nil
       assert XSD.decimal("NAN") |> XSD.String.cast() == nil
       assert XSD.double(true) |> XSD.String.cast() == nil
-    end
-
-    test "with coercible value" do
-      assert XSD.String.cast(42) == XSD.string("42")
-      assert XSD.String.cast(3.14) == XSD.string("3.14")
-      assert XSD.String.cast(true) == XSD.string("true")
-      assert XSD.String.cast(false) == XSD.string("false")
-    end
-
-    test "with non-coercible value" do
-      assert XSD.String.cast(:foo) == nil
-      assert XSD.String.cast(make_ref()) == nil
     end
   end
 end
