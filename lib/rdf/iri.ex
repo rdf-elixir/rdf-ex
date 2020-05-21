@@ -226,7 +226,7 @@ defmodule RDF.IRI do
 
   see <https://www.w3.org/TR/rdf-concepts/#section-Graph-URIref>
   """
-  @spec equal_value?(t | RDF.Literal.t, t | RDF.Literal.t) :: boolean | nil
+  @spec equal_value?(t | RDF.Literal.t | atom, t | RDF.Literal.t | URI.t | atom) :: boolean | nil
   def equal_value?(left, right)
 
   def equal_value?(%__MODULE__{value: left}, %__MODULE__{value: right}),
@@ -239,7 +239,7 @@ defmodule RDF.IRI do
     do: left == URI.to_string(right)
 
   def equal_value?(left, %__MODULE__{} = right) when maybe_ns_term(left),
-      do: equal_value?(right, left)
+    do: equal_value?(right, left)
 
   def equal_value?(%__MODULE__{} = left, right) when maybe_ns_term(right) do
     case Namespace.resolve_term(right) do
