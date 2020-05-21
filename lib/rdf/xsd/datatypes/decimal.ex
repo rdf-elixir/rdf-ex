@@ -17,6 +17,8 @@ defmodule RDF.XSD.Decimal do
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
   def_applicable_facet XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.TotalDigits
+  def_applicable_facet XSD.Facets.FractionDigits
   def_applicable_facet XSD.Facets.Pattern
 
   @doc false
@@ -37,6 +39,16 @@ defmodule RDF.XSD.Decimal do
   @doc false
   def max_exclusive_conform?(max_exclusive, value, _lexical) do
     D.cmp(value, D.new(max_exclusive)) == :lt
+  end
+
+  @doc false
+  def total_digits_conform?(total_digits, value, _lexical) do
+    do_digit_count(to_string(value)) <= total_digits
+  end
+
+  @doc false
+  def fraction_digits_conform?(fraction_digits, value, _lexical) do
+    do_fraction_digit_count(to_string(value)) <= fraction_digits
   end
 
   @doc false
@@ -149,50 +161,52 @@ defmodule RDF.XSD.Decimal do
   The number of digits in the XML Schema canonical form of the literal value.
   """
   @spec digit_count(RDF.Literal.t()) :: non_neg_integer | nil
-  def digit_count(%__MODULE__{} = literal), do: do_digit_count(literal)
+  def digit_count(literal)
+  def digit_count(%RDF.Literal{literal: datatype_literal}), do: digit_count(datatype_literal)
 
-  def digit_count(literal) do
+  def digit_count(%datatype{} = literal) do
     cond do
-      XSD.Integer.datatype?(literal) -> XSD.Integer.digit_count(literal)
-      datatype?(literal) -> do_digit_count(literal)
+      XSD.Integer.datatype?(datatype) ->
+        XSD.Integer.digit_count(literal)
+
+      datatype?(datatype) and datatype.valid?(literal) ->
+        literal
+        |> datatype.canonical_lexical()
+        |> do_digit_count()
+
       true -> nil
     end
   end
 
-  defp do_digit_count(%datatype{} = literal) do
-    if datatype.valid?(literal) do
-      literal
-      |> datatype.canonical()
-      |> datatype.lexical()
-      |> String.replace(".", "")
-      |> String.replace("-", "")
-      |> String.length()
-    end
+  @doc false
+  def do_digit_count(decimal_string) do
+    decimal_string
+    |> String.replace(".", "")
+    |> String.replace("-", "")
+    |> String.length()
   end
 
   @doc """
   The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
   """
   @spec fraction_digit_count(RDF.Literal.t()) :: non_neg_integer | nil
-  def fraction_digit_count(%__MODULE__{} = literal), do: do_fraction_digit_count(literal)
+  def fraction_digit_count(%RDF.Literal{literal: datatype_literal}), do: fraction_digit_count(datatype_literal)
 
-  def fraction_digit_count(literal) do
+  def fraction_digit_count(%datatype{} = literal) do
     cond do
       XSD.Integer.datatype?(literal) -> 0
-      datatype?(literal) -> do_fraction_digit_count(literal)
+      datatype?(literal) and datatype.valid?(literal) ->
+        literal
+        |> datatype.canonical_lexical()
+        |> do_fraction_digit_count()
+
       true -> nil
     end
   end
 
-  defp do_fraction_digit_count(%datatype{} = literal) do
-    if datatype.valid?(literal) do
-      [_, fraction] =
-        literal
-        |> datatype.canonical()
-        |> datatype.lexical()
-        |> String.split(".")
-
-      String.length(fraction)
-    end
+  @doc false
+  def do_fraction_digit_count(decimal_string) do
+    [_, fraction] = String.split(decimal_string, ".")
+    String.length(fraction)
   end
 end

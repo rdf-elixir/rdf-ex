@@ -10,6 +10,7 @@ defmodule RDF.XSD.LongTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.TotalDigits,
       RDF.XSD.Facets.Pattern
     ],
     facets: %{
@@ -17,6 +18,7 @@ defmodule RDF.XSD.LongTest do
       max_inclusive: 9_223_372_036_854_775_807,
       min_exclusive: nil,
       max_exclusive: nil,
+      total_digits: nil,
       pattern: nil
     },
     valid: RDF.XSD.TestData.valid_longs(),

@@ -11,6 +11,8 @@ defmodule RDF.XSD.DecimalTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.TotalDigits,
+      RDF.XSD.Facets.FractionDigits,
       RDF.XSD.Facets.Pattern
     ],
     facets: %{
@@ -18,6 +20,8 @@ defmodule RDF.XSD.DecimalTest do
       max_inclusive: nil,
       min_exclusive: nil,
       max_exclusive: nil,
+      total_digits: nil,
+      fraction_digits: nil,
       pattern: nil
     },
     valid: %{

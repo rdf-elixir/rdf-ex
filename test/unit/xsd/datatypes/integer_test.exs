@@ -9,6 +9,7 @@ defmodule RDF.XSD.IntegerTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.TotalDigits,
       RDF.XSD.Facets.Pattern
     ],
     facets: %{
@@ -16,6 +17,7 @@ defmodule RDF.XSD.IntegerTest do
       max_inclusive: nil,
       min_exclusive: nil,
       max_exclusive: nil,
+      total_digits: nil,
       pattern: nil
     },
     valid: RDF.XSD.TestData.valid_integers(),

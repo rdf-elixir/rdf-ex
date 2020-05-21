@@ -19,6 +19,7 @@ defmodule RDF.XSD.Integer do
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
   def_applicable_facet XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.TotalDigits
   def_applicable_facet XSD.Facets.Pattern
 
   @doc false
@@ -39,6 +40,11 @@ defmodule RDF.XSD.Integer do
   @doc false
   def max_exclusive_conform?(max_exclusive, value, _lexical) do
     value < max_exclusive
+  end
+
+  @doc false
+  def total_digits_conform?(total_digits, value, _lexical) do
+    digit_count(value) <= total_digits
   end
 
   @doc false
@@ -101,14 +107,16 @@ defmodule RDF.XSD.Integer do
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
   """
-  @spec digit_count(RDF.Literal.t()) :: non_neg_integer | nil
+  @spec digit_count(RDF.Literal.t() | integer) :: non_neg_integer | nil
   def digit_count(%datatype{} = literal) do
     if datatype?(literal) and datatype.valid?(literal) do
       literal
-      |> datatype.canonical()
-      |> datatype.lexical()
-      |> String.replace("-", "")
-      |> String.length()
+      |> datatype.value()
+      |> digit_count()
     end
+  end
+
+  def digit_count(integer) when is_integer(integer) do
+    integer |> Integer.digits() |> length()
   end
 end
