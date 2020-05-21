@@ -67,4 +67,31 @@ defmodule RDF.TestDatatypes do
     def_facet_constraint RDF.XSD.Facets.MinInclusive, 0
     def_facet_constraint RDF.XSD.Facets.MaxInclusive, 1
   end
+
+  defmodule DateTimeWithTz do
+    use RDF.XSD.Datatype.Restriction,
+        name: "datetime_with_tz",
+        id: "http://example.com/datetime-with-tz",
+        base: RDF.XSD.DateTime
+
+    def_facet_constraint RDF.XSD.Facets.ExplicitTimezone, :required
+  end
+
+  defmodule DateWithoutTz do
+    use RDF.XSD.Datatype.Restriction,
+        name: "date_with_tz",
+        id: "http://example.com/date-with-tz",
+        base: RDF.XSD.Date
+
+    def_facet_constraint RDF.XSD.Facets.ExplicitTimezone, :prohibited
+  end
+
+  defmodule CustomTime do
+    use RDF.XSD.Datatype.Restriction,
+        name: "time_with_tz",
+        id: "http://example.com/time-with-tz",
+        base: RDF.XSD.Time
+
+    def_facet_constraint RDF.XSD.Facets.ExplicitTimezone, :optional
+  end
 end

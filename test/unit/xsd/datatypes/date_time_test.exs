@@ -6,9 +6,11 @@ defmodule RDF.XSD.DateTimeTest do
     name: "dateTime",
     primitive: true,
     applicable_facets: [
+      RDF.XSD.Facets.ExplicitTimezone,
       RDF.XSD.Facets.Pattern
     ],
     facets: %{
+      explicit_timezone: nil,
       pattern: nil
     },
     valid: %{

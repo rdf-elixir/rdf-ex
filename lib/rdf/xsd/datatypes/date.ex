@@ -16,7 +16,15 @@ defmodule RDF.XSD.Date do
   alias RDF.XSD
 
 
+  def_applicable_facet XSD.Facets.ExplicitTimezone
   def_applicable_facet XSD.Facets.Pattern
+
+  @doc false
+  def explicit_timezone_conform?(:required, {_, _}, _), do: true
+  def explicit_timezone_conform?(:required, _, _), do: false
+  def explicit_timezone_conform?(:prohibited, {_, _}, _), do: false
+  def explicit_timezone_conform?(:prohibited, _, _), do: true
+  def explicit_timezone_conform?(:optional, _, _), do: true
 
   @doc false
   def pattern_conform?(pattern, _value, lexical) do
