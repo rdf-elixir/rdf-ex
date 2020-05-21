@@ -5,6 +5,12 @@ defmodule RDF.XSD.DateTimeTest do
     datatype: RDF.XSD.DateTime,
     name: "dateTime",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.Pattern
+    ],
+    facets: %{
+      pattern: nil
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       dt("2010-01-01T00:00:00Z") => {dt("2010-01-01T00:00:00Z"), nil, "2010-01-01T00:00:00Z"},

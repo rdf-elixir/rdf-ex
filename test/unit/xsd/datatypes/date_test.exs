@@ -3,6 +3,12 @@ defmodule RDF.XSD.DateTest do
     datatype: RDF.XSD.Date,
     name: "date",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.Pattern
+    ],
+    facets: %{
+      pattern: nil
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       ~D[2010-01-01] => {~D[2010-01-01], nil, "2010-01-01"},

@@ -1,8 +1,6 @@
 defmodule RDF.EqualityTest do
   use RDF.Test.Case
 
-  alias RDF.XSD
-
   describe "RDF.IRI and XSD.AnyURI" do
     @term_equal_iris [
       {RDF.iri("http://example.com/"), RDF.iri("http://example.com/")},

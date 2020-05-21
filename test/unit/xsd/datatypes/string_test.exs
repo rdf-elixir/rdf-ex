@@ -7,11 +7,13 @@ defmodule RDF.XSD.StringTest do
       RDF.XSD.Facets.MinLength,
       RDF.XSD.Facets.MaxLength,
       RDF.XSD.Facets.Length,
+      RDF.XSD.Facets.Pattern
     ],
     facets: %{
       max_length: nil,
       min_length: nil,
-      length: nil
+      length: nil,
+      pattern: nil
     },
     valid: %{
       # input => { value, lexical, canonicalized }

@@ -12,6 +12,15 @@ defmodule RDF.XSD.Boolean do
 
   alias RDF.XSD
 
+
+  def_applicable_facet XSD.Facets.Pattern
+
+  @doc false
+  def pattern_conform?(pattern, _value, lexical) do
+    XSD.Facets.Pattern.conform?(pattern, lexical)
+  end
+
+
   @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
     with lexical do

@@ -10,12 +10,14 @@ defmodule RDF.XSD.ShortTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.Pattern
     ],
     facets: %{
       min_inclusive: -32768,
       max_inclusive: 32767,
       min_exclusive: nil,
-      max_exclusive: nil
+      max_exclusive: nil,
+      pattern: nil
     },
     valid: RDF.XSD.TestData.valid_shorts(),
     invalid: RDF.XSD.TestData.invalid_shorts()

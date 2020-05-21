@@ -3,6 +3,12 @@ defmodule RDF.XSD.BooleanTest do
     datatype: RDF.XSD.Boolean,
     name: "boolean",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.Pattern
+    ],
+    facets: %{
+      pattern: nil
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       true => {true, nil, "true"},

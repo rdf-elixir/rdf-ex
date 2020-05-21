@@ -10,12 +10,14 @@ defmodule RDF.XSD.UnsignedLongTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.Pattern
     ],
     facets: %{
       min_inclusive: 0,
       max_inclusive: 18_446_744_073_709_551_615,
       min_exclusive: nil,
-      max_exclusive: nil
+      max_exclusive: nil,
+      pattern: nil
     },
     valid: RDF.XSD.TestData.valid_unsigned_longs(),
     invalid: RDF.XSD.TestData.invalid_unsigned_longs()

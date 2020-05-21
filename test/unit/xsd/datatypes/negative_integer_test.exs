@@ -10,12 +10,14 @@ defmodule RDF.XSD.NegativeIntegerTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.Pattern
     ],
     facets: %{
       min_inclusive: nil,
       max_inclusive: -1,
       min_exclusive: nil,
-      max_exclusive: nil
+      max_exclusive: nil,
+      pattern: nil
     },
     valid: RDF.XSD.TestData.valid_negative_integers(),
     invalid: RDF.XSD.TestData.invalid_negative_integers()

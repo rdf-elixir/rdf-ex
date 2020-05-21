@@ -3,6 +3,12 @@ defmodule RDF.XSD.TimeTest do
     datatype: RDF.XSD.Time,
     name: "time",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.Pattern
+    ],
+    facets: %{
+      pattern: nil
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       ~T[00:00:00] => {~T[00:00:00], nil, "00:00:00"},

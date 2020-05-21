@@ -8,6 +8,27 @@ defmodule RDF.TestDatatypes do
     def_facet_constraint RDF.XSD.Facets.Length, 2
   end
 
+  defmodule UsZipcode do
+    use RDF.XSD.Datatype.Restriction,
+        name: "us_zipcode",
+        id: "http://example.com/us-zipcode",
+        base: RDF.XSD.String
+
+    def_facet_constraint RDF.XSD.Facets.Pattern, "[0-9]{5}(-[0-9]{4})?"
+  end
+
+  defmodule AltUsZipcode do
+    use RDF.XSD.Datatype.Restriction,
+        name: "alt_us_zipcode",
+        id: "http://example.com/alt-us-zipcode",
+        base: RDF.XSD.String
+
+    def_facet_constraint RDF.XSD.Facets.Pattern, [
+      "[0-9]{5}",
+      "[0-9]{5}-[0-9]{4}",
+    ]
+  end
+
   defmodule Age do
     use RDF.XSD.Datatype.Restriction,
         name: "age",

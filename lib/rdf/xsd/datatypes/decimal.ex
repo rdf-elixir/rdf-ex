@@ -17,6 +17,7 @@ defmodule RDF.XSD.Decimal do
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
   def_applicable_facet XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.Pattern
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
@@ -36,6 +37,11 @@ defmodule RDF.XSD.Decimal do
   @doc false
   def max_exclusive_conform?(max_exclusive, value, _lexical) do
     D.cmp(value, D.new(max_exclusive)) == :lt
+  end
+
+  @doc false
+  def pattern_conform?(pattern, _value, lexical) do
+    XSD.Facets.Pattern.conform?(pattern, lexical)
   end
 
 

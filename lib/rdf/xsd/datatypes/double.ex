@@ -14,10 +14,12 @@ defmodule RDF.XSD.Double do
 
   alias RDF.XSD
 
+
   def_applicable_facet XSD.Facets.MinInclusive
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
   def_applicable_facet XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.Pattern
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
@@ -37,6 +39,11 @@ defmodule RDF.XSD.Double do
   @doc false
   def max_exclusive_conform?(max_exclusive, value, _lexical) do
     value < max_exclusive
+  end
+
+  @doc false
+  def pattern_conform?(pattern, _value, lexical) do
+    XSD.Facets.Pattern.conform?(pattern, lexical)
   end
 
 

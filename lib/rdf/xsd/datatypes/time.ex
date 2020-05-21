@@ -15,6 +15,15 @@ defmodule RDF.XSD.Time do
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_number_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
+
+  def_applicable_facet XSD.Facets.Pattern
+
+  @doc false
+  def pattern_conform?(pattern, _value, lexical) do
+    XSD.Facets.Pattern.conform?(pattern, lexical)
+  end
+
+
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case Regex.run(@grammar, lexical) do

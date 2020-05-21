@@ -11,12 +11,14 @@ defmodule RDF.XSD.DecimalTest do
       RDF.XSD.Facets.MaxInclusive,
       RDF.XSD.Facets.MinExclusive,
       RDF.XSD.Facets.MaxExclusive,
+      RDF.XSD.Facets.Pattern
     ],
     facets: %{
       min_inclusive: nil,
       max_inclusive: nil,
       min_exclusive: nil,
-      max_exclusive: nil
+      max_exclusive: nil,
+      pattern: nil
     },
     valid: %{
       # input => {value, lexical, canonicalized}

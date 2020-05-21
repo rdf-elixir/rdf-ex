@@ -19,6 +19,7 @@ defmodule RDF.XSD.AnyURI do
   def_applicable_facet XSD.Facets.MinLength
   def_applicable_facet XSD.Facets.MaxLength
   def_applicable_facet XSD.Facets.Length
+  def_applicable_facet XSD.Facets.Pattern
 
   @doc false
   def min_length_conform?(min_length, _value, lexical) do
@@ -33,6 +34,11 @@ defmodule RDF.XSD.AnyURI do
   @doc false
   def length_conform?(length, _value, lexical) do
     String.length(lexical) == length
+  end
+
+  @doc false
+  def pattern_conform?(pattern, _value, lexical) do
+    XSD.Facets.Pattern.conform?(pattern, lexical)
   end
 
 
