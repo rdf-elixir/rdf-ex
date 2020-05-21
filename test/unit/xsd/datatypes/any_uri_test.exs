@@ -3,6 +3,16 @@ defmodule RDF.XSD.AnyURITest do
     datatype: RDF.XSD.AnyURI,
     name: "anyURI",
     primitive: true,
+    applicable_facets: [
+      RDF.XSD.Facets.MinLength,
+      RDF.XSD.Facets.MaxLength,
+      RDF.XSD.Facets.Length,
+    ],
+    facets: %{
+      max_length: nil,
+      min_length: nil,
+      length: nil,
+    },
     valid: %{
       # input => { value, lexical, canonicalized }
       "http://example.com/foo" =>

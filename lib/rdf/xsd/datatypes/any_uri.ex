@@ -7,13 +7,34 @@ defmodule RDF.XSD.AnyURI do
 
   @type valid_value :: URI.t()
 
+  use RDF.XSD.Datatype.Primitive,
+    name: "anyURI",
+    id: RDF.Utils.Bootstrapping.xsd_iri("anyURI")
+
   alias RDF.{IRI, XSD}
 
   import RDF.Guards
 
-  use XSD.Datatype.Primitive,
-    name: "anyURI",
-    id: RDF.Utils.Bootstrapping.xsd_iri("anyURI")
+
+  def_applicable_facet XSD.Facets.MinLength
+  def_applicable_facet XSD.Facets.MaxLength
+  def_applicable_facet XSD.Facets.Length
+
+  @doc false
+  def min_length_conform?(min_length, _value, lexical) do
+    String.length(lexical) >= min_length
+  end
+
+  @doc false
+  def max_length_conform?(max_length, _value, lexical) do
+    String.length(lexical) <= max_length
+  end
+
+  @doc false
+  def length_conform?(length, _value, lexical) do
+    String.length(lexical) == length
+  end
+
 
   @impl XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value
