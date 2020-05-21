@@ -117,6 +117,16 @@ defmodule RDF.XSD.DecimalTest do
       assert XSD.float("+INF") |> XSD.Decimal.cast() == nil
     end
 
+    test "from derived types of xsd:decimal" do
+      assert DecimalUnitInterval.new(0.1) |> XSD.Decimal.cast() == XSD.decimal(0.1)
+    end
+
+    test "from derived types of the castable datatypes" do
+      assert DoubleUnitInterval.new(0.14) |> XSD.Decimal.cast() == XSD.decimal(0.14)
+      assert FloatUnitInterval.new(1.0) |> XSD.Decimal.cast() == XSD.decimal(1.0)
+      assert Age.new(42) |> XSD.Decimal.cast() == XSD.decimal(42)
+    end
+
     test "with invalid literals" do
       assert XSD.boolean("42") |> XSD.Decimal.cast() == nil
       assert XSD.integer(3.14) |> XSD.Decimal.cast() == nil

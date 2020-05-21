@@ -21,6 +21,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
     quote do
       alias RDF.XSD
       alias RDF.XSD.Datatype
+      alias RDF.TestDatatypes.{Age, DecimalUnitInterval, DoubleUnitInterval, FloatUnitInterval}
       alias unquote(datatype)
       import unquote(__MODULE__)
 

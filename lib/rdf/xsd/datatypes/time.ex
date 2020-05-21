@@ -9,11 +9,13 @@ defmodule RDF.XSD.Time do
     name: "time",
     id: RDF.Utils.Bootstrapping.xsd_iri("time")
 
+  alias RDF.XSD
+
   # TODO: Are GMT/UTC actually allowed? Maybe because it is supported by Elixir's Datetime ...
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_number_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case Regex.run(@grammar, lexical) do
       [_, time] ->
@@ -41,9 +43,9 @@ defmodule RDF.XSD.Time do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | any, Keyword.t()) ::
-          value | {value, RDF.XSD.Datatype.uncanonical_lexical()}
+          value | {value, XSD.Datatype.uncanonical_lexical()}
   def elixir_mapping(value, opts)
 
   def elixir_mapping(%Time{} = value, opts) do
@@ -89,15 +91,15 @@ defmodule RDF.XSD.Time do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec canonical_mapping(valid_value) :: String.t()
   def canonical_mapping(value)
   def canonical_mapping(%Time{} = value), do: Time.to_iso8601(value)
   def canonical_mapping({%Time{} = value, true}), do: canonical_mapping(value) <> "Z"
 
-  @impl RDF.XSD.Datatype
-  @spec init_valid_lexical(valid_value, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) ::
-          RDF.XSD.Datatype.uncanonical_lexical()
+  @impl XSD.Datatype
+  @spec init_valid_lexical(valid_value, XSD.Datatype.uncanonical_lexical(), Keyword.t()) ::
+          XSD.Datatype.uncanonical_lexical()
   def init_valid_lexical(value, lexical, opts)
 
   def init_valid_lexical({value, _}, nil, opts) do
@@ -120,7 +122,7 @@ defmodule RDF.XSD.Time do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec init_invalid_lexical(any, Keyword.t()) :: String.t()
   def init_invalid_lexical(value, opts)
 
@@ -145,26 +147,31 @@ defmodule RDF.XSD.Time do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.DateTime{} = xsd_datetime) do
-    case xsd_datetime.value do
-      %NaiveDateTime{} = datetime ->
-        datetime
-        |> NaiveDateTime.to_time()
-        |> new()
+  def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
-      %DateTime{} ->
-        [_date, time_with_zone] =
-          xsd_datetime
-          |> RDF.XSD.DateTime.canonical_lexical_with_zone()
-          |> String.split("T", parts: 2)
+  def do_cast(literal) do
+    cond do
+      XSD.DateTime.datatype?(literal) ->
+        case literal.value do
+          %NaiveDateTime{} = datetime ->
+            datetime
+            |> NaiveDateTime.to_time()
+            |> new()
 
-        new(time_with_zone)
+          %DateTime{} ->
+            [_date, time_with_zone] =
+              literal
+              |> XSD.DateTime.canonical_lexical_with_zone()
+              |> String.split("T", parts: 2)
+
+            new(time_with_zone)
+        end
+
+      true ->
+        super(literal)
     end
   end
 
-  def do_cast(%RDF.XSD.String{} = xsd_string), do: new(xsd_string.value)
-
-  def do_cast(literal_or_value), do: super(literal_or_value)
 
   @impl RDF.Literal.Datatype
   def do_equal_value?(literal1, literal2)
@@ -186,7 +193,7 @@ defmodule RDF.XSD.Time do
     if valid?(time_literal) do
       time_literal
       |> lexical()
-      |> RDF.XSD.Utils.DateTime.tz()
+      |> XSD.Utils.DateTime.tz()
     end
   end
 

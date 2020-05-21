@@ -9,13 +9,14 @@ defmodule RDF.XSD.Decimal do
     name: "decimal",
     id: RDF.Utils.Bootstrapping.xsd_iri("decimal")
 
+  alias RDF.XSD
   alias Elixir.Decimal, as: D
 
 
-  def_applicable_facet RDF.XSD.Facets.MinInclusive
-  def_applicable_facet RDF.XSD.Facets.MaxInclusive
-  def_applicable_facet RDF.XSD.Facets.MinExclusive
-  def_applicable_facet RDF.XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.MinInclusive
+  def_applicable_facet XSD.Facets.MaxInclusive
+  def_applicable_facet XSD.Facets.MinExclusive
+  def_applicable_facet XSD.Facets.MaxExclusive
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
@@ -38,7 +39,7 @@ defmodule RDF.XSD.Decimal do
   end
 
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     if String.contains?(lexical, ~w[e E]) do
       @invalid_value
@@ -50,7 +51,7 @@ defmodule RDF.XSD.Decimal do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | integer | float | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
 
@@ -89,7 +90,7 @@ defmodule RDF.XSD.Decimal do
   def canonical_decimal(%D{coef: coef, exp: exp} = decimal),
     do: canonical_decimal(%{decimal | coef: Kernel.div(coef, 10), exp: exp + 1})
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec canonical_mapping(valid_value) :: String.t()
   def canonical_mapping(value)
 
@@ -108,23 +109,35 @@ defmodule RDF.XSD.Decimal do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.Boolean{value: false}), do: new(0.0)
-  def do_cast(%RDF.XSD.Boolean{value: true}), do: new(1.0)
-
-  def do_cast(%RDF.XSD.String{} = xsd_string) do
+  def do_cast(%XSD.String{} = xsd_string) do
     xsd_string.value |> new() |> canonical()
   end
 
-  def do_cast(%RDF.XSD.Integer{} = xsd_integer), do: new(xsd_integer.value)
-  def do_cast(%RDF.XSD.Double{value: value}) when is_float(value), do: new(value)
-  def do_cast(%RDF.XSD.Float{value: value}) when is_float(value), do: new(value)
+  def do_cast(literal) do
+    cond do
+      XSD.Boolean.datatype?(literal) ->
+        case literal.value do
+          false -> new(0.0)
+          true  -> new(1.0)
+        end
 
-  def do_cast(literal_or_value), do: super(literal_or_value)
+      XSD.Integer.datatype?(literal) ->
+        new(literal.value)
 
-  def equal_value?(left, right), do: RDF.XSD.Numeric.equal_value?(left, right)
+      # we're catching XSD.Floats with this too
+      is_float(literal.value) and XSD.Double.datatype?(literal) ->
+        new(literal.value)
+
+      true ->
+        super(literal)
+    end
+  end
+
+
+  def equal_value?(left, right), do: XSD.Numeric.equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
-  def compare(left, right), do: RDF.XSD.Numeric.compare(left, right)
+  def compare(left, right), do: XSD.Numeric.compare(left, right)
 
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.
@@ -134,7 +147,7 @@ defmodule RDF.XSD.Decimal do
 
   def digit_count(literal) do
     cond do
-      RDF.XSD.Integer.datatype?(literal) -> RDF.XSD.Integer.digit_count(literal)
+      XSD.Integer.datatype?(literal) -> XSD.Integer.digit_count(literal)
       datatype?(literal) -> do_digit_count(literal)
       true -> nil
     end
@@ -159,7 +172,7 @@ defmodule RDF.XSD.Decimal do
 
   def fraction_digit_count(literal) do
     cond do
-      RDF.XSD.Integer.datatype?(literal) -> 0
+      XSD.Integer.datatype?(literal) -> 0
       datatype?(literal) -> do_fraction_digit_count(literal)
       true -> nil
     end

@@ -6,17 +6,18 @@ defmodule RDF.XSD.Double do
   @type special_values :: :positive_infinity | :negative_infinity | :nan
   @type valid_value :: float | special_values
 
+  @special_values ~W[positive_infinity negative_infinity nan]a
+
   use RDF.XSD.Datatype.Primitive,
     name: "double",
     id: RDF.Utils.Bootstrapping.xsd_iri("double")
 
-  @special_values ~W[positive_infinity negative_infinity nan]a
+  alias RDF.XSD
 
-
-  def_applicable_facet RDF.XSD.Facets.MinInclusive
-  def_applicable_facet RDF.XSD.Facets.MaxInclusive
-  def_applicable_facet RDF.XSD.Facets.MinExclusive
-  def_applicable_facet RDF.XSD.Facets.MaxExclusive
+  def_applicable_facet XSD.Facets.MinInclusive
+  def_applicable_facet XSD.Facets.MaxInclusive
+  def_applicable_facet XSD.Facets.MinExclusive
+  def_applicable_facet XSD.Facets.MaxExclusive
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
@@ -39,7 +40,7 @@ defmodule RDF.XSD.Double do
   end
 
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case Float.parse(lexical) do
       {float, ""} ->
@@ -63,7 +64,7 @@ defmodule RDF.XSD.Double do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | integer | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   def elixir_mapping(value, _) when is_float(value), do: value
@@ -71,9 +72,9 @@ defmodule RDF.XSD.Double do
   def elixir_mapping(value, _) when value in @special_values, do: value
   def elixir_mapping(_, _), do: @invalid_value
 
-  @impl RDF.XSD.Datatype
-  @spec init_valid_lexical(valid_value, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) ::
-          RDF.XSD.Datatype.uncanonical_lexical()
+  @impl XSD.Datatype
+  @spec init_valid_lexical(valid_value, XSD.Datatype.uncanonical_lexical(), Keyword.t()) ::
+          XSD.Datatype.uncanonical_lexical()
   def init_valid_lexical(value, lexical, opts)
   def init_valid_lexical(value, nil, _) when is_atom(value), do: nil
   def init_valid_lexical(value, nil, _), do: decimal_form(value)
@@ -81,7 +82,7 @@ defmodule RDF.XSD.Double do
 
   defp decimal_form(float), do: to_string(float)
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec canonical_mapping(valid_value) :: String.t()
   def canonical_mapping(value)
 
@@ -126,27 +127,34 @@ defmodule RDF.XSD.Double do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.Boolean{value: false}), do: new(0.0)
-  def do_cast(%RDF.XSD.Boolean{value: true}), do: new(1.0)
-
-  def do_cast(%RDF.XSD.String{} = xsd_string) do
+  def do_cast(%XSD.String{} = xsd_string) do
     xsd_string.value |> new() |> canonical()
   end
 
-  def do_cast(%RDF.XSD.Integer{} = xsd_integer) do
-    new(xsd_integer.value)
+  def do_cast(literal) do
+    cond do
+      XSD.Boolean.datatype?(literal) ->
+        case literal.value do
+          false -> new(0.0)
+          true  -> new(1.0)
+        end
+
+      XSD.Integer.datatype?(literal) ->
+        new(literal.value)
+
+      XSD.Decimal.datatype?(literal) ->
+        literal.value
+        |> Decimal.to_float()
+        |> new()
+
+      true ->
+        super(literal)
+    end
   end
 
-  def do_cast(%RDF.XSD.Decimal{} = xsd_decimal) do
-    xsd_decimal.value
-    |> Decimal.to_float()
-    |> new()
-  end
 
-  def do_cast(literal_or_value), do: super(literal_or_value)
-
-  def equal_value?(left, right), do: RDF.XSD.Numeric.equal_value?(left, right)
+  def equal_value?(left, right), do: XSD.Numeric.equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
-  def compare(left, right), do: RDF.XSD.Numeric.compare(left, right)
+  def compare(left, right), do: XSD.Numeric.compare(left, right)
 end

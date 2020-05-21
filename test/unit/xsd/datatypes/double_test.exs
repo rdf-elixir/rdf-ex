@@ -58,6 +58,16 @@ defmodule RDF.XSD.DoubleTest do
       assert XSD.float(3.14) |> XSD.Double.cast() == XSD.double(3.14)
     end
 
+    test "from derived types of xsd:double" do
+      assert DoubleUnitInterval.new(0.14) |> XSD.Double.cast() == XSD.double(0.14)
+      assert FloatUnitInterval.new(1.0) |> XSD.Double.cast() == XSD.double(1.0)
+    end
+
+    test "from derived types of the castable datatypes" do
+      assert DecimalUnitInterval.new(0.14) |> XSD.Double.cast() == XSD.double(0.14)
+      assert Age.new(42) |> XSD.Double.cast() == XSD.double(42)
+    end
+
     test "with invalid literals" do
       assert XSD.boolean("42") |> XSD.Double.cast() == nil
       assert XSD.integer(3.14) |> XSD.Double.cast() == nil

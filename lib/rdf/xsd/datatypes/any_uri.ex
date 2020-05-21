@@ -7,19 +7,19 @@ defmodule RDF.XSD.AnyURI do
 
   @type valid_value :: URI.t()
 
-  alias RDF.IRI
+  alias RDF.{IRI, XSD}
 
   import RDF.Guards
 
-  use RDF.XSD.Datatype.Primitive,
+  use XSD.Datatype.Primitive,
     name: "anyURI",
     id: RDF.Utils.Bootstrapping.xsd_iri("anyURI")
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value
   def lexical_mapping(lexical, _), do: URI.parse(lexical)
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(any, Keyword.t()) :: value
   def elixir_mapping(%URI{} = uri, _), do: uri
   def elixir_mapping(%IRI{} = iri, _), do: IRI.parse(iri)
@@ -32,9 +32,6 @@ defmodule RDF.XSD.AnyURI do
   end
 
   def elixir_mapping(_, _), do: @invalid_value
-
-  @impl RDF.Literal.Datatype
-  def do_cast(value), do: super(value)
 
   @impl RDF.Literal.Datatype
   def do_equal_value?(literal1, literal2)

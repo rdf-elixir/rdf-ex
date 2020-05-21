@@ -76,6 +76,17 @@ defmodule RDF.XSD.IntegerTest do
       assert XSD.float("+INF") |> XSD.Integer.cast() == nil
     end
 
+    test "from derived types of xsd:integer" do
+      assert XSD.byte(42) |> XSD.Integer.cast() == XSD.integer(42)
+      assert Age.new(42) |> XSD.Integer.cast() == XSD.integer(42)
+    end
+
+    test "from derived types of the castable datatypes" do
+      assert DecimalUnitInterval.new(0.14) |> XSD.Integer.cast() == XSD.integer(0)
+      assert DoubleUnitInterval.new(0.14) |> XSD.Integer.cast() == XSD.integer(0)
+      assert FloatUnitInterval.new(1.0) |> XSD.Integer.cast() == XSD.integer(1)
+    end
+
     test "with invalid literals" do
       assert XSD.integer(3.14) |> XSD.Integer.cast() == nil
       assert XSD.decimal("NAN") |> XSD.Integer.cast() == nil

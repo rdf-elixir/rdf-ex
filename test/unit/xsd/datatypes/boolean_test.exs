@@ -53,6 +53,14 @@ defmodule RDF.XSD.BooleanTest do
       assert XSD.decimal(0.1) |> XSD.Boolean.cast() == XSD.true()
     end
 
+    test "casting derived datatypes" do
+      assert DecimalUnitInterval.new(1) |> XSD.Boolean.cast() == XSD.true()
+      assert DecimalUnitInterval.new(0) |> XSD.Boolean.cast() == XSD.false()
+      assert DoubleUnitInterval.new(1) |> XSD.Boolean.cast() == XSD.true()
+      assert DoubleUnitInterval.new(0) |> XSD.Boolean.cast() == XSD.false()
+      assert Age.new(1) |> XSD.Boolean.cast() == XSD.true()
+    end
+
     test "casting a double" do
       assert XSD.double(0) |> XSD.Boolean.cast() == XSD.false()
       assert XSD.double(0.0) |> XSD.Boolean.cast() == XSD.false()

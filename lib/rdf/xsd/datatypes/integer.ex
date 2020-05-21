@@ -12,10 +12,12 @@ defmodule RDF.XSD.Integer do
     name: "integer",
     id: RDF.Utils.Bootstrapping.xsd_iri("integer")
 
-  def_applicable_facet RDF.XSD.Facets.MinInclusive
-  def_applicable_facet RDF.XSD.Facets.MaxInclusive
-  def_applicable_facet RDF.XSD.Facets.MinExclusive
-  def_applicable_facet RDF.XSD.Facets.MaxExclusive
+  alias RDF.XSD
+
+  def_applicable_facet XSD.Facets.MinInclusive
+  def_applicable_facet XSD.Facets.MaxInclusive
+  def_applicable_facet XSD.Facets.MinExclusive
+  def_applicable_facet XSD.Facets.MaxExclusive
 
 
   @doc false
@@ -38,7 +40,7 @@ defmodule RDF.XSD.Integer do
     value < max_exclusive
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
     case Integer.parse(lexical) do
       {integer, ""} -> integer
@@ -47,7 +49,7 @@ defmodule RDF.XSD.Integer do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   def elixir_mapping(value, _) when is_integer(value), do: value
@@ -56,33 +58,38 @@ defmodule RDF.XSD.Integer do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.Boolean{value: false}), do: new(0)
-  def do_cast(%RDF.XSD.Boolean{value: true}), do: new(1)
-
-  def do_cast(%RDF.XSD.String{} = xsd_string) do
+  def do_cast(%XSD.String{} = xsd_string) do
     xsd_string.value |> new() |> canonical()
   end
 
-  def do_cast(%RDF.XSD.Decimal{} = xsd_decimal) do
-    xsd_decimal.value
-    |> Decimal.round(0, :down)
-    |> Decimal.to_integer()
-    |> new()
+  def do_cast(literal) do
+    cond do
+      XSD.Boolean.datatype?(literal) ->
+        case literal.value do
+          false -> new(0)
+          true  -> new(1)
+        end
+
+      XSD.Decimal.datatype?(literal) ->
+        literal.value
+        |> Decimal.round(0, :down)
+        |> Decimal.to_integer()
+        |> new()
+
+      is_float(literal.value) and XSD.Double.datatype?(literal) -> # we're catching the XSD.Floats with this too
+        literal.value
+        |> trunc()
+        |> new()
+
+      true ->
+        super(literal)
+    end
   end
 
-  def do_cast(%datatype{value: value})
-      when datatype in [RDF.XSD.Double, RDF.XSD.Float] and is_float(value) do
-    value
-    |> trunc()
-    |> new()
-  end
-
-  def do_cast(literal_or_value), do: super(literal_or_value)
-
-  def equal_value?(left, right), do: RDF.XSD.Numeric.equal_value?(left, right)
+  def equal_value?(left, right), do: XSD.Numeric.equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
-  def compare(left, right), do: RDF.XSD.Numeric.compare(left, right)
+  def compare(left, right), do: XSD.Numeric.compare(left, right)
 
   @doc """
   The number of digits in the XML Schema canonical form of the literal value.

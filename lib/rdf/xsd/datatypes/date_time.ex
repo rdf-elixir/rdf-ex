@@ -9,7 +9,9 @@ defmodule RDF.XSD.DateTime do
     name: "dateTime",
     id: RDF.Utils.Bootstrapping.xsd_iri("dateTime")
 
-  @impl RDF.XSD.Datatype
+  alias RDF.XSD
+
+  @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case DateTime.from_iso8601(lexical) do
       {:ok, datetime, _} ->
@@ -47,7 +49,7 @@ defmodule RDF.XSD.DateTime do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   # Special case for date and dateTime, for which 0 is not a valid year
@@ -58,7 +60,7 @@ defmodule RDF.XSD.DateTime do
   def elixir_mapping(%NaiveDateTime{} = value, _), do: value
   def elixir_mapping(_, _), do: @invalid_value
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec canonical_mapping(valid_value) :: String.t()
   def canonical_mapping(value)
   def canonical_mapping(%DateTime{} = value), do: DateTime.to_iso8601(value)
@@ -67,20 +69,24 @@ defmodule RDF.XSD.DateTime do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.Date{} = xsd_date) do
-    case xsd_date.value do
-      {value, zone} ->
-        (value |> RDF.XSD.Date.new() |> RDF.XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
+  def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
-      value ->
-        (value |> RDF.XSD.Date.new() |> RDF.XSD.Date.canonical_lexical()) <> "T00:00:00"
+  def do_cast(literal) do
+    cond do
+      XSD.Date.datatype?(literal) ->
+        case literal.value do
+          {value, zone} ->
+            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
+
+          value ->
+            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00"
+        end
+        |> new()
+
+      true ->
+        super(literal)
     end
-    |> new()
   end
-
-  def do_cast(%RDF.XSD.String{} = xsd_string), do: new(xsd_string.value)
-
-  def do_cast(literal_or_value), do: super(literal_or_value)
 
   @doc """
   Builds a `RDF.XSD.DateTime` literal for current moment in time.
@@ -101,7 +107,7 @@ defmodule RDF.XSD.DateTime do
     if valid?(date_time_literal) do
       date_time_literal
       |> lexical()
-      |> RDF.XSD.Utils.DateTime.tz()
+      |> XSD.Utils.DateTime.tz()
     end
   end
 
@@ -161,8 +167,8 @@ defmodule RDF.XSD.DateTime do
     end
   end
 
-  def do_equal_value?(%__MODULE__{}, %RDF.XSD.Date{}), do: false
-  def do_equal_value?(%RDF.XSD.Date{}, %__MODULE__{}), do: false
+  def do_equal_value?(%__MODULE__{}, %XSD.Date{}), do: false
+  def do_equal_value?(%XSD.Date{}, %__MODULE__{}), do: false
 
   def do_equal_value?(_, _), do: nil
 
@@ -183,12 +189,12 @@ defmodule RDF.XSD.DateTime do
   #  ordering comparisons in the date-3 test. The following implementation would allow
   #  an ordering comparisons between date and datetimes.
   #
-  #  def compare(%__MODULE__{} = literal1, %RDF.XSD.Date{} = literal2) do
-  #    RDF.XSD.Date.compare(literal1, literal2)
+  #  def compare(%__MODULE__{} = literal1, %XSD.Date{} = literal2) do
+  #    XSD.Date.compare(literal1, literal2)
   #  end
   #
-  #  def compare(%RDF.XSD.Date{} = literal1, %__MODULE__{} = literal2) do
-  #    RDF.XSD.Date.compare(literal1, literal2)
+  #  def compare(%XSD.Date{} = literal1, %__MODULE__{} = literal2) do
+  #    XSD.Date.compare(literal1, literal2)
   #  end
 
   def compare(

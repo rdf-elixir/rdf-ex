@@ -10,7 +10,9 @@ defmodule RDF.XSD.Boolean do
     name: "boolean",
     id: RDF.Utils.Bootstrapping.xsd_iri("boolean")
 
-  @impl RDF.XSD.Datatype
+  alias RDF.XSD
+
+  @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
     with lexical do
       cond do
@@ -21,7 +23,7 @@ defmodule RDF.XSD.Boolean do
     end
   end
 
-  @impl RDF.XSD.Datatype
+  @impl XSD.Datatype
   @spec elixir_mapping(valid_value | integer | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   def elixir_mapping(value, _) when is_boolean(value), do: value
@@ -32,19 +34,20 @@ defmodule RDF.XSD.Boolean do
   @impl RDF.Literal.Datatype
   def do_cast(value)
 
-  def do_cast(%RDF.XSD.String{} = xsd_string) do
+  def do_cast(%XSD.String{} = xsd_string) do
     xsd_string.value |> new() |> canonical()
   end
 
-  def do_cast(%RDF.XSD.Decimal{} = xsd_decimal) do
-    !Decimal.equal?(xsd_decimal.value, 0) |> new()
-  end
+  def do_cast(literal) do
+    cond do
+      XSD.Decimal.datatype?(literal) ->
+        !Decimal.equal?(literal.value, 0) |> new()
 
-  def do_cast(literal_or_value) do
-    if RDF.XSD.Numeric.datatype?(literal_or_value) do
-      new(literal_or_value.value not in [0, 0.0, :nan])
-    else
-      super(literal_or_value)
+      XSD.Numeric.datatype?(literal) ->
+        new(literal.value not in [0, 0.0, :nan])
+
+      true ->
+        super(literal)
     end
   end
 
@@ -67,24 +70,24 @@ defmodule RDF.XSD.Boolean do
 
   def ebv(%RDF.Literal{literal: literal}), do: ebv(literal)
 
-  def ebv(true), do: RDF.XSD.Boolean.Value.true()
-  def ebv(false), do: RDF.XSD.Boolean.Value.false()
+  def ebv(true), do: XSD.Boolean.Value.true()
+  def ebv(false), do: XSD.Boolean.Value.false()
 
-  def ebv(%__MODULE__{value: nil}), do: RDF.XSD.Boolean.Value.false()
+  def ebv(%__MODULE__{value: nil}), do: XSD.Boolean.Value.false()
   def ebv(%__MODULE__{} = value), do: literal(value)
 
-  def ebv(%RDF.XSD.String{} = string) do
+  def ebv(%XSD.String{} = string) do
     if String.length(string.value) == 0,
-      do: RDF.XSD.Boolean.Value.false(),
-      else: RDF.XSD.Boolean.Value.true()
+      do: XSD.Boolean.Value.false(),
+      else: XSD.Boolean.Value.true()
   end
 
   def ebv(%datatype{} = literal) do
-    if RDF.XSD.Numeric.datatype?(datatype) do
+    if XSD.Numeric.datatype?(datatype) do
       if datatype.valid?(literal) and
            not (datatype.value(literal) == 0 or datatype.value(literal) == :nan),
-         do: RDF.XSD.Boolean.Value.true(),
-         else: RDF.XSD.Boolean.Value.false()
+         do: XSD.Boolean.Value.true(),
+         else: XSD.Boolean.Value.false()
     end
   end
 
@@ -132,8 +135,8 @@ defmodule RDF.XSD.Boolean do
   def fn_not(%RDF.Literal{literal: literal}), do: fn_not(literal)
   def fn_not(value) do
     case ebv(value) do
-      %RDF.Literal{literal: %__MODULE__{value: true}} -> RDF.XSD.Boolean.Value.false()
-      %RDF.Literal{literal: %__MODULE__{value: false}} -> RDF.XSD.Boolean.Value.true()
+      %RDF.Literal{literal: %__MODULE__{value: true}} -> XSD.Boolean.Value.false()
+      %RDF.Literal{literal: %__MODULE__{value: false}} -> XSD.Boolean.Value.true()
       nil -> nil
     end
   end
@@ -168,18 +171,18 @@ defmodule RDF.XSD.Boolean do
   def logical_and(left, right) do
     case ebv(left) do
       %RDF.Literal{literal: %__MODULE__{value: false}} ->
-        RDF.XSD.Boolean.Value.false()
+        XSD.Boolean.Value.false()
 
       %RDF.Literal{literal: %__MODULE__{value: true}} ->
         case ebv(right) do
-          %RDF.Literal{literal: %__MODULE__{value: true}} -> RDF.XSD.Boolean.Value.true()
-          %RDF.Literal{literal: %__MODULE__{value: false}} -> RDF.XSD.Boolean.Value.false()
+          %RDF.Literal{literal: %__MODULE__{value: true}} -> XSD.Boolean.Value.true()
+          %RDF.Literal{literal: %__MODULE__{value: false}} -> XSD.Boolean.Value.false()
           nil -> nil
         end
 
       nil ->
         if match?(%RDF.Literal{literal: %__MODULE__{value: false}}, ebv(right)) do
-          RDF.XSD.Boolean.Value.false()
+          XSD.Boolean.Value.false()
         end
     end
   end
@@ -214,18 +217,18 @@ defmodule RDF.XSD.Boolean do
   def logical_or(left, right) do
     case ebv(left) do
       %RDF.Literal{literal: %__MODULE__{value: true}} ->
-        RDF.XSD.Boolean.Value.true()
+        XSD.Boolean.Value.true()
 
       %RDF.Literal{literal: %__MODULE__{value: false}} ->
         case ebv(right) do
-          %RDF.Literal{literal: %__MODULE__{value: true}} -> RDF.XSD.Boolean.Value.true()
-          %RDF.Literal{literal: %__MODULE__{value: false}} -> RDF.XSD.Boolean.Value.false()
+          %RDF.Literal{literal: %__MODULE__{value: true}} -> XSD.Boolean.Value.true()
+          %RDF.Literal{literal: %__MODULE__{value: false}} -> XSD.Boolean.Value.false()
           nil -> nil
         end
 
       nil ->
         if match?(%RDF.Literal{literal: %__MODULE__{value: true}}, ebv(right)) do
-          RDF.XSD.Boolean.Value.true()
+          XSD.Boolean.Value.true()
         end
     end
   end

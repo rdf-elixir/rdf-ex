@@ -117,6 +117,14 @@ defmodule RDF.XSD.StringTest do
       assert XSD.time("00:00:00+01:00") |> XSD.String.cast() == XSD.string("00:00:00+01:00")
     end
 
+    test "from derived types of the castable datatypes" do
+      assert XSD.byte(42) |> XSD.String.cast() == XSD.string("42")
+      assert Age.new(42) |> XSD.String.cast() == XSD.string("42")
+      assert DecimalUnitInterval.new(0.14) |> XSD.String.cast() == XSD.string("0.14")
+      assert DoubleUnitInterval.new(0.14) |> XSD.String.cast() == XSD.string("0.14")
+      assert FloatUnitInterval.new(1.0) |> XSD.String.cast() == XSD.string("1")
+    end
+
     test "with invalid literals" do
       assert XSD.integer(3.14) |> XSD.String.cast() == nil
       assert XSD.decimal("NAN") |> XSD.String.cast() == nil

@@ -97,6 +97,11 @@ defmodule RDF.XSD.NonNegativeIntegerTest do
       assert XSD.float("+INF") |> XSD.NonNegativeInteger.cast() == nil
     end
 
+    test "from a super type" do
+      assert XSD.integer(42) |> XSD.NonNegativeInteger.cast() == XSD.non_negative_integer(42)
+      assert XSD.integer(-42) |> XSD.NonNegativeInteger.cast() == nil
+    end
+
     test "with invalid literals" do
       assert XSD.non_negative_integer(3.14) |> XSD.NonNegativeInteger.cast() == nil
       assert XSD.positive_integer(0) |> XSD.NonNegativeInteger.cast() == nil
