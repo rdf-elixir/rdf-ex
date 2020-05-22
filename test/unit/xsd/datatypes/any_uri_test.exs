@@ -34,5 +34,10 @@ defmodule RDF.XSD.AnyURITest do
       assert XSD.anyURI("http://example.com/") |> XSD.AnyURI.cast() ==
              XSD.anyURI("http://example.com/")
     end
+
+    test "casting an RDF.IRI" do
+      assert RDF.iri("http://example.com/") |> XSD.AnyURI.cast() ==
+               XSD.anyURI("http://example.com/")
+    end
   end
 end

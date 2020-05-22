@@ -47,6 +47,10 @@ defmodule RDF.XSD.String do
   def elixir_mapping(value, _), do: to_string(value)
 
   @impl RDF.Literal.Datatype
+  def do_cast(literal_or_iri)
+
+  def do_cast(%RDF.IRI{value: value}), do: new(value)
+
   def do_cast(%datatype{} = literal) do
     cond do
       XSD.Decimal.datatype?(literal) ->

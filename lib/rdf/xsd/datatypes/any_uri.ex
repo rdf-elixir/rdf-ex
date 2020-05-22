@@ -61,6 +61,10 @@ defmodule RDF.XSD.AnyURI do
   def elixir_mapping(_, _), do: @invalid_value
 
   @impl RDF.Literal.Datatype
+  def do_cast(%IRI{} = iri), do: new(iri.value)
+  def do_cast(value), do: super(value)
+
+  @impl RDF.Literal.Datatype
   def do_equal_value?(literal1, literal2)
 
   def do_equal_value?(%IRI{} = iri, %__MODULE__{} = any_uri),

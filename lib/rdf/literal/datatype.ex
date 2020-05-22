@@ -27,14 +27,15 @@ defmodule RDF.Literal.Datatype do
   Casts a datatype literal of one type into a datatype literal of another type.
 
   This function is called by the auto-generated `cast/1` function on the implementations, which already deals with the basic cases.
-  So, implementations can assume the passed argument is a valid `RDF.Literal.Datatype` struct.
+  So, implementations can assume the passed argument is a valid `RDF.Literal.Datatype` struct,
+  a `RDF.IRI` or a `RDF.BlankNode`.
 
   If the given literal can not be converted into this datatype an implementation should return `nil`.
 
   A final catch-all clause should delegate to `super`. For example `RDF.XSD.Datatype`s will handle casting from derived
   datatypes in the default implementation.
   """
-  @callback do_cast(literal) :: Literal.t() | nil
+  @callback do_cast(literal | RDF.IRI.t | RDF.BlankNode.t) :: Literal.t() | nil
 
   @doc """
   Checks if the given `RDF.Literal` has the datatype for which the `RDF.Literal.Datatype` is implemented or is derived from it.
@@ -231,14 +232,15 @@ defmodule RDF.Literal.Datatype do
 
       Implementations define the casting for a given value with the `c:do_cast/1` callback.
       """
-      @spec cast(Literal.t | Literal.Datatype.literal) :: Literal.t() | nil
+      @spec cast(Literal.Datatype.literal | RDF.Term.t) :: Literal.t() | nil
       @dialyzer {:nowarn_function, cast: 1}
       def cast(literal_or_value)
       def cast(%Literal{literal: literal}), do: cast(literal)
       def cast(%__MODULE__{} = datatype_literal),
           do: if(valid?(datatype_literal), do: literal(datatype_literal))
       def cast(%struct{} = datatype_literal) do
-        if Literal.datatype?(struct) and Literal.Datatype.valid?(datatype_literal) do
+        if (Literal.datatype?(struct) and Literal.Datatype.valid?(datatype_literal)) or
+           struct in [RDF.IRI, RDF.BlankNode] do
           case do_cast(datatype_literal) do
             %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
             %Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
