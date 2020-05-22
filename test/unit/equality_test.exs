@@ -62,32 +62,6 @@ defmodule RDF.EqualityTest do
     test "incomparability",  do: assert_incomparable @incomparable_bnodes
   end
 
-  describe "XSD.String" do
-    @term_equal_strings [
-      {XSD.string("foo"), XSD.string("foo")}
-    ]
-    @value_equal_strings []
-    @unequal_strings [
-      {XSD.string("foo"), XSD.string("bar")}
-    ]
-    @equal_strings_by_coercion [
-      {XSD.string("foo"), "foo"}
-    ]
-    @unequal_strings_by_coercion [
-      {XSD.string("foo"), "bar"}
-    ]
-    @incomparable_strings [
-      {XSD.string("42"), 42}
-    ]
-
-    test "term equality", do: assert_term_equal(@term_equal_strings)
-    test "value equality", do: assert_value_equal(@value_equal_strings)
-    test "inequality", do: assert_unequal(@unequal_strings)
-    test "coerced value equality", do: assert_coerced_equal(@equal_strings_by_coercion)
-    test "coerced value inequality", do: assert_coerced_unequal(@unequal_strings_by_coercion)
-    test "incomparability", do: assert_incomparable(@incomparable_strings)
-  end
-
   describe "XSD.String and RDF.LangString" do
     @term_equal_strings [
       {XSD.string("foo"), XSD.string("foo")},
