@@ -36,6 +36,9 @@ defmodule RDF.TestDatatypes do
         base: RDF.XSD.PositiveInteger
 
     def_facet_constraint RDF.XSD.Facets.MaxInclusive, 150
+
+    @impl RDF.XSD.Datatype
+    def canonical_mapping(value), do: "#{value} years"
   end
 
   defmodule DecimalUnitInterval do

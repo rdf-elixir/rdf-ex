@@ -121,7 +121,7 @@ defmodule RDF.XSD.StringTest do
 
     test "from derived types of the castable datatypes" do
       assert XSD.byte(42) |> XSD.String.cast() == XSD.string("42")
-      assert Age.new(42) |> XSD.String.cast() == XSD.string("42")
+      assert Age.new(42) |> XSD.String.cast() == XSD.string("42 years")
       assert DecimalUnitInterval.new(0.14) |> XSD.String.cast() == XSD.string("0.14")
       assert DoubleUnitInterval.new(0.14) |> XSD.String.cast() == XSD.string("0.14")
       assert FloatUnitInterval.new(1.0) |> XSD.String.cast() == XSD.string("1")

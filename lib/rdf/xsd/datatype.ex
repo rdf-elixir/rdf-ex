@@ -110,6 +110,15 @@ defmodule RDF.XSD.Datatype do
       end
       def datatype?(_), do: false
 
+      @doc false
+      def datatype!(%__MODULE__{}), do: true
+      def datatype!((%datatype{} = literal)) do
+        datatype?(datatype) ||
+          raise RDF.XSD.Datatype.Mismatch, value: literal, expected_type: __MODULE__
+      end
+      def datatype!(value),
+        do: raise RDF.XSD.Datatype.Mismatch, value: value, expected_type: __MODULE__
+
       # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
       # always returns true there, so the other branch is unnecessary. This could
       # be fixed by generating a special version for primitives, but it's not worth
@@ -190,6 +199,12 @@ defmodule RDF.XSD.Datatype do
       def value(%RDF.Literal{literal: literal}), do: value(literal)
       def value(%__MODULE__{} = literal), do: literal.value
 
+      def value(literal) do
+        datatype!(literal)
+
+        literal.value
+      end
+
       @impl RDF.Literal.Datatype
       def lexical(lexical)
 
@@ -226,6 +241,8 @@ defmodule RDF.XSD.Datatype do
       def valid?(%RDF.Literal{literal: literal}), do: valid?(literal)
       def valid?(%__MODULE__{value: @invalid_value}), do: false
       def valid?(%__MODULE__{}), do: true
+      def valid?((%datatype{} = literal)),
+        do: datatype?(datatype) and datatype.valid?(literal)
       def valid?(_), do: false
 
       defimpl Inspect do

@@ -23,6 +23,43 @@ defmodule RDF.XSD.IntegerTest do
     valid: RDF.XSD.TestData.valid_integers(),
     invalid: RDF.XSD.TestData.invalid_integers()
 
+  alias RDF.TestDatatypes.Age
+
+  describe "value/1" do
+    test "with a derived datatype" do
+      assert XSD.byte(42) |> XSD.Integer.value() == 42
+      assert Age.new(42) |> XSD.Integer.value() == 42
+    end
+
+    test "with another datatype" do
+      assert_raise RDF.XSD.Datatype.Mismatch, "'#{inspect(XSD.decimal(42).literal)}' is not a #{XSD.Integer}", fn ->
+        XSD.decimal(42) |> XSD.Integer.value()
+      end
+    end
+
+    test "with a non-literal" do
+      assert_raise RDF.XSD.Datatype.Mismatch, "'42' is not a #{XSD.Integer}", fn ->
+         XSD.Integer.value(42)
+      end
+    end
+  end
+
+  describe "valid?/1" do
+    test "with a derived datatype" do
+      assert XSD.byte(42) |> XSD.Integer.valid?() == true
+      assert Age.new(42) |> XSD.Integer.valid?() == true
+      assert Age.new(200) |> XSD.Integer.valid?() == false
+    end
+
+    test "with another datatype" do
+      assert XSD.decimal(42) |> XSD.Integer.valid?() == false
+    end
+
+    test "with a non-literal" do
+      assert XSD.Integer.valid?(42) == false
+    end
+  end
+
   describe "cast/1" do
     test "casting an integer returns the input as it is" do
       assert XSD.integer(0) |> XSD.Integer.cast() == XSD.integer(0)

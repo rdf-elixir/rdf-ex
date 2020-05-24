@@ -60,6 +60,8 @@ defmodule RDF.Literal.Datatype do
 
   @doc """
   Returns the value of a `RDF.Literal`.
+
+  This function also accepts literals of derived datatypes.
   """
   @callback value(Literal.t | literal) :: any
 
@@ -84,12 +86,14 @@ defmodule RDF.Literal.Datatype do
   Determines if the lexical form of a `RDF.Literal` is the canonical form.
 
   Note: For `RDF.Literal.Generic` literals with the canonical form not defined,
-  this always return `true`.
+  this always returns `true`.
   """
   @callback canonical?(Literal.t() | literal | any) :: boolean
 
   @doc """
   Determines if the lexical form of a `RDF.Literal` is a member of its lexical value space.
+
+  This function also accepts literals of derived datatypes.
   """
   @callback valid?(Literal.t() | literal | any) :: boolean
 
