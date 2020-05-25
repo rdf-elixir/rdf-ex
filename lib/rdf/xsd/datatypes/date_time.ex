@@ -155,27 +155,19 @@ defmodule RDF.XSD.DateTime do
   end
 
   @impl RDF.Literal.Datatype
-  def do_equal_value?(literal1, literal2)
-  def do_equal_value?(
-        %__MODULE__{value: %type{} = value1},
-        %__MODULE__{value: %type{} = value2}
+  def do_equal_value_same_or_derived_datatypes?(
+        %{value: %type{} = left_value},
+        %{value: %type{} = right_value}
       ) do
-    type.compare(value1, value2) == :eq
-  end
-
-  def do_equal_value?(
-        %__MODULE__{value: nil, uncanonical_lexical: lexical1},
-        %__MODULE__{value: nil, uncanonical_lexical: lexical2}
-      ) do
-    lexical1 == lexical2
+    type.compare(left_value, right_value) == :eq
   end
 
   # This is another quirk for the open-world test date-2 from the SPARQL 1.0 test suite:
   # comparisons between one date with tz and another one without a tz are incomparable
   # when the unequal, but comparable and returning false when equal.
   # What's the reasoning behind this madness?
-  def do_equal_value?(%__MODULE__{} = literal1, %__MODULE__{} = literal2) do
-    case compare(literal1, literal2) do
+  def do_equal_value_same_or_derived_datatypes?(left_literal, right_literal) do
+    case compare(left_literal, right_literal) do
       :lt -> false
       :gt -> false
       # This actually can't/shouldn't happen.
@@ -184,12 +176,16 @@ defmodule RDF.XSD.DateTime do
     end
   end
 
-  def do_equal_value?(%__MODULE__{}, %XSD.Date{}), do: false
-  def do_equal_value?(%XSD.Date{}, %__MODULE__{}), do: false
-
-  def do_equal_value?(_, _), do: nil
-
   @impl RDF.Literal.Datatype
+  def do_equal_value_different_datatypes?(left, right) do
+    if XSD.Date.datatype?(left) or XSD.Date.datatype?(right) do
+      false
+    else
+      super(left, right)
+    end
+  end
+
+    @impl RDF.Literal.Datatype
   def compare(left, right)
   def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
   def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)

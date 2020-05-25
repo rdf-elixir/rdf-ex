@@ -77,6 +77,18 @@ defmodule RDF.XSD.Datatype do
 
   defdelegate get(id), to: RDF.Literal.Datatype.Registry, as: :xsd_datatype
 
+  @doc false
+  def most_specific(left, right)
+  def most_specific(datatype, datatype), do: datatype
+  def most_specific(left, right) do
+    cond do
+      left.datatype?(right) -> right
+      right.datatype?(left) -> left
+      true -> nil
+    end
+  end
+
+
   defmacro __using__(opts) do
     quote do
       defstruct [:value, :uncanonical_lexical]
@@ -244,6 +256,21 @@ defmodule RDF.XSD.Datatype do
       def valid?((%datatype{} = literal)),
         do: datatype?(datatype) and datatype.valid?(literal)
       def valid?(_), do: false
+
+      @doc false
+      defp equality_path(left_datatype, right_datatype)
+      defp equality_path(datatype, datatype), do: {:same_or_derived, datatype}
+      defp equality_path(left_datatype, right_datatype) do
+        if RDF.XSD.datatype?(left_datatype) and RDF.XSD.datatype?(right_datatype) do
+          if datatype = RDF.XSD.Datatype.most_specific(left_datatype, right_datatype) do
+            {:same_or_derived, datatype}
+          else
+            {:different, left_datatype}
+          end
+        else
+          {:different, left_datatype}
+        end
+      end
 
       defimpl Inspect do
         "Elixir.Inspect." <> datatype_name = to_string(__MODULE__)

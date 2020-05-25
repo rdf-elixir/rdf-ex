@@ -49,21 +49,12 @@ defmodule RDF.XSD.Datatype.Primitive do
       end
 
       @impl RDF.Literal.Datatype
-      def do_equal_value?(left, right)
-
-      def do_equal_value?(
-            %datatype{uncanonical_lexical: lexical1, value: nil},
-            %datatype{uncanonical_lexical: lexical2, value: nil}
-          ) do
-        lexical1 == lexical2
+      def do_equal_value_same_or_derived_datatypes?(%left_datatype{} = left, %right_datatype{} = right) do
+        left_datatype.value(left) == right_datatype.value(right)
       end
 
-      def do_equal_value?(%datatype{} = literal1, %datatype{} = literal2) do
-        literal1 |> datatype.canonical() |> datatype.value() ==
-          literal2 |> datatype.canonical() |> datatype.value()
-      end
-
-      def do_equal_value?(_, _), do: nil
+      @impl RDF.Literal.Datatype
+      def do_equal_value_different_datatypes?(left, right), do: nil
 
       @impl RDF.Literal.Datatype
       def compare(left, right)
@@ -88,7 +79,8 @@ defmodule RDF.XSD.Datatype.Primitive do
                      do_cast: 1,
                      init_valid_lexical: 3,
                      init_invalid_lexical: 2,
-                     do_equal_value?: 2,
+                     do_equal_value_same_or_derived_datatypes?: 2,
+                     do_equal_value_different_datatypes?: 2,
                      compare: 2
 
       @before_compile unquote(__MODULE__)

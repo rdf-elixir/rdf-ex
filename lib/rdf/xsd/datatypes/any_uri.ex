@@ -65,23 +65,24 @@ defmodule RDF.XSD.AnyURI do
   def do_cast(value), do: super(value)
 
   @impl RDF.Literal.Datatype
-  def do_equal_value?(literal1, literal2)
+  def do_equal_value_different_datatypes?(left, right)
 
-  def do_equal_value?(%IRI{} = iri, %__MODULE__{} = any_uri),
-    do: do_equal_value?(any_uri, iri)
+  def do_equal_value_different_datatypes?(%IRI{} = iri, any_uri),
+    do: do_equal_value_different_datatypes?(any_uri, iri)
 
-  def do_equal_value?(%__MODULE__{} = any_uri, %IRI{value: iri}),
+  def do_equal_value_different_datatypes?(any_uri, %IRI{value: iri}),
     do: lexical(any_uri) == iri
 
-  def do_equal_value?(left, %__MODULE__{} = right) when maybe_ns_term(left),
-      do: equal_value?(right, left)
+  def do_equal_value_different_datatypes?(left, right) when maybe_ns_term(left),
+    do: do_equal_value_different_datatypes?(right, left)
 
-  def do_equal_value?(%__MODULE__{} = left, right) when maybe_ns_term(right) do
+  def do_equal_value_different_datatypes?(left, right) when maybe_ns_term(right) do
     case RDF.Namespace.resolve_term(right) do
-      {:ok, iri} -> equal_value?(left, iri)
+      {:ok, iri} -> do_equal_value_different_datatypes?(left, iri)
       _ -> nil
     end
   end
 
-  def do_equal_value?(literal1, literal2), do: super(literal1, literal2)
+  def do_equal_value_different_datatypes?(literal1, literal2),
+    do: super(literal1, literal2)
 end

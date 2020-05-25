@@ -160,7 +160,12 @@ defmodule RDF.XSD.Double do
   end
 
 
-  def equal_value?(left, right), do: XSD.Numeric.equal_value?(left, right)
+  @impl RDF.Literal.Datatype
+  def do_equal_value_same_or_derived_datatypes?(left, right), do: XSD.Numeric.equal_value?(left, right)
+
+  @impl RDF.Literal.Datatype
+  def do_equal_value_different_datatypes?(left, right), do: XSD.Numeric.equal_value?(left, right)
+
 
   @impl RDF.Literal.Datatype
   def compare(left, right), do: XSD.Numeric.compare(left, right)

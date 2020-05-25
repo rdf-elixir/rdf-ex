@@ -166,30 +166,21 @@ defmodule RDF.XSD.Date do
 
 
   @impl RDF.Literal.Datatype
-  def do_equal_value?(literal1, literal2)
-
-  def do_equal_value?(
-        %__MODULE__{value: nil, uncanonical_lexical: lexical1},
-        %__MODULE__{value: nil, uncanonical_lexical: lexical2}
-      ) do
-    lexical1 == lexical2
-  end
-
-  def do_equal_value?(%__MODULE__{value: value1}, %__MODULE__{value: value2})
-      when is_nil(value1) or is_nil(value2),
-      do: false
-
-  def do_equal_value?(%__MODULE__{value: value1}, %__MODULE__{value: value2}) do
+  def do_equal_value_same_or_derived_datatypes?(left, right) do
     XSD.DateTime.equal_value?(
-      comparison_normalization(value1),
-      comparison_normalization(value2)
+      comparison_normalization(left.value),
+      comparison_normalization(right.value)
     )
   end
 
-  def do_equal_value?(%__MODULE__{}, %XSD.DateTime{}), do: false
-  def do_equal_value?(%XSD.DateTime{}, %__MODULE__{}), do: false
-
-  def do_equal_value?(_, _), do: nil
+  @impl RDF.Literal.Datatype
+  def do_equal_value_different_datatypes?(left, right) do
+    if XSD.DateTime.datatype?(left) or XSD.DateTime.datatype?(right) do
+      false
+    else
+      super(left, right)
+    end
+  end
 
   @impl RDF.Literal.Datatype
   def compare(left, right)

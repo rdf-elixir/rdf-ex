@@ -71,12 +71,19 @@ defmodule RDF.XSD.Datatype.Restriction do
         end
       end
 
-      # TODO: This makes it impossible to define do_equal_value definitions on derivations,
-      # but we need to overwrite this to reach for example the XSD.Numeric delegation.
-      def equal_value?(literal1, literal2), do: @base.equal_value?(literal1, literal2)
+      def equal_value?(literal1, literal2) do
+        base_primitive().equal_value?(literal1, literal2)
+      end
 
       @impl RDF.Literal.Datatype
-      def do_equal_value?(left, right), do: nil # unused; see comment on equal_value?/2
+      def do_equal_value_same_or_derived_datatypes?(left, right) do
+        @base.do_equal_value_same_or_derived_datatypes?(left, right)
+      end
+
+      @impl RDF.Literal.Datatype
+      def do_equal_value_different_datatypes?(left, right) do
+        @base.do_equal_value_different_datatypes?(left, right)
+      end
 
       @impl RDF.Literal.Datatype
       def compare(left, right), do: @base.compare(left, right)
@@ -84,6 +91,8 @@ defmodule RDF.XSD.Datatype.Restriction do
       defoverridable canonical_mapping: 1,
                      do_cast: 1,
                      equal_value?: 2,
+                     do_equal_value_same_or_derived_datatypes?: 2,
+                     do_equal_value_different_datatypes?: 2,
                      compare: 2
 
       Module.register_attribute(__MODULE__, :facets, accumulate: true)

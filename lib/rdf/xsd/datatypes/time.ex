@@ -189,19 +189,11 @@ defmodule RDF.XSD.Time do
     end
   end
 
-
   @impl RDF.Literal.Datatype
-  def do_equal_value?(literal1, literal2)
-
-  def do_equal_value?(%__MODULE__{value: %_{}}, %__MODULE__{value: tz_tuple})
-    when is_tuple(tz_tuple),
-    do: nil
-
-  def do_equal_value?(%__MODULE__{value: tz_tuple}, %__MODULE__{value: %_{}})
-    when is_tuple(tz_tuple),
-    do: nil
-
-  def do_equal_value?(left, right), do: super(left, right)
+  def do_equal_value_same_or_derived_datatypes?(left, right)
+  def do_equal_value_same_or_derived_datatypes?(%{value: %{}}, %{value: tz_tuple}) when is_tuple(tz_tuple), do: nil
+  def do_equal_value_same_or_derived_datatypes?(%{value: tz_tuple}, %{value: %{}}) when is_tuple(tz_tuple), do: nil
+  def do_equal_value_same_or_derived_datatypes?(left, right), do: super(left, right)
 
   @doc """
   Extracts the timezone string from a `RDF.XSD.Time` value.

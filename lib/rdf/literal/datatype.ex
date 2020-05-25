@@ -24,9 +24,9 @@ defmodule RDF.Literal.Datatype do
   @callback new!(any, Keyword.t()) :: Literal.t()
 
   @doc """
-  Casts a datatype literal of one type into a datatype literal of another type.
+  Callback for datatype specific castings.
 
-  This function is called by the auto-generated `cast/1` function on the implementations, which already deals with the basic cases.
+  This callback is called by the auto-generated `cast/1` function on the implementations, which already deals with the basic cases.
   So, implementations can assume the passed argument is a valid `RDF.Literal.Datatype` struct,
   a `RDF.IRI` or a `RDF.BlankNode`.
 
@@ -98,7 +98,10 @@ defmodule RDF.Literal.Datatype do
   @callback valid?(Literal.t() | literal | any) :: boolean
 
   @doc """
-  Checks if two datatype literals are equal in terms of the values of their value space.
+  Callback for datatype specific `equal_value?/2` comparisons when the given literals have the same or derived datatypes.
+
+  This callback is called by auto-generated `equal_value?/2` function when the given literals have
+  the same datatype or one is derived from the other.
 
   Should return `nil` when the given arguments are not comparable as literals of this
   datatype. This behaviour is particularly important for SPARQL.ex where this
@@ -106,10 +109,25 @@ defmodule RDF.Literal.Datatype do
   terms are treated as errors and immediately leads to a rejection of a possible
   match.
 
-  This function is called by auto-generated `equal_value?/2` function on the
-  implementations, which already deals with basic cases and coercion.
+  See also `c:do_equal_value_different_datatypes?/2`.
   """
-  @callback do_equal_value?(literal, literal) :: boolean | nil
+  @callback do_equal_value_same_or_derived_datatypes?(literal, literal) :: boolean | nil
+
+  @doc """
+  Callback for datatype specific `equal_value?/2` comparisons when the given literals have different datatypes.
+
+  This callback is called by auto-generated `equal_value?/2` function when the given literals have
+  different datatypes and are not derived from each other.
+
+  Should return `nil` when the given arguments are not comparable as literals of this
+  datatype. This behaviour is particularly important for SPARQL.ex where this
+  function is used for the `=` operator, where comparisons between incomparable
+  terms are treated as errors and immediately leads to a rejection of a possible
+  match.
+
+  See also `c:do_equal_value_same_or_derived_datatypes?/2`.
+  """
+  @callback do_equal_value_different_datatypes?(literal, literal) :: boolean | nil
 
   @doc """
   Compares two `RDF.Literal`s.
@@ -266,7 +284,11 @@ defmodule RDF.Literal.Datatype do
       Returns `nil` when the given arguments are not comparable as literals of this
       datatype.
 
-      Implementations define this equivalence relation via the `c:do_equal_value?/2` callback.
+      Invalid literals are only considered equal in this relation when both have the exact same
+      datatype and the same attributes (lexical form, language etc.).
+
+      Implementations can customize this equivalence relation via the `c:do_equal_value_different_datatypes?/2`
+      and `c:do_equal_value_different_datatypes?/2` callbacks.
       """
       def equal_value?(left, right)
       def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
@@ -275,24 +297,58 @@ defmodule RDF.Literal.Datatype do
       def equal_value?(_, nil), do: nil
       def equal_value?(left, right) do
         cond do
-          not Literal.datatype?(right) and not RDF.term?(right) -> equal_value?(left, Literal.coerce(right))
-          not Literal.datatype?(left) and not RDF.term?(left) -> equal_value?(Literal.coerce(left), right)
-          true -> do_equal_value?(left, right)
+          not Literal.datatype?(right) and not resource?(right) -> equal_value?(left, Literal.coerce(right))
+          not Literal.datatype?(left) and not resource?(left) -> equal_value?(Literal.coerce(left), right)
+          true ->
+            left_datatype = left.__struct__
+            right_datatype = right.__struct__
+            left_valid = resource?(left) or left_datatype.valid?(left)
+            right_valid = resource?(right) or right_datatype.valid?(right)
+
+            cond do
+              not left_valid and not right_valid ->
+                left == right
+
+              left_valid and right_valid ->
+                case equality_path(left_datatype, right_datatype) do
+                  {:same_or_derived, datatype} ->
+                    datatype.do_equal_value_same_or_derived_datatypes?(left, right)
+                  {:different, datatype} ->
+                    datatype.do_equal_value_different_datatypes?(left, right)
+                end
+
+              # one of the given literals is invalid
+              true ->
+                if left_datatype == right_datatype do
+                  false
+                end
+            end
         end
       end
 
-      # RDF.XSD.Datatypes offers another default implementation, but since it is
+      # RDF.XSD.Datatype offers another default implementation, but since it is
       # still in a macro implementation defoverridable doesn't work
       unless RDF.XSD.Datatype in @behaviour do
         @impl unquote(__MODULE__)
-        def do_equal_value?(left, right)
-        def do_equal_value?(%__MODULE__{} = left, %__MODULE__{} = right), do: left == right
-        def do_equal_value?(_, _), do: nil
+        def do_equal_value_same_or_derived_datatypes?(left, right), do: left == right
 
-        defoverridable do_equal_value?: 2
+        @impl unquote(__MODULE__)
+        def do_equal_value_different_datatypes?(left, right), do: nil
+
+        defoverridable do_equal_value_same_or_derived_datatypes?: 2,
+                       do_equal_value_different_datatypes?: 2
       end
 
-      @impl unquote(__MODULE__)
+      defp equality_path(left_datatype, right_datatype)
+      defp equality_path(datatype, datatype), do: {:same_or_derived, datatype}
+      defp equality_path(datatype, _), do: {:different, datatype}
+
+      # as opposed to RDF.resource? this does not try to resolve atoms
+      defp resource?(%RDF.IRI{}), do: true
+      defp resource?(%RDF.BlankNode{}), do: true
+      defp resource?(_), do: false
+
+            @impl unquote(__MODULE__)
       def update(literal, fun, opts \\ [])
       def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
       def update(%__MODULE__{} = literal, fun, opts) do
@@ -314,6 +370,7 @@ defmodule RDF.Literal.Datatype do
                      cast: 1,
                      do_cast: 1,
                      equal_value?: 2,
+                     equality_path: 2,
                      update: 2,
                      update: 3
 

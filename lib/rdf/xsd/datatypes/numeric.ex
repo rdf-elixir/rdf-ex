@@ -12,7 +12,7 @@ defmodule RDF.XSD.Numeric do
 
   defdelegate datatype?(value), to: Literal.Datatype.Registry, as: :numeric_datatype?
 
-  @doc """
+  @doc !"""
   Tests for numeric value equality of two numeric XSD datatyped literals.
 
   see:
@@ -22,30 +22,21 @@ defmodule RDF.XSD.Numeric do
   """
   @spec equal_value?(t() | any, t() | any) :: boolean
   def equal_value?(left, right)
-  def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
-  def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
-  def equal_value?(nil, _), do: nil
-  def equal_value?(_, nil), do: nil
-
-  def equal_value?(
-        %datatype{value: nil, uncanonical_lexical: lexical1},
-        %datatype{value: nil, uncanonical_lexical: lexical2}
-      ) do
-    lexical1 == lexical2
-  end
-
-  def equal_value?(%left_datatype{value: left}, %right_datatype{value: right})
-      when left_datatype == XSD.Decimal or right_datatype == XSD.Decimal,
-      do: not is_nil(left) and not is_nil(right) and equal_decimal_value?(left, right)
 
   def equal_value?(%left_datatype{value: left}, %right_datatype{value: right}) do
-    if datatype?(left_datatype) and datatype?(right_datatype) do
-      left != :nan and right != :nan and left == right
+    cond do
+      XSD.Decimal.datatype?(left_datatype) or XSD.Decimal.datatype?(right_datatype) ->
+        equal_decimal_value?(left, right)
+
+      datatype?(left_datatype) and datatype?(right_datatype) ->
+        left != :nan and right != :nan and left == right
+
+      true ->
+        nil
     end
   end
 
-  def equal_value?(left, right),
-    do: equal_value?(Literal.coerce(left), Literal.coerce(right))
+  def equal_value?(_, _), do: nil
 
   defp equal_decimal_value?(%D{} = left, %D{} = right), do: D.equal?(left, right)
 
