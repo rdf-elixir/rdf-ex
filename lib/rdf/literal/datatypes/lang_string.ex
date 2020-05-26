@@ -79,23 +79,6 @@ defmodule RDF.LangString do
   def do_cast(_), do: nil
 
   @impl Datatype
-  def compare(left, %Literal{literal: right}), do: compare(left, right)
-  def compare(%Literal{literal: left}, right), do: compare(left, right)
-  def compare(%__MODULE__{language: language_tag} = literal1,
-              %__MODULE__{language: language_tag} = literal2) do
-    if valid?(literal1) and valid?(literal2) do
-      case {canonical(literal1).literal.value, canonical(literal2).literal.value} do
-        {value1, value2} when value1 < value2 -> :lt
-        {value1, value2} when value1 > value2 -> :gt
-        _ ->
-          if equal_value?(literal1, literal2), do: :eq
-      end
-    end
-  end
-
-  def compare(_, _), do: nil
-
-  @impl Datatype
   def update(literal, fun, opts \\ [])
   def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
   def update(%__MODULE__{} = literal, fun, _opts) do

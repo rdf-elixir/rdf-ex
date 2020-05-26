@@ -130,20 +130,23 @@ defmodule RDF.Literal.Datatype do
   @callback do_equal_value_different_datatypes?(literal, literal) :: boolean | nil
 
   @doc """
-  Compares two `RDF.Literal`s.
+  Callback for datatype specific `compare/2` comparisons between two `RDF.Literal`s.
 
-  Returns `:gt` if value of the first literal is greater than the value of the second in
-  terms of their datatype and `:lt` for vice versa. If the two literals are equal `:eq` is returned.
-  For datatypes with only partial ordering `:indeterminate` is returned when the
+  This callback is called by auto-generated `compare/2` function on the implementations, which already deals with the basic cases.
+  So, implementations can assume the passed arguments are valid `RDF.Literal.Datatype` structs and
+  have the same datatypes or are derived from each other.
+
+  Should return `:gt` if value of the first literal is greater than the value of the second in
+  terms of their datatype and `:lt` for vice versa. If the two literals can be considered equal `:eq` should be returned.
+  For datatypes with only partial ordering `:indeterminate` should be returned when the
   order of the given literals is not defined.
 
-  Returns `nil` when the given arguments are not comparable datatypes or if one
-  them is invalid.
+  `nil` should be returned when the given arguments are not comparable datatypes or if one them is invalid.
 
-  The default implementation of the `_using__` macro of `RDF.XSD.Datatype`s
-  compares the values of the `canonical/1` forms of the given literals of this datatype.
+  The default implementation of the `_using__` macro of `RDF.Literal.Datatype`s
+  just compares the values of the given literals.
   """
-  @callback compare(Literal.t() | literal, Literal.t() | literal) :: comparison_result | :indeterminate | nil
+  @callback do_compare(literal, literal) :: comparison_result | :indeterminate | nil
 
   @doc """
   Updates the value of a `RDF.Literal` without changing everything else.
@@ -348,7 +351,37 @@ defmodule RDF.Literal.Datatype do
       defp resource?(%RDF.BlankNode{}), do: true
       defp resource?(_), do: false
 
-            @impl unquote(__MODULE__)
+      # RDF.XSD.Datatypes offers another default implementation, but since it is
+      # still in a macro implementation defoverridable doesn't work
+      unless RDF.XSD.Datatype in @behaviour do
+        def compare(left, right)
+        def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
+        def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
+
+        def compare(left, right) do
+          if Literal.datatype?(left) and Literal.datatype?(right) and
+             Literal.Datatype.valid?(left) and Literal.Datatype.valid?(right) do
+            do_compare(left, right)
+          end
+        end
+
+        @impl RDF.Literal.Datatype
+        def do_compare(%datatype{} = left, %datatype{} = right) do
+          case {datatype.value(left), datatype.value(right)} do
+            {left_value, right_value} when left_value < right_value -> :lt
+            {left_value, right_value} when left_value > right_value -> :gt
+            _ ->
+              if datatype.equal_value?(left, right), do: :eq
+          end
+        end
+
+        def do_compare(_, _), do: nil
+
+        defoverridable compare: 2,
+                       do_compare: 2
+      end
+
+      @impl unquote(__MODULE__)
       def update(literal, fun, opts \\ [])
       def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
       def update(%__MODULE__{} = literal, fun, opts) do

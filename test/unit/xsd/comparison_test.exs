@@ -2,6 +2,7 @@ defmodule RDF.XSD.ComparisonTest do
   use ExUnit.Case
 
   alias RDF.XSD
+  alias RDF.TestDatatypes.{Initials, Age, DecimalUnitInterval, CustomTime, DateWithoutTz, DateTimeWithTz}
 
   describe "XSD.String" do
     @ordered_strings [
@@ -15,6 +16,13 @@ defmodule RDF.XSD.ComparisonTest do
       end)
 
       assert_equal({XSD.string("foo"), XSD.string("foo")})
+    end
+
+    test "valid comparisons between derived string literals" do
+      assert_equal({Initials.new("fo"), XSD.string("fo")})
+      assert_order({Initials.new("ba"), Initials.new("fo")})
+      assert_order({Initials.new("ba"), XSD.string("foo")})
+      assert_order({XSD.string("bar"), Initials.new("fo")})
     end
 
     test "invalid comparison between string and langString literals" do
@@ -50,7 +58,14 @@ defmodule RDF.XSD.ComparisonTest do
           {XSD.non_negative_integer(0), XSD.integer(1)},
           {XSD.integer(0), XSD.positive_integer(1)},
           {XSD.non_negative_integer(0), XSD.positive_integer(1)},
-          {XSD.positive_integer(1), XSD.non_negative_integer(2)}
+          {XSD.positive_integer(1), XSD.non_negative_integer(2)},
+          {XSD.positive_integer(1), XSD.non_negative_integer(2)},
+          {Age.new(1), Age.new(2)},
+          {Age.new(1), XSD.integer(2)},
+          {XSD.non_negative_integer(1), Age.new(2)},
+          {Age.new(1), XSD.decimal(2.1)},
+          {XSD.decimal(0.1), DecimalUnitInterval.new(0.2)},
+          {DecimalUnitInterval.new(0.3), Age.new(2)},
         ],
         &assert_order/1
       )
@@ -89,6 +104,7 @@ defmodule RDF.XSD.ComparisonTest do
       )
 
       assert_order({XSD.datetime("2000-01-15T12:00:00"), XSD.datetime("2000-01-16T12:00:00Z")})
+      assert_order({XSD.datetime("2000-01-15T12:00:00"), DateTimeWithTz.new("2000-01-16T12:00:00Z")})
     end
 
     test "when unequal due to missing time zone" do
@@ -110,6 +126,10 @@ defmodule RDF.XSD.ComparisonTest do
         {XSD.datetime("2002-04-02T23:00:00-04:00"), XSD.datetime("2002-04-03T02:00:00-01:00")}
       )
 
+      assert_equal(
+        {DateTimeWithTz.new("2002-04-02T23:00:00-04:00"), XSD.datetime("2002-04-03T02:00:00-01:00")}
+      )
+
       assert_equal({XSD.datetime("1999-12-31T24:00:00"), XSD.datetime("2000-01-01T00:00:00")})
       # TODO: Assume that the dynamic context provides an implicit timezone value of -05:00
       #      assert_equal {XSD.datetime("2002-04-02T12:00:00"),       XSD.datetime("2002-04-02T23:00:00+06:00")}
@@ -127,6 +147,10 @@ defmodule RDF.XSD.ComparisonTest do
       assert_indeterminate(
         {XSD.datetime("2000-01-16T00:00:00"), XSD.datetime("2000-01-16T12:00:00Z")}
       )
+
+      assert_indeterminate(
+        {XSD.datetime("2000-01-16T00:00:00"), DateTimeWithTz.new("2000-01-16T12:00:00Z")}
+      )
     end
   end
 
@@ -135,6 +159,8 @@ defmodule RDF.XSD.ComparisonTest do
       assert_order({XSD.date("2002-04-02"), XSD.date("2002-04-03")})
       assert_order({XSD.date("2002-04-02+01:00"), XSD.date("2002-04-03+00:00")})
       assert_order({XSD.date("2002-04-02"), XSD.date("2002-04-03Z")})
+      assert_order({DateWithoutTz.new("2002-04-02"), XSD.date("2002-04-03Z")})
+      assert_order({DateWithoutTz.new("2002-04-02"), DateWithoutTz.new("2002-04-03")})
     end
 
     test "when equal" do
@@ -143,12 +169,14 @@ defmodule RDF.XSD.ComparisonTest do
       assert_equal({XSD.date("2002-04-02-00:00"), XSD.date("2002-04-02+00:00")})
       assert_equal({XSD.date("2002-04-02Z"), XSD.date("2002-04-02+00:00")})
       assert_equal({XSD.date("2002-04-02Z"), XSD.date("2002-04-02-00:00")})
+      assert_equal({XSD.date("2002-04-02"), DateWithoutTz.new("2002-04-02")})
     end
 
     test "when indeterminate" do
       assert_indeterminate({XSD.date("2002-04-02Z"), XSD.date("2002-04-02")})
       assert_indeterminate({XSD.date("2002-04-02+00:00"), XSD.date("2002-04-02")})
       assert_indeterminate({XSD.date("2002-04-02-00:00"), XSD.date("2002-04-02")})
+      assert_indeterminate({XSD.date("2002-04-02Z"), DateWithoutTz.new("2002-04-02")})
     end
   end
 
@@ -187,18 +215,21 @@ defmodule RDF.XSD.ComparisonTest do
     test "when unequal" do
       assert_order({XSD.time("12:00:00+01:00"), XSD.time("13:00:00+01:00")})
       assert_order({XSD.time("12:00:00"), XSD.time("13:00:00")})
+      assert_order({CustomTime.new("12:00:00"), CustomTime.new("13:00:00")})
     end
 
     test "when equal" do
       assert_equal({XSD.time("12:00:00+01:00"), XSD.time("12:00:00+01:00")})
       assert_equal({XSD.time("12:00:00"), XSD.time("12:00:00")})
+      assert_equal({CustomTime.new("12:00:00+01:00"), XSD.time("12:00:00+01:00")})
     end
 
-    test "when indeterminate" do
-      assert_indeterminate({XSD.date("2002-04-02Z"), XSD.date("2002-04-02")})
-      assert_indeterminate({XSD.date("2002-04-02+00:00"), XSD.date("2002-04-02")})
-      assert_indeterminate({XSD.date("2002-04-02-00:00"), XSD.date("2002-04-02")})
-    end
+# TODO:
+#    test "when indeterminate" do
+#      assert_indeterminate({XSD.time("12:00:00Z"), XSD.time("12:00:00")})
+#      assert_indeterminate({XSD.time("12:00:00+00:00"), XSD.time("12:00:00")})
+#      assert_indeterminate({XSD.time("12:00:00-00:00"), XSD.time("12:00:00")})
+#    end
   end
 
   describe "incomparable" do
@@ -231,6 +262,7 @@ defmodule RDF.XSD.ComparisonTest do
       Enum.each(
         [
           {XSD.true(), XSD.boolean(42)},
+          {XSD.false(), Age.new(242)},
           {XSD.datetime("2002-04-02T12:00:00"), XSD.datetime("2002.04.02 12:00")},
           {XSD.date("2002-04-02"), XSD.date("2002.04.02")},
           {XSD.time("12:00:00"), XSD.time("12-00-00")}

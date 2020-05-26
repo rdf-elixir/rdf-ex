@@ -183,21 +183,7 @@ defmodule RDF.XSD.Date do
   end
 
   @impl RDF.Literal.Datatype
-  def compare(left, right)
-  def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
-  def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
-
-  def compare(
-        %__MODULE__{value: value1},
-        %__MODULE__{value: value2}
-      )
-      when is_nil(value1) or is_nil(value2),
-      do: nil
-
-  def compare(
-        %__MODULE__{value: value1},
-        %__MODULE__{value: value2}
-      ) do
+  def do_compare(%{value: value1}, %{value: value2}) do
     XSD.DateTime.compare(
       comparison_normalization(value1),
       comparison_normalization(value2)
@@ -209,27 +195,27 @@ defmodule RDF.XSD.Date do
   #  ordering comparisons in the date-3 test. The following implementation would allow
   #  an ordering comparisons between date and datetimes.
   #
-  #  def compare(
+  #  def do_compare(
   #        %__MODULE__{value: date_value},
   #        %XSD.DateTime{} = datetime_literal
   #      ) do
   #    XSD.DateTime.compare(
-  #      comparison_normalization(date_value),
+  #      comparison_normalization(date_value).literal,
   #      datetime_literal
   #    )
   #  end
   #
-  #  def compare(
+  #  def do_compare(
   #        %XSD.DateTime{} = datetime_literal,
   #        %__MODULE__{value: date_value}
   #      ) do
-  #    XSD.DateTime.compare(
+  #    XSD.DateTime.do_compare(
   #      datetime_literal,
-  #      comparison_normalization(date_value)
+  #      comparison_normalization(date_value).literal
   #    )
   #  end
 
-  def compare(_, _), do: nil
+  def do_compare(_, _), do: nil
 
   defp comparison_normalization({date, tz}) do
     (Date.to_iso8601(date) <> "T00:00:00" <> tz)

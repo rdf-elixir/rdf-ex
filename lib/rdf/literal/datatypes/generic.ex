@@ -92,21 +92,17 @@ defmodule RDF.Literal.Generic do
   def do_equal_value_same_or_derived_datatypes?(_, _), do: nil
 
   @impl Datatype
-  def compare(left, %Literal{literal: right}), do: compare(left, right)
-  def compare(%Literal{literal: left}, right), do: compare(left, right)
-  def compare(%__MODULE__{datatype: datatype} = literal1,
-              %__MODULE__{datatype: datatype} = literal2) do
-    if valid?(literal1) and valid?(literal2) do
-      case {literal1.value, literal2.value} do
-        {value1, value2} when value1 < value2 -> :lt
-        {value1, value2} when value1 > value2 -> :gt
-        _ ->
-          if equal_value?(literal1, literal2), do: :eq
-      end
+  def do_compare(%__MODULE__{datatype: datatype} = left_literal,
+                 %__MODULE__{datatype: datatype} = right_literal) do
+    case {left_literal.value, right_literal.value} do
+      {left_value, right_value} when left_value < right_value -> :lt
+      {left_value, right_value} when left_value > right_value -> :gt
+      _ ->
+        if equal_value?(left_literal, right_literal), do: :eq
     end
   end
 
-  def compare(_, _), do: nil
+  def do_compare(_, _), do: nil
 
   @impl Datatype
   def update(literal, fun, opts \\ [])

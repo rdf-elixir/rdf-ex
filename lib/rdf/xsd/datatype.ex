@@ -13,8 +13,6 @@ defmodule RDF.XSD.Datatype do
           :uncanonical_lexical => uncanonical_lexical()
         }
 
-  @type comparison_result :: :lt | :gt | :eq
-
   import RDF.Utils.Guards
 
   @doc """
@@ -269,6 +267,17 @@ defmodule RDF.XSD.Datatype do
           end
         else
           {:different, left_datatype}
+        end
+      end
+
+      def compare(left, right)
+      def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
+      def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
+
+      def compare(left, right) do
+        if RDF.XSD.datatype?(left) and RDF.XSD.datatype?(right) and
+           RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
+          do_compare(left, right)
         end
       end
 

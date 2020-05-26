@@ -185,15 +185,10 @@ defmodule RDF.XSD.DateTime do
     end
   end
 
-    @impl RDF.Literal.Datatype
-  def compare(left, right)
-  def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
-  def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
+  @impl RDF.Literal.Datatype
+  def do_compare(left, right)
 
-  def compare(
-        %__MODULE__{value: %type{} = value1},
-        %__MODULE__{value: %type{} = value2}
-      ) do
+  def do_compare(%{value: %type{} = value1}, %{value: %type{} = value2}) do
     type.compare(value1, value2)
   end
 
@@ -202,37 +197,31 @@ defmodule RDF.XSD.DateTime do
   #  ordering comparisons in the date-3 test. The following implementation would allow
   #  an ordering comparisons between date and datetimes.
   #
-  #  def compare(%__MODULE__{} = literal1, %XSD.Date{} = literal2) do
-  #    XSD.Date.compare(literal1, literal2)
+  #  def do_compare(%__MODULE__{} = literal1, %XSD.Date{} = literal2) do
+  #    XSD.Date.do_compare(literal1, literal2)
   #  end
   #
-  #  def compare(%XSD.Date{} = literal1, %__MODULE__{} = literal2) do
-  #    XSD.Date.compare(literal1, literal2)
+  #  def do_compare(%XSD.Date{} = literal1, %__MODULE__{} = literal2) do
+  #    XSD.Date.do_compare(literal1, literal2)
   #  end
 
-  def compare(
-        %__MODULE__{value: %DateTime{}} = left,
-        %__MODULE__{value: %NaiveDateTime{} = right_value}
-      ) do
+  def do_compare(%{value: %DateTime{}} = left, %{value: %NaiveDateTime{} = right_value}) do
     cond do
-      compare(left, new(to_datetime(right_value, "+"))) == :lt -> :lt
-      compare(left, new(to_datetime(right_value, "-"))) == :gt -> :gt
+      do_compare(left, new(to_datetime(right_value, "+")).literal) == :lt -> :lt
+      do_compare(left, new(to_datetime(right_value, "-")).literal) == :gt -> :gt
       true -> :indeterminate
     end
   end
 
-  def compare(
-        %__MODULE__{value: %NaiveDateTime{} = left},
-        %__MODULE__{value: %DateTime{}} = right_literal
-      ) do
+  def do_compare(%{value: %NaiveDateTime{} = left}, %{value: %DateTime{}} = right_literal) do
     cond do
-      compare(new(to_datetime(left, "-")), right_literal) == :lt -> :lt
-      compare(new(to_datetime(left, "+")), right_literal) == :gt -> :gt
+      do_compare(new(to_datetime(left, "-")).literal, right_literal) == :lt -> :lt
+      do_compare(new(to_datetime(left, "+")).literal, right_literal) == :gt -> :gt
       true -> :indeterminate
     end
   end
 
-  def compare(_, _), do: nil
+  def do_compare(_, _), do: nil
 
   defp to_datetime(naive_datetime, offset) do
     (NaiveDateTime.to_iso8601(naive_datetime) <> offset <> "14:00")

@@ -56,24 +56,19 @@ defmodule RDF.XSD.Datatype.Primitive do
       @impl RDF.Literal.Datatype
       def do_equal_value_different_datatypes?(left, right), do: nil
 
-      @impl RDF.Literal.Datatype
-      def compare(left, right)
-      def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
-      def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
-
-      def compare(
-            %__MODULE__{value: left_value} = left,
-            %__MODULE__{value: right_value} = right
-          )
-          when not (is_nil(left_value) or is_nil(right_value)) do
-        case {left |> canonical() |> value(), right |> canonical() |> value()} do
-          {value1, value2} when value1 < value2 -> :lt
-          {value1, value2} when value1 > value2 -> :gt
-          _ -> if equal_value?(left, right), do: :eq
+     @impl RDF.Literal.Datatype
+      def do_compare(%left_datatype{} = left, %right_datatype{} = right) do
+        if left_datatype.datatype?(right_datatype) or right_datatype.datatype?(left_datatype) do
+          case {left_datatype.value(left), right_datatype.value(right)} do
+            {left_value, right_value} when left_value < right_value -> :lt
+            {left_value, right_value} when left_value > right_value -> :gt
+            _ ->
+              if left_datatype.equal_value?(left, right), do: :eq
+          end
         end
       end
 
-      def compare(_, _), do: nil
+      def do_compare(_, _), do: nil
 
       defoverridable canonical_mapping: 1,
                      do_cast: 1,
@@ -81,7 +76,7 @@ defmodule RDF.XSD.Datatype.Primitive do
                      init_invalid_lexical: 2,
                      do_equal_value_same_or_derived_datatypes?: 2,
                      do_equal_value_different_datatypes?: 2,
-                     compare: 2
+                     do_compare: 2
 
       @before_compile unquote(__MODULE__)
     end

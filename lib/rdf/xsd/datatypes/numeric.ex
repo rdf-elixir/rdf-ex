@@ -20,10 +20,10 @@ defmodule RDF.XSD.Numeric do
   - <https://www.w3.org/TR/sparql11-query/#OperatorMapping>
   - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
   """
-  @spec equal_value?(t() | any, t() | any) :: boolean
-  def equal_value?(left, right)
+  @spec do_equal_value?(t() | any, t() | any) :: boolean
+  def do_equal_value?(left, right)
 
-  def equal_value?(%left_datatype{value: left}, %right_datatype{value: right}) do
+  def do_equal_value?(%left_datatype{value: left}, %right_datatype{value: right}) do
     cond do
       XSD.Decimal.datatype?(left_datatype) or XSD.Decimal.datatype?(right_datatype) ->
         equal_decimal_value?(left, right)
@@ -36,7 +36,7 @@ defmodule RDF.XSD.Numeric do
     end
   end
 
-  def equal_value?(_, _), do: nil
+  def do_equal_value?(_, _), do: nil
 
   defp equal_decimal_value?(%D{} = left, %D{} = right), do: D.equal?(left, right)
 
@@ -51,7 +51,7 @@ defmodule RDF.XSD.Numeric do
   defp new_decimal(value) when is_float(value), do: D.from_float(value)
   defp new_decimal(value), do: D.new(value)
 
-  @doc """
+  @doc !"""
   Compares two numeric XSD literals.
 
   Returns `:gt` if first literal is greater than the second and `:lt` for vice
@@ -60,36 +60,14 @@ defmodule RDF.XSD.Numeric do
   Returns `nil` when the given arguments are not comparable datatypes.
 
   """
-  @spec compare(Literal.t | t, Literal.t | t) :: XSD.Datatype.comparison_result() | nil
-  def compare(left, right)
-  def compare(left, %Literal{literal: right}), do: compare(left, right)
-  def compare(%Literal{literal: left}, right), do: compare(left, right)
+  @spec do_compare(t, t) :: Literal.Datatype.comparison_result() | nil
+  def do_compare(left, right)
 
-  def compare(
-        %XSD.Decimal{value: left},
-        %right_datatype{value: right}
-      ) do
-    if datatype?(right_datatype) do
-      compare_decimal_value(left, right)
-    end
-  end
-
-  def compare(
-        %left_datatype{value: left},
-        %XSD.Decimal{value: right}
-      ) do
-    if datatype?(left_datatype) do
-      compare_decimal_value(left, right)
-    end
-  end
-
-  def compare(
-        %left_datatype{value: left},
-        %right_datatype{value: right}
-      )
-      when not (is_nil(left) or is_nil(right)) do
+  def do_compare(%left_datatype{value: left}, %right_datatype{value: right}) do
     if datatype?(left_datatype) and datatype?(right_datatype) do
       cond do
+        XSD.Decimal.datatype?(left_datatype) or XSD.Decimal.datatype?(right_datatype) ->
+          compare_decimal_value(left, right)
         left < right -> :lt
         left > right -> :gt
         true -> :eq
@@ -97,7 +75,7 @@ defmodule RDF.XSD.Numeric do
     end
   end
 
-  def compare(_, _), do: nil
+  def do_compare(_, _), do: nil
 
   defp compare_decimal_value(%D{} = left, %D{} = right), do: D.cmp(left, right)
 

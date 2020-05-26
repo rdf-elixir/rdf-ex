@@ -86,14 +86,14 @@ defmodule RDF.XSD.Datatype.Restriction do
       end
 
       @impl RDF.Literal.Datatype
-      def compare(left, right), do: @base.compare(left, right)
+      def do_compare(left, right), do: @base.do_compare(left, right)
 
       defoverridable canonical_mapping: 1,
                      do_cast: 1,
                      equal_value?: 2,
                      do_equal_value_same_or_derived_datatypes?: 2,
                      do_equal_value_different_datatypes?: 2,
-                     compare: 2
+                     do_compare: 2
 
       Module.register_attribute(__MODULE__, :facets, accumulate: true)
 
