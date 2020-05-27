@@ -168,6 +168,21 @@ defmodule RDF.Literal do
   defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :datatype?
 
   @doc """
+  Checks if 'literal' is literal with the given `datatype`.
+
+  `datatype` can be one of the following:
+
+  - a `RDF.Literal.Datatype` module  which checks if the literal is of this datatype or derived from it
+  - `RDF.XSD.Numeric` which checks if the literal is one of the numeric XSD datatypes or derived of one of them
+  - `RDF.XSD.Datatype` which checks if the literal is a XSD datatype or derived of one of them
+
+  """
+  def is_a?(literal, RDF.XSD.Numeric), do: RDF.XSD.Numeric.datatype?(literal)
+  def is_a?(literal, RDF.XSD.Datatype), do: RDF.XSD.datatype?(literal)
+  def is_a?(literal, RDF.Literal.Datatype), do: datatype?(literal)
+  def is_a?(literal, datatype), do: datatype?(datatype) and datatype.datatype?(literal)
+
+  @doc """
   Returns if the literal uses the `RDF.Literal.Generic` datatype or on of the dedicated builtin or custom `RDF.Literal.Datatype`s.
   """
   @spec generic?(t) :: boolean

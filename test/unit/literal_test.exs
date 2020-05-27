@@ -191,6 +191,44 @@ defmodule RDF.LiteralTest do
     end
   end
 
+  describe "is_a?/2" do
+    test "with RDF.Literal.Datatype module" do
+      assert ~L"foo" |> Literal.is_a?(XSD.String)
+      assert ~L"foo"en |> Literal.is_a?(RDF.LangString)
+      assert XSD.integer(42) |> Literal.is_a?(XSD.Integer)
+      assert XSD.byte(42) |> Literal.is_a?(XSD.Integer)
+      assert RDF.literal("foo", datatype: "http://example.com/dt") |> RDF.Literal.is_a?(RDF.Literal.Generic)
+      refute XSD.float(3.14) |> Literal.is_a?(XSD.Integer)
+    end
+
+    test "with XSD.Numeric" do
+      assert XSD.integer(42) |> Literal.is_a?(XSD.Numeric)
+      assert XSD.byte(42) |> Literal.is_a?(XSD.Numeric)
+      assert XSD.decimal(3.14) |> Literal.is_a?(XSD.Numeric)
+      refute ~L"foo" |> Literal.is_a?(XSD.Numeric)
+      refute ~L"foo"en |> Literal.is_a?(XSD.Numeric)
+    end
+
+    test "with XSD.Datatype" do
+      assert XSD.integer(42) |> Literal.is_a?(XSD.Datatype)
+      assert XSD.byte(42) |> Literal.is_a?(XSD.Datatype)
+      assert XSD.decimal(3.14) |> Literal.is_a?(XSD.Datatype)
+      assert ~L"foo" |> Literal.is_a?(XSD.Datatype)
+      refute ~L"foo"en |> Literal.is_a?(XSD.Datatype)
+    end
+
+    test "with non-datatype modules" do
+      refute ~L"foo" |> Literal.is_a?(String)
+      refute ~L"foo" |> Literal.is_a?(Regex)
+      refute XSD.integer(42) |> Literal.is_a?(Integer)
+    end
+
+    test "with non-literal" do
+      refute "foo" |> Literal.is_a?(XSD.String)
+      refute 42 |> Literal.is_a?(XSD.Numeric)
+    end
+  end
+
   describe "has_datatype?" do
     Enum.each literals(~W[all_simple all_plain_lang]a), fn literal ->
       @tag literal: literal
