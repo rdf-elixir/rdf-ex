@@ -226,6 +226,11 @@ defmodule RDF.XSD.Datatype do
       def lexical(%__MODULE__{uncanonical_lexical: lexical}), do: lexical
 
       @impl RDF.Literal.Datatype
+      def canonical_lexical(%RDF.Literal{literal: literal}), do: canonical_lexical(literal)
+      def canonical_lexical(%__MODULE__{value: value}) when not is_nil(value), do: canonical_mapping(value)
+      def canonical_lexical(_), do: nil
+
+      @impl RDF.Literal.Datatype
       def canonical(literal)
 
       def canonical(%RDF.Literal{literal: %__MODULE__{uncanonical_lexical: nil}} = literal),

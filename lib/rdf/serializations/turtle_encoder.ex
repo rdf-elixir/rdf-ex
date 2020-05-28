@@ -298,7 +298,7 @@ defmodule RDF.Turtle.Encoder do
   defp term(%Literal{literal: %datatype{}} = literal, state, _, nesting)
         when datatype in @native_supported_datatypes do
     if Literal.valid?(literal) do
-      literal |> Literal.canonical() |> Literal.lexical()
+      Literal.canonical_lexical(literal)
     else
       typed_literal_term(literal, state, nesting)
     end

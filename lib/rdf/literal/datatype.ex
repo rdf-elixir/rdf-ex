@@ -401,6 +401,7 @@ defmodule RDF.Literal.Datatype do
 
       defoverridable datatype_id: 1,
                      language: 1,
+                     canonical_lexical: 1,
                      cast: 1,
                      do_cast: 1,
                      equal_value?: 2,
