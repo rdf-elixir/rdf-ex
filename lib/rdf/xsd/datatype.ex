@@ -270,6 +270,7 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
+      @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) :: RDF.Literal.Datatype.comparison_result | :indeterminate | nil
       def compare(left, right)
       def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
       def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)

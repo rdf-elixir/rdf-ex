@@ -146,7 +146,7 @@ defmodule RDF.Literal.Datatype do
   The default implementation of the `_using__` macro of `RDF.Literal.Datatype`s
   just compares the values of the given literals.
   """
-  @callback do_compare(literal, literal) :: comparison_result | :indeterminate | nil
+  @callback do_compare(literal | any, literal | any) :: comparison_result | :indeterminate | nil
 
   @doc """
   Updates the value of a `RDF.Literal` without changing everything else.
@@ -354,13 +354,14 @@ defmodule RDF.Literal.Datatype do
       # RDF.XSD.Datatypes offers another default implementation, but since it is
       # still in a macro implementation defoverridable doesn't work
       unless RDF.XSD.Datatype in @behaviour do
+        @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) :: RDF.Literal.Datatype.comparison_result | :indeterminate | nil
         def compare(left, right)
         def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
         def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
 
         def compare(left, right) do
-          if Literal.datatype?(left) and Literal.datatype?(right) and
-             Literal.Datatype.valid?(left) and Literal.Datatype.valid?(right) do
+          if RDF.Literal.datatype?(left) and RDF.Literal.datatype?(right) and
+             RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
             do_compare(left, right)
           end
         end
