@@ -7,8 +7,9 @@ alias RDF.NS.{RDFS, OWL, SKOS}
 alias RDF.{
   Term,
   IRI,
-  Literal,
   BlankNode,
+  Literal,
+  XSD,
 
   Triple,
   Quad,
