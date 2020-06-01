@@ -1,4 +1,25 @@
 defmodule RDF.XSD.Datatype.Restriction do
+  @moduledoc """
+  A `__using__` macro for the derivation of restricted XSD datatypes.
+
+  ### Example
+
+  A new custom datatype can be derived by defining a new datatype module and `use` this module,
+  specifying a `name`, `id` and `base` datatype and restricting it by specifying some of the
+  applicable facets of the base datatype:
+
+      defmodule MyApp.PersonAge do
+        use RDF.XSD.Datatype.Restriction,
+            name: "person_age",
+            id: "http://example.com/person_age",
+            base: RDF.XSD.NonNegativeInteger
+
+        def_facet_constraint RDF.XSD.Facets.MaxInclusive, 150
+      end
+
+  See `RDF.XSD.Facet` on which facets are available on the existing datatypes.
+  """
+
   defmacro __using__(opts) do
     base = Keyword.fetch!(opts, :base)
 

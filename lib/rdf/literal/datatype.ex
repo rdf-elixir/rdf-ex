@@ -1,4 +1,22 @@
 defmodule RDF.Literal.Datatype do
+  @moduledoc """
+  A behaviour for datatypes for `RDF.Literal`s.
+
+  An implementation of this behaviour defines a struct for a datatype IRI and the semantics of its
+  values via the functions defined by this behaviour.
+
+  There are three important groups of `RDF.Literal.Datatype` implementations:
+
+  - `RDF.XSD.Datatype`: This is another, more specific behaviour for XSD datatypes. RDF.ex comes with
+    builtin implementations of this behaviour for the most important XSD datatypes, but you define
+    your own custom datatypes by deriving from these builtin datatypes and constraining them via
+    `RDF.XSD.Facet`s.
+  - Non-XSD datatypes which implement the `RDF.Literal.Datatype` directly: There's currently only one
+    builtin datatype of this category - `RDF.LangString` for language tagged RDF literals.
+  - `RDF.Literal.Generic`: This is a generic implementation which is used for `RDF.Literal`s with a
+    datatype that has no own `RDF.Literal.Datatype` implementation defining its semantics.
+  """
+
   alias RDF.{Literal, IRI}
 
   @type t :: module
@@ -91,7 +109,7 @@ defmodule RDF.Literal.Datatype do
   @callback canonical?(Literal.t() | literal | any) :: boolean
 
   @doc """
-  Determines if the lexical form of a `RDF.Literal` is a member of its lexical value space.
+  Determines if a `RDF.Literal` has a proper value of the value space of its datatype.
 
   This function also accepts literals of derived datatypes.
   """
@@ -154,16 +172,16 @@ defmodule RDF.Literal.Datatype do
   ## Example
 
       iex> RDF.XSD.integer(42) |> RDF.XSD.Integer.update(fn value -> value + 1 end)
-      RDF.XSD.integer(42)
-      iex> RDF.literal("foo", language: "de") |> RDF.LangString.update(fn _ -> "bar" end)
-      RDF.literal("bar", language: "de")
-      iex> RDF.literal("foo", datatype: "http://example.com/dt") |> RDF.LangString.update(fn _ -> "bar" end)
+      RDF.XSD.integer(43)
+      iex> ~L"foo"de |> RDF.LangString.update(fn _ -> "bar" end)
+      ~L"bar"de
+      iex> RDF.literal("foo", datatype: "http://example.com/dt") |> RDF.Literal.Generic.update(fn _ -> "bar" end)
       RDF.literal("bar", datatype: "http://example.com/dt")
   """
   @callback update(Literal.t() | literal, fun()) :: Literal.t
 
   @doc """
-  Updates the value of a `RDF.Literal` without changing everything else.
+  Updates the value of a `RDF.Literal` without changing anything else.
 
   This variant of `c:update/2` allows with the `:as` option to specify what will
   be passed to `fun`, eg. with `as: :lexical` the lexical is passed to the function.
@@ -171,11 +189,14 @@ defmodule RDF.Literal.Datatype do
   ## Example
 
       iex> RDF.XSD.integer(42) |> RDF.XSD.Integer.update(
-      ...>   fn value -> value <> "1" end, as: lexical)
+      ...>   fn value -> value <> "1" end, as: :lexical)
       RDF.XSD.integer(421)
   """
   @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t
 
+  @doc """
+  Returns the `RDF.Literal.Datatype` for a datatype IRI.
+  """
   defdelegate get(id), to: Literal.Datatype.Registry, as: :datatype
 
   @doc !"""
@@ -223,6 +244,9 @@ defmodule RDF.Literal.Datatype do
       # RDF.XSD.Datatypes offers another default implementation, but since it is
       # still in a macro implementation defoverridable doesn't work
       unless RDF.XSD.Datatype in @behaviour do
+        @doc """
+        Checks if the given literal has this datatype.
+        """
         @impl unquote(__MODULE__)
         def datatype?(%Literal{literal: literal}), do: datatype?(literal)
         def datatype?(%datatype{}), do: datatype?(datatype)
@@ -238,6 +262,9 @@ defmodule RDF.Literal.Datatype do
       def language(%Literal{literal: literal}), do: language(literal)
       def language(%__MODULE__{}), do: nil
 
+      @doc """
+      Returns the canonical lexical form of a `RDF.Literal` of this datatype.
+      """
       @impl unquote(__MODULE__)
       def canonical_lexical(literal)
       def canonical_lexical(%Literal{literal: literal}), do: canonical_lexical(literal)
@@ -255,7 +282,7 @@ defmodule RDF.Literal.Datatype do
       Returns `nil` when the given arguments are not castable into this datatype or when the given argument is an
       invalid literal.
 
-      Implementations define the casting for a given value with the `c:do_cast/1` callback.
+      Implementations define the casting for a given value with the `c:RDF.Literal.Datatype.do_cast/1` callback.
       """
       @spec cast(Literal.Datatype.literal | RDF.Term.t) :: Literal.t() | nil
       @dialyzer {:nowarn_function, cast: 1}
@@ -290,8 +317,8 @@ defmodule RDF.Literal.Datatype do
       Invalid literals are only considered equal in this relation when both have the exact same
       datatype and the same attributes (lexical form, language etc.).
 
-      Implementations can customize this equivalence relation via the `c:do_equal_value_different_datatypes?/2`
-      and `c:do_equal_value_different_datatypes?/2` callbacks.
+      Implementations can customize this equivalence relation via the `c:RDF.Literal.Datatype.do_equal_value_different_datatypes?/2`
+      and `c:RDF.Literal.Datatype.do_equal_value_different_datatypes?/2` callbacks.
       """
       def equal_value?(left, right)
       def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
@@ -382,6 +409,9 @@ defmodule RDF.Literal.Datatype do
                        do_compare: 2
       end
 
+      @doc """
+      Updates the value of a `RDF.Literal` without changing everything else.
+      """
       @impl unquote(__MODULE__)
       def update(literal, fun, opts \\ [])
       def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
@@ -420,6 +450,8 @@ defmodule RDF.Literal.Datatype do
 
         defimpl_ex Registration, unquote(unquoted_id),
                    for: RDF.Literal.Datatype.Registry.Registration do
+          @moduledoc false
+
           def datatype(id), do: unquote(datatype)
         end
       end

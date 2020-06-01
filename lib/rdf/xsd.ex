@@ -2,7 +2,17 @@ defmodule RDF.XSD do
   @moduledoc """
   An implementation of the XML Schema (XSD) datatype system for use within `RDF.Literal.Datatype` system.
 
-  see <https://www.w3.org/TR/xmlschema-2/>
+  It consists of
+
+  - `RDF.XSD.Datatype`: a more specialized `RDF.Literal.Datatype` behaviour for XSD datatypes
+  - `RDF.XSD.Datatype.Primitive`: macros for the definition of `RDF.Literal.Datatype` and
+    `RDF.XSD.Datatype` implementations for primitive XSD datatypes
+  - `RDF.XSD.Datatype.Restriction`: macros for the definition of `RDF.Literal.Datatype` and
+    `RDF.XSD.Datatype` implementations for derived XSD datatypes
+  - `RDF.XSD.Facet`: a behaviour for XSD facets which can be used to constrain values on
+    datatype derivations
+
+  see <https://www.w3.org/TR/xmlschema11-2/>
   """
 
   import RDF.Utils.Guards
@@ -22,6 +32,10 @@ defmodule RDF.XSD do
 
   @facets_by_name Map.new(@facets, fn facet -> {facet.name(), facet} end)
 
+  @doc """
+  Get a `RDF.XSD.Facet` by its name.
+  """
+  def facet(name)
   def facet(name) when is_ordinary_atom(name), do: @facets_by_name[to_string(name)]
   def facet(name), do: @facets_by_name[name]
 

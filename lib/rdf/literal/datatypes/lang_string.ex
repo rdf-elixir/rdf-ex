@@ -19,6 +19,9 @@ defmodule RDF.LangString do
                language: String.t
              }
 
+  @doc """
+  Creates a new `RDF.Literal` with this datatype and the given `value` and `language`.
+  """
   @impl RDF.Literal.Datatype
   @spec new(any, String.t | atom | keyword) :: Literal.t
   def new(value, language_or_opts \\ [])

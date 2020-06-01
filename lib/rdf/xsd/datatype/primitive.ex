@@ -1,4 +1,19 @@
 defmodule RDF.XSD.Datatype.Primitive do
+  @moduledoc """
+  Macros for the definition of primitive XSD datatypes.
+  """
+
+  @doc """
+  Specifies the applicability of the given XSD `facet` on a primitive datatype.
+
+  For a facet with the name `example_facet` this requires a function
+
+      def example_facet_conform?(example_facet_value, literal_value, lexical) do
+
+      end
+
+  to be defined on the primitive datatype.
+  """
   defmacro def_applicable_facet(facet) do
     quote do
       @applicable_facets unquote(facet)

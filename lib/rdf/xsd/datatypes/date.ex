@@ -4,7 +4,8 @@ defmodule RDF.XSD.Date do
 
   Options:
 
-  - `tz` ... it will also overwrite an eventually already present timezone in an input lexical ...
+  - `tz`: this allows to specify a timezone which is not supported by Elixir's `Date` struct; note,
+    that it will also overwrite an eventually already present timezone in an input lexical
   """
 
   @type valid_value :: Date.t() | {Date.t(), String.t()}

@@ -1,4 +1,46 @@
 defmodule RDF.XSD.Facet do
+  @moduledoc """
+  A behaviour for XSD restriction facets.
+
+  Here's a list of all the `RDF.XSD.Facet`s RDF.ex implements out-of-the-box:
+
+  | XSD facet        | `RDF.XSD.Facet`                   |
+  | :--------------  | :-------------                    |
+  | length           | `RDF.XSD.Facets.Length`           |
+  | minLength        | `RDF.XSD.Facets.MinLength`        |
+  | maxLength        | `RDF.XSD.Facets.MaxLength`        |
+  | maxInclusive     | `RDF.XSD.Facets.MaxInclusive`     |
+  | maxExclusive     | `RDF.XSD.Facets.MaxExclusive`     |
+  | minInclusive     | `RDF.XSD.Facets.MinInclusive`     |
+  | minExclusive     | `RDF.XSD.Facets.MinExclusive`     |
+  | totalDigits      | `RDF.XSD.Facets.TotalDigits`      |
+  | fractionDigits   | `RDF.XSD.Facets.FractionDigits`   |
+  | explicitTimezone | `RDF.XSD.Facets.ExplicitTimezone` |
+  | pattern          | `RDF.XSD.Facets.Pattern`          |
+  | whiteSpace       | ❌                                |
+  | enumeration      | ❌                                |
+  | assertions       | ❌                                |
+
+  Every `RDF.XSD.Datatype.Primitive` defines a set of applicable constraining facets which are can
+  be used on derivations of this primitive or any of its existing derivations:
+
+  | Primitive datatype | Applicable facets |
+  | :----------------- | :---------------- |
+  |string | `RDF.XSD.Facets.Length`, `RDF.XSD.Facets.MaxLength`, `RDF.XSD.Facets.MinLength`, `RDF.XSD.Facets.Pattern` |
+  |boolean | `RDF.XSD.Facets.Pattern` |
+  |float | `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |double | `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |decimal | `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern`, `RDF.XSD.Facets.TotalDigits`, `RDF.XSD.Facets.FractionDigits` |
+  |decimal | `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern`, `RDF.XSD.Facets.TotalDigits` |
+  |duration | `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |dateTime | `RDF.XSD.Facets.ExplicitTimezone`, `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |time | `RDF.XSD.Facets.ExplicitTimezone`, `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |date | `RDF.XSD.Facets.ExplicitTimezone`, `RDF.XSD.Facets.MaxExclusive`, `RDF.XSD.Facets.MaxInclusive`, `RDF.XSD.Facets.MinExclusive`, `RDF.XSD.Facets.MinInclusive`, `RDF.XSD.Facets.Pattern` |
+  |anyURI | `RDF.XSD.Facets.Length`, `RDF.XSD.Facets.MaxLength`, `RDF.XSD.Facets.MinLength`, `RDF.XSD.Facets.Pattern` |
+
+  <https://www.w3.org/TR/xmlschema11-2/datatypes.html#rf-facets>
+  """
+
   @type t :: module
 
   @doc """

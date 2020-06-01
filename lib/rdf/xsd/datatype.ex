@@ -1,6 +1,71 @@
 defmodule RDF.XSD.Datatype do
   @moduledoc """
-  The behaviour of all XSD datatypes.
+  A behaviour for XSD datatypes.
+
+  A XSD datatype has three properties:
+
+  - A _value space_, which is a set of values.
+  - A _lexical space_, which is a set of _literals_ used to denote the values.
+  - A collection of functions associated with the datatype.
+
+
+  ### Builtin XSD datatypes
+
+  RDF.ex comes with the following builtin implementations of XSD datatypes:
+
+  | `xsd:boolean` | `RDF.XSD.Boolean` |
+  | `xsd:float` | `RDF.XSD.Float` |
+  | `xsd:double` | `RDF.XSD.Double` |
+  | `xsd:decimal` | `RDF.XSD.Decimal` |
+  |   `xsd:integer` | `RDF.XSD.Integer` |
+  |     `xsd:long` | `RDF.XSD.Long` |
+  |       `xsd:int` | `RDF.XSD.Int` |
+  |         `xsd:short` | `RDF.XSD.Short` |
+  |           `xsd:byte` | `RDF.XSD.Byte` |
+  |     `xsd:nonPositiveInteger` | `RDF.XSD.NonPositiveInteger` |
+  |       `xsd:negativeInteger` | `RDF.XSD.NegativeInteger` |
+  |     `xsd:nonNegativeInteger` | `RDF.XSD.NonNegativeInteger` |
+  |       `xsd:positiveInteger` | `RDF.XSD.PositiveInteger` |
+  |       `xsd:unsignedLong` | `RDF.XSD.UnsignedLong` |
+  |         `xsd:unsignedInt` | `RDF.XSD.UnsignedInt` |
+  |           `xsd:unsignedShort` | `RDF.XSD.UnsignedShort` |
+  |             `xsd:unsignedByte` | `RDF.XSD.UnsignedByte` |
+  | `xsd:string` | `RDF.XSD.String` |
+  |   `xsd:normalizedString` | ❌ |
+  |     `xsd:token` | ❌ |
+  |       `xsd:language` | ❌ |
+  |       `xsd:Name` | ❌ |
+  |         `xsd:NCName` | ❌ |
+  |           `xsd:ID` | ❌ |
+  |           `xsd:IDREF` | ❌ |
+  |           `xsd:ENTITY` | ❌ |
+  |       `xsd:NMTOKEN` | ❌ |
+  | `xsd:dateTime` | `RDF.XSD.DateTime` |
+  |   `xsd:dateTimeStamp` | ❌ |
+  | `xsd:date` | `RDF.XSD.Date` |
+  | `xsd:time` | `RDF.XSD.Time` |
+  | `xsd:duration` | ❌ |
+  |  `xsd:dayTimeDuration` | ❌ |
+  |  `xsd:yearMonthDuration` | ❌ |
+  | `xsd:gYearMonth` | ❌ |
+  | `xsd:gYear` | ❌ |
+  | `xsd:gMonthDay` | ❌ |
+  | `xsd:gDay` | ❌ |
+  | `xsd:gMonth` | ❌ |
+  | `xsd:base64Binary` | ❌ |
+  | `xsd:hexBinary` | ❌ |
+  | `xsd:anyURI` | `RDF.XSD.AnyURI` |
+  | `xsd:QName` | ❌ |
+  | `xsd:NOTATION` | ❌ |
+
+  There are some notable difference in the implementations of some datatypes compared to
+  the original spec:
+
+  - `RDF.XSD.Integer` is not derived from `RDF.XSD.Decimal`, but implemented as a primitive datatype
+  - `RDF.XSD.Float` is not implemented as a primitive datatype, but derived from `RDF.XSD.Double`
+    without further restrictions instead, since Erlang doesn't have a corresponding datatype
+
+  see <https://www.w3.org/TR/xmlschema11-2/#built-in-datatypes>
   """
 
   @type t :: module
@@ -22,6 +87,10 @@ defmodule RDF.XSD.Datatype do
 
   @doc """
   The base datatype from which a `RDF.XSD.Datatype` is derived.
+
+  Note: Since this library focuses on atomic types and the special `xsd:anyAtomicType`
+  specified as the base type of all primitive types in the W3C spec wouldn't serve any
+  purpose here, all primitive datatypes just return `nil` instead.
   """
   @callback base :: t() | nil
 
@@ -52,6 +121,17 @@ defmodule RDF.XSD.Datatype do
 
   @doc """
   A mapping from Elixir values into the value space of a `RDF.XSD.Datatype`.
+
+  If the Elixir mapping for the given value can not be mapped into value space of
+  the XSD datatype an implementation should return `@invalid_value`
+  (which is just `nil` at the moment, so `nil` is never a valid value of a value space).
+
+  Otherwise a tuple `{value, lexical}` with `value` being the internal representation
+  of the mapped value from the value space and `lexical` being the lexical representation
+  to be used for the Elixir value or `nil` if `c:init_valid_lexical/3` should be used
+  to determine the lexical form in general (i.e. also when initialized with a string
+  via the `c:lexical_mapping/2`). Since the later case is most often what you want,
+  you can also return `value` directly, as long as it is not a two element tuple.
   """
   @callback elixir_mapping(any, Keyword.t()) :: any | {any, uncanonical_lexical}
 
@@ -61,18 +141,34 @@ defmodule RDF.XSD.Datatype do
   @callback canonical_mapping(any) :: String.t()
 
   @doc """
-  Produces the lexical representation to be used as for a `RDF.XSD.Datatype` literal.
+  Produces the lexical representation to be used for a `RDF.XSD.Datatype` literal.
+
+  By default the lexical representation of a `RDF.XSD.Datatype` is either the
+  canonical form in case it is created from a non-string Elixir value or, if it
+  is created from a string, just with that string as the lexical form.
+
+  But there can be various reasons for why this should be different for certain
+  datatypes. For example, for `RDF.XSD.Double`s given as Elixir floats, we want the
+  default lexical representation to be the decimal and not the canonical
+  exponential form. Another reason might be that additional options are given
+  which should be taken into account in the lexical form.
+
+  If the lexical representation for a given `value` and `lexical` should be the
+  canonical one, an implementation should return `nil`.
   """
   @callback init_valid_lexical(any, uncanonical_lexical, Keyword.t()) :: uncanonical_lexical
 
   @doc """
   Produces the lexical representation of an invalid value.
 
-  The default implementation of the `_using__` macro just returns `to_string/1`
+  The default implementation of the `_using__` macro just returns the `to_string/1`
   representation of the value.
   """
   @callback init_invalid_lexical(any, Keyword.t()) :: String.t()
 
+  @doc """
+  Returns the `RDF.XSD.Datatype` for a datatype IRI.
+  """
   defdelegate get(id), to: RDF.Literal.Datatype.Registry, as: :xsd_datatype
 
   @doc false
@@ -111,6 +207,9 @@ defmodule RDF.XSD.Datatype do
       """
       def __xsd_datatype_indicator__, do: true
 
+      @doc """
+      Checks if the given literal has datatype this or a datatype that is derived of it.
+      """
       @impl RDF.Literal.Datatype
       def datatype?(%RDF.Literal{literal: literal}), do: datatype?(literal)
       def datatype?(%datatype{}), do: datatype?(datatype)
@@ -129,6 +228,9 @@ defmodule RDF.XSD.Datatype do
       def datatype!(value),
         do: raise RDF.XSD.Datatype.Mismatch, value: value, expected_type: __MODULE__
 
+      @doc """
+      Creates a new `RDF.Literal` with this datatype and the given `value`.
+      """
       # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
       # always returns true there, so the other branch is unnecessary. This could
       # be fixed by generating a special version for primitives, but it's not worth
@@ -171,6 +273,9 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
+      @doc """
+      Creates a new `RDF.Literal` with this datatype and the given `value` or fails when it is not valid.
+      """
       @impl RDF.Literal.Datatype
       def new!(value, opts \\ []) do
         literal = new(value, opts)
@@ -205,6 +310,10 @@ defmodule RDF.XSD.Datatype do
         literal(%__MODULE__{uncanonical_lexical: init_invalid_lexical(lexical, opts)})
       end
 
+
+      @doc """
+      Returns the value of a `RDF.Literal` of this or a derived datatype.
+      """
       @impl RDF.Literal.Datatype
       def value(%RDF.Literal{literal: literal}), do: value(literal)
       def value(%__MODULE__{} = literal), do: literal.value
@@ -215,6 +324,9 @@ defmodule RDF.XSD.Datatype do
         literal.value
       end
 
+      @doc """
+      Returns the lexical form of a `RDF.Literal` of this datatype.
+      """
       @impl RDF.Literal.Datatype
       def lexical(lexical)
 
@@ -225,11 +337,17 @@ defmodule RDF.XSD.Datatype do
 
       def lexical(%__MODULE__{uncanonical_lexical: lexical}), do: lexical
 
+      @doc """
+      Returns the canonical lexical form of a `RDF.Literal` of this datatype.
+      """
       @impl RDF.Literal.Datatype
       def canonical_lexical(%RDF.Literal{literal: literal}), do: canonical_lexical(literal)
       def canonical_lexical(%__MODULE__{value: value}) when not is_nil(value), do: canonical_mapping(value)
       def canonical_lexical(_), do: nil
 
+      @doc """
+      Produces the canonical representation of a `RDF.Literal` of this datatype.
+      """
       @impl RDF.Literal.Datatype
       def canonical(literal)
 
@@ -245,12 +363,18 @@ defmodule RDF.XSD.Datatype do
       def canonical(%__MODULE__{} = literal),
         do: literal(%__MODULE__{literal | uncanonical_lexical: nil})
 
+      @doc """
+      Determines if the lexical form of a `RDF.Literal` of this datatype is the canonical form.
+      """
       @impl RDF.Literal.Datatype
       def canonical?(literal)
       def canonical?(%RDF.Literal{literal: literal}), do: canonical?(literal)
       def canonical?(%__MODULE__{uncanonical_lexical: nil}), do: true
       def canonical?(%__MODULE__{}), do: false
 
+      @doc """
+      Determines if a `RDF.Literal` of this or a derived datatype has a proper value of its value space.
+      """
       @impl RDF.Literal.Datatype
       def valid?(literal)
       def valid?(%RDF.Literal{literal: literal}), do: valid?(literal)
@@ -275,6 +399,16 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
+
+      @doc """
+      Compares two `RDF.Literal`s.
+
+      If the first literal is greater than the second `:gt` is returned, if less than `:lt` is returned.
+      If both literal are equal `:eq` is returned.
+      If the literals can not be compared either `nil` is returned, when they generally can be compared
+      due to their datatype, or `:indeterminate` is returned, when the order of the given values is
+      not defined on only partially ordered datatypes.
+      """
       @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) :: RDF.Literal.Datatype.comparison_result | :indeterminate | nil
       def compare(left, right)
       def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)

@@ -1,6 +1,10 @@
 defmodule RDF.Literal do
   @moduledoc """
-  RDF literals are leaf nodes of a RDF graph containing raw data, like strings and numbers.
+  RDF literals are leaf nodes of a RDF graph containing raw data, like strings, numbers etc.
+
+  A literal is a struct consisting of a `literal` field holding either a `RDF.Literal.Datatype` struct
+  for the respective known datatype of the literal or a `RDF.Literal.Generic` struct if the datatype
+  is unknown, i.e. has no `RDF.Literal.Datatype` implementation.
   """
 
   defstruct [:literal]
@@ -238,34 +242,66 @@ defmodule RDF.Literal do
   ############################################################################
   # functions delegating to the RDF.Literal.Datatype of a RDF.Literal
 
+  @doc """
+  Returns the IRI of datatype of the given `literal`.
+  """
   @spec datatype_id(t) :: IRI.t()
   def datatype_id(%__MODULE__{literal: %datatype{} = literal}), do: datatype.datatype_id(literal)
 
+  @doc """
+  Returns the language of the given `literal` if present.
+  """
   @spec language(t) :: String.t() | nil
   def language(%__MODULE__{literal: %datatype{} = literal}), do: datatype.language(literal)
 
+  @doc """
+  Returns the value of the given `literal`.
+  """
   @spec value(t) :: any
   def value(%__MODULE__{literal: %datatype{} = literal}), do: datatype.value(literal)
 
+  @doc """
+  Returns the lexical form of the given `literal`.
+  """
   @spec lexical(t) :: String.t
   def lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.lexical(literal)
 
+  @doc """
+  Transforms the given `literal` into its canonical form.
+  """
   @spec canonical(t) :: t
   def canonical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical(literal)
 
+  @doc """
+  Returns the canonical lexical of the given `literal`.
+  """
   @spec canonical_lexical(t) :: String.t | nil
   def canonical_lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical_lexical(literal)
 
+  @doc """
+  Returns if the lexical of the given `literal` has the canonical form.
+  """
   @spec canonical?(t) :: boolean
   def canonical?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical?(literal)
 
+  @doc """
+  Returns if the given `literal` is valid with respect to its datatype.
+  """
   @spec valid?(t | any) :: boolean
   def valid?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.valid?(literal)
   def valid?(_), do: false
 
+  @doc """
+  Checks if two literals are equal.
+
+  Two literals are equal if they have the same datatype, value and lexical form.
+  """
   @spec equal?(any, any) :: boolean
   def equal?(left, right), do: left == right
 
+  @doc """
+  Checks if two literals have equal values.
+  """
   @spec equal_value?(t, t | any) :: boolean
   def equal_value?(%__MODULE__{literal: %datatype{} = left}, right),
     do: datatype.equal_value?(left, right)
@@ -314,6 +350,24 @@ defmodule RDF.Literal do
   def matches?(value, pattern, flags) when is_binary(value) and is_binary(pattern) and is_binary(flags),
     do: RDF.XSD.Utils.Regex.matches?(value, pattern, flags)
 
+  @doc """
+  Updates the value of a `RDF.Literal` without changing everything else.
+
+  The optional second argument allows to specify what will be passed to `fun` with the `:as` option,
+  eg. with `as: :lexical` the lexical is passed to the function.
+
+  ## Example
+
+      iex> RDF.XSD.integer(42) |> RDF.Literal.update(fn value -> value + 1 end)
+      RDF.XSD.integer(43)
+      iex> ~L"foo"de |> RDF.Literal.update(fn _ -> "bar" end)
+      ~L"bar"de
+      iex> RDF.literal("foo", datatype: "http://example.com/dt") |> RDF.Literal.update(fn _ -> "bar" end)
+      RDF.literal("bar", datatype: "http://example.com/dt")
+      iex> RDF.XSD.integer(42) |> RDF.XSD.Integer.update(
+      ...>   fn value -> value <> "1" end, as: :lexical)
+      RDF.XSD.integer(421)
+  """
   def update(%__MODULE__{literal: %datatype{} = literal}, fun, opts \\ []) do
     datatype.update(literal, fun, opts)
   end
