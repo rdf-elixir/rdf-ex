@@ -5,10 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.8.0 - 2020-06-01
 
-RDF literals and their datatypes were completely redesigned to support  
-derived XSD datatypes and allow for defining custom datatypes. 
+RDF literals and their datatypes were completely redesigned to support derived XSD datatypes and
+allow for defining custom datatypes. 
 For an introduction on how literals work now read the updated [page on literals in the guide](https://rdf-elixir.dev/rdf-ex/literals.html). 
 For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.8).
 
@@ -51,7 +51,7 @@ For more details on how to migrate from an earlier version read [this wiki page]
 - BEAM error warnings when trying to use top-level modules as vocabulary terms 
 
 
-[Compare v0.7.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.7.1...HEAD)
+[Compare v0.7.1...v0.8.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.7.1...v0.8.0)
 
 
 
