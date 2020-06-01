@@ -7,15 +7,47 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+RDF literals and their datatypes were completely redesigned to support  
+derived XSD datatypes and allow for defining custom datatypes. 
+For an introduction on how literals work now read the updated [page on literals in the guide](https://rdf-elixir.dev/rdf-ex/literals.html). 
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/marcelotto/rdf-ex/wiki/Upgrading-to-RDF.ex-0.8).
+
+### Added
+
+- a lot of new datatypes like `xsd:float`, `xsd:byte` or `xsd:anyURI` -- all numeric XSD datatypes 
+  are now available; see [this page of the API documentation](https://hexdocs.pm/rdf/RDF.XSD.Datatype.html#module-builtin-xsd-datatypes)
+  for an up-to-date list of all supported and missing XSD datatypes
+- an implementation of XSD facet system now makes it easy to define own custom datatypes via 
+  restriction of the existing XSD datatypes
+- `RDF.Literal.update/2` updates the value of a `RDF.Literal` without changing anything else, 
+  eg. the language or datatype
+
 ### Changed
 
-- Elixir versions < 1.8 are no longer supported
+- the `RDF.Literal` struct now consists entirely of a datatype-specific structs in the `literal` field, 
+  which besides being more memory-efficient (since literals no longer consist of all possible fields a literal might have),
+  allows pattern matching now on the datatype of literals.
+- RDF XSD datatypes are now defined in the `RDF.XSD` namespace
+- alias constructor functions for the XSD datatypes are now defined on `RDF.XSD`
+- `matches?`, `less_than?`, `greater_than` as higher level functions were removed from the 
+  `RDF.Literal.Datatype` modules 
+- `less_than?`, `greater_than?` now always return a boolean and no longer `nil` when incomparable;
+  you can still determine if two terms are comparable by checking if `compare/2` returns `nil`
+- the `language` option is not supported on the `RDF.XSD.String.new/2` constructor  
+- the `language` option on `RDF.Literal.new/2` is no longer ignored if it's empty (`nil` or `""`), 
+  so this either produces an invalid `RDF.LangString` now or, if another `datatype` is provided will 
+  fail with an `ArgumentError`
+- `canonical` now performs implicit coercions when passed plain Elixir values
+- the inspect format for literals was changed and is now much more informative and uniform, since
+  you now always see the value, the lexical form and if the literal is valid
 - `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
   `RDF.Namespace.resolve_term!/1` with the old behaviour was added
+- Elixir versions < 1.8 are no longer supported
 
 ### Fixed
 
 - numeric operations on invalid numeric literals no longer fail, but return `nil` instead    
+- Datetimes preserve the original lexical form of the timezone when casting from a date
 - BEAM error warnings when trying to use top-level modules as vocabulary terms 
 
 
@@ -326,7 +358,7 @@ upgrading notes to RDF.ex 0.6
 
 - renamed `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
   `RDF.Serialization` module contains just simple RDF serialization related functions 
-- renamed `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0`
+- renamed `RDF.Serialization.Format` function `content_type/0` to `media_type/0`
 - moved `RDF.Reader` and `RDF.Writer` into `RDF.Serialization` module 
 - removed the limitation to serialization formats defined in the core RDF.ex package
   for use as a source of `RDF.Vocabulary.Namespace`s; so you can now also define
