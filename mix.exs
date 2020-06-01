@@ -1,7 +1,7 @@
 defmodule RDF.Mixfile do
   use Mix.Project
 
-  @repo_url "https://github.com/marcelotto/rdf-ex"
+  @repo_url "https://github.com/rdf-elixir/rdf-ex"
 
   @version File.read!("VERSION") |> String.trim
 

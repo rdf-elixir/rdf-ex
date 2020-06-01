@@ -2,7 +2,7 @@
 
 # RDF.ex
 
-[![Travis](https://img.shields.io/travis/marcelotto/rdf-ex.svg?style=flat-square)](https://travis-ci.org/marcelotto/rdf-ex)
+[![Travis](https://img.shields.io/travis/rdf-elixir/rdf-ex.svg?style=flat-square)](https://travis-ci.org/rdf-elixir/rdf-ex)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
 
 

@@ -1,4 +1,4 @@
-1. Fork it ( <https://github.com/marcelotto/rdf-ex/fork> )
+1. Fork it ( <https://github.com/rdf-elixir/rdf-ex/fork> )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Make your changes, with new passing tests. Follow this [style guide].
 4. Execute all tests.
