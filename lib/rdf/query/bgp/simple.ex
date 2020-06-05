@@ -52,24 +52,45 @@ defmodule RDF.Query.BGP.Simple do
 
   @blank_node_prefix "_:"
 
+  @default_remove_bnode_query_variables Application.get_env(:rdf, :default_remove_bnode_query_variables, true)
+
   @impl RDF.Query.BGP
-  def query(data, pattern)
+  def query(data, pattern, opts \\ [])
 
-  def query(_, []), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  def query(_, [], _), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
-  def query(data, triple_patterns) do
-    triple_patterns
-    |> Stream.map(&convert_blank_nodes/1)
-    |> Planner.query_plan()
-    |> do_query(data)
-    |> Enum.map(&remove_blank_nodes/1)
+  def query(data, triple_patterns, opts) do
+    {has_blank_nodes, triple_patterns} = preprocess(triple_patterns)
+
+    solutions =
+      triple_patterns
+      |> Planner.query_plan()
+      |> do_query(data)
+
+    if has_blank_nodes and
+       Keyword.get(opts, :remove_bnode_query_variables, @default_remove_bnode_query_variables) do
+      Enum.map(solutions, &remove_blank_nodes/1)
+    else
+      solutions
+    end
   end
 
+  defp preprocess(triple_patterns) do
+    Enum.reduce(triple_patterns, {false, []}, fn
+      original_triple_pattern, {had_blank_nodes, triple_patterns} ->
+        {is_converted, triple_pattern} = convert_blank_nodes(original_triple_pattern)
+        {had_blank_nodes || is_converted, [triple_pattern | triple_patterns]}
+    end)
+  end
 
-  defp convert_blank_nodes({%BlankNode{} = s, p, o}), do: convert_blank_nodes({to_string(s), p, o})
-  defp convert_blank_nodes({s, %BlankNode{} = p, o}), do: convert_blank_nodes({s, to_string(p), o})
-  defp convert_blank_nodes({s, p, %BlankNode{} = o}), do: convert_blank_nodes({s, p, to_string(o)})
-  defp convert_blank_nodes(triple_pattern),           do: triple_pattern
+  defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, %BlankNode{} = o}), do: {true, {to_string(s), to_string(p), to_string(o)}}
+  defp convert_blank_nodes({s, %BlankNode{} = p, %BlankNode{} = o}), do: {true, {s, to_string(p), to_string(o)}}
+  defp convert_blank_nodes({%BlankNode{} = s, p, %BlankNode{} = o}), do: {true, {to_string(s), p, to_string(o)}}
+  defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, o}), do: {true, {to_string(s), to_string(p), o}}
+  defp convert_blank_nodes({%BlankNode{} = s, p, o}), do: {true, {to_string(s), p, o}}
+  defp convert_blank_nodes({s, %BlankNode{} = p, o}), do: {true, {s, to_string(p), o}}
+  defp convert_blank_nodes({s, p, %BlankNode{} = o}), do: {true, {s, p, to_string(o)}}
+  defp convert_blank_nodes(triple_pattern),           do: {false, triple_pattern}
 
   defp remove_blank_nodes(solution) do
     solution

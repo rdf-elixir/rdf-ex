@@ -6,6 +6,6 @@ defmodule RDF.Query.BGP do
   @type solution :: map
   @type solutions :: [solution]
 
-  @callback query(triple_patterns :: [], data :: RDF.Data.t) :: solutions
+  @callback query(triple_patterns :: [], data :: RDF.Data.t, opts :: Keyword.t) :: solutions
 
 end
