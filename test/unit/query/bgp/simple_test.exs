@@ -1,7 +1,6 @@
 defmodule RDF.Query.BGP.SimpleTest do
   use RDF.Test.Case
 
-  alias RDF.Query.BGP
   import RDF.Query.BGP.Simple, only: [query: 2]
 
   @example_graph Graph.new([
@@ -228,39 +227,5 @@ defmodule RDF.Query.BGP.SimpleTest do
                    "p2" => EX.p2,
                  },
                ]
-  end
-
-  describe "Planner.query_plan/1" do
-    alias BGP.Simple.Planner
-
-    test "empty" do
-      assert Planner.query_plan([]) == []
-    end
-
-    test "single" do
-      assert Planner.query_plan([{"a", "b", "c"}]) == [{"a", "b", "c"}]
-    end
-
-    test "multiple connected" do
-      assert Planner.query_plan([
-               {"a", "b", "c"},
-               {"a", "d", ~L"foo"}
-             ]) == [
-               {"a", "d", ~L"foo"},
-               {{"a"}, "b", "c"}
-             ]
-
-      assert Planner.query_plan([
-               {"s", "p", "o"},
-               {"s2", "p2", "o2"},
-               {"s", "p", "o2"},
-               {"s4", "p4", ~L"foo"}
-             ]) == [
-               {"s4", "p4", ~L"foo"},
-               {"s", "p", "o"},
-               {{"s"}, {"p"}, "o2"},
-               {"s2", "p2", {"o2"}},
-             ]
-    end
   end
 end

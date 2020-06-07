@@ -1,99 +1,7 @@
 defmodule RDF.Query.BGP.Simple do
   @behaviour RDF.Query.BGP
 
-  defmodule Planner do
-    @moduledoc false
-    def query_plan(triple_patterns, solved \\ MapSet.new, plan \\ [])
-
-    def query_plan([], _, plan), do: Enum.reverse(plan)
-
-    def query_plan(triple_patterns, solved, plan) do
-      [next_best | rest] = Enum.sort_by(triple_patterns, &triple_priority/1)
-      new_solved = MapSet.union(solved, variables(next_best))
-
-      query_plan(
-        mark_solved_variables(rest, new_solved),
-        new_solved,
-        [next_best | plan])
-    end
-
-    defp variables({v1, v2, v3}) when is_binary(v1) and is_binary(v2) and is_binary(v3), do: MapSet.new([v1, v2, v3])
-    defp variables({_, v2, v3}) when is_binary(v2) and is_binary(v3), do: MapSet.new([v2, v3])
-    defp variables({v1, _, v3}) when is_binary(v1) and is_binary(v3), do: MapSet.new([v1, v3])
-    defp variables({v1, v2, _}) when is_binary(v1) and is_binary(v2), do: MapSet.new([v1, v2])
-    defp variables({v1, _, _}) when is_binary(v1), do: MapSet.new([v1])
-    defp variables({_, v2, _}) when is_binary(v2), do: MapSet.new([v2])
-    defp variables({_, _, v3}) when is_binary(v3), do: MapSet.new([v3])
-    defp variables(_), do: MapSet.new()
-
-    defp triple_priority({v, v, v}), do: triple_priority({v, :p, :o})
-    defp triple_priority({v, v, o}), do: triple_priority({v, :p, o})
-    defp triple_priority({v, p, v}), do: triple_priority({v, p, :o})
-    defp triple_priority({s, v, v}), do: triple_priority({s, v, :o})
-    defp triple_priority({s, p, o}) do
-      {sp, pp, op} = {value_priority(s), value_priority(p), value_priority(o)}
-      <<(sp + pp + op) :: size(2), sp :: size(1), pp :: size(1), op :: size(1)>>
-    end
-
-    defp value_priority(value) when is_binary(value), do: 1
-    defp value_priority(_),                           do: 0
-
-    defp mark_solved_variables(triple_patterns, solved) do
-      Enum.map triple_patterns, fn {s, p, o} ->
-        {
-          (if is_binary(s) and MapSet.member?(solved, s), do: {s}, else: s),
-          (if is_binary(p) and MapSet.member?(solved, p), do: {p}, else: p),
-          (if is_binary(o) and MapSet.member?(solved, o), do: {o}, else: o)
-        }
-      end
-    end
-  end
-
-  defmodule BlankNodeHandler do
-    @moduledoc false
-
-    alias RDF.BlankNode
-
-    @blank_node_prefix "_:"
-    @default_remove_bnode_query_variables Application.get_env(:rdf, :default_remove_bnode_query_variables, true)
-
-    def preprocess(triple_patterns) do
-      Enum.reduce(triple_patterns, {false, []}, fn
-        original_triple_pattern, {had_blank_nodes, triple_patterns} ->
-          {is_converted, triple_pattern} = convert_blank_nodes(original_triple_pattern)
-          {had_blank_nodes || is_converted, [triple_pattern | triple_patterns]}
-      end)
-    end
-
-    defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, %BlankNode{} = o}), do: {true, {to_string(s), to_string(p), to_string(o)}}
-    defp convert_blank_nodes({s, %BlankNode{} = p, %BlankNode{} = o}), do: {true, {s, to_string(p), to_string(o)}}
-    defp convert_blank_nodes({%BlankNode{} = s, p, %BlankNode{} = o}), do: {true, {to_string(s), p, to_string(o)}}
-    defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, o}), do: {true, {to_string(s), to_string(p), o}}
-    defp convert_blank_nodes({%BlankNode{} = s, p, o}), do: {true, {to_string(s), p, o}}
-    defp convert_blank_nodes({s, %BlankNode{} = p, o}), do: {true, {s, to_string(p), o}}
-    defp convert_blank_nodes({s, p, %BlankNode{} = o}), do: {true, {s, p, to_string(o)}}
-    defp convert_blank_nodes(triple_pattern),           do: {false, triple_pattern}
-
-
-    def postprocess(solutions, has_blank_nodes, opts) do
-      if has_blank_nodes and
-         Keyword.get(opts, :remove_bnode_query_variables, @default_remove_bnode_query_variables) do
-        Enum.map(solutions, &remove_blank_nodes/1)
-      else
-        solutions
-      end
-    end
-
-    defp remove_blank_nodes(solution) do
-      solution
-      |> Enum.filter(fn
-        {@blank_node_prefix <> _, _} -> false
-        _                            -> true
-      end)
-      |> Map.new
-    end
-  end
-
+  alias RDF.Query.BGP.{QueryPlanner, BlankNodeHandler}
   alias RDF.{Graph, Description}
 
   @impl RDF.Query.BGP
@@ -106,7 +14,7 @@ defmodule RDF.Query.BGP.Simple do
       BlankNodeHandler.preprocess(triple_patterns)
 
     triple_patterns
-    |> Planner.query_plan()
+    |> QueryPlanner.query_plan()
     |> do_query(data)
     |> BlankNodeHandler.postprocess(bnode_state, opts)
   end
