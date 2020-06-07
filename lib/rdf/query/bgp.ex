@@ -8,4 +8,6 @@ defmodule RDF.Query.BGP do
 
   @callback query(triple_patterns :: [], data :: RDF.Data.t, opts :: Keyword.t) :: solutions
 
+  @callback query_stream(triple_patterns :: [], data :: RDF.Data.t, opts :: Keyword.t) :: Enumerable.t()
+
 end

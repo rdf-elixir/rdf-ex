@@ -1,15 +1,16 @@
-defmodule RDF.Query.BGP.Simple do
+defmodule RDF.Query.BGP.Stream do
   @behaviour RDF.Query.BGP
 
-  alias RDF.Query.BGP.{QueryPlanner, BlankNodeHandler}
   alias RDF.{Graph, Description}
+  alias RDF.Query.BGP.{QueryPlanner, BlankNodeHandler}
+
 
   @impl RDF.Query.BGP
-  def query(data, pattern, opts \\ [])
+  def query_stream(data, pattern, opts \\ [])
 
-  def query(_, [], _), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  def query_stream(_, [], _), do: stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
-  def query(data, triple_patterns, opts) do
+  def query_stream(data, triple_patterns, opts) do
     {bnode_state, triple_patterns} =
       BlankNodeHandler.preprocess(triple_patterns)
 
@@ -20,19 +21,22 @@ defmodule RDF.Query.BGP.Simple do
   end
 
   @impl RDF.Query.BGP
-  def query_stream(data, pattern, opts \\ []) do
-    query(data, pattern, opts)
-    |> Stream.into([])
+  def query(data, pattern, opts \\ []) do
+    query_stream(data, pattern, opts)
+    |> Enum.to_list()
   end
-
 
   defp do_query([triple_pattern | remaining], data) do
     do_query(remaining, data, match(data, triple_pattern))
   end
 
+  # CAUTION: Careful with using Enum.empty?/1 on the solution stream!! The first match must be
+  # searched for every call in the query loop repeatedly then, which can have dramatic effects potentially.
+  # Only use it very close to the data (in the match/1 functions operating on data directly).
+
   defp do_query(triple_patterns, data, solutions)
 
-  defp do_query(_, _, []), do: []
+  defp do_query(_, _, nil), do: stream([])
 
   defp do_query([], _, solutions), do: solutions
 
@@ -45,15 +49,15 @@ defmodule RDF.Query.BGP.Simple do
        when is_tuple(s) or is_tuple(p) or is_tuple(o) do
     triple_pattern
     |> apply_solutions(existing_solutions)
-    |> Enum.flat_map(&(merging_match(&1, data)))
+    |> Stream.flat_map(&(merging_match(&1, data)))
   end
 
   defp match_with_solutions(data, triple_pattern, existing_solutions) do
-    data
-    |> match(triple_pattern)
-    |> Enum.flat_map(fn solution ->
-      Enum.map(existing_solutions, &(Map.merge(solution, &1)))
-    end)
+    if solutions = match(data, triple_pattern) do
+      Stream.flat_map(solutions, fn solution ->
+        Stream.map(existing_solutions, &(Map.merge(solution, &1)))
+      end)
+    end
   end
 
   defp apply_solutions(triple_pattern, solutions) do
@@ -79,49 +83,47 @@ defmodule RDF.Query.BGP.Simple do
     case match(data, triple_pattern) do
       nil -> []
       solutions ->
-        Enum.map(solutions, fn solution ->
+        Stream.map solutions, fn solution ->
           Map.merge(dependent_solution, solution)
-        end)
+        end
     end
   end
 
 
   defp match(%Graph{descriptions: descriptions}, {subject_variable, _, _} = triple_pattern)
        when is_binary(subject_variable) do
-    Enum.reduce(descriptions, [], fn ({subject, description}, acc) ->
+    Stream.flat_map(descriptions, fn {subject, description} ->
       case match(description, solve_variables(subject_variable, subject, triple_pattern)) do
-        nil       -> acc
+        nil -> []
         solutions ->
-          Enum.map(solutions, fn solution ->
+          Stream.map(solutions, fn solution ->
             Map.put(solution, subject_variable, subject)
-          end) ++ acc
+          end)
       end
     end)
   end
 
   defp match(%Graph{} = graph, {subject, _, _} = triple_pattern) do
     case graph[subject] do
-      nil         -> []
+      nil         -> nil
       description -> match(description, triple_pattern)
     end
   end
 
   defp match(%Description{predications: predications}, {_, variable, variable})
        when is_binary(variable) do
-    Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
-      if Map.has_key?(objects, predicate) do
-        [%{variable => predicate} | solutions]
-      else
-        solutions
-      end
-    end)
+    matches =
+      Stream.filter(predications, fn {predicate, objects} -> Map.has_key?(objects, predicate) end)
+
+    unless Enum.empty?(matches) do
+      Stream.map(matches, fn {predicate, _} -> %{variable => predicate} end)
+    end
   end
 
   defp match(%Description{predications: predications}, {_, predicate_variable, object_variable})
        when is_binary(predicate_variable) and is_binary(object_variable) do
-    Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
-      solutions ++
-      Enum.map(objects, fn {object, _} ->
+    Stream.flat_map(predications, fn {predicate, objects} ->
+      Stream.map(objects, fn {object, _} ->
         %{predicate_variable => predicate, object_variable => object}
       end)
     end)
@@ -129,33 +131,32 @@ defmodule RDF.Query.BGP.Simple do
 
   defp match(%Description{predications: predications},
          {_, predicate_variable, object}) when is_binary(predicate_variable) do
-    Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
-      if Map.has_key?(objects, object) do
-        [%{predicate_variable => predicate} | solutions]
-      else
-        solutions
-      end
-    end)
+    matches =
+      Stream.filter(predications, fn {_, objects} -> Map.has_key?(objects, object) end)
+
+    unless Enum.empty?(matches) do
+      Stream.map(matches, fn {predicate, _} -> %{predicate_variable => predicate} end)
+    end
   end
 
   defp match(%Description{predications: predications},
          {_, predicate, object_or_variable}) do
     case predications[predicate] do
-      nil -> []
+      nil -> nil
       objects -> cond do
                    # object_or_variable is a variable
                    is_binary(object_or_variable) ->
-                     Enum.map(objects, fn {object, _} ->
+                     Stream.map(objects, fn {object, _} ->
                        %{object_or_variable => object}
                      end)
 
                    # object_or_variable is a object
                    Map.has_key?(objects, object_or_variable) ->
-                     [%{}]
+                     stream([%{}])
 
                    # else
                    true ->
-                     []
+                     nil
                  end
     end
   end
@@ -168,4 +169,6 @@ defmodule RDF.Query.BGP.Simple do
   defp solve_variables(var, val, {s, var, o}),     do: {s, val, o}
   defp solve_variables(var, val, {s, p, var}),     do: {s, p, val}
   defp solve_variables(_, _, pattern),             do: pattern
+
+  defp stream(enum), do: Stream.into(enum, [])
 end
