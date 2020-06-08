@@ -11,13 +11,13 @@ defmodule RDF.Query.BGP.Simple do
   def query(_, %BGP{triple_patterns: []}, _), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
   def query(data, %BGP{triple_patterns: triple_patterns}, opts) do
-    {bnode_state, triple_patterns} =
+    {bnode_state, preprocessed_triple_patterns} =
       BlankNodeHandler.preprocess(triple_patterns)
 
-    triple_patterns
+    preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
     |> do_query(data)
-    |> BlankNodeHandler.postprocess(bnode_state, opts)
+    |> BlankNodeHandler.postprocess(triple_patterns, bnode_state, opts)
   end
 
   @impl RDF.Query.BGP.Matcher
@@ -88,7 +88,7 @@ defmodule RDF.Query.BGP.Simple do
 
 
   defp match(%Graph{descriptions: descriptions}, {subject_variable, _, _} = triple_pattern)
-       when is_binary(subject_variable) do
+       when is_atom(subject_variable) do
     Enum.reduce(descriptions, [], fn ({subject, description}, acc) ->
       case match(description, solve_variables(subject_variable, subject, triple_pattern)) do
         nil       -> acc
@@ -108,7 +108,7 @@ defmodule RDF.Query.BGP.Simple do
   end
 
   defp match(%Description{predications: predications}, {_, variable, variable})
-       when is_binary(variable) do
+       when is_atom(variable) do
     Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
       if Map.has_key?(objects, predicate) do
         [%{variable => predicate} | solutions]
@@ -119,7 +119,7 @@ defmodule RDF.Query.BGP.Simple do
   end
 
   defp match(%Description{predications: predications}, {_, predicate_variable, object_variable})
-       when is_binary(predicate_variable) and is_binary(object_variable) do
+       when is_atom(predicate_variable) and is_atom(object_variable) do
     Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
       solutions ++
       Enum.map(objects, fn {object, _} ->
@@ -129,7 +129,7 @@ defmodule RDF.Query.BGP.Simple do
   end
 
   defp match(%Description{predications: predications},
-         {_, predicate_variable, object}) when is_binary(predicate_variable) do
+         {_, predicate_variable, object}) when is_atom(predicate_variable) do
     Enum.reduce(predications, [], fn ({predicate, objects}, solutions) ->
       if Map.has_key?(objects, object) do
         [%{predicate_variable => predicate} | solutions]
@@ -145,7 +145,7 @@ defmodule RDF.Query.BGP.Simple do
       nil -> []
       objects -> cond do
                    # object_or_variable is a variable
-                   is_binary(object_or_variable) ->
+                   is_atom(object_or_variable) ->
                      Enum.map(objects, fn {object, _} ->
                        %{object_or_variable => object}
                      end)

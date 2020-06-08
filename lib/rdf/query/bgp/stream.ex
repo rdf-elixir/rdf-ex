@@ -12,13 +12,13 @@ defmodule RDF.Query.BGP.Stream do
   def query_stream(_, %BGP{triple_patterns: []}, _), do: stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
   def query_stream(data, %BGP{triple_patterns: triple_patterns}, opts) do
-    {bnode_state, triple_patterns} =
+    {bnode_state, preprocessed_triple_patterns} =
       BlankNodeHandler.preprocess(triple_patterns)
 
-    triple_patterns
+    preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
     |> do_query(data)
-    |> BlankNodeHandler.postprocess(bnode_state, opts)
+    |> BlankNodeHandler.postprocess(triple_patterns, bnode_state, opts)
   end
 
   @impl RDF.Query.BGP.Matcher
@@ -92,7 +92,7 @@ defmodule RDF.Query.BGP.Stream do
 
 
   defp match(%Graph{descriptions: descriptions}, {subject_variable, _, _} = triple_pattern)
-       when is_binary(subject_variable) do
+       when is_atom(subject_variable) do
     Stream.flat_map(descriptions, fn {subject, description} ->
       case match(description, solve_variables(subject_variable, subject, triple_pattern)) do
         nil -> []
@@ -112,7 +112,7 @@ defmodule RDF.Query.BGP.Stream do
   end
 
   defp match(%Description{predications: predications}, {_, variable, variable})
-       when is_binary(variable) do
+       when is_atom(variable) do
     matches =
       Stream.filter(predications, fn {predicate, objects} -> Map.has_key?(objects, predicate) end)
 
@@ -122,7 +122,7 @@ defmodule RDF.Query.BGP.Stream do
   end
 
   defp match(%Description{predications: predications}, {_, predicate_variable, object_variable})
-       when is_binary(predicate_variable) and is_binary(object_variable) do
+       when is_atom(predicate_variable) and is_atom(object_variable) do
     Stream.flat_map(predications, fn {predicate, objects} ->
       Stream.map(objects, fn {object, _} ->
         %{predicate_variable => predicate, object_variable => object}
@@ -131,7 +131,7 @@ defmodule RDF.Query.BGP.Stream do
   end
 
   defp match(%Description{predications: predications},
-         {_, predicate_variable, object}) when is_binary(predicate_variable) do
+         {_, predicate_variable, object}) when is_atom(predicate_variable) do
     matches =
       Stream.filter(predications, fn {_, objects} -> Map.has_key?(objects, object) end)
 
@@ -146,7 +146,7 @@ defmodule RDF.Query.BGP.Stream do
       nil -> nil
       objects -> cond do
                    # object_or_variable is a variable
-                   is_binary(object_or_variable) ->
+                   is_atom(object_or_variable) ->
                      Stream.map(objects, fn {object, _} ->
                        %{object_or_variable => object}
                      end)
