@@ -1,11 +1,11 @@
 defmodule RDF.Query.BGP.Stream do
-  @behaviour RDF.Query.BGP
+  @behaviour RDF.Query.BGP.Matcher
 
   alias RDF.{Graph, Description}
   alias RDF.Query.BGP.{QueryPlanner, BlankNodeHandler}
 
 
-  @impl RDF.Query.BGP
+  @impl RDF.Query.BGP.Matcher
   def query_stream(data, pattern, opts \\ [])
 
   def query_stream(_, [], _), do: stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
@@ -20,7 +20,7 @@ defmodule RDF.Query.BGP.Stream do
     |> BlankNodeHandler.postprocess(bnode_state, opts)
   end
 
-  @impl RDF.Query.BGP
+  @impl RDF.Query.BGP.Matcher
   def query(data, pattern, opts \\ []) do
     query_stream(data, pattern, opts)
     |> Enum.to_list()

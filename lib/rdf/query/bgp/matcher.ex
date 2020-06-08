@@ -1,4 +1,4 @@
-defmodule RDF.Query.BGP do
+defmodule RDF.Query.BGP.Matcher do
   @moduledoc """
   An interface for various BGP matching algorithm implementations.
   """
