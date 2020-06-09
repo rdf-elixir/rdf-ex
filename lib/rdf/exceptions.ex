@@ -54,3 +54,8 @@ end
 defmodule RDF.Namespace.UndefinedTermError do
   defexception [:message]
 end
+
+
+defmodule RDF.Query.InvalidError do
+  defexception [:message]
+end
