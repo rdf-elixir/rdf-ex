@@ -144,4 +144,35 @@ defmodule RDF.Query.Builder do
   defp literal(%Literal{} = literal), do: literal
   defp literal(value), do: Literal.coerce(value)
 
+
+  def path(query, opts \\ [])
+
+  def path(query, _) when is_list(query) and length(query) < 3 do
+    {:error, %RDF.Query.InvalidError{
+      message: "Invalid path expression: must have at least three elements"}
+    }
+  end
+
+  def path([subject | rest], opts) do
+    path_pattern(subject, rest, [], 0, Keyword.get(opts, :with_elements, false))
+    |> bgp()
+  end
+
+  def path!(query, opts \\ []) do
+    case path(query, opts) do
+      {:ok, bgp} -> bgp
+      {:error, error} -> raise error
+    end
+  end
+
+  defp path_pattern(subject, [predicate, object], triple_patterns, _, _) do
+    [{subject, predicate, object} | triple_patterns]
+    |> Enum.reverse()
+  end
+
+  defp path_pattern(subject, [predicate | rest], triple_patterns, count, with_elements) do
+    object = if with_elements, do: :"el#{count}?", else: RDF.bnode(count)
+
+    path_pattern(object, rest, [{subject, predicate, object} | triple_patterns], count + 1, with_elements)
+  end
 end

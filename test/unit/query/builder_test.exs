@@ -150,4 +150,40 @@ defmodule RDF.Query.BuilderTest do
                bgp [{EX.s, EX.p, EX.o}]
     end
   end
+
+
+  describe "path/2" do
+    test "element count == 3" do
+      assert Builder.path([EX.s, EX.p, EX.o]) == bgp [{EX.s, EX.p, EX.o}]
+      assert Builder.path([:s?, :p?, :o?]) == bgp [{:s, :p, :o}]
+    end
+
+    test "element count > 3" do
+      assert Builder.path([EX.s, EX.p1, EX.p2, EX.o]) ==
+               bgp [
+                 {EX.s, EX.p1, RDF.bnode("0")},
+                 {RDF.bnode("0"), EX.p2, EX.o},
+               ]
+
+      assert Builder.path([:s?, :p1?, :p2?, :o?]) ==
+               bgp [
+                 {:s, :p1, RDF.bnode("0")},
+                 {RDF.bnode("0"), :p2, :o},
+               ]
+    end
+
+    test "element count < 3" do
+      assert {:error, %RDF.Query.InvalidError{}} = Builder.path([EX.s, EX.p])
+      assert {:error, %RDF.Query.InvalidError{}} = Builder.path([EX.s])
+      assert {:error, %RDF.Query.InvalidError{}} = Builder.path([])
+    end
+
+    test "with_elements: true" do
+      assert Builder.path([EX.s, EX.p1, EX.p2, :o?], with_elements: true) ==
+               bgp [
+                 {EX.s, EX.p1, :el0},
+                 {:el0, EX.p2, :o},
+               ]
+    end
+  end
 end
