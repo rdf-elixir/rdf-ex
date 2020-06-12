@@ -4,13 +4,13 @@ defmodule RDF.Query.BGP.Matcher do
   """
 
   alias RDF.Query.BGP
+  alias RDF.Graph
 
   @type solution :: map
   @type solutions :: [solution]
 
-  @callback query(data :: RDF.Graph.t, bgp :: BGP.t, opts :: Keyword.t) :: solutions
+  @callback execute(BGP.t, Graph.t, opts :: Keyword.t) :: solutions
 
-  @callback query_stream(data :: RDF.Graph.t, bgp :: BGP.t, opts :: Keyword.t) :: Enumerable.t()
-
+  @callback stream(BGP.t, Graph.t, opts :: Keyword.t) :: Enumerable.t()
 
 end

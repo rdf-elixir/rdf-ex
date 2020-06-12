@@ -6,51 +6,51 @@ defmodule RDF.Query.BGP.Simple do
   alias RDF.{Graph, Description}
 
   @impl RDF.Query.BGP.Matcher
-  def query(data, pattern, opts \\ [])
+  def execute(bgp, graph, opts \\ [])
 
-  def query(_, %BGP{triple_patterns: []}, _), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  def execute(%BGP{triple_patterns: []}, _, _), do: [%{}]  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
-  def query(data, %BGP{triple_patterns: triple_patterns}, opts) do
+  def execute(%BGP{triple_patterns: triple_patterns}, %Graph{} = graph, opts) do
     {bnode_state, preprocessed_triple_patterns} =
       BlankNodeHandler.preprocess(triple_patterns)
 
     preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
-    |> do_query(data)
+    |> do_execute(graph)
     |> BlankNodeHandler.postprocess(triple_patterns, bnode_state, opts)
   end
 
   @impl RDF.Query.BGP.Matcher
-  def query_stream(data, bgp, opts \\ []) do
-    query(data, bgp, opts)
+  def stream(bgp, graph, opts \\ []) do
+    execute(bgp, graph, opts)
     |> Stream.into([])
   end
 
 
-  defp do_query([triple_pattern | remaining], data) do
-    do_query(remaining, data, match(data, triple_pattern))
+  defp do_execute([triple_pattern | remaining], graph) do
+    do_execute(remaining, graph, match(graph, triple_pattern))
   end
 
-  defp do_query(triple_patterns, data, solutions)
+  defp do_execute(triple_patterns, graph, solutions)
 
-  defp do_query(_, _, []), do: []
+  defp do_execute(_, _, []), do: []
 
-  defp do_query([], _, solutions), do: solutions
+  defp do_execute([], _, solutions), do: solutions
 
-  defp do_query([triple_pattern | remaining], data, solutions) do
-    do_query(remaining, data, match_with_solutions(data, triple_pattern, solutions))
+  defp do_execute([triple_pattern | remaining], graph, solutions) do
+    do_execute(remaining, graph, match_with_solutions(graph, triple_pattern, solutions))
   end
 
 
-  defp match_with_solutions(data, {s, p, o} = triple_pattern, existing_solutions)
+  defp match_with_solutions(graph, {s, p, o} = triple_pattern, existing_solutions)
        when is_tuple(s) or is_tuple(p) or is_tuple(o) do
     triple_pattern
     |> apply_solutions(existing_solutions)
-    |> Enum.flat_map(&(merging_match(&1, data)))
+    |> Enum.flat_map(&(merging_match(&1, graph)))
   end
 
-  defp match_with_solutions(data, triple_pattern, existing_solutions) do
-    data
+  defp match_with_solutions(graph, triple_pattern, existing_solutions) do
+    graph
     |> match(triple_pattern)
     |> Enum.flat_map(fn solution ->
       Enum.map(existing_solutions, &(Map.merge(solution, &1)))
@@ -76,8 +76,8 @@ defmodule RDF.Query.BGP.Simple do
     end
   end
 
-  defp merging_match({dependent_solution, triple_pattern}, data) do
-    case match(data, triple_pattern) do
+  defp merging_match({dependent_solution, triple_pattern}, graph) do
+    case match(graph, triple_pattern) do
       nil -> []
       solutions ->
         Enum.map(solutions, fn solution ->
@@ -143,21 +143,22 @@ defmodule RDF.Query.BGP.Simple do
          {_, predicate, object_or_variable}) do
     case predications[predicate] do
       nil -> []
-      objects -> cond do
-                   # object_or_variable is a variable
-                   is_atom(object_or_variable) ->
-                     Enum.map(objects, fn {object, _} ->
-                       %{object_or_variable => object}
-                     end)
+      objects ->
+        cond do
+          # object_or_variable is a variable
+          is_atom(object_or_variable) ->
+            Enum.map(objects, fn {object, _} ->
+              %{object_or_variable => object}
+            end)
 
-                   # object_or_variable is a object
-                   Map.has_key?(objects, object_or_variable) ->
-                     [%{}]
+          # object_or_variable is a object
+          Map.has_key?(objects, object_or_variable) ->
+            [%{}]
 
-                   # else
-                   true ->
-                     []
-                 end
+          # else
+          true ->
+            []
+        end
     end
   end
 

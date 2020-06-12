@@ -1,10 +1,9 @@
 defmodule RDF.Query.BGP.QueryPlannerTest do
-  use RDF.Test.Case
+  use RDF.Query.Test.Case
 
   alias RDF.Query.BGP.QueryPlanner
 
   describe "query_plan/1" do
-
     test "empty" do
       assert QueryPlanner.query_plan([]) == []
     end

@@ -479,6 +479,14 @@ defmodule RDF.Graph do
     Access.fetch(descriptions, coerce_subject(subject))
   end
 
+  def query(graph, query, opts \\ []) do
+    RDF.Query.execute!(query, graph, opts)
+  end
+
+  def query_stream(graph, query, opts \\ []) do
+    RDF.Query.stream!(query, graph, opts)
+  end
+
   @doc """
   Gets the description of the given subject.
 

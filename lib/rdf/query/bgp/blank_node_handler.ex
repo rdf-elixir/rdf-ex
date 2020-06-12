@@ -39,7 +39,7 @@ defmodule RDF.Query.BGP.BlankNodeHandler do
 
   defp bnodes(triple_patterns) when is_list(triple_patterns) do
     triple_patterns
-    |> Enum.reduce([], fn triple_pattern, vars -> bnodes(triple_pattern) ++ vars end)
+    |> Enum.flat_map(&bnodes/1)
     |> Enum.uniq()
   end
 

@@ -7,54 +7,54 @@ defmodule RDF.Query.BGP.Stream do
 
 
   @impl RDF.Query.BGP.Matcher
-  def query_stream(data, pattern, opts \\ [])
+  def stream(bgp, graph, opts \\ [])
 
-  def query_stream(_, %BGP{triple_patterns: []}, _), do: stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  def stream(%BGP{triple_patterns: []}, _, _), do: to_stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
 
-  def query_stream(data, %BGP{triple_patterns: triple_patterns}, opts) do
+  def stream(%BGP{triple_patterns: triple_patterns}, %Graph{} = graph, opts) do
     {bnode_state, preprocessed_triple_patterns} =
       BlankNodeHandler.preprocess(triple_patterns)
 
     preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
-    |> do_query(data)
+    |> do_execute(graph)
     |> BlankNodeHandler.postprocess(triple_patterns, bnode_state, opts)
   end
 
   @impl RDF.Query.BGP.Matcher
-  def query(data, bgp, opts \\ []) do
-    query_stream(data, bgp, opts)
+  def execute(bgp, graph, opts \\ []) do
+    stream(bgp, graph, opts)
     |> Enum.to_list()
   end
 
-  defp do_query([triple_pattern | remaining], data) do
-    do_query(remaining, data, match(data, triple_pattern))
+  defp do_execute([triple_pattern | remaining], graph) do
+    do_execute(remaining, graph, match(graph, triple_pattern))
   end
 
   # CAUTION: Careful with using Enum.empty?/1 on the solution stream!! The first match must be
   # searched for every call in the query loop repeatedly then, which can have dramatic effects potentially.
   # Only use it very close to the data (in the match/1 functions operating on data directly).
 
-  defp do_query(triple_patterns, data, solutions)
+  defp do_execute(triple_patterns, graph, solutions)
 
-  defp do_query(_, _, nil), do: stream([])
+  defp do_execute(_, _, nil), do: to_stream([])
 
-  defp do_query([], _, solutions), do: solutions
+  defp do_execute([], _, solutions), do: solutions
 
-  defp do_query([triple_pattern | remaining], data, solutions) do
-    do_query(remaining, data, match_with_solutions(data, triple_pattern, solutions))
+  defp do_execute([triple_pattern | remaining], graph, solutions) do
+    do_execute(remaining, graph, match_with_solutions(graph, triple_pattern, solutions))
   end
 
 
-  defp match_with_solutions(data, {s, p, o} = triple_pattern, existing_solutions)
+  defp match_with_solutions(graph, {s, p, o} = triple_pattern, existing_solutions)
        when is_tuple(s) or is_tuple(p) or is_tuple(o) do
     triple_pattern
     |> apply_solutions(existing_solutions)
-    |> Stream.flat_map(&(merging_match(&1, data)))
+    |> Stream.flat_map(&(merging_match(&1, graph)))
   end
 
-  defp match_with_solutions(data, triple_pattern, existing_solutions) do
-    if solutions = match(data, triple_pattern) do
+  defp match_with_solutions(graph, triple_pattern, existing_solutions) do
+    if solutions = match(graph, triple_pattern) do
       Stream.flat_map(solutions, fn solution ->
         Stream.map(existing_solutions, &(Map.merge(solution, &1)))
       end)
@@ -80,8 +80,8 @@ defmodule RDF.Query.BGP.Stream do
     end
   end
 
-  defp merging_match({dependent_solution, triple_pattern}, data) do
-    case match(data, triple_pattern) do
+  defp merging_match({dependent_solution, triple_pattern}, graph) do
+    case match(graph, triple_pattern) do
       nil -> []
       solutions ->
         Stream.map solutions, fn solution ->
@@ -144,22 +144,23 @@ defmodule RDF.Query.BGP.Stream do
          {_, predicate, object_or_variable}) do
     case predications[predicate] do
       nil -> nil
-      objects -> cond do
-                   # object_or_variable is a variable
-                   is_atom(object_or_variable) ->
-                     Stream.map(objects, fn {object, _} ->
-                       %{object_or_variable => object}
-                     end)
+      objects ->
+        cond do
+          # object_or_variable is a variable
+          is_atom(object_or_variable) ->
+            Stream.map(objects, fn {object, _} ->
+              %{object_or_variable => object}
+            end)
 
-                   # object_or_variable is a object
-                   Map.has_key?(objects, object_or_variable) ->
-                     stream([%{}])
+          # object_or_variable is a object
+          Map.has_key?(objects, object_or_variable) ->
+            to_stream([%{}])
 
-                   # else
-                   true ->
-                     nil
-                 end
-    end
+          # else
+          true ->
+            nil
+        end
+   end
   end
 
   defp solve_variables(var, val, {var, var, var}), do: {val, val, val}
@@ -171,5 +172,5 @@ defmodule RDF.Query.BGP.Stream do
   defp solve_variables(var, val, {s, p, var}),     do: {s, p, val}
   defp solve_variables(_, _, pattern),             do: pattern
 
-  defp stream(enum), do: Stream.into(enum, [])
+  defp to_stream(enum), do: Stream.into(enum, [])
 end
