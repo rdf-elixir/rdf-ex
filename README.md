@@ -14,14 +14,15 @@ The API documentation can be found [here](https://hexdocs.pm/rdf/). For a guide 
 
 - fully compatible with the RDF 1.1 specification
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
-- ability to execute [SPARQL] queries against the in-memory data structures via the [SPARQL.ex] package or against any SPARQL endpoint via the [SPARQL.Client] package
-- support for RDF vocabularies via Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
-- support for most of the important XML schema datatypes for RDF literals
-- ability to define custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
+- basic graph pattern matching against the in-memory data structures with streaming-support
+- execute [SPARQL] queries against the in-memory data structures via the [SPARQL.ex] package or against any SPARQL endpoint via the [SPARQL.Client] package
+- RDF vocabularies as Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
+- most of the important XML schema datatypes for RDF literals
+- define custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats; [JSON-LD] is implemented in the separate [JSON-LD.ex] package
-- ability to validate data against [ShEx] schemas via the [ShEx.ex] package
+- validate data against [ShEx] schemas via the [ShEx.ex] package
 
 
 ## Contributing
