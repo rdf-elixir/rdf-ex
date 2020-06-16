@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## 0.8.1 - 2020-06-16
+
+### Added
+
+- query functions for basic graph pattern matching (incl. streaming-support)
+
+
+[Compare v0.8.0...v0.8.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.0...v0.8.1)
+
+
+
 ## 0.8.0 - 2020-06-01
 
 RDF literals and their datatypes were completely redesigned to support derived XSD datatypes and
