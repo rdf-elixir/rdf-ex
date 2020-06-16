@@ -479,10 +479,26 @@ defmodule RDF.Graph do
     Access.fetch(descriptions, coerce_subject(subject))
   end
 
+  @doc """
+  Execute the given `query` against the given `graph`.
+
+  This is just a convenience delegator function to `RDF.Query.execute!/3` with
+  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+
+  See `RDF.Query.execute/3` and `RDF.Query.execute!/3` for more information and examples.
+  """
   def query(graph, query, opts \\ []) do
     RDF.Query.execute!(query, graph, opts)
   end
 
+  @doc """
+  Returns a `Stream` for the execution of the given `query` against the given `graph`.
+
+  This is just a convenience delegator function to `RDF.Query.stream!/3` with
+  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+
+  See `RDF.Query.stream/3` and `RDF.Query.stream!/3` for more information and examples.
+  """
   def query_stream(graph, query, opts \\ []) do
     RDF.Query.stream!(query, graph, opts)
   end
@@ -854,7 +870,7 @@ defmodule RDF.Graph do
 
   def take(%RDF.Graph{} = graph, subjects, properties) do
     graph = take(graph, subjects, nil)
-    %RDF.Graph{graph | 
+    %RDF.Graph{graph |
       descriptions: Map.new(graph.descriptions, fn {subject, description} ->
         {subject, Description.take(description, properties)}
       end)

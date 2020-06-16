@@ -1,4 +1,6 @@
 defmodule RDF.Query.BGP.Stream do
+  @moduledoc false
+
   @behaviour RDF.Query.BGP.Matcher
 
   alias RDF.Query.BGP

@@ -9,6 +9,7 @@ defmodule RDF do
     - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
+  - the `RDF.Literal.Datatype` system
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
     functions: `RDF.Vocabulary.Namespace`
   - modules for the construction of statements
@@ -22,6 +23,7 @@ defmodule RDF do
     - `RDF.Data`
     - `RDF.List`
     - `RDF.Diff`
+  - functions to construct and execute basic graph pattern queries: `RDF.Query`
   - functions for working with RDF serializations: `RDF.Serialization`
   - behaviours for the definition of RDF serialization formats
     - `RDF.Serialization.Format`

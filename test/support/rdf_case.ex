@@ -6,13 +6,17 @@ defmodule RDF.Test.Case do
     base_iri: "http://example.com/",
     terms: [], strict: false
 
+  defvocab FOAF,
+    base_iri: "http://xmlns.com/foaf/0.1/",
+    terms: [], strict: false
+
   alias RDF.{Dataset, Graph, Description, IRI}
   import RDF, only: [iri: 1]
 
   using do
     quote do
       alias RDF.{Dataset, Graph, Description, IRI, XSD}
-      alias unquote(__MODULE__).EX
+      alias unquote(__MODULE__).{EX, FOAF}
 
       import RDF, only: [iri: 1, literal: 1, bnode: 1]
       import unquote(__MODULE__)
@@ -20,6 +24,7 @@ defmodule RDF.Test.Case do
       import RDF.Sigils
 
       @compile {:no_warn_undefined, RDF.Test.Case.EX}
+      @compile {:no_warn_undefined, RDF.Test.Case.FOAF}
     end
   end
 

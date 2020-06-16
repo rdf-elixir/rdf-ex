@@ -1,4 +1,6 @@
 defmodule RDF.Query.Builder do
+  @moduledoc false
+
   alias RDF.Query.BGP
   alias RDF.{IRI, BlankNode, Literal, Namespace}
   import RDF.Utils.Guards

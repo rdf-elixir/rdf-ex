@@ -1,4 +1,11 @@
 defmodule RDF.Query.BGP do
+  @moduledoc """
+  A struct for Basic Graph Pattern queries.
+
+  See `RDF.Query` and its functions on how to construct this query struct and
+  apply it on `RDF.Graph`s.
+  """
+
   @enforce_keys [:triple_patterns]
   defstruct [:triple_patterns]
 
@@ -13,10 +20,12 @@ defmodule RDF.Query.BGP do
 
   @type t :: %__MODULE__{triple_patterns: triple_patterns}
 
-
   @doc """
   Return a list of all variables in a BGP.
   """
+  @spec variables(any) :: [atom]
+  def variables(bgp)
+
   def variables(%__MODULE__{triple_patterns: triple_patterns}), do: variables(triple_patterns)
 
   def variables(triple_patterns) when is_list(triple_patterns) do
