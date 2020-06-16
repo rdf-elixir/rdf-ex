@@ -1,5 +1,6 @@
 locals_without_parens = [
-  defvocab: 2
+  defvocab: 2,
+  bgp: 1
 ]
 
 [
