@@ -58,8 +58,8 @@ defmodule RDF.Description do
     do: new(subject) |> add(predicate, objects)
   def new(subject, statements) when is_list(statements),
     do: new(subject) |> add(statements)
-  def new(subject, %RDF.Description{predications: predications}),
-    do: %RDF.Description{new(subject) | predications: predications}
+  def new(subject, %__MODULE__{predications: predications}),
+    do: %__MODULE__{new(subject) | predications: predications}
   def new(subject, predications = %{}),
     do: new(subject) |> add(predications)
 
@@ -71,7 +71,7 @@ defmodule RDF.Description do
           Statement.coercible_predicate,
           Statement.coercible_object | [Statement.coercible_object]
         ) :: t
-  def new(%RDF.Description{} = description, predicate, objects),
+  def new(%__MODULE__{} = description, predicate, objects),
     do: add(description, predicate, objects)
   def new(subject, predicate, objects),
     do: new(subject) |> add(predicate, objects)
@@ -100,14 +100,14 @@ defmodule RDF.Description do
     end
   end
 
-  def add(%RDF.Description{subject: subject, predications: predications}, predicate, object) do
+  def add(%__MODULE__{subject: subject, predications: predications}, predicate, object) do
     with triple_predicate = coerce_predicate(predicate),
          triple_object = coerce_object(object),
          new_predications = Map.update(predications,
            triple_predicate, %{triple_object => nil}, fn objects ->
              Map.put_new(objects, triple_object, nil)
            end) do
-      %RDF.Description{subject: subject, predications: new_predications}
+      %__MODULE__{subject: subject, predications: new_predications}
     end
   end
 
@@ -126,7 +126,7 @@ defmodule RDF.Description do
   def add(description, {predicate, object}),
     do: add(description, predicate, object)
 
-  def add(description = %RDF.Description{}, {subject, predicate, object}) do
+  def add(description = %__MODULE__{}, {subject, predicate, object}) do
     if coerce_subject(subject) == description.subject,
       do:   add(description, predicate, object),
       else: description
@@ -141,14 +141,14 @@ defmodule RDF.Description do
     end
   end
 
-  def add(%RDF.Description{subject: subject, predications: predications},
-          %RDF.Description{predications: other_predications}) do
+  def add(%__MODULE__{subject: subject, predications: predications},
+          %__MODULE__{predications: other_predications}) do
     merged_predications = Map.merge predications, other_predications,
       fn (_, objects, other_objects) -> Map.merge(objects, other_objects) end
-    %RDF.Description{subject: subject, predications: merged_predications}
+    %__MODULE__{subject: subject, predications: merged_predications}
   end
 
-  def add(description = %RDF.Description{}, predications = %{}) do
+  def add(description = %__MODULE__{}, predications = %{}) do
     Enum.reduce predications, description, fn ({predicate, objects}, description) ->
       add(description, predicate, objects)
     end
@@ -172,16 +172,16 @@ defmodule RDF.Description do
         ) :: t
   def put(description, predicate, objects)
 
-  def put(%RDF.Description{subject: subject, predications: predications},
+  def put(%__MODULE__{subject: subject, predications: predications},
           predicate, objects) when is_list(objects) do
     with triple_predicate = coerce_predicate(predicate),
          triple_objects   = Enum.reduce(objects, %{}, fn (object, acc) ->
                               Map.put_new(acc, coerce_object(object), nil) end),
-      do: %RDF.Description{subject: subject,
+      do: %__MODULE__{subject: subject,
             predications: Map.put(predications, triple_predicate, triple_objects)}
   end
 
-  def put(%RDF.Description{} = description, predicate, object),
+  def put(%__MODULE__{} = description, predicate, object),
     do: put(description, predicate, [object])
 
   @doc """
@@ -204,10 +204,10 @@ defmodule RDF.Description do
   @spec put(t, statements | [statements]) :: t
   def put(description, statements)
 
-  def put(%RDF.Description{} = description, {predicate, object}),
+  def put(%__MODULE__{} = description, {predicate, object}),
     do: put(description, predicate, object)
 
-  def put(%RDF.Description{} = description, {subject, predicate, object}) do
+  def put(%__MODULE__{} = description, {subject, predicate, object}) do
     if coerce_subject(subject) == description.subject,
       do:   put(description, predicate, object),
       else: description
@@ -216,7 +216,7 @@ defmodule RDF.Description do
   def put(description, {subject, predicate, object, _}),
     do: put(description, {subject, predicate, object})
 
-  def put(%RDF.Description{subject: subject} = description, statements) when is_list(statements) do
+  def put(%__MODULE__{subject: subject} = description, statements) when is_list(statements) do
     statements
     |> Stream.map(fn
          {p, o}           -> {coerce_predicate(p), o}
@@ -233,14 +233,14 @@ defmodule RDF.Description do
        end)
   end
 
-  def put(%RDF.Description{subject: subject, predications: predications},
-          %RDF.Description{predications: other_predications}) do
+  def put(%__MODULE__{subject: subject, predications: predications},
+          %__MODULE__{predications: other_predications}) do
     merged_predications = Map.merge predications, other_predications,
       fn (_, _, other_objects) -> other_objects end
-    %RDF.Description{subject: subject, predications: merged_predications}
+    %__MODULE__{subject: subject, predications: merged_predications}
   end
 
-  def put(description = %RDF.Description{}, predications = %{}) do
+  def put(description = %__MODULE__{}, predications = %{}) do
     Enum.reduce predications, description, fn ({predicate, objects}, description) ->
       put(description, predicate, objects)
     end
@@ -263,11 +263,11 @@ defmodule RDF.Description do
     end
   end
 
-  def delete(%RDF.Description{subject: subject, predications: predications} = descr, predicate, object) do
+  def delete(%__MODULE__{subject: subject, predications: predications} = descr, predicate, object) do
     with triple_predicate = coerce_predicate(predicate),
          triple_object    = coerce_object(object) do
       if (objects = predications[triple_predicate]) && Map.has_key?(objects, triple_object) do
-        %RDF.Description{
+        %__MODULE__{
           subject: subject,
           predications:
             if map_size(objects) == 1 do
@@ -295,10 +295,10 @@ defmodule RDF.Description do
   @spec delete(t, statements | [statements]) :: t
   def delete(description, statements)
 
-  def delete(desc = %RDF.Description{}, {predicate, object}),
+  def delete(desc = %__MODULE__{}, {predicate, object}),
     do: delete(desc, predicate, object)
 
-  def delete(description = %RDF.Description{}, {subject, predicate, object}) do
+  def delete(description = %__MODULE__{}, {subject, predicate, object}) do
     if coerce_subject(subject) == description.subject,
       do:   delete(description, predicate, object),
       else: description
@@ -313,13 +313,13 @@ defmodule RDF.Description do
     end
   end
 
-  def delete(description = %RDF.Description{}, other_description = %RDF.Description{}) do
+  def delete(description = %__MODULE__{}, other_description = %__MODULE__{}) do
     Enum.reduce other_description, description, fn ({_, predicate, object}, description) ->
       delete(description, predicate, object)
     end
   end
 
-  def delete(description = %RDF.Description{}, predications = %{}) do
+  def delete(description = %__MODULE__{}, predications = %{}) do
     Enum.reduce predications, description, fn ({predicate, objects}, description) ->
       delete(description, predicate, objects)
     end
@@ -332,15 +332,15 @@ defmodule RDF.Description do
   @spec delete_predicates(t, Statement.coercible_predicate | [Statement.coercible_predicate]) :: t
   def delete_predicates(description, properties)
 
-  def delete_predicates(%RDF.Description{} = description, properties) when is_list(properties) do
+  def delete_predicates(%__MODULE__{} = description, properties) when is_list(properties) do
     Enum.reduce properties, description, fn (property, description) ->
       delete_predicates(description, property)
     end
   end
 
-  def delete_predicates(%RDF.Description{subject: subject, predications: predications}, property) do
+  def delete_predicates(%__MODULE__{subject: subject, predications: predications}, property) do
     with property = coerce_predicate(property) do
-      %RDF.Description{subject: subject, predications: Map.delete(predications, property)}
+      %__MODULE__{subject: subject, predications: Map.delete(predications, property)}
     end
   end
 
@@ -362,7 +362,7 @@ defmodule RDF.Description do
   """
   @impl Access
   @spec fetch(t, Statement.coercible_predicate) :: {:ok, [Statement.object]} | :error
-  def fetch(%RDF.Description{predications: predications}, predicate) do
+  def fetch(%__MODULE__{predications: predications}, predicate) do
     with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
@@ -383,7 +383,7 @@ defmodule RDF.Description do
       :bar
   """
   @spec get(t, Statement.coercible_predicate, any) :: [Statement.object] | any
-  def get(description = %RDF.Description{}, predicate, default \\ nil) do
+  def get(description = %__MODULE__{}, predicate, default \\ nil) do
     case fetch(description, predicate) do
       {:ok, value} -> value
       :error       -> default
@@ -403,7 +403,7 @@ defmodule RDF.Description do
       nil
   """
   @spec first(t, Statement.coercible_predicate) :: Statement.object | nil
-  def first(description = %RDF.Description{}, predicate) do
+  def first(description = %__MODULE__{}, predicate) do
     description
     |> get(predicate, [])
     |> List.first
@@ -437,7 +437,7 @@ defmodule RDF.Description do
           Statement.coercible_object | nil,
           ([Statement.Object] -> [Statement.Object])
         ) :: t
-  def update(description = %RDF.Description{}, predicate, initial \\ nil, fun) do
+  def update(description = %__MODULE__{}, predicate, initial \\ nil, fun) do
     predicate = coerce_predicate(predicate)
 
     case get(description, predicate) do
@@ -491,7 +491,7 @@ defmodule RDF.Description do
           Statement.coercible_predicate,
           ([Statement.Object] -> {[Statement.Object], t} | :pop)
         ) :: {[Statement.Object], t}
-  def get_and_update(description = %RDF.Description{}, predicate, fun) do
+  def get_and_update(description = %__MODULE__{}, predicate, fun) do
     with triple_predicate = coerce_predicate(predicate) do
       case fun.(get(description, triple_predicate)) do
         {objects_to_return, new_objects} ->
@@ -508,10 +508,10 @@ defmodule RDF.Description do
   @spec pop(t) :: {Triple.t | [Statement.Object] | nil, t}
   def pop(description)
 
-  def pop(description = %RDF.Description{predications: predications})
+  def pop(description = %__MODULE__{predications: predications})
     when predications == %{}, do: {nil, description}
 
-  def pop(%RDF.Description{subject: subject, predications: predications}) do
+  def pop(%__MODULE__{subject: subject, predications: predications}) do
     # TODO: Find a faster way ...
     predicate = List.first(Map.keys(predications))
     [{object, _}] = Enum.take(objects = predications[predicate], 1)
@@ -521,7 +521,7 @@ defmodule RDF.Description do
       else: elem(pop_in(predications, [predicate, object]), 1)
 
     {{subject, predicate, object},
-       %RDF.Description{subject: subject, predications: popped}}
+       %__MODULE__{subject: subject, predications: popped}}
   end
 
   @doc """
@@ -537,12 +537,12 @@ defmodule RDF.Description do
       {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
   """
   @impl Access
-  def pop(description = %RDF.Description{subject: subject, predications: predications}, predicate) do
+  def pop(description = %__MODULE__{subject: subject, predications: predications}, predicate) do
     case Access.pop(predications, coerce_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
       {objects, new_predications} ->
-        {Map.keys(objects), %RDF.Description{subject: subject, predications: new_predications}}
+        {Map.keys(objects), %__MODULE__{subject: subject, predications: new_predications}}
     end
   end
 
@@ -560,7 +560,7 @@ defmodule RDF.Description do
       MapSet.new([EX.p1, EX.p2])
   """
   @spec predicates(t) :: MapSet.t
-  def predicates(%RDF.Description{predications: predications}),
+  def predicates(%__MODULE__{predications: predications}),
     do: predications |> Map.keys |> MapSet.new
 
   @doc """
@@ -580,14 +580,14 @@ defmodule RDF.Description do
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   @spec objects(t) :: MapSet.t
-  def objects(%RDF.Description{} = description),
+  def objects(%__MODULE__{} = description),
     do: objects(description, &RDF.resource?/1)
 
   @doc """
   The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
   """
   @spec objects(t, (Statement.object -> boolean)) :: MapSet.t
-  def objects(%RDF.Description{predications: predications}, filter_fn) do
+  def objects(%__MODULE__{predications: predications}, filter_fn) do
     Enum.reduce predications, MapSet.new, fn ({_, objects}, acc) ->
       objects
       |> Map.keys
@@ -622,16 +622,16 @@ defmodule RDF.Description do
   The list of all triples within a `RDF.Description`.
   """
   @spec triples(t) :: keyword
-  def triples(description = %RDF.Description{}), do: Enum.to_list(description)
+  def triples(description = %__MODULE__{}), do: Enum.to_list(description)
 
-  defdelegate statements(description), to: RDF.Description, as: :triples
+  defdelegate statements(description), to: __MODULE__, as: :triples
 
 
   @doc """
   Returns the number of statements of a `RDF.Description`.
   """
   @spec count(t) :: non_neg_integer
-  def count(%RDF.Description{predications: predications}) do
+  def count(%__MODULE__{predications: predications}) do
     Enum.reduce predications, 0,
       fn ({_, objects}, count) -> count + Enum.count(objects) end
   end
@@ -643,7 +643,7 @@ defmodule RDF.Description do
   @spec include?(t, statements) :: boolean
   def include?(description, statement)
 
-  def include?(%RDF.Description{predications: predications},
+  def include?(%__MODULE__{predications: predications},
                 {predicate, object}) do
     with triple_predicate = coerce_predicate(predicate),
          triple_object    = coerce_object(object) do
@@ -653,13 +653,13 @@ defmodule RDF.Description do
     end
   end
 
-  def include?(desc = %RDF.Description{subject: desc_subject},
+  def include?(desc = %__MODULE__{subject: desc_subject},
               {subject, predicate, object}) do
     coerce_subject(subject) == desc_subject &&
       include?(desc, {predicate, object})
   end
 
-  def include?(%RDF.Description{}, _), do: false
+  def include?(%__MODULE__{}, _), do: false
 
 
   @doc """
@@ -673,7 +673,7 @@ defmodule RDF.Description do
         false
   """
   @spec describes?(t, Statement.subject) :: boolean
-  def describes?(%RDF.Description{subject: subject}, other_subject) do
+  def describes?(%__MODULE__{subject: subject}, other_subject) do
     with other_subject = coerce_subject(other_subject) do
       subject == other_subject
     end
@@ -715,7 +715,7 @@ defmodule RDF.Description do
   @spec values(t, Statement.term_mapping) :: map
   def values(description, mapping \\ &RDF.Statement.default_term_mapping/1)
 
-  def values(%RDF.Description{predications: predications}, mapping) do
+  def values(%__MODULE__{predications: predications}, mapping) do
     Map.new predications, fn {predicate, objects} ->
       {
         mapping.({:predicate, predicate}),
@@ -734,11 +734,11 @@ defmodule RDF.Description do
   @spec take(t, [Statement.coercible_predicate] | Enum.t | nil) :: t
   def take(description, predicates)
 
-  def take(%RDF.Description{} = description, nil), do: description
+  def take(%__MODULE__{} = description, nil), do: description
 
-  def take(%RDF.Description{predications: predications} = description, predicates) do
+  def take(%__MODULE__{predications: predications} = description, predicates) do
     predicates = Enum.map(predicates, &(coerce_predicate/1))
-    %RDF.Description{description | predications: Map.take(predications, predicates)}
+    %__MODULE__{description | predications: Map.take(predications, predicates)}
   end
 
   @doc """
@@ -749,7 +749,7 @@ defmodule RDF.Description do
   @spec equal?(t, t) :: boolean
   def equal?(description1, description2)
 
-  def equal?(%RDF.Description{} = description1, %RDF.Description{} = description2) do
+  def equal?(%__MODULE__{} = description1, %__MODULE__{} = description2) do
     description1 == description2
   end
 
@@ -757,31 +757,35 @@ defmodule RDF.Description do
 
 
   defimpl Enumerable do
-    def member?(desc, triple), do: {:ok, RDF.Description.include?(desc, triple)}
-    def count(desc),           do: {:ok, RDF.Description.count(desc)}
+    alias RDF.Description
+
+    def member?(desc, triple), do: {:ok, Description.include?(desc, triple)}
+    def count(desc),           do: {:ok, Description.count(desc)}
     def slice(_desc),          do: {:error, __MODULE__}
 
-    def reduce(%RDF.Description{predications: predications}, {:cont, acc}, _fun)
+    def reduce(%Description{predications: predications}, {:cont, acc}, _fun)
       when map_size(predications) == 0, do: {:done, acc}
 
-    def reduce(description = %RDF.Description{}, {:cont, acc}, fun) do
-      {triple, rest} = RDF.Description.pop(description)
+    def reduce(description = %Description{}, {:cont, acc}, fun) do
+      {triple, rest} = Description.pop(description)
       reduce(rest, fun.(triple, acc), fun)
     end
 
     def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-    def reduce(description = %RDF.Description{}, {:suspend, acc}, fun) do
+    def reduce(description = %Description{}, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(description, &1, fun)}
     end
   end
 
 
   defimpl Collectable do
+    alias RDF.Description
+
     def into(original) do
       collector_fun = fn
         description, {:cont, list} when is_list(list)
-                                   -> RDF.Description.add(description, List.to_tuple(list))
-        description, {:cont, elem} -> RDF.Description.add(description, elem)
+                                   -> Description.add(description, List.to_tuple(list))
+        description, {:cont, elem} -> Description.add(description, elem)
         description, :done         -> description
         _description, :halt        -> :ok
       end

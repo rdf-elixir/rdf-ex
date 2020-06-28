@@ -32,7 +32,7 @@ defmodule RDF.BlankNode do
   def new(id)
 
   def new(id) when is_binary(id),
-    do: %RDF.BlankNode{id: id}
+    do: %__MODULE__{id: id}
 
   def new(id) when is_reference(id),
     do: id |> :erlang.ref_to_list |> to_string |> String.replace(~r/\<|\>/, "") |> new
@@ -49,7 +49,7 @@ defmodule RDF.BlankNode do
   @spec equal_value?(t, t) :: boolean | nil
   def equal_value?(left, right)
 
-  def equal_value?(%RDF.BlankNode{id: left}, %RDF.BlankNode{id: right}),
+  def equal_value?(%__MODULE__{id: left}, %__MODULE__{id: right}),
     do: left == right
 
   def equal_value?(_, _),

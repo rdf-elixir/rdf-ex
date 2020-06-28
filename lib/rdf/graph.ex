@@ -38,7 +38,7 @@ defmodule RDF.Graph do
   Creates an empty unnamed `RDF.Graph`.
   """
   @spec new :: t
-  def new, do: %RDF.Graph{}
+  def new, do: %__MODULE__{}
 
   @doc """
   Creates an `RDF.Graph`.
@@ -101,14 +101,14 @@ defmodule RDF.Graph do
   @spec new(input | [input], keyword) :: t
   def new(data, options)
 
-  def new(%RDF.Graph{} = graph, options) do
-    %RDF.Graph{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
+  def new(%__MODULE__{} = graph, options) do
+    %__MODULE__{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
     |> add_prefixes(Keyword.get(options, :prefixes))
     |> set_base_iri(Keyword.get(options, :base_iri))
   end
 
   def new(data, options) do
-    %RDF.Graph{}
+    %__MODULE__{}
     |> new(options)
     |> add(data)
   end
@@ -136,8 +136,8 @@ defmodule RDF.Graph do
   prefixes as they are and just removes the triples.
   """
   @spec clear(t) :: t
-  def clear(%RDF.Graph{} = graph) do
-    %RDF.Graph{graph | descriptions: %{}}
+  def clear(%__MODULE__{} = graph) do
+    %__MODULE__{graph | descriptions: %{}}
   end
 
 
@@ -150,7 +150,7 @@ defmodule RDF.Graph do
           Statement.coercible_predicate,
           Statement.coercible_object | [Statement.coercible_object]
         ) :: t
-  def add(%RDF.Graph{} = graph, subject, predicate, objects),
+  def add(%__MODULE__{} = graph, subject, predicate, objects),
     do: add(graph, {subject, predicate, objects})
 
   @doc """
@@ -168,7 +168,7 @@ defmodule RDF.Graph do
   @spec add(t, input | [input]) :: t
   def add(graph, triples)
 
-  def add(%RDF.Graph{} = graph, {subject, _, _} = statement),
+  def add(%__MODULE__{} = graph, {subject, _, _} = statement),
     do: do_add(graph, coerce_subject(subject), statement)
 
   def add(graph, {subject, predicate, object, _}),
@@ -180,10 +180,10 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+  def add(%__MODULE__{} = graph, %Description{subject: subject} = description),
     do: do_add(graph, subject, description)
 
-  def add(graph, %RDF.Graph{descriptions: descriptions, prefixes: prefixes}) do
+  def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
     graph =
       Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
         add(graph, description)
@@ -196,8 +196,8 @@ defmodule RDF.Graph do
     end
   end
 
-  defp do_add(%RDF.Graph{descriptions: descriptions} = graph, subject, statements) do
-    %RDF.Graph{graph |
+  defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
+    %__MODULE__{graph |
       descriptions:
         Map.update(descriptions, subject, Description.new(statements),
           fn description ->
@@ -224,16 +224,16 @@ defmodule RDF.Graph do
   @spec put(t, input | [input]) :: t
   def put(graph, statements)
 
-  def put(%RDF.Graph{} = graph, {subject, _, _} = statement),
+  def put(%__MODULE__{} = graph, {subject, _, _} = statement),
     do: do_put(graph, coerce_subject(subject), statement)
 
   def put(graph, {subject, predicate, object, _}),
     do: put(graph, {subject, predicate, object})
 
-  def put(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+  def put(%__MODULE__{} = graph, %Description{subject: subject} = description),
     do: do_put(graph, subject, description)
 
-  def put(graph, %RDF.Graph{descriptions: descriptions, prefixes: prefixes}) do
+  def put(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
     graph =
       Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
         put(graph, description)
@@ -246,13 +246,13 @@ defmodule RDF.Graph do
     end
   end
 
-  def put(%RDF.Graph{} = graph, statements) when is_map(statements) do
+  def put(%__MODULE__{} = graph, statements) when is_map(statements) do
     Enum.reduce statements, graph, fn ({subject, predications}, graph) ->
       put(graph, subject, predications)
     end
   end
 
-  def put(%RDF.Graph{} = graph, statements) when is_list(statements) do
+  def put(%__MODULE__{} = graph, statements) when is_list(statements) do
     put(graph, Enum.group_by(statements, &(elem(&1, 0)), fn {_, p, o} -> {p, o} end))
   end
 
@@ -262,11 +262,11 @@ defmodule RDF.Graph do
   @spec put(t, Statement.coercible_subject, Description.statements | [Description.statements]) :: t
   def put(graph, subject, predications)
 
-  def put(%RDF.Graph{descriptions: descriptions} = graph, subject, predications)
+  def put(%__MODULE__{descriptions: descriptions} = graph, subject, predications)
         when is_list(predications) do
     with subject = coerce_subject(subject) do
       # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
-      %RDF.Graph{graph |
+      %__MODULE__{graph |
         descriptions:
           Map.update(descriptions, subject, Description.new(subject, predications),
             fn current ->
@@ -279,8 +279,8 @@ defmodule RDF.Graph do
   def put(graph, subject, {_predicate, _objects} = predications),
     do: put(graph, subject, [predications])
 
-  defp do_put(%RDF.Graph{descriptions: descriptions} = graph, subject, statements) do
-    %RDF.Graph{graph |
+  defp do_put(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
+    %__MODULE__{graph |
       descriptions:
         Map.update(descriptions, subject, Description.new(statements),
           fn current ->
@@ -306,7 +306,7 @@ defmodule RDF.Graph do
           Statement.coercible_predicate,
           Statement.coercible_object | [Statement.coercible_object]
         ) :: t
-  def put(%RDF.Graph{} = graph, subject, predicate, objects),
+  def put(%__MODULE__{} = graph, subject, predicate, objects),
     do: put(graph, {subject, predicate, objects})
 
 
@@ -334,33 +334,33 @@ defmodule RDF.Graph do
   @spec delete(t, input | [input]) :: t
   def delete(graph, triples)
 
-  def delete(%RDF.Graph{} = graph, {subject, _, _} = triple),
+  def delete(%__MODULE__{} = graph, {subject, _, _} = triple),
     do: do_delete(graph, coerce_subject(subject), triple)
 
   def delete(graph, {subject, predicate, object, _}),
     do: delete(graph, {subject, predicate, object})
 
-  def delete(%RDF.Graph{} = graph, triples) when is_list(triples) do
+  def delete(%__MODULE__{} = graph, triples) when is_list(triples) do
     Enum.reduce triples, graph, fn (triple, graph) ->
       delete(graph, triple)
     end
   end
 
-  def delete(%RDF.Graph{} = graph, %Description{subject: subject} = description),
+  def delete(%__MODULE__{} = graph, %Description{subject: subject} = description),
     do: do_delete(graph, subject, description)
 
-  def delete(%RDF.Graph{} = graph, %RDF.Graph{descriptions: descriptions}) do
+  def delete(%__MODULE__{} = graph, %__MODULE__{descriptions: descriptions}) do
     Enum.reduce descriptions, graph, fn ({_, description}, graph) ->
       delete(graph, description)
     end
   end
 
-  defp do_delete(%RDF.Graph{descriptions: descriptions} = graph,
+  defp do_delete(%__MODULE__{descriptions: descriptions} = graph,
                  subject, statements) do
     with description when not is_nil(description) <- descriptions[subject],
          new_description = Description.delete(description, statements)
     do
-      %RDF.Graph{graph |
+      %__MODULE__{graph |
         descriptions:
           if Enum.empty?(new_description) do
             Map.delete(descriptions, subject)
@@ -383,15 +383,15 @@ defmodule RDF.Graph do
       ) :: t
   def delete_subjects(graph, subjects)
 
-  def delete_subjects(%RDF.Graph{} = graph, subjects) when is_list(subjects) do
+  def delete_subjects(%__MODULE__{} = graph, subjects) when is_list(subjects) do
     Enum.reduce subjects, graph, fn (subject, graph) ->
       delete_subjects(graph, subject)
     end
   end
 
-  def delete_subjects(%RDF.Graph{descriptions: descriptions} = graph, subject) do
+  def delete_subjects(%__MODULE__{descriptions: descriptions} = graph, subject) do
     with subject = coerce_subject(subject) do
-      %RDF.Graph{graph | descriptions: Map.delete(descriptions, subject)}
+      %__MODULE__{graph | descriptions: Map.delete(descriptions, subject)}
     end
   end
 
@@ -432,7 +432,7 @@ defmodule RDF.Graph do
           Description.statements | [Description.statements] | nil,
           update_description_fun
         ) :: t
-  def update(graph = %RDF.Graph{}, subject, initial \\ nil, fun) do
+  def update(graph = %__MODULE__{}, subject, initial \\ nil, fun) do
     subject = coerce_subject(subject)
 
     case get(graph, subject) do
@@ -475,7 +475,7 @@ defmodule RDF.Graph do
   """
   @impl Access
   @spec fetch(t, Statement.coercible_subject) :: {:ok, Description.t} | :error
-  def fetch(%RDF.Graph{descriptions: descriptions}, subject) do
+  def fetch(%__MODULE__{descriptions: descriptions}, subject) do
     Access.fetch(descriptions, coerce_subject(subject))
   end
 
@@ -520,7 +520,7 @@ defmodule RDF.Graph do
 
   """
   @spec get(t, Statement.coercible_subject, Description.t | nil) :: Description.t | nil
-  def get(%RDF.Graph{} = graph, subject, default \\ nil) do
+  def get(%__MODULE__{} = graph, subject, default \\ nil) do
     case fetch(graph, subject) do
       {:ok, value} -> value
       :error       -> default
@@ -531,14 +531,14 @@ defmodule RDF.Graph do
   The `RDF.Description` of the given subject.
   """
   @spec description(t, Statement.coercible_subject) :: Description.t | nil
-  def description(%RDF.Graph{descriptions: descriptions}, subject),
+  def description(%__MODULE__{descriptions: descriptions}, subject),
     do: Map.get(descriptions, coerce_subject(subject))
 
   @doc """
   All `RDF.Description`s within a `RDF.Graph`.
   """
   @spec descriptions(t) :: [Description.t]
-  def descriptions(%RDF.Graph{descriptions: descriptions}),
+  def descriptions(%__MODULE__{descriptions: descriptions}),
     do: Map.values(descriptions)
 
 
@@ -568,7 +568,7 @@ defmodule RDF.Graph do
   @impl Access
   @spec get_and_update(t, Statement.coercible_subject, get_and_update_description_fun) ::
           {Description.t, input}
-  def get_and_update(%RDF.Graph{} = graph, subject, fun) do
+  def get_and_update(%__MODULE__{} = graph, subject, fun) do
     with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
         {old_description, new_description} ->
@@ -588,10 +588,10 @@ defmodule RDF.Graph do
   @spec pop(t) :: {Statement.t | nil, t}
   def pop(graph)
 
-  def pop(%RDF.Graph{descriptions: descriptions} = graph)
+  def pop(%__MODULE__{descriptions: descriptions} = graph)
     when descriptions == %{}, do: {nil, graph}
 
-  def pop(%RDF.Graph{descriptions: descriptions} = graph) do
+  def pop(%__MODULE__{descriptions: descriptions} = graph) do
     # TODO: Find a faster way ...
     [{subject, description}] = Enum.take(descriptions, 1)
     {triple, popped_description} = Description.pop(description)
@@ -599,7 +599,7 @@ defmodule RDF.Graph do
       do:   descriptions |> Map.delete(subject),
       else: descriptions |> Map.put(subject, popped_description)
 
-    {triple, %RDF.Graph{graph | descriptions: popped}}
+    {triple, %__MODULE__{graph | descriptions: popped}}
   end
 
   @doc """
@@ -618,12 +618,12 @@ defmodule RDF.Graph do
   """
   @impl Access
   @spec pop(t, Statement.coercible_subject) :: {Description.t | nil, t}
-  def pop(%RDF.Graph{descriptions: descriptions} = graph, subject) do
+  def pop(%__MODULE__{descriptions: descriptions} = graph, subject) do
     case Access.pop(descriptions, coerce_subject(subject)) do
       {nil, _} ->
         {nil, graph}
       {description, new_descriptions} ->
-        {description, %RDF.Graph{graph | descriptions: new_descriptions}}
+        {description, %__MODULE__{graph | descriptions: new_descriptions}}
     end
   end
 
@@ -642,7 +642,7 @@ defmodule RDF.Graph do
 
   """
   @spec subject_count(t) :: non_neg_integer
-  def subject_count(%RDF.Graph{descriptions: descriptions}),
+  def subject_count(%__MODULE__{descriptions: descriptions}),
     do: Enum.count(descriptions)
 
   @doc """
@@ -659,7 +659,7 @@ defmodule RDF.Graph do
 
   """
   @spec triple_count(t) :: non_neg_integer
-  def triple_count(%RDF.Graph{descriptions: descriptions}) do
+  def triple_count(%__MODULE__{descriptions: descriptions}) do
     Enum.reduce descriptions, 0, fn ({_subject, description}, count) ->
       count + Description.count(description)
     end
@@ -677,7 +677,7 @@ defmodule RDF.Graph do
       ...>   RDF.Graph.subjects
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
-  def subjects(%RDF.Graph{descriptions: descriptions}),
+  def subjects(%__MODULE__{descriptions: descriptions}),
     do: descriptions |> Map.keys |> MapSet.new
 
   @doc """
@@ -692,7 +692,7 @@ defmodule RDF.Graph do
       ...>   RDF.Graph.predicates
       MapSet.new([EX.p1, EX.p2])
   """
-  def predicates(%RDF.Graph{descriptions: descriptions}) do
+  def predicates(%__MODULE__{descriptions: descriptions}) do
     Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
       description
       |> Description.predicates
@@ -716,7 +716,7 @@ defmodule RDF.Graph do
       ...> ]) |> RDF.Graph.objects
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
-  def objects(%RDF.Graph{descriptions: descriptions}) do
+  def objects(%__MODULE__{descriptions: descriptions}) do
     Enum.reduce descriptions, MapSet.new, fn ({_, description}, acc) ->
       description
       |> Description.objects
@@ -738,7 +738,7 @@ defmodule RDF.Graph do
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
         RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
-  def resources(graph = %RDF.Graph{descriptions: descriptions}) do
+  def resources(graph = %__MODULE__{descriptions: descriptions}) do
     Enum.reduce(descriptions, MapSet.new, fn ({_, description}, acc) ->
       description
       |> Description.resources
@@ -761,7 +761,7 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   @spec triples(t) :: [Statement.t]
-  def triples(%RDF.Graph{} = graph), do: Enum.to_list(graph)
+  def triples(%__MODULE__{} = graph), do: Enum.to_list(graph)
 
   defdelegate statements(graph), to: RDF.Graph, as: :triples
 
@@ -770,7 +770,7 @@ defmodule RDF.Graph do
   Checks if the given statement exists within a `RDF.Graph`.
   """
   @spec include?(t, Statement.t) :: boolean
-  def include?(%RDF.Graph{descriptions: descriptions},
+  def include?(%__MODULE__{descriptions: descriptions},
               triple = {subject, _, _}) do
     with subject = coerce_subject(subject),
          %Description{} <- description = descriptions[subject] do
@@ -791,7 +791,7 @@ defmodule RDF.Graph do
         false
   """
   @spec describes?(t, Statement.coercible_subject) :: boolean
-  def describes?(%RDF.Graph{descriptions: descriptions}, subject) do
+  def describes?(%__MODULE__{descriptions: descriptions}, subject) do
     with subject = coerce_subject(subject) do
       Map.has_key?(descriptions, subject)
     end
@@ -843,7 +843,7 @@ defmodule RDF.Graph do
   @spec values(t, Statement.term_mapping) :: map
   def values(graph, mapping \\ &RDF.Statement.default_term_mapping/1)
 
-  def values(%RDF.Graph{descriptions: descriptions}, mapping) do
+  def values(%__MODULE__{descriptions: descriptions}, mapping) do
     Map.new descriptions, fn {subject, description} ->
       {mapping.({:subject, subject}), Description.values(description, mapping)}
     end
@@ -861,16 +861,16 @@ defmodule RDF.Graph do
   @spec take(t, [Statement.coercible_subject] | Enum.t | nil, [Statement.coercible_predicate] | Enum.t | nil) :: t
   def take(graph, subjects, properties \\ nil)
 
-  def take(%RDF.Graph{} = graph, nil, nil), do: graph
+  def take(%__MODULE__{} = graph, nil, nil), do: graph
 
-  def take(%RDF.Graph{descriptions: descriptions} = graph, subjects, nil) do
+  def take(%__MODULE__{descriptions: descriptions} = graph, subjects, nil) do
     subjects = Enum.map(subjects, &(coerce_subject/1))
-    %RDF.Graph{graph | descriptions: Map.take(descriptions, subjects)}
+    %__MODULE__{graph | descriptions: Map.take(descriptions, subjects)}
   end
 
-  def take(%RDF.Graph{} = graph, subjects, properties) do
+  def take(%__MODULE__{} = graph, subjects, properties) do
     graph = take(graph, subjects, nil)
-    %RDF.Graph{graph |
+    %__MODULE__{graph |
       descriptions: Map.new(graph.descriptions, fn {subject, description} ->
         {subject, Description.take(description, properties)}
       end)
@@ -887,7 +887,7 @@ defmodule RDF.Graph do
   @spec equal?(t | any, t | any) :: boolean
   def equal?(graph1, graph2)
 
-  def equal?(%RDF.Graph{} = graph1, %RDF.Graph{} = graph2) do
+  def equal?(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
     clear_metadata(graph1) == clear_metadata(graph2)
   end
 
@@ -911,18 +911,18 @@ defmodule RDF.Graph do
         ) :: t
   def add_prefixes(graph, prefixes, conflict_resolver \\ nil)
 
-  def add_prefixes(%RDF.Graph{} = graph, nil, _), do: graph
+  def add_prefixes(%__MODULE__{} = graph, nil, _), do: graph
 
-  def add_prefixes(%RDF.Graph{prefixes: nil} = graph, prefixes, _) do
-    %RDF.Graph{graph | prefixes: RDF.PrefixMap.new(prefixes)}
+  def add_prefixes(%__MODULE__{prefixes: nil} = graph, prefixes, _) do
+    %__MODULE__{graph | prefixes: RDF.PrefixMap.new(prefixes)}
   end
 
-  def add_prefixes(%RDF.Graph{} = graph, additions, nil) do
-    add_prefixes(%RDF.Graph{} = graph, additions, fn _, _, ns -> ns end)
+  def add_prefixes(%__MODULE__{} = graph, additions, nil) do
+    add_prefixes(%__MODULE__{} = graph, additions, fn _, _, ns -> ns end)
   end
 
-  def add_prefixes(%RDF.Graph{prefixes: prefixes} = graph, additions, conflict_resolver) do
-    %RDF.Graph{graph |
+  def add_prefixes(%__MODULE__{prefixes: prefixes} = graph, additions, conflict_resolver) do
+    %__MODULE__{graph |
       prefixes: RDF.PrefixMap.merge!(prefixes, additions, conflict_resolver)
     }
   end
@@ -936,18 +936,18 @@ defmodule RDF.Graph do
   @spec delete_prefixes(t, PrefixMap.t) :: t
   def delete_prefixes(graph, prefixes)
 
-  def delete_prefixes(%RDF.Graph{prefixes: nil} = graph, _), do: graph
+  def delete_prefixes(%__MODULE__{prefixes: nil} = graph, _), do: graph
 
-  def delete_prefixes(%RDF.Graph{prefixes: prefixes} = graph, deletions) do
-    %RDF.Graph{graph | prefixes: RDF.PrefixMap.drop(prefixes, List.wrap(deletions))}
+  def delete_prefixes(%__MODULE__{prefixes: prefixes} = graph, deletions) do
+    %__MODULE__{graph | prefixes: RDF.PrefixMap.drop(prefixes, List.wrap(deletions))}
   end
 
   @doc """
   Clears all prefixes of the given `graph`.
   """
   @spec clear_prefixes(t) :: t
-  def clear_prefixes(%RDF.Graph{} = graph) do
-    %RDF.Graph{graph | prefixes: nil}
+  def clear_prefixes(%__MODULE__{} = graph) do
+    %__MODULE__{graph | prefixes: nil}
   end
 
   @doc """
@@ -958,27 +958,27 @@ defmodule RDF.Graph do
   @spec set_base_iri(t, IRI.t | nil) :: t
   def set_base_iri(graph, base_iri)
 
-  def set_base_iri(%RDF.Graph{} = graph, nil) do
-    %RDF.Graph{graph | base_iri: nil}
+  def set_base_iri(%__MODULE__{} = graph, nil) do
+    %__MODULE__{graph | base_iri: nil}
   end
 
-  def set_base_iri(%RDF.Graph{} = graph, base_iri) do
-    %RDF.Graph{graph | base_iri: RDF.IRI.coerce_base(base_iri)}
+  def set_base_iri(%__MODULE__{} = graph, base_iri) do
+    %__MODULE__{graph | base_iri: RDF.IRI.coerce_base(base_iri)}
   end
 
   @doc """
   Clears the base IRI of the given `graph`.
   """
   @spec clear_base_iri(t) :: t
-  def clear_base_iri(%RDF.Graph{} = graph) do
-    %RDF.Graph{graph | base_iri: nil}
+  def clear_base_iri(%__MODULE__{} = graph) do
+    %__MODULE__{graph | base_iri: nil}
   end
 
   @doc """
   Clears the base IRI and all prefixes of the given `graph`.
   """
   @spec clear_metadata(t) :: t
-  def clear_metadata(%RDF.Graph{} = graph) do
+  def clear_metadata(%__MODULE__{} = graph) do
     graph
     |> clear_base_iri()
     |> clear_prefixes()
@@ -986,30 +986,34 @@ defmodule RDF.Graph do
 
 
   defimpl Enumerable do
-    def member?(graph, triple),  do: {:ok, RDF.Graph.include?(graph, triple)}
-    def count(graph),            do: {:ok, RDF.Graph.triple_count(graph)}
+    alias RDF.Graph
+
+    def member?(graph, triple),  do: {:ok, Graph.include?(graph, triple)}
+    def count(graph),            do: {:ok, Graph.triple_count(graph)}
     def slice(_graph),           do: {:error, __MODULE__}
 
-    def reduce(%RDF.Graph{descriptions: descriptions}, {:cont, acc}, _fun)
+    def reduce(%Graph{descriptions: descriptions}, {:cont, acc}, _fun)
       when map_size(descriptions) == 0, do: {:done, acc}
 
-    def reduce(%RDF.Graph{} = graph, {:cont, acc}, fun) do
-      {triple, rest} = RDF.Graph.pop(graph)
+    def reduce(%Graph{} = graph, {:cont, acc}, fun) do
+      {triple, rest} = Graph.pop(graph)
       reduce(rest, fun.(triple, acc), fun)
     end
 
-    def reduce(_,       {:halt, acc}, _fun), do: {:halted, acc}
-    def reduce(%RDF.Graph{} = graph, {:suspend, acc}, fun) do
+    def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
+    def reduce(%Graph{} = graph, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(graph, &1, fun)}
     end
   end
 
   defimpl Collectable do
+    alias RDF.Graph
+
     def into(original) do
       collector_fun = fn
         graph, {:cont, list} when is_list(list)
-                             -> RDF.Graph.add(graph, List.to_tuple(list))
-        graph, {:cont, elem} -> RDF.Graph.add(graph, elem)
+                             -> Graph.add(graph, List.to_tuple(list))
+        graph, {:cont, elem} -> Graph.add(graph, elem)
         graph, :done         -> graph
         _graph, :halt        -> :ok
       end

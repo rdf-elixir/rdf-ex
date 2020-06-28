@@ -40,7 +40,7 @@ defmodule RDF.List do
     do: new(RDF.iri(head), graph)
 
   def new(head, graph) do
-    with list = %RDF.List{head: head, graph: graph} do
+    with list = %__MODULE__{head: head, graph: graph} do
       if well_formed?(list) do
         list
       end
@@ -79,7 +79,7 @@ defmodule RDF.List do
          graph = Keyword.get(opts, :graph, RDF.graph),
          {head, graph} = do_from(list, head, graph, opts)
     do
-      %RDF.List{head: head, graph: graph}
+      %__MODULE__{head: head, graph: graph}
     end
   end
 
@@ -123,7 +123,7 @@ defmodule RDF.List do
   Nested lists are converted recursively.
   """
   @spec values(t) :: Enumerable.t
-  def values(%RDF.List{graph: graph} = list) do
+  def values(%__MODULE__{graph: graph} = list) do
     Enum.map list, fn node_description ->
       value = Description.first(node_description, RDF.first)
       if node?(value, graph) do
@@ -141,7 +141,7 @@ defmodule RDF.List do
   The RDF nodes constituting a `RDF.List` as an Elixir list.
   """
   @spec nodes(t) :: [BlankNode.t]
-  def nodes(%RDF.List{} = list) do
+  def nodes(%__MODULE__{} = list) do
     Enum.map list, fn node_description -> node_description.subject end
   end
 
@@ -150,17 +150,17 @@ defmodule RDF.List do
   Checks if a list is the empty list.
   """
   @spec empty?(t) :: boolean
-  def empty?(%RDF.List{head: @rdf_nil}), do: true
-  def empty?(%RDF.List{}),               do: false
+  def empty?(%__MODULE__{head: @rdf_nil}), do: true
+  def empty?(%__MODULE__{}),               do: false
 
 
   @doc """
   Checks if the given list consists of list nodes which are all blank nodes.
   """
   @spec valid?(t) :: boolean
-  def valid?(%RDF.List{head: @rdf_nil}), do: true
+  def valid?(%__MODULE__{head: @rdf_nil}), do: true
 
-  def valid?(%RDF.List{} = list) do
+  def valid?(%__MODULE__{} = list) do
     Enum.all? list, fn node_description ->
       RDF.bnode?(node_description.subject)
     end
