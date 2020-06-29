@@ -12,7 +12,6 @@ defmodule RDF.XSD.Decimal do
   alias RDF.XSD
   alias Elixir.Decimal, as: D
 
-
   def_applicable_facet XSD.Facets.MinInclusive
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
@@ -55,7 +54,6 @@ defmodule RDF.XSD.Decimal do
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
@@ -136,7 +134,7 @@ defmodule RDF.XSD.Decimal do
       XSD.Boolean.datatype?(literal) ->
         case literal.value do
           false -> new(0.0)
-          true  -> new(1.0)
+          true -> new(1.0)
         end
 
       XSD.Integer.datatype?(literal) ->
@@ -151,13 +149,13 @@ defmodule RDF.XSD.Decimal do
     end
   end
 
+  @impl RDF.Literal.Datatype
+  def do_equal_value_same_or_derived_datatypes?(left, right),
+    do: XSD.Numeric.do_equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
-  def do_equal_value_same_or_derived_datatypes?(left, right), do: XSD.Numeric.do_equal_value?(left, right)
-
-  @impl RDF.Literal.Datatype
-  def do_equal_value_different_datatypes?(left, right), do: XSD.Numeric.do_equal_value?(left, right)
-
+  def do_equal_value_different_datatypes?(left, right),
+    do: XSD.Numeric.do_equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
   def do_compare(left, right), do: XSD.Numeric.do_compare(left, right)
@@ -179,7 +177,8 @@ defmodule RDF.XSD.Decimal do
         |> datatype.canonical_lexical()
         |> do_digit_count()
 
-      true -> nil
+      true ->
+        nil
     end
   end
 
@@ -195,17 +194,21 @@ defmodule RDF.XSD.Decimal do
   The number of digits to the right of the decimal point in the XML Schema canonical form of the literal value.
   """
   @spec fraction_digit_count(RDF.Literal.t()) :: non_neg_integer | nil
-  def fraction_digit_count(%RDF.Literal{literal: datatype_literal}), do: fraction_digit_count(datatype_literal)
+  def fraction_digit_count(%RDF.Literal{literal: datatype_literal}),
+    do: fraction_digit_count(datatype_literal)
 
   def fraction_digit_count(%datatype{} = literal) do
     cond do
-      XSD.Integer.datatype?(literal) -> 0
+      XSD.Integer.datatype?(literal) ->
+        0
+
       datatype?(literal) and datatype.valid?(literal) ->
         literal
         |> datatype.canonical_lexical()
         |> do_fraction_digit_count()
 
-      true -> nil
+      true ->
+        nil
     end
   end
 

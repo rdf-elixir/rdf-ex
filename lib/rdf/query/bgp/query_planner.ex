@@ -14,28 +14,30 @@ defmodule RDF.Query.BGP.QueryPlanner do
     query_plan(
       mark_solved_variables(rest, new_solved),
       new_solved,
-      [next_best | plan])
+      [next_best | plan]
+    )
   end
 
   defp triple_priority({v, v, v}), do: triple_priority({v, "p", "o"})
   defp triple_priority({v, v, o}), do: triple_priority({v, "p", o})
   defp triple_priority({v, p, v}), do: triple_priority({v, p, "o"})
   defp triple_priority({s, v, v}), do: triple_priority({s, v, "o"})
+
   defp triple_priority({s, p, o}) do
     {sp, pp, op} = {value_priority(s), value_priority(p), value_priority(o)}
-    <<(sp + pp + op) :: size(2), sp :: size(1), pp :: size(1), op :: size(1)>>
+    <<sp + pp + op::size(2), sp::size(1), pp::size(1), op::size(1)>>
   end
 
   defp value_priority(value) when is_atom(value), do: 1
-  defp value_priority(_),                         do: 0
+  defp value_priority(_), do: 0
 
   defp mark_solved_variables(triple_patterns, solved) do
-    Enum.map triple_patterns, fn {s, p, o} ->
+    Enum.map(triple_patterns, fn {s, p, o} ->
       {
-        (if is_atom(s) and s in solved, do: {s}, else: s),
-        (if is_atom(p) and p in solved, do: {p}, else: p),
-        (if is_atom(o) and o in solved, do: {o}, else: o)
+        if(is_atom(s) and s in solved, do: {s}, else: s),
+        if(is_atom(p) and p in solved, do: {p}, else: p),
+        if(is_atom(o) and o in solved, do: {o}, else: o)
       }
-    end
+    end)
   end
 end

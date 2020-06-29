@@ -10,9 +10,8 @@ defmodule RDF.Turtle do
 
   import RDF.Sigils
 
-  @id         ~I<http://www.w3.org/ns/formats/Turtle>
-  @name       :turtle
-  @extension  "ttl"
+  @id ~I<http://www.w3.org/ns/formats/Turtle>
+  @name :turtle
+  @extension "ttl"
   @media_type "text/turtle"
-
 end

@@ -26,7 +26,7 @@ defmodule RDF.NS do
     base_iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     file: "rdf.ttl",
     alias: [
-      Nil:        "nil",
+      Nil: "nil",
       LangString: "langString"
     ]
 

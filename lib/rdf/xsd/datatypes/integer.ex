@@ -14,7 +14,6 @@ defmodule RDF.XSD.Integer do
 
   alias RDF.XSD
 
-
   def_applicable_facet XSD.Facets.MinInclusive
   def_applicable_facet XSD.Facets.MaxInclusive
   def_applicable_facet XSD.Facets.MinExclusive
@@ -52,7 +51,6 @@ defmodule RDF.XSD.Integer do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
 
-
   @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
     case Integer.parse(lexical) do
@@ -80,7 +78,7 @@ defmodule RDF.XSD.Integer do
       XSD.Boolean.datatype?(literal) ->
         case literal.value do
           false -> new(0)
-          true  -> new(1)
+          true -> new(1)
         end
 
       XSD.Decimal.datatype?(literal) ->
@@ -89,7 +87,8 @@ defmodule RDF.XSD.Integer do
         |> Decimal.to_integer()
         |> new()
 
-      is_float(literal.value) and XSD.Double.datatype?(literal) -> # we're catching the XSD.Floats with this too
+      # we're catching the XSD.Floats with this too
+      is_float(literal.value) and XSD.Double.datatype?(literal) ->
         literal.value
         |> trunc()
         |> new()
@@ -100,10 +99,12 @@ defmodule RDF.XSD.Integer do
   end
 
   @impl RDF.Literal.Datatype
-  def do_equal_value_same_or_derived_datatypes?(left, right), do: XSD.Numeric.do_equal_value?(left, right)
+  def do_equal_value_same_or_derived_datatypes?(left, right),
+    do: XSD.Numeric.do_equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
-  def do_equal_value_different_datatypes?(left, right), do: XSD.Numeric.do_equal_value?(left, right)
+  def do_equal_value_different_datatypes?(left, right),
+    do: XSD.Numeric.do_equal_value?(left, right)
 
   @impl RDF.Literal.Datatype
   def do_compare(left, right), do: XSD.Numeric.do_compare(left, right)

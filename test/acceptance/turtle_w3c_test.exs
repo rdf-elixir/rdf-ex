@@ -8,7 +8,7 @@ defmodule RDF.Turtle.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  ExUnit.Case.register_attribute __ENV__, :test_case
+  ExUnit.Case.register_attribute(__ENV__, :test_case)
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
@@ -17,8 +17,8 @@ defmodule RDF.Turtle.W3C.Test do
 
   TestSuite.test_cases("Turtle", RDFT.TestTurtleEval, base: @base)
   |> Enum.each(fn test_case ->
-       @tag test_case: test_case
-       if TestSuite.test_name(test_case) in ~w[
+    @tag test_case: test_case
+    if TestSuite.test_name(test_case) in ~w[
             anonymous_blank_node_subject
             anonymous_blank_node_object
             labeled_blank_node_subject
@@ -45,58 +45,61 @@ defmodule RDF.Turtle.W3C.Test do
             turtle-subm-10
             turtle-subm-14
           ] do
-         @tag skip: """
-         The produced graphs are correct, but have different blank node labels than the result graph.
-         TODO: Implement a graph isomorphism algorithm.
-         """
-       end
+      @tag skip: """
+           The produced graphs are correct, but have different blank node labels than the result graph.
+           TODO: Implement a graph isomorphism algorithm.
+           """
+    end
 
-       test TestSuite.test_title(test_case), %{test_case: test_case} do
-         with base = to_string(TestSuite.test_input_file(test_case)) do
-           assert RDF.Graph.equal?(
-                    (TestSuite.test_input_file_path(test_case, "Turtle")
-                     |> Turtle.read_file!(base: base)),
-                    (TestSuite.test_result_file_path(test_case, "Turtle")
-                     |> NTriples.read_file!)
-                  )
-         end
-       end
-     end)
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert RDF.Graph.equal?(
+                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 |> Turtle.read_file!(base: base),
+                 TestSuite.test_result_file_path(test_case, "Turtle")
+                 |> NTriples.read_file!()
+               )
+      end
+    end
+  end)
 
   TestSuite.test_cases("Turtle", RDFT.TestTurtlePositiveSyntax, base: @base)
   |> Enum.each(fn test_case ->
-       @tag test_case: test_case
-       test TestSuite.test_title(test_case), %{test_case: test_case} do
-         with base = to_string(TestSuite.test_input_file(test_case)) do
-           assert {:ok, _} =
-             TestSuite.test_input_file_path(test_case, "Turtle") |> Turtle.read_file(base: base)
-         end
-       end
-     end)
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:ok, _} =
+                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 |> Turtle.read_file(base: base)
+      end
+    end
+  end)
 
   TestSuite.test_cases("Turtle", RDFT.TestTurtleNegativeSyntax, base: @base)
   |> Enum.each(fn test_case ->
-       @tag test_case: test_case
-       test TestSuite.test_title(test_case), %{test_case: test_case} do
-         with base = to_string(TestSuite.test_input_file(test_case)) do
-           assert {:error, _} =
-             TestSuite.test_input_file_path(test_case, "Turtle") |> Turtle.read_file(base: base)
-         end
-       end
-     end)
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:error, _} =
+                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 |> Turtle.read_file(base: base)
+      end
+    end
+  end)
 
   TestSuite.test_cases("Turtle", RDFT.TestTurtleNegativeEval, base: @base)
   |> Enum.each(fn test_case ->
-       if TestSuite.test_name(test_case) in ~w[turtle-eval-bad-01 turtle-eval-bad-02 turtle-eval-bad-03] do
-         @tag skip: "TODO: IRI validation"
-       end
-       @tag test_case: test_case
-       test TestSuite.test_title(test_case), %{test_case: test_case} do
-         with base = to_string(TestSuite.test_input_file(test_case)) do
-           assert {:error, _} =
-             TestSuite.test_input_file_path(test_case, "Turtle") |> Turtle.read_file(base: base)
-         end
-       end
-     end)
+    if TestSuite.test_name(test_case) in ~w[turtle-eval-bad-01 turtle-eval-bad-02 turtle-eval-bad-03] do
+      @tag skip: "TODO: IRI validation"
+    end
 
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:error, _} =
+                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 |> Turtle.read_file(base: base)
+      end
+    end
+  end)
 end

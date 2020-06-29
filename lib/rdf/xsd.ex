@@ -49,6 +49,7 @@ defmodule RDF.XSD do
     defdelegate unquote(String.to_atom(datatype.name))(value, opts), to: datatype, as: :new
 
     elixir_name = Macro.underscore(datatype.name)
+
     unless datatype.name == elixir_name do
       defdelegate unquote(String.to_atom(elixir_name))(value), to: datatype, as: :new
       defdelegate unquote(String.to_atom(elixir_name))(value, opts), to: datatype, as: :new
@@ -58,6 +59,6 @@ defmodule RDF.XSD do
   defdelegate datetime(value), to: XSD.DateTime, as: :new
   defdelegate datetime(value, opts), to: XSD.DateTime, as: :new
 
-  defdelegate unquote(true)(),  to: XSD.Boolean.Value
+  defdelegate unquote(true)(), to: XSD.Boolean.Value
   defdelegate unquote(false)(), to: XSD.Boolean.Value
 end

@@ -7,8 +7,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
     datatype = Keyword.fetch!(opts, :datatype)
     datatype_name = Keyword.fetch!(opts, :name)
 
-    datatype_iri =
-      Keyword.get(opts, :iri, RDF.NS.XSD.__base_iri__ <> datatype_name)
+    datatype_iri = Keyword.get(opts, :iri, RDF.NS.XSD.__base_iri__() <> datatype_name)
 
     valid = Keyword.get(opts, :valid)
     invalid = Keyword.get(opts, :invalid)
@@ -116,45 +115,48 @@ defmodule RDF.XSD.Datatype.Test.Case do
 
         describe "general datatype?/1" do
           test "on the exact same datatype" do
-            assert (unquote(datatype).datatype?(unquote(datatype))) == true
+            assert unquote(datatype).datatype?(unquote(datatype)) == true
+
             Enum.each(@valid, fn {input, _} ->
               literal = unquote(datatype).new(input)
-              assert (unquote(datatype).datatype?(literal)) == true
-              assert (unquote(datatype).datatype?(literal.literal)) == true
+              assert unquote(datatype).datatype?(literal) == true
+              assert unquote(datatype).datatype?(literal.literal) == true
             end)
           end
 
           unless unquote(primitive) do
             test "on the base datatype" do
-              assert (unquote(base).datatype?(unquote(datatype))) == true
+              assert unquote(base).datatype?(unquote(datatype)) == true
+
               Enum.each(@valid, fn {input, _} ->
                 literal = unquote(datatype).new(input)
-                assert (unquote(base).datatype?(literal)) == true
-                assert (unquote(base).datatype?(literal.literal)) == true
+                assert unquote(base).datatype?(literal) == true
+                assert unquote(base).datatype?(literal.literal) == true
               end)
             end
 
             test "on the base primitive datatype" do
-              assert (unquote(base_primitive).datatype?(unquote(datatype))) == true
+              assert unquote(base_primitive).datatype?(unquote(datatype)) == true
+
               Enum.each(@valid, fn {input, _} ->
                 literal = unquote(datatype).new(input)
-                assert (unquote(base_primitive).datatype?(literal)) == true
-                assert (unquote(base_primitive).datatype?(literal.literal)) == true
+                assert unquote(base_primitive).datatype?(literal) == true
+                assert unquote(base_primitive).datatype?(literal.literal) == true
               end)
             end
-
           end
         end
 
         test "datatype_id/1" do
           Enum.each(@valid, fn {input, _} ->
-            assert (unquote(datatype).new(input) |> unquote(datatype).datatype_id()) == RDF.iri(unquote(datatype_iri))
+            assert unquote(datatype).new(input) |> unquote(datatype).datatype_id() ==
+                     RDF.iri(unquote(datatype_iri))
           end)
         end
 
         test "language/1" do
           Enum.each(@valid, fn {input, _} ->
-            assert (unquote(datatype).new(input) |> unquote(datatype).language()) == nil
+            assert unquote(datatype).new(input) |> unquote(datatype).language() == nil
           end)
         end
 
@@ -288,9 +290,9 @@ defmodule RDF.XSD.Datatype.Test.Case do
             @tag example: %{input: input, canonicalized: canonicalized}
             test "canonical? for #{unquote(datatype)} #{inspect(input)}", %{example: example} do
               literal = unquote(datatype).new(example.input)
-              assert unquote(datatype).canonical?(literal) == (
-                       unquote(datatype).lexical(literal) ==example.canonicalized
-                       )
+
+              assert unquote(datatype).canonical?(literal) ==
+                       (unquote(datatype).lexical(literal) == example.canonicalized)
             end
           end)
 

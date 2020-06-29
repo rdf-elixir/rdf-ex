@@ -49,45 +49,57 @@ defmodule RDF.XSD.TimeTest do
   describe "new/2" do
     test "with date and tz opt" do
       assert XSD.Time.new("12:00:00", tz: "+01:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[11:00:00], true},
-                 uncanonical_lexical: "12:00:00+01:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[11:00:00], true},
+                   uncanonical_lexical: "12:00:00+01:00"
+                 }
+               }
 
       assert XSD.Time.new(~T[12:00:00], tz: "+01:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[11:00:00], true},
-                 uncanonical_lexical: "12:00:00+01:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[11:00:00], true},
+                   uncanonical_lexical: "12:00:00+01:00"
+                 }
+               }
 
       assert XSD.Time.new("12:00:00", tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[12:00:00], true},
-                 uncanonical_lexical: "12:00:00+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[12:00:00], true},
+                   uncanonical_lexical: "12:00:00+00:00"
+                 }
+               }
 
       assert XSD.Time.new(~T[12:00:00], tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[12:00:00], true},
-                 uncanonical_lexical: "12:00:00+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[12:00:00], true},
+                   uncanonical_lexical: "12:00:00+00:00"
+                 }
+               }
     end
 
     test "with date string including a timezone and tz opt" do
       assert XSD.Time.new("12:00:00+00:00", tz: "+01:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[11:00:00], true},
-                 uncanonical_lexical: "12:00:00+01:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[11:00:00], true},
+                   uncanonical_lexical: "12:00:00+01:00"
+                 }
+               }
 
       assert XSD.Time.new("12:00:00+01:00", tz: "Z") ==
                %RDF.Literal{literal: %XSD.Time{value: {~T[12:00:00], true}}}
 
       assert XSD.Time.new("12:00:00+01:00", tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Time{
-                 value: {~T[12:00:00], true},
-                 uncanonical_lexical: "12:00:00+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Time{
+                   value: {~T[12:00:00], true},
+                   uncanonical_lexical: "12:00:00+00:00"
+                 }
+               }
     end
 
     test "with invalid tz opt" do

@@ -30,7 +30,7 @@ defmodule RDF.Query.BGP.QueryPlannerTest do
                {:s4, :p4, ~L"foo"},
                {:s, :p, :o},
                {{:s}, {:p}, :o2},
-               {:s2, :p2, {:o2}},
+               {:s2, :p2, {:o2}}
              ]
     end
   end

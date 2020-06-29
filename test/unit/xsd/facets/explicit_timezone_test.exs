@@ -19,7 +19,7 @@ defmodule RDF.XSD.Facets.ExplicitTimezoneTest do
   end
 
   test "CustomTime" do
-    assert CustomTime.new(~T[00:00:00] ) |> RDF.Literal.valid?()
+    assert CustomTime.new(~T[00:00:00]) |> RDF.Literal.valid?()
     assert CustomTime.new("00:00:00Z") |> RDF.Literal.valid?()
     assert CustomTime.new("00:00:00") |> RDF.Literal.valid?()
   end

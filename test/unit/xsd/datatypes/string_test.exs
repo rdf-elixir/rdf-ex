@@ -128,7 +128,8 @@ defmodule RDF.XSD.StringTest do
     end
 
     test "casting an IRI" do
-      assert RDF.iri("http://example.com") |> XSD.String.cast() == XSD.string("http://example.com")
+      assert RDF.iri("http://example.com") |> XSD.String.cast() ==
+               XSD.string("http://example.com")
     end
 
     test "with invalid literals" do

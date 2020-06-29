@@ -5,7 +5,6 @@ defmodule RDF.BlankNode.Generator do
 
   use GenServer
 
-
   # Client API ###############################################################
 
   @doc """
@@ -30,7 +29,6 @@ defmodule RDF.BlankNode.Generator do
   defp convert_opts(opts) when is_list(opts), do: Map.new(opts)
   defp convert_opts(opts) when is_map(opts), do: opts
 
-
   @doc """
   Synchronously stops the blank node generator with the given `reason`.
 
@@ -45,14 +43,12 @@ defmodule RDF.BlankNode.Generator do
     GenServer.stop(pid, reason, timeout)
   end
 
-
   @doc """
   Generates a new blank node according to the `RDF.BlankNode.Generator.Algorithm` set up.
   """
   def generate(pid) do
     GenServer.call(pid, :generate)
   end
-
 
   @doc """
   Generates a blank node for a given value according to the `RDF.BlankNode.Generator.Algorithm` set up.
@@ -61,14 +57,12 @@ defmodule RDF.BlankNode.Generator do
     GenServer.call(pid, {:generate_for, value})
   end
 
-
   # Server Callbacks #########################################################
 
   @impl GenServer
   def init({generation_mod, init_opts}) do
     {:ok, {generation_mod, generation_mod.init(init_opts)}}
   end
-
 
   @impl GenServer
   def handle_call(:generate, _from, {generation_mod, state}) do
@@ -83,5 +77,4 @@ defmodule RDF.BlankNode.Generator do
       {:reply, bnode, {generation_mod, new_state}}
     end
   end
-
 end

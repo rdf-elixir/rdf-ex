@@ -1,11 +1,11 @@
 defmodule RDF.XSD.Utils.Regex do
   @moduledoc !"""
-  XSD-flavoured regex matching.
+             XSD-flavoured regex matching.
 
-  This is not intended to be used directly.
-  Use `c:RDF.XSD.Datatype.matches?/3` implementations on the datatypes or
-  `RDF.Literal.matches?/3` instead.
-  """
+             This is not intended to be used directly.
+             Use `c:RDF.XSD.Datatype.matches?/3` implementations on the datatypes or
+             `RDF.Literal.matches?/3` instead.
+             """
 
   @doc """
   Matches the string representation of the given value against a XPath and XQuery regular expression pattern.

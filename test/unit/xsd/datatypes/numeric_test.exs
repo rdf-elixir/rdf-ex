@@ -75,49 +75,79 @@ defmodule RDF.XSD.NumericTest do
     end
 
     test "xsd:double literal + xsd:integer literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), XSD.integer(2))
-      assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(3.1)), 0.000000000000001
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), XSD.integer(2))
 
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), Age.new(2))
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(3.1)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(3.1)),
+                      0.000000000000001
 
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(DoubleUnitInterval.new(0.5), Age.new(2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.double(1.1), Age.new(2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(2.5)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(3.1)),
+                      0.000000000000001
+
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.add(DoubleUnitInterval.new(0.5), Age.new(2))
+
+      assert_in_delta RDF.Literal.value(result),
+                      RDF.Literal.value(XSD.double(2.5)),
+                      0.000000000000001
     end
 
     test "xsd:decimal literal + xsd:double literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.add(XSD.decimal(1.1), XSD.double(2.2))
-      assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(3.3)), 0.000000000000001
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.add(XSD.decimal(1.1), XSD.double(2.2))
 
-      assert result = %RDF.Literal{literal: %XSD.Double{}} =
-               Numeric.add(DecimalUnitInterval.new(0.5), DoubleUnitInterval.new(0.5))
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(1.0)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(3.3)),
+                      0.000000000000001
+
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.add(DecimalUnitInterval.new(0.5), DoubleUnitInterval.new(0.5))
+
+      assert_in_delta RDF.Literal.value(result),
+                      RDF.Literal.value(XSD.double(1.0)),
+                      0.000000000000001
     end
 
     test "xsd:float literal + xsd:integer literal" do
-      assert result = %RDF.Literal{literal: %XSD.Float{}} = Numeric.add(XSD.float(1.1), XSD.integer(2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Float{}} = Numeric.add(XSD.float(1.1), XSD.integer(2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.float(3.1)), 0.000000000000001
-      assert result = %RDF.Literal{literal: %XSD.Float{}} =
+                      RDF.Literal.value(XSD.float(3.1)),
+                      0.000000000000001
+
+      assert result =
+               %RDF.Literal{literal: %XSD.Float{}} =
                Numeric.add(Age.new(42), FloatUnitInterval.new(0.5))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.float(42.5)), 0.000000000000001
+                      RDF.Literal.value(XSD.float(42.5)),
+                      0.000000000000001
     end
 
     test "xsd:decimal literal + xsd:float literal" do
-      assert result = %RDF.Literal{literal: %XSD.Float{}} = Numeric.add(XSD.decimal(1.1), XSD.float(2.2))
-      assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.float(3.3)), 0.000000000000001
+      assert result =
+               %RDF.Literal{literal: %XSD.Float{}} = Numeric.add(XSD.decimal(1.1), XSD.float(2.2))
 
-      assert result = %RDF.Literal{literal: %XSD.Float{}} =
-               Numeric.add(DecimalUnitInterval.new(0.5), FloatUnitInterval.new(0.5))
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.float(1.0)), 0.000000000000001
+                      RDF.Literal.value(XSD.float(3.3)),
+                      0.000000000000001
+
+      assert result =
+               %RDF.Literal{literal: %XSD.Float{}} =
+               Numeric.add(DecimalUnitInterval.new(0.5), FloatUnitInterval.new(0.5))
+
+      assert_in_delta RDF.Literal.value(result),
+                      RDF.Literal.value(XSD.float(1.0)),
+                      0.000000000000001
     end
 
     test "if one of the operands is a zero or a finite number and the other is INF or -INF, INF or -INF is returned" do
@@ -180,15 +210,23 @@ defmodule RDF.XSD.NumericTest do
     end
 
     test "xsd:double literal - xsd:integer literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.subtract(XSD.double(3.3), XSD.integer(2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.subtract(XSD.double(3.3), XSD.integer(2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(1.3)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(1.3)),
+                      0.000000000000001
     end
 
     test "xsd:decimal literal - xsd:double literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.subtract(XSD.decimal(3.3), XSD.double(2.2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.subtract(XSD.decimal(3.3), XSD.double(2.2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(1.1)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(1.1)),
+                      0.000000000000001
     end
 
     test "if one of the operands is a zero or a finite number and the other is INF or -INF, an infinity of the appropriate sign is returned" do
@@ -232,15 +270,23 @@ defmodule RDF.XSD.NumericTest do
     end
 
     test "xsd:double literal * xsd:integer literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.multiply(XSD.double(1.5), XSD.integer(3))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.multiply(XSD.double(1.5), XSD.integer(3))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(4.5)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(4.5)),
+                      0.000000000000001
     end
 
     test "xsd:decimal literal * xsd:double literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.multiply(XSD.decimal(0.5), XSD.double(2.5))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.multiply(XSD.decimal(0.5), XSD.double(2.5))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(1.25)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(1.25)),
+                      0.000000000000001
     end
 
     test "if one of the operands is a zero and the other is an infinity, NaN is returned" do
@@ -300,15 +346,23 @@ defmodule RDF.XSD.NumericTest do
     end
 
     test "xsd:double literal / xsd:integer literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.divide(XSD.double(4), XSD.integer(2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.divide(XSD.double(4), XSD.integer(2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(2)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(2)),
+                      0.000000000000001
     end
 
     test "xsd:decimal literal / xsd:double literal" do
-      assert result = %RDF.Literal{literal: %XSD.Double{}} = Numeric.divide(XSD.decimal(4), XSD.double(2))
+      assert result =
+               %RDF.Literal{literal: %XSD.Double{}} =
+               Numeric.divide(XSD.decimal(4), XSD.double(2))
+
       assert_in_delta RDF.Literal.value(result),
-                      RDF.Literal.value(XSD.double(2)), 0.000000000000001
+                      RDF.Literal.value(XSD.double(2)),
+                      0.000000000000001
     end
 
     test "a positive number divided by positive zero returns INF" do
@@ -652,173 +706,173 @@ defmodule RDF.XSD.NumericTest do
   test "result_type/3 (type-promotion)" do
     %{
       XSD.Integer => %{
-        XSD.Integer            => XSD.Integer,
+        XSD.Integer => XSD.Integer,
         XSD.NonPositiveInteger => XSD.Integer,
-        XSD.NegativeInteger    => XSD.Integer,
-        XSD.Long               => XSD.Integer,
-        XSD.Int                => XSD.Integer,
-        XSD.Short              => XSD.Integer,
-        XSD.Byte               => XSD.Integer,
+        XSD.NegativeInteger => XSD.Integer,
+        XSD.Long => XSD.Integer,
+        XSD.Int => XSD.Integer,
+        XSD.Short => XSD.Integer,
+        XSD.Byte => XSD.Integer,
         XSD.NonNegativeInteger => XSD.Integer,
-        XSD.UnsignedLong       => XSD.Integer,
-        XSD.UnsignedInt        => XSD.Integer,
-        XSD.UnsignedShort      => XSD.Integer,
-        XSD.UnsignedByte       => XSD.Integer,
-        XSD.PositiveInteger    => XSD.Integer,
-        XSD.Decimal            => XSD.Decimal,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Decimal,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Integer,
+        XSD.UnsignedInt => XSD.Integer,
+        XSD.UnsignedShort => XSD.Integer,
+        XSD.UnsignedByte => XSD.Integer,
+        XSD.PositiveInteger => XSD.Integer,
+        XSD.Decimal => XSD.Decimal,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Decimal,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       XSD.Byte => %{
-        XSD.Integer            => XSD.Integer,
+        XSD.Integer => XSD.Integer,
         XSD.NonPositiveInteger => XSD.Integer,
-        XSD.NegativeInteger    => XSD.Integer,
-        XSD.Long               => XSD.Integer,
-        XSD.Int                => XSD.Integer,
-        XSD.Short              => XSD.Integer,
-        XSD.Byte               => XSD.Integer,
+        XSD.NegativeInteger => XSD.Integer,
+        XSD.Long => XSD.Integer,
+        XSD.Int => XSD.Integer,
+        XSD.Short => XSD.Integer,
+        XSD.Byte => XSD.Integer,
         XSD.NonNegativeInteger => XSD.Integer,
-        XSD.UnsignedLong       => XSD.Integer,
-        XSD.UnsignedInt        => XSD.Integer,
-        XSD.UnsignedShort      => XSD.Integer,
-        XSD.UnsignedByte       => XSD.Integer,
-        XSD.PositiveInteger    => XSD.Integer,
-        XSD.Decimal            => XSD.Decimal,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Decimal,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Integer,
+        XSD.UnsignedInt => XSD.Integer,
+        XSD.UnsignedShort => XSD.Integer,
+        XSD.UnsignedByte => XSD.Integer,
+        XSD.PositiveInteger => XSD.Integer,
+        XSD.Decimal => XSD.Decimal,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Decimal,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       XSD.Decimal => %{
-        XSD.Integer            => XSD.Decimal,
+        XSD.Integer => XSD.Decimal,
         XSD.NonPositiveInteger => XSD.Decimal,
-        XSD.NegativeInteger    => XSD.Decimal,
-        XSD.Long               => XSD.Decimal,
-        XSD.Int                => XSD.Decimal,
-        XSD.Short              => XSD.Decimal,
-        XSD.Byte               => XSD.Decimal,
+        XSD.NegativeInteger => XSD.Decimal,
+        XSD.Long => XSD.Decimal,
+        XSD.Int => XSD.Decimal,
+        XSD.Short => XSD.Decimal,
+        XSD.Byte => XSD.Decimal,
         XSD.NonNegativeInteger => XSD.Decimal,
-        XSD.UnsignedLong       => XSD.Decimal,
-        XSD.UnsignedInt        => XSD.Decimal,
-        XSD.UnsignedShort      => XSD.Decimal,
-        XSD.UnsignedByte       => XSD.Decimal,
-        XSD.PositiveInteger    => XSD.Decimal,
-        XSD.Decimal            => XSD.Decimal,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Decimal,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Decimal,
+        XSD.UnsignedInt => XSD.Decimal,
+        XSD.UnsignedShort => XSD.Decimal,
+        XSD.UnsignedByte => XSD.Decimal,
+        XSD.PositiveInteger => XSD.Decimal,
+        XSD.Decimal => XSD.Decimal,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Decimal,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       DecimalUnitInterval => %{
-        XSD.Integer            => XSD.Decimal,
+        XSD.Integer => XSD.Decimal,
         XSD.NonPositiveInteger => XSD.Decimal,
-        XSD.NegativeInteger    => XSD.Decimal,
-        XSD.Long               => XSD.Decimal,
-        XSD.Int                => XSD.Decimal,
-        XSD.Short              => XSD.Decimal,
-        XSD.Byte               => XSD.Decimal,
+        XSD.NegativeInteger => XSD.Decimal,
+        XSD.Long => XSD.Decimal,
+        XSD.Int => XSD.Decimal,
+        XSD.Short => XSD.Decimal,
+        XSD.Byte => XSD.Decimal,
         XSD.NonNegativeInteger => XSD.Decimal,
-        XSD.UnsignedLong       => XSD.Decimal,
-        XSD.UnsignedInt        => XSD.Decimal,
-        XSD.UnsignedShort      => XSD.Decimal,
-        XSD.UnsignedByte       => XSD.Decimal,
-        XSD.PositiveInteger    => XSD.Decimal,
-        XSD.Decimal            => XSD.Decimal,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Decimal,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Decimal,
+        XSD.UnsignedInt => XSD.Decimal,
+        XSD.UnsignedShort => XSD.Decimal,
+        XSD.UnsignedByte => XSD.Decimal,
+        XSD.PositiveInteger => XSD.Decimal,
+        XSD.Decimal => XSD.Decimal,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Decimal,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       XSD.Float => %{
-        XSD.Integer            => XSD.Float,
+        XSD.Integer => XSD.Float,
         XSD.NonPositiveInteger => XSD.Float,
-        XSD.NegativeInteger    => XSD.Float,
-        XSD.Long               => XSD.Float,
-        XSD.Int                => XSD.Float,
-        XSD.Short              => XSD.Float,
-        XSD.Byte               => XSD.Float,
+        XSD.NegativeInteger => XSD.Float,
+        XSD.Long => XSD.Float,
+        XSD.Int => XSD.Float,
+        XSD.Short => XSD.Float,
+        XSD.Byte => XSD.Float,
         XSD.NonNegativeInteger => XSD.Float,
-        XSD.UnsignedLong       => XSD.Float,
-        XSD.UnsignedInt        => XSD.Float,
-        XSD.UnsignedShort      => XSD.Float,
-        XSD.UnsignedByte       => XSD.Float,
-        XSD.PositiveInteger    => XSD.Float,
-        XSD.Decimal            => XSD.Float,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Float,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Float,
+        XSD.UnsignedInt => XSD.Float,
+        XSD.UnsignedShort => XSD.Float,
+        XSD.UnsignedByte => XSD.Float,
+        XSD.PositiveInteger => XSD.Float,
+        XSD.Decimal => XSD.Float,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Float,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       FloatUnitInterval => %{
-        XSD.Integer            => XSD.Float,
+        XSD.Integer => XSD.Float,
         XSD.NonPositiveInteger => XSD.Float,
-        XSD.NegativeInteger    => XSD.Float,
-        XSD.Long               => XSD.Float,
-        XSD.Int                => XSD.Float,
-        XSD.Short              => XSD.Float,
-        XSD.Byte               => XSD.Float,
+        XSD.NegativeInteger => XSD.Float,
+        XSD.Long => XSD.Float,
+        XSD.Int => XSD.Float,
+        XSD.Short => XSD.Float,
+        XSD.Byte => XSD.Float,
         XSD.NonNegativeInteger => XSD.Float,
-        XSD.UnsignedLong       => XSD.Float,
-        XSD.UnsignedInt        => XSD.Float,
-        XSD.UnsignedShort      => XSD.Float,
-        XSD.UnsignedByte       => XSD.Float,
-        XSD.PositiveInteger    => XSD.Float,
-        XSD.Decimal            => XSD.Float,
-        XSD.Float              => XSD.Float,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Float,
-        FloatUnitInterval      => XSD.Float,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Float,
+        XSD.UnsignedInt => XSD.Float,
+        XSD.UnsignedShort => XSD.Float,
+        XSD.UnsignedByte => XSD.Float,
+        XSD.PositiveInteger => XSD.Float,
+        XSD.Decimal => XSD.Float,
+        XSD.Float => XSD.Float,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Float,
+        FloatUnitInterval => XSD.Float,
+        DoubleUnitInterval => XSD.Double
       },
       XSD.Double => %{
-        XSD.Integer            => XSD.Double,
+        XSD.Integer => XSD.Double,
         XSD.NonPositiveInteger => XSD.Double,
-        XSD.NegativeInteger    => XSD.Double,
-        XSD.Long               => XSD.Double,
-        XSD.Int                => XSD.Double,
-        XSD.Short              => XSD.Double,
-        XSD.Byte               => XSD.Double,
+        XSD.NegativeInteger => XSD.Double,
+        XSD.Long => XSD.Double,
+        XSD.Int => XSD.Double,
+        XSD.Short => XSD.Double,
+        XSD.Byte => XSD.Double,
         XSD.NonNegativeInteger => XSD.Double,
-        XSD.UnsignedLong       => XSD.Double,
-        XSD.UnsignedInt        => XSD.Double,
-        XSD.UnsignedShort      => XSD.Double,
-        XSD.UnsignedByte       => XSD.Double,
-        XSD.PositiveInteger    => XSD.Double,
-        XSD.Decimal            => XSD.Double,
-        XSD.Float              => XSD.Double,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Double,
-        FloatUnitInterval      => XSD.Double,
-        DoubleUnitInterval     => XSD.Double,
+        XSD.UnsignedLong => XSD.Double,
+        XSD.UnsignedInt => XSD.Double,
+        XSD.UnsignedShort => XSD.Double,
+        XSD.UnsignedByte => XSD.Double,
+        XSD.PositiveInteger => XSD.Double,
+        XSD.Decimal => XSD.Double,
+        XSD.Float => XSD.Double,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Double,
+        FloatUnitInterval => XSD.Double,
+        DoubleUnitInterval => XSD.Double
       },
       DoubleUnitInterval => %{
-        XSD.Integer            => XSD.Double,
+        XSD.Integer => XSD.Double,
         XSD.NonPositiveInteger => XSD.Double,
-        XSD.NegativeInteger    => XSD.Double,
-        XSD.Long               => XSD.Double,
-        XSD.Int                => XSD.Double,
-        XSD.Short              => XSD.Double,
-        XSD.Byte               => XSD.Double,
+        XSD.NegativeInteger => XSD.Double,
+        XSD.Long => XSD.Double,
+        XSD.Int => XSD.Double,
+        XSD.Short => XSD.Double,
+        XSD.Byte => XSD.Double,
         XSD.NonNegativeInteger => XSD.Double,
-        XSD.UnsignedLong       => XSD.Double,
-        XSD.UnsignedInt        => XSD.Double,
-        XSD.UnsignedShort      => XSD.Double,
-        XSD.UnsignedByte       => XSD.Double,
-        XSD.PositiveInteger    => XSD.Double,
-        XSD.Decimal            => XSD.Double,
-        XSD.Float              => XSD.Double,
-        XSD.Double             => XSD.Double,
-        DecimalUnitInterval    => XSD.Double,
-        FloatUnitInterval      => XSD.Double,
-        DoubleUnitInterval     => XSD.Double,
-      },
+        XSD.UnsignedLong => XSD.Double,
+        XSD.UnsignedInt => XSD.Double,
+        XSD.UnsignedShort => XSD.Double,
+        XSD.UnsignedByte => XSD.Double,
+        XSD.PositiveInteger => XSD.Double,
+        XSD.Decimal => XSD.Double,
+        XSD.Float => XSD.Double,
+        XSD.Double => XSD.Double,
+        DecimalUnitInterval => XSD.Double,
+        FloatUnitInterval => XSD.Double,
+        DoubleUnitInterval => XSD.Double
+      }
     }
     |> Enum.each(fn {left, right_result} ->
       Enum.each(right_result, fn {right, result} ->

@@ -16,7 +16,6 @@ defmodule RDF.XSD.Date do
 
   alias RDF.XSD
 
-
   def_applicable_facet XSD.Facets.ExplicitTimezone
   def_applicable_facet XSD.Facets.Pattern
 
@@ -31,7 +30,6 @@ defmodule RDF.XSD.Date do
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   # TODO: Are GMT/UTC actually allowed? Maybe because it is supported by Elixir's Datetime ...
   @grammar ~r/\A(-?\d{4}-\d{2}-\d{2})((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
@@ -164,7 +162,6 @@ defmodule RDF.XSD.Date do
         super(literal)
     end
   end
-
 
   @impl RDF.Literal.Datatype
   def do_equal_value_same_or_derived_datatypes?(left, right) do

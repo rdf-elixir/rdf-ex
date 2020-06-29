@@ -16,7 +16,7 @@ defmodule RDF.BlankNode.Generator.Algorithm do
   An implementation should compute a blank node from the given state and return
   a tuple consisting of the generated blank node and the new state.
   """
-  @callback generate(state :: map) :: {RDF.BlankNode.t, map}
+  @callback generate(state :: map) :: {RDF.BlankNode.t(), map}
 
   @doc """
   Generates a blank node for a given string.
@@ -27,6 +27,5 @@ defmodule RDF.BlankNode.Generator.Algorithm do
   given state and return a tuple consisting of the generated blank node and the
   new state.
   """
-  @callback generate_for(value :: any, state :: map) :: {RDF.BlankNode.t, map}
-
+  @callback generate_for(value :: any, state :: map) :: {RDF.BlankNode.t(), map}
 end

@@ -3,7 +3,6 @@ defmodule RDF.Sigils do
   Sigils for the most common types of RDF nodes.
   """
 
-
   @doc ~S"""
   Handles the sigil `~I` for IRIs.
 
@@ -33,7 +32,6 @@ defmodule RDF.Sigils do
   defmacro sigil_B({:<<>>, _, [bnode]}, []) when is_binary(bnode) do
     Macro.escape(RDF.BlankNode.new(bnode))
   end
-
 
   @doc ~S"""
   Handles the sigil `~L` for plain Literals.

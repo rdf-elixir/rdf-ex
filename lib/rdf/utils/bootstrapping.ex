@@ -1,7 +1,7 @@
 defmodule RDF.Utils.Bootstrapping do
   @moduledoc !"""
-  This module holds functions to circumvent circular dependency problems.
-  """
+             This module holds functions to circumvent circular dependency problems.
+             """
 
   @xsd_base_iri "http://www.w3.org/2001/XMLSchema#"
   @rdf_base_iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#"

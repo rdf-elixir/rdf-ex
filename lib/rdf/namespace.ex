@@ -14,13 +14,12 @@ defmodule RDF.Namespace do
   @doc """
   Resolves a term to a `RDF.IRI`.
   """
-  @callback __resolve_term__(atom) :: {:ok, IRI.t} | {:error, Exception.t}
+  @callback __resolve_term__(atom) :: {:ok, IRI.t()} | {:error, Exception.t()}
 
   @doc """
   All terms of a `RDF.Namespace`.
   """
   @callback __terms__() :: [atom]
-
 
   @doc """
   Resolves a qualified term to a `RDF.IRI`.
@@ -29,7 +28,7 @@ defmodule RDF.Namespace do
   delegates to remaining part of the term to `__resolve_term__/1` of this
   determined namespace.
   """
-  @spec resolve_term(IRI.t | module) :: {:ok, IRI.t} | {:error, Exception.t}
+  @spec resolve_term(IRI.t() | module) :: {:ok, IRI.t()} | {:error, Exception.t()}
   def resolve_term(expr)
 
   def resolve_term(%IRI{} = iri), do: {:ok, iri}
@@ -45,7 +44,7 @@ defmodule RDF.Namespace do
 
   See `resolve_term/1` for more.
   """
-  @spec resolve_term!(IRI.t | module) :: IRI.t
+  @spec resolve_term!(IRI.t() | module) :: IRI.t()
   def resolve_term!(expr) do
     with {:ok, iri} <- resolve_term(expr) do
       iri
@@ -57,7 +56,7 @@ defmodule RDF.Namespace do
   defp do_resolve_term("Elixir." <> _ = namespaced_term) do
     {term, namespace} =
       namespaced_term
-      |> Module.split
+      |> Module.split()
       |> List.pop_at(-1)
 
     do_resolve_term(Module.concat(namespace), String.to_atom(term))
@@ -65,20 +64,18 @@ defmodule RDF.Namespace do
 
   defp do_resolve_term(namespaced_term) do
     {:error,
-      %RDF.Namespace.UndefinedTermError{
-        message: "#{namespaced_term} is not a term on a RDF.Namespace"
-      }
-    }
+     %RDF.Namespace.UndefinedTermError{
+       message: "#{namespaced_term} is not a term on a RDF.Namespace"
+     }}
   end
 
   defp do_resolve_term(RDF, term), do: do_resolve_term(RDF.NS.RDF, term)
 
   defp do_resolve_term(Elixir, term) do
     {:error,
-      %RDF.Namespace.UndefinedTermError{message:
-        "#{term} is not a RDF.Namespace; top-level modules can't be RDF.Namespaces"
-      }
-    }
+     %RDF.Namespace.UndefinedTermError{
+       message: "#{term} is not a RDF.Namespace; top-level modules can't be RDF.Namespaces"
+     }}
   end
 
   defp do_resolve_term(namespace, term) do
@@ -91,9 +88,7 @@ defmodule RDF.Namespace do
     if is_module and Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
       namespace.__resolve_term__(term)
     else
-      {:error,
-        %RDF.Namespace.UndefinedTermError{message: "#{namespace} is not a RDF.Namespace"}
-      }
+      {:error, %RDF.Namespace.UndefinedTermError{message: "#{namespace} is not a RDF.Namespace"}}
     end
   end
 end

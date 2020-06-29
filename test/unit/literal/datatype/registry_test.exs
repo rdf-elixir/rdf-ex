@@ -32,10 +32,11 @@ defmodule RDF.Literal.Datatype.RegistryTest do
       gMonth
       gMonthDay
     ]
-    |> Enum.map(fn xsd_datatype_name -> RDF.iri(NS.XSD.__base_iri__ <> xsd_datatype_name) end)
+                             |> Enum.map(fn xsd_datatype_name ->
+                               RDF.iri(NS.XSD.__base_iri__() <> xsd_datatype_name)
+                             end)
 
   @supported_xsd_datatypes RDF.NS.XSD.__iris__() -- @unsupported_xsd_datatypes
-
 
   describe "datatype/1" do
     test "builtin datatypes" do
@@ -60,7 +61,7 @@ defmodule RDF.Literal.Datatype.RegistryTest do
     end
 
     test "with IRI of custom datatype" do
-      assert Age == Datatype.Registry.datatype(Age.id)
+      assert Age == Datatype.Registry.datatype(Age.id())
     end
 
     test "with namespace terms" do
@@ -72,7 +73,9 @@ defmodule RDF.Literal.Datatype.RegistryTest do
       assert XSD.Integer == Datatype.Registry.datatype(XSD.integer(42))
       assert XSD.Byte == Datatype.Registry.datatype(XSD.byte(42))
       assert RDF.LangString == Datatype.Registry.datatype(~L"foo"en)
-      assert RDF.Literal.Generic == Datatype.Registry.datatype(RDF.literal("foo", datatype: "http://example.com"))
+
+      assert RDF.Literal.Generic ==
+               Datatype.Registry.datatype(RDF.literal("foo", datatype: "http://example.com"))
     end
   end
 
@@ -99,7 +102,6 @@ defmodule RDF.Literal.Datatype.RegistryTest do
     refute Datatype.Registry.xsd_datatype?(:foo)
     refute Datatype.Registry.xsd_datatype?(42)
   end
-
 
   test "numeric_datatype?/1" do
     assert Datatype.Registry.numeric_datatype?(XSD.integer(42))

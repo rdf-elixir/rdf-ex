@@ -7,11 +7,11 @@ defmodule RDF.PrefixMap do
 
   alias RDF.IRI
 
-  @type prefix    :: atom
-  @type namespace :: IRI.t
+  @type prefix :: atom
+  @type namespace :: IRI.t()
 
-  @type coercible_prefix    :: atom | String.t
-  @type coercible_namespace :: atom | String.t | IRI.t
+  @type coercible_prefix :: atom | String.t()
+  @type coercible_namespace :: atom | String.t() | IRI.t()
 
   @type prefix_map :: %{prefix => namespace}
 
@@ -20,10 +20,9 @@ defmodule RDF.PrefixMap do
 
   @type t :: %__MODULE__{
           map: prefix_map
-  }
+        }
 
   defstruct map: %{}
-
 
   @doc """
   Creates an empty `RDF.PrefixMap`.
@@ -67,7 +66,7 @@ defmodule RDF.PrefixMap do
   Unless a mapping of the given prefix to a different namespace already exists,
   an ok tuple is returned, other an error tuple.
   """
-  @spec add(t, coercible_prefix, coercible_namespace) :: {:ok, t} | {:error, String.t}
+  @spec add(t, coercible_prefix, coercible_namespace) :: {:ok, t} | {:error, String.t()}
   def add(prefix_map, prefix, namespace)
 
   def add(%__MODULE__{map: map}, prefix, %IRI{} = namespace) when is_atom(prefix) do
@@ -109,7 +108,7 @@ defmodule RDF.PrefixMap do
 
   See also `merge/3` which allows you to resolve conflicts with a function.
   """
-  @spec merge(t, t | map | keyword) :: {:ok, t} | {:error, [atom | String.t]}
+  @spec merge(t, t | map | keyword) :: {:ok, t} | {:error, [atom | String.t()]}
   def merge(prefix_map1, prefix_map2)
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}) do
@@ -149,7 +148,8 @@ defmodule RDF.PrefixMap do
   If everything could be merged, an `:ok` tuple is returned.
 
   """
-  @spec merge(t, t | map | keyword, conflict_resolver | nil) :: {:ok, t} | {:error, [atom | String.t]}
+  @spec merge(t, t | map | keyword, conflict_resolver | nil) ::
+          {:ok, t} | {:error, [atom | String.t()]}
   def merge(prefix_map1, prefix_map2, conflict_resolver)
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, conflict_resolver)

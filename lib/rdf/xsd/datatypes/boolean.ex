@@ -12,14 +12,12 @@ defmodule RDF.XSD.Boolean do
 
   alias RDF.XSD
 
-
   def_applicable_facet XSD.Facets.Pattern
 
   @doc false
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
@@ -142,6 +140,7 @@ defmodule RDF.XSD.Boolean do
   @spec fn_not(input_value) :: t() | nil
   def fn_not(value)
   def fn_not(%RDF.Literal{literal: literal}), do: fn_not(literal)
+
   def fn_not(value) do
     case ebv(value) do
       %RDF.Literal{literal: %__MODULE__{value: true}} -> XSD.Boolean.Value.false()
@@ -177,6 +176,7 @@ defmodule RDF.XSD.Boolean do
   def logical_and(left, right)
   def logical_and(%RDF.Literal{literal: left}, right), do: logical_and(left, right)
   def logical_and(left, %RDF.Literal{literal: right}), do: logical_and(left, right)
+
   def logical_and(left, right) do
     case ebv(left) do
       %RDF.Literal{literal: %__MODULE__{value: false}} ->
@@ -223,6 +223,7 @@ defmodule RDF.XSD.Boolean do
   def logical_or(left, right)
   def logical_or(%RDF.Literal{literal: left}, right), do: logical_or(left, right)
   def logical_or(left, %RDF.Literal{literal: right}), do: logical_or(left, right)
+
   def logical_or(left, right) do
     case ebv(left) do
       %RDF.Literal{literal: %__MODULE__{value: true}} ->

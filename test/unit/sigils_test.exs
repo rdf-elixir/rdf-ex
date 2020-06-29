@@ -26,5 +26,4 @@ defmodule RDF.SigilsTest do
       assert ~L"foo"en == RDF.literal("foo", language: "en")
     end
   end
-
 end

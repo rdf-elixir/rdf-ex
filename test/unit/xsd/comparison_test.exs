@@ -2,7 +2,15 @@ defmodule RDF.XSD.ComparisonTest do
   use ExUnit.Case
 
   alias RDF.XSD
-  alias RDF.TestDatatypes.{Initials, Age, DecimalUnitInterval, CustomTime, DateWithoutTz, DateTimeWithTz}
+
+  alias RDF.TestDatatypes.{
+    Initials,
+    Age,
+    DecimalUnitInterval,
+    CustomTime,
+    DateWithoutTz,
+    DateTimeWithTz
+  }
 
   describe "XSD.String" do
     @ordered_strings [
@@ -65,7 +73,7 @@ defmodule RDF.XSD.ComparisonTest do
           {XSD.non_negative_integer(1), Age.new(2)},
           {Age.new(1), XSD.decimal(2.1)},
           {XSD.decimal(0.1), DecimalUnitInterval.new(0.2)},
-          {DecimalUnitInterval.new(0.3), Age.new(2)},
+          {DecimalUnitInterval.new(0.3), Age.new(2)}
         ],
         &assert_order/1
       )
@@ -104,7 +112,10 @@ defmodule RDF.XSD.ComparisonTest do
       )
 
       assert_order({XSD.datetime("2000-01-15T12:00:00"), XSD.datetime("2000-01-16T12:00:00Z")})
-      assert_order({XSD.datetime("2000-01-15T12:00:00"), DateTimeWithTz.new("2000-01-16T12:00:00Z")})
+
+      assert_order(
+        {XSD.datetime("2000-01-15T12:00:00"), DateTimeWithTz.new("2000-01-16T12:00:00Z")}
+      )
     end
 
     test "when unequal due to missing time zone" do
@@ -127,7 +138,8 @@ defmodule RDF.XSD.ComparisonTest do
       )
 
       assert_equal(
-        {DateTimeWithTz.new("2002-04-02T23:00:00-04:00"), XSD.datetime("2002-04-03T02:00:00-01:00")}
+        {DateTimeWithTz.new("2002-04-02T23:00:00-04:00"),
+         XSD.datetime("2002-04-03T02:00:00-01:00")}
       )
 
       assert_equal({XSD.datetime("1999-12-31T24:00:00"), XSD.datetime("2000-01-01T00:00:00")})
@@ -224,12 +236,12 @@ defmodule RDF.XSD.ComparisonTest do
       assert_equal({CustomTime.new("12:00:00+01:00"), XSD.time("12:00:00+01:00")})
     end
 
-# TODO:
-#    test "when indeterminate" do
-#      assert_indeterminate({XSD.time("12:00:00Z"), XSD.time("12:00:00")})
-#      assert_indeterminate({XSD.time("12:00:00+00:00"), XSD.time("12:00:00")})
-#      assert_indeterminate({XSD.time("12:00:00-00:00"), XSD.time("12:00:00")})
-#    end
+    # TODO:
+    #    test "when indeterminate" do
+    #      assert_indeterminate({XSD.time("12:00:00Z"), XSD.time("12:00:00")})
+    #      assert_indeterminate({XSD.time("12:00:00+00:00"), XSD.time("12:00:00")})
+    #      assert_indeterminate({XSD.time("12:00:00-00:00"), XSD.time("12:00:00")})
+    #    end
   end
 
   describe "incomparable" do

@@ -7,15 +7,14 @@ defmodule RDF.Query.BGP.Stream do
   alias RDF.Query.BGP.{QueryPlanner, BlankNodeHandler}
   alias RDF.{Graph, Description}
 
-
   @impl RDF.Query.BGP.Matcher
   def stream(bgp, graph, opts \\ [])
 
-  def stream(%BGP{triple_patterns: []}, _, _), do: to_stream([%{}])  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  # https://www.w3.org/TR/sparql11-query/#emptyGroupPattern
+  def stream(%BGP{triple_patterns: []}, _, _), do: to_stream([%{}])
 
   def stream(%BGP{triple_patterns: triple_patterns}, %Graph{} = graph, opts) do
-    {bnode_state, preprocessed_triple_patterns} =
-      BlankNodeHandler.preprocess(triple_patterns)
+    {bnode_state, preprocessed_triple_patterns} = BlankNodeHandler.preprocess(triple_patterns)
 
     preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
@@ -47,18 +46,17 @@ defmodule RDF.Query.BGP.Stream do
     do_execute(remaining, graph, match_with_solutions(graph, triple_pattern, solutions))
   end
 
-
   defp match_with_solutions(graph, {s, p, o} = triple_pattern, existing_solutions)
        when is_tuple(s) or is_tuple(p) or is_tuple(o) do
     triple_pattern
     |> apply_solutions(existing_solutions)
-    |> Stream.flat_map(&(merging_match(&1, graph)))
+    |> Stream.flat_map(&merging_match(&1, graph))
   end
 
   defp match_with_solutions(graph, triple_pattern, existing_solutions) do
     if solutions = match(graph, triple_pattern) do
       Stream.flat_map(solutions, fn solution ->
-        Stream.map(existing_solutions, &(Map.merge(solution, &1)))
+        Stream.map(existing_solutions, &Map.merge(solution, &1))
       end)
     end
   end
@@ -67,14 +65,15 @@ defmodule RDF.Query.BGP.Stream do
     apply_solution =
       case triple_pattern do
         {{s}, {p}, {o}} -> fn solution -> {solution, {solution[s], solution[p], solution[o]}} end
-        {{s}, {p},  o } -> fn solution -> {solution, {solution[s], solution[p], o}} end
-        {{s},  p , {o}} -> fn solution -> {solution, {solution[s], p          , solution[o]}} end
-        {{s},  p ,  o } -> fn solution -> {solution, {solution[s], p          , o}} end
-        { s , {p}, {o}} -> fn solution -> {solution, {s          , solution[p], solution[o]}} end
-        { s , {p} , o } -> fn solution -> {solution, {s          , solution[p], o}} end
-        { s ,  p , {o}} -> fn solution -> {solution, {s          , p          , solution[o]}} end
+        {{s}, {p}, o} -> fn solution -> {solution, {solution[s], solution[p], o}} end
+        {{s}, p, {o}} -> fn solution -> {solution, {solution[s], p, solution[o]}} end
+        {{s}, p, o} -> fn solution -> {solution, {solution[s], p, o}} end
+        {s, {p}, {o}} -> fn solution -> {solution, {s, solution[p], solution[o]}} end
+        {s, {p}, o} -> fn solution -> {solution, {s, solution[p], o}} end
+        {s, p, {o}} -> fn solution -> {solution, {s, p, solution[o]}} end
         _ -> nil
       end
+
     if apply_solution do
       Stream.map(solutions, apply_solution)
     else
@@ -84,20 +83,23 @@ defmodule RDF.Query.BGP.Stream do
 
   defp merging_match({dependent_solution, triple_pattern}, graph) do
     case match(graph, triple_pattern) do
-      nil -> []
+      nil ->
+        []
+
       solutions ->
-        Stream.map solutions, fn solution ->
+        Stream.map(solutions, fn solution ->
           Map.merge(dependent_solution, solution)
-        end
+        end)
     end
   end
-
 
   defp match(%Graph{descriptions: descriptions}, {subject_variable, _, _} = triple_pattern)
        when is_atom(subject_variable) do
     Stream.flat_map(descriptions, fn {subject, description} ->
       case match(description, solve_variables(subject_variable, subject, triple_pattern)) do
-        nil -> []
+        nil ->
+          []
+
         solutions ->
           Stream.map(solutions, fn solution ->
             Map.put(solution, subject_variable, subject)
@@ -108,7 +110,7 @@ defmodule RDF.Query.BGP.Stream do
 
   defp match(%Graph{} = graph, {subject, _, _} = triple_pattern) do
     case graph[subject] do
-      nil         -> nil
+      nil -> nil
       description -> match(description, triple_pattern)
     end
   end
@@ -132,20 +134,26 @@ defmodule RDF.Query.BGP.Stream do
     end)
   end
 
-  defp match(%Description{predications: predications},
-         {_, predicate_variable, object}) when is_atom(predicate_variable) do
-    matches =
-      Stream.filter(predications, fn {_, objects} -> Map.has_key?(objects, object) end)
+  defp match(
+         %Description{predications: predications},
+         {_, predicate_variable, object}
+       )
+       when is_atom(predicate_variable) do
+    matches = Stream.filter(predications, fn {_, objects} -> Map.has_key?(objects, object) end)
 
     unless Enum.empty?(matches) do
       Stream.map(matches, fn {predicate, _} -> %{predicate_variable => predicate} end)
     end
   end
 
-  defp match(%Description{predications: predications},
-         {_, predicate, object_or_variable}) do
+  defp match(
+         %Description{predications: predications},
+         {_, predicate, object_or_variable}
+       ) do
     case predications[predicate] do
-      nil -> nil
+      nil ->
+        nil
+
       objects ->
         cond do
           # object_or_variable is a variable
@@ -162,17 +170,17 @@ defmodule RDF.Query.BGP.Stream do
           true ->
             nil
         end
-   end
+    end
   end
 
   defp solve_variables(var, val, {var, var, var}), do: {val, val, val}
-  defp solve_variables(var, val, {s, var, var}),   do: {s, val, val}
-  defp solve_variables(var, val, {var, p, var}),   do: {val, p, val}
-  defp solve_variables(var, val, {var, var, o}),   do: {val, val, o}
-  defp solve_variables(var, val, {var, p, o}),     do: {val, p, o}
-  defp solve_variables(var, val, {s, var, o}),     do: {s, val, o}
-  defp solve_variables(var, val, {s, p, var}),     do: {s, p, val}
-  defp solve_variables(_, _, pattern),             do: pattern
+  defp solve_variables(var, val, {s, var, var}), do: {s, val, val}
+  defp solve_variables(var, val, {var, p, var}), do: {val, p, val}
+  defp solve_variables(var, val, {var, var, o}), do: {val, val, o}
+  defp solve_variables(var, val, {var, p, o}), do: {val, p, o}
+  defp solve_variables(var, val, {s, var, o}), do: {s, val, o}
+  defp solve_variables(var, val, {s, p, var}), do: {s, p, val}
+  defp solve_variables(_, _, pattern), do: pattern
 
   defp to_stream(enum), do: Stream.into(enum, [])
 end

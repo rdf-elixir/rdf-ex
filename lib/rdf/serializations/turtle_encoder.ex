@@ -29,23 +29,22 @@ defmodule RDF.Turtle.Encoder do
   ]
   @ordered_properties MapSet.new(@predicate_order)
 
-
   @impl RDF.Serialization.Encoder
-  @callback encode(Graph.t | Dataset.t, keyword | map) :: {:ok, String.t} | {:error, any}
+  @callback encode(Graph.t() | Dataset.t(), keyword | map) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
-    with base         = Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
-                        |> base_iri(data) |> init_base_iri(),
-         prefixes     = Keyword.get(opts, :prefixes)
-                        |> prefixes(data) |> init_prefixes(),
+    with base =
+           Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
+           |> base_iri(data)
+           |> init_base_iri(),
+         prefixes = Keyword.get(opts, :prefixes) |> prefixes(data) |> init_prefixes(),
          {:ok, state} = State.start_link(data, base, prefixes) do
       try do
         State.preprocess(state)
 
         {:ok,
-            base_directive(base) <>
-            prefix_directives(prefixes) <>
-            graph_statements(state)
-        }
+         base_directive(base) <>
+           prefix_directives(prefixes) <>
+           graph_statements(state)}
       after
         State.stop(state)
       end
@@ -60,6 +59,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp init_base_iri(base_iri) do
     base_iri = to_string(base_iri)
+
     if String.ends_with?(base_iri, ~w[/ #]) do
       {:ok, base_iri}
     else
@@ -73,28 +73,26 @@ defmodule RDF.Turtle.Encoder do
   defp prefixes(prefixes, _), do: RDF.PrefixMap.new(prefixes)
 
   defp init_prefixes(prefixes) do
-    Enum.reduce prefixes, %{}, fn {prefix, iri}, reverse ->
+    Enum.reduce(prefixes, %{}, fn {prefix, iri}, reverse ->
       Map.put(reverse, iri, to_string(prefix))
-    end
+    end)
   end
 
-
-  defp base_directive(nil),            do: ""
-  defp base_directive({_, base}),      do: "@base <#{base}> .\n"
+  defp base_directive(nil), do: ""
+  defp base_directive({_, base}), do: "@base <#{base}> .\n"
 
   defp prefix_directive({ns, prefix}), do: "@prefix #{prefix}: <#{to_string(ns)}> .\n"
 
   defp prefix_directives(prefixes) do
     case Enum.map(prefixes, &prefix_directive/1) do
-      []       -> ""
+      [] -> ""
       prefixes -> Enum.join(prefixes, "") <> "\n"
     end
   end
 
-
   defp graph_statements(state) do
     State.data(state)
-    |> RDF.Data.descriptions
+    |> RDF.Data.descriptions()
     |> order_descriptions(state)
     |> Enum.map(&description_statements(&1, state))
     |> Enum.reject(&is_nil/1)
@@ -103,49 +101,54 @@ defmodule RDF.Turtle.Encoder do
 
   defp order_descriptions(descriptions, state) do
     base_iri = State.base_iri(state)
+
     group =
-      Enum.group_by descriptions, fn
+      Enum.group_by(descriptions, fn
         %Description{subject: ^base_iri} ->
           :base
+
         description ->
           with types when not is_nil(types) <- description.predications[@rdf_type] do
-            Enum.find @top_classes, :other, fn top_class ->
+            Enum.find(@top_classes, :other, fn top_class ->
               Map.has_key?(types, top_class)
-            end
+            end)
           else
             _ -> :other
           end
-      end
-    ordered_descriptions = (
-        @top_classes
-        |> Stream.map(fn top_class -> group[top_class] end)
-        |> Stream.reject(&is_nil/1)
-        |> Stream.map(&sort_description_group/1)
-        |> Enum.reduce([], fn class_group, ordered_descriptions ->
-             ordered_descriptions ++ class_group
-           end)
-      ) ++ (group |> Map.get(:other, []) |> sort_description_group())
+      end)
+
+    ordered_descriptions =
+      (@top_classes
+       |> Stream.map(fn top_class -> group[top_class] end)
+       |> Stream.reject(&is_nil/1)
+       |> Stream.map(&sort_description_group/1)
+       |> Enum.reduce([], fn class_group, ordered_descriptions ->
+         ordered_descriptions ++ class_group
+       end)) ++ (group |> Map.get(:other, []) |> sort_description_group())
 
     case group[:base] do
       [base] -> [base | ordered_descriptions]
-      _      -> ordered_descriptions
+      _ -> ordered_descriptions
     end
   end
 
   defp sort_description_group(descriptions) do
-    Enum.sort descriptions, fn
-      %Description{subject: %IRI{}}, %Description{subject: %BlankNode{}} -> true
-      %Description{subject: %BlankNode{}}, %Description{subject: %IRI{}} -> false
+    Enum.sort(descriptions, fn
+      %Description{subject: %IRI{}}, %Description{subject: %BlankNode{}} ->
+        true
+
+      %Description{subject: %BlankNode{}}, %Description{subject: %IRI{}} ->
+        false
+
       %Description{subject: s1}, %Description{subject: s2} ->
         to_string(s1) < to_string(s2)
-    end
+    end)
   end
 
   defp description_statements(description, state, nesting \\ 0) do
     with %BlankNode{} <- description.subject,
          ref_count when ref_count < 2 <-
-            State.bnode_ref_counter(state, description.subject)
-    do
+           State.bnode_ref_counter(state, description.subject) do
       unrefed_bnode_subject_term(description, ref_count, state, nesting)
     else
       _ -> full_description_statements(description, state, nesting)
@@ -154,9 +157,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp full_description_statements(subject, description, state, nesting) do
     with nesting = nesting + @indentation do
-      subject <> newline_indent(nesting) <> (
-        predications(description, state, nesting)
-      ) <> " .\n"
+      subject <> newline_indent(nesting) <> predications(description, state, nesting) <> " .\n"
     end
   end
 
@@ -167,7 +168,8 @@ defmodule RDF.Turtle.Encoder do
 
   defp blank_node_property_list(description, state, nesting) do
     with indented = nesting + @indentation do
-      "[" <> newline_indent(indented) <>
+      "[" <>
+        newline_indent(indented) <>
         predications(description, state, indented) <>
         newline_indent(nesting) <> "]"
     end
@@ -196,13 +198,13 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp predication({predicate, objects}, state, nesting) do
-    term(predicate, state, :predicate, nesting) <> " " <> (
-      objects
+    term(predicate, state, :predicate, nesting) <>
+      " " <>
+      (objects
        |> Enum.map(fn {object, _} -> term(object, state, :object, nesting) end)
-       |> Enum.join(", ") # TODO: split if the line gets too long
-    )
+       # TODO: split if the line gets too long
+       |> Enum.join(", "))
   end
-
 
   defp unrefed_bnode_subject_term(bnode_description, ref_count, state, nesting) do
     if valid_list_node?(bnode_description.subject, state) do
@@ -211,9 +213,14 @@ defmodule RDF.Turtle.Encoder do
           bnode_description.subject
           |> list_term(state, nesting)
           |> full_description_statements(
-              list_subject_description(bnode_description), state, nesting)
+            list_subject_description(bnode_description),
+            state,
+            nesting
+          )
+
         1 ->
           nil
+
         _ ->
           raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
       end
@@ -221,8 +228,10 @@ defmodule RDF.Turtle.Encoder do
       case ref_count do
         0 ->
           blank_node_property_list(bnode_description, state, nesting) <> " .\n"
+
         1 ->
           nil
+
         _ ->
           raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
       end
@@ -231,7 +240,7 @@ defmodule RDF.Turtle.Encoder do
 
   @dialyzer {:nowarn_function, list_subject_description: 1}
   defp list_subject_description(description) do
-    with description = Description.delete_predicates(description, [RDF.first, RDF.rest]) do
+    with description = Description.delete_predicates(description, [RDF.first(), RDF.rest()]) do
       if Enum.count(description.predications) == 0 do
         # since the Turtle grammar doesn't allow bare lists, we add a statement
         description |> RDF.type(RDF.List)
@@ -256,7 +265,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp valid_list_node?(bnode, state) do
-     MapSet.member?(State.list_nodes(state), bnode)
+    MapSet.member?(State.list_nodes(state), bnode)
   end
 
   defp list_term(head, state, nesting) do
@@ -265,9 +274,8 @@ defmodule RDF.Turtle.Encoder do
     |> term(state, :list, nesting)
   end
 
-
   defp term(@rdf_type, _, :predicate, _), do: "a"
-  defp term(@rdf_nil, _, _, _),           do: "()"
+  defp term(@rdf_nil, _, _, _), do: "()"
 
   defp term(%IRI{} = iri, state, _, _) do
     based_name(iri, State.base(state)) ||
@@ -276,7 +284,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp term(%BlankNode{} = bnode, state, position, nesting)
-        when position in ~w[object list]a do
+       when position in ~w[object list]a do
     if (ref_count = State.bnode_ref_counter(state, bnode)) <= 1 do
       unrefed_bnode_object_term(bnode, ref_count, state, nesting)
     else
@@ -296,7 +304,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp term(%Literal{literal: %datatype{}} = literal, state, _, nesting)
-        when datatype in @native_supported_datatypes do
+       when datatype in @native_supported_datatypes do
     if Literal.valid?(literal) do
       Literal.canonical_lexical(literal)
     else
@@ -309,15 +317,14 @@ defmodule RDF.Turtle.Encoder do
 
   defp term(list, state, _, nesting) when is_list(list) do
     "(" <>
-      (
-        list
-        |> Enum.map(&term(&1, state, :list, nesting))
-        |> Enum.join(" ")
-      ) <>
+      (list
+       |> Enum.map(&term(&1, state, :list, nesting))
+       |> Enum.join(" ")) <>
       ")"
   end
 
   defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
+
   defp based_name(iri, {:ok, base}) do
     if String.starts_with?(iri, base) do
       "<#{String.slice(iri, String.length(base)..-1)}>"
@@ -326,22 +333,23 @@ defmodule RDF.Turtle.Encoder do
 
   defp based_name(_, _), do: nil
 
-
   defp typed_literal_term(%Literal{} = literal, state, nesting),
-    do: ~s["#{Literal.lexical(literal)}"^^#{literal |> Literal.datatype_id() |> term(state, :datatype, nesting)}]
-
+    do:
+      ~s["#{Literal.lexical(literal)}"^^#{
+        literal |> Literal.datatype_id() |> term(state, :datatype, nesting)
+      }]
 
   def prefixed_name(iri, prefixes) do
     with {ns, name} <- split_iri(iri) do
       case prefixes[ns] do
-        nil    -> nil
+        nil -> nil
         prefix -> prefix <> ":" <> name
       end
     end
   end
 
   defp split_iri(%IRI{} = iri),
-    do: iri |> IRI.parse |> split_iri()
+    do: iri |> IRI.parse() |> split_iri()
 
   defp split_iri(%URI{fragment: fragment} = uri) when not is_nil(fragment),
     do: {RDF.iri(%URI{uri | fragment: ""}), fragment}
@@ -374,7 +382,6 @@ defmodule RDF.Turtle.Encoder do
     |> String.replace("\r", "\\r")
     |> String.replace("\"", ~S[\"])
   end
-
 
   defp newline_indent(nesting),
     do: "\n" <> String.duplicate(@indentation_char, nesting)

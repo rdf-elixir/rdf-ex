@@ -53,16 +53,20 @@ defmodule RDF.XSD.DateTest do
                %RDF.Literal{literal: %XSD.Date{value: {~D[2010-01-01], "+01:00"}}}
 
       assert XSD.Date.new("2010-01-01", tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Date{
-                 value: {~D[2010-01-01], "Z"},
-                 uncanonical_lexical: "2010-01-01+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Date{
+                   value: {~D[2010-01-01], "Z"},
+                   uncanonical_lexical: "2010-01-01+00:00"
+                 }
+               }
 
       assert XSD.Date.new(~D[2010-01-01], tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Date{
-                 value: {~D[2010-01-01], "Z"},
-                 uncanonical_lexical: "2010-01-01+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Date{
+                   value: {~D[2010-01-01], "Z"},
+                   uncanonical_lexical: "2010-01-01+00:00"
+                 }
+               }
     end
 
     test "with date string including a timezone and tz opt" do
@@ -73,10 +77,12 @@ defmodule RDF.XSD.DateTest do
                %RDF.Literal{literal: %XSD.Date{value: {~D[2010-01-01], "Z"}}}
 
       assert XSD.Date.new("2010-01-01+01:00", tz: "+00:00") ==
-               %RDF.Literal{literal: %XSD.Date{
-                 value: {~D[2010-01-01], "Z"},
-                 uncanonical_lexical: "2010-01-01+00:00"
-               }}
+               %RDF.Literal{
+                 literal: %XSD.Date{
+                   value: {~D[2010-01-01], "Z"},
+                   uncanonical_lexical: "2010-01-01+00:00"
+                 }
+               }
     end
 
     test "with invalid tz opt" do

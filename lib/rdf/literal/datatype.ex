@@ -53,7 +53,7 @@ defmodule RDF.Literal.Datatype do
   A final catch-all clause should delegate to `super`. For example `RDF.XSD.Datatype`s will handle casting from derived
   datatypes in the default implementation.
   """
-  @callback do_cast(literal | RDF.IRI.t | RDF.BlankNode.t) :: Literal.t() | nil
+  @callback do_cast(literal | RDF.IRI.t() | RDF.BlankNode.t()) :: Literal.t() | nil
 
   @doc """
   Checks if the given `RDF.Literal` has the datatype for which the `RDF.Literal.Datatype` is implemented or is derived from it.
@@ -64,24 +64,24 @@ defmodule RDF.Literal.Datatype do
       true
 
   """
-  @callback datatype?(Literal.t | t | literal) :: boolean
+  @callback datatype?(Literal.t() | t | literal) :: boolean
 
   @doc """
   The datatype IRI of the given `RDF.Literal`.
   """
-  @callback datatype_id(Literal.t | literal) :: IRI.t()
+  @callback datatype_id(Literal.t() | literal) :: IRI.t()
 
   @doc """
   The language of the given `RDF.Literal` if present.
   """
-  @callback language(Literal.t | literal) :: String.t() | nil
+  @callback language(Literal.t() | literal) :: String.t() | nil
 
   @doc """
   Returns the value of a `RDF.Literal`.
 
   This function also accepts literals of derived datatypes.
   """
-  @callback value(Literal.t | literal) :: any
+  @callback value(Literal.t() | literal) :: any
 
   @doc """
   Returns the lexical form of a `RDF.Literal`.
@@ -178,7 +178,7 @@ defmodule RDF.Literal.Datatype do
       iex> RDF.literal("foo", datatype: "http://example.com/dt") |> RDF.Literal.Generic.update(fn _ -> "bar" end)
       RDF.literal("bar", datatype: "http://example.com/dt")
   """
-  @callback update(Literal.t() | literal, fun()) :: Literal.t
+  @callback update(Literal.t() | literal, fun()) :: Literal.t()
 
   @doc """
   Updates the value of a `RDF.Literal` without changing anything else.
@@ -192,7 +192,7 @@ defmodule RDF.Literal.Datatype do
       ...>   fn value -> value <> "1" end, as: :lexical)
       RDF.XSD.integer(421)
   """
-  @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t
+  @callback update(Literal.t() | literal, fun(), keyword) :: Literal.t()
 
   @doc """
   Returns the `RDF.Literal.Datatype` for a datatype IRI.
@@ -200,13 +200,12 @@ defmodule RDF.Literal.Datatype do
   defdelegate get(id), to: Literal.Datatype.Registry, as: :datatype
 
   @doc !"""
-  As opposed to RDF.Literal.valid?/1 this function operates on the datatype structs ...
+       As opposed to RDF.Literal.valid?/1 this function operates on the datatype structs ...
 
-  It's meant for internal use only and doesn't perform checks if the struct
-  passed is actually a `RDF.Literal.Datatype` struct.
-  """
+       It's meant for internal use only and doesn't perform checks if the struct
+       passed is actually a `RDF.Literal.Datatype` struct.
+       """
   def valid?(%datatype{} = datatype_literal), do: datatype.valid?(datatype_literal)
-
 
   defmacro __using__(opts) do
     name = Keyword.fetch!(opts, :name)
@@ -227,10 +226,10 @@ defmodule RDF.Literal.Datatype do
       @behaviour unquote(__MODULE__)
 
       @doc !"""
-      This function is just used to check if a module is a RDF.Literal.Datatype.
+           This function is just used to check if a module is a RDF.Literal.Datatype.
 
-      See `RDF.Literal.Datatype.Registry.is_rdf_literal_datatype?/1`.
-      """
+           See `RDF.Literal.Datatype.Registry.is_rdf_literal_datatype?/1`.
+           """
       def __rdf_literal_datatype_indicator__, do: true
 
       @name unquote(name)
@@ -274,6 +273,7 @@ defmodule RDF.Literal.Datatype do
           literal |> canonical() |> lexical()
         end
       end
+
       def canonical_lexical(_), do: nil
 
       @doc """
@@ -284,15 +284,17 @@ defmodule RDF.Literal.Datatype do
 
       Implementations define the casting for a given value with the `c:RDF.Literal.Datatype.do_cast/1` callback.
       """
-      @spec cast(Literal.Datatype.literal | RDF.Term.t) :: Literal.t() | nil
+      @spec cast(Literal.Datatype.literal() | RDF.Term.t()) :: Literal.t() | nil
       @dialyzer {:nowarn_function, cast: 1}
       def cast(literal_or_value)
       def cast(%Literal{literal: literal}), do: cast(literal)
+
       def cast(%__MODULE__{} = datatype_literal),
-          do: if(valid?(datatype_literal), do: literal(datatype_literal))
+        do: if(valid?(datatype_literal), do: literal(datatype_literal))
+
       def cast(%struct{} = datatype_literal) do
         if (Literal.datatype?(struct) and Literal.Datatype.valid?(datatype_literal)) or
-           struct in [RDF.IRI, RDF.BlankNode] do
+             struct in [RDF.IRI, RDF.BlankNode] do
           case do_cast(datatype_literal) do
             %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
             %Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
@@ -325,10 +327,15 @@ defmodule RDF.Literal.Datatype do
       def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
       def equal_value?(nil, _), do: nil
       def equal_value?(_, nil), do: nil
+
       def equal_value?(left, right) do
         cond do
-          not Literal.datatype?(right) and not resource?(right) -> equal_value?(left, Literal.coerce(right))
-          not Literal.datatype?(left) and not resource?(left) -> equal_value?(Literal.coerce(left), right)
+          not Literal.datatype?(right) and not resource?(right) ->
+            equal_value?(left, Literal.coerce(right))
+
+          not Literal.datatype?(left) and not resource?(left) ->
+            equal_value?(Literal.coerce(left), right)
+
           true ->
             left_datatype = left.__struct__
             right_datatype = right.__struct__
@@ -343,6 +350,7 @@ defmodule RDF.Literal.Datatype do
                 case equality_path(left_datatype, right_datatype) do
                   {:same_or_derived, datatype} ->
                     datatype.do_equal_value_same_or_derived_datatypes?(left, right)
+
                   {:different, datatype} ->
                     datatype.do_equal_value_different_datatypes?(left, right)
                 end
@@ -381,14 +389,15 @@ defmodule RDF.Literal.Datatype do
       # RDF.XSD.Datatypes offers another default implementation, but since it is
       # still in a macro implementation defoverridable doesn't work
       unless RDF.XSD.Datatype in @behaviour do
-        @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) :: RDF.Literal.Datatype.comparison_result | :indeterminate | nil
+        @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) ::
+                RDF.Literal.Datatype.comparison_result() | :indeterminate | nil
         def compare(left, right)
         def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
         def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
 
         def compare(left, right) do
           if RDF.Literal.datatype?(left) and RDF.Literal.datatype?(right) and
-             RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
+               RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
             do_compare(left, right)
           end
         end
@@ -396,8 +405,12 @@ defmodule RDF.Literal.Datatype do
         @impl RDF.Literal.Datatype
         def do_compare(%datatype{} = left, %datatype{} = right) do
           case {datatype.value(left), datatype.value(right)} do
-            {left_value, right_value} when left_value < right_value -> :lt
-            {left_value, right_value} when left_value > right_value -> :gt
+            {left_value, right_value} when left_value < right_value ->
+              :lt
+
+            {left_value, right_value} when left_value > right_value ->
+              :gt
+
             _ ->
               if datatype.equal_value?(left, right), do: :eq
           end
@@ -415,6 +428,7 @@ defmodule RDF.Literal.Datatype do
       @impl unquote(__MODULE__)
       def update(literal, fun, opts \\ [])
       def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
+
       def update(%__MODULE__{} = literal, fun, opts) do
         case Keyword.get(opts, :as) do
           :lexical -> lexical(literal)
@@ -449,7 +463,7 @@ defmodule RDF.Literal.Datatype do
         import ProtocolEx
 
         defimpl_ex Registration, unquote(unquoted_id),
-                   for: RDF.Literal.Datatype.Registry.Registration do
+          for: RDF.Literal.Datatype.Registry.Registration do
           @moduledoc false
 
           def datatype(id), do: unquote(datatype)

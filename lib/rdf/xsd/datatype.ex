@@ -174,6 +174,7 @@ defmodule RDF.XSD.Datatype do
   @doc false
   def most_specific(left, right)
   def most_specific(datatype, datatype), do: datatype
+
   def most_specific(left, right) do
     cond do
       left.datatype?(right) -> right
@@ -181,7 +182,6 @@ defmodule RDF.XSD.Datatype do
       true -> nil
     end
   end
-
 
   defmacro __using__(opts) do
     quote do
@@ -201,10 +201,10 @@ defmodule RDF.XSD.Datatype do
             }
 
       @doc !"""
-      This function is just used to check if a module is a RDF.XSD.Datatype.
+           This function is just used to check if a module is a RDF.XSD.Datatype.
 
-      See `RDF.Literal.Datatype.Registry.is_xsd_datatype?/1`.
-      """
+           See `RDF.Literal.Datatype.Registry.is_xsd_datatype?/1`.
+           """
       def __xsd_datatype_indicator__, do: true
 
       @doc """
@@ -214,19 +214,23 @@ defmodule RDF.XSD.Datatype do
       def datatype?(%RDF.Literal{literal: literal}), do: datatype?(literal)
       def datatype?(%datatype{}), do: datatype?(datatype)
       def datatype?(__MODULE__), do: true
+
       def datatype?(datatype) when maybe_module(datatype) do
         RDF.XSD.datatype?(datatype) and datatype.derived_from?(__MODULE__)
       end
+
       def datatype?(_), do: false
 
       @doc false
       def datatype!(%__MODULE__{}), do: true
-      def datatype!((%datatype{} = literal)) do
+
+      def datatype!(%datatype{} = literal) do
         datatype?(datatype) ||
           raise RDF.XSD.Datatype.Mismatch, value: literal, expected_type: __MODULE__
       end
+
       def datatype!(value),
-        do: raise RDF.XSD.Datatype.Mismatch, value: value, expected_type: __MODULE__
+        do: raise(RDF.XSD.Datatype.Mismatch, value: value, expected_type: __MODULE__)
 
       @doc """
       Creates a new `RDF.Literal` with this datatype and the given `value`.
@@ -288,7 +292,8 @@ defmodule RDF.XSD.Datatype do
       end
 
       @doc false
-      @spec build_valid(any, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) :: RDF.Literal.t()
+      @spec build_valid(any, RDF.XSD.Datatype.uncanonical_lexical(), Keyword.t()) ::
+              RDF.Literal.t()
       def build_valid(value, lexical, opts) do
         if Keyword.get(opts, :canonicalize) do
           literal(%__MODULE__{value: value})
@@ -309,7 +314,6 @@ defmodule RDF.XSD.Datatype do
       defp build_invalid(lexical, opts) do
         literal(%__MODULE__{uncanonical_lexical: init_invalid_lexical(lexical, opts)})
       end
-
 
       @doc """
       Returns the value of a `RDF.Literal` of this or a derived datatype.
@@ -342,7 +346,10 @@ defmodule RDF.XSD.Datatype do
       """
       @impl RDF.Literal.Datatype
       def canonical_lexical(%RDF.Literal{literal: literal}), do: canonical_lexical(literal)
-      def canonical_lexical(%__MODULE__{value: value}) when not is_nil(value), do: canonical_mapping(value)
+
+      def canonical_lexical(%__MODULE__{value: value}) when not is_nil(value),
+        do: canonical_mapping(value)
+
       def canonical_lexical(_), do: nil
 
       @doc """
@@ -380,13 +387,16 @@ defmodule RDF.XSD.Datatype do
       def valid?(%RDF.Literal{literal: literal}), do: valid?(literal)
       def valid?(%__MODULE__{value: @invalid_value}), do: false
       def valid?(%__MODULE__{}), do: true
-      def valid?((%datatype{} = literal)),
+
+      def valid?(%datatype{} = literal),
         do: datatype?(datatype) and datatype.valid?(literal)
+
       def valid?(_), do: false
 
       @doc false
       defp equality_path(left_datatype, right_datatype)
       defp equality_path(datatype, datatype), do: {:same_or_derived, datatype}
+
       defp equality_path(left_datatype, right_datatype) do
         if RDF.XSD.datatype?(left_datatype) and RDF.XSD.datatype?(right_datatype) do
           if datatype = RDF.XSD.Datatype.most_specific(left_datatype, right_datatype) do
@@ -399,7 +409,6 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
-
       @doc """
       Compares two `RDF.Literal`s.
 
@@ -409,14 +418,15 @@ defmodule RDF.XSD.Datatype do
       due to their datatype, or `:indeterminate` is returned, when the order of the given values is
       not defined on only partially ordered datatypes.
       """
-      @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) :: RDF.Literal.Datatype.comparison_result | :indeterminate | nil
+      @spec compare(RDF.Literal.t() | any, RDF.Literal.t() | any) ::
+              RDF.Literal.Datatype.comparison_result() | :indeterminate | nil
       def compare(left, right)
       def compare(left, %RDF.Literal{literal: right}), do: compare(left, right)
       def compare(%RDF.Literal{literal: left}, right), do: compare(left, right)
 
       def compare(left, right) do
         if RDF.XSD.datatype?(left) and RDF.XSD.datatype?(right) and
-           RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
+             RDF.Literal.Datatype.valid?(left) and RDF.Literal.Datatype.valid?(right) do
           do_compare(left, right)
         end
       end

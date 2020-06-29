@@ -11,7 +11,6 @@ defmodule RDF.XSD.String do
 
   alias RDF.XSD
 
-
   def_applicable_facet XSD.Facets.MinLength
   def_applicable_facet XSD.Facets.MaxLength
   def_applicable_facet XSD.Facets.Length
@@ -36,7 +35,6 @@ defmodule RDF.XSD.String do
   def pattern_conform?(pattern, value, _lexical) do
     XSD.Facets.Pattern.conform?(pattern, value)
   end
-
 
   @impl XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value

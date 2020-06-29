@@ -20,10 +20,10 @@ defmodule RDF.IRI do
   import RDF.Guards
 
   @type t :: %__MODULE__{
-          value: String.t
-  }
+          value: String.t()
+        }
 
-  @type coercible :: String.t | URI.t | module | t
+  @type coercible :: String.t() | URI.t() | module | t
 
   @enforce_keys [:value]
   defstruct [:value]
@@ -44,16 +44,15 @@ defmodule RDF.IRI do
   @default_base Application.get_env(:rdf, :default_base_iri)
   def default_base, do: @default_base
 
-
   @doc """
   Creates a `RDF.IRI`.
   """
   @spec new(coercible) :: t
   def new(iri)
-  def new(iri) when is_binary(iri),         do: %__MODULE__{value: iri}
+  def new(iri) when is_binary(iri), do: %__MODULE__{value: iri}
   def new(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname)
-  def new(%URI{} = uri),                    do: uri |> URI.to_string |> new
-  def new(%__MODULE__{} = iri),             do: iri
+  def new(%URI{} = uri), do: uri |> URI.to_string() |> new
+  def new(%__MODULE__{} = iri), do: iri
 
   @doc """
   Creates a `RDF.IRI`, but checks if the given IRI is valid.
@@ -64,11 +63,11 @@ defmodule RDF.IRI do
   """
   @spec new!(coercible) :: t
   def new!(iri)
-  def new!(iri) when is_binary(iri),         do: iri |> valid!() |> new()
-  def new!(qname) when maybe_ns_term(qname), do: new(qname)  # since terms of a namespace are already validated
-  def new!(%URI{} = uri),                    do: uri |> valid!() |> new()
-  def new!(%__MODULE__{} = iri),             do: valid!(iri)
-
+  def new!(iri) when is_binary(iri), do: iri |> valid!() |> new()
+  # since terms of a namespace are already validated
+  def new!(qname) when maybe_ns_term(qname), do: new(qname)
+  def new!(%URI{} = uri), do: uri |> valid!() |> new()
+  def new!(%__MODULE__{} = iri), do: valid!(iri)
 
   @doc """
   Coerces an IRI serving as a base IRI.
@@ -87,8 +86,8 @@ defmodule RDF.IRI do
       new(module)
     end
   end
-  def coerce_base(base_iri), do: new(base_iri)
 
+  def coerce_base(base_iri), do: new(base_iri)
 
   @doc """
   Returns the given value unchanged if it's a valid IRI, otherwise raises an exception.
@@ -104,10 +103,9 @@ defmodule RDF.IRI do
   """
   @spec valid!(coercible) :: coercible
   def valid!(iri) do
-    if not valid?(iri), do: raise RDF.IRI.InvalidError, "Invalid IRI: #{inspect iri}"
+    if not valid?(iri), do: raise(RDF.IRI.InvalidError, "Invalid IRI: #{inspect(iri)}")
     iri
   end
-
 
   @doc """
   Checks if the given IRI is valid.
@@ -122,8 +120,8 @@ defmodule RDF.IRI do
       false
   """
   @spec valid?(coercible) :: boolean
-  def valid?(iri), do: absolute?(iri)  # TODO: Provide a more elaborate validation
-
+  # TODO: Provide a more elaborate validation
+  def valid?(iri), do: absolute?(iri)
 
   @doc """
   Checks if the given value is an absolute IRI.
@@ -135,17 +133,18 @@ defmodule RDF.IRI do
   def absolute?(iri)
 
   def absolute?(value) when is_binary(value), do: not is_nil(scheme(value))
-  def absolute?(%__MODULE__{value: value}),   do: absolute?(value)
-  def absolute?(%URI{scheme: nil}),           do: false
-  def absolute?(%URI{scheme: _}),             do: true
+  def absolute?(%__MODULE__{value: value}), do: absolute?(value)
+  def absolute?(%URI{scheme: nil}), do: false
+  def absolute?(%URI{scheme: _}), do: true
+
   def absolute?(qname) when maybe_ns_term(qname) do
     case Namespace.resolve_term(qname) do
       {:ok, iri} -> absolute?(iri)
       _ -> false
     end
   end
-  def absolute?(_), do: false
 
+  def absolute?(_), do: false
 
   @doc """
   Resolves a relative IRI against a base IRI.
@@ -162,12 +161,11 @@ defmodule RDF.IRI do
   @spec absolute(coercible, coercible) :: t | nil
   def absolute(iri, base) do
     cond do
-      absolute?(iri)      -> new(iri)
+      absolute?(iri) -> new(iri)
       not absolute?(base) -> nil
-      true                -> merge(base, iri)
+      true -> merge(base, iri)
     end
   end
-
 
   @doc """
   Merges two IRIs.
@@ -183,7 +181,6 @@ defmodule RDF.IRI do
     |> new()
   end
 
-
   @doc """
   Returns the scheme of the given IRI
 
@@ -196,28 +193,27 @@ defmodule RDF.IRI do
       iex> RDF.IRI.scheme("not an iri")
       nil
   """
-  @spec scheme(coercible) :: String.t | nil
+  @spec scheme(coercible) :: String.t() | nil
   def scheme(iri)
-  def scheme(%__MODULE__{value: value}),       do: scheme(value)
-  def scheme(%URI{scheme: scheme}),            do: scheme
+  def scheme(%__MODULE__{value: value}), do: scheme(value)
+  def scheme(%URI{scheme: scheme}), do: scheme
   def scheme(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname) |> scheme()
+
   def scheme(iri) when is_binary(iri) do
     with [_, scheme] <- Regex.run(@scheme_regex, iri) do
       scheme
     end
   end
 
-
   @doc """
   Parses an IRI into its components and returns them as an `URI` struct.
   """
-  @spec parse(coercible) :: URI.t
+  @spec parse(coercible) :: URI.t()
   def parse(iri)
-  def parse(iri) when is_binary(iri),         do: URI.parse(iri)
+  def parse(iri) when is_binary(iri), do: URI.parse(iri)
   def parse(qname) when maybe_ns_term(qname), do: Namespace.resolve_term!(qname) |> parse()
-  def parse(%__MODULE__{value: value}),       do: URI.parse(value)
-  def parse(%URI{} = uri),                    do: uri
-
+  def parse(%__MODULE__{value: value}), do: URI.parse(value)
+  def parse(%URI{} = uri), do: uri
 
   @doc """
   Tests for value equality of IRIs.
@@ -226,7 +222,8 @@ defmodule RDF.IRI do
 
   see <https://www.w3.org/TR/rdf-concepts/#section-Graph-URIref>
   """
-  @spec equal_value?(t | RDF.Literal.t | atom, t | RDF.Literal.t | URI.t | atom) :: boolean | nil
+  @spec equal_value?(t | RDF.Literal.t() | atom, t | RDF.Literal.t() | URI.t() | atom) ::
+          boolean | nil
   def equal_value?(left, right)
 
   def equal_value?(%__MODULE__{value: left}, %__MODULE__{value: right}),
@@ -251,7 +248,6 @@ defmodule RDF.IRI do
   def equal_value?(_, _),
     do: nil
 
-
   @doc """
   Returns the given IRI as a string.
 
@@ -267,7 +263,7 @@ defmodule RDF.IRI do
       "http://example.com/#Foo"
 
   """
-  @spec to_string(t | module) :: String.t
+  @spec to_string(t | module) :: String.t()
   def to_string(iri)
 
   def to_string(%__MODULE__{value: value}),

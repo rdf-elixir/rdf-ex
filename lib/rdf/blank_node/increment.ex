@@ -40,7 +40,8 @@ defmodule RDF.BlankNode.Increment do
     case Map.get(map, value) do
       nil ->
         {bnode(counter, state),
-          %{state | map: Map.put(map, value, counter), counter: counter + 1}}
+         %{state | map: Map.put(map, value, counter), counter: counter + 1}}
+
       previous ->
         {bnode(previous, state), state}
     end
@@ -53,5 +54,4 @@ defmodule RDF.BlankNode.Increment do
   defp bnode(counter, _) do
     BlankNode.new(counter)
   end
-
 end

@@ -24,15 +24,15 @@ defmodule RDF.XSD.AnyURITest do
       RDF.iri("http://example.com/foo") =>
         {URI.parse("http://example.com/foo"), nil, "http://example.com/foo"},
       RDF.List =>
-        {URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#List"), nil, "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"},
+        {URI.parse("http://www.w3.org/1999/02/22-rdf-syntax-ns#List"), nil,
+         "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"}
     },
     invalid: [42, 3.14, Foo, :foo, true, false]
-
 
   describe "cast/1" do
     test "casting an anyURI returns the input as it is" do
       assert XSD.anyURI("http://example.com/") |> XSD.AnyURI.cast() ==
-             XSD.anyURI("http://example.com/")
+               XSD.anyURI("http://example.com/")
     end
 
     test "casting an RDF.IRI" do

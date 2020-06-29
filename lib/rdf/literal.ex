@@ -35,8 +35,10 @@ defmodule RDF.Literal do
   def new(value) do
     case coerce(value) do
       nil ->
-        raise RDF.Literal.InvalidError, "#{inspect value} not convertible to a RDF.Literal"
-      literal -> literal
+        raise RDF.Literal.InvalidError, "#{inspect(value)} not convertible to a RDF.Literal"
+
+      literal ->
+        literal
     end
   end
 
@@ -58,7 +60,7 @@ defmodule RDF.Literal do
 
       datatype = Keyword.get(opts, :datatype) ->
         case Datatype.get(datatype) do
-          nil      -> Generic.new(value, opts)
+          nil -> Generic.new(value, opts)
           datatype -> datatype.new(value, opts)
         end
 
@@ -98,16 +100,16 @@ defmodule RDF.Literal do
 
   def coerce(%__MODULE__{} = literal), do: literal
 
-  def coerce(value) when is_binary(value),  do: RDF.XSD.String.new(value)
+  def coerce(value) when is_binary(value), do: RDF.XSD.String.new(value)
   def coerce(value) when is_boolean(value), do: RDF.XSD.Boolean.new(value)
   def coerce(value) when is_integer(value), do: RDF.XSD.Integer.new(value)
-  def coerce(value) when is_float(value),   do: RDF.XSD.Double.new(value)
-  def coerce(%Decimal{} = value),           do: RDF.XSD.Decimal.new(value)
-  def coerce(%Date{} = value),              do: RDF.XSD.Date.new(value)
-  def coerce(%Time{} = value),              do: RDF.XSD.Time.new(value)
-  def coerce(%DateTime{} = value),          do: RDF.XSD.DateTime.new(value)
-  def coerce(%NaiveDateTime{} = value),     do: RDF.XSD.DateTime.new(value)
-  def coerce(%URI{} = value),               do: RDF.XSD.AnyURI.new(value)
+  def coerce(value) when is_float(value), do: RDF.XSD.Double.new(value)
+  def coerce(%Decimal{} = value), do: RDF.XSD.Decimal.new(value)
+  def coerce(%Date{} = value), do: RDF.XSD.Date.new(value)
+  def coerce(%Time{} = value), do: RDF.XSD.Time.new(value)
+  def coerce(%DateTime{} = value), do: RDF.XSD.DateTime.new(value)
+  def coerce(%NaiveDateTime{} = value), do: RDF.XSD.DateTime.new(value)
+  def coerce(%URI{} = value), do: RDF.XSD.AnyURI.new(value)
 
   def coerce(value) when maybe_ns_term(value) do
     case RDF.Namespace.resolve_term(value) do
@@ -132,7 +134,6 @@ defmodule RDF.Literal do
 
   def coerce(_), do: nil
 
-
   @doc """
   Creates a new `RDF.Literal`, but fails if it's not valid.
 
@@ -154,10 +155,11 @@ defmodule RDF.Literal do
   @spec new!(t | any, keyword) :: t
   def new!(value, opts \\ []) do
     literal = new(value, opts)
+
     if valid?(literal) do
       literal
     else
-      raise RDF.Literal.InvalidError, "invalid RDF.Literal: #{inspect literal}"
+      raise RDF.Literal.InvalidError, "invalid RDF.Literal: #{inspect(literal)}"
     end
   end
 
@@ -223,8 +225,7 @@ defmodule RDF.Literal do
   """
   @spec simple?(t) :: boolean
   def simple?(%__MODULE__{literal: %RDF.XSD.String{}}), do: true
-  def simple?(%__MODULE__{}),                           do: false
-
+  def simple?(%__MODULE__{}), do: false
 
   @doc """
   Returns if a literal is a plain literal.
@@ -263,7 +264,7 @@ defmodule RDF.Literal do
   @doc """
   Returns the lexical form of the given `literal`.
   """
-  @spec lexical(t) :: String.t
+  @spec lexical(t) :: String.t()
   def lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.lexical(literal)
 
   @doc """
@@ -275,8 +276,9 @@ defmodule RDF.Literal do
   @doc """
   Returns the canonical lexical of the given `literal`.
   """
-  @spec canonical_lexical(t) :: String.t | nil
-  def canonical_lexical(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical_lexical(literal)
+  @spec canonical_lexical(t) :: String.t() | nil
+  def canonical_lexical(%__MODULE__{literal: %datatype{} = literal}),
+    do: datatype.canonical_lexical(literal)
 
   @doc """
   Returns if the lexical of the given `literal` has the canonical form.
@@ -311,7 +313,7 @@ defmodule RDF.Literal do
 
   def equal_value?(_, _), do: nil
 
-  @spec compare(t, t) :: Datatype.comparison_result | :indeterminate | nil
+  @spec compare(t, t) :: Datatype.comparison_result() | :indeterminate | nil
   def compare(%__MODULE__{literal: %datatype{} = left}, right) do
     datatype.compare(left, right)
   end
@@ -339,16 +341,21 @@ defmodule RDF.Literal do
 
   see <https://www.w3.org/TR/xpath-functions/#func-matches>
   """
-  @spec matches?(t | String.t, pattern :: t | String.t, flags :: t | String.t) :: boolean
+  @spec matches?(t | String.t(), pattern :: t | String.t(), flags :: t | String.t()) :: boolean
   def matches?(value, pattern, flags \\ "")
+
   def matches?(%__MODULE__{} = literal, pattern, flags),
     do: matches?(lexical(literal), pattern, flags)
+
   def matches?(value, %__MODULE__{literal: %RDF.XSD.String{}} = pattern, flags),
     do: matches?(value, lexical(pattern), flags)
+
   def matches?(value, pattern, %__MODULE__{literal: %RDF.XSD.String{}} = flags),
     do: matches?(value, pattern, lexical(flags))
-  def matches?(value, pattern, flags) when is_binary(value) and is_binary(pattern) and is_binary(flags),
-    do: RDF.XSD.Utils.Regex.matches?(value, pattern, flags)
+
+  def matches?(value, pattern, flags)
+      when is_binary(value) and is_binary(pattern) and is_binary(flags),
+      do: RDF.XSD.Utils.Regex.matches?(value, pattern, flags)
 
   @doc """
   Updates the value of a `RDF.Literal` without changing everything else.

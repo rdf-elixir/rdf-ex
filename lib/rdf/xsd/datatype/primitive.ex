@@ -58,25 +58,33 @@ defmodule RDF.XSD.Datatype.Primitive do
 
       @impl RDF.Literal.Datatype
       def do_cast(value) do
-        if datatype?(value) do # i.e. derived datatype
+        # i.e. derived datatype
+        if datatype?(value) do
           build_valid(value.value, value.uncanonical_lexical, [])
         end
       end
 
       @impl RDF.Literal.Datatype
-      def do_equal_value_same_or_derived_datatypes?(%left_datatype{} = left, %right_datatype{} = right) do
+      def do_equal_value_same_or_derived_datatypes?(
+            %left_datatype{} = left,
+            %right_datatype{} = right
+          ) do
         left_datatype.value(left) == right_datatype.value(right)
       end
 
       @impl RDF.Literal.Datatype
       def do_equal_value_different_datatypes?(left, right), do: nil
 
-     @impl RDF.Literal.Datatype
+      @impl RDF.Literal.Datatype
       def do_compare(%left_datatype{} = left, %right_datatype{} = right) do
         if left_datatype.datatype?(right_datatype) or right_datatype.datatype?(left_datatype) do
           case {left_datatype.value(left), right_datatype.value(right)} do
-            {left_value, right_value} when left_value < right_value -> :lt
-            {left_value, right_value} when left_value > right_value -> :gt
+            {left_value, right_value} when left_value < right_value ->
+              :lt
+
+            {left_value, right_value} when left_value > right_value ->
+              :gt
+
             _ ->
               if left_datatype.equal_value?(left, right), do: :eq
           end

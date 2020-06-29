@@ -11,7 +11,7 @@ defmodule RDF.XSDTest do
   end
 
   test "true and false aliases" do
-    assert XSD.true  == XSD.Boolean.new(true)
-    assert XSD.false == XSD.Boolean.new(false)
+    assert XSD.true() == XSD.Boolean.new(true)
+    assert XSD.false() == XSD.Boolean.new(false)
   end
 end

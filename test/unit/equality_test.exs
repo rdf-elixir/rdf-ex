@@ -1,36 +1,44 @@
 defmodule RDF.EqualityTest do
   use RDF.Test.Case
 
-  alias RDF.TestDatatypes.{Initials, CustomTime, DateWithoutTz, DateTimeWithTz, Age,
-                           DecimalUnitInterval, DoubleUnitInterval, FloatUnitInterval}
+  alias RDF.TestDatatypes.{
+    Initials,
+    CustomTime,
+    DateWithoutTz,
+    DateTimeWithTz,
+    Age,
+    DecimalUnitInterval,
+    DoubleUnitInterval,
+    FloatUnitInterval
+  }
 
   describe "RDF.IRI and XSD.AnyURI" do
     @term_equal_iris [
       {RDF.iri("http://example.com/"), RDF.iri("http://example.com/")},
-      {XSD.anyURI("http://example.com/"), XSD.anyURI("http://example.com/")},
+      {XSD.anyURI("http://example.com/"), XSD.anyURI("http://example.com/")}
     ]
     @value_equal_iris [
-      {RDF.iri("http://example.com/"), XSD.anyURI("http://example.com/")},
+      {RDF.iri("http://example.com/"), XSD.anyURI("http://example.com/")}
     ]
     @unequal_iris [
       {RDF.iri("http://example.com/foo"), RDF.iri("http://example.com/bar")},
-      {RDF.iri("http://example.com/foo"), XSD.anyURI("http://example.com/bar")},
+      {RDF.iri("http://example.com/foo"), XSD.anyURI("http://example.com/bar")}
     ]
     @equal_iris_by_coercion [
       {RDF.iri("http://example.com/"), URI.parse("http://example.com/")},
       {XSD.anyURI("http://example.com/"), URI.parse("http://example.com/")},
       {RDF.iri("http://example.com/Foo"), EX.Foo},
-      {XSD.anyURI("http://example.com/Foo"), EX.Foo},
+      {XSD.anyURI("http://example.com/Foo"), EX.Foo}
     ]
     @unequal_iris_by_coercion [
       {RDF.iri("http://example.com/foo"), URI.parse("http://example.com/bar")},
       {XSD.anyURI("http://example.com/foo"), URI.parse("http://example.com/bar")},
       {RDF.iri("http://example.com/Bar"), EX.Foo},
-      {XSD.anyURI("http://example.com/Bar"), EX.Foo},
+      {XSD.anyURI("http://example.com/Bar"), EX.Foo}
     ]
     @incomparable_iris [
       {RDF.iri("http://example.com/"), XSD.string("http://example.com/")},
-      {XSD.anyURI("http://example.com/"), XSD.string("http://example.com/")},
+      {XSD.anyURI("http://example.com/"), XSD.string("http://example.com/")}
     ]
 
     test "term equality", do: assert_term_equal(@term_equal_iris)
@@ -43,26 +51,25 @@ defmodule RDF.EqualityTest do
 
   describe "RDF.BlankNode" do
     @term_equal_bnodes [
-      {RDF.bnode("foo"), RDF.bnode("foo")},
+      {RDF.bnode("foo"), RDF.bnode("foo")}
     ]
-    @value_equal_bnodes [
-    ]
+    @value_equal_bnodes []
     @unequal_bnodes [
-      {RDF.bnode("foo"), RDF.bnode("bar")},
+      {RDF.bnode("foo"), RDF.bnode("bar")}
     ]
     @equal_bnodes_by_coercion []
     @unequal_bnodes_by_coercion []
     @incomparable_bnodes [
-      {RDF.bnode("foo"),  XSD.string("foo")},
-      {XSD.string("foo"), RDF.bnode("foo")},
+      {RDF.bnode("foo"), XSD.string("foo")},
+      {XSD.string("foo"), RDF.bnode("foo")}
     ]
 
-    test "term equality", do: assert_term_equal @term_equal_bnodes
-    test "value equality", do: assert_value_equal @value_equal_bnodes
-    test "inequality", do: assert_unequal @unequal_bnodes
+    test "term equality", do: assert_term_equal(@term_equal_bnodes)
+    test "value equality", do: assert_value_equal(@value_equal_bnodes)
+    test "inequality", do: assert_unequal(@unequal_bnodes)
     test "coerced value equality", do: assert_coerced_equal(@equal_bnodes_by_coercion)
     test "coerced value inequality", do: assert_coerced_unequal(@unequal_bnodes_by_coercion)
-    test "incomparability",  do: assert_incomparable @incomparable_bnodes
+    test "incomparability", do: assert_incomparable(@incomparable_bnodes)
   end
 
   describe "XSD.String and RDF.LangString" do
@@ -88,7 +95,7 @@ defmodule RDF.EqualityTest do
       {RDF.lang_string("foo", language: "de"), "foo"},
       {XSD.string("foo"), RDF.lang_string("foo", language: "de")},
       {RDF.lang_string("foo", language: "de"), XSD.string("foo")},
-      {XSD.string("foo"), RDF.bnode("foo")},
+      {XSD.string("foo"), RDF.bnode("foo")}
     ]
 
     test "term equality", do: assert_term_equal(@term_equal_strings)
@@ -159,7 +166,7 @@ defmodule RDF.EqualityTest do
       {XSD.decimal("-42.0"), XSD.decimal(-42.0)},
       {XSD.decimal("1.0"), XSD.decimal(1.0)},
       {Age.new("42"), Age.new("42")},
-      {DecimalUnitInterval.new("0.1"), DecimalUnitInterval.new("0.1")},
+      {DecimalUnitInterval.new("0.1"), DecimalUnitInterval.new("0.1")}
     ]
     @value_equal_numerics [
       {XSD.integer("42"), XSD.non_negative_integer("42")},
@@ -200,7 +207,7 @@ defmodule RDF.EqualityTest do
       {XSD.integer(1), XSD.integer(2)},
       {XSD.integer("1"), XSD.double("1.1")},
       {XSD.integer("1"), XSD.decimal("1.1")},
-      {DecimalUnitInterval.new(0.1), DoubleUnitInterval.new(0.2)},
+      {DecimalUnitInterval.new(0.1), DoubleUnitInterval.new(0.2)}
     ]
     @equal_numerics_by_coercion [
       {XSD.integer(42), 42},
@@ -228,7 +235,7 @@ defmodule RDF.EqualityTest do
       {XSD.float("foo"), XSD.float("foo")},
       {XSD.non_negative_integer("foo"), XSD.non_negative_integer("foo")},
       {XSD.positive_integer("foo"), XSD.positive_integer("foo")},
-      {DecimalUnitInterval.new(1.1), DecimalUnitInterval.new(1.1)},
+      {DecimalUnitInterval.new(1.1), DecimalUnitInterval.new(1.1)}
     ]
     @unequal_invalid_numerics [
       {XSD.integer("foo"), XSD.integer("bar")},
@@ -239,7 +246,7 @@ defmodule RDF.EqualityTest do
       {XSD.float("foo"), XSD.float("bar")},
       {XSD.non_negative_integer("foo"), XSD.non_negative_integer("bar")},
       {XSD.positive_integer("foo"), XSD.positive_integer("bar")},
-      {DecimalUnitInterval.new(1.1), DoubleUnitInterval.new(1.2)},
+      {DecimalUnitInterval.new(1.1), DoubleUnitInterval.new(1.2)}
     ]
     @incomparable_numerics [
       {XSD.integer("42"), nil},
@@ -266,7 +273,7 @@ defmodule RDF.EqualityTest do
     @term_equal_datetimes [
       {XSD.datetime("2002-04-02T12:00:00-01:00"), XSD.datetime("2002-04-02T12:00:00-01:00")},
       {XSD.datetime("2002-04-02T12:00:00"), XSD.datetime("2002-04-02T12:00:00")},
-      {DateTimeWithTz.new("2002-04-02T12:00:00Z"), DateTimeWithTz.new("2002-04-02T12:00:00Z")},
+      {DateTimeWithTz.new("2002-04-02T12:00:00Z"), DateTimeWithTz.new("2002-04-02T12:00:00Z")}
     ]
     @value_equal_datetimes [
       {XSD.datetime("2002-04-02T12:00:00-01:00"), XSD.datetime("2002-04-02T17:00:00+04:00")},
@@ -278,10 +285,10 @@ defmodule RDF.EqualityTest do
       {XSD.datetime("2002-04-02T23:00:00+00:00"), XSD.datetime("2002-04-02T23:00:00-00:00")},
       {XSD.datetime("2010-01-01T00:00:00.0000Z"), XSD.datetime("2010-01-01T00:00:00Z")},
       {XSD.datetime("2005-04-04T24:00:00"), XSD.datetime("2005-04-05T00:00:00")},
-
-      {DateTimeWithTz.new("2002-04-02T12:00:00-01:00"), DateTimeWithTz.new("2002-04-02T17:00:00+04:00")},
+      {DateTimeWithTz.new("2002-04-02T12:00:00-01:00"),
+       DateTimeWithTz.new("2002-04-02T17:00:00+04:00")},
       {DateTimeWithTz.new("2002-04-02T23:00:00Z"), XSD.datetime("2002-04-02T23:00:00+00:00")},
-      {XSD.datetime("2002-04-02T23:00:00+00:00"), DateTimeWithTz.new("2002-04-02T23:00:00-00:00")},
+      {XSD.datetime("2002-04-02T23:00:00+00:00"), DateTimeWithTz.new("2002-04-02T23:00:00-00:00")}
     ]
     @unequal_datetimes [
       {XSD.datetime("2002-04-02T12:00:00"), XSD.datetime("2002-04-02T17:00:00")},
@@ -290,20 +297,20 @@ defmodule RDF.EqualityTest do
     ]
     @equal_datetimes_by_coercion [
       {XSD.datetime("2002-04-02T12:00:00-01:00"),
-        elem(DateTime.from_iso8601("2002-04-02T12:00:00-01:00"), 1)},
+       elem(DateTime.from_iso8601("2002-04-02T12:00:00-01:00"), 1)},
       {XSD.datetime("2002-04-02T12:00:00"), ~N"2002-04-02T12:00:00"},
       {XSD.datetime("2002-04-02T23:00:00Z"),
-        elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)},
+       elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)},
       {XSD.datetime("2002-04-02T23:00:00+00:00"),
-        elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
+       elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
       {XSD.datetime("2002-04-02T23:00:00-00:00"),
-        elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
+       elem(DateTime.from_iso8601("2002-04-02T23:00:00Z"), 1)},
       {XSD.datetime("2002-04-02T23:00:00-00:00"),
-        elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)}
+       elem(DateTime.from_iso8601("2002-04-02T23:00:00+00:00"), 1)}
     ]
     @unequal_datetimes_by_coercion [
       {XSD.datetime("2002-04-02T12:00:00-01:00"),
-        elem(DateTime.from_iso8601("2002-04-02T12:00:00+00:00"), 1)}
+       elem(DateTime.from_iso8601("2002-04-02T12:00:00+00:00"), 1)}
     ]
     @equal_invalid_datetimes [
       {XSD.datetime("foo"), XSD.datetime("foo")},
@@ -320,7 +327,7 @@ defmodule RDF.EqualityTest do
       {XSD.string("2002-04-02T12:00:00-01:00"), XSD.datetime("2002-04-02T12:00:00-01:00")},
       # These are incomparable because of indeterminacy due to missing timezone
       {XSD.datetime("2002-04-02T12:00:00"), XSD.datetime("2002-04-02T23:00:00+00:00")},
-      {XSD.datetime("2002-04-02T12:00:00"), DateTimeWithTz.new("2002-04-02T12:00:00Z")},
+      {XSD.datetime("2002-04-02T12:00:00"), DateTimeWithTz.new("2002-04-02T12:00:00Z")}
     ]
 
     test "term equality", do: assert_term_equal(@term_equal_datetimes)
@@ -337,17 +344,17 @@ defmodule RDF.EqualityTest do
     @term_equal_dates [
       {XSD.date("2002-04-02-01:00"), XSD.date("2002-04-02-01:00")},
       {XSD.date("2002-04-02"), XSD.date("2002-04-02")},
-      {DateWithoutTz.new("2002-04-02"), DateWithoutTz.new("2002-04-02")},
+      {DateWithoutTz.new("2002-04-02"), DateWithoutTz.new("2002-04-02")}
     ]
     @value_equal_dates [
       {XSD.date("2002-04-02-00:00"), XSD.date("2002-04-02+00:00")},
       {XSD.date("2002-04-02Z"), XSD.date("2002-04-02+00:00")},
       {XSD.date("2002-04-02Z"), XSD.date("2002-04-02-00:00")},
-      {XSD.date("2002-04-02"), DateWithoutTz.new("2002-04-02")},
+      {XSD.date("2002-04-02"), DateWithoutTz.new("2002-04-02")}
     ]
     @unequal_dates [
       {XSD.date("2002-04-01"), XSD.date("2002-04-02")},
-      {DateWithoutTz.new("2002-04-02"), DateWithoutTz.new("2002-04-01")},
+      {DateWithoutTz.new("2002-04-02"), DateWithoutTz.new("2002-04-01")}
     ]
     @equal_dates_by_coercion [
       {XSD.date("2002-04-02"), Date.from_iso8601!("2002-04-02")}
@@ -357,13 +364,13 @@ defmodule RDF.EqualityTest do
     ]
     @equal_invalid_dates [
       {XSD.date("foo"), XSD.date("foo")},
-      {DateWithoutTz.new("foo"), DateWithoutTz.new("foo")},
+      {DateWithoutTz.new("foo"), DateWithoutTz.new("foo")}
     ]
     @unequal_invalid_dates [
       {XSD.date("2002.04.02"), XSD.date("2002-04-02")},
       {XSD.date("foo"), XSD.date("bar")},
       {DateWithoutTz.new("foo"), DateWithoutTz.new("bar")},
-      {XSD.date("foo"), DateWithoutTz.new("bar")},
+      {XSD.date("foo"), DateWithoutTz.new("bar")}
     ]
     @incomparable_dates [
       {XSD.date("2002-04-02"), XSD.string("2002-04-02")},
@@ -434,17 +441,17 @@ defmodule RDF.EqualityTest do
     @term_equal_times [
       {XSD.time("12:00:00+01:00"), XSD.time("12:00:00+01:00")},
       {XSD.time("12:00:00"), XSD.time("12:00:00")},
-      {CustomTime.new("00:00:00Z"), CustomTime.new("00:00:00Z")},
+      {CustomTime.new("00:00:00Z"), CustomTime.new("00:00:00Z")}
     ]
     @value_equal_times [
       {XSD.time("00:00:00+00:00"), XSD.time("00:00:00Z")},
       {XSD.time("00:00:00+00:00"), CustomTime.new("00:00:00Z")},
-      {CustomTime.new("00:00:00+00:00"), CustomTime.new("00:00:00Z")},
+      {CustomTime.new("00:00:00+00:00"), CustomTime.new("00:00:00Z")}
     ]
     @unequal_times [
       {XSD.time("12:00:00"), XSD.time("13:00:00")},
       {XSD.time("00:00:00.0000Z"), XSD.time("00:00:00Z")},
-      {XSD.time("00:00:00.0000Z"), CustomTime.new("00:00:00Z")},
+      {XSD.time("00:00:00.0000Z"), CustomTime.new("00:00:00Z")}
     ]
     @equal_times_by_coercion [
       {XSD.time("12:00:00"), Time.from_iso8601!("12:00:00")}
@@ -454,11 +461,11 @@ defmodule RDF.EqualityTest do
     ]
     @equal_invalid_times [
       {XSD.time("foo"), XSD.time("foo")},
-      {CustomTime.new("foo"), CustomTime.new("foo")},
+      {CustomTime.new("foo"), CustomTime.new("foo")}
     ]
     @unequal_invalid_times [
       {XSD.time("foo"), XSD.time("bar")},
-      {XSD.time("foo"), CustomTime.new("bar")},
+      {XSD.time("foo"), CustomTime.new("bar")}
     ]
     @incomparable_times [
       {XSD.time("12:00:00"), XSD.string("12:00:00")},
@@ -508,20 +515,20 @@ defmodule RDF.EqualityTest do
   describe "RDF.Literal.Generics" do
     @equal_literals [
       {RDF.literal("foo", datatype: "http://example.com/datatype"),
-        RDF.literal("foo", datatype: "http://example.com/datatype")},
+       RDF.literal("foo", datatype: "http://example.com/datatype")}
     ]
     @unequal_literals [
       {RDF.literal("foo", datatype: "http://example.com/datatype"),
-        RDF.literal("bar", datatype: "http://example.com/datatype")},
+       RDF.literal("bar", datatype: "http://example.com/datatype")}
     ]
     @incomparable_literals [
       {RDF.literal("foo", datatype: "http://example.com/datatype1"),
-        RDF.literal("foo", datatype: "http://example.com/datatype2")},
+       RDF.literal("foo", datatype: "http://example.com/datatype2")}
     ]
 
-    test "equality", do: assert_term_equal @equal_literals
-    test "inequality", do: assert_unequal @unequal_literals
-    test "incomparability", do: assert_incomparable @incomparable_literals
+    test "equality", do: assert_term_equal(@equal_literals)
+    test "inequality", do: assert_unequal(@unequal_literals)
+    test "incomparability", do: assert_incomparable(@incomparable_literals)
   end
 
   defp assert_term_equal(examples) do

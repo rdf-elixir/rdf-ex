@@ -38,7 +38,6 @@ defmodule RDF.Quad.InvalidGraphContextError do
   end
 end
 
-
 defmodule RDF.Namespace.InvalidVocabBaseIRIError do
   defexception [:message]
 end
@@ -54,7 +53,6 @@ end
 defmodule RDF.Namespace.UndefinedTermError do
   defexception [:message]
 end
-
 
 defmodule RDF.Query.InvalidError do
   defexception [:message]

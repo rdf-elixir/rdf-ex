@@ -15,7 +15,6 @@ defmodule RDF.XSD.AnyURI do
 
   import RDF.Guards
 
-
   def_applicable_facet XSD.Facets.MinLength
   def_applicable_facet XSD.Facets.MaxLength
   def_applicable_facet XSD.Facets.Length
@@ -40,7 +39,6 @@ defmodule RDF.XSD.AnyURI do
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   @impl XSD.Datatype
   @spec lexical_mapping(String.t(), Keyword.t()) :: valid_value

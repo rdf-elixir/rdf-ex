@@ -8,14 +8,13 @@ defmodule RDF.Triple do
 
   alias RDF.Statement
 
-  @type t :: {Statement.subject, Statement.predicate, Statement.object}
+  @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
 
   @type coercible_t ::
-          {Statement.coercible_subject, Statement.coercible_predicate,
-           Statement.coercible_object}
+          {Statement.coercible_subject(), Statement.coercible_predicate(),
+           Statement.coercible_object()}
 
-  @type t_values :: {String.t, String.t, any}
-
+  @type t_values :: {String.t(), String.t(), any}
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
@@ -32,9 +31,9 @@ defmodule RDF.Triple do
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
   @spec new(
-          Statement.coercible_subject,
-          Statement.coercible_predicate,
-          Statement.coercible_object
+          Statement.coercible_subject(),
+          Statement.coercible_predicate(),
+          Statement.coercible_object()
         ) :: t
   def new(subject, predicate, object) do
     {
@@ -61,7 +60,6 @@ defmodule RDF.Triple do
   @spec new(coercible_t) :: t
   def new({subject, predicate, object}), do: new(subject, predicate, object)
 
-
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Triple` of RDF terms.
 
@@ -87,14 +85,13 @@ defmodule RDF.Triple do
       {"S", "p", 42}
 
   """
-  @spec values(t | any, Statement.term_mapping) :: t_values | nil
+  @spec values(t | any, Statement.term_mapping()) :: t_values | nil
   def values(triple, mapping \\ &Statement.default_term_mapping/1)
 
   def values({subject, predicate, object}, mapping) do
-    with subject_value when not is_nil(subject_value)     <- mapping.({:subject, subject}),
+    with subject_value when not is_nil(subject_value) <- mapping.({:subject, subject}),
          predicate_value when not is_nil(predicate_value) <- mapping.({:predicate, predicate}),
-         object_value when not is_nil(object_value)       <- mapping.({:object, object})
-    do
+         object_value when not is_nil(object_value) <- mapping.({:object, object}) do
       {subject_value, predicate_value, object_value}
     else
       _ -> nil
@@ -102,7 +99,6 @@ defmodule RDF.Triple do
   end
 
   def values(_, _), do: nil
-
 
   @doc """
   Checks if the given tuple is a valid RDF triple.
@@ -115,5 +111,4 @@ defmodule RDF.Triple do
   def valid?(tuple)
   def valid?({_, _, _} = triple), do: Statement.valid?(triple)
   def valid?(_), do: false
-
 end

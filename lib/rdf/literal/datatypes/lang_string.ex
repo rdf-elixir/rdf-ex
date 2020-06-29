@@ -6,8 +6,8 @@ defmodule RDF.LangString do
   defstruct [:value, :language]
 
   use RDF.Literal.Datatype,
-      name: "langString",
-      id: RDF.Utils.Bootstrapping.rdf_iri("langString")
+    name: "langString",
+    id: RDF.Utils.Bootstrapping.rdf_iri("langString")
 
   import RDF.Utils.Guards
 
@@ -15,18 +15,19 @@ defmodule RDF.LangString do
   alias RDF.Literal
 
   @type t :: %__MODULE__{
-               value: String.t,
-               language: String.t
-             }
+          value: String.t(),
+          language: String.t()
+        }
 
   @doc """
   Creates a new `RDF.Literal` with this datatype and the given `value` and `language`.
   """
   @impl RDF.Literal.Datatype
-  @spec new(any, String.t | atom | keyword) :: Literal.t
+  @spec new(any, String.t() | atom | keyword) :: Literal.t()
   def new(value, language_or_opts \\ [])
   def new(value, language) when is_binary(language), do: new(value, language: language)
   def new(value, language) when is_ordinary_atom(language), do: new(value, language: language)
+
   def new(value, opts) do
     %Literal{
       literal: %__MODULE__{
@@ -38,18 +39,24 @@ defmodule RDF.LangString do
 
   defp normalize_language(nil), do: nil
   defp normalize_language(""), do: nil
-  defp normalize_language(language) when is_ordinary_atom(language), do: language |> to_string() |> normalize_language()
+
+  defp normalize_language(language) when is_ordinary_atom(language),
+    do: language |> to_string() |> normalize_language()
+
   defp normalize_language(language), do: String.downcase(language)
 
   @impl RDF.Literal.Datatype
-  @spec new!(any, String.t | atom | keyword) :: Literal.t
+  @spec new!(any, String.t() | atom | keyword) :: Literal.t()
   def new!(value, language_or_opts \\ []) do
     literal = new(value, language_or_opts)
 
     if valid?(literal) do
       literal
     else
-      raise ArgumentError, "#{inspect(value)} with language #{inspect literal.literal.language} is not a valid #{inspect(__MODULE__)}"
+      raise ArgumentError,
+            "#{inspect(value)} with language #{inspect(literal.literal.language)} is not a valid #{
+              inspect(__MODULE__)
+            }"
     end
   end
 
@@ -84,6 +91,7 @@ defmodule RDF.LangString do
   @impl Datatype
   def update(literal, fun, opts \\ [])
   def update(%Literal{literal: literal}, fun, opts), do: update(literal, fun, opts)
+
   def update(%__MODULE__{} = literal, fun, _opts) do
     literal
     |> value()
@@ -102,12 +110,14 @@ defmodule RDF.LangString do
 
   see <https://www.w3.org/TR/sparql11-query/#func-langMatches>
   """
-  @spec match_language?(Literal.t | t() | String.t, String.t) :: boolean
+  @spec match_language?(Literal.t() | t() | String.t(), String.t()) :: boolean
   def match_language?(language_tag, language_range)
 
   def match_language?(%Literal{literal: literal}, language_range),
     do: match_language?(literal, language_range)
+
   def match_language?(%__MODULE__{language: nil}, _), do: false
+
   def match_language?(%__MODULE__{language: language_tag}, language_range),
     do: match_language?(language_tag, language_range)
 
@@ -121,7 +131,7 @@ defmodule RDF.LangString do
 
     case String.split(language_tag, language_range, parts: 2) do
       [_, rest] -> rest == "" or String.starts_with?(rest, "-")
-      _         -> false
+      _ -> false
     end
   end
 

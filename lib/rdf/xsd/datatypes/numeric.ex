@@ -13,13 +13,13 @@ defmodule RDF.XSD.Numeric do
   defdelegate datatype?(value), to: Literal.Datatype.Registry, as: :numeric_datatype?
 
   @doc !"""
-  Tests for numeric value equality of two numeric XSD datatyped literals.
+       Tests for numeric value equality of two numeric XSD datatyped literals.
 
-  see:
+       see:
 
-  - <https://www.w3.org/TR/sparql11-query/#OperatorMapping>
-  - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
-  """
+       - <https://www.w3.org/TR/sparql11-query/#OperatorMapping>
+       - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
+       """
   @spec do_equal_value?(t() | any, t() | any) :: boolean
   def do_equal_value?(left, right)
 
@@ -52,14 +52,14 @@ defmodule RDF.XSD.Numeric do
   defp new_decimal(value), do: D.new(value)
 
   @doc !"""
-  Compares two numeric XSD literals.
+       Compares two numeric XSD literals.
 
-  Returns `:gt` if first literal is greater than the second and `:lt` for vice
-  versa. If the two literals are equal `:eq` is returned.
+       Returns `:gt` if first literal is greater than the second and `:lt` for vice
+       versa. If the two literals are equal `:eq` is returned.
 
-  Returns `nil` when the given arguments are not comparable datatypes.
+       Returns `nil` when the given arguments are not comparable datatypes.
 
-  """
+       """
   @spec do_compare(t, t) :: Literal.Datatype.comparison_result() | nil
   def do_compare(left, right)
 
@@ -68,9 +68,15 @@ defmodule RDF.XSD.Numeric do
       cond do
         XSD.Decimal.datatype?(left_datatype) or XSD.Decimal.datatype?(right_datatype) ->
           compare_decimal_value(left, right)
-        left < right -> :lt
-        left > right -> :gt
-        true -> :eq
+
+        left < right ->
+          :lt
+
+        left > right ->
+          :gt
+
+        true ->
+          :eq
       end
     end
   end
@@ -273,8 +279,9 @@ defmodule RDF.XSD.Numeric do
               |> datatype.base_primitive().new()
 
             value ->
-              target_datatype = if XSD.Float.datatype?(datatype),
-                                   do: XSD.Float, else: datatype.base_primitive()
+              target_datatype =
+                if XSD.Float.datatype?(datatype), do: XSD.Float, else: datatype.base_primitive()
+
               value
               |> Kernel.abs()
               |> target_datatype.new()
@@ -337,7 +344,7 @@ defmodule RDF.XSD.Numeric do
               |> XSD.Decimal.new()
 
             (float_datatype = XSD.Float.datatype?(datatype)) or
-                              XSD.Double.datatype?(datatype) ->
+                XSD.Double.datatype?(datatype) ->
               if literal_value in ~w[nan positive_infinity negative_infinity]a do
                 literal(value)
               else
@@ -400,7 +407,7 @@ defmodule RDF.XSD.Numeric do
               |> XSD.Decimal.new()
 
             (float_datatype = XSD.Float.datatype?(datatype)) or
-                              XSD.Double.datatype?(datatype) ->
+                XSD.Double.datatype?(datatype) ->
               if literal_value in ~w[nan positive_infinity negative_infinity]a do
                 literal(value)
               else
@@ -457,7 +464,7 @@ defmodule RDF.XSD.Numeric do
               |> XSD.Decimal.new()
 
             (float_datatype = XSD.Float.datatype?(datatype)) or
-                              XSD.Double.datatype?(datatype) ->
+                XSD.Double.datatype?(datatype) ->
               if literal_value in ~w[nan positive_infinity negative_infinity]a do
                 literal(value)
               else
@@ -483,11 +490,15 @@ defmodule RDF.XSD.Numeric do
     end
   end
 
-  defp arithmetic_operation(op, %Literal{literal: literal1}, literal2, fun), do: arithmetic_operation(op, literal1, literal2, fun)
-  defp arithmetic_operation(op, literal1, %Literal{literal: literal2}, fun), do: arithmetic_operation(op, literal1, literal2, fun)
+  defp arithmetic_operation(op, %Literal{literal: literal1}, literal2, fun),
+    do: arithmetic_operation(op, literal1, literal2, fun)
+
+  defp arithmetic_operation(op, literal1, %Literal{literal: literal2}, fun),
+    do: arithmetic_operation(op, literal1, literal2, fun)
+
   defp arithmetic_operation(op, %datatype1{} = literal1, %datatype2{} = literal2, fun) do
     if datatype?(datatype1) and datatype?(datatype2) and
-       Literal.Datatype.valid?(literal1) and Literal.Datatype.valid?(literal2) do
+         Literal.Datatype.valid?(literal1) and Literal.Datatype.valid?(literal2) do
       result_type = result_type(op, datatype1, datatype2)
       {arg1, arg2} = type_conversion(literal1, literal2, result_type)
       result = fun.(arg1.value, arg2.value, result_type)
@@ -538,7 +549,8 @@ defmodule RDF.XSD.Numeric do
   defp type_conversion(left, right, _), do: {left, right}
 
   @doc false
-  def result_type(op, left, right), do: do_result_type(op, base_primitive(left), base_primitive(right))
+  def result_type(op, left, right),
+    do: do_result_type(op, base_primitive(left), base_primitive(right))
 
   defp do_result_type(_, XSD.Double, _), do: XSD.Double
   defp do_result_type(_, _, XSD.Double), do: XSD.Double
@@ -551,9 +563,10 @@ defmodule RDF.XSD.Numeric do
 
   defp base_primitive(datatype) do
     primitive = datatype.base_primitive()
+
     if primitive == XSD.Double and XSD.Float.datatype?(datatype),
-       do: XSD.Float,
-       else: primitive
+      do: XSD.Float,
+      else: primitive
   end
 
   defp literal(value), do: %Literal{literal: value}

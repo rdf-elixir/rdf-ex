@@ -20,7 +20,6 @@ defmodule RDF.XSD.Time do
   @grammar ~r/\A(\d{2}:\d{2}:\d{2}(?:\.\d+)?)((?:[\+\-]\d{2}:\d{2})|UTC|GMT|Z)?\Z/
   @tz_number_grammar ~r/\A(?:([\+\-])(\d{2}):(\d{2}))\Z/
 
-
   def_applicable_facet XSD.Facets.ExplicitTimezone
   def_applicable_facet XSD.Facets.Pattern
 
@@ -35,7 +34,6 @@ defmodule RDF.XSD.Time do
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
@@ -196,8 +194,15 @@ defmodule RDF.XSD.Time do
 
   @impl RDF.Literal.Datatype
   def do_equal_value_same_or_derived_datatypes?(left, right)
-  def do_equal_value_same_or_derived_datatypes?(%{value: %{}}, %{value: tz_tuple}) when is_tuple(tz_tuple), do: nil
-  def do_equal_value_same_or_derived_datatypes?(%{value: tz_tuple}, %{value: %{}}) when is_tuple(tz_tuple), do: nil
+
+  def do_equal_value_same_or_derived_datatypes?(%{value: %{}}, %{value: tz_tuple})
+      when is_tuple(tz_tuple),
+      do: nil
+
+  def do_equal_value_same_or_derived_datatypes?(%{value: tz_tuple}, %{value: %{}})
+      when is_tuple(tz_tuple),
+      do: nil
+
   def do_equal_value_same_or_derived_datatypes?(left, right), do: super(left, right)
 
   @doc """
@@ -216,7 +221,8 @@ defmodule RDF.XSD.Time do
   """
   @spec canonical_lexical_with_zone(RDF.Literal.t() | t()) :: String.t() | nil
   def canonical_lexical_with_zone(%RDF.Literal{literal: xsd_time}),
-      do: canonical_lexical_with_zone(xsd_time)
+    do: canonical_lexical_with_zone(xsd_time)
+
   def canonical_lexical_with_zone(%__MODULE__{} = xsd_time) do
     case tz(xsd_time) do
       nil ->

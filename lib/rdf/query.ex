@@ -84,7 +84,7 @@ defmodule RDF.Query do
   As opposed to `execute/3` this returns the results directly or fails with an
   exception.
   """
-  def execute!(query, graph, opts \\ [])  do
+  def execute!(query, graph, opts \\ []) do
     case execute(query, graph, opts) do
       {:ok, results} -> results
       {:error, error} -> raise error
@@ -152,7 +152,7 @@ defmodule RDF.Query do
   As opposed to `stream/3` this returns the stream directly or fails with an
   exception.
   """
-  def stream!(query, graph, opts \\ [])  do
+  def stream!(query, graph, opts \\ []) do
     case stream(query, graph, opts) do
       {:ok, results} -> results
       {:error, error} -> raise error

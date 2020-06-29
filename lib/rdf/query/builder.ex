@@ -32,7 +32,7 @@ defmodule RDF.Query.Builder do
   end
 
   defp triple_patterns(triple_pattern) when is_tuple(triple_pattern),
-       do: triple_patterns([triple_pattern])
+    do: triple_patterns([triple_pattern])
 
   defp triple_pattern({subject, predicate, object})
        when not is_list(predicate) and not is_list(object) do
@@ -43,7 +43,8 @@ defmodule RDF.Query.Builder do
     end
   end
 
-  defp triple_pattern(combined_objects_triple_pattern) when is_tuple(combined_objects_triple_pattern) do
+  defp triple_pattern(combined_objects_triple_pattern)
+       when is_tuple(combined_objects_triple_pattern) do
     [subject | rest] = Tuple.to_list(combined_objects_triple_pattern)
 
     case rest do
@@ -53,9 +54,10 @@ defmodule RDF.Query.Builder do
           |> Enum.map(fn object -> {subject, predicate, object} end)
           |> triple_patterns()
         else
-          {:error, %RDF.Query.InvalidError{
-            message: "Invalid use of predicate-object pair brackets"}
-          }
+          {:error,
+           %RDF.Query.InvalidError{
+             message: "Invalid use of predicate-object pair brackets"
+           }}
         end
 
       predicate_object_pairs ->
@@ -66,9 +68,10 @@ defmodule RDF.Query.Builder do
           end)
           |> triple_patterns()
         else
-          {:error, %RDF.Query.InvalidError{
-            message: "Invalid use of predicate-object pair brackets"}
-          }
+          {:error,
+           %RDF.Query.InvalidError{
+             message: "Invalid use of predicate-object pair brackets"
+           }}
         end
     end
   end
@@ -79,9 +82,10 @@ defmodule RDF.Query.Builder do
     if value do
       {:ok, value}
     else
-      {:error, %RDF.Query.InvalidError{
-        message: "Invalid subject term in BGP triple pattern: #{inspect subject}"}
-      }
+      {:error,
+       %RDF.Query.InvalidError{
+         message: "Invalid subject term in BGP triple pattern: #{inspect(subject)}"
+       }}
     end
   end
 
@@ -91,9 +95,10 @@ defmodule RDF.Query.Builder do
     if value do
       {:ok, value}
     else
-      {:error, %RDF.Query.InvalidError{
-        message: "Invalid predicate term in BGP triple pattern: #{inspect predicate}"}
-      }
+      {:error,
+       %RDF.Query.InvalidError{
+         message: "Invalid predicate term in BGP triple pattern: #{inspect(predicate)}"
+       }}
     end
   end
 
@@ -103,9 +108,10 @@ defmodule RDF.Query.Builder do
     if value do
       {:ok, value}
     else
-      {:error, %RDF.Query.InvalidError{
-        message: "Invalid object term in BGP triple pattern: #{inspect object}"}
-      }
+      {:error,
+       %RDF.Query.InvalidError{
+         message: "Invalid object term in BGP triple pattern: #{inspect(object)}"
+       }}
     end
   end
 
@@ -146,13 +152,13 @@ defmodule RDF.Query.Builder do
   defp literal(%Literal{} = literal), do: literal
   defp literal(value), do: Literal.coerce(value)
 
-
   def path(query, opts \\ [])
 
   def path(query, _) when is_list(query) and length(query) < 3 do
-    {:error, %RDF.Query.InvalidError{
-      message: "Invalid path expression: must have at least three elements"}
-    }
+    {:error,
+     %RDF.Query.InvalidError{
+       message: "Invalid path expression: must have at least three elements"
+     }}
   end
 
   def path([subject | rest], opts) do
@@ -175,6 +181,12 @@ defmodule RDF.Query.Builder do
   defp path_pattern(subject, [predicate | rest], triple_patterns, count, with_elements) do
     object = if with_elements, do: :"el#{count}?", else: RDF.bnode(count)
 
-    path_pattern(object, rest, [{subject, predicate, object} | triple_patterns], count + 1, with_elements)
+    path_pattern(
+      object,
+      rest,
+      [{subject, predicate, object} | triple_patterns],
+      count + 1,
+      with_elements
+    )
   end
 end

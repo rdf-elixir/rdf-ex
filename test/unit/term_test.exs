@@ -29,8 +29,8 @@ defmodule RDF.TermTest do
     end
 
     test "with boolean" do
-      assert RDF.Term.coerce(true) == XSD.true
-      assert RDF.Term.coerce(false) == XSD.false
+      assert RDF.Term.coerce(true) == XSD.true()
+      assert RDF.Term.coerce(false) == XSD.false()
     end
 
     test "with string" do
@@ -51,19 +51,20 @@ defmodule RDF.TermTest do
 
     test "with datetime" do
       assert DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> RDF.Term.coerce() ==
-             DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> XSD.datetime()
+               DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> XSD.datetime()
+
       assert ~N"2002-04-02T12:00:00" |> RDF.Term.coerce() ==
-             ~N"2002-04-02T12:00:00" |> XSD.datetime()
+               ~N"2002-04-02T12:00:00" |> XSD.datetime()
     end
 
     test "with date" do
       assert ~D"2002-04-02" |> RDF.Term.coerce() ==
-             ~D"2002-04-02" |> XSD.date()
+               ~D"2002-04-02" |> XSD.date()
     end
 
     test "with time" do
       assert ~T"12:00:00" |> RDF.Term.coerce() ==
-             ~T"12:00:00" |> XSD.time()
+               ~T"12:00:00" |> XSD.time()
     end
 
     test "with reference" do
@@ -126,7 +127,8 @@ defmodule RDF.TermTest do
 
     test "with datetime" do
       assert DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> RDF.Term.value() ==
-             DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1)
+               DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1)
+
       assert ~N"2002-04-02T12:00:00" |> RDF.Term.value() == ~N"2002-04-02T12:00:00"
     end
 

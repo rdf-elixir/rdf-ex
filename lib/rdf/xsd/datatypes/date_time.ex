@@ -11,7 +11,6 @@ defmodule RDF.XSD.DateTime do
 
   alias RDF.XSD
 
-
   def_applicable_facet XSD.Facets.ExplicitTimezone
   def_applicable_facet XSD.Facets.Pattern
 
@@ -26,7 +25,6 @@ defmodule RDF.XSD.DateTime do
   def pattern_conform?(pattern, _value, lexical) do
     XSD.Facets.Pattern.conform?(pattern, lexical)
   end
-
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
@@ -120,6 +118,7 @@ defmodule RDF.XSD.DateTime do
   def tz(xsd_datetime)
   def tz(%RDF.Literal{literal: xsd_datetime}), do: tz(xsd_datetime)
   def tz(%__MODULE__{value: %NaiveDateTime{}}), do: ""
+
   def tz(date_time_literal) do
     if valid?(date_time_literal) do
       date_time_literal
@@ -134,6 +133,7 @@ defmodule RDF.XSD.DateTime do
   @spec canonical_lexical_with_zone(RDF.Literal.t() | t()) :: String.t() | nil
   def canonical_lexical_with_zone(%RDF.Literal{literal: xsd_datetime}),
     do: canonical_lexical_with_zone(xsd_datetime)
+
   def canonical_lexical_with_zone(%__MODULE__{} = xsd_datetime) do
     case tz(xsd_datetime) do
       nil ->
