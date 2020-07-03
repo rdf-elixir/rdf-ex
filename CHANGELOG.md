@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- adding an empty `RDF.Description` with a subject to an empty `RDF.Graph` resulted in 
+  an invalid non-empty graph ([@pukkamustard](https://github.com/pukkamustard))
+
+
+[Compare v0.8.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.1...HEAD)
+
+
+
 ## 0.8.1 - 2020-06-16
 
 ### Added
