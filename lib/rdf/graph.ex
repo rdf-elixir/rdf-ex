@@ -180,8 +180,13 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(%RDF.Graph{} = graph, %Description{subject: subject} = description),
-    do: do_add(graph, subject, description)
+  def add(%RDF.Graph{} = graph, %Description{subject: subject} = description) do
+    if Description.count(description) > 0 do
+      do_add(graph, subject, description)
+    else
+      graph
+    end
+  end
 
   def add(graph, %RDF.Graph{descriptions: descriptions, prefixes: prefixes}) do
     graph =
