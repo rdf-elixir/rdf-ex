@@ -5,6 +5,67 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## 0.8.1 - 2020-06-16
+
+### Added
+
+- query functions for basic graph pattern matching (incl. streaming-support)
+
+
+[Compare v0.8.0...v0.8.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.0...v0.8.1)
+
+
+
+## 0.8.0 - 2020-06-01
+
+RDF literals and their datatypes were completely redesigned to support derived XSD datatypes and
+allow for defining custom datatypes. 
+For an introduction on how literals work now read the updated [page on literals in the guide](https://rdf-elixir.dev/rdf-ex/literals.html). 
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.8).
+
+### Added
+
+- a lot of new datatypes like `xsd:float`, `xsd:byte` or `xsd:anyURI` -- all numeric XSD datatypes 
+  are now available; see [this page of the API documentation](https://hexdocs.pm/rdf/RDF.XSD.Datatype.html#module-builtin-xsd-datatypes)
+  for an up-to-date list of all supported and missing XSD datatypes
+- an implementation of XSD facet system now makes it easy to define own custom datatypes via 
+  restriction of the existing XSD datatypes
+- `RDF.Literal.update/2` updates the value of a `RDF.Literal` without changing anything else, 
+  eg. the language or datatype
+
+### Changed
+
+- the `RDF.Literal` struct now consists entirely of a datatype-specific structs in the `literal` field, 
+  which besides being more memory-efficient (since literals no longer consist of all possible fields a literal might have),
+  allows pattern matching now on the datatype of literals.
+- RDF XSD datatypes are now defined in the `RDF.XSD` namespace
+- alias constructor functions for the XSD datatypes are now defined on `RDF.XSD`
+- `matches?`, `less_than?`, `greater_than` as higher level functions were removed from the 
+  `RDF.Literal.Datatype` modules 
+- `less_than?`, `greater_than?` now always return a boolean and no longer `nil` when incomparable;
+  you can still determine if two terms are comparable by checking if `compare/2` returns `nil`
+- the `language` option is not supported on the `RDF.XSD.String.new/2` constructor  
+- the `language` option on `RDF.Literal.new/2` is no longer ignored if it's empty (`nil` or `""`), 
+  so this either produces an invalid `RDF.LangString` now or, if another `datatype` is provided will 
+  fail with an `ArgumentError`
+- `canonical` now performs implicit coercions when passed plain Elixir values
+- the inspect format for literals was changed and is now much more informative and uniform, since
+  you now always see the value, the lexical form and if the literal is valid
+- `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
+  `RDF.Namespace.resolve_term!/1` with the old behaviour was added
+- Elixir versions < 1.8 are no longer supported
+
+### Fixed
+
+- numeric operations on invalid numeric literals no longer fail, but return `nil` instead    
+- Datetimes preserve the original lexical form of the timezone when casting from a date
+- BEAM error warnings when trying to use top-level modules as vocabulary terms 
+
+
+[Compare v0.7.1...v0.8.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.7.1...v0.8.0)
+
+
+
 ## 0.7.1 - 2020-03-11
 
 ### Added
@@ -17,7 +78,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.XSD.Time` didn't handle 24h overflows with an offset correctly
 
 
-[Compare v0.7.0...v0.7.1](https://github.com/marcelotto/rdf-ex/compare/v0.7.0...v0.7.1)
+[Compare v0.7.0...v0.7.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.7.0...v0.7.1)
 
 
 
@@ -56,7 +117,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 ``` 
 
 
-[Compare v0.6.2...v0.7.0](https://github.com/marcelotto/rdf-ex/compare/v0.6.2...v0.7.0)
+[Compare v0.6.2...v0.7.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.6.2...v0.7.0)
 
 
 
@@ -65,7 +126,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 ### Added
 
 - field `base_iri` on `RDF.Graph` structure which can be set via new `base_iri` 
-  option on `RDF.Graph.new` or the the new functions `RDF.Graph.set_base_iri/2` 
+  option on `RDF.Graph.new` or the new functions `RDF.Graph.set_base_iri/2` 
   and `RDF.Graph.clear_base_iri/1`
 - `RDF.Graph.clear_metadata/1` which clears the base IRI and the prefixes
 - `RDF.IRI.coerce_base/1` which coerces base IRIs; as opposed to `RDF.IRI.new/1`
@@ -77,7 +138,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 - `RDF.Turtle.Decoder` saves the base IRI in the `RDF.Graph` now
 - `RDF.Turtle.Encoder` now takes the base IRI to be used during serialization in  
   the following order of precedence:
-	- from the the `base` option or its new alias `base_iri`
+	- from the `base` option or its new alias `base_iri`
 	- from the `base_iri` field of the given graph
 	- from the `RDF.default_base_iri` returning the one from the application 
 	  configuration
@@ -90,7 +151,7 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 - Vocabulary namespace modules weren't always detected properly
 
 
-[Compare v0.6.1...v0.6.2](https://github.com/marcelotto/rdf-ex/compare/v0.6.1...v0.6.2)
+[Compare v0.6.1...v0.6.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.6.1...v0.6.2)
 
 
 
@@ -116,13 +177,13 @@ RDF.Turtle.write_file!(some_data, some_path, file_mode: ~w[utf8 write exclusive]
 - slightly improve output of errors during parsing of Turtle, N-Triples and N-Quads  
 
 
-[Compare v0.6.0...v0.6.1](https://github.com/marcelotto/rdf-ex/compare/v0.6.0...v0.6.1)
+[Compare v0.6.0...v0.6.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.6.0...v0.6.1)
 
 
 
 ## 0.6.0 - 2019-04-06
 
-see [here](https://github.com/marcelotto/rdf-ex/wiki/Upgrading-to-RDF.ex-0.6) for
+see [here](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.6) for
 upgrading notes to RDF.ex 0.6 
 
 ### Added
@@ -155,7 +216,7 @@ upgrading notes to RDF.ex 0.6
   are not supported in atoms on these versions  	
 
 
-[Compare v0.5.4...v0.6.0](https://github.com/marcelotto/rdf-ex/compare/v0.5.4...v0.6.0)
+[Compare v0.5.4...v0.6.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.5.4...v0.6.0)
 
 
 
@@ -167,7 +228,7 @@ upgrading notes to RDF.ex 0.6
 - `RDF.write_file` and `RDF.write_file!` delegators had wrong signatures
 
 
-[Compare v0.5.3...v0.5.4](https://github.com/marcelotto/rdf-ex/compare/v0.5.3...v0.5.4)
+[Compare v0.5.3...v0.5.4](https://github.com/rdf-elixir/rdf-ex/compare/v0.5.3...v0.5.4)
 
 
 
@@ -179,7 +240,7 @@ upgrading notes to RDF.ex 0.6
   validate if a tuple is a valid RDF triple or RDF quad
 
 
-[Compare v0.5.2...v0.5.3](https://github.com/marcelotto/rdf-ex/compare/v0.5.2...v0.5.3)
+[Compare v0.5.2...v0.5.3](https://github.com/rdf-elixir/rdf-ex/compare/v0.5.2...v0.5.3)
 
 
 
@@ -208,7 +269,7 @@ upgrading notes to RDF.ex 0.6
 - `-00:00` is a valid timezone offset on `RDF.DateTime`
 
 
-[Compare v0.5.1...v0.5.2](https://github.com/marcelotto/rdf-ex/compare/v0.5.1...v0.5.2)
+[Compare v0.5.1...v0.5.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.5.1...v0.5.2)
 
 
 
@@ -219,7 +280,7 @@ upgrading notes to RDF.ex 0.6
 - generated Erlang output files of Leex and Yecc are excluded from Hex package
 
 
-[Compare v0.5.0...v0.5.1](https://github.com/marcelotto/rdf-ex/compare/v0.5.0...v0.5.1)
+[Compare v0.5.0...v0.5.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.5.0...v0.5.1)
 
 
 
@@ -228,7 +289,7 @@ upgrading notes to RDF.ex 0.6
 ### Added
 
 - Possibility to execute simple SPARQL queries against `RDF.Graph`s with 
-  [SPARQL 0.2](https://github.com/marcelotto/sparql-ex/blob/master/CHANGELOG.md)
+  [SPARQL 0.2](https://github.com/rdf-elixir/sparql-ex/blob/master/CHANGELOG.md)
 - New `RDF.Term` protocol implemented for all structs representing RDF nodes and  
   all native Elixir datatypes which are coercible to those modules. For now, it  
   mainly offers, besides the coercion, just the function `RDF.Term.equal?/2` and 
@@ -280,7 +341,7 @@ upgrading notes to RDF.ex 0.6
   literals
 
 
-[Compare v0.4.1...v0.5.0](https://github.com/marcelotto/rdf-ex/compare/v0.4.1...v0.5.0)
+[Compare v0.4.1...v0.5.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.4.1...v0.5.0)
 
 
 
@@ -298,7 +359,7 @@ upgrading notes to RDF.ex 0.6
   `RDF.Literal.new!/2` function
 
 
-[Compare v0.4.0...v0.4.1](https://github.com/marcelotto/rdf-ex/compare/v0.4.0...v0.4.1)
+[Compare v0.4.0...v0.4.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.4.0...v0.4.1)
 
 
 
@@ -308,7 +369,7 @@ upgrading notes to RDF.ex 0.6
 
 - renamed `RDF.Serialization` behaviour to `RDF.Serialization.Format`; the new
   `RDF.Serialization` module contains just simple RDF serialization related functions 
-- renamed `RDF.Serialization.Format.content_type/0` to `RDF.Serialization.Format.media_type/0`
+- renamed `RDF.Serialization.Format` function `content_type/0` to `media_type/0`
 - moved `RDF.Reader` and `RDF.Writer` into `RDF.Serialization` module 
 - removed the limitation to serialization formats defined in the core RDF.ex package
   for use as a source of `RDF.Vocabulary.Namespace`s; so you can now also define
@@ -333,7 +394,7 @@ upgrading notes to RDF.ex 0.6
   - `RDF.Serialization.format_by_extension/1`
 
 
-[Compare v0.3.1...v0.4.0](https://github.com/marcelotto/rdf-ex/compare/v0.3.1...v0.4.0)
+[Compare v0.3.1...v0.4.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.3.1...v0.4.0)
 
 
 
@@ -349,7 +410,7 @@ upgrading notes to RDF.ex 0.6
 - Fix `unescape_map` in `parse_helper` for Elixir 1.6 ([@ajkeys](https://github.com/ajkeys))
 
 
-[Compare v0.3.0...v0.3.1](https://github.com/marcelotto/rdf-ex/compare/v0.3.0...v0.3.1)
+[Compare v0.3.0...v0.3.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.3.0...v0.3.1)
 
 
 
@@ -358,7 +419,7 @@ upgrading notes to RDF.ex 0.6
 ### Added
 
 - `RDF.IRI` as a more suitable URI/IRI representation for RDF, bringing enormous
-  performance and memory consumption benefits (see [here](https://github.com/marcelotto/rdf-ex/issues/1) 
+  performance and memory consumption benefits (see [here](https://github.com/rdf-elixir/rdf-ex/issues/1) 
   for the details about the improvements)
 
 ### Changed
@@ -381,7 +442,7 @@ upgrading notes to RDF.ex 0.6
   exception
 
 
-[Compare v0.2.0...v0.3.0](https://github.com/marcelotto/rdf-ex/compare/v0.2.0...v0.3.0)
+[Compare v0.2.0...v0.3.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.2.0...v0.3.0)
 
 
 
@@ -410,7 +471,7 @@ upgrading notes to RDF.ex 0.6
 - N-Triples and N-Quads decoder didn't handle escaping properly
 
 
-[Compare v0.1.1...v0.2.0](https://github.com/marcelotto/rdf-ex/compare/v0.1.1...v0.2.0)
+[Compare v0.1.1...v0.2.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.1.1...v0.2.0)
 
 
 
@@ -420,7 +481,7 @@ upgrading notes to RDF.ex 0.6
 
 - Add `src` directory to package files.
 
-[Compare v0.1.0...v0.1.1](https://github.com/marcelotto/rdf-ex/compare/v0.1.0...v0.1.1)
+[Compare v0.1.0...v0.1.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.1.0...v0.1.1)
 
 
 

@@ -9,6 +9,7 @@ defmodule RDF do
     - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
+  - the `RDF.Literal.Datatype` system
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
     functions: `RDF.Vocabulary.Namespace`
   - modules for the construction of statements
@@ -22,6 +23,7 @@ defmodule RDF do
     - `RDF.Data`
     - `RDF.List`
     - `RDF.Diff`
+  - functions to construct and execute basic graph pattern queries: `RDF.Query`
   - functions for working with RDF serializations: `RDF.Serialization`
   - behaviours for the definition of RDF serialization formats
     - `RDF.Serialization.Format`
@@ -38,16 +40,28 @@ defmodule RDF do
   For a general introduction you may refer to the guides on the [homepage](https://rdf-elixir.dev).
   """
 
-  alias RDF.{IRI, Namespace, Literal, BlankNode, Triple, Quad,
-             Description, Graph, Dataset, PrefixMap}
+  alias RDF.{
+    IRI,
+    Namespace,
+    Literal,
+    BlankNode,
+    Triple,
+    Quad,
+    Description,
+    Graph,
+    Dataset,
+    PrefixMap
+  }
+
+  import RDF.Guards
+  import RDF.Utils.Bootstrapping
 
   defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
 
-
   @standard_prefixes PrefixMap.new(
-                       xsd:  IRI.new("http://www.w3.org/2001/XMLSchema#"),
-                       rdf:  IRI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-                       rdfs: IRI.new("http://www.w3.org/2000/01/rdf-schema#")
+                       xsd: xsd_iri_base(),
+                       rdf: rdf_iri_base(),
+                       rdfs: rdfs_iri_base()
                      )
 
   @doc """
@@ -61,7 +75,6 @@ defmodule RDF do
   of the default prefixes.
   """
   def standard_prefixes(), do: @standard_prefixes
-
 
   @doc """
   A user-defined `RDF.PrefixMap` of prefixes to IRI namespaces.
@@ -109,15 +122,14 @@ defmodule RDF do
     default_prefixes() |> PrefixMap.merge!(prefix_mappings)
   end
 
-  defdelegate read_string(content, opts),                 to: RDF.Serialization
-  defdelegate read_string!(content, opts),                to: RDF.Serialization
-  defdelegate read_file(filename, opts \\ []),            to: RDF.Serialization
-  defdelegate read_file!(filename, opts \\ []),           to: RDF.Serialization
-  defdelegate write_string(content, opts),                to: RDF.Serialization
-  defdelegate write_string!(content, opts),               to: RDF.Serialization
-  defdelegate write_file(content, filename, opts \\ []),  to: RDF.Serialization
+  defdelegate read_string(content, opts), to: RDF.Serialization
+  defdelegate read_string!(content, opts), to: RDF.Serialization
+  defdelegate read_file(filename, opts \\ []), to: RDF.Serialization
+  defdelegate read_file!(filename, opts \\ []), to: RDF.Serialization
+  defdelegate write_string(content, opts), to: RDF.Serialization
+  defdelegate write_string!(content, opts), to: RDF.Serialization
+  defdelegate write_file(content, filename, opts \\ []), to: RDF.Serialization
   defdelegate write_file!(content, filename, opts \\ []), to: RDF.Serialization
-
 
   @doc """
   Checks if the given value is a RDF resource.
@@ -136,21 +148,23 @@ defmodule RDF do
       false
       iex> RDF.resource?(RDF.bnode)
       true
-      iex> RDF.resource?(RDF.integer(42))
+      iex> RDF.resource?(RDF.XSD.integer(42))
       false
       iex> RDF.resource?(42)
       false
   """
   def resource?(value)
-  def resource?(%IRI{}),                  do: true
-  def resource?(%BlankNode{}),            do: true
-  def resource?(atom) when is_atom(atom) and atom not in ~w[true false nil]a do
-    resource?(Namespace.resolve_term(atom))
-  rescue
-    RDF.Namespace.UndefinedTermError -> false
+  def resource?(%IRI{}), do: true
+  def resource?(%BlankNode{}), do: true
+
+  def resource?(qname) when maybe_ns_term(qname) do
+    case Namespace.resolve_term(qname) do
+      {:ok, iri} -> resource?(iri)
+      _ -> false
+    end
   end
 
-  def resource?(_),                       do: false
+  def resource?(_), do: false
 
   @doc """
   Checks if the given value is a RDF term.
@@ -169,19 +183,19 @@ defmodule RDF do
       false
       iex> RDF.term?(RDF.bnode)
       true
-      iex> RDF.term?(RDF.integer(42))
+      iex> RDF.term?(RDF.XSD.integer(42))
       true
       iex> RDF.term?(42)
       false
   """
   def term?(value)
   def term?(%Literal{}), do: true
-  def term?(value),      do: resource?(value)
+  def term?(value), do: resource?(value)
 
   defdelegate uri?(value), to: IRI, as: :valid?
   defdelegate iri?(value), to: IRI, as: :valid?
-  defdelegate uri(value),  to: IRI, as: :new
-  defdelegate iri(value),  to: IRI, as: :new
+  defdelegate uri(value), to: IRI, as: :new
+  defdelegate iri(value), to: IRI, as: :new
   defdelegate uri!(value), to: IRI, as: :new!
   defdelegate iri!(value), to: IRI, as: :new!
 
@@ -200,81 +214,68 @@ defmodule RDF do
   def bnode?(%BlankNode{}), do: true
   def bnode?(_), do: false
 
-  defdelegate bnode(),   to: BlankNode, as: :new
+  defdelegate bnode(), to: BlankNode, as: :new
   defdelegate bnode(id), to: BlankNode, as: :new
 
-  defdelegate literal(value),       to: Literal, as: :new
+  @doc """
+  Checks if the given value is a RDF literal.
+  """
+  def literal?(%Literal{}), do: true
+  def literal?(_), do: false
+
+  defdelegate literal(value), to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
-  defdelegate triple(s, p, o),  to: Triple, as: :new
-  defdelegate triple(tuple),    to: Triple, as: :new
+  defdelegate triple(s, p, o), to: Triple, as: :new
+  defdelegate triple(tuple), to: Triple, as: :new
 
   defdelegate quad(s, p, o, g), to: Quad, as: :new
-  defdelegate quad(tuple),      to: Quad, as: :new
+  defdelegate quad(tuple), to: Quad, as: :new
 
-  defdelegate description(arg),               to: Description, as: :new
-  defdelegate description(arg1, arg2),        to: Description, as: :new
-  defdelegate description(arg1, arg2, arg3),  to: Description, as: :new
+  defdelegate description(arg), to: Description, as: :new
+  defdelegate description(arg1, arg2), to: Description, as: :new
+  defdelegate description(arg1, arg2, arg3), to: Description, as: :new
 
-  defdelegate graph(),                        to: Graph, as: :new
-  defdelegate graph(arg),                     to: Graph, as: :new
-  defdelegate graph(arg1, arg2),              to: Graph, as: :new
-  defdelegate graph(arg1, arg2, arg3),        to: Graph, as: :new
-  defdelegate graph(arg1, arg2, arg3, arg4),  to: Graph, as: :new
+  defdelegate graph(), to: Graph, as: :new
+  defdelegate graph(arg), to: Graph, as: :new
+  defdelegate graph(arg1, arg2), to: Graph, as: :new
+  defdelegate graph(arg1, arg2, arg3), to: Graph, as: :new
+  defdelegate graph(arg1, arg2, arg3, arg4), to: Graph, as: :new
 
-  defdelegate dataset(),                      to: Dataset, as: :new
-  defdelegate dataset(arg),                   to: Dataset, as: :new
-  defdelegate dataset(arg1, arg2),            to: Dataset, as: :new
+  defdelegate dataset(), to: Dataset, as: :new
+  defdelegate dataset(arg), to: Dataset, as: :new
+  defdelegate dataset(arg1, arg2), to: Dataset, as: :new
 
   defdelegate diff(arg1, arg2), to: RDF.Diff
 
   defdelegate list?(resource, graph), to: RDF.List, as: :node?
-  defdelegate list?(description),     to: RDF.List, as: :node?
+  defdelegate list?(description), to: RDF.List, as: :node?
 
-  def list(native_list),            do: RDF.List.from(native_list)
+  def list(native_list), do: RDF.List.from(native_list)
   def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
-  def list(native_list, opts),      do: RDF.List.from(native_list, opts)
-
-  defdelegate string(value),            to: RDF.String,     as: :new
-  defdelegate string(value, opts),      to: RDF.String,     as: :new
-  defdelegate lang_string(value),       to: RDF.LangString, as: :new
-  defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
-  defdelegate langString(value),        to: RDF.LangString, as: :new
-  defdelegate langString(value, opts),  to: RDF.LangString, as: :new
-  defdelegate boolean(value),           to: RDF.Boolean,    as: :new
-  defdelegate boolean(value, opts),     to: RDF.Boolean,    as: :new
-  defdelegate integer(value),           to: RDF.Integer,    as: :new
-  defdelegate integer(value, opts),     to: RDF.Integer,    as: :new
-  defdelegate double(value),            to: RDF.Double,     as: :new
-  defdelegate double(value, opts),      to: RDF.Double,     as: :new
-  defdelegate decimal(value),           to: RDF.Decimal,    as: :new
-  defdelegate decimal(value, opts),     to: RDF.Decimal,    as: :new
-  defdelegate date(value),              to: RDF.Date,       as: :new
-  defdelegate date(value, opts),        to: RDF.Date,       as: :new
-  defdelegate time(value),              to: RDF.Time,       as: :new
-  defdelegate time(value, opts),        to: RDF.Time,       as: :new
-  defdelegate date_time(value),         to: RDF.DateTime,   as: :new
-  defdelegate date_time(value, opts),   to: RDF.DateTime,   as: :new
-  defdelegate dateTime(value),          to: RDF.DateTime,   as: :new
-  defdelegate dateTime(value, opts),    to: RDF.DateTime,   as: :new
-  defdelegate datetime(value),          to: RDF.DateTime,   as: :new
-  defdelegate datetime(value, opts),    to: RDF.DateTime,   as: :new
+  def list(native_list, opts), do: RDF.List.from(native_list, opts)
 
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
 
+  defdelegate langString(value, opts), to: RDF.LangString, as: :new
+  defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
+
   for term <- ~w[type subject predicate object first rest value]a do
-    defdelegate unquote(term)(),                      to: RDF.NS.RDF
-    defdelegate unquote(term)(s, o),                  to: RDF.NS.RDF
-    defdelegate unquote(term)(s, o1, o2),             to: RDF.NS.RDF
-    defdelegate unquote(term)(s, o1, o2, o3),         to: RDF.NS.RDF
-    defdelegate unquote(term)(s, o1, o2, o3, o4),     to: RDF.NS.RDF
+    defdelegate unquote(term)(), to: RDF.NS.RDF
+    @doc false
+    defdelegate unquote(term)(s, o), to: RDF.NS.RDF
+    @doc false
+    defdelegate unquote(term)(s, o1, o2), to: RDF.NS.RDF
+    @doc false
+    defdelegate unquote(term)(s, o1, o2, o3), to: RDF.NS.RDF
+    @doc false
+    defdelegate unquote(term)(s, o1, o2, o3, o4), to: RDF.NS.RDF
+    @doc false
     defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
-  defdelegate unquote(:true)(),  to: RDF.Boolean.Value
-  defdelegate unquote(:false)(), to: RDF.Boolean.Value
-
-  defdelegate langString(),   to: RDF.NS.RDF
+  defdelegate langString(), to: RDF.NS.RDF
+  defdelegate lang_string(), to: RDF.NS.RDF, as: :langString
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
   defdelegate __base_iri__(), to: RDF.NS.RDF

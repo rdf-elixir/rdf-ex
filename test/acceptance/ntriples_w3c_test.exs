@@ -7,14 +7,14 @@ defmodule RDF.NTriples.W3C.TestSuite do
 
   use ExUnit.Case, async: false
 
-  @w3c_ntriples_test_suite Path.join(RDF.TestData.dir, "N-TRIPLES-TESTS")
+  @w3c_ntriples_test_suite Path.join(RDF.TestData.dir(), "N-TRIPLES-TESTS")
 
-  ExUnit.Case.register_attribute __ENV__, :nt_test
+  ExUnit.Case.register_attribute(__ENV__, :nt_test)
 
   @w3c_ntriples_test_suite
-  |> File.ls!
-  |> Enum.filter(fn (file) -> Path.extname(file) == ".nt" end)
-  |> Enum.each(fn (file) ->
+  |> File.ls!()
+  |> Enum.filter(fn file -> Path.extname(file) == ".nt" end)
+  |> Enum.each(fn file ->
     @nt_test file: Path.join(@w3c_ntriples_test_suite, file)
     if file |> String.contains?("-bad-") do
       test "Negative syntax test: #{file}", context do
@@ -26,5 +26,4 @@ defmodule RDF.NTriples.W3C.TestSuite do
       end
     end
   end)
-
 end

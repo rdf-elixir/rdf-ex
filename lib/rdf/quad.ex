@@ -6,16 +6,16 @@ defmodule RDF.Quad do
   RDF values for subject, predicate, object and a graph context.
   """
 
-  alias RDF.{Literal, Statement}
+  alias RDF.Statement
 
-  @type t :: {Statement.subject, Statement.predicate, Statement.object, Statement.graph_name}
+  @type t ::
+          {Statement.subject(), Statement.predicate(), Statement.object(), Statement.graph_name()}
 
   @type coercible_t ::
-          {Statement.coercible_subject, Statement.coercible_predicate,
-           Statement.coercible_object, Statement.coercible_graph_name}
+          {Statement.coercible_subject(), Statement.coercible_predicate(),
+           Statement.coercible_object(), Statement.coercible_graph_name()}
 
-  @type t_values :: {String.t, String.t, Literal.literal_value, String.t}
-
+  @type t_values :: {String.t(), String.t(), any, String.t()}
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
@@ -32,10 +32,10 @@ defmodule RDF.Quad do
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
   @spec new(
-          Statement.coercible_subject,
-          Statement.coercible_predicate,
-          Statement.coercible_object,
-          Statement.coercible_graph_name
+          Statement.coercible_subject(),
+          Statement.coercible_predicate(),
+          Statement.coercible_object(),
+          Statement.coercible_graph_name()
         ) :: t
   def new(subject, predicate, object, graph_context) do
     {
@@ -63,7 +63,6 @@ defmodule RDF.Quad do
   @spec new(coercible_t) :: t
   def new({subject, predicate, object, graph_context}),
     do: new(subject, predicate, object, graph_context)
-
 
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Quad` of RDF terms.
@@ -94,15 +93,14 @@ defmodule RDF.Quad do
       {:S, :p, 42, ~I<http://example.com/Graph>}
 
   """
-  @spec values(t | any, Statement.term_mapping) :: t_values | nil
+  @spec values(t | any, Statement.term_mapping()) :: t_values | nil
   def values(quad, mapping \\ &Statement.default_term_mapping/1)
 
   def values({subject, predicate, object, graph_context}, mapping) do
-    with subject_value when not is_nil(subject_value)     <- mapping.({:subject, subject}),
+    with subject_value when not is_nil(subject_value) <- mapping.({:subject, subject}),
          predicate_value when not is_nil(predicate_value) <- mapping.({:predicate, predicate}),
-         object_value when not is_nil(object_value)       <- mapping.({:object, object}),
-         graph_context_value                              <- mapping.({:graph_name, graph_context})
-    do
+         object_value when not is_nil(object_value) <- mapping.({:object, object}),
+         graph_context_value <- mapping.({:graph_name, graph_context}) do
       {subject_value, predicate_value, object_value, graph_context_value}
     else
       _ -> nil
@@ -110,7 +108,6 @@ defmodule RDF.Quad do
   end
 
   def values(_, _), do: nil
-
 
   @doc """
   Checks if the given tuple is a valid RDF quad.
@@ -123,5 +120,4 @@ defmodule RDF.Quad do
   def valid?(tuple)
   def valid?({_, _, _, _} = quad), do: Statement.valid?(quad)
   def valid?(_), do: false
-
 end

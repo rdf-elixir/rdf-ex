@@ -10,21 +10,27 @@ defmodule RDF.PrefixMapTest do
 
   @example1 %PrefixMap{map: %{ex1: @ex_ns1}}
 
-  @example2 %PrefixMap{map: %{
-    ex1: @ex_ns1,
-    ex2: @ex_ns2
-  }}
+  @example2 %PrefixMap{
+    map: %{
+      ex1: @ex_ns1,
+      ex2: @ex_ns2
+    }
+  }
 
-  @example3 %PrefixMap{map: %{
-    ex1: @ex_ns1,
-    ex2: @ex_ns2,
-    ex3: @ex_ns3
-  }}
+  @example3 %PrefixMap{
+    map: %{
+      ex1: @ex_ns1,
+      ex2: @ex_ns2,
+      ex3: @ex_ns3
+    }
+  }
 
-  @example4 %PrefixMap{map: %{
-    ex1: @ex_ns1,
-    ex: RDF.iri(EX.__base_iri__)
-  }}
+  @example4 %PrefixMap{
+    map: %{
+      ex1: @ex_ns1,
+      ex: RDF.iri(EX.__base_iri__())
+    }
+  }
 
   test "new/0" do
     assert PrefixMap.new() == %PrefixMap{}
@@ -75,7 +81,7 @@ defmodule RDF.PrefixMapTest do
     end
 
     test "when the IRI namespace is given as a RDF.Vocabulary.Namespace which is not loaded yet" do
-      assert {:ok, prefix_map} = PrefixMap.new |> PrefixMap.add(:rdfs, RDF.NS.RDFS)
+      assert {:ok, prefix_map} = PrefixMap.new() |> PrefixMap.add(:rdfs, RDF.NS.RDFS)
       assert PrefixMap.has_prefix?(prefix_map, :rdfs)
     end
 
@@ -120,6 +126,7 @@ defmodule RDF.PrefixMapTest do
 
     test "when the prefix maps share some prefixes and both map to different namespaces" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
+
       assert PrefixMap.merge(@example3, other_prefix_map) ==
                {:error, [:ex3]}
     end
@@ -130,37 +137,41 @@ defmodule RDF.PrefixMapTest do
     end
 
     test "when the second argument is not convertible to a prefix map" do
-      assert_raise ArgumentError, ~S["not convertible" is not convertible to a RDF.PrefixMap], fn ->
-        PrefixMap.merge(@example2, "not convertible")
-      end
+      assert_raise ArgumentError,
+                   ~S["not convertible" is not convertible to a RDF.PrefixMap],
+                   fn ->
+                     PrefixMap.merge(@example2, "not convertible")
+                   end
     end
   end
 
   describe "merge/3" do
     test "with a function resolving conflicts by choosing one of the inputs" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
-      assert PrefixMap.merge(@example3, other_prefix_map,
-                fn _prefix, ns1, _ns2 -> ns1 end) == {:ok, @example3}
 
-      assert PrefixMap.merge(@example1, %{ex1: EX},
-               fn _prefix, _ns1, ns2 -> ns2 end) == {:ok, PrefixMap.new(ex1: EX)}
+      assert PrefixMap.merge(@example3, other_prefix_map, fn _prefix, ns1, _ns2 -> ns1 end) ==
+               {:ok, @example3}
+
+      assert PrefixMap.merge(@example1, %{ex1: EX}, fn _prefix, _ns1, ns2 -> ns2 end) ==
+               {:ok, PrefixMap.new(ex1: EX)}
     end
 
     test "with a function which does not resolve by returning nil" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
+
       assert PrefixMap.merge(@example3, other_prefix_map, fn _, _, _ -> nil end) ==
                PrefixMap.merge(@example3, other_prefix_map)
     end
 
     test "with a function just partially resolving handling conflicts" do
-      assert PrefixMap.merge(@example3, @example3,
-                fn prefix, ns1, _ -> if prefix == :ex2, do: ns1 end) ==
+      assert PrefixMap.merge(@example3, @example3, fn prefix, ns1, _ ->
+               if prefix == :ex2, do: ns1
+             end) ==
                {:error, [:ex3, :ex1]}
     end
 
     test "when the function returns a non-IRI value which is convertible" do
-      assert PrefixMap.merge(@example1, @example1,
-                fn _, _, _ -> "http://example.com/" end) ==
+      assert PrefixMap.merge(@example1, @example1, fn _, _, _ -> "http://example.com/" end) ==
                {:ok, PrefixMap.new(ex1: "http://example.com/")}
     end
   end
@@ -181,14 +192,14 @@ defmodule RDF.PrefixMapTest do
   describe "merge!/3" do
     test "when all conflicts can be resolved" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns4)
-      assert PrefixMap.merge!(@example3, other_prefix_map,
-               fn _prefix, ns1, _ns2 -> ns1 end) == @example3
+
+      assert PrefixMap.merge!(@example3, other_prefix_map, fn _prefix, ns1, _ns2 -> ns1 end) ==
+               @example3
     end
 
     test "when not all conflicts can be resolved" do
       assert_raise RuntimeError, "conflicting prefix mappings: :ex1", fn ->
-        PrefixMap.merge!(@example2, @example2,
-          fn prefix, ns1, _ -> if prefix == :ex2, do: ns1 end)
+        PrefixMap.merge!(@example2, @example2, fn prefix, ns1, _ -> if prefix == :ex2, do: ns1 end)
       end
     end
   end
@@ -265,17 +276,17 @@ defmodule RDF.PrefixMapTest do
 
   test "prefixes/1" do
     assert PrefixMap.prefixes(@example2) == ~w[ex1 ex2]a
-    assert PrefixMap.prefixes(PrefixMap.new) == ~w[]a
+    assert PrefixMap.prefixes(PrefixMap.new()) == ~w[]a
   end
 
   describe "namespaces/1" do
     assert PrefixMap.namespaces(@example2) == [@ex_ns1, @ex_ns2]
-    assert PrefixMap.namespaces(PrefixMap.new) == ~w[]a
+    assert PrefixMap.namespaces(PrefixMap.new()) == ~w[]a
   end
 
   describe "Enumerable protocol" do
     test "Enum.count" do
-      assert Enum.count(PrefixMap.new) == 0
+      assert Enum.count(PrefixMap.new()) == 0
       assert Enum.count(@example1) == 1
       assert Enum.count(@example2) == 2
     end
@@ -288,7 +299,7 @@ defmodule RDF.PrefixMapTest do
     end
 
     test "Enum.reduce" do
-      assert Enum.reduce(@example2, [], fn(mapping, acc) -> [mapping | acc] end) ==
+      assert Enum.reduce(@example2, [], fn mapping, acc -> [mapping | acc] end) ==
                [{:ex2, @ex_ns2}, {:ex1, @ex_ns1}]
     end
   end

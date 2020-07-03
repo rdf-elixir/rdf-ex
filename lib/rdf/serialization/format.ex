@@ -33,7 +33,7 @@ defmodule RDF.Serialization.Format do
   @doc """
   An IRI of the serialization format.
   """
-  @callback id :: RDF.IRI.t
+  @callback id :: RDF.IRI.t()
 
   @doc """
   An name atom of the serialization format.
@@ -43,12 +43,12 @@ defmodule RDF.Serialization.Format do
   @doc """
   The usual file extension for the serialization format.
   """
-  @callback extension :: String.t
+  @callback extension :: String.t()
 
   @doc """
   The MIME type of the serialization format.
   """
-  @callback media_type :: String.t
+  @callback media_type :: String.t()
 
   @doc """
   A map with the supported options of the `Encoder` and `Decoder` for the serialization format.
@@ -64,7 +64,6 @@ defmodule RDF.Serialization.Format do
   The `RDF.Serialization.Encoder` module for the serialization format.
   """
   @callback encoder :: module
-
 
   defmacro __using__(_) do
     quote bind_quoted: [], unquote: true do
@@ -82,31 +81,37 @@ defmodule RDF.Serialization.Format do
       @impl unquote(__MODULE__)
       def options, do: %{}
 
-      defoverridable [decoder: 0, encoder: 0, options: 0]
+      defoverridable decoder: 0, encoder: 0, options: 0
 
-      @spec read_string(String.t, keyword) :: {:ok, Graph.t | Dataset.t} | {:error, any}
+      @spec read_string(String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
       def read_string(content, opts \\ []),
         do: RDF.Serialization.Reader.read_string(decoder(), content, opts)
-      @spec read_string!(String.t, keyword) :: Graph.t | Dataset.t
+
+      @spec read_string!(String.t(), keyword) :: Graph.t() | Dataset.t()
       def read_string!(content, opts \\ []),
         do: RDF.Serialization.Reader.read_string!(decoder(), content, opts)
-      @spec read_file(Path.t, keyword) :: {:ok, Graph.t | Dataset.t} | {:error, any}
+
+      @spec read_file(Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
       def read_file(file, opts \\ []),
         do: RDF.Serialization.Reader.read_file(decoder(), file, opts)
-      @spec read_file!(Path.t, keyword) :: Graph.t | Dataset.t
+
+      @spec read_file!(Path.t(), keyword) :: Graph.t() | Dataset.t()
       def read_file!(file, opts \\ []),
         do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
 
-      @spec write_string(Graph.t | Dataset.t, keyword) :: {:ok, String.t} | {:error, any}
+      @spec write_string(Graph.t() | Dataset.t(), keyword) :: {:ok, String.t()} | {:error, any}
       def write_string(data, opts \\ []),
         do: RDF.Serialization.Writer.write_string(encoder(), data, opts)
-      @spec write_string!(Graph.t | Dataset.t, keyword) :: String.t
+
+      @spec write_string!(Graph.t() | Dataset.t(), keyword) :: String.t()
       def write_string!(data, opts \\ []),
         do: RDF.Serialization.Writer.write_string!(encoder(), data, opts)
-      @spec write_file(Graph.t | Dataset.t, Path.t, keyword) :: :ok | {:error, any}
+
+      @spec write_file(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok | {:error, any}
       def write_file(data, path, opts \\ []),
         do: RDF.Serialization.Writer.write_file(encoder(), data, path, opts)
-      @spec write_file!(Graph.t | Dataset.t, Path.t, keyword) :: :ok
+
+      @spec write_file!(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
       def write_file!(data, path, opts \\ []),
         do: RDF.Serialization.Writer.write_file!(encoder(), data, path, opts)
 
@@ -117,26 +122,28 @@ defmodule RDF.Serialization.Format do
   defmacro __before_compile__(_env) do
     quote do
       if !Module.defines?(__MODULE__, {:id, 0}) &&
-          Module.get_attribute(__MODULE__, :id) do
+           Module.get_attribute(__MODULE__, :id) do
         @impl unquote(__MODULE__)
         def id, do: @id
       end
+
       if !Module.defines?(__MODULE__, {:name, 0}) &&
-          Module.get_attribute(__MODULE__, :name) do
+           Module.get_attribute(__MODULE__, :name) do
         @impl unquote(__MODULE__)
         def name, do: @name
       end
+
       if !Module.defines?(__MODULE__, {:extension, 0}) &&
-          Module.get_attribute(__MODULE__, :extension) do
+           Module.get_attribute(__MODULE__, :extension) do
         @impl unquote(__MODULE__)
         def extension, do: @extension
       end
+
       if !Module.defines?(__MODULE__, {:media_type, 0}) &&
-          Module.get_attribute(__MODULE__, :media_type) do
+           Module.get_attribute(__MODULE__, :media_type) do
         @impl unquote(__MODULE__)
         def media_type, do: @media_type
       end
     end
   end
-
 end

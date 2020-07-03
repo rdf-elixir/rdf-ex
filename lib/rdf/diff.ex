@@ -9,12 +9,11 @@ defmodule RDF.Diff do
   alias RDF.{Description, Graph}
 
   @type t :: %__MODULE__{
-          additions: Graph.t,
-          deletions: Graph.t
-  }
+          additions: Graph.t(),
+          deletions: Graph.t()
+        }
 
   defstruct [:additions, :deletions]
-
 
   @doc """
   Creates a `RDF.Diff` struct.
@@ -32,8 +31,10 @@ defmodule RDF.Diff do
   end
 
   defp coerce_graph(nil), do: Graph.new()
+
   defp coerce_graph(%Description{} = description),
-    do: if Enum.empty?(description), do: Graph.new(), else: Graph.new(description)
+    do: if(Enum.empty?(description), do: Graph.new(), else: Graph.new(description))
+
   defp coerce_graph(data), do: Graph.new(data)
 
   @doc """
@@ -59,44 +60,49 @@ defmodule RDF.Diff do
       deletions: RDF.graph({EX.S1, EX.p1, EX.O1})
     }
   """
-  @dialyzer {:nowarn_function, diff: 2}
-  @spec diff(Description.t | Graph.t, Description.t | Graph.t) :: t
+  @spec diff(Description.t() | Graph.t(), Description.t() | Graph.t()) :: t
   def diff(original_rdf_data, new_rdf_data)
 
   def diff(%Description{} = description, description), do: new()
 
-  def diff(%Description{subject: subject} = original_description,
-           %Description{subject: subject} = new_description) do
+  def diff(
+        %Description{subject: subject} = original_description,
+        %Description{subject: subject} = new_description
+      ) do
     {additions, deletions} =
       original_description
       |> Description.predicates()
-      |> Enum.reduce({new_description, Description.new(subject)},
-           fn property, {additions, deletions} ->
-             original_objects = Description.get(original_description, property)
-             case Description.get(new_description, property) do
-               nil ->
-                 {
-                   additions,
-                   Description.add(deletions, property, original_objects)
-                 }
+      |> Enum.reduce(
+        {new_description, Description.new(subject)},
+        fn property, {additions, deletions} ->
+          original_objects = Description.get(original_description, property)
 
-               new_objects ->
-                 {unchanged_objects, deleted_objects} =
-                   Enum.reduce(original_objects, {[], []}, fn
-                     original_object, {unchanged_objects, deleted_objects} ->
-                      if original_object in new_objects do
-                        {[original_object | unchanged_objects], deleted_objects}
-                      else
-                        {unchanged_objects, [original_object | deleted_objects]}
-                      end
-                   end)
+          case Description.get(new_description, property) do
+            nil ->
+              {
+                additions,
+                Description.add(deletions, property, original_objects)
+              }
 
-                 {
-                   Description.delete(additions, property, unchanged_objects),
-                   Description.add(deletions, property, deleted_objects),
-                 }
-             end
-         end)
+            new_objects ->
+              {unchanged_objects, deleted_objects} =
+                Enum.reduce(original_objects, {[], []}, fn
+                  original_object, {unchanged_objects, deleted_objects} ->
+                    if original_object in new_objects do
+                      {[original_object | unchanged_objects], deleted_objects}
+                    else
+                      {unchanged_objects, [original_object | deleted_objects]}
+                    end
+                end)
+
+              {
+                Description.delete(additions, property, unchanged_objects),
+                Description.add(deletions, property, deleted_objects)
+              }
+          end
+        end
+      )
+
     new(additions: additions, deletions: deletions)
   end
 
@@ -112,16 +118,20 @@ defmodule RDF.Diff do
     graph1_subjects
     |> MapSet.intersection(graph2_subjects)
     |> Enum.reduce(
-         new(
-           additions: Graph.take(graph2, added_subjects),
-           deletions: Graph.take(graph1, deleted_subjects)
-         ),
-         fn subject, diff ->
-            merge(diff, diff(
-              Graph.description(graph1, subject),
-              Graph.description(graph2, subject)
-            ))
-         end)
+      new(
+        additions: Graph.take(graph2, added_subjects),
+        deletions: Graph.take(graph1, deleted_subjects)
+      ),
+      fn subject, diff ->
+        merge(
+          diff,
+          diff(
+            Graph.description(graph1, subject),
+            Graph.description(graph2, subject)
+          )
+        )
+      end
+    )
   end
 
   def diff(%Description{} = description, %Graph{} = graph) do
@@ -140,10 +150,7 @@ defmodule RDF.Diff do
 
   def diff(%Graph{} = graph, %Description{} = description) do
     diff = diff(description, graph)
-    %__MODULE__{ diff |
-      additions: diff.deletions,
-      deletions: diff.additions
-    }
+    %__MODULE__{diff | additions: diff.deletions, deletions: diff.additions}
   end
 
   @doc """
@@ -179,7 +186,7 @@ defmodule RDF.Diff do
   The result of an application is always a `RDF.Graph`, even if a `RDF.Description`
   is given and the additions from the diff are all about the subject of this description.
   """
-  @spec apply(t, Description.t | Graph.t) :: Graph.t
+  @spec apply(t, Description.t() | Graph.t()) :: Graph.t()
   def apply(diff, rdf_data)
 
   def apply(%__MODULE__{} = diff, %Graph{} = graph) do

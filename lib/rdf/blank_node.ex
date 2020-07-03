@@ -7,8 +7,8 @@ defmodule RDF.BlankNode do
   """
 
   @type t :: %__MODULE__{
-          id: String.t
-  }
+          id: String.t()
+        }
 
   @enforce_keys [:id]
   defstruct [:id]
@@ -28,18 +28,17 @@ defmodule RDF.BlankNode do
       iex> RDF.bnode(:foo)
       %RDF.BlankNode{id: "foo"}
   """
-  @spec new(reference | String.t | atom | integer) :: t
+  @spec new(reference | String.t() | atom | integer) :: t
   def new(id)
 
   def new(id) when is_binary(id),
-    do: %RDF.BlankNode{id: id}
+    do: %__MODULE__{id: id}
 
   def new(id) when is_reference(id),
-    do: id |> :erlang.ref_to_list |> to_string |> String.replace(~r/\<|\>/, "") |> new
+    do: id |> :erlang.ref_to_list() |> to_string |> String.replace(~r/\<|\>/, "") |> new
 
   def new(id) when is_atom(id) or is_integer(id),
     do: id |> to_string |> new
-
 
   @doc """
   Tests for value equality of blank nodes.
@@ -49,15 +48,13 @@ defmodule RDF.BlankNode do
   @spec equal_value?(t, t) :: boolean | nil
   def equal_value?(left, right)
 
-  def equal_value?(%RDF.BlankNode{id: left}, %RDF.BlankNode{id: right}),
+  def equal_value?(%__MODULE__{id: left}, %__MODULE__{id: right}),
     do: left == right
 
   def equal_value?(_, _),
     do: nil
 
-
   defimpl String.Chars do
     def to_string(%RDF.BlankNode{id: id}), do: "_:#{id}"
   end
-
 end

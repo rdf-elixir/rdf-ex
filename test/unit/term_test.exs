@@ -18,9 +18,19 @@ defmodule RDF.TermTest do
       assert RDF.Term.coerce(~L"foo") == ~L"foo"
     end
 
+    test "with a resolvable vocabulary namespace term atom" do
+      assert RDF.Term.coerce(EX.Foo) == RDF.iri(EX.Foo)
+    end
+
+    test "with a non-resolvable atom" do
+      refute RDF.Term.coerce(nil)
+      refute RDF.Term.coerce(Foo)
+      refute RDF.Term.coerce(:foo)
+    end
+
     test "with boolean" do
-      assert RDF.Term.coerce(true) == RDF.true
-      assert RDF.Term.coerce(false) == RDF.false
+      assert RDF.Term.coerce(true) == XSD.true()
+      assert RDF.Term.coerce(false) == XSD.false()
     end
 
     test "with string" do
@@ -28,32 +38,33 @@ defmodule RDF.TermTest do
     end
 
     test "with integer" do
-      assert RDF.Term.coerce(42) == RDF.integer(42)
+      assert RDF.Term.coerce(42) == XSD.integer(42)
     end
 
     test "with float" do
-      assert RDF.Term.coerce(3.14) == RDF.double(3.14)
+      assert RDF.Term.coerce(3.14) == XSD.double(3.14)
     end
 
     test "with decimal" do
-      assert D.from_float(3.14) |> RDF.Term.coerce() == RDF.decimal(3.14)
+      assert D.from_float(3.14) |> RDF.Term.coerce() == XSD.decimal(3.14)
     end
 
     test "with datetime" do
       assert DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> RDF.Term.coerce() ==
-             DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> RDF.datetime()
+               DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> XSD.datetime()
+
       assert ~N"2002-04-02T12:00:00" |> RDF.Term.coerce() ==
-             ~N"2002-04-02T12:00:00" |> RDF.datetime()
+               ~N"2002-04-02T12:00:00" |> XSD.datetime()
     end
 
     test "with date" do
       assert ~D"2002-04-02" |> RDF.Term.coerce() ==
-             ~D"2002-04-02" |> RDF.date()
+               ~D"2002-04-02" |> XSD.date()
     end
 
     test "with time" do
       assert ~T"12:00:00" |> RDF.Term.coerce() ==
-             ~T"12:00:00" |> RDF.time()
+               ~T"12:00:00" |> XSD.time()
     end
 
     test "with reference" do
@@ -80,7 +91,17 @@ defmodule RDF.TermTest do
     end
 
     test "with an invalid RDF.Literal" do
-      assert RDF.integer("foo") |> RDF.Term.value() == "foo"
+      assert XSD.integer("foo") |> RDF.Term.value() == "foo"
+    end
+
+    test "with a resolvable vocabulary namespace term atom" do
+      assert RDF.Term.value(EX.Foo) == EX.Foo |> RDF.iri() |> to_string()
+    end
+
+    test "with a non-resolvable atom" do
+      refute RDF.Term.value(nil)
+      refute RDF.Term.value(Foo)
+      refute RDF.Term.value(:foo)
     end
 
     test "with boolean" do
@@ -106,7 +127,8 @@ defmodule RDF.TermTest do
 
     test "with datetime" do
       assert DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1) |> RDF.Term.value() ==
-             DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1)
+               DateTime.from_iso8601("2002-04-02T12:00:00+00:00") |> elem(1)
+
       assert ~N"2002-04-02T12:00:00" |> RDF.Term.value() == ~N"2002-04-02T12:00:00"
     end
 
