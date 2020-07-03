@@ -98,6 +98,11 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
+    test "creating an unnamed graph with an empty description" do
+      g = Graph.new(Description.new(EX.Subject))
+      assert empty_graph?(g)
+    end
+
     test "creating a named graph from another graph" do
       g =
         Graph.new(Graph.new({EX.Subject, EX.predicate(), EX.Object}),

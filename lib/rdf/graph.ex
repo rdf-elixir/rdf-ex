@@ -177,8 +177,13 @@ defmodule RDF.Graph do
     end)
   end
 
-  def add(%__MODULE__{} = graph, %Description{subject: subject} = description),
-    do: do_add(graph, subject, description)
+  def add(%__MODULE__{} = graph, %Description{subject: subject} = description) do
+    if Description.count(description) > 0 do
+      do_add(graph, subject, description)
+    else
+      graph
+    end
+  end
 
   def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
     graph =
