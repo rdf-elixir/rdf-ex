@@ -7,6 +7,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Changed
+
+- for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
+  to `:value` 
+
+
 ### Fixed
 
 - adding an empty `RDF.Description` with a subject to an empty `RDF.Graph` resulted in 

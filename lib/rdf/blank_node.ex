@@ -7,38 +7,38 @@ defmodule RDF.BlankNode do
   """
 
   @type t :: %__MODULE__{
-          id: String.t()
+          value: String.t()
         }
 
-  @enforce_keys [:id]
-  defstruct [:id]
+  @enforce_keys [:value]
+  defstruct [:value]
 
   @doc """
-  Creates a `RDF.BlankNode` with an arbitrary internal id.
+  Creates a `RDF.BlankNode`.
   """
   @spec new :: t
   def new,
     do: new(make_ref())
 
   @doc """
-  Creates a `RDF.BlankNode` with a user-defined identity.
+  Creates a `RDF.BlankNode` with a user-defined value for its identity.
 
   ## Examples
 
       iex> RDF.bnode(:foo)
-      %RDF.BlankNode{id: "foo"}
+      %RDF.BlankNode{value: "foo"}
   """
   @spec new(reference | String.t() | atom | integer) :: t
-  def new(id)
+  def new(value)
 
-  def new(id) when is_binary(id),
-    do: %__MODULE__{id: id}
+  def new(value) when is_binary(value),
+    do: %__MODULE__{value: value}
 
-  def new(id) when is_reference(id),
-    do: id |> :erlang.ref_to_list() |> to_string |> String.replace(~r/\<|\>/, "") |> new
+  def new(value) when is_reference(value),
+    do: value |> :erlang.ref_to_list() |> to_string |> String.replace(~r/\<|\>/, "") |> new
 
-  def new(id) when is_atom(id) or is_integer(id),
-    do: id |> to_string |> new
+  def new(value) when is_atom(value) or is_integer(value),
+    do: value |> to_string |> new
 
   @doc """
   Tests for value equality of blank nodes.
@@ -48,13 +48,13 @@ defmodule RDF.BlankNode do
   @spec equal_value?(t, t) :: boolean | nil
   def equal_value?(left, right)
 
-  def equal_value?(%__MODULE__{id: left}, %__MODULE__{id: right}),
+  def equal_value?(%__MODULE__{value: left}, %__MODULE__{value: right}),
     do: left == right
 
   def equal_value?(_, _),
     do: nil
 
   defimpl String.Chars do
-    def to_string(%RDF.BlankNode{id: id}), do: "_:#{id}"
+    def to_string(bnode), do: "_:#{bnode.value}"
   end
 end

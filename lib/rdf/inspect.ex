@@ -45,8 +45,8 @@ defimpl Inspect, for: RDF.IRI do
 end
 
 defimpl Inspect, for: RDF.BlankNode do
-  def inspect(%RDF.BlankNode{id: id}, _opts) do
-    "~B<#{id}>"
+  def inspect(%RDF.BlankNode{value: value}, _opts) do
+    "~B<#{value}>"
   end
 end
 
