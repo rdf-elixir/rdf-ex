@@ -529,13 +529,12 @@ defmodule RDF.Description do
   def pop(description)
 
   def pop(description = %__MODULE__{predications: predications})
-      when predications == %{},
+      when map_size(predications) == 0,
       do: {nil, description}
 
   def pop(%__MODULE__{subject: subject, predications: predications}) do
-    # TODO: Find a faster way ...
-    predicate = List.first(Map.keys(predications))
-    [{object, _}] = Enum.take(objects = predications[predicate], 1)
+    [{predicate, objects}] = Enum.take(predications, 1)
+    [{object, _}] = Enum.take(objects, 1)
 
     popped =
       if Enum.count(objects) == 1,
