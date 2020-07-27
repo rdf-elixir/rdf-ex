@@ -282,21 +282,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert Example.__ENV__() == ~I<http://example.com/ex#__ENV__>
     assert Example.__CALLER__() == ~I<http://example.com/ex#__CALLER__>
 
-    assert Example.nil(EX.S, 1) == RDF.description(EX.S, Example.nil(), 1)
-    assert Example.true(EX.S, 1) == RDF.description(EX.S, Example.true(), 1)
-    assert Example.false(EX.S, 1) == RDF.description(EX.S, Example.false(), 1)
-    assert Example.do(EX.S, 1) == RDF.description(EX.S, Example.do(), 1)
-    assert Example.end(EX.S, 1) == RDF.description(EX.S, Example.end(), 1)
-    assert Example.else(EX.S, 1) == RDF.description(EX.S, Example.else(), 1)
-    assert Example.try(EX.S, 1) == RDF.description(EX.S, Example.try(), 1)
-    assert Example.rescue(EX.S, 1) == RDF.description(EX.S, Example.rescue(), 1)
-    assert Example.catch(EX.S, 1) == RDF.description(EX.S, Example.catch(), 1)
-    assert Example.after(EX.S, 1) == RDF.description(EX.S, Example.after(), 1)
-    assert Example.not(EX.S, 1) == RDF.description(EX.S, Example.not(), 1)
-    assert Example.cond(EX.S, 1) == RDF.description(EX.S, Example.cond(), 1)
-    assert Example.inbits(EX.S, 1) == RDF.description(EX.S, Example.inbits(), 1)
-    assert Example.inlist(EX.S, 1) == RDF.description(EX.S, Example.inlist(), 1)
-    assert Example.receive(EX.S, 1) == RDF.description(EX.S, Example.receive(), 1)
+    assert Example.nil(EX.S, 1) == RDF.description({EX.S, Example.nil(), 1})
+    assert Example.true(EX.S, 1) == RDF.description({EX.S, Example.true(), 1})
+    assert Example.false(EX.S, 1) == RDF.description({EX.S, Example.false(), 1})
+    assert Example.do(EX.S, 1) == RDF.description({EX.S, Example.do(), 1})
+    assert Example.end(EX.S, 1) == RDF.description({EX.S, Example.end(), 1})
+    assert Example.else(EX.S, 1) == RDF.description({EX.S, Example.else(), 1})
+    assert Example.try(EX.S, 1) == RDF.description({EX.S, Example.try(), 1})
+    assert Example.rescue(EX.S, 1) == RDF.description({EX.S, Example.rescue(), 1})
+    assert Example.catch(EX.S, 1) == RDF.description({EX.S, Example.catch(), 1})
+    assert Example.after(EX.S, 1) == RDF.description({EX.S, Example.after(), 1})
+    assert Example.not(EX.S, 1) == RDF.description({EX.S, Example.not(), 1})
+    assert Example.cond(EX.S, 1) == RDF.description({EX.S, Example.cond(), 1})
+    assert Example.inbits(EX.S, 1) == RDF.description({EX.S, Example.inbits(), 1})
+    assert Example.inlist(EX.S, 1) == RDF.description({EX.S, Example.inlist(), 1})
+    assert Example.receive(EX.S, 1) == RDF.description({EX.S, Example.receive(), 1})
   end
 
   describe "defvocab with invalid terms" do
@@ -885,7 +885,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       alias TestNS.EX
 
       assert Example._foo() == ~I<http://example.com/ex#_foo>
-      assert Example._foo(EX.S, 1) == RDF.description(EX.S, Example._foo(), 1)
+      assert Example._foo(EX.S, 1) == RDF.description({EX.S, Example._foo(), 1})
     end
   end
 
@@ -966,7 +966,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     alias TestNS.{EX, EXS}
 
     test "one statement with a strict property term" do
-      assert EXS.foo(EX.S, EX.O) == Description.new(EX.S, EXS.foo(), EX.O)
+      assert EXS.foo(EX.S, EX.O) == Description.new({EX.S, EXS.foo(), EX.O})
     end
 
     test "multiple statements with strict property terms and one object" do
@@ -975,7 +975,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EXS.foo(EX.O1)
         |> EXS.bar(EX.O2)
 
-      assert description == Description.new(EX.S, [{EXS.foo(), EX.O1}, {EXS.bar(), EX.O2}])
+      assert description ==
+               Description.new(EX.S) |> Description.add([{EXS.foo(), EX.O1}, {EXS.bar(), EX.O2}])
     end
 
     test "multiple statements with strict property terms and multiple objects in a list" do
@@ -985,7 +986,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EXS.bar([EX.O3, EX.O4])
 
       assert description ==
-               Description.new(EX.S, [
+               Description.new(EX.S)
+               |> Description.add([
                  {EXS.foo(), EX.O1},
                  {EXS.foo(), EX.O2},
                  {EXS.bar(), EX.O3},
@@ -1000,7 +1002,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EXS.bar(EX.O3, EX.O4, EX.O5)
 
       assert description ==
-               Description.new(EX.S, [
+               Description.new(EX.S)
+               |> Description.add([
                  {EXS.foo(), EX.O1},
                  {EXS.foo(), EX.O2},
                  {EXS.bar(), EX.O3},
@@ -1010,7 +1013,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "one statement with a non-strict property term" do
-      assert EX.p(EX.S, EX.O) == Description.new(EX.S, EX.p(), EX.O)
+      assert EX.p(EX.S, EX.O) == Description.new({EX.S, EX.p(), EX.O})
     end
 
     test "multiple statements with non-strict property terms and one object" do
@@ -1019,7 +1022,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EX.p1(EX.O1)
         |> EX.p2(EX.O2)
 
-      assert description == Description.new(EX.S, [{EX.p1(), EX.O1}, {EX.p2(), EX.O2}])
+      assert description ==
+               Description.new(EX.S) |> Description.add([{EX.p1(), EX.O1}, {EX.p2(), EX.O2}])
     end
 
     test "multiple statements with non-strict property terms and multiple objects in a list" do
@@ -1029,7 +1033,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EX.p2([EX.O3, EX.O4])
 
       assert description ==
-               Description.new(EX.S, [
+               Description.new(EX.S)
+               |> Description.add([
                  {EX.p1(), EX.O1},
                  {EX.p1(), EX.O2},
                  {EX.p2(), EX.O3},
@@ -1044,7 +1049,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         |> EX.p2(EX.O3, EX.O4)
 
       assert description ==
-               Description.new(EX.S, [
+               Description.new(EX.S)
+               |> Description.add([
                  {EX.p1(), EX.O1},
                  {EX.p1(), EX.O2},
                  {EX.p2(), EX.O3},

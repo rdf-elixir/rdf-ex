@@ -233,8 +233,6 @@ defmodule RDF do
   defdelegate quad(tuple), to: Quad, as: :new
 
   defdelegate description(arg), to: Description, as: :new
-  defdelegate description(arg1, arg2), to: Description, as: :new
-  defdelegate description(arg1, arg2, arg3), to: Description, as: :new
 
   defdelegate graph(), to: Graph, as: :new
   defdelegate graph(arg), to: Graph, as: :new

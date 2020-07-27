@@ -202,9 +202,14 @@ defmodule RDF.Graph do
     %__MODULE__{
       graph
       | descriptions:
-          Map.update(descriptions, subject, Description.new(statements), fn description ->
-            Description.add(description, statements)
-          end)
+          Map.update(
+            descriptions,
+            subject,
+            Description.new(subject) |> Description.add(statements),
+            fn description ->
+              Description.add(description, statements)
+            end
+          )
     }
   end
 
@@ -277,7 +282,7 @@ defmodule RDF.Graph do
             Map.update(
               descriptions,
               subject,
-              Description.new(subject, predications),
+              Description.new(subject) |> Description.add(predications),
               fn current ->
                 Description.put(current, predications)
               end
@@ -293,9 +298,14 @@ defmodule RDF.Graph do
     %__MODULE__{
       graph
       | descriptions:
-          Map.update(descriptions, subject, Description.new(statements), fn current ->
-            Description.put(current, statements)
-          end)
+          Map.update(
+            descriptions,
+            subject,
+            Description.new(subject) |> Description.add(statements),
+            fn current ->
+              Description.put(current, statements)
+            end
+          )
     }
   end
 
@@ -420,15 +430,15 @@ defmodule RDF.Graph do
 
       iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
       ...>   RDF.Graph.update(EX.S,
-      ...>     fn description -> Description.add(description, EX.p, EX.O2) end)
+      ...>     fn description -> Description.add(description, {EX.p, EX.O2}) end)
       RDF.Graph.new([{EX.S, EX.p, EX.O}, {EX.S, EX.p, EX.O2}])
       iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
       ...>   RDF.Graph.update(EX.S,
-      ...>     fn _ -> Description.new(EX.S2, EX.p2, EX.O2) end)
+      ...>     fn _ -> Description.new({EX.S2, EX.p2, EX.O2}) end)
       RDF.Graph.new([{EX.S, EX.p2, EX.O2}])
       iex> RDF.Graph.new() |>
       ...>   RDF.Graph.update(EX.S, Description.new({EX.S, EX.p, EX.O}),
-      ...>     fn description -> Description.add(description, EX.p, EX.O2) end)
+      ...>     fn description -> Description.add(description, {EX.p, EX.O2}) end)
       RDF.Graph.new([{EX.S, EX.p, EX.O}])
 
   """
@@ -444,7 +454,7 @@ defmodule RDF.Graph do
     case get(graph, subject) do
       nil ->
         if initial do
-          add(graph, Description.new(subject, initial))
+          add(graph, Description.new(subject) |> Description.add(initial))
         else
           graph
         end
@@ -459,7 +469,7 @@ defmodule RDF.Graph do
           new_description ->
             graph
             |> delete_subjects(subject)
-            |> add(Description.new(subject, new_description))
+            |> add(Description.new(subject) |> Description.add(new_description))
         end
     end
   end
@@ -566,7 +576,7 @@ defmodule RDF.Graph do
       ...>   RDF.Graph.get_and_update(EX.S, fn current_description ->
       ...>     {current_description, {EX.P, EX.NEW}}
       ...>   end)
-      {RDF.Description.new(EX.S, EX.P, EX.O), RDF.Graph.new(EX.S, EX.P, EX.NEW)}
+      {RDF.Description.new({EX.S, EX.P, EX.O}), RDF.Graph.new({EX.S, EX.P, EX.NEW})}
 
   """
   @impl Access

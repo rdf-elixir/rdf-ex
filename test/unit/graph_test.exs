@@ -216,7 +216,8 @@ defmodule RDF.GraphTest do
       g =
         Graph.add(
           graph(),
-          Description.new(EX.Subject1, [
+          Description.new(EX.Subject1)
+          |> Description.add([
             {EX.predicate1(), EX.Object1},
             {EX.predicate2(), EX.Object2}
           ])
@@ -346,7 +347,10 @@ defmodule RDF.GraphTest do
     test "a Description" do
       g =
         Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}])
-        |> RDF.Graph.put(Description.new(EX.S1, [{EX.P3, EX.O4}, {EX.P2, bnode(:foo)}]))
+        |> RDF.Graph.put(
+          Description.new(EX.S1)
+          |> Description.add([{EX.P3, EX.O4}, {EX.P2, bnode(:foo)}])
+        )
 
       assert Graph.triple_count(g) == 4
       assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
@@ -454,16 +458,14 @@ defmodule RDF.GraphTest do
          %{graph1: graph1, graph2: graph2, graph3: graph3} do
       assert Graph.delete(
                graph1,
-               Description.new(
-                 EX.S,
-                 [{EX.p(), EX.O}, {EX.p2(), EX.O2}]
-               )
+               Description.new(EX.S)
+               |> Description.add([{EX.p(), EX.O}, {EX.p2(), EX.O2}])
              ) == Graph.new()
 
-      assert Graph.delete(graph2, Description.new(EX.S, EX.p(), [EX.O1, EX.O2])) ==
+      assert Graph.delete(graph2, Description.new({EX.S, EX.p(), [EX.O1, EX.O2]})) ==
                Graph.new(name: EX.Graph)
 
-      assert Graph.delete(graph3, Description.new(EX.S3, EX.p3(), ~B<foo>)) ==
+      assert Graph.delete(graph3, Description.new({EX.S3, EX.p3(), ~B<foo>})) ==
                Graph.new([
                  {EX.S1, EX.p1(), [EX.O1, EX.O2]},
                  {EX.S2, EX.p2(), EX.O3},
@@ -553,7 +555,9 @@ defmodule RDF.GraphTest do
              ])
              |> Graph.update(
                EX.S2,
-               fn ^old_description -> Description.new(EX.S3, new_description) end
+               fn ^old_description ->
+                 Description.new(EX.S3) |> Description.add(new_description)
+               end
              ) ==
                Graph.new([
                  {EX.S1, EX.p1(), [EX.O1, EX.O2]},
@@ -575,7 +579,8 @@ defmodule RDF.GraphTest do
              ) ==
                Graph.new([
                  {EX.S1, EX.p1(), [EX.O1, EX.O2]},
-                 Description.new(EX.S2, new_description)
+                 Description.new(EX.S2)
+                 |> Description.add(new_description)
                ])
     end
 

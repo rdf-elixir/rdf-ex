@@ -325,7 +325,8 @@ defmodule RDF.DatasetTest do
       ds =
         Dataset.add(
           dataset(),
-          Description.new(EX.Subject1, [
+          Description.new(EX.Subject1)
+          |> Description.add([
             {EX.predicate1(), EX.Object1},
             {EX.predicate2(), EX.Object2}
           ])
@@ -339,7 +340,8 @@ defmodule RDF.DatasetTest do
       ds =
         Dataset.add(
           dataset(),
-          Description.new(EX.Subject1, [
+          Description.new(EX.Subject1)
+          |> RDF.Description.add([
             {EX.predicate1(), EX.Object1},
             {EX.predicate2(), EX.Object2}
           ]),
@@ -707,7 +709,10 @@ defmodule RDF.DatasetTest do
     test "a Description" do
       ds =
         Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}])
-        |> RDF.Dataset.put(Description.new(EX.S1, [{EX.P3, EX.O4}, {EX.P2, bnode(:foo)}]))
+        |> RDF.Dataset.put(
+          Description.new(EX.S1)
+          |> Description.add([{EX.P3, EX.O4}, {EX.P2, bnode(:foo)}])
+        )
 
       assert Dataset.statement_count(ds) == 4
       assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
@@ -823,15 +828,15 @@ defmodule RDF.DatasetTest do
 
     test "multiple statements with a Description",
          %{dataset1: dataset1, dataset2: dataset2} do
-      assert Dataset.delete(dataset1, Description.new(EX.S1, EX.p1(), EX.O1)) == Dataset.new()
+      assert Dataset.delete(dataset1, Description.new({EX.S1, EX.p1(), EX.O1})) == Dataset.new()
 
-      assert Dataset.delete(dataset1, Description.new(EX.S1, EX.p1(), EX.O1), EX.Graph) ==
+      assert Dataset.delete(dataset1, Description.new({EX.S1, EX.p1(), EX.O1}), EX.Graph) ==
                dataset1
 
-      assert Dataset.delete(dataset2, Description.new(EX.S2, EX.p2(), EX.O2), EX.Graph) ==
+      assert Dataset.delete(dataset2, Description.new({EX.S2, EX.p2(), EX.O2}), EX.Graph) ==
                dataset1
 
-      assert Dataset.delete(dataset2, Description.new(EX.S1, EX.p1(), EX.O1)) ==
+      assert Dataset.delete(dataset2, Description.new({EX.S1, EX.p1(), EX.O1})) ==
                Dataset.new({EX.S2, EX.p2(), EX.O2, EX.Graph})
     end
 

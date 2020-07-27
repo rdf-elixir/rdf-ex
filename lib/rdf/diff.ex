@@ -47,7 +47,7 @@ defmodule RDF.Diff do
   ## Examples
 
     iex> RDF.Diff.diff(
-    ...>   RDF.description(EX.S1, EX.p1, [EX.O1, EX.O2]),
+    ...>   RDF.description({EX.S1, EX.p1, [EX.O1, EX.O2]}),
     ...>   RDF.graph([
     ...>    {EX.S1, EX.p1, [EX.O2, EX.O3]},
     ...>    {EX.S2, EX.p2, EX.O4}
@@ -81,7 +81,7 @@ defmodule RDF.Diff do
             nil ->
               {
                 additions,
-                Description.add(deletions, property, original_objects)
+                Description.add(deletions, {property, original_objects})
               }
 
             new_objects ->
@@ -96,8 +96,8 @@ defmodule RDF.Diff do
                 end)
 
               {
-                Description.delete(additions, property, unchanged_objects),
-                Description.add(deletions, property, deleted_objects)
+                Description.delete(additions, {property, unchanged_objects}),
+                Description.add(deletions, {property, deleted_objects})
               }
           end
         end

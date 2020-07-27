@@ -9,6 +9,7 @@ defmodule RDF.Vocabulary.Namespace do
   the `RDF.NS` module.
   """
 
+  alias RDF.Description
   alias RDF.Utils.ResourceClassifier
 
   @vocabs_dir "priv/vocabs"
@@ -123,10 +124,20 @@ defmodule RDF.Vocabulary.Namespace do
           end
 
           def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
+            objects =
+              case objects do
+                [objects] when is_list(objects) -> objects
+                _ -> objects
+              end
+
             if MapSet.member?(@ignored_terms, term) do
               raise UndefinedFunctionError
             else
-              RDF.Description.new(subject, term_to_iri(@base_iri, term), objects)
+              case subject do
+                %Description{} -> subject
+                _ -> Description.new(subject)
+              end
+              |> Description.add({term_to_iri(@base_iri, term), objects})
             end
           end
         end
@@ -153,8 +164,15 @@ defmodule RDF.Vocabulary.Namespace do
         def unquote(term)(), do: unquote(Macro.escape(iri))
 
         @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
+        def unquote(term)(subject, object)
+
+        def unquote(term)(%Description{} = subject, object) do
+          Description.add(subject, {unquote(Macro.escape(iri)), object})
+        end
+
         def unquote(term)(subject, object) do
-          RDF.Description.new(subject, unquote(Macro.escape(iri)), object)
+          Description.new(subject)
+          |> Description.add({unquote(Macro.escape(iri)), object})
         end
 
         # Is there a better way to support multiple objects via arguments?
@@ -224,7 +242,7 @@ defmodule RDF.Vocabulary.Namespace do
     end)
   end
 
-  defp raw_rdf_data(%RDF.Description{} = rdf_data), do: rdf_data
+  defp raw_rdf_data(%Description{} = rdf_data), do: rdf_data
   defp raw_rdf_data(%RDF.Graph{} = rdf_data), do: rdf_data
   defp raw_rdf_data(%RDF.Dataset{} = rdf_data), do: rdf_data
 
