@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `RDF.Description.subject/1` and `RDF.Description.change_subject/2`
+
 ### Changed
 
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed

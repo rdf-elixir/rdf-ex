@@ -51,6 +51,18 @@ defmodule RDF.Description do
   def new(subject), do: %__MODULE__{subject: coerce_subject(subject)}
 
   @doc """
+  Returns the subject IRI or blank node of a description.
+  """
+  def subject(%__MODULE__{} = description), do: description.subject
+
+  @doc """
+  Changes the subject of a description.
+  """
+  def change_subject(%__MODULE__{} = description, new_subject) do
+    %__MODULE__{description | subject: coerce_subject(new_subject)}
+  end
+
+  @doc """
   Add statements to a `RDF.Description`.
 
   Note: When the statements to be added are given as another `RDF.Description`,
@@ -130,7 +142,9 @@ defmodule RDF.Description do
 
   Note: As it is a destructive function this function is more strict in its handling of
   `RDF.Description`s than `add/3`. The subject of a `RDF.Description` to be put must
-  match. 
+  match. If you want to overwrite existing statements with those from the description of
+  another subject, you'll have to explicitly change the subject with `change_subject/2`
+  first before using `put/3`.
 
   ## Examples
 

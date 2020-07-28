@@ -34,6 +34,15 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  test "subject/1" do
+    assert Description.subject(description()) == description().subject
+  end
+
+  test "change_subject/2" do
+    assert Description.change_subject(description(), EX.NewSubject).subject ==
+             iri(EX.NewSubject)
+  end
+
   describe "add/3" do
     test "with a triple" do
       assert Description.add(description(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
