@@ -103,6 +103,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                <S1>
                    <p1> <O1> .
                """
@@ -118,6 +119,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                <S1>
                    <p1> <O1> .
                """
@@ -199,6 +201,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                @prefix rdf: <#{to_string(RDF.__base_iri__())}> .
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
                @prefix owl: <#{to_string(OWL.__base_iri__())}> .
@@ -225,6 +228,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
 
                <S>
@@ -238,11 +242,50 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                BASE <#{to_string(EX.__base_iri__())}>
+
                PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
 
                <S>
                    rdfs:subClassOf <O> .
                """
+    end
+
+    test "partial document" do
+      graph =
+        Graph.new({EX.S, RDFS.subClassOf(), EX.O},
+          prefixes: %{rdfs: RDFS.__base_iri__()},
+          base_iri: EX.__base_iri__()
+        )
+
+      assert Turtle.Encoder.encode!(graph, only: :triples) ==
+               """
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :prefixes) ==
+               """
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
+
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :base) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :directives, directive_style: :sparql) ==
+               """
+               BASE <#{to_string(EX.__base_iri__())}>
+
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+               """
+
+      assert_raise RuntimeError, "unknown Turtle document element: :undefined", fn ->
+        Turtle.Encoder.encode!(graph, only: :undefined)
+      end
     end
   end
 

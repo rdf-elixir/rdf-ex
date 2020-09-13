@@ -6,6 +6,12 @@ defmodule RDF.Turtle.Encoder do
   alias RDF.Turtle.Encoder.State
   alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString}
 
+  @document_structure [
+    :base,
+    :prefixes,
+    :triples
+  ]
+
   @indentation_char " "
   @indentation 4
 
@@ -42,13 +48,30 @@ defmodule RDF.Turtle.Encoder do
         State.preprocess(state)
 
         {:ok,
-         base_directive(base, opts) <>
-           prefix_directives(prefixes, opts) <>
-           graph_statements(state)}
+         opts
+         |> Keyword.get(:only, @document_structure)
+         |> compile(base, prefixes, state, opts)}
       after
         State.stop(state)
       end
     end
+  end
+
+  defp compile(:base, base, _, _, opts), do: base_directive(base, opts)
+  defp compile(:prefixes, _, prefixes, _, opts), do: prefix_directives(prefixes, opts)
+  defp compile(:triples, _, _, state, _), do: graph_statements(state)
+
+  defp compile(:directives, base, prefixes, state, opts),
+    do: [:base, :prefixes] |> compile(base, prefixes, state, opts)
+
+  defp compile(elements, base, prefixes, state, opts) when is_list(elements) do
+    elements
+    |> Enum.map(&compile(&1, base, prefixes, state, opts))
+    |> Enum.join()
+  end
+
+  defp compile(element, _, _, _, _) do
+    raise "unknown Turtle document element: #{inspect(element)}"
   end
 
   defp base_iri(nil, %RDF.Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
@@ -82,9 +105,9 @@ defmodule RDF.Turtle.Encoder do
 
   defp base_directive({_, base}, opts) do
     case Keyword.get(opts, :directive_style) do
-      :sparql -> "BASE <#{base}>\n"
-      _ -> "@base <#{base}> .\n"
-    end
+      :sparql -> "BASE <#{base}>"
+      _ -> "@base <#{base}> ."
+    end <> "\n\n"
   end
 
   defp prefix_directive({ns, prefix}, opts) do
