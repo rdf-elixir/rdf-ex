@@ -216,6 +216,34 @@ defmodule RDF.Turtle.EncoderTest do
                    a rdf:Property .
                """
     end
+
+    test "directive_style option" do
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, RDFS.subClassOf(), EX.O}),
+               prefixes: %{rdfs: RDFS.__base_iri__()},
+               base_iri: EX.__base_iri__(),
+               directive_style: :turtle
+             ) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, RDFS.subClassOf(), EX.O}),
+               prefixes: %{rdfs: RDFS.__base_iri__()},
+               base_iri: EX.__base_iri__(),
+               directive_style: :sparql
+             ) ==
+               """
+               BASE <#{to_string(EX.__base_iri__())}>
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+    end
   end
 
   describe "prefixed_name/2" do

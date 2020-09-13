@@ -42,8 +42,8 @@ defmodule RDF.Turtle.Encoder do
         State.preprocess(state)
 
         {:ok,
-         base_directive(base) <>
-           prefix_directives(prefixes) <>
+         base_directive(base, opts) <>
+           prefix_directives(prefixes, opts) <>
            graph_statements(state)}
       after
         State.stop(state)
@@ -78,13 +78,24 @@ defmodule RDF.Turtle.Encoder do
     end)
   end
 
-  defp base_directive(nil), do: ""
-  defp base_directive({_, base}), do: "@base <#{base}> .\n"
+  defp base_directive(nil, _), do: ""
 
-  defp prefix_directive({ns, prefix}), do: "@prefix #{prefix}: <#{to_string(ns)}> .\n"
+  defp base_directive({_, base}, opts) do
+    case Keyword.get(opts, :directive_style) do
+      :sparql -> "BASE <#{base}>\n"
+      _ -> "@base <#{base}> .\n"
+    end
+  end
 
-  defp prefix_directives(prefixes) do
-    case Enum.map(prefixes, &prefix_directive/1) do
+  defp prefix_directive({ns, prefix}, opts) do
+    case Keyword.get(opts, :directive_style) do
+      :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
+      _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
+    end
+  end
+
+  defp prefix_directives(prefixes, opts) do
+    case Enum.map(prefixes, &prefix_directive(&1, opts)) do
       [] -> ""
       prefixes -> Enum.join(prefixes, "") <> "\n"
     end

@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- the style of the Turtle directives produced by the Turtle encoder can be
+  switched to SPARQL style with the option `:directive_style` and the value `:sparql` 
+
 ### Fixed
 
 - adding an empty `RDF.Description` with a subject to an empty `RDF.Graph` resulted in 
