@@ -174,6 +174,17 @@ defmodule RDF.PrefixMapTest do
       assert PrefixMap.merge(@example1, @example1, fn _, _, _ -> "http://example.com/" end) ==
                {:ok, PrefixMap.new(ex1: "http://example.com/")}
     end
+
+    test "with :ignore as the conflict resolver" do
+      assert PrefixMap.merge(@example3, [ex3: @ex_ns4], :ignore) == {:ok, @example3}
+    end
+
+    test "with :overwrite as the conflict resolver" do
+      assert PrefixMap.merge(@example3, [ex3: @ex_ns4], :overwrite) ==
+               @example3
+               |> PrefixMap.delete(:ex3)
+               |> PrefixMap.add(:ex3, @ex_ns4)
+    end
   end
 
   describe "merge!/2" do

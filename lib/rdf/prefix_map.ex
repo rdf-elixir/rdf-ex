@@ -17,6 +17,8 @@ defmodule RDF.PrefixMap do
 
   @type conflict_resolver ::
           (coercible_prefix, coercible_namespace, coercible_namespace -> coercible_namespace)
+          | :ignore
+          | :overwrite
 
   @type t :: %__MODULE__{
           map: prefix_map
@@ -141,6 +143,12 @@ defmodule RDF.PrefixMap do
   Non-`RDF.IRI` values will be tried to be converted to converted to `RDF.IRI`
   via `RDF.IRI.new` implicitly.
 
+  The most common conflict resolution strategies on can be chosen directly with
+  the following atoms:
+
+  - `:ignore`: keep the original namespace from `prefix_map1`
+  - `:overwrite`: use the other namespace from `prefix_map2`
+
   If a conflict can't be resolved, the provided function can return `nil`.
   This will result in an overall return of an `:error` tuple with the list of
   prefixes for which the conflict couldn't be resolved.
@@ -151,6 +159,14 @@ defmodule RDF.PrefixMap do
   @spec merge(t, t | map | keyword, conflict_resolver | nil) ::
           {:ok, t} | {:error, [atom | String.t()]}
   def merge(prefix_map1, prefix_map2, conflict_resolver)
+
+  def merge(prefix_map1, prefix_map2, :ignore) do
+    merge(prefix_map1, prefix_map2, fn _, ns, _ -> ns end)
+  end
+
+  def merge(prefix_map1, prefix_map2, :overwrite) do
+    merge(prefix_map1, prefix_map2, fn _, _, ns -> ns end)
+  end
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, conflict_resolver)
       when is_function(conflict_resolver) do

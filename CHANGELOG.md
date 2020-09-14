@@ -12,7 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the Turtle encoder can now produce partial Turtle documents with the `:only` option
   and any combination of the following values: `:triples`, `:directives`, `:base`, `:prefixes`  
 - the style of the Turtle directives produced by the Turtle encoder can be
-  switched to SPARQL style with the option `:directive_style` and the value `:sparql` 
+  switched to SPARQL style with the option `:directive_style` and the value `:sparql`
+- the most common conflict resolution strategies on `RDF.PrefixMap.merge/3` can now
+  be chosen directly with the atoms `:ignore` and `:overwrite` 
 
 ### Fixed
 
