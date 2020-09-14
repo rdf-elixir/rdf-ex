@@ -92,6 +92,26 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp prefixes(nil, %RDF.Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+
+  defp prefixes(nil, %RDF.Dataset{} = dataset) do
+    prefixes =
+      dataset
+      |> RDF.Dataset.graphs()
+      |> Enum.reduce(RDF.PrefixMap.new(), fn graph, prefixes ->
+        if graph.prefixes do
+          RDF.PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
+        else
+          prefixes
+        end
+      end)
+
+    if Enum.empty?(prefixes) do
+      RDF.default_prefixes()
+    else
+      prefixes
+    end
+  end
+
   defp prefixes(nil, _), do: RDF.default_prefixes()
   defp prefixes(prefixes, _), do: RDF.PrefixMap.new(prefixes)
 

@@ -16,6 +16,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the most common conflict resolution strategies on `RDF.PrefixMap.merge/3` can now
   be chosen directly with the atoms `:ignore` and `:overwrite` 
 
+### Changed
+
+- when serializing a `RDF.Dataset` with the Turtle encoder the prefixes of all of its graphs 
+  are used
+
 ### Fixed
 
 - adding an empty `RDF.Description` with a subject to an empty `RDF.Graph` resulted in 
