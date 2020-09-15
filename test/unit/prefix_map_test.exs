@@ -290,7 +290,7 @@ defmodule RDF.PrefixMapTest do
     assert PrefixMap.prefixes(PrefixMap.new()) == ~w[]a
   end
 
-  describe "namespaces/1" do
+  test "namespaces/1" do
     assert PrefixMap.namespaces(@example2) == [@ex_ns1, @ex_ns2]
     assert PrefixMap.namespaces(PrefixMap.new()) == ~w[]a
   end
