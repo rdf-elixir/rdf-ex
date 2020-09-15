@@ -327,6 +327,65 @@ defmodule RDF.PrefixMap do
     Map.values(map)
   end
 
+  @doc """
+  Converts an IRI into a prefixed name.
+
+  Returns `nil` when no prefix for the namespace of `iri` is defined in `prefix_map`.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name(~I<http://example.com/Foo>)
+      "ex:Foo"
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name("http://example.com/Foo")
+      "ex:Foo"
+
+  """
+  @spec prefixed_name(t, IRI.t() | String.t()) :: String.t() | nil
+  def prefixed_name(prefix_map, iri)
+
+  def prefixed_name(%__MODULE__{} = prefix_map, %IRI{} = iri) do
+    prefixed_name(prefix_map, IRI.to_string(iri))
+  end
+
+  def prefixed_name(%__MODULE__{} = prefix_map, iri) when is_binary(iri) do
+    Enum.find_value(prefix_map, fn {prefix, namespace} ->
+      case String.replace_leading(iri, IRI.to_string(namespace), ":") do
+        ^iri ->
+          nil
+
+        truncated_name ->
+          unless String.contains?(truncated_name, ~w[/ #]) do
+            to_string(prefix) <> truncated_name
+          end
+      end
+    end)
+  end
+
+  @doc """
+  Converts a prefixed name into an IRI.
+
+  Returns `nil` when the prefix in `prefixed_name` is not defined in `prefix_map`.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name_to_iri("ex:Foo")
+      ~I<http://example.com/Foo>
+
+  """
+  @spec prefixed_name_to_iri(t, String.t()) :: IRI.t() | nil
+  def prefixed_name_to_iri(%__MODULE__{} = prefix_map, prefixed_name)
+      when is_binary(prefixed_name) do
+    Enum.find_value(prefix_map, fn {prefix, namespace} ->
+      case String.replace_leading(prefixed_name, "#{prefix}:", IRI.to_string(namespace)) do
+        ^prefixed_name -> nil
+        iri -> IRI.new(iri)
+      end
+    end)
+  end
+
   defimpl Enumerable do
     def reduce(%RDF.PrefixMap{map: map}, acc, fun), do: Enumerable.reduce(map, acc, fun)
 

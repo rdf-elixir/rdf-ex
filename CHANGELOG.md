@@ -15,11 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   switched to SPARQL style with the option `:directive_style` and the value `:sparql`
 - the most common conflict resolution strategies on `RDF.PrefixMap.merge/3` can now
   be chosen directly with the atoms `:ignore` and `:overwrite` 
+- `RDF.PrefixMap.prefixed_name/2` to convert an IRI to a prefixed name
+- `RDF.PrefixMap.prefixed_name_to_iri/2` to convert a prefixed name to an IRI
 
 ### Changed
 
 - when serializing a `RDF.Dataset` with the Turtle encoder the prefixes of all of its graphs 
-  are used
+  are used now
 
 ### Fixed
 

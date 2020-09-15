@@ -1,6 +1,8 @@
 defmodule RDF.PrefixMapTest do
   use RDF.Test.Case
 
+  doctest RDF.PrefixMap
+
   alias RDF.PrefixMap
 
   @ex_ns1 ~I<http://example.com/foo/>
@@ -293,6 +295,52 @@ defmodule RDF.PrefixMapTest do
   test "namespaces/1" do
     assert PrefixMap.namespaces(@example2) == [@ex_ns1, @ex_ns2]
     assert PrefixMap.namespaces(PrefixMap.new()) == ~w[]a
+  end
+
+  describe "prefixed_name/2" do
+    test "when given an RDF.IRI and the used prefix is defined" do
+      assert PrefixMap.prefixed_name(@example2, ~I<http://example.com/foo/Test>) ==
+               "ex1:Test"
+
+      assert PrefixMap.prefixed_name(@example2, ~I<http://example.com/bar#Test>) ==
+               "ex2:Test"
+    end
+
+    test "when given a string and the used prefix is defined" do
+      assert PrefixMap.prefixed_name(@example2, "http://example.com/foo/Test") ==
+               "ex1:Test"
+
+      assert PrefixMap.prefixed_name(@example2, "http://example.com/bar#Test") ==
+               "ex2:Test"
+    end
+
+    test "when the used prefix is not defined" do
+      assert PrefixMap.prefixed_name(@example2, ~I<http://example.com/fo/Test>) == nil
+      assert PrefixMap.prefixed_name(@example2, "http://example.com/baz#Test") == nil
+    end
+
+    test "when the given IRI is under a sub-path of a defined namespace" do
+      assert PrefixMap.prefixed_name(@example2, ~I<http://example.com/foo/bar/Test>) == nil
+      assert PrefixMap.prefixed_name(@example2, ~I<http://example.com/foo/bar#Test>) == nil
+    end
+  end
+
+  describe "prefixed_name_to_iri/2" do
+    test "when the used prefix is defined" do
+      assert PrefixMap.prefixed_name_to_iri(@example2, "ex1:Test") ==
+               ~I<http://example.com/foo/Test>
+
+      assert PrefixMap.prefixed_name_to_iri(@example2, "ex2:Test") ==
+               ~I<http://example.com/bar#Test>
+    end
+
+    test "when the used prefix is not defined" do
+      assert PrefixMap.prefixed_name_to_iri(@example2, "ex3:Test") == nil
+    end
+
+    test "when the given string does not have a prefix" do
+      assert PrefixMap.prefixed_name_to_iri(@example2, "Test") == nil
+    end
   end
 
   describe "Enumerable protocol" do
