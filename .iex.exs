@@ -27,3 +27,10 @@ alias RDF.BlankNode, as: BNode
 alias RDF.{NTriples, NQuads, Turtle}
 
 alias Decimal, as: D
+
+defmodule Test do
+  use RDF.Vocabulary.Namespace
+  defvocab EX, base_iri: "http://example.com/", terms: [], strict: false
+end
+
+alias Test.EX

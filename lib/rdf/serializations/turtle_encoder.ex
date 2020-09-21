@@ -6,6 +6,12 @@ defmodule RDF.Turtle.Encoder do
   alias RDF.Turtle.Encoder.State
   alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString}
 
+  @document_structure [
+    :base,
+    :prefixes,
+    :triples
+  ]
+
   @indentation_char " "
   @indentation 4
 
@@ -42,13 +48,30 @@ defmodule RDF.Turtle.Encoder do
         State.preprocess(state)
 
         {:ok,
-         base_directive(base) <>
-           prefix_directives(prefixes) <>
-           graph_statements(state)}
+         opts
+         |> Keyword.get(:only, @document_structure)
+         |> compile(base, prefixes, state, opts)}
       after
         State.stop(state)
       end
     end
+  end
+
+  defp compile(:base, base, _, _, opts), do: base_directive(base, opts)
+  defp compile(:prefixes, _, prefixes, _, opts), do: prefix_directives(prefixes, opts)
+  defp compile(:triples, _, _, state, _), do: graph_statements(state)
+
+  defp compile(:directives, base, prefixes, state, opts),
+    do: [:base, :prefixes] |> compile(base, prefixes, state, opts)
+
+  defp compile(elements, base, prefixes, state, opts) when is_list(elements) do
+    elements
+    |> Enum.map(&compile(&1, base, prefixes, state, opts))
+    |> Enum.join()
+  end
+
+  defp compile(element, _, _, _, _) do
+    raise "unknown Turtle document element: #{inspect(element)}"
   end
 
   defp base_iri(nil, %RDF.Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
@@ -69,6 +92,26 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp prefixes(nil, %RDF.Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+
+  defp prefixes(nil, %RDF.Dataset{} = dataset) do
+    prefixes =
+      dataset
+      |> RDF.Dataset.graphs()
+      |> Enum.reduce(RDF.PrefixMap.new(), fn graph, prefixes ->
+        if graph.prefixes do
+          RDF.PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
+        else
+          prefixes
+        end
+      end)
+
+    if Enum.empty?(prefixes) do
+      RDF.default_prefixes()
+    else
+      prefixes
+    end
+  end
+
   defp prefixes(nil, _), do: RDF.default_prefixes()
   defp prefixes(prefixes, _), do: RDF.PrefixMap.new(prefixes)
 
@@ -78,13 +121,24 @@ defmodule RDF.Turtle.Encoder do
     end)
   end
 
-  defp base_directive(nil), do: ""
-  defp base_directive({_, base}), do: "@base <#{base}> .\n"
+  defp base_directive(nil, _), do: ""
 
-  defp prefix_directive({ns, prefix}), do: "@prefix #{prefix}: <#{to_string(ns)}> .\n"
+  defp base_directive({_, base}, opts) do
+    case Keyword.get(opts, :directive_style) do
+      :sparql -> "BASE <#{base}>"
+      _ -> "@base <#{base}> ."
+    end <> "\n\n"
+  end
 
-  defp prefix_directives(prefixes) do
-    case Enum.map(prefixes, &prefix_directive/1) do
+  defp prefix_directive({ns, prefix}, opts) do
+    case Keyword.get(opts, :directive_style) do
+      :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
+      _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
+    end
+  end
+
+  defp prefix_directives(prefixes, opts) do
+    case Enum.map(prefixes, &prefix_directive(&1, opts)) do
       [] -> ""
       prefixes -> Enum.join(prefixes, "") <> "\n"
     end

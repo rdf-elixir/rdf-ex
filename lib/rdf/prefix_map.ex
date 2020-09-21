@@ -17,6 +17,8 @@ defmodule RDF.PrefixMap do
 
   @type conflict_resolver ::
           (coercible_prefix, coercible_namespace, coercible_namespace -> coercible_namespace)
+          | :ignore
+          | :overwrite
 
   @type t :: %__MODULE__{
           map: prefix_map
@@ -141,6 +143,12 @@ defmodule RDF.PrefixMap do
   Non-`RDF.IRI` values will be tried to be converted to converted to `RDF.IRI`
   via `RDF.IRI.new` implicitly.
 
+  The most common conflict resolution strategies on can be chosen directly with
+  the following atoms:
+
+  - `:ignore`: keep the original namespace from `prefix_map1`
+  - `:overwrite`: use the other namespace from `prefix_map2`
+
   If a conflict can't be resolved, the provided function can return `nil`.
   This will result in an overall return of an `:error` tuple with the list of
   prefixes for which the conflict couldn't be resolved.
@@ -151,6 +159,14 @@ defmodule RDF.PrefixMap do
   @spec merge(t, t | map | keyword, conflict_resolver | nil) ::
           {:ok, t} | {:error, [atom | String.t()]}
   def merge(prefix_map1, prefix_map2, conflict_resolver)
+
+  def merge(prefix_map1, prefix_map2, :ignore) do
+    merge(prefix_map1, prefix_map2, fn _, ns, _ -> ns end)
+  end
+
+  def merge(prefix_map1, prefix_map2, :overwrite) do
+    merge(prefix_map1, prefix_map2, fn _, _, ns -> ns end)
+  end
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}, conflict_resolver)
       when is_function(conflict_resolver) do
@@ -309,6 +325,65 @@ defmodule RDF.PrefixMap do
   @spec namespaces(t) :: [coercible_namespace]
   def namespaces(%__MODULE__{map: map}) do
     Map.values(map)
+  end
+
+  @doc """
+  Converts an IRI into a prefixed name.
+
+  Returns `nil` when no prefix for the namespace of `iri` is defined in `prefix_map`.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name(~I<http://example.com/Foo>)
+      "ex:Foo"
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name("http://example.com/Foo")
+      "ex:Foo"
+
+  """
+  @spec prefixed_name(t, IRI.t() | String.t()) :: String.t() | nil
+  def prefixed_name(prefix_map, iri)
+
+  def prefixed_name(%__MODULE__{} = prefix_map, %IRI{} = iri) do
+    prefixed_name(prefix_map, IRI.to_string(iri))
+  end
+
+  def prefixed_name(%__MODULE__{} = prefix_map, iri) when is_binary(iri) do
+    Enum.find_value(prefix_map, fn {prefix, namespace} ->
+      case String.replace_leading(iri, IRI.to_string(namespace), ":") do
+        ^iri ->
+          nil
+
+        truncated_name ->
+          unless String.contains?(truncated_name, ~w[/ #]) do
+            to_string(prefix) <> truncated_name
+          end
+      end
+    end)
+  end
+
+  @doc """
+  Converts a prefixed name into an IRI.
+
+  Returns `nil` when the prefix in `prefixed_name` is not defined in `prefix_map`.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.prefixed_name_to_iri("ex:Foo")
+      ~I<http://example.com/Foo>
+
+  """
+  @spec prefixed_name_to_iri(t, String.t()) :: IRI.t() | nil
+  def prefixed_name_to_iri(%__MODULE__{} = prefix_map, prefixed_name)
+      when is_binary(prefixed_name) do
+    Enum.find_value(prefix_map, fn {prefix, namespace} ->
+      case String.replace_leading(prefixed_name, "#{prefix}:", IRI.to_string(namespace)) do
+        ^prefixed_name -> nil
+        iri -> IRI.new(iri)
+      end
+    end)
   end
 
   defimpl Enumerable do

@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
-
 ## Unreleased
 
 ### Added
@@ -16,6 +15,23 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value` 
 
+## 0.8.2 - 2020-09-21
+
+### Added
+
+- the Turtle encoder can now produce partial Turtle documents with the `:only` option
+  and any combination of the following values: `:triples`, `:directives`, `:base`, `:prefixes`  
+- the style of the Turtle directives produced by the Turtle encoder can be
+  switched to SPARQL style with the option `:directive_style` and the value `:sparql`
+- the most common conflict resolution strategies on `RDF.PrefixMap.merge/3` can now
+  be chosen directly with the atoms `:ignore` and `:overwrite` 
+- `RDF.PrefixMap.prefixed_name/2` to convert an IRI to a prefixed name
+- `RDF.PrefixMap.prefixed_name_to_iri/2` to convert a prefixed name to an IRI
+
+### Changed
+
+- when serializing a `RDF.Dataset` with the Turtle encoder the prefixes of all of its graphs 
+  are used now
 
 ### Fixed
 
@@ -23,7 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   an invalid non-empty graph ([@pukkamustard](https://github.com/pukkamustard))
 
 
-[Compare v0.8.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.1...HEAD)
+[Compare v0.8.1...v0.8.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.1...v0.8.2)
 
 
 

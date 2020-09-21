@@ -103,6 +103,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                <S1>
                    <p1> <O1> .
                """
@@ -118,6 +119,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                <S1>
                    <p1> <O1> .
                """
@@ -199,6 +201,7 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
+
                @prefix rdf: <#{to_string(RDF.__base_iri__())}> .
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
                @prefix owl: <#{to_string(OWL.__base_iri__())}> .
@@ -214,6 +217,148 @@ defmodule RDF.Turtle.EncoderTest do
 
                <S3>
                    a rdf:Property .
+               """
+    end
+
+    test "directive_style option" do
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, RDFS.subClassOf(), EX.O}),
+               prefixes: %{rdfs: RDFS.__base_iri__()},
+               base_iri: EX.__base_iri__(),
+               directive_style: :turtle
+             ) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, RDFS.subClassOf(), EX.O}),
+               prefixes: %{rdfs: RDFS.__base_iri__()},
+               base_iri: EX.__base_iri__(),
+               directive_style: :sparql
+             ) ==
+               """
+               BASE <#{to_string(EX.__base_iri__())}>
+
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+    end
+
+    test "partial document" do
+      graph =
+        Graph.new({EX.S, RDFS.subClassOf(), EX.O},
+          prefixes: %{rdfs: RDFS.__base_iri__()},
+          base_iri: EX.__base_iri__()
+        )
+
+      assert Turtle.Encoder.encode!(graph, only: :triples) ==
+               """
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :prefixes) ==
+               """
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
+
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :base) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               """
+
+      assert Turtle.Encoder.encode!(graph, only: :directives, directive_style: :sparql) ==
+               """
+               BASE <#{to_string(EX.__base_iri__())}>
+
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+               """
+
+      assert_raise RuntimeError, "unknown Turtle document element: :undefined", fn ->
+        Turtle.Encoder.encode!(graph, only: :undefined)
+      end
+    end
+  end
+
+  describe "serializing a dataset" do
+    test "prefixes of the graphs are merged properly" do
+      dataset =
+        RDF.Dataset.new()
+        |> RDF.Dataset.add(
+          Graph.new(
+            [
+              {EX.__base_iri__(), RDF.type(), OWL.Ontology},
+              {EX.S1, RDF.type(), EX.O}
+            ],
+            base_iri: EX.__base_iri__(),
+            prefixes: %{
+              rdf: RDF,
+              owl: OWL
+            }
+          )
+        )
+        |> RDF.Dataset.add(
+          Graph.new(
+            {EX.S3, EX.p(), EX.O},
+            name: EX.Graph1,
+            prefixes: %{
+              ex: EX,
+              rdf: RDF
+            }
+          )
+        )
+        |> RDF.Dataset.add(
+          Graph.new(
+            {~I<http://other.example.com/S2>, RDF.type(), RDFS.Class},
+            name: EX.Graph2,
+            prefixes: %{
+              ex: "http://other.example.com/",
+              rdf: RDF,
+              rdfs: RDFS
+            }
+          )
+        )
+
+      assert Turtle.Encoder.encode!(dataset) ==
+               """
+               @prefix ex: <http://example.org/#> .
+               @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+               @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+               @prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+               <http://other.example.com/S2>
+                   a rdfs:Class .
+
+               ex:
+                   a owl:Ontology .
+
+               ex:S1
+                   a ex:O .
+
+               ex:S3
+                   ex:p ex:O .
+               """
+    end
+
+    test "when none of the graphs uses prefixes the default prefixes are used" do
+      assert RDF.Dataset.new({EX.S, EX.p(), EX.O})
+             |> Turtle.Encoder.encode!() ==
+               """
+               @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+               @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+               <http://example.org/#S>
+                   <http://example.org/#p> <http://example.org/#O> .
                """
     end
   end
