@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.8.2 - 2020-09-21
 
 ### Added
 
@@ -29,7 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   an invalid non-empty graph ([@pukkamustard](https://github.com/pukkamustard))
 
 
-[Compare v0.8.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.1...HEAD)
+[Compare v0.8.1...v0.8.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.1...v0.8.2)
 
 
 
