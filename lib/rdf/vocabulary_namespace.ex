@@ -171,8 +171,7 @@ defmodule RDF.Vocabulary.Namespace do
         end
 
         def unquote(term)(subject, object) do
-          Description.new(subject)
-          |> Description.add({unquote(Macro.escape(iri)), object})
+          Description.new(subject, init: {unquote(Macro.escape(iri)), object})
         end
 
         # Is there a better way to support multiple objects via arguments?

@@ -428,17 +428,20 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
-      ...>   RDF.Graph.update(EX.S,
-      ...>     fn description -> Description.add(description, {EX.p, EX.O2}) end)
+      iex> RDF.Graph.new({EX.S, EX.p, EX.O})
+      ...> |> RDF.Graph.update(EX.S,
+      ...>      fn description -> Description.add(description, {EX.p, EX.O2})
+      ...>    end)
       RDF.Graph.new([{EX.S, EX.p, EX.O}, {EX.S, EX.p, EX.O2}])
-      iex> RDF.Graph.new({EX.S, EX.p, EX.O}) |>
-      ...>   RDF.Graph.update(EX.S,
-      ...>     fn _ -> Description.new({EX.S2, EX.p2, EX.O2}) end)
+      iex> RDF.Graph.new({EX.S, EX.p, EX.O})
+      ...> |> RDF.Graph.update(EX.S,
+      ...>      fn _ -> Description.new(EX.S2, init: {EX.p2, EX.O2})
+      ...>    end)
       RDF.Graph.new([{EX.S, EX.p2, EX.O2}])
-      iex> RDF.Graph.new() |>
-      ...>   RDF.Graph.update(EX.S, Description.new({EX.S, EX.p, EX.O}),
-      ...>     fn description -> Description.add(description, {EX.p, EX.O2}) end)
+      iex> RDF.Graph.new()
+      ...> |> RDF.Graph.update(EX.S, Description.new(EX.S, init: {EX.p, EX.O}),
+      ...>      fn description -> Description.add(description, {EX.p, EX.O2})
+      ...>    end)
       RDF.Graph.new([{EX.S, EX.p, EX.O}])
 
   """
@@ -454,7 +457,7 @@ defmodule RDF.Graph do
     case get(graph, subject) do
       nil ->
         if initial do
-          add(graph, Description.new(subject) |> Description.add(initial))
+          add(graph, Description.new(subject, init: initial))
         else
           graph
         end
@@ -469,7 +472,7 @@ defmodule RDF.Graph do
           new_description ->
             graph
             |> delete_subjects(subject)
-            |> add(Description.new(subject) |> Description.add(new_description))
+            |> add(Description.new(subject, init: new_description))
         end
     end
   end
@@ -481,10 +484,10 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
-      ...>   RDF.Graph.fetch(EX.S1)
-      {:ok, RDF.Description.new({EX.S1, EX.P1, EX.O1})}
-      iex> RDF.Graph.fetch(RDF.Graph.new, EX.foo)
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.fetch(EX.S1)
+      {:ok, RDF.Description.new(EX.S1, init: {EX.P1, EX.O1})}
+      iex> RDF.Graph.new() |> RDF.Graph.fetch(EX.foo)
       :error
 
   """
@@ -525,12 +528,12 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
-      ...>   RDF.Graph.get(EX.S1)
-      RDF.Description.new({EX.S1, EX.P1, EX.O1})
-      iex> RDF.Graph.get(RDF.Graph.new, EX.Foo)
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.get(EX.S1)
+      RDF.Description.new(EX.S1, init: {EX.P1, EX.O1})
+      iex> RDF.Graph.new() |> RDF.Graph.get(EX.Foo)
       nil
-      iex> RDF.Graph.get(RDF.Graph.new, EX.Foo, :bar)
+      iex> RDF.Graph.new() |> RDF.Graph.get(EX.Foo, :bar)
       :bar
 
   """
@@ -629,10 +632,10 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
-      ...>   RDF.Graph.pop(EX.S1)
-      {RDF.Description.new({EX.S1, EX.P1, EX.O1}), RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
-      iex> RDF.Graph.pop(RDF.Graph.new({EX.S, EX.P, EX.O}), EX.Missing)
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.pop(EX.S1)
+      {RDF.Description.new(EX.S1, init: {EX.P1, EX.O1}), RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
+      iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |> RDF.Graph.pop(EX.Missing)
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
 
   """
@@ -656,8 +659,8 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
-      ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Graph.subject_count
+      ...>   {EX.S1, EX.p2, EX.O3}])
+      ...> |> RDF.Graph.subject_count()
       2
 
   """
@@ -673,8 +676,8 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
-      ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Graph.triple_count
+      ...>   {EX.S1, EX.p2, EX.O3}])
+      ...> |> RDF.Graph.triple_count()
       3
 
   """
@@ -693,8 +696,8 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
-      ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Graph.subjects
+      ...>   {EX.S1, EX.p2, EX.O3}])
+      ...> |> RDF.Graph.subjects()
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%__MODULE__{descriptions: descriptions}),
@@ -708,8 +711,8 @@ defmodule RDF.Graph do
       iex> RDF.Graph.new([
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
-      ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Graph.predicates
+      ...>   {EX.S1, EX.p2, EX.O3}])
+      ...> |> RDF.Graph.predicates()
       MapSet.new([EX.p1, EX.p2])
   """
   def predicates(%__MODULE__{descriptions: descriptions}) do
@@ -732,8 +735,8 @@ defmodule RDF.Graph do
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S3, EX.p1, EX.O2},
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
-      ...>   {EX.S5, EX.p3, "foo"}
-      ...> ]) |> RDF.Graph.objects
+      ...>   {EX.S5, EX.p3, "foo"}])
+      ...> |> RDF.Graph.objects()
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%__MODULE__{descriptions: descriptions}) do
@@ -753,8 +756,8 @@ defmodule RDF.Graph do
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p1, EX.O2},
       ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
-      ...>   {EX.S3, EX.p1, "foo"}
-      ...> ]) |> RDF.Graph.resources
+      ...>   {EX.S3, EX.p1, "foo"}])
+      ...> |> RDF.Graph.resources()
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
         RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
@@ -775,8 +778,8 @@ defmodule RDF.Graph do
         iex> RDF.Graph.new([
         ...>   {EX.S1, EX.p1, EX.O1},
         ...>   {EX.S2, EX.p2, EX.O2},
-        ...>   {EX.S1, EX.p2, EX.O3}
-        ...> ]) |> RDF.Graph.triples
+        ...>   {EX.S1, EX.p2, EX.O3}])
+        ...> |> RDF.Graph.triples()
         [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1)},
          {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
@@ -829,22 +832,20 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> [
+      iex> RDF.Graph.new([
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
       ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
-      ...> ]
-      ...> |> RDF.Graph.new()
+      ...> ])
       ...> |> RDF.Graph.values()
       %{
         "http://example.com/S1" => %{"http://example.com/p" => ["Foo"]},
         "http://example.com/S2" => %{"http://example.com/p" => [42]}
       }
 
-      iex> [
+      iex> RDF.Graph.new([
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
       ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
-      ...> ]
-      ...> |> RDF.Graph.new()
+      ...> ])
       ...> |> RDF.Graph.values(fn
       ...>      {:predicate, predicate} ->
       ...>        predicate

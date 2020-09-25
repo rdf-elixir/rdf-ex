@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
+
 ## Unreleased
 
 ### Added
@@ -14,6 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value` 
+- `RDF.Description.new` now requires the `subject` to be passed always as first argument;
+  if you want to add some initial data this must be done with the `:init` option 
+
+
+[Compare v0.8.2...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.2...HEAD)
+
+
 
 ## 0.8.2 - 2020-09-21
 

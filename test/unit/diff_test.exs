@@ -15,7 +15,7 @@ defmodule RDF.DiffTest do
     assert Diff.new(additions: Graph.new(), deletions: Graph.new()) ==
              %Diff{additions: Graph.new(), deletions: Graph.new()}
 
-    description = Description.new({EX.S, EX.p(), EX.O1})
+    description = Description.new(EX.S, init: {EX.p(), EX.O1})
     graph = Graph.new({EX.S, EX.p(), EX.O2})
 
     assert Diff.new(additions: description, deletions: graph) ==
@@ -30,8 +30,8 @@ defmodule RDF.DiffTest do
     end
 
     test "with two descriptions with different subjects" do
-      description1 = Description.new({EX.S1, EX.p(), EX.O})
-      description2 = Description.new({EX.S2, EX.p(), EX.O})
+      description1 = Description.new(EX.S1, init: {EX.p(), EX.O})
+      description2 = Description.new(EX.S2, init: {EX.p(), EX.O})
 
       assert Diff.diff(description1, description2) ==
                Diff.new(
@@ -41,7 +41,7 @@ defmodule RDF.DiffTest do
     end
 
     test "with two descriptions when the second description has additional statements" do
-      description1 = Description.new({EX.S, EX.p(), EX.O})
+      description1 = Description.new(EX.S, init: {EX.p(), EX.O})
 
       description2 =
         description1
@@ -61,7 +61,7 @@ defmodule RDF.DiffTest do
     end
 
     test "with two descriptions when the first description has additional statements" do
-      description1 = Description.new({EX.S, EX.p(), EX.O})
+      description1 = Description.new(EX.S, init: {EX.p(), EX.O})
 
       description2 =
         description1

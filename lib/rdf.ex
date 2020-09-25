@@ -232,7 +232,7 @@ defmodule RDF do
   defdelegate quad(s, p, o, g), to: Quad, as: :new
   defdelegate quad(tuple), to: Quad, as: :new
 
-  defdelegate description(arg), to: Description, as: :new
+  defdelegate description(subject, opts \\ []), to: Description, as: :new
 
   defdelegate graph(), to: Graph, as: :new
   defdelegate graph(arg), to: Graph, as: :new

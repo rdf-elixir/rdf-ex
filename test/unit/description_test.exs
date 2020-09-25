@@ -32,6 +32,36 @@ defmodule RDF.DescriptionTest do
       assert description_of_subject(new_description, iri(EX.Subject))
       refute description_includes_predication(new_description, {EX.predicate(), iri(EX.Object)})
     end
+
+    test "with init data" do
+      desc = Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+
+      desc =
+        Description.new(
+          EX.Subject,
+          init: [
+            {EX.Subject, EX.predicate1(), EX.Object1},
+            {EX.Subject, EX.predicate2(), EX.Object2}
+          ]
+        )
+
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+
+      other_desc = Description.new(EX.Subject2, init: {EX.Subject2, EX.predicate(), EX.Object})
+      desc = Description.new(EX.Subject, init: other_desc)
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+    end
+
+    test "with an initializer function" do
+      desc = Description.new(EX.Subject, init: fn -> {EX.Subject, EX.predicate(), EX.Object} end)
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+    end
   end
 
   test "subject/1" do
@@ -171,14 +201,21 @@ defmodule RDF.DescriptionTest do
     test "with another description" do
       desc =
         description([{EX.predicate1(), EX.Object1}, {EX.predicate2(), EX.Object2}])
-        |> Description.add(Description.new({EX.Other, EX.predicate3(), EX.Object3}))
+        |> Description.add(
+          Description.new(EX.Other, init: {EX.Other, EX.predicate3(), EX.Object3})
+        )
 
       assert description_of_subject(desc, iri(EX.Subject))
       assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
       assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
 
-      desc = Description.add(desc, Description.new({EX.Other, EX.predicate1(), EX.Object4}))
+      desc =
+        Description.add(
+          desc,
+          Description.new(EX.Other, init: {EX.Other, EX.predicate1(), EX.Object4})
+        )
+
       assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
       assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
@@ -307,7 +344,7 @@ defmodule RDF.DescriptionTest do
 
       assert Description.put(
                desc,
-               Description.new({EX.Other, EX.predicate(), iri(EX.Object)})
+               Description.new(EX.Other, init: {EX.Other, EX.predicate(), iri(EX.Object)})
              ) == desc
     end
 
@@ -322,15 +359,16 @@ defmodule RDF.DescriptionTest do
     setup do
       {:ok,
        empty_description: Description.new(EX.S),
-       description1: Description.new({EX.S, EX.p(), EX.O}),
-       description2: Description.new({EX.S, EX.p(), [EX.O1, EX.O2]}),
+       description1: Description.new(EX.S, init: {EX.S, EX.p(), EX.O}),
+       description2: Description.new(EX.S, init: {EX.S, EX.p(), [EX.O1, EX.O2]}),
        description3:
-         Description.new(EX.S)
-         |> Description.add([
-           {EX.p1(), [EX.O1, EX.O2]},
-           {EX.p2(), EX.O3},
-           {EX.p3(), [~B<foo>, ~L"bar"]}
-         ])}
+         Description.new(EX.S,
+           init: [
+             {EX.p1(), [EX.O1, EX.O2]},
+             {EX.p2(), EX.O3},
+             {EX.p3(), [~B<foo>, ~L"bar"]}
+           ]
+         )}
     end
 
     test "a single statement as a predicate-object tuple",
@@ -343,7 +381,7 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(description1, {EX.p(), EX.O}) == empty_description
 
       assert Description.delete(description2, {EX.p(), EX.O2}) ==
-               Description.new({EX.S, EX.p(), EX.O1})
+               Description.new(EX.S, init: {EX.S, EX.p(), EX.O1})
     end
 
     test "a single statement as a subject-predicate-object tuple and the proper description subject",
@@ -356,7 +394,7 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(description1, {EX.S, EX.p(), EX.O}) == empty_description
 
       assert Description.delete(description2, {EX.S, EX.p(), EX.O2}) ==
-               Description.new({EX.S, EX.p(), EX.O1})
+               Description.new(EX.S, init: {EX.S, EX.p(), EX.O1})
     end
 
     test "a single statement as a subject-predicate-object tuple and another description subject",
@@ -390,7 +428,7 @@ defmodule RDF.DescriptionTest do
                {EX.p1(), EX.O1},
                {EX.p2(), [EX.O2, EX.O3]},
                {EX.S, EX.p3(), [~B<foo>, ~L"bar"]}
-             ]) == Description.new({EX.S, EX.p1(), EX.O2})
+             ]) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
     test "multiple statements with a map of predications",
@@ -401,7 +439,7 @@ defmodule RDF.DescriptionTest do
                EX.p1() => EX.O1,
                EX.p2() => [EX.O2, EX.O3],
                EX.p3() => [~B<foo>, ~L"bar"]
-             }) == Description.new({EX.S, EX.p1(), EX.O2})
+             }) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
     test "multiple statements with another description",
@@ -414,13 +452,14 @@ defmodule RDF.DescriptionTest do
 
       assert Description.delete(
                description3,
-               Description.new(EX.S)
-               |> Description.add(%{
-                 EX.p1() => EX.O1,
-                 EX.p2() => [EX.O2, EX.O3],
-                 EX.p3() => [~B<foo>, ~L"bar"]
-               })
-             ) == Description.new({EX.S, EX.p1(), EX.O2})
+               Description.new(EX.S,
+                 init: %{
+                   EX.p1() => EX.O1,
+                   EX.p2() => [EX.O2, EX.O3],
+                   EX.p3() => [~B<foo>, ~L"bar"]
+                 }
+               )
+             ) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
   end
 
@@ -428,13 +467,14 @@ defmodule RDF.DescriptionTest do
     setup do
       {:ok,
        empty_description: Description.new(EX.S),
-       description1: Description.new({EX.S, EX.p(), [EX.O1, EX.O2]}),
+       description1: Description.new(EX.S, init: {EX.S, EX.p(), [EX.O1, EX.O2]}),
        description2:
-         Description.new(EX.S)
-         |> Description.add([
-           {EX.P1, [EX.O1, EX.O2]},
-           {EX.p2(), [~B<foo>, ~L"bar"]}
-         ])}
+         Description.new(EX.S,
+           init: [
+             {EX.P1, [EX.O1, EX.O2]},
+             {EX.p2(), [~B<foo>, ~L"bar"]}
+           ]
+         )}
     end
 
     test "a single property",
@@ -446,7 +486,7 @@ defmodule RDF.DescriptionTest do
       assert Description.delete_predicates(description1, EX.p()) == empty_description
 
       assert Description.delete_predicates(description2, EX.P1) ==
-               Description.new({EX.S, EX.p2(), [~B<foo>, ~L"bar"]})
+               Description.new(EX.S, init: {EX.S, EX.p2(), [~B<foo>, ~L"bar"]})
     end
 
     test "a list of properties",
@@ -464,18 +504,18 @@ defmodule RDF.DescriptionTest do
 
   describe "update/4" do
     test "list values returned from the update function become new coerced objects of the predicate" do
-      assert Description.new({EX.S, EX.P, [EX.O1, EX.O2]})
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
              |> Description.update(
                EX.P,
                fn [_object | other] -> [EX.O3 | other] end
              ) ==
-               Description.new({EX.S, EX.P, [EX.O3, EX.O2]})
+               Description.new(EX.S, init: {EX.S, EX.P, [EX.O3, EX.O2]})
     end
 
     test "single values returned from the update function becomes new object of the predicate" do
-      assert Description.new({EX.S, EX.P, [EX.O1, EX.O2]})
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
              |> Description.update(EX.P, fn _ -> EX.O3 end) ==
-               Description.new({EX.S, EX.P, EX.O3})
+               Description.new(EX.S, init: {EX.S, EX.P, EX.O3})
     end
 
     test "returning an empty list or nil from the update function causes a removal of the predications" do
@@ -495,12 +535,10 @@ defmodule RDF.DescriptionTest do
     test "when the property is not present the initial object value is added for the predicate and the update function not called" do
       fun = fn _ -> raise "should not be called" end
 
-      assert Description.new(EX.S)
-             |> Description.update(EX.P, EX.O, fun) ==
-               Description.new({EX.S, EX.P, EX.O})
+      assert Description.new(EX.S) |> Description.update(EX.P, EX.O, fun) ==
+               Description.new(EX.S, init: {EX.S, EX.P, EX.O})
 
-      assert Description.new(EX.S)
-             |> Description.update(EX.P, fun) ==
+      assert Description.new(EX.S) |> Description.update(EX.P, fun) ==
                Description.new(EX.S)
     end
   end
@@ -508,21 +546,19 @@ defmodule RDF.DescriptionTest do
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 
-    {triple, desc} = Description.new({EX.S, EX.p(), EX.O}) |> Description.pop()
+    {triple, desc} = Description.new(EX.S, init: {EX.S, EX.p(), EX.O}) |> Description.pop()
     assert {iri(EX.S), iri(EX.p()), iri(EX.O)} == triple
     assert Enum.count(desc.predications) == 0
 
     {{subject, predicate, _}, desc} =
-      Description.new(EX.S)
-      |> Description.add([{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
+      Description.new(EX.S, init: [{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
       |> Description.pop()
 
     assert {subject, predicate} == {iri(EX.S), iri(EX.p())}
     assert Enum.count(desc.predications) == 1
 
     {{subject, _, _}, desc} =
-      Description.new(EX.S)
-      |> Description.add([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
+      Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
       |> Description.pop()
 
     assert subject == iri(EX.S)
@@ -531,12 +567,13 @@ defmodule RDF.DescriptionTest do
 
   test "include?/2" do
     desc =
-      Description.new(EX.S)
-      |> Description.add([
-        {EX.p1(), [EX.O1, EX.O2]},
-        {EX.p2(), EX.O3},
-        {EX.p3(), [~B<foo>, ~L"bar"]}
-      ])
+      Description.new(EX.S,
+        init: [
+          {EX.p1(), [EX.O1, EX.O2]},
+          {EX.p2(), EX.O3},
+          {EX.p3(), [~B<foo>, ~L"bar"]}
+        ]
+      )
 
     assert Description.include?(desc, {EX.p1(), EX.O2})
     assert Description.include?(desc, {EX.p1(), [EX.O1, EX.O2]})
@@ -545,8 +582,7 @@ defmodule RDF.DescriptionTest do
 
     assert Description.include?(
              desc,
-             Description.new(EX.S)
-             |> Description.add(%{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
+             Description.new(EX.S, init: %{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
            )
 
     refute Description.include?(desc, {EX.p4(), EX.O1})
@@ -557,7 +593,7 @@ defmodule RDF.DescriptionTest do
   test "values/1" do
     assert Description.new(EX.s()) |> Description.values() == %{}
 
-    assert Description.new({EX.s(), EX.p(), ~L"Foo"}) |> Description.values() ==
+    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"}) |> Description.values() ==
              %{RDF.Term.value(EX.p()) => ["Foo"]}
   end
 
@@ -572,63 +608,59 @@ defmodule RDF.DescriptionTest do
 
     assert Description.new(EX.s()) |> Description.values(mapping) == %{}
 
-    assert Description.new({EX.s(), EX.p(), ~L"Foo"}) |> Description.values(mapping) ==
+    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"}) |> Description.values(mapping) ==
              %{p: ["Foo"]}
   end
 
   describe "take/2" do
     test "with a non-empty property list" do
-      assert Description.new(EX.S)
-             |> Description.add([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
+      assert Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
              |> Description.take([EX.p2(), EX.p3()]) ==
-               Description.new({EX.S, EX.p2(), EX.O2})
+               Description.new(EX.S, init: {EX.S, EX.p2(), EX.O2})
     end
 
     test "with an empty property list" do
-      assert Description.new(EX.S)
-             |> Description.add([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
+      assert Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
              |> Description.take([]) == Description.new(EX.S)
     end
 
     test "with nil" do
-      assert Description.new(EX.S)
-             |> Description.add([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
+      assert Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
              |> Description.take(nil) ==
-               Description.new(EX.S)
-               |> Description.add([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
+               Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
     end
   end
 
   test "equal/2" do
-    assert Description.new({EX.S, EX.p(), EX.O})
-           |> Description.equal?(Description.new({EX.S, EX.p(), EX.O}))
+    assert Description.new(EX.S, init: {EX.S, EX.p(), EX.O})
+           |> Description.equal?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O}))
 
-    refute Description.new({EX.S, EX.p(), EX.O})
-           |> Description.equal?(Description.new({EX.S, EX.p(), EX.O2}))
+    refute Description.new(EX.S, init: {EX.S, EX.p(), EX.O})
+           |> Description.equal?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O2}))
   end
 
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Description.new(EX.foo())) == 0
-      assert Enum.count(Description.new({EX.S, EX.p(), EX.O})) == 1
+      assert Enum.count(Description.new(EX.S, init: {EX.S, EX.p(), EX.O})) == 1
 
       assert Enum.count(
-               Description.new(EX.S)
-               |> Description.add([{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
+               Description.new(EX.S, init: [{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
              ) == 2
     end
 
     test "Enum.member?" do
       refute Enum.member?(Description.new(EX.S), {iri(EX.S), EX.p(), iri(EX.O)})
-      assert Enum.member?(Description.new({EX.S, EX.p(), EX.O}), {EX.S, EX.p(), EX.O})
+      assert Enum.member?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O}), {EX.S, EX.p(), EX.O})
 
       desc =
-        Description.new(EX.Subject)
-        |> Description.add([
-          {EX.Subject, EX.predicate1(), EX.Object1},
-          {EX.Subject, EX.predicate2(), EX.Object2},
-          {EX.predicate2(), EX.Object3}
-        ])
+        Description.new(EX.Subject,
+          init: [
+            {EX.Subject, EX.predicate1(), EX.Object1},
+            {EX.Subject, EX.predicate2(), EX.Object2},
+            {EX.predicate2(), EX.Object3}
+          ]
+        )
 
       assert Enum.member?(desc, {EX.Subject, EX.predicate1(), EX.Object1})
       assert Enum.member?(desc, {EX.Subject, EX.predicate2(), EX.Object2})
@@ -638,12 +670,13 @@ defmodule RDF.DescriptionTest do
 
     test "Enum.reduce" do
       desc =
-        Description.new(EX.Subject)
-        |> Description.add([
-          {EX.Subject, EX.predicate1(), EX.Object1},
-          {EX.Subject, EX.predicate2(), EX.Object2},
-          {EX.predicate2(), EX.Object3}
-        ])
+        Description.new(EX.Subject,
+          init: [
+            {EX.Subject, EX.predicate1(), EX.Object1},
+            {EX.Subject, EX.predicate2(), EX.Object2},
+            {EX.predicate2(), EX.Object3}
+          ]
+        )
 
       assert desc ==
                Enum.reduce(desc, description(), fn triple, acc ->
@@ -660,7 +693,7 @@ defmodule RDF.DescriptionTest do
       }
 
       assert Enum.into(map, Description.new(EX.Subject)) ==
-               Description.new(EX.Subject) |> Description.add(map)
+               Description.new(EX.Subject, init: map)
     end
 
     test "with a list of triples" do
@@ -670,8 +703,7 @@ defmodule RDF.DescriptionTest do
       ]
 
       assert Enum.into(triples, Description.new(EX.Subject)) ==
-               Description.new(EX.Subject)
-               |> Description.add(triples)
+               Description.new(EX.Subject, init: triples)
     end
 
     test "with a list of predicate-object pairs" do
@@ -681,8 +713,7 @@ defmodule RDF.DescriptionTest do
       ]
 
       assert Enum.into(pairs, Description.new(EX.Subject)) ==
-               Description.new(EX.Subject)
-               |> Description.add(pairs)
+               Description.new(EX.Subject, init: pairs)
     end
 
     test "with a list of lists" do
@@ -692,8 +723,7 @@ defmodule RDF.DescriptionTest do
       ]
 
       assert Enum.into(lists, Description.new(EX.Subject)) ==
-               Description.new(EX.Subject)
-               |> Description.add(Enum.map(lists, &List.to_tuple/1))
+               Description.new(EX.Subject, init: Enum.map(lists, &List.to_tuple/1))
     end
   end
 
@@ -701,24 +731,29 @@ defmodule RDF.DescriptionTest do
     test "access with the [] operator" do
       assert Description.new(EX.Subject)[EX.predicate()] == nil
 
-      assert Description.new({EX.Subject, EX.predicate(), EX.Object})[EX.predicate()] == [
+      assert Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})[
+               EX.predicate()
+             ] == [
                iri(EX.Object)
              ]
 
-      assert Description.new({EX.Subject, EX.Predicate, EX.Object})[EX.Predicate] == [
+      assert Description.new(EX.Subject, init: {EX.Subject, EX.Predicate, EX.Object})[
+               EX.Predicate
+             ] == [
                iri(EX.Object)
              ]
 
-      assert Description.new({EX.Subject, EX.predicate(), EX.Object})[
+      assert Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})[
                "http://example.com/predicate"
              ] == [iri(EX.Object)]
 
-      assert (Description.new(EX.Subject)
-              |> Description.add([
-                {EX.Subject, EX.predicate1(), EX.Object1},
-                {EX.Subject, EX.predicate1(), EX.Object2},
-                {EX.Subject, EX.predicate2(), EX.Object3}
-              ]))[EX.predicate1()] ==
+      assert Description.new(EX.Subject,
+               init: [
+                 {EX.Subject, EX.predicate1(), EX.Object1},
+                 {EX.Subject, EX.predicate1(), EX.Object2},
+                 {EX.Subject, EX.predicate2(), EX.Object3}
+               ]
+             )[EX.predicate1()] ==
                [iri(EX.Object1), iri(EX.Object2)]
     end
   end

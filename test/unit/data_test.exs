@@ -51,22 +51,22 @@ defmodule RDF.DataTest do
     end
 
     test "merge of a description with different subject", %{description: description} do
-      assert RDF.Data.merge(description, Description.new({EX.Other, EX.p1(), EX.O3})) ==
+      assert RDF.Data.merge(description, Description.new(EX.Other, init: {EX.p1(), EX.O3})) ==
                Graph.new(description) |> Graph.add({EX.Other, EX.p1(), EX.O3})
     end
 
     test "merge of a description with same subject", %{description: description} do
-      assert RDF.Data.merge(description, Description.new({EX.S, EX.p1(), EX.O3})) ==
+      assert RDF.Data.merge(description, Description.new(EX.S, init: {EX.p1(), EX.O3})) ==
                Description.add(description, {EX.S, EX.p1(), EX.O3})
     end
 
     test "merge of a graph", %{graph: graph} do
-      assert RDF.Data.merge(Description.new({EX.Other, EX.p1(), EX.O3}), graph) ==
+      assert RDF.Data.merge(Description.new(EX.Other, init: {EX.p1(), EX.O3}), graph) ==
                Graph.add(graph, {EX.Other, EX.p1(), EX.O3})
     end
 
     test "merge of a dataset", %{dataset: dataset} do
-      assert RDF.Data.merge(Description.new({EX.Other, EX.p1(), EX.O3}), dataset) ==
+      assert RDF.Data.merge(Description.new(EX.Other, init: {EX.p1(), EX.O3}), dataset) ==
                Dataset.add(dataset, {EX.Other, EX.p1(), EX.O3})
     end
 
@@ -207,10 +207,10 @@ defmodule RDF.DataTest do
     end
 
     test "merge of a description", %{graph: graph} do
-      assert RDF.Data.merge(graph, Description.new({EX.Other, EX.p1(), EX.O3})) ==
+      assert RDF.Data.merge(graph, Description.new(EX.Other, init: {EX.p1(), EX.O3})) ==
                Graph.add(graph, {EX.Other, EX.p1(), EX.O3})
 
-      assert RDF.Data.merge(graph, Description.new({EX.S, EX.p1(), EX.O3})) ==
+      assert RDF.Data.merge(graph, Description.new(EX.S, init: {EX.p1(), EX.O3})) ==
                Graph.add(graph, {EX.S, EX.p1(), EX.O3})
     end
 
@@ -375,7 +375,7 @@ defmodule RDF.DataTest do
     end
 
     test "merge of a description", %{dataset: dataset} do
-      assert RDF.Data.merge(dataset, Description.new({EX.Other, EX.p1(), EX.O3})) ==
+      assert RDF.Data.merge(dataset, Description.new(EX.Other, init: {EX.p1(), EX.O3})) ==
                Dataset.add(dataset, {EX.Other, EX.p1(), EX.O3})
     end
 

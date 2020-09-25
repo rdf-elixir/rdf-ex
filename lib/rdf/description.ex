@@ -27,28 +27,54 @@ defmodule RDF.Description do
 
   @type input ::
           Triple.coercible_t()
-          | {Statement.coercible_predicate(),
-             Statement.coercible_object() | [Statement.coercible_object()]}
+          | {
+              Statement.coercible_predicate(),
+              Statement.coercible_object() | [Statement.coercible_object()]
+            }
           | %{
               Statement.coercible_predicate() =>
                 Statement.coercible_object() | [Statement.coercible_object()]
             }
           | [
               Triple.coercible_t()
-              | {Statement.coercible_predicate(),
-                 Statement.coercible_object() | [Statement.coercible_object()]}
+              | {
+                  Statement.coercible_predicate(),
+                  Statement.coercible_object() | [Statement.coercible_object()]
+                }
               | t
             ]
           | t
 
   @doc """
-  Creates an empty `RDF.Description` about the given subject.
+  Creates an `RDF.Description` about the given subject.
+
+  The created `RDF.Description` can be initialized with any form of data which
+  `add/2` understands with the `:init` option. Additionally a function returning
+  the initialization data in any of these forms can be as the `:init` value.
+
+  ## Examples
+
+      RDF.Description.new(EX.S)
+      RDF.Description.new(EX.S, init: {EX.S, EX.p, EX.O})
+      RDF.Description.new(EX.S, init: {EX.p, [EX.O1, EX.O2]})
+      RDF.Description.new(EX.S, init: [{EX.p1, EX.O1}, {EX.p2, EX.O2}])
+      RDF.Description.new(EX.S, init: RDF.Description.new(EX.S, init: {EX.P, EX.O}))
+      RDF.Description.new(EX.S, init: fn -> {EX.p, EX.O} end)
+
   """
-  @spec new(Statement.coercible_subject() | Triple.coercible_t() | t) :: t
-  def new(subject)
-  def new(%__MODULE__{} = description), do: new(description.subject)
-  def new({subject, predicate, object}), do: new(subject) |> add({predicate, object})
-  def new(subject), do: %__MODULE__{subject: coerce_subject(subject)}
+  @spec new(Statement.coercible_subject() | t, keyword) :: t
+  def new(subject, opts \\ [])
+
+  def new(%__MODULE__{} = description, opts), do: new(description.subject, opts)
+
+  def new(subject, opts) do
+    %__MODULE__{subject: coerce_subject(subject)}
+    |> init(Keyword.get(opts, :init))
+  end
+
+  defp init(description, nil), do: description
+  defp init(description, fun) when is_function(fun), do: add(description, fun.())
+  defp init(description, data), do: add(description, data)
 
   @doc """
   Returns the subject IRI or blank node of a description.
@@ -72,10 +98,12 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new({EX.S, EX.P1, EX.O1}) |> RDF.Description.add({EX.P2, EX.O2})
-      RDF.Description.new(EX.S) |> RDF.Description.add([{EX.P1, EX.O1}, {EX.P2, EX.O2}])
-      iex> RDF.Description.new({EX.S, EX.P, EX.O1}) |> RDF.Description.add({EX.P, [EX.O2, EX.O3]})
-      RDF.Description.new(EX.S) |> RDF.Description.add([{EX.P, EX.O1}, {EX.P, EX.O2}, {EX.P, EX.O3}])
+      iex> RDF.Description.new(EX.S, init: {EX.P1, EX.O1})
+      ...> |> RDF.Description.add({EX.P2, EX.O2})
+      RDF.Description.new(EX.S, init: [{EX.P1, EX.O1}, {EX.P2, EX.O2}])
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O1})
+      ...> |> RDF.Description.add({EX.P, [EX.O2, EX.O3]})
+      RDF.Description.new(EX.S, init: [{EX.P, EX.O1}, {EX.P, EX.O2}, {EX.P, EX.O3}])
 
   """
   @spec add(t, input, keyword) :: t
@@ -148,8 +176,9 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.put(RDF.Description.new({EX.S, EX.P, EX.O1}), {EX.P, EX.O2})
-      RDF.Description.new({EX.S, EX.P, EX.O2})
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O1})
+      ...> |> RDF.Description.put({EX.P, EX.O2})
+      RDF.Description.new(EX.S, init: {EX.P, EX.O2})
 
   """
   @spec put(t, input, keyword) :: t
@@ -286,12 +315,12 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new({EX.S, EX.p, EX.O}) |> RDF.Description.fetch(EX.p)
+      iex> RDF.Description.new(EX.S, init: {EX.p, EX.O}) |> RDF.Description.fetch(EX.p)
       {:ok, [RDF.iri(EX.O)]}
-      iex> RDF.Description.new(EX.S) |> RDF.Description.add([{EX.P, EX.O1}, {EX.P, EX.O2}]) |>
-      ...>   RDF.Description.fetch(EX.P)
+      iex> RDF.Description.new(EX.S, init: [{EX.P, EX.O1}, {EX.P, EX.O2}])
+      ...> |> RDF.Description.fetch(EX.P)
       {:ok, [RDF.iri(EX.O1), RDF.iri(EX.O2)]}
-      iex> RDF.Description.fetch(RDF.Description.new(EX.S), EX.foo)
+      iex> RDF.Description.new(EX.S) |> RDF.Description.fetch(EX.foo)
       :error
   """
   @impl Access
@@ -309,11 +338,11 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.get(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O}) |> RDF.Description.get(EX.P)
       [RDF.iri(EX.O)]
-      iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo)
+      iex> RDF.Description.new(EX.S) |> RDF.Description.get(EX.foo)
       nil
-      iex> RDF.Description.get(RDF.Description.new(EX.S), EX.foo, :bar)
+      iex> RDF.Description.new(EX.S) |> RDF.Description.get(EX.foo, :bar)
       :bar
   """
   @spec get(t, Statement.coercible_predicate(), any) :: [Statement.object()] | any
@@ -331,9 +360,9 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.first(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O}) |> RDF.Description.first(EX.P)
       RDF.iri(EX.O)
-      iex> RDF.Description.first(RDF.Description.new(EX.S), EX.foo)
+      iex> RDF.Description.new(EX.S) |> RDF.Description.first(EX.foo)
       nil
   """
   @spec first(t, Statement.coercible_predicate()) :: Statement.object() | nil
@@ -357,12 +386,12 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new({EX.S, EX.p, EX.O}) |>
-      ...> RDF.Description.update(EX.p, fn objects -> [EX.O2 | objects] end)
-      RDF.Description.new(EX.S) |> RDF.Description.add([{EX.p, EX.O}, {EX.p, EX.O2}])
-      iex> RDF.Description.new(EX.S) |>
-      ...> RDF.Description.update(EX.p, EX.O, fn _ -> EX.O2 end)
-      RDF.Description.new({EX.S, EX.p, EX.O})
+      iex> RDF.Description.new(EX.S, init: {EX.p, EX.O})
+      ...> |> RDF.Description.update(EX.p, fn objects -> [EX.O2 | objects] end)
+      RDF.Description.new(EX.S, init: [{EX.p, EX.O}, {EX.p, EX.O2}])
+      iex> RDF.Description.new(EX.S)
+      ...> |> RDF.Description.update(EX.p, EX.O, fn _ -> EX.O2 end)
+      RDF.Description.new(EX.S, init: {EX.p, EX.O})
 
   """
   @spec update(
@@ -409,15 +438,15 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new({EX.S, EX.P, EX.O}) |>
-      ...>   RDF.Description.get_and_update(EX.P, fn current_objects ->
-      ...>     {current_objects, EX.NEW}
-      ...>   end)
-      {[RDF.iri(EX.O)], RDF.Description.new({EX.S, EX.P, EX.NEW})}
-      iex> RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}]) |>
-      ...>   RDF.Graph.description(EX.S) |>
-      ...>   RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
-      {[RDF.iri(EX.O1)], RDF.Description.new({EX.S, EX.P2, EX.O2})}
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O})
+      ...> |> RDF.Description.get_and_update(EX.P, fn current_objects ->
+      ...>      {current_objects, EX.New}
+      ...>    end)
+      {[RDF.iri(EX.O)], RDF.Description.new(EX.S, init: {EX.P, EX.New})}
+      iex> RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.description(EX.S)
+      ...> |> RDF.Description.get_and_update(EX.P1, fn _ -> :pop end)
+      {[RDF.iri(EX.O1)], RDF.Description.new(EX.S, init: {EX.P2, EX.O2})}
   """
   @impl Access
   @spec get_and_update(
@@ -466,10 +495,12 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.P)
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O})
+      ...> |> RDF.Description.pop(EX.P)
       {[RDF.iri(EX.O)], RDF.Description.new(EX.S)}
-      iex> RDF.Description.pop(RDF.Description.new({EX.S, EX.P, EX.O}), EX.Missing)
-      {nil, RDF.Description.new({EX.S, EX.P, EX.O})}
+      iex> RDF.Description.new(EX.S, init: {EX.P, EX.O})
+      ...> |> RDF.Description.pop(EX.Missing)
+      {nil, RDF.Description.new(EX.S, init: {EX.P, EX.O})}
   """
   @impl Access
   def pop(description = %__MODULE__{subject: subject, predications: predications}, predicate) do
@@ -487,11 +518,11 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new(EX.S1) |> RDF.Description.add([
+      iex> RDF.Description.new(EX.S1, init: [
       ...>   {EX.p1, EX.O1},
       ...>   {EX.p2, EX.O2},
-      ...>   {EX.p2, EX.O3}]) |>
-      ...>   RDF.Description.predicates
+      ...>   {EX.p2, EX.O3}])
+      ...> |> RDF.Description.predicates()
       MapSet.new([EX.p1, EX.p2])
   """
   @spec predicates(t) :: MapSet.t()
@@ -505,13 +536,13 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new(EX.S1) |> RDF.Description.add([
+      iex> RDF.Description.new(EX.S1, init: [
       ...>   {EX.p1, EX.O1},
       ...>   {EX.p2, EX.O2},
       ...>   {EX.p3, EX.O2},
       ...>   {EX.p4, RDF.bnode(:bnode)},
-      ...>   {EX.p3, "foo"}
-      ...> ]) |> RDF.Description.objects
+      ...>   {EX.p3, "foo"}])
+      ...> |> RDF.Description.objects()
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   @spec objects(t) :: MapSet.t()
@@ -537,13 +568,13 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> RDF.Description.new(EX.S1) |> RDF.Description.add([
+      iex> RDF.Description.new(EX.S1, init: [
       ...>   {EX.p1, EX.O1},
       ...>   {EX.p2, EX.O2},
       ...>   {EX.p1, EX.O2},
       ...>   {EX.p2, RDF.bnode(:bnode)},
-      ...>   {EX.p3, "foo"}
-      ...> ]) |> RDF.Description.resources
+      ...>   {EX.p3, "foo"}])
+      ...> |> RDF.Description.resources()
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
   """
   @spec resources(t) :: MapSet.t()
@@ -600,9 +631,11 @@ defmodule RDF.Description do
 
   ## Examples
 
-        iex> RDF.Description.new({EX.S1, EX.p1, EX.O1}) |> RDF.Description.describes?(EX.S1)
+        iex> RDF.Description.new(EX.S1, init: {EX.p1, EX.O1})
+        ...> |> RDF.Description.describes?(EX.S1)
         true
-        iex> RDF.Description.new({EX.S1, EX.p1, EX.O1}) |> RDF.Description.describes?(EX.S2)
+        iex> RDF.Description.new(EX.S1, init: {EX.p1, EX.O1})
+        ...> |> RDF.Description.describes?(EX.S2)
         false
   """
   @spec describes?(t, Statement.subject()) :: boolean
@@ -623,13 +656,11 @@ defmodule RDF.Description do
 
   ## Examples
 
-      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
-      ...> |> RDF.Description.new()
+      iex> RDF.Description.new(~I<http://example.com/S>, init: {~I<http://example.com/p>, ~L"Foo"})
       ...> |> RDF.Description.values()
       %{"http://example.com/p" => ["Foo"]}
 
-      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo"}
-      ...> |> RDF.Description.new()
+      iex> RDF.Description.new(~I<http://example.com/S>, init: {~I<http://example.com/p>, ~L"Foo"})
       ...> |> RDF.Description.values(fn
       ...>      {:predicate, predicate} ->
       ...>        predicate

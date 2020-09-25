@@ -84,16 +84,18 @@ defmodule RDF.GraphTest do
 
     test "creating a named graph with an initial description" do
       g =
-        Graph.new(Description.new({EX.Subject, EX.predicate(), EX.Object}),
-          name: EX.GraphName
-        )
+        Description.new(EX.Subject, init: {EX.predicate(), EX.Object})
+        |> Graph.new(name: EX.GraphName)
 
       assert named_graph?(g, iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
     test "creating an unnamed graph with an initial description" do
-      g = Graph.new(Description.new({EX.Subject, EX.predicate(), EX.Object}))
+      g =
+        Description.new(EX.Subject, init: {EX.predicate(), EX.Object})
+        |> Graph.new()
+
       assert unnamed_graph?(g)
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
@@ -226,7 +228,8 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
 
-      g = Graph.add(g, Description.new({EX.Subject1, EX.predicate3(), EX.Object3}))
+      g = Graph.add(g, Description.new(EX.Subject1, init: {EX.predicate3(), EX.Object3}))
+
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate3(), EX.Object3})
@@ -235,9 +238,9 @@ defmodule RDF.GraphTest do
     test "a list of Descriptions" do
       g =
         Graph.add(graph(), [
-          Description.new({EX.Subject1, EX.predicate1(), EX.Object1}),
-          Description.new({EX.Subject2, EX.predicate2(), EX.Object2}),
-          Description.new({EX.Subject1, EX.predicate3(), EX.Object3})
+          Description.new(EX.Subject1, init: {EX.predicate1(), EX.Object1}),
+          Description.new(EX.Subject2, init: {EX.predicate2(), EX.Object2}),
+          Description.new(EX.Subject1, init: {EX.predicate3(), EX.Object3})
         ])
 
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
@@ -462,10 +465,10 @@ defmodule RDF.GraphTest do
                |> Description.add([{EX.p(), EX.O}, {EX.p2(), EX.O2}])
              ) == Graph.new()
 
-      assert Graph.delete(graph2, Description.new({EX.S, EX.p(), [EX.O1, EX.O2]})) ==
+      assert Graph.delete(graph2, Description.new(EX.S, init: {EX.p(), [EX.O1, EX.O2]})) ==
                Graph.new(name: EX.Graph)
 
-      assert Graph.delete(graph3, Description.new({EX.S3, EX.p3(), ~B<foo>})) ==
+      assert Graph.delete(graph3, Description.new(EX.S3, init: {EX.p3(), ~B<foo>})) ==
                Graph.new([
                  {EX.S1, EX.p1(), [EX.O1, EX.O2]},
                  {EX.S2, EX.p2(), EX.O3},
@@ -480,9 +483,7 @@ defmodule RDF.GraphTest do
 
       assert Graph.delete(
                graph2,
-               Graph.new({EX.S, EX.p(), [EX.O1, EX.O3]},
-                 name: EX.Graph
-               )
+               Graph.new({EX.S, EX.p(), [EX.O1, EX.O3]}, name: EX.Graph)
              ) ==
                Graph.new({EX.S, EX.p(), EX.O2}, name: EX.Graph)
 
@@ -531,8 +532,8 @@ defmodule RDF.GraphTest do
 
   describe "update/4" do
     test "a description returned from the update function becomes new description of the subject" do
-      old_description = Description.new({EX.S2, EX.p2(), EX.O3})
-      new_description = Description.new({EX.S2, EX.p(), EX.O})
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
+      new_description = Description.new(EX.S2, init: {EX.p(), EX.O})
 
       assert Graph.new([
                {EX.S1, EX.p1(), [EX.O1, EX.O2]},
@@ -546,8 +547,8 @@ defmodule RDF.GraphTest do
     end
 
     test "a description with another subject returned from the update function becomes new description of the subject" do
-      old_description = Description.new({EX.S2, EX.p2(), EX.O3})
-      new_description = Description.new({EX.S2, EX.p(), EX.O})
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
+      new_description = Description.new(EX.S2, init: {EX.p(), EX.O})
 
       assert Graph.new([
                {EX.S1, EX.p1(), [EX.O1, EX.O2]},
@@ -556,7 +557,7 @@ defmodule RDF.GraphTest do
              |> Graph.update(
                EX.S2,
                fn ^old_description ->
-                 Description.new(EX.S3) |> Description.add(new_description)
+                 Description.new(EX.S3, init: new_description)
                end
              ) ==
                Graph.new([
@@ -566,7 +567,7 @@ defmodule RDF.GraphTest do
     end
 
     test "a value returned from the update function becomes new coerced description of the subject" do
-      old_description = Description.new({EX.S2, EX.p2(), EX.O3})
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
       new_description = {EX.p(), [EX.O1, EX.O2]}
 
       assert Graph.new([
@@ -874,7 +875,7 @@ defmodule RDF.GraphTest do
       assert Graph.new()[EX.Subject] == nil
 
       assert Graph.new({EX.S, EX.p(), EX.O})[EX.S] ==
-               Description.new({EX.S, EX.p(), EX.O})
+               Description.new(EX.S, init: {EX.p(), EX.O})
     end
   end
 end
