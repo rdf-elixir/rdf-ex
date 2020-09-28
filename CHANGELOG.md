@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.Description.subject/1` and `RDF.Description.change_subject/2`
+- `RDF.Graph.name/1` and `RDF.Graph.change_name/2`
 
 ### Changed
 

@@ -79,11 +79,13 @@ defmodule RDF.Description do
   @doc """
   Returns the subject IRI or blank node of a description.
   """
+  @spec subject(t) :: RDF.Statement.subject()
   def subject(%__MODULE__{} = description), do: description.subject
 
   @doc """
   Changes the subject of a description.
   """
+  @spec change_subject(t, RDF.Statement.coercible_subject()) :: t
   def change_subject(%__MODULE__{} = description, new_subject) do
     %__MODULE__{description | subject: coerce_subject(new_subject)}
   end

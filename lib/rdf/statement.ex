@@ -11,7 +11,7 @@ defmodule RDF.Statement do
   @type subject :: IRI.t() | BlankNode.t()
   @type predicate :: IRI.t() | BlankNode.t()
   @type object :: IRI.t() | BlankNode.t() | Literal.t()
-  @type graph_name :: IRI.t() | BlankNode.t()
+  @type graph_name :: IRI.t() | BlankNode.t() | nil
 
   @type coercible_subject :: subject | atom | String.t()
   @type coercible_predicate :: predicate | atom | String.t()

@@ -17,6 +17,8 @@ defmodule RDF.Graph do
   import RDF.Utils
   alias RDF.{Description, IRI, PrefixMap, Statement}
 
+  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
+
   @type graph_description :: %{Statement.subject() => Description.t()}
 
   @type t :: %__MODULE__{
@@ -44,8 +46,6 @@ defmodule RDF.Graph do
   @type update_description_fun :: (Description.t() -> Description.t())
 
   @type get_and_update_description_fun :: (Description.t() -> {Description.t(), input} | :pop)
-
-  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
 
   @doc """
   Creates an empty unnamed `RDF.Graph`.
@@ -136,6 +136,20 @@ defmodule RDF.Graph do
   @spec clear(t) :: t
   def clear(%__MODULE__{} = graph) do
     %__MODULE__{graph | descriptions: %{}}
+  end
+
+  @doc """
+  Returns the graph name IRI of `graph`.
+  """
+  @spec name(t) :: RDF.Statement.graph_name()
+  def name(%__MODULE__{} = graph), do: graph.name
+
+  @doc """
+  Changes the graph name of `graph`.
+  """
+  @spec change_name(t, RDF.Statement.coercible_graph_name()) :: t
+  def change_name(%__MODULE__{} = graph, new_name) do
+    %__MODULE__{graph | name: coerce_graph_name(new_name)}
   end
 
   @doc """

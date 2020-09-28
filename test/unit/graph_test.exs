@@ -165,6 +165,15 @@ defmodule RDF.GraphTest do
            |> Graph.clear() == Graph.new(opts)
   end
 
+  test "name/1" do
+    assert Graph.name(graph()) == graph().name
+  end
+
+  test "change_name/2" do
+    assert Graph.change_name(graph(), EX.NewGraph).name == iri(EX.NewGraph)
+    assert Graph.change_name(named_graph(), nil).name == nil
+  end
+
   describe "add/2" do
     test "a proper triple" do
       assert Graph.add(graph(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
