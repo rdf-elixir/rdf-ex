@@ -90,6 +90,20 @@ defmodule RDF.Dataset do
     |> add(data)
   end
 
+  @doc """
+  Returns the dataset name IRI of `dataset`.
+  """
+  @spec name(t) :: RDF.Statement.graph_name()
+  def name(%__MODULE__{} = dataset), do: dataset.name
+
+  @doc """
+  Changes the dataset name of `dataset`.
+  """
+  @spec change_name(t, RDF.Statement.coercible_graph_name()) :: t
+  def change_name(%__MODULE__{} = dataset, new_name) do
+    %__MODULE__{dataset | name: coerce_graph_name(new_name)}
+  end
+
   defp destination_graph(opts, default \\ nil) do
     opts
     |> Keyword.get(:graph, default)

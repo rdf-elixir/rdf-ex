@@ -17,6 +17,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
     - `RDF.Graph.change_name/2`
     - `RDF.Graph.base_iri/1` 
     - `RDF.Graph.prefixes/1`
+- to `RDF.Dataset`
+    - `RDF.Dataset.name/1` 
+    - `RDF.Dataset.change_name/2`
 
 ### Changed
 

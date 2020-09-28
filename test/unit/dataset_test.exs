@@ -152,6 +152,15 @@ defmodule RDF.DatasetTest do
     end
   end
 
+  test "name/1" do
+    assert Dataset.name(dataset()) == dataset().name
+  end
+
+  test "change_name/2" do
+    assert Dataset.change_name(dataset(), EX.NewDataset).name == iri(EX.NewDataset)
+    assert Dataset.change_name(named_dataset(), nil).name == nil
+  end
+
   describe "add/3" do
     test "a proper triple is added to the default graph" do
       assert Dataset.add(dataset(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
