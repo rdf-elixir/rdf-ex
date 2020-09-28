@@ -402,6 +402,22 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
     end
 
+    test "a list of descriptions" do
+      g =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}, {EX.S1, EX.p3(), EX.O3}])
+        |> RDF.Graph.put([
+          EX.p1(EX.S1, EX.O41),
+          EX.p2(EX.S2, EX.O42),
+          EX.p2(EX.S2, EX.O43)
+        ])
+
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.S1, EX.p3(), EX.O3})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O41})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O42})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O43})
+    end
+
     test "a graph" do
       g =
         Graph.new([

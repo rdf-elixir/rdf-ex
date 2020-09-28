@@ -277,10 +277,20 @@ defmodule RDF.Graph do
   def put(%__MODULE__{} = graph, statements) when is_list(statements) do
     put(
       graph,
-      Enum.group_by(statements, &elem(&1, 0), fn
-        {_, p, o} -> {p, o}
-        {_, predications} -> predications
-      end)
+      Enum.group_by(
+        statements,
+        fn
+          {subject, _} -> subject
+          {subject, _, _} -> subject
+          {subject, _, _, _} -> subject
+          %Description{subject: subject} -> subject
+        end,
+        fn
+          {_, p, o} -> {p, o}
+          {_, predications} -> predications
+          %Description{} = description -> description
+        end
+      )
     )
   end
 
