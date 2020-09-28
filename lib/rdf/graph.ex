@@ -902,6 +902,12 @@ defmodule RDF.Graph do
   def equal?(_, _), do: false
 
   @doc """
+  Returns the prefixes of the given `graph` as a `RDF.PrefixMap`.
+  """
+  @spec prefixes(t) :: PrefixMap.t() | nil
+  def prefixes(%__MODULE__{} = graph), do: graph.prefixes
+
+  @doc """
   Adds `prefixes` to the given `graph`.
 
   The `prefixes` mappings can be given as any structure convertible to a
@@ -954,6 +960,12 @@ defmodule RDF.Graph do
   def clear_prefixes(%__MODULE__{} = graph) do
     %__MODULE__{graph | prefixes: nil}
   end
+
+  @doc """
+  Returns the base IRI of the given `graph`.
+  """
+  @spec base_iri(t) :: IRI.t() | nil
+  def base_iri(%__MODULE__{} = graph), do: graph.base_iri
 
   @doc """
   Sets the base IRI of the given `graph`.

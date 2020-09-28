@@ -9,8 +9,14 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- `RDF.Description.subject/1` and `RDF.Description.change_subject/2`
-- `RDF.Graph.name/1` and `RDF.Graph.change_name/2`
+- to `RDF.Description`
+    - `RDF.Description.subject/1` 
+    - `RDF.Description.change_subject/2`
+- to `RDF.Graph`
+    - `RDF.Graph.name/1` 
+    - `RDF.Graph.change_name/2`
+    - `RDF.Graph.base_iri/1` 
+    - `RDF.Graph.prefixes/1`
 
 ### Changed
 

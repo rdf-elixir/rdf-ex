@@ -810,6 +810,11 @@ defmodule RDF.GraphTest do
            |> Graph.equal?(Graph.new({EX.S, EX.p(), EX.O}, name: EX.Graph2))
   end
 
+  test "prefixes/1" do
+    assert Graph.prefixes(graph()) == nil
+    assert %Graph{prefixes: PrefixMap.new()} |> Graph.prefixes() == PrefixMap.new()
+  end
+
   describe "add_prefixes/2" do
     test "when prefixes already exist" do
       graph = Graph.new(prefixes: %{xsd: XSD}) |> Graph.add_prefixes(ex: EX)
@@ -855,6 +860,13 @@ defmodule RDF.GraphTest do
 
   test "clear_prefixes/1" do
     assert Graph.clear_prefixes(Graph.new(prefixes: %{ex: EX})) == Graph.new()
+  end
+
+  test "base_iri/1" do
+    assert Graph.base_iri(graph()) == nil
+
+    assert %Graph{base_iri: ~I<http://example.com/>} |> Graph.base_iri() ==
+             ~I<http://example.com/>
   end
 
   describe "set_base_iri/1" do
