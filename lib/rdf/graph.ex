@@ -11,13 +11,13 @@ defmodule RDF.Graph do
 
   """
 
+  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
+
   @behaviour Access
 
   import RDF.Statement
   import RDF.Utils
   alias RDF.{Description, IRI, PrefixMap, Statement}
-
-  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -175,14 +175,14 @@ defmodule RDF.Graph do
   @spec add(t, input) :: t
   def add(graph, input)
 
+  def add(graph, {subject, predications}),
+    do: do_add(graph, coerce_subject(subject), predications)
+
   def add(%__MODULE__{} = graph, {subject, _, _} = triple),
     do: do_add(graph, coerce_subject(subject), triple)
 
   def add(graph, {subject, predicate, object, _}),
     do: add(graph, {subject, predicate, object})
-
-  def add(graph, {subject, predications}),
-    do: do_add(graph, coerce_subject(subject), predications)
 
   def add(%__MODULE__{} = graph, %Description{subject: subject} = description) do
     if Description.count(description) > 0 do
@@ -205,10 +205,8 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(graph, statements) when is_list(statements) or is_map(statements) do
-    Enum.reduce(statements, graph, fn triple, graph ->
-      add(graph, triple)
-    end)
+  def add(graph, input) when is_list(input) or is_map(input) do
+    Enum.reduce(input, graph, &add(&2, &1))
   end
 
   defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
@@ -241,13 +239,13 @@ defmodule RDF.Graph do
 
   """
   @spec put(t, input) :: t
-  def put(graph, statements)
+  def put(graph, input)
 
   def put(graph, {subject, predications}),
     do: do_put(graph, coerce_subject(subject), predications)
 
-  def put(%__MODULE__{} = graph, {subject, _, _} = statement),
-    do: do_put(graph, coerce_subject(subject), statement)
+  def put(%__MODULE__{} = graph, {subject, _, _} = triple),
+    do: do_put(graph, coerce_subject(subject), triple)
 
   def put(graph, {subject, predicate, object, _}),
     do: put(graph, {subject, predicate, object})
@@ -268,17 +266,17 @@ defmodule RDF.Graph do
     end
   end
 
-  def put(%__MODULE__{} = graph, statements) when is_map(statements) do
-    Enum.reduce(statements, graph, fn {subject, predications}, graph ->
+  def put(%__MODULE__{} = graph, input) when is_map(input) do
+    Enum.reduce(input, graph, fn {subject, predications}, graph ->
       put(graph, {subject, predications})
     end)
   end
 
-  def put(%__MODULE__{} = graph, statements) when is_list(statements) do
+  def put(%__MODULE__{} = graph, input) when is_list(input) do
     put(
       graph,
       Enum.group_by(
-        statements,
+        input,
         fn
           {subject, _} -> subject
           {subject, _, _} -> subject
@@ -318,7 +316,7 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   """
-  @spec delete(t, input | [input]) :: t
+  @spec delete(t, input) :: t
   def delete(graph, triples)
 
   def delete(%__MODULE__{} = graph, {subject, _, _} = triple),
@@ -330,10 +328,8 @@ defmodule RDF.Graph do
   def delete(graph, {subject, predicate, object, _}),
     do: delete(graph, {subject, predicate, object})
 
-  def delete(%__MODULE__{} = graph, statements) when is_list(statements) or is_map(statements) do
-    Enum.reduce(statements, graph, fn statement, graph ->
-      delete(graph, statement)
-    end)
+  def delete(%__MODULE__{} = graph, input) when is_list(input) or is_map(input) do
+    Enum.reduce(input, graph, &delete(&2, &1))
   end
 
   def delete(%__MODULE__{} = graph, %Description{subject: subject} = description),
@@ -345,9 +341,9 @@ defmodule RDF.Graph do
     end)
   end
 
-  defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
+  defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, input) do
     if description = descriptions[subject] do
-      new_description = Description.delete(description, statements)
+      new_description = Description.delete(description, input)
 
       %__MODULE__{
         graph
@@ -373,9 +369,7 @@ defmodule RDF.Graph do
   def delete_subjects(graph, subjects)
 
   def delete_subjects(%__MODULE__{} = graph, subjects) when is_list(subjects) do
-    Enum.reduce(subjects, graph, fn subject, graph ->
-      delete_subjects(graph, subject)
-    end)
+    Enum.reduce(subjects, graph, &delete_subjects(&2, &1))
   end
 
   def delete_subjects(%__MODULE__{descriptions: descriptions} = graph, subject) do
@@ -762,9 +756,11 @@ defmodule RDF.Graph do
   defdelegate statements(graph), to: RDF.Graph, as: :triples
 
   @doc """
-  Checks if the given statement exists within a `RDF.Graph`.
+  Checks if the given `input` statements exist within `graph`.
   """
   @spec include?(t, input) :: boolean
+  def include?(graph, input)
+
   def include?(%__MODULE__{} = graph, {subject, _, _} = triple),
     do: do_include?(graph, coerce_subject(subject), triple)
 
@@ -787,9 +783,9 @@ defmodule RDF.Graph do
     Enum.all?(statements, &include?(graph, &1))
   end
 
-  defp do_include?(%__MODULE__{descriptions: descriptions}, subject, statements) do
+  defp do_include?(%__MODULE__{descriptions: descriptions}, subject, input) do
     if description = descriptions[subject] do
-      Description.include?(description, statements)
+      Description.include?(description, input)
     else
       false
     end

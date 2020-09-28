@@ -10,13 +10,13 @@ defmodule RDF.Description do
   - the `RDF.Data` protocol
   """
 
+  @enforce_keys [:subject]
+  defstruct subject: nil, predications: %{}
+
   @behaviour Access
 
   import RDF.Statement
   alias RDF.{Statement, Triple}
-
-  @enforce_keys [:subject]
-  defstruct subject: nil, predications: %{}
 
   @type t :: %__MODULE__{
           subject: Statement.subject(),
@@ -128,11 +128,8 @@ defmodule RDF.Description do
     }
   end
 
-  def add(description, predications, opts)
-      when is_map(predications) or is_list(predications) do
-    Enum.reduce(predications, description, fn
-      predications, description -> add(description, predications, opts)
-    end)
+  def add(description, input, opts) when is_map(input) or is_list(input) do
+    Enum.reduce(input, description, &add(&2, &1, opts))
   end
 
   def add(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
@@ -250,11 +247,8 @@ defmodule RDF.Description do
     }
   end
 
-  def delete(description, predications, opts)
-      when is_map(predications) or is_list(predications) do
-    Enum.reduce(predications, description, fn
-      predications, description -> delete(description, predications, opts)
-    end)
+  def delete(description, input, opts) when is_map(input) or is_list(input) do
+    Enum.reduce(input, description, &delete(&2, &1, opts))
   end
 
   def delete(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
@@ -603,7 +597,7 @@ defmodule RDF.Description do
   end
 
   @doc """
-  Checks if the given statement exists within a `RDF.Description`.
+  Checks if the given `input` statements exist within `description`.
   """
   @spec include?(t, input) :: boolean
   def include?(description, input)

@@ -13,10 +13,13 @@ defmodule RDF.Dataset do
 
   """
 
+  defstruct name: nil, graphs: %{}
+
   @behaviour Access
 
   alias RDF.{Description, Graph, IRI, Statement}
   import RDF.Statement
+  import RDF.Utils
 
   @type graph_name :: IRI.t() | nil
 
@@ -28,8 +31,6 @@ defmodule RDF.Dataset do
   @type input :: Graph.input() | t
 
   @type update_graph_fun :: (Graph.t() -> {Graph.t(), input} | :pop)
-
-  defstruct name: nil, graphs: %{}
 
   @doc """
   Creates an empty unnamed `RDF.Dataset`.
@@ -47,12 +48,12 @@ defmodule RDF.Dataset do
 
   ## Examples
 
-      RDF.Graph.new({EX.S, EX.p, EX.O})
+      RDF.Dataset.new({EX.S, EX.p, EX.O})
 
-      RDF.Graph.new(name: EX.GraphName)
+      RDF.Dataset.new(name: EX.GraphName)
 
   """
-  @spec new(input | [input] | keyword) :: t
+  @spec new(input | keyword) :: t
   def new(data_or_options)
 
   def new(data_or_options)
@@ -69,20 +70,14 @@ defmodule RDF.Dataset do
   @doc """
   Creates an `RDF.Dataset` initialized with data.
 
-  The initial RDF triples can be provided
-
-  - as a single statement tuple
-  - an `RDF.Description`
-  - an `RDF.Graph`
-  - an `RDF.Dataset`
-  - or a list with any combination of the former
+  The initial RDF triples can be provided in any form accepted by `add/3`.
 
   Available options:
 
   - `name`: the name of the dataset to be created
 
   """
-  @spec new(input | [input], keyword) :: t
+  @spec new(input, keyword) :: t
   def new(data, options)
 
   def new(%__MODULE__{} = graph, options) do
@@ -95,86 +90,61 @@ defmodule RDF.Dataset do
     |> add(data)
   end
 
+  defp destination_graph(opts, default \\ nil) do
+    opts
+    |> Keyword.get(:graph, default)
+    |> coerce_graph_name()
+  end
+
   @doc """
   Adds triples and quads to a `RDF.Dataset`.
 
-  The optional third `graph_context` argument allows to set a different
-  destination graph to which the statements are added, ignoring the graph context
-  of given quads or the name of given graphs.
+  The triples can be provided in any form accepted by `add/2`.
+
+  - as a single statement tuple
+  - an `RDF.Description`
+  - an `RDF.Graph`
+  - an `RDF.Dataset`
+  - or a list with any combination of the former
+
+  The `graph` option allows to set a different destination graph to which the
+  statements should be added, ignoring the graph context of given quads or the
+  name of given graphs.
   """
-  @spec add(t, input | [input], boolean | nil) :: t
-  def add(dataset, statements, graph_context \\ false)
+  @spec add(t, input, keyword) :: t
+  def add(dataset, statements, opts \\ [])
 
-  def add(dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && coerce_graph_name(graph_context) do
-      Enum.reduce(statements, dataset, fn statement, dataset ->
-        add(dataset, statement, graph_context)
-      end)
-    end
+  def add(dataset, {_, _, _, graph} = quad, opts),
+    do: do_add(dataset, destination_graph(opts, graph), quad)
+
+  def add(dataset, %Graph{} = graph, opts),
+    do: do_add(dataset, destination_graph(opts, graph.name), graph)
+
+  def add(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
+    other_dataset
+    |> graphs()
+    |> Enum.reduce(dataset, &add(&2, &1, opts))
   end
 
-  def add(dataset, {subject, predicate, objects}, false),
-    do: add(dataset, {subject, predicate, objects, nil})
-
-  def add(dataset, {subject, predicate, objects}, graph_context),
-    do: add(dataset, {subject, predicate, objects, graph_context})
-
-  def add(
-        %__MODULE__{name: name, graphs: graphs},
-        {subject, predicate, objects, graph_context},
-        false
-      ) do
-    with graph_context = coerce_graph_name(graph_context) do
-      updated_graphs =
-        Map.update(
-          graphs,
-          graph_context,
-          Graph.new({subject, predicate, objects}, name: graph_context),
-          fn graph -> Graph.add(graph, {subject, predicate, objects}) end
-        )
-
-      %__MODULE__{name: name, graphs: updated_graphs}
-    end
+  def add(dataset, input, opts) when is_list(input) or is_map(input) do
+    Enum.reduce(input, dataset, &add(&2, &1, opts))
   end
 
-  def add(%__MODULE__{} = dataset, {subject, predicate, objects, _}, graph_context),
-    do: add(dataset, {subject, predicate, objects, graph_context}, false)
+  def add(dataset, input, opts), do: do_add(dataset, destination_graph(opts), input)
 
-  def add(%__MODULE__{} = dataset, %Description{} = description, false),
-    do: add(dataset, description, nil)
-
-  def add(%__MODULE__{name: name, graphs: graphs}, %Description{} = description, graph_context) do
-    with graph_context = coerce_graph_name(graph_context) do
-      updated_graph =
-        Map.get(graphs, graph_context, Graph.new(name: graph_context))
-        |> Graph.add(description)
-
-      %__MODULE__{
-        name: name,
-        graphs: Map.put(graphs, graph_context, updated_graph)
-      }
-    end
-  end
-
-  def add(%__MODULE__{name: name, graphs: graphs}, %Graph{} = graph, false) do
+  defp do_add(dataset, graph_name, input) do
     %__MODULE__{
-      name: name,
-      graphs:
-        Map.update(graphs, graph.name, graph, fn current ->
-          Graph.add(current, graph)
-        end)
+      dataset
+      | graphs:
+          lazy_map_update(
+            dataset.graphs,
+            graph_name,
+            # when new:
+            fn -> Graph.new(input, name: graph_name) end,
+            # when update:
+            fn graph -> Graph.add(graph, input) end
+          )
     }
-  end
-
-  def add(%__MODULE__{} = dataset, %Graph{} = graph, graph_context),
-    do: add(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
-
-  def add(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, graph_context) do
-    with graph_context = graph_context && coerce_graph_name(graph_context) do
-      Enum.reduce(graphs(other_dataset), dataset, fn graph, dataset ->
-        add(dataset, graph, graph_context)
-      end)
-    end
   end
 
   @doc """
@@ -191,7 +161,7 @@ defmodule RDF.Dataset do
       ...>   RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
   """
-  @spec put(t, input | [input], Statement.coercible_graph_name() | boolean | nil) :: t
+  @spec put(t, input, Statement.coercible_graph_name() | boolean | nil) :: t
   def put(dataset, statements, graph_context \\ false)
 
   def put(%__MODULE__{} = dataset, {subject, predicate, objects}, false),
@@ -318,71 +288,51 @@ defmodule RDF.Dataset do
   @doc """
   Deletes statements from a `RDF.Dataset`.
 
-  The optional third `graph_context` argument allows to set a different
-  destination graph from which the statements are deleted, ignoring the graph
-  context of given quads or the name of given graphs.
+  The `graph` option allows to set a different destination graph from which the
+  statements should be deleted, ignoring the graph context of given quads or the
+  name of given graphs.
 
   Note: When the statements to be deleted are given as another `RDF.Dataset`,
   the dataset name must not match dataset name of the dataset from which the statements
   are deleted. If you want to delete only datasets with matching names, you can
   use `RDF.Data.delete/2`.
   """
-  @spec delete(t, input | [input], Statement.coercible_graph_name() | boolean | nil) :: t
-  def delete(dataset, statements, graph_context \\ false)
+  @spec delete(t, input, keyword) :: t
+  def delete(dataset, statements, opts \\ [])
 
-  def delete(%__MODULE__{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = graph_context && coerce_graph_name(graph_context) do
-      Enum.reduce(statements, dataset, fn statement, dataset ->
-        delete(dataset, statement, graph_context)
-      end)
-    end
+  def delete(dataset, {_, _, _, graph} = quad, opts),
+    do: do_delete(dataset, destination_graph(opts, graph), quad)
+
+  def delete(dataset, %Graph{} = graph, opts),
+    do: do_delete(dataset, destination_graph(opts, graph.name), graph)
+
+  def delete(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
+    other_dataset
+    |> graphs()
+    |> Enum.reduce(dataset, &delete(&2, &1, opts))
   end
 
-  def delete(%__MODULE__{} = dataset, {_, _, _} = statement, false),
-    do: do_delete(dataset, nil, statement)
-
-  def delete(%__MODULE__{} = dataset, {_, _, _} = statement, graph_context),
-    do: do_delete(dataset, graph_context, statement)
-
-  def delete(%__MODULE__{} = dataset, {subject, predicate, objects, graph_context}, false),
-    do: do_delete(dataset, graph_context, {subject, predicate, objects})
-
-  def delete(%__MODULE__{} = dataset, {subject, predicate, objects, _}, graph_context),
-    do: do_delete(dataset, graph_context, {subject, predicate, objects})
-
-  def delete(%__MODULE__{} = dataset, %Description{} = description, false),
-    do: do_delete(dataset, nil, description)
-
-  def delete(%__MODULE__{} = dataset, %Description{} = description, graph_context),
-    do: do_delete(dataset, graph_context, description)
-
-  def delete(%__MODULE__{} = dataset, %RDF.Graph{name: name} = graph, false),
-    do: do_delete(dataset, name, graph)
-
-  def delete(%__MODULE__{} = dataset, %RDF.Graph{} = graph, graph_context),
-    do: do_delete(dataset, graph_context, graph)
-
-  def delete(%__MODULE__{} = dataset, %__MODULE__{graphs: graphs}, graph_context) do
-    Enum.reduce(graphs, dataset, fn {_, graph}, dataset ->
-      delete(dataset, graph, graph_context)
-    end)
+  def delete(dataset, input, opts) when is_list(input) or is_map(input) do
+    Enum.reduce(input, dataset, &delete(&2, &1, opts))
   end
 
-  defp do_delete(%__MODULE__{name: name, graphs: graphs} = dataset, graph_context, statements) do
-    with graph_context = coerce_graph_name(graph_context),
-         graph when not is_nil(graph) <- graphs[graph_context],
-         new_graph = Graph.delete(graph, statements) do
+  def delete(dataset, input, opts), do: do_delete(dataset, destination_graph(opts), input)
+
+  defp do_delete(dataset, graph_name, input) do
+    if existing_graph = dataset.graphs[graph_name] do
+      new_graph = Graph.delete(existing_graph, input)
+
       %__MODULE__{
-        name: name,
-        graphs:
-          if Enum.empty?(new_graph) do
-            Map.delete(graphs, graph_context)
-          else
-            Map.put(graphs, graph_context, new_graph)
-          end
+        dataset
+        | graphs:
+            if Enum.empty?(new_graph) do
+              Map.delete(dataset.graphs, graph_name)
+            else
+              Map.put(dataset.graphs, graph_name, new_graph)
+            end
       }
     else
-      nil -> dataset
+      dataset
     end
   end
 
@@ -695,7 +645,11 @@ defmodule RDF.Dataset do
   end
 
   @doc """
-  Returns if a given statement is in a `RDF.Dataset`.
+  Checks if the given `input` statements exist within `dataset`.
+
+  The `graph` option allows to set a different destination graph in which the
+  statements should be checked, ignoring the graph context of given quads or the
+  name of given graphs.
 
   ## Examples
 
@@ -706,21 +660,34 @@ defmodule RDF.Dataset do
         ...> RDF.Dataset.include?(dataset, {EX.S1, EX.p1, EX.O1, EX.Graph})
         true
   """
-  @spec include?(t, Statement.t(), Statement.coercible_graph_name() | nil) :: boolean
-  def include?(dataset, statement, graph_context \\ nil)
+  @spec include?(t, input, keyword) :: boolean
+  def include?(dataset, input, opts \\ [])
 
-  def include?(%__MODULE__{graphs: graphs}, triple = {_, _, _}, graph_context) do
-    with graph_context = coerce_graph_name(graph_context) do
-      if graph = graphs[graph_context] do
-        Graph.include?(graph, triple)
-      else
-        false
-      end
-    end
+  def include?(dataset, {_, _, _, graph} = quad, opts),
+    do: do_include?(dataset, destination_graph(opts, graph), quad)
+
+  def include?(dataset, %Graph{} = graph, opts),
+    do: do_include?(dataset, destination_graph(opts, graph.name), graph)
+
+  def include?(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
+    other_dataset
+    |> graphs()
+    |> Enum.all?(&include?(dataset, &1, opts))
   end
 
-  def include?(%__MODULE__{} = dataset, {subject, predicate, object, graph_context}, _),
-    do: include?(dataset, {subject, predicate, object}, graph_context)
+  def include?(dataset, input, opts) when is_list(input) or is_map(input) do
+    Enum.all?(input, &include?(dataset, &1, opts))
+  end
+
+  def include?(dataset, input, opts), do: do_include?(dataset, destination_graph(opts), input)
+
+  defp do_include?(%__MODULE__{graphs: graphs}, graph_name, input) do
+    if graph = graphs[graph_name] do
+      Graph.include?(graph, input)
+    else
+      false
+    end
+  end
 
   @doc """
   Checks if a graph of a `RDF.Dataset` contains statements about the given resource.
