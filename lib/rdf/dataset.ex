@@ -309,7 +309,7 @@ defmodule RDF.Dataset do
 
       new_graphs =
         graphs
-        |> Map.put(graph_context, Graph.put(graph, subject, predications))
+        |> Map.put(graph_context, Graph.put(graph, {subject, predications}))
 
       %__MODULE__{name: name, graphs: new_graphs}
     end

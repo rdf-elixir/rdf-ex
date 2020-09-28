@@ -14,6 +14,7 @@ defmodule RDF.Graph do
   @behaviour Access
 
   import RDF.Statement
+  import RDF.Utils
   alias RDF.{Description, IRI, PrefixMap, Statement}
 
   @type graph_description :: %{Statement.subject() => Description.t()}
@@ -25,8 +26,21 @@ defmodule RDF.Graph do
           base_iri: IRI.t() | nil
         }
 
-  @type input :: Statement.t() | Description.t() | t
-
+  @type input ::
+          Statement.coercible_t()
+          | {
+              Statement.coercible_subject(),
+              Description.input()
+            }
+          | Description.t()
+          | t
+          | %{
+              Statement.coercible_subject() => %{
+                Statement.coercible_predicate() =>
+                  Statement.coercible_object() | [Statement.coercible_object()]
+              }
+            }
+          | list(input)
   @type update_description_fun :: (Description.t() -> Description.t())
 
   @type get_and_update_description_fun :: (Description.t() -> {Description.t(), input} | :pop)
@@ -54,7 +68,7 @@ defmodule RDF.Graph do
       RDF.Graph.new(name: EX.GraphName)
 
   """
-  @spec new(input | [input] | keyword) :: t
+  @spec new(input | keyword) :: t
   def new(data_or_options)
 
   def new(data_or_options)
@@ -74,8 +88,8 @@ defmodule RDF.Graph do
   The initial RDF triples can be provided
 
   - as a single statement tuple
-  - an `RDF.Description`
-  - an `RDF.Graph`
+  - a `RDF.Description`
+  - a `RDF.Graph`
   - or a list with any combination of the former
 
   Available options:
@@ -97,7 +111,7 @@ defmodule RDF.Graph do
       RDF.Graph.new({EX.S, EX.p, EX.O}, name: EX.GraphName, base_iri: EX.base)
 
   """
-  @spec new(input | [input], keyword) :: t
+  @spec new(input, keyword) :: t
   def new(data, options)
 
   def new(%__MODULE__{} = graph, options) do
@@ -113,25 +127,11 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  Creates an `RDF.Graph` with initial triples.
-
-  See `new/2` for available arguments.
-  """
-  @spec new(
-          Statement.coercible_subject(),
-          Statement.coercible_predicate(),
-          Statement.coercible_object() | [Statement.coercible_object()],
-          keyword
-        ) :: t
-  def new(subject, predicate, objects, options \\ []),
-    do: new([], options) |> add(subject, predicate, objects)
-
-  @doc """
   Removes all triples from `graph`.
 
   This function is useful for getting an empty graph based on the settings of
-  another graph, as this function keeps graph name name, base IRI and default
-  prefixes as they are and just removes the triples.
+  another graph, as this function keeps graph name, base IRI and default prefixes
+  as they are and just removes the triples.
   """
   @spec clear(t) :: t
   def clear(%__MODULE__{} = graph) do
@@ -140,42 +140,35 @@ defmodule RDF.Graph do
 
   @doc """
   Adds triples to a `RDF.Graph`.
-  """
-  @spec add(
-          t,
-          Statement.coercible_subject(),
-          Statement.coercible_predicate(),
-          Statement.coercible_object() | [Statement.coercible_object()]
-        ) :: t
-  def add(%__MODULE__{} = graph, subject, predicate, objects),
-    do: add(graph, {subject, predicate, objects})
 
-  @doc """
-  Adds triples to a `RDF.Graph`.
+  The `input` can be provided
+
+  - as a single statement tuple
+  - a `RDF.Description`
+  - a `RDF.Graph`
+  - or a list with any combination of the former
+
 
   When the statements to be added are given as another `RDF.Graph`,
   the graph name must not match graph name of the graph to which the statements
-  are added. As opposed to that `RDF.Data.merge/2` will produce a `RDF.Dataset`
+  are added. As opposed to that, `RDF.Data.merge/2` will produce a `RDF.Dataset`
   containing both graphs.
 
   Also when the statements to be added are given as another `RDF.Graph`, the
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
   """
-  @spec add(t, input | [input]) :: t
-  def add(graph, triples)
+  @spec add(t, input) :: t
+  def add(graph, input)
 
-  def add(%__MODULE__{} = graph, {subject, _, _} = statement),
-    do: do_add(graph, coerce_subject(subject), statement)
+  def add(%__MODULE__{} = graph, {subject, _, _} = triple),
+    do: do_add(graph, coerce_subject(subject), triple)
 
   def add(graph, {subject, predicate, object, _}),
     do: add(graph, {subject, predicate, object})
 
-  def add(graph, triples) when is_list(triples) do
-    Enum.reduce(triples, graph, fn triple, graph ->
-      add(graph, triple)
-    end)
-  end
+  def add(graph, {subject, predications}),
+    do: do_add(graph, coerce_subject(subject), predications)
 
   def add(%__MODULE__{} = graph, %Description{subject: subject} = description) do
     if Description.count(description) > 0 do
@@ -198,17 +191,23 @@ defmodule RDF.Graph do
     end
   end
 
+  def add(graph, statements) when is_list(statements) or is_map(statements) do
+    Enum.reduce(statements, graph, fn triple, graph ->
+      add(graph, triple)
+    end)
+  end
+
   defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
     %__MODULE__{
       graph
       | descriptions:
-          Map.update(
+          lazy_map_update(
             descriptions,
             subject,
-            Description.new(subject) |> Description.add(statements),
-            fn description ->
-              Description.add(description, statements)
-            end
+            # when new: create and initialize description with statements
+            fn -> Description.new(subject, init: statements) end,
+            # when update: merge statements description
+            fn description -> Description.add(description, statements) end
           )
     }
   end
@@ -222,13 +221,16 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
-      ...>   RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
 
   """
-  @spec put(t, input | [input]) :: t
+  @spec put(t, input) :: t
   def put(graph, statements)
+
+  def put(graph, {subject, predications}),
+    do: do_put(graph, coerce_subject(subject), predications)
 
   def put(%__MODULE__{} = graph, {subject, _, _} = statement),
     do: do_put(graph, coerce_subject(subject), statement)
@@ -254,92 +256,34 @@ defmodule RDF.Graph do
 
   def put(%__MODULE__{} = graph, statements) when is_map(statements) do
     Enum.reduce(statements, graph, fn {subject, predications}, graph ->
-      put(graph, subject, predications)
+      put(graph, {subject, predications})
     end)
   end
 
   def put(%__MODULE__{} = graph, statements) when is_list(statements) do
-    put(graph, Enum.group_by(statements, &elem(&1, 0), fn {_, p, o} -> {p, o} end))
+    put(
+      graph,
+      Enum.group_by(statements, &elem(&1, 0), fn
+        {_, p, o} -> {p, o}
+        {_, predications} -> predications
+      end)
+    )
   end
 
-  @doc """
-  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
-  """
-  @spec put(
-          t,
-          Statement.coercible_subject(),
-          Description.statements() | [Description.statements()]
-        ) :: t
-  def put(graph, subject, predications)
-
-  def put(%__MODULE__{descriptions: descriptions} = graph, subject, predications)
-      when is_list(predications) do
-    with subject = coerce_subject(subject) do
-      # TODO: Can we reduce this case also to do_put somehow? Only the initializer of Map.update differs ...
-      %__MODULE__{
-        graph
-        | descriptions:
-            Map.update(
-              descriptions,
-              subject,
-              Description.new(subject) |> Description.add(predications),
-              fn current ->
-                Description.put(current, predications)
-              end
-            )
-      }
-    end
-  end
-
-  def put(graph, subject, {_predicate, _objects} = predications),
-    do: put(graph, subject, [predications])
-
-  defp do_put(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
+  defp do_put(%__MODULE__{descriptions: descriptions} = graph, subject, predications) do
     %__MODULE__{
       graph
       | descriptions:
-          Map.update(
+          lazy_map_update(
             descriptions,
             subject,
-            Description.new(subject) |> Description.add(statements),
-            fn current ->
-              Description.put(current, statements)
-            end
+            # when new
+            fn -> Description.new(subject, init: predications) end,
+            # when updating
+            fn current -> Description.put(current, predications) end
           )
     }
   end
-
-  @doc """
-  Add statements to a `RDF.Graph`, overwriting all statements with the same subject and predicate.
-
-  ## Examples
-
-      iex> RDF.Graph.new(EX.S, EX.P, EX.O1) |> RDF.Graph.put(EX.S, EX.P, EX.O2)
-      RDF.Graph.new(EX.S, EX.P, EX.O2)
-      iex> RDF.Graph.new(EX.S, EX.P1, EX.O1) |> RDF.Graph.put(EX.S, EX.P2, EX.O2)
-      RDF.Graph.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
-
-  """
-  @spec put(
-          t,
-          Statement.coercible_subject(),
-          Statement.coercible_predicate(),
-          Statement.coercible_object() | [Statement.coercible_object()]
-        ) :: t
-  def put(%__MODULE__{} = graph, subject, predicate, objects),
-    do: put(graph, {subject, predicate, objects})
-
-  @doc """
-  Deletes statements from a `RDF.Graph`.
-  """
-  @spec delete(
-          t,
-          Statement.coercible_subject(),
-          Statement.coercible_predicate(),
-          Statement.coercible_object() | [Statement.coercible_object()]
-        ) :: t
-  def delete(graph, subject, predicate, object),
-    do: delete(graph, {subject, predicate, object})
 
   @doc """
   Deletes statements from a `RDF.Graph`.
@@ -356,12 +300,15 @@ defmodule RDF.Graph do
   def delete(%__MODULE__{} = graph, {subject, _, _} = triple),
     do: do_delete(graph, coerce_subject(subject), triple)
 
+  def delete(graph, {subject, predications}),
+    do: do_delete(graph, coerce_subject(subject), predications)
+
   def delete(graph, {subject, predicate, object, _}),
     do: delete(graph, {subject, predicate, object})
 
-  def delete(%__MODULE__{} = graph, triples) when is_list(triples) do
-    Enum.reduce(triples, graph, fn triple, graph ->
-      delete(graph, triple)
+  def delete(%__MODULE__{} = graph, statements) when is_list(statements) or is_map(statements) do
+    Enum.reduce(statements, graph, fn statement, graph ->
+      delete(graph, statement)
     end)
   end
 
@@ -375,8 +322,9 @@ defmodule RDF.Graph do
   end
 
   defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
-    with description when not is_nil(description) <- descriptions[subject],
-         new_description = Description.delete(description, statements) do
+    if description = descriptions[subject] do
+      new_description = Description.delete(description, statements)
+
       %__MODULE__{
         graph
         | descriptions:
@@ -387,7 +335,7 @@ defmodule RDF.Graph do
             end
       }
     else
-      nil -> graph
+      graph
     end
   end
 
@@ -448,7 +396,7 @@ defmodule RDF.Graph do
   @spec update(
           t,
           Statement.coercible_subject(),
-          Description.statements() | [Description.statements()] | nil,
+          Description.input() | nil,
           update_description_fun
         ) :: t
   def update(graph = %__MODULE__{}, subject, initial \\ nil, fun) do
@@ -575,11 +523,11 @@ defmodule RDF.Graph do
 
   ## Examples
 
-      iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |>
-      ...>   RDF.Graph.get_and_update(EX.S, fn current_description ->
-      ...>     {current_description, {EX.P, EX.NEW}}
-      ...>   end)
-      {RDF.Description.new({EX.S, EX.P, EX.O}), RDF.Graph.new({EX.S, EX.P, EX.NEW})}
+      iex> RDF.Graph.new({EX.S, EX.P, EX.O})
+      ...> |> RDF.Graph.get_and_update(EX.S, fn current_description ->
+      ...>      {current_description, {EX.P, EX.NEW}}
+      ...>    end)
+      {RDF.Description.new(EX.S, init: {EX.P, EX.O}), RDF.Graph.new({EX.S, EX.P, EX.NEW})}
 
   """
   @impl Access
@@ -589,7 +537,7 @@ defmodule RDF.Graph do
     with subject = coerce_subject(subject) do
       case fun.(get(graph, subject)) do
         {old_description, new_description} ->
-          {old_description, put(graph, subject, new_description)}
+          {old_description, put(graph, {subject, new_description})}
 
         :pop ->
           pop(graph, subject)
@@ -792,16 +740,34 @@ defmodule RDF.Graph do
   @doc """
   Checks if the given statement exists within a `RDF.Graph`.
   """
-  @spec include?(t, Statement.t()) :: boolean
-  def include?(
-        %__MODULE__{descriptions: descriptions},
-        triple = {subject, _, _}
-      ) do
-    with subject = coerce_subject(subject),
-         %Description{} <- description = descriptions[subject] do
-      Description.include?(description, triple)
+  @spec include?(t, input) :: boolean
+  def include?(%__MODULE__{} = graph, {subject, _, _} = triple),
+    do: do_include?(graph, coerce_subject(subject), triple)
+
+  def include?(graph, {subject, predicate, object, _}),
+    do: include?(graph, {subject, predicate, object})
+
+  def include?(graph, {subject, predications}),
+    do: do_include?(graph, coerce_subject(subject), predications)
+
+  def include?(%__MODULE__{} = graph, %Description{subject: subject} = description),
+    do: do_include?(graph, subject, description)
+
+  def include?(graph, %__MODULE__{} = other_graph) do
+    other_graph
+    |> descriptions()
+    |> Enum.all?(&include?(graph, &1))
+  end
+
+  def include?(graph, statements) when is_list(statements) or is_map(statements) do
+    Enum.all?(statements, &include?(graph, &1))
+  end
+
+  defp do_include?(%__MODULE__{descriptions: descriptions}, subject, statements) do
+    if description = descriptions[subject] do
+      Description.include?(description, statements)
     else
-      _ -> false
+      false
     end
   end
 

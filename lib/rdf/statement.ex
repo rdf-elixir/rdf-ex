@@ -22,6 +22,7 @@ defmodule RDF.Statement do
   @type term_mapping :: (qualified_term -> any | nil)
 
   @type t :: Triple.t() | Quad.t()
+  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
 
   @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.

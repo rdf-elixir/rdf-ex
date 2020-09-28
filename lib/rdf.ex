@@ -237,8 +237,6 @@ defmodule RDF do
   defdelegate graph(), to: Graph, as: :new
   defdelegate graph(arg), to: Graph, as: :new
   defdelegate graph(arg1, arg2), to: Graph, as: :new
-  defdelegate graph(arg1, arg2, arg3), to: Graph, as: :new
-  defdelegate graph(arg1, arg2, arg3, arg4), to: Graph, as: :new
 
   defdelegate dataset(), to: Dataset, as: :new
   defdelegate dataset(arg), to: Dataset, as: :new
