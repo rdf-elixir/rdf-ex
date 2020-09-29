@@ -360,23 +360,25 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  Deletes all statements with the given subjects.
+  Deletes all statements with the given `subjects`.
+
+  If `subjects` contains subjects that are not in `graph`, they're simply ignored.
   """
-  @spec delete_subjects(
+  @spec delete_descriptions(
           t,
           Statement.coercible_subject() | [Statement.coercible_subject()]
         ) :: t
-  def delete_subjects(graph, subjects)
+  def delete_descriptions(graph, subjects)
 
-  def delete_subjects(%__MODULE__{} = graph, subjects) when is_list(subjects) do
-    Enum.reduce(subjects, graph, &delete_subjects(&2, &1))
+  def delete_descriptions(%__MODULE__{} = graph, subjects) when is_list(subjects) do
+    Enum.reduce(subjects, graph, &delete_descriptions(&2, &1))
   end
 
-  def delete_subjects(%__MODULE__{descriptions: descriptions} = graph, subject) do
-    with subject = coerce_subject(subject) do
-      %__MODULE__{graph | descriptions: Map.delete(descriptions, subject)}
-    end
+  def delete_descriptions(%__MODULE__{descriptions: descriptions} = graph, subject) do
+    %__MODULE__{graph | descriptions: Map.delete(descriptions, coerce_subject(subject))}
   end
+
+  defdelegate delete_subjects(graph, subjects), to: __MODULE__, as: :delete_descriptions
 
   @doc """
   Updates the description of the `subject` in `graph` with the given function.
@@ -433,11 +435,11 @@ defmodule RDF.Graph do
         |> fun.()
         |> case do
           nil ->
-            delete_subjects(graph, subject)
+            delete_descriptions(graph, subject)
 
           new_description ->
             graph
-            |> delete_subjects(subject)
+            |> delete_descriptions(subject)
             |> add(Description.new(subject, init: new_description))
         end
     end
@@ -753,7 +755,7 @@ defmodule RDF.Graph do
   @spec triples(t) :: [Statement.t()]
   def triples(%__MODULE__{} = graph), do: Enum.to_list(graph)
 
-  defdelegate statements(graph), to: RDF.Graph, as: :triples
+  defdelegate statements(graph), to: __MODULE__, as: :triples
 
   @doc """
   Checks if the given `input` statements exist within `graph`.

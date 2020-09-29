@@ -353,8 +353,8 @@ defmodule RDF.DataTest do
       assert RDF.Data.equal?(Graph.new(description, name: EX.Graph), description)
       assert RDF.Data.equal?(graph, Dataset.new(graph))
 
-      refute RDF.Data.equal?(graph, graph |> Graph.delete_subjects(EX.S2))
-      refute RDF.Data.equal?(graph |> Graph.delete_subjects(EX.S2), graph)
+      refute RDF.Data.equal?(graph, graph |> Graph.delete_descriptions(EX.S2))
+      refute RDF.Data.equal?(graph |> Graph.delete_descriptions(EX.S2), graph)
       refute RDF.Data.equal?(graph, description)
       refute RDF.Data.equal?(graph, dataset)
     end
