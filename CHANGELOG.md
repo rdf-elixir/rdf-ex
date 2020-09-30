@@ -23,10 +23,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- `RDF.Description.new` now requires the `subject` to be passed always as first argument;
+  if you want to add some initial data this must be done with the `:init` option
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value` 
-- `RDF.Description.new` now requires the `subject` to be passed always as first argument;
-  if you want to add some initial data this must be done with the `:init` option 
+
+### Fixed
+
+- `RDF.Graph.put/2` ignores empty descriptions; this should be the final piece to ensure
+  that `RDF.Graph`s never contain empty descriptions, which would distort results of 
+  functions like `RDF.Graph.subjects/1`, `RDF.Graph.subject_count/1`, `RDF.Graph.descriptions/1`   
 
 
 [Compare v0.8.2...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.2...HEAD)

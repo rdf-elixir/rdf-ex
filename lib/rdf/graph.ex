@@ -250,8 +250,13 @@ defmodule RDF.Graph do
   def put(graph, {subject, predicate, object, _}),
     do: put(graph, {subject, predicate, object})
 
-  def put(%__MODULE__{} = graph, %Description{subject: subject} = description),
-    do: do_put(graph, subject, description)
+  def put(%__MODULE__{} = graph, %Description{subject: subject} = description) do
+    if Description.count(description) > 0 do
+      do_put(graph, subject, description)
+    else
+      graph
+    end
+  end
 
   def put(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
     graph =

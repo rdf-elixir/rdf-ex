@@ -244,6 +244,11 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate3(), EX.Object3})
     end
 
+    test "an empty description is ignored" do
+      g = Graph.new() |> Graph.add(Description.new(EX.Subject))
+      assert empty_graph?(g)
+    end
+
     test "a list of descriptions" do
       g =
         Graph.add(graph(), [
@@ -400,6 +405,11 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S1, EX.P3, EX.O4})
       assert graph_includes_statement?(g, {EX.S1, EX.P2, bnode(:foo)})
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
+    end
+
+    test "an empty description is ignored" do
+      g = Graph.new() |> Graph.put(Description.new(EX.Subject))
+      assert empty_graph?(g)
     end
 
     test "a list of descriptions" do
