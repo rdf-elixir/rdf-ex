@@ -4,6 +4,7 @@ defmodule RDF.Query.Builder do
   alias RDF.Query.BGP
   alias RDF.{IRI, BlankNode, Literal, Namespace}
   import RDF.Utils.Guards
+  import RDF.Utils
 
   def bgp(query) do
     with {:ok, triple_patterns} <- triple_patterns(query) do
@@ -19,15 +20,10 @@ defmodule RDF.Query.Builder do
   end
 
   defp triple_patterns(query) when is_list(query) do
-    Enum.reduce_while(query, {:ok, []}, fn
-      triple, {:ok, triple_patterns} ->
-        case triple_pattern(triple) do
-          {:ok, triple_pattern} ->
-            {:cont, {:ok, triple_patterns ++ List.wrap(triple_pattern)}}
-
-          {:error, error} ->
-            {:halt, {:error, error}}
-        end
+    flat_map_while_ok(query, fn triple ->
+      with {:ok, triple_pattern} <- triple_pattern(triple) do
+        {:ok, List.wrap(triple_pattern)}
+      end
     end)
   end
 
