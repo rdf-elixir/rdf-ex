@@ -19,56 +19,41 @@ defmodule RDF.Query.Builder do
     end
   end
 
-  defp triple_patterns(query) when is_list(query) do
+  defp triple_patterns(query) when is_list(query) or is_map(query) do
     flat_map_while_ok(query, fn triple ->
-      with {:ok, triple_pattern} <- triple_pattern(triple) do
+      with {:ok, triple_pattern} <- triple_patterns(triple) do
         {:ok, List.wrap(triple_pattern)}
       end
     end)
   end
 
-  defp triple_patterns(triple_pattern) when is_tuple(triple_pattern),
-    do: triple_patterns([triple_pattern])
-
-  defp triple_pattern({subject, predicate, object})
-       when not is_list(predicate) and not is_list(object) do
-    with {:ok, subject_pattern} <- subject_pattern(subject),
-         {:ok, predicate_pattern} <- predicate_pattern(predicate),
-         {:ok, object_pattern} <- object_pattern(object) do
-      {:ok, {subject_pattern, predicate_pattern, object_pattern}}
+  defp triple_patterns({subject, predicate, objects}) do
+    with {:ok, subject_pattern} <- subject_pattern(subject) do
+      do_triple_patterns(subject_pattern, {predicate, objects})
     end
   end
 
-  defp triple_pattern(combined_objects_triple_pattern)
-       when is_tuple(combined_objects_triple_pattern) do
-    [subject | rest] = Tuple.to_list(combined_objects_triple_pattern)
+  defp triple_patterns({subject, predications}) when is_map(predications) do
+    triple_patterns({subject, Map.to_list(predications)})
+  end
 
-    case rest do
-      [predicate | objects] when not is_list(predicate) ->
-        if Enum.all?(objects, &(not is_list(&1))) do
-          objects
-          |> Enum.map(fn object -> {subject, predicate, object} end)
-          |> triple_patterns()
-        else
-          {:error,
-           %RDF.Query.InvalidError{
-             message: "Invalid use of predicate-object pair brackets"
-           }}
-        end
+  defp triple_patterns({subject, predications}) do
+    with {:ok, subject_pattern} <- subject_pattern(subject) do
+      predications
+      |> List.wrap()
+      |> flat_map_while_ok(&do_triple_patterns(subject_pattern, &1))
+    end
+  end
 
-      predicate_object_pairs ->
-        if Enum.all?(predicate_object_pairs, &(is_list(&1) and length(&1) > 1)) do
-          predicate_object_pairs
-          |> Enum.flat_map(fn [predicate | objects] ->
-            Enum.map(objects, fn object -> {subject, predicate, object} end)
-          end)
-          |> triple_patterns()
-        else
-          {:error,
-           %RDF.Query.InvalidError{
-             message: "Invalid use of predicate-object pair brackets"
-           }}
+  defp do_triple_patterns(subject_pattern, {predicate, objects}) do
+    with {:ok, predicate_pattern} <- predicate_pattern(predicate) do
+      objects
+      |> List.wrap()
+      |> map_while_ok(fn object ->
+        with {:ok, object_pattern} <- object_pattern(object) do
+          {:ok, {subject_pattern, predicate_pattern, object_pattern}}
         end
+      end)
     end
   end
 

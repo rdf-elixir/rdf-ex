@@ -3,7 +3,7 @@ defmodule RDF.Query.BuilderTest do
 
   alias RDF.Query.Builder
 
-  describe "new/1" do
+  describe "bgp/1" do
     test "empty triple pattern" do
       assert Builder.bgp([]) == ok_bgp_struct([])
     end
@@ -104,19 +104,16 @@ defmodule RDF.Query.BuilderTest do
     end
 
     test "multiple objects to the same subject-predicate" do
-      assert Builder.bgp([{EX.s(), EX.p(), EX.o1(), EX.o2()}]) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p(), EX.o1()},
-                 {EX.s(), EX.p(), EX.o2()}
-               ])
+      result =
+        ok_bgp_struct([
+          {EX.s(), EX.p(), EX.o1()},
+          {EX.s(), EX.p(), EX.o2()}
+        ])
 
-      assert Builder.bgp({EX.s(), EX.p(), EX.o1(), EX.o2()}) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p(), EX.o1()},
-                 {EX.s(), EX.p(), EX.o2()}
-               ])
+      assert Builder.bgp([{EX.s(), EX.p(), [EX.o1(), EX.o2()]}]) == result
+      assert Builder.bgp({EX.s(), EX.p(), [EX.o1(), EX.o2()]}) == result
 
-      assert Builder.bgp({EX.s(), EX.p(), :o?, false, 42, "foo"}) ==
+      assert Builder.bgp({EX.s(), EX.p(), [:o?, false, 42, "foo"]}) ==
                ok_bgp_struct([
                  {EX.s(), EX.p(), :o},
                  {EX.s(), EX.p(), XSD.false()},
@@ -126,24 +123,30 @@ defmodule RDF.Query.BuilderTest do
     end
 
     test "multiple predicate-object pairs to the same subject" do
-      assert Builder.bgp([
-               {
-                 EX.s(),
-                 [EX.p1(), EX.o1()],
-                 [EX.p2(), EX.o2()]
-               }
-             ]) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p1(), EX.o1()},
-                 {EX.s(), EX.p2(), EX.o2()}
-               ])
+      result =
+        ok_bgp_struct([
+          {EX.s(), EX.p1(), EX.o1()},
+          {EX.s(), EX.p2(), EX.o2()}
+        ])
 
       assert Builder.bgp([
                {
                  EX.s(),
-                 [:a, :o?],
-                 [EX.p1(), 42, 3.14],
-                 [EX.p2(), "foo", true]
+                 [
+                   {EX.p1(), EX.o1()},
+                   {EX.p2(), EX.o2()}
+                 ]
+               }
+             ]) == result
+
+      assert Builder.bgp([
+               {
+                 EX.s(),
+                 [
+                   {:a, :o?},
+                   {EX.p1(), [42, 3.14]},
+                   {EX.p2(), ["foo", true]}
+                 ]
                }
              ]) ==
                ok_bgp_struct([
@@ -154,8 +157,60 @@ defmodule RDF.Query.BuilderTest do
                  {EX.s(), EX.p2(), XSD.true()}
                ])
 
-      assert Builder.bgp([{EX.s(), [EX.p(), EX.o()]}]) ==
+      assert Builder.bgp([{EX.s(), {EX.p(), EX.o()}}]) ==
                ok_bgp_struct([{EX.s(), EX.p(), EX.o()}])
+    end
+
+    test "triple patterns with maps" do
+      assert Builder.bgp(%{
+               EX.S => {EX.p(), :o?},
+               o?: [
+                 {EX.p2(), 42},
+                 {EX.p3(), "foo"}
+               ]
+             }) ==
+               ok_bgp_struct([
+                 {RDF.iri(EX.S), EX.p(), :o},
+                 {:o, EX.p2(), RDF.literal(42)},
+                 {:o, EX.p3(), RDF.literal("foo")}
+               ])
+
+      assert Builder.bgp(%{
+               EX.s() => %{
+                 :a => :o1?,
+                 :p? => :o2?,
+                 EX.p1() => [42, 3.14],
+                 EX.p2() => ["foo", true]
+               }
+             }) ==
+               ok_bgp_struct([
+                 {EX.s(), RDF.type(), :o1},
+                 {EX.s(), :p, :o2},
+                 {EX.s(), EX.p1(), RDF.literal(42)},
+                 {EX.s(), EX.p1(), RDF.literal(3.14)},
+                 {EX.s(), EX.p2(), RDF.literal("foo")},
+                 {EX.s(), EX.p2(), XSD.true()}
+               ])
+
+      assert Builder.bgp([
+               %{EX.S => {EX.p(), :o?}},
+               {EX.S2, EX.p(), :o?}
+             ]) ==
+               ok_bgp_struct([
+                 {RDF.iri(EX.S), EX.p(), :o},
+                 {RDF.iri(EX.S2), EX.p(), :o}
+               ])
+    end
+
+    test "triple patterns with descriptions" do
+      assert Builder.bgp([
+               EX.p(~B"s", EX.O),
+               {:_s, :p?, :o?}
+             ]) ==
+               ok_bgp_struct([
+                 {~B"s", EX.p(), RDF.iri(EX.O)},
+                 {~B"s", :p, :o}
+               ])
     end
   end
 

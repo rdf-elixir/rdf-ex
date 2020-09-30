@@ -7,6 +7,15 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+The API of the all three RDF datastructures `RDF.Dataset`, `RDF.Graph` and 
+`RDF.Description` were changed, so that the functions taking input data consist only
+of one field in order to open the possibility of introducing options on these 
+functions. The supported ways with which RDF statements can be passed to the 
+RDF data structures were extended and unified to be supported across all functions 
+accepting input data. This includes also the way in which patterns for BGP queries
+are specified.
+
+
 ### Added
 
 - to `RDF.Description`
@@ -23,6 +32,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- the format for the specification of BGP queries with `RDF.Graph.query/2`, 
+  `RDF.Graph.query_stream/2` and `RDF.Query.bgp/1` has been changed to be consistent with   
+  the supported formats for input data in the rest of the library   
 - `RDF.Description.new` now requires the `subject` to be passed always as first argument;
   if you want to add some initial data this must be done with the `:init` option
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
@@ -30,6 +42,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
+- the `put` functions on `RDF.Description`, `RDF.Graph` and `RDF.Dataset` didn't add all
+  statements properly under certain circumstances
 - `RDF.Graph.put/2` ignores empty descriptions; this should be the final piece to ensure
   that `RDF.Graph`s never contain empty descriptions, which would distort results of 
   functions like `RDF.Graph.subjects/1`, `RDF.Graph.subject_count/1`, `RDF.Graph.descriptions/1`   
