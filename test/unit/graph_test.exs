@@ -361,6 +361,24 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O4})
     end
 
+    test "quads" do
+      g =
+        Graph.new([{EX.S1, EX.P1, EX.O}, {EX.S2, EX.P2, EX.O}])
+        |> RDF.Graph.put([
+          {EX.S2, EX.P2, bnode(:foo), EX.Graph1},
+          {EX.S2, EX.P2, EX.O1, EX.Graph2},
+          {EX.S2, EX.P2, EX.O2, nil},
+          {EX.S2, EX.P2, EX.O3}
+        ])
+
+      assert Graph.triple_count(g) == 5
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, bnode(:foo)})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O1})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
+    end
+
     test "a list subject-predications pairs" do
       g =
         Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])

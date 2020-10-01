@@ -290,6 +290,7 @@ defmodule RDF.Graph do
         end,
         fn
           {_, p, o} -> {p, o}
+          {_, p, o, _} -> {p, o}
           {_, predications} -> predications
           %Description{} = description -> description
         end
