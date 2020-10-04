@@ -262,24 +262,34 @@ defmodule RDF.DescriptionTest do
 
   describe "put/3" do
     test "with a triple" do
-      assert Description.put(description(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
-             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+      desc =
+        description({iri(EX.Subject), EX.predicate(), iri(EX.Object1)})
+        |> Description.put({iri(EX.Subject), EX.predicate(), iri(EX.Object2)})
+
+      assert Description.count(desc) == 1
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
     end
 
     test "with a predicate-object tuple" do
-      desc = Description.put(description(), {EX.p(), [iri(EX.O1), iri(EX.O2)]})
-      assert description_includes_predication(desc, {EX.p(), iri(EX.O1)})
+      desc =
+        description({iri(EX.Subject), EX.p(), iri(EX.O1)})
+        |> Description.put({EX.p(), [iri(EX.O2), iri(EX.O3)]})
+
+      assert Description.count(desc) == 2
       assert description_includes_predication(desc, {EX.p(), iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p(), iri(EX.O3)})
     end
 
     test "with a list of predicate-object tuples" do
       desc =
-        Description.put(description(), [
+        description({iri(EX.Subject), EX.p2(), iri(EX.O1)})
+        |> Description.put([
           {EX.p1(), EX.O1},
           {EX.p2(), [EX.O2]},
           {EX.p2(), [~L"foo", "bar", 42]}
         ])
 
+      assert Description.count(desc) == 5
       assert description_includes_predication(desc, {EX.p1(), iri(EX.O1)})
       assert description_includes_predication(desc, {EX.p2(), iri(EX.O2)})
       assert description_includes_predication(desc, {EX.p2(), ~L"foo"})
@@ -289,12 +299,17 @@ defmodule RDF.DescriptionTest do
 
     test "with a list of triples" do
       desc =
-        Description.put(description(), [
+        description([
+          {iri(EX.Subject), EX.predicate1(), iri(EX.Object)},
+          {iri(EX.Subject), EX.predicate2(), iri(EX.Object)}
+        ])
+        |> Description.put([
           {EX.Subject, EX.predicate1(), EX.Object1},
           {EX.Subject, EX.predicate2(), [EX.Object2, EX.Object3]},
           {EX.Subject, EX.predicate2(), [EX.Object4]}
         ])
 
+      assert Description.count(desc) == 4
       assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
       assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object3)})
