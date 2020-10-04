@@ -169,7 +169,7 @@ defmodule RDF.Dataset do
   end
 
   @doc """
-  Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.
+  Adds statements to a `RDF.Dataset` overwriting existing statements with the subjects given in the `input` data.
 
   The `graph` option allows to set a different destination graph to which the
   statements should be added, ignoring the graph context of given quads or the
@@ -182,13 +182,10 @@ defmodule RDF.Dataset do
   ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P1, EX.O1})
-      ...> RDF.Dataset.put(dataset, {EX.S, EX.P1, EX.O2})
-      RDF.Dataset.new({EX.S, EX.P1, EX.O2})
-      iex> RDF.Dataset.put(dataset, {EX.S, EX.P2, EX.O2})
-      RDF.Dataset.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
-      iex> RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
-      ...> |> RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
-      RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      ...> RDF.Dataset.put(dataset, {EX.S, EX.P2, EX.O2})
+      RDF.Dataset.new({EX.S, EX.P2, EX.O2})
+      iex> RDF.Dataset.put(dataset, {EX.S2, EX.P2, EX.O2})
+      RDF.Dataset.new([{EX.S, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
   """
 
   @spec put(t, input, keyword) :: t
@@ -215,6 +212,55 @@ defmodule RDF.Dataset do
 
   def put(%__MODULE__{} = dataset, input, opts) do
     put(dataset, new() |> add(input, opts), opts)
+  end
+
+  @doc """
+  Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subject-predicate combinations given in the `input` data.
+
+  The `graph` option allows to set a different destination graph to which the
+  statements should be added, ignoring the graph context of given quads or the
+  name of given graphs in `input`.
+
+  Note: When the statements to be added are given as another `RDF.Dataset` and
+  a destination graph is set with the `graph` option, the descriptions of the
+  subjects in the different graphs are aggregated.
+
+  ## Examples
+
+      iex> dataset = RDF.Dataset.new({EX.S, EX.P1, EX.O1})
+      ...> RDF.Dataset.put_properties(dataset, {EX.S, EX.P1, EX.O2})
+      RDF.Dataset.new({EX.S, EX.P1, EX.O2})
+      iex> RDF.Dataset.put_properties(dataset, {EX.S, EX.P2, EX.O2})
+      RDF.Dataset.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
+      iex> RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Dataset.put_properties([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+  """
+
+  @spec put_properties(t, input, keyword) :: t
+  def put_properties(dataset, input, opts \\ [])
+
+  def put_properties(%__MODULE__{} = dataset, %__MODULE__{} = input, opts) do
+    %__MODULE__{
+      dataset
+      | graphs:
+          Enum.reduce(
+            input.graphs,
+            dataset.graphs,
+            fn {graph_name, graph}, graphs ->
+              Map.update(
+                graphs,
+                graph_name,
+                graph,
+                fn current -> Graph.put_properties(current, graph, opts) end
+              )
+            end
+          )
+    }
+  end
+
+  def put_properties(%__MODULE__{} = dataset, input, opts) do
+    put_properties(dataset, new() |> add(input, opts), opts)
   end
 
   @doc """

@@ -224,7 +224,7 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subjects and predicates.
+  Adds statements to a `RDF.Graph` overwriting existing statements with the subjects given in the `input` data.
 
   When the statements to be added are given as another `RDF.Graph`, the prefixes
   of this graph will be added. In case of conflicting prefix mappings the
@@ -233,14 +233,55 @@ defmodule RDF.Graph do
   ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
-      ...> |> RDF.Graph.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
-      RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      ...> |> RDF.Graph.put([{EX.S1, EX.P3, EX.O3}])
+      RDF.Graph.new([{EX.S1, EX.P3, EX.O3}, {EX.S2, EX.P2, EX.O2}])
 
   """
   @spec put(t, input, keyword) :: t
   def put(graph, input, opts \\ [])
 
-  def put(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
+  def put(%__MODULE__{} = graph, %__MODULE__{} = input, _opts) do
+    graph = %__MODULE__{
+      graph
+      | descriptions:
+          Enum.reduce(
+            input.descriptions,
+            graph.descriptions,
+            fn {subject, description}, descriptions ->
+              Map.put(descriptions, subject, description)
+            end
+          )
+    }
+
+    if input.prefixes do
+      add_prefixes(graph, input.prefixes, :ignore)
+    else
+      graph
+    end
+  end
+
+  def put(%__MODULE__{} = graph, input, opts) do
+    put(graph, new() |> add(input, opts), opts)
+  end
+
+  @doc """
+  Adds statements to a `RDF.Graph` and overwrites all existing statements with the same subject-predicate combinations given in the `input` data.
+
+  When the statements to be added are given as another `RDF.Graph`, the prefixes
+  of this graph will be added. In case of conflicting prefix mappings the
+  original prefix from `graph` will be kept.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.put_properties([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+
+  """
+  @spec put_properties(t, input, keyword) :: t
+  def put_properties(graph, input, opts \\ [])
+
+  def put_properties(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
     graph = %__MODULE__{
       graph
       | descriptions:
@@ -265,8 +306,8 @@ defmodule RDF.Graph do
     end
   end
 
-  def put(%__MODULE__{} = graph, input, opts) do
-    put(graph, new() |> add(input, opts), opts)
+  def put_properties(%__MODULE__{} = graph, input, opts) do
+    put_properties(graph, new() |> add(input, opts), opts)
   end
 
   @doc """

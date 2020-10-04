@@ -33,10 +33,23 @@ are specified.
 ### Changed
 
 - the format for the specification of BGP queries with `RDF.Graph.query/2`, 
-  `RDF.Graph.query_stream/2` and `RDF.Query.bgp/1` has been changed to be consistent with   
-  the supported formats for input data in the rest of the library   
+  `RDF.Graph.query_stream/2` and `RDF.Query.bgp/1` has been changed to be consistent   
+  with the supported formats for input data in the rest of the library   
 - `RDF.Description.new` now requires the `subject` to be passed always as first argument;
   if you want to add some initial data this must be done with the `:init` option
+- The `put/3` functions on `RDF.Graph` and `RDF.Dataset` now overwrite all 
+  statements with same subject. Previously only statements with the same subject 
+  AND predicate were overwritten, which was probably not the expected behaviour, 
+  since it's not inline with the common `put` semantics in Elixir.
+    - **CAUTION: This means the `RDF.Graph.put/2` and `RDF.Dataset.put/2` function have become more destructive now when not specified otherwise.**
+    - Note: Although one could argue, that following this route `RDF.Dataset.put/3`
+      would consequently have to overwrite whole graphs, this was not implemented
+      for practical reasons. It's probably not what's wanted in most cases.
+- The `Access` protocol implementation of `get_and_update/3` on `RDF.Graph` and
+  `RDF.Dataset` previously relied on the `put/2` functions with the old behaviour
+  of overwriting only statements with the same subject and predicate, which was
+  almost never the expected behaviour. This is fixed now by relying on the new
+  `put/2` behaviour.
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value` 
 
