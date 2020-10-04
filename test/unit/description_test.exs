@@ -85,6 +85,17 @@ defmodule RDF.DescriptionTest do
              |> description_includes_predication({EX.predicate(), literal(42)})
     end
 
+    test "with a quad" do
+      assert Description.add(
+               description(),
+               {iri(EX.Subject), EX.predicate(), iri(EX.Object), EX.Graph}
+             )
+             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+
+      assert Description.add(description(), {EX.Subject, EX.predicate(), 42, nil})
+             |> description_includes_predication({EX.predicate(), literal(42)})
+    end
+
     test "with a predicate-object tuple" do
       assert Description.add(description(), {EX.predicate(), iri(EX.Object)})
              |> description_includes_predication({EX.predicate(), iri(EX.Object)})
@@ -270,6 +281,15 @@ defmodule RDF.DescriptionTest do
       assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
     end
 
+    test "with a quad" do
+      desc =
+        description({iri(EX.Subject), EX.predicate(), iri(EX.Object1)})
+        |> Description.put({iri(EX.Subject), EX.predicate(), iri(EX.Object2), EX.Graph})
+
+      assert Description.count(desc) == 1
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
+    end
+
     test "with a predicate-object tuple" do
       desc =
         description({iri(EX.Subject), EX.p(), iri(EX.O1)})
@@ -386,7 +406,7 @@ defmodule RDF.DescriptionTest do
          )}
     end
 
-    test "a single statement as a predicate-object tuple",
+    test "predicate-object tuples",
          %{
            empty_description: empty_description,
            description1: description1,
@@ -399,7 +419,7 @@ defmodule RDF.DescriptionTest do
                Description.new(EX.S, init: {EX.S, EX.p(), EX.O1})
     end
 
-    test "a single statement as a subject-predicate-object tuple and the proper description subject",
+    test "statements",
          %{
            empty_description: empty_description,
            description1: description1,
@@ -407,12 +427,13 @@ defmodule RDF.DescriptionTest do
          } do
       assert Description.delete(empty_description, {EX.S, EX.p(), EX.O}) == empty_description
       assert Description.delete(description1, {EX.S, EX.p(), EX.O}) == empty_description
+      assert Description.delete(description1, {EX.S, EX.p(), EX.O, EX.Graph}) == empty_description
 
       assert Description.delete(description2, {EX.S, EX.p(), EX.O2}) ==
                Description.new(EX.S, init: {EX.S, EX.p(), EX.O1})
     end
 
-    test "a single statement as a subject-predicate-object tuple and another description subject",
+    test "statements with another subject",
          %{
            empty_description: empty_description,
            description1: description1,
@@ -421,9 +442,10 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(empty_description, {EX.Other, EX.p(), EX.O}) == empty_description
       assert Description.delete(description1, {EX.Other, EX.p(), EX.O}) == description1
       assert Description.delete(description2, {EX.Other, EX.p(), EX.O2}) == description2
+      assert Description.delete(description2, {EX.Other, EX.p(), EX.O2, EX.Graph}) == description2
     end
 
-    test "multiple statements via predicate-objects tuple",
+    test "predicate-object tuples with object lists",
          %{
            empty_description: empty_description,
            description1: description1,
@@ -432,9 +454,10 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(empty_description, {EX.p(), [EX.O1, EX.O2]}) == empty_description
       assert Description.delete(description1, {EX.p(), [EX.O, EX.O2]}) == empty_description
       assert Description.delete(description2, {EX.p(), [EX.O1, EX.O2]}) == empty_description
+      assert Description.delete(description2, {EX.p(), [EX.O1, EX.O2]}) == empty_description
     end
 
-    test "multiple statements with a list",
+    test "list of statements",
          %{empty_description: empty_description, description3: description3} do
       assert Description.delete(empty_description, [{EX.p(), [EX.O1, EX.O2]}]) ==
                empty_description
@@ -442,11 +465,12 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(description3, [
                {EX.p1(), EX.O1},
                {EX.p2(), [EX.O2, EX.O3]},
-               {EX.S, EX.p3(), [~B<foo>, ~L"bar"]}
+               {EX.S, EX.p3(), [~B<foo>]},
+               {EX.S, EX.p3(), ~L"bar", EX.Graph}
              ]) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
-    test "multiple statements with a map of predications",
+    test "description maps",
          %{empty_description: empty_description, description3: description3} do
       assert Description.delete(empty_description, %{EX.p() => EX.O1}) == empty_description
 
@@ -457,7 +481,7 @@ defmodule RDF.DescriptionTest do
              }) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
-    test "multiple statements with another description",
+    test "another description",
          %{
            empty_description: empty_description,
            description1: description1,
@@ -590,6 +614,8 @@ defmodule RDF.DescriptionTest do
         ]
       )
 
+    assert Description.include?(desc, {EX.S, EX.p1(), EX.O2})
+    assert Description.include?(desc, {EX.S, EX.p1(), EX.O2, EX.Graph})
     assert Description.include?(desc, {EX.p1(), EX.O2})
     assert Description.include?(desc, {EX.p1(), [EX.O1, EX.O2]})
     assert Description.include?(desc, [{EX.p1(), [EX.O1]}, {EX.p2(), EX.O3}])

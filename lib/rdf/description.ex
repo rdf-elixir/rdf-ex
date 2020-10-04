@@ -132,6 +132,10 @@ defmodule RDF.Description do
     Enum.reduce(input, description, &add(&2, &1, opts))
   end
 
+  def add(%__MODULE__{} = description, {subject, predicate, objects, _}, opts) do
+    add(description, {subject, predicate, objects}, opts)
+  end
+
   def add(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
     if coerce_subject(subject) == description.subject do
       add(description, {predicate, objects}, opts)
@@ -257,6 +261,10 @@ defmodule RDF.Description do
     else
       description
     end
+  end
+
+  def delete(%__MODULE__{} = description, {subject, predicate, objects, _}, opts) do
+    delete(description, {subject, predicate, objects}, opts)
   end
 
   def delete(%__MODULE__{} = description, {predicate, objects}, _opts) do
@@ -609,6 +617,10 @@ defmodule RDF.Description do
   def include?(%__MODULE__{} = description, {subject, predicate, objects}) do
     coerce_subject(subject) == description.subject &&
       include?(description, {predicate, objects})
+  end
+
+  def include?(%__MODULE__{} = description, {subject, predicate, objects, _}) do
+    include?(description, {subject, predicate, objects})
   end
 
   def include?(%__MODULE__{} = description, {predicate, objects}) do
