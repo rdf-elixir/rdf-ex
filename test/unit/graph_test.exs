@@ -174,7 +174,7 @@ defmodule RDF.GraphTest do
     assert Graph.change_name(named_graph(), nil).name == nil
   end
 
-  describe "add/2" do
+  describe "add/3" do
     test "a proper triple" do
       assert Graph.add(graph(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
              |> graph_includes_statement?({EX.Subject, EX.predicate(), EX.Object})
@@ -205,6 +205,50 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
+    end
+
+    test "a list of subject-predications pairs" do
+      g =
+        Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+        |> RDF.Graph.add([
+          {EX.S1,
+           [
+             {EX.P1, EX.O3},
+             %{EX.P2 => [EX.O4]}
+           ]}
+        ])
+
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O3})
+      assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O4})
+      assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
+    end
+
+    test "a mixed list" do
+      g =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}, {EX.S1, EX.p3(), EX.O3}])
+        |> RDF.Graph.add([
+          %{EX.S1 => {EX.p1(), EX.O41}},
+          %{
+            EX.S1 => %{EX.p1() => EX.O42},
+            EX.S2 => %{EX.p2() => EX.O42}
+          },
+          {EX.S2, {EX.p2(), EX.O43}},
+          [{EX.S2, {EX.p2(), EX.O44}}],
+          EX.p2(EX.S2, EX.O45)
+        ])
+
+      assert Graph.triple_count(g) == 9
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.p3(), EX.O3})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O41})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O42})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O42})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O43})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O44})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O45})
     end
 
     test "a graph map" do
@@ -342,7 +386,7 @@ defmodule RDF.GraphTest do
     end
   end
 
-  describe "put/2" do
+  describe "put/3" do
     test "a list of triples" do
       g =
         Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
@@ -379,7 +423,7 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O3})
     end
 
-    test "a list subject-predications pairs" do
+    test "a list of subject-predications pairs" do
       g =
         Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
         |> RDF.Graph.put([
@@ -396,6 +440,30 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
     end
 
+    test "a mixed list" do
+      g =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}, {EX.S1, EX.p3(), EX.O3}])
+        |> RDF.Graph.put([
+          %{EX.S1 => {EX.p1(), EX.O41}},
+          %{
+            EX.S1 => %{EX.p1() => EX.O42},
+            EX.S2 => %{EX.p2() => EX.O42}
+          },
+          {EX.S2, {EX.p2(), EX.O43}},
+          [{EX.S2, {EX.p2(), EX.O44}}],
+          EX.p2(EX.S2, EX.O45)
+        ])
+
+      assert Graph.triple_count(g) == 7
+      assert graph_includes_statement?(g, {EX.S1, EX.p3(), EX.O3})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O41})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O42})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O42})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O43})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O44})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O45})
+    end
+
     test "a map" do
       g =
         Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}])
@@ -405,7 +473,9 @@ defmodule RDF.GraphTest do
           EX.S3 => %{EX.p3() => EX.O3}
         })
 
+      assert Graph.triple_count(g) == 4
       assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O2})
       assert graph_includes_statement?(g, {EX.S2, EX.p1(), EX.O2})
       assert graph_includes_statement?(g, {EX.S3, EX.p3(), EX.O3})
     end

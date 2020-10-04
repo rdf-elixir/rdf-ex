@@ -162,7 +162,6 @@ defmodule RDF.Graph do
   - a `RDF.Graph`
   - or a list with any combination of the former
 
-
   When the statements to be added are given as another `RDF.Graph`,
   the graph name must not match graph name of the graph to which the statements
   are added. As opposed to that, `RDF.Data.merge/2` will produce a `RDF.Dataset`
@@ -172,44 +171,44 @@ defmodule RDF.Graph do
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
   """
-  @spec add(t, input) :: t
-  def add(graph, input)
+  @spec add(t, input, keyword) :: t
+  def add(graph, input, opts \\ [])
 
-  def add(graph, {subject, predications}),
-    do: do_add(graph, coerce_subject(subject), predications)
+  def add(graph, {subject, predications}, opts),
+    do: do_add(graph, coerce_subject(subject), predications, opts)
 
-  def add(%__MODULE__{} = graph, {subject, _, _} = triple),
-    do: do_add(graph, coerce_subject(subject), triple)
+  def add(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
+    do: do_add(graph, coerce_subject(subject), triple, opts)
 
-  def add(graph, {subject, predicate, object, _}),
-    do: add(graph, {subject, predicate, object})
+  def add(graph, {subject, predicate, object, _}, opts),
+    do: add(graph, {subject, predicate, object}, opts)
 
-  def add(%__MODULE__{} = graph, %Description{subject: subject} = description) do
+  def add(%__MODULE__{} = graph, %Description{subject: subject} = description, opts) do
     if Description.count(description) > 0 do
-      do_add(graph, subject, description)
+      do_add(graph, subject, description, opts)
     else
       graph
     end
   end
 
-  def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
+  def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}, opts) do
     graph =
       Enum.reduce(descriptions, graph, fn {_, description}, graph ->
-        add(graph, description)
+        add(graph, description, opts)
       end)
 
     if prefixes do
-      add_prefixes(graph, prefixes, fn _, ns, _ -> ns end)
+      add_prefixes(graph, prefixes, :ignore)
     else
       graph
     end
   end
 
-  def add(graph, input) when is_list(input) or is_map(input) do
-    Enum.reduce(input, graph, &add(&2, &1))
+  def add(graph, input, opts) when is_list(input) or is_map(input) do
+    Enum.reduce(input, graph, &add(&2, &1, opts))
   end
 
-  defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements) do
+  defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements, opts) do
     %__MODULE__{
       graph
       | descriptions:
@@ -217,9 +216,9 @@ defmodule RDF.Graph do
             descriptions,
             subject,
             # when new: create and initialize description with statements
-            fn -> Description.new(subject, init: statements) end,
+            fn -> Description.new(subject, Keyword.put(opts, :init, statements)) end,
             # when update: merge statements description
-            fn description -> Description.add(description, statements) end
+            fn description -> Description.add(description, statements, opts) end
           )
     }
   end
@@ -238,79 +237,36 @@ defmodule RDF.Graph do
       RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
 
   """
-  @spec put(t, input) :: t
-  def put(graph, input)
+  @spec put(t, input, keyword) :: t
+  def put(graph, input, opts \\ [])
 
-  def put(graph, {subject, predications}),
-    do: do_put(graph, coerce_subject(subject), predications)
-
-  def put(%__MODULE__{} = graph, {subject, _, _} = triple),
-    do: do_put(graph, coerce_subject(subject), triple)
-
-  def put(graph, {subject, predicate, object, _}),
-    do: put(graph, {subject, predicate, object})
-
-  def put(%__MODULE__{} = graph, %Description{subject: subject} = description) do
-    if Description.count(description) > 0 do
-      do_put(graph, subject, description)
-    else
-      graph
-    end
-  end
-
-  def put(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}) do
-    graph =
-      Enum.reduce(descriptions, graph, fn {_, description}, graph ->
-        put(graph, description)
-      end)
-
-    if prefixes do
-      add_prefixes(graph, prefixes, fn _, ns, _ -> ns end)
-    else
-      graph
-    end
-  end
-
-  def put(%__MODULE__{} = graph, input) when is_map(input) do
-    Enum.reduce(input, graph, fn {subject, predications}, graph ->
-      put(graph, {subject, predications})
-    end)
-  end
-
-  def put(%__MODULE__{} = graph, input) when is_list(input) do
-    put(
-      graph,
-      Enum.group_by(
-        input,
-        fn
-          {subject, _} -> subject
-          {subject, _, _} -> subject
-          {subject, _, _, _} -> subject
-          %Description{subject: subject} -> subject
-        end,
-        fn
-          {_, p, o} -> {p, o}
-          {_, p, o, _} -> {p, o}
-          {_, predications} -> predications
-          %Description{} = description -> description
-        end
-      )
-    )
-  end
-
-  defp do_put(%__MODULE__{descriptions: descriptions} = graph, subject, predications) do
-    %__MODULE__{
+  def put(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
+    graph = %__MODULE__{
       graph
       | descriptions:
-          lazy_map_update(
-            descriptions,
-            subject,
-            # when new
-            fn -> Description.new(subject, init: predications) end,
-            # when updating
-            fn current -> Description.put(current, predications) end
+          Enum.reduce(
+            input.descriptions,
+            graph.descriptions,
+            fn {subject, description}, descriptions ->
+              Map.update(
+                descriptions,
+                subject,
+                description,
+                fn current -> Description.put(current, description, opts) end
+              )
+            end
           )
     }
+
+    if input.prefixes do
+      add_prefixes(graph, input.prefixes, :ignore)
+    else
+      graph
+    end
+  end
+
+  def put(%__MODULE__{} = graph, input, opts) do
+    put(graph, new() |> add(input, opts), opts)
   end
 
   @doc """
