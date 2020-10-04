@@ -17,7 +17,7 @@ defmodule RDF.Dataset do
 
   @behaviour Access
 
-  alias RDF.{Description, Graph, IRI, Statement}
+  alias RDF.{Graph, Description, IRI, Statement}
   import RDF.Statement
   import RDF.Utils
 
@@ -123,13 +123,20 @@ defmodule RDF.Dataset do
 
   The `graph` option allows to set a different destination graph to which the
   statements should be added, ignoring the graph context of given quads or the
-  name of given graphs.
+  name of given graphs in `input`.
+
+  Note: When the statements to be added are given as another `RDF.Dataset` and
+  a destination graph is set with the `graph` option, the descriptions of the
+  subjects in the different graphs are aggregated.
   """
   @spec add(t, input, keyword) :: t
-  def add(dataset, statements, opts \\ [])
+  def add(dataset, input, opts \\ [])
 
   def add(dataset, {_, _, _, graph} = quad, opts),
     do: do_add(dataset, destination_graph(opts, graph), quad)
+
+  def add(dataset, %Description{} = description, opts),
+    do: do_add(dataset, destination_graph(opts), description)
 
   def add(dataset, %Graph{} = graph, opts),
     do: do_add(dataset, destination_graph(opts, graph.name), graph)
@@ -164,6 +171,14 @@ defmodule RDF.Dataset do
   @doc """
   Adds statements to a `RDF.Dataset` and overwrites all existing statements with the same subjects and predicates in the specified graph context.
 
+  The `graph` option allows to set a different destination graph to which the
+  statements should be added, ignoring the graph context of given quads or the
+  name of given graphs in `input`.
+
+  Note: When the statements to be added are given as another `RDF.Dataset` and
+  a destination graph is set with the `graph` option, the descriptions of the
+  subjects in the different graphs are aggregated.
+
   ## Examples
 
       iex> dataset = RDF.Dataset.new({EX.S, EX.P1, EX.O1})
@@ -171,132 +186,35 @@ defmodule RDF.Dataset do
       RDF.Dataset.new({EX.S, EX.P1, EX.O2})
       iex> RDF.Dataset.put(dataset, {EX.S, EX.P2, EX.O2})
       RDF.Dataset.new([{EX.S, EX.P1, EX.O1}, {EX.S, EX.P2, EX.O2}])
-      iex> RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}]) |>
-      ...>   RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
+      iex> RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Dataset.put([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
   """
-  @spec put(t, input, Statement.coercible_graph_name() | boolean | nil) :: t
-  def put(dataset, statements, graph_context \\ false)
 
-  def put(%__MODULE__{} = dataset, {subject, predicate, objects}, false),
-    do: put(dataset, {subject, predicate, objects, nil})
+  @spec put(t, input, keyword) :: t
+  def put(dataset, input, opts \\ [])
 
-  def put(%__MODULE__{} = dataset, {subject, predicate, objects}, graph_context),
-    do: put(dataset, {subject, predicate, objects, graph_context})
-
-  def put(
-        %__MODULE__{name: name, graphs: graphs},
-        {subject, predicate, objects, graph_context},
-        false
-      ) do
-    with graph_context = coerce_graph_name(graph_context) do
-      new_graph =
-        case graphs[graph_context] do
-          graph = %Graph{} ->
-            Graph.put(graph, {subject, predicate, objects})
-
-          nil ->
-            Graph.new({subject, predicate, objects}, name: graph_context)
-        end
-
-      %__MODULE__{name: name, graphs: Map.put(graphs, graph_context, new_graph)}
-    end
-  end
-
-  def put(%__MODULE__{} = dataset, {subject, predicate, objects, _}, graph_context),
-    do: put(dataset, {subject, predicate, objects, graph_context}, false)
-
-  def put(%__MODULE__{} = dataset, statements, false) when is_list(statements) do
-    do_put(
-      dataset,
-      Enum.group_by(
-        statements,
-        fn
-          {s, _, _} -> {s, nil}
-          {s, _, _, nil} -> {s, nil}
-          {s, _, _, c} -> {s, coerce_graph_name(c)}
-        end,
-        fn
-          {_, p, o, _} -> {p, o}
-          {_, p, o} -> {p, o}
-        end
-      )
-    )
-  end
-
-  def put(%__MODULE__{} = dataset, statements, graph_context) when is_list(statements) do
-    with graph_context = coerce_graph_name(graph_context) do
-      do_put(
-        dataset,
-        Enum.group_by(
-          statements,
-          fn
-            {s, _, _, _} -> {s, graph_context}
-            {s, _, _} -> {s, graph_context}
-          end,
-          fn
-            {_, p, o, _} -> {p, o}
-            {_, p, o} -> {p, o}
-          end
-        )
-      )
-    end
-  end
-
-  def put(%__MODULE__{} = dataset, %Description{} = description, false),
-    do: put(dataset, description, nil)
-
-  def put(%__MODULE__{name: name, graphs: graphs}, %Description{} = description, graph_context) do
-    with graph_context = coerce_graph_name(graph_context) do
-      updated_graph =
-        Map.get(graphs, graph_context, Graph.new(name: graph_context))
-        |> Graph.put(description)
-
-      %__MODULE__{
-        name: name,
-        graphs: Map.put(graphs, graph_context, updated_graph)
-      }
-    end
-  end
-
-  def put(%__MODULE__{name: name, graphs: graphs}, %Graph{} = graph, false) do
+  def put(%__MODULE__{} = dataset, %__MODULE__{} = input, opts) do
     %__MODULE__{
-      name: name,
-      graphs:
-        Map.update(graphs, graph.name, graph, fn current ->
-          Graph.put(current, graph)
-        end)
+      dataset
+      | graphs:
+          Enum.reduce(
+            input.graphs,
+            dataset.graphs,
+            fn {graph_name, graph}, graphs ->
+              Map.update(
+                graphs,
+                graph_name,
+                graph,
+                fn current -> Graph.put(current, graph, opts) end
+              )
+            end
+          )
     }
   end
 
-  def put(%__MODULE__{} = dataset, %Graph{} = graph, graph_context),
-    do: put(dataset, %Graph{graph | name: coerce_graph_name(graph_context)}, false)
-
-  def put(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, graph_context) do
-    with graph_context = graph_context && coerce_graph_name(graph_context) do
-      Enum.reduce(graphs(other_dataset), dataset, fn graph, dataset ->
-        put(dataset, graph, graph_context)
-      end)
-    end
-  end
-
-  defp do_put(%__MODULE__{} = dataset, statements) when is_map(statements) do
-    Enum.reduce(statements, dataset, fn {subject_with_context, predications}, dataset ->
-      do_put(dataset, subject_with_context, predications)
-    end)
-  end
-
-  defp do_put(%__MODULE__{name: name, graphs: graphs}, {subject, graph_context}, predications)
-       when is_list(predications) do
-    with graph_context = coerce_graph_name(graph_context) do
-      graph = Map.get(graphs, graph_context, Graph.new(name: graph_context))
-
-      new_graphs =
-        graphs
-        |> Map.put(graph_context, Graph.put(graph, {subject, predications}))
-
-      %__MODULE__{name: name, graphs: new_graphs}
-    end
+  def put(%__MODULE__{} = dataset, input, opts) do
+    put(dataset, new() |> add(input, opts), opts)
   end
 
   @doc """
@@ -312,10 +230,13 @@ defmodule RDF.Dataset do
   use `RDF.Data.delete/2`.
   """
   @spec delete(t, input, keyword) :: t
-  def delete(dataset, statements, opts \\ [])
+  def delete(dataset, input, opts \\ [])
 
   def delete(dataset, {_, _, _, graph} = quad, opts),
     do: do_delete(dataset, destination_graph(opts, graph), quad)
+
+  def delete(dataset, %Description{} = description, opts),
+    do: do_delete(dataset, destination_graph(opts), description)
 
   def delete(dataset, %Graph{} = graph, opts),
     do: do_delete(dataset, destination_graph(opts, graph.name), graph)
@@ -470,7 +391,7 @@ defmodule RDF.Dataset do
     with graph_context = coerce_graph_name(graph_name) do
       case fun.(get(dataset, graph_context)) do
         {old_graph, new_graph} ->
-          {old_graph, put(dataset, new_graph, graph_context)}
+          {old_graph, put(dataset, new_graph, graph: graph_context)}
 
         :pop ->
           pop(dataset, graph_context)
@@ -679,6 +600,9 @@ defmodule RDF.Dataset do
 
   def include?(dataset, {_, _, _, graph} = quad, opts),
     do: do_include?(dataset, destination_graph(opts, graph), quad)
+
+  def include?(dataset, %Description{} = description, opts),
+    do: do_include?(dataset, destination_graph(opts), description)
 
   def include?(dataset, %Graph{} = graph, opts),
     do: do_include?(dataset, destination_graph(opts, graph.name), graph)

@@ -134,7 +134,7 @@ defmodule RDF.DatasetTest do
              )
     end
 
-    test "creating an unnamed dataset with an inital graph" do
+    test "creating an unnamed dataset with an initial graph" do
       ds = Dataset.new(Graph.new({EX.Subject, EX.predicate(), EX.Object}))
       assert unnamed_dataset?(ds)
       assert unnamed_graph?(Dataset.default_graph(ds))
@@ -708,6 +708,51 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.Graph})
     end
 
+    test "lists of descriptions, graphs and datasets without an overwriting graph context" do
+      ds =
+        Dataset.new([{EX.S1, EX.p(), EX.O}, {EX.S2, EX.p(), EX.O, EX.Graph}])
+        |> RDF.Dataset.add([
+          EX.S1 |> EX.p(bnode(:foo)),
+          %{EX.S1 => {EX.p(), EX.O1}},
+          EX.S2 |> EX.p(EX.O3) |> RDF.graph(),
+          EX.S2 |> EX.p(EX.O4) |> RDF.graph(name: EX.Graph),
+          EX.S2 |> EX.p(EX.O5) |> RDF.dataset()
+        ])
+
+      assert Dataset.statement_count(ds) == 7
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), EX.O})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), bnode(:foo)})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O3})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O5})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O4, EX.Graph})
+    end
+
+    test "lists of descriptions, graphs and datasets with an overwriting graph context" do
+      ds =
+        Dataset.new([{EX.S1, EX.p(), EX.O}, {EX.S2, EX.p(), EX.O, EX.Graph}])
+        |> RDF.Dataset.add(
+          [
+            EX.S1 |> EX.p(bnode(:foo)),
+            %{EX.S1 => {EX.p(), EX.O1}},
+            EX.S2 |> EX.p(EX.O3) |> RDF.graph(),
+            EX.S2 |> EX.p(EX.O4) |> RDF.graph(name: EX.Graph),
+            EX.S2 |> EX.p(EX.O5) |> RDF.dataset()
+          ],
+          graph: EX.Graph2
+        )
+
+      assert Dataset.statement_count(ds) == 7
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), EX.O})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), bnode(:foo), EX.Graph2})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), EX.O1, EX.Graph2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O3, EX.Graph2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O4, EX.Graph2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O5, EX.Graph2})
+    end
+
     test "duplicates are ignored" do
       ds = Dataset.add(dataset(), {EX.Subject, EX.predicate(), EX.Object, EX.GraphName})
       assert Dataset.add(ds, {EX.Subject, EX.predicate(), EX.Object, EX.GraphName}) == ds
@@ -734,8 +779,8 @@ defmodule RDF.DatasetTest do
     end
   end
 
-  describe "put" do
-    test "a list of statements without specification of the default context" do
+  describe "put/3" do
+    test "a list of statements without an overwriting graph context" do
       ds =
         Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2, EX.Graph}])
         |> RDF.Dataset.put([
@@ -753,7 +798,7 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O4, EX.Graph})
     end
 
-    test "a list of statements with specification of the default context" do
+    test "a list of statements with an overwriting graph context" do
       ds =
         Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2, EX.Graph}])
         |> RDF.Dataset.put(
@@ -763,7 +808,7 @@ defmodule RDF.DatasetTest do
             {EX.S2, EX.P2, EX.O3, EX.Graph},
             {EX.S2, EX.P2, EX.O4}
           ],
-          nil
+          graph: nil
         )
 
       assert Dataset.statement_count(ds) == 5
@@ -783,7 +828,7 @@ defmodule RDF.DatasetTest do
             {EX.S2, EX.P2, EX.O3, EX.Graph},
             {EX.S2, EX.P2, EX.O4}
           ],
-          EX.Graph
+          graph: EX.Graph
         )
 
       assert Dataset.statement_count(ds) == 6
@@ -795,7 +840,37 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O4, EX.Graph})
     end
 
-    test "a Description" do
+    test "lists of subject-predications pairs" do
+      ds =
+        Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}])
+        |> Dataset.put([
+          {EX.S1, [{EX.p1(), EX.O2}]},
+          {EX.S2, %{EX.p1() => EX.O2}},
+          {EX.S3, %{EX.p3() => EX.O3}}
+        ])
+
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p1(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p2(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p1(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.p3(), EX.O3})
+    end
+
+    test "maps" do
+      ds =
+        Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}])
+        |> Dataset.put(%{
+          EX.S1 => [{EX.p1(), EX.O2}],
+          EX.S2 => %{EX.p1() => EX.O2},
+          EX.S3 => %{EX.p3() => EX.O3}
+        })
+
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p1(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p2(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p1(), EX.O2})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.p3(), EX.O3})
+    end
+
+    test "descriptions" do
       ds =
         Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}])
         |> RDF.Dataset.put(
@@ -810,7 +885,7 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2})
     end
 
-    test "an unnamed Graph" do
+    test "an unnamed graph" do
       ds =
         Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}])
         |> RDF.Dataset.put(Graph.new([{EX.S1, EX.P3, EX.O4}, {EX.S1, EX.P2, bnode(:foo)}]))
@@ -822,7 +897,7 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2})
     end
 
-    test "a named Graph" do
+    test "a named graph" do
       ds =
         Dataset.new(
           Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}, {EX.S1, EX.P3, EX.O3}],
@@ -831,7 +906,7 @@ defmodule RDF.DatasetTest do
         )
         |> RDF.Dataset.put(
           Graph.new([{EX.S1, EX.P3, EX.O4}, {EX.S1, EX.P2, bnode(:foo)}]),
-          EX.GraphName
+          graph: EX.GraphName
         )
 
       assert Dataset.statement_count(ds) == 4
@@ -839,6 +914,27 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O4, EX.GraphName})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo), EX.GraphName})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.GraphName})
+    end
+
+    test "lists of descriptions, graphs and datasets" do
+      ds =
+        Dataset.new([{EX.S1, EX.p(), EX.O}, {EX.S2, EX.p(), EX.O, EX.Graph}])
+        |> RDF.Dataset.put([
+          EX.S1 |> EX.p(bnode(:foo)),
+          EX.S1 |> EX.p("bar"),
+          %{EX.S1 => {EX.p(), EX.O1}},
+          EX.S2 |> EX.p(EX.O3) |> RDF.graph(),
+          EX.S2 |> EX.p(EX.O4) |> RDF.graph(name: EX.Graph),
+          EX.S2 |> EX.p(EX.O5) |> RDF.dataset()
+        ])
+
+      assert Dataset.statement_count(ds) == 6
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), bnode(:foo)})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), ~L"bar"})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.p(), EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O3})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O4, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O5})
     end
 
     test "simultaneous use of the different forms to address the default context" do
