@@ -269,6 +269,20 @@ defmodule RDF.DescriptionTest do
         Description.add(description(), {EX.prop(), self()})
       end
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.add(description(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.add(description(), RDF.graph())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.add(description(), RDF.dataset())
+      end
+    end
   end
 
   describe "put/3" do
@@ -388,6 +402,20 @@ defmodule RDF.DescriptionTest do
                Description.put(description(), {EX.Other, EX.predicate(), iri(EX.Object)})
              )
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.put(description(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.put(description(), RDF.graph())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.put(description(), RDF.dataset())
+      end
+    end
   end
 
   describe "delete" do
@@ -500,6 +528,20 @@ defmodule RDF.DescriptionTest do
                )
              ) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.delete(description(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.delete(description(), RDF.graph())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.delete(description(), RDF.dataset())
+      end
+    end
   end
 
   describe "delete_predicates" do
@@ -604,31 +646,47 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
-  test "include?/2" do
-    desc =
-      Description.new(EX.S,
-        init: [
-          {EX.p1(), [EX.O1, EX.O2]},
-          {EX.p2(), EX.O3},
-          {EX.p3(), [~B<foo>, ~L"bar"]}
-        ]
-      )
+  describe "include?/2" do
+    test "valid cases" do
+      desc =
+        Description.new(EX.S,
+          init: [
+            {EX.p1(), [EX.O1, EX.O2]},
+            {EX.p2(), EX.O3},
+            {EX.p3(), [~B<foo>, ~L"bar"]}
+          ]
+        )
 
-    assert Description.include?(desc, {EX.S, EX.p1(), EX.O2})
-    assert Description.include?(desc, {EX.S, EX.p1(), EX.O2, EX.Graph})
-    assert Description.include?(desc, {EX.p1(), EX.O2})
-    assert Description.include?(desc, {EX.p1(), [EX.O1, EX.O2]})
-    assert Description.include?(desc, [{EX.p1(), [EX.O1]}, {EX.p2(), EX.O3}])
-    assert Description.include?(desc, %{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
+      assert Description.include?(desc, {EX.S, EX.p1(), EX.O2})
+      assert Description.include?(desc, {EX.S, EX.p1(), EX.O2, EX.Graph})
+      assert Description.include?(desc, {EX.p1(), EX.O2})
+      assert Description.include?(desc, {EX.p1(), [EX.O1, EX.O2]})
+      assert Description.include?(desc, [{EX.p1(), [EX.O1]}, {EX.p2(), EX.O3}])
+      assert Description.include?(desc, %{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
 
-    assert Description.include?(
-             desc,
-             Description.new(EX.S, init: %{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
-           )
+      assert Description.include?(
+               desc,
+               Description.new(EX.S, init: %{EX.p1() => [EX.O1, EX.O2], EX.p2() => EX.O3})
+             )
 
-    refute Description.include?(desc, {EX.p4(), EX.O1})
-    refute Description.include?(desc, {EX.p1(), EX.O3})
-    refute Description.include?(desc, {EX.p1(), [EX.O1, EX.O3]})
+      refute Description.include?(desc, {EX.p4(), EX.O1})
+      refute Description.include?(desc, {EX.p1(), EX.O3})
+      refute Description.include?(desc, {EX.p1(), [EX.O1, EX.O3]})
+    end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.include?(description(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.include?(description(), RDF.graph())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Description.include?(description(), RDF.dataset())
+      end
+    end
   end
 
   test "values/1" do

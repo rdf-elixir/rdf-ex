@@ -777,6 +777,12 @@ defmodule RDF.DatasetTest do
         )
       end
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Dataset.add(dataset(), Date.utc_today())
+      end
+    end
   end
 
   describe "put/3" do
@@ -1062,6 +1068,12 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O1})
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O2})
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Dataset.put(dataset(), Date.utc_today())
+      end
+    end
   end
 
   describe "put_properties/3" do
@@ -1235,6 +1247,12 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O1})
       assert dataset_includes_statement?(ds, {EX.S, EX.P, EX.O2})
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Dataset.put_properties(dataset(), Date.utc_today())
+      end
+    end
   end
 
   describe "delete" do
@@ -1403,6 +1421,12 @@ defmodule RDF.DatasetTest do
       assert Dataset.delete(dataset1, dataset2) == Dataset.new()
       assert Dataset.delete(dataset2, dataset1) == Dataset.new({EX.S2, EX.p2(), EX.O2, EX.Graph})
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Dataset.delete(dataset(), Date.utc_today())
+      end
+    end
   end
 
   describe "delete_graph" do
@@ -1469,36 +1493,44 @@ defmodule RDF.DatasetTest do
     assert Enum.count(dataset.graphs) == 1
   end
 
-  test "include?/3" do
-    dataset =
-      Dataset.new([
-        {EX.S1, EX.p(), EX.O1},
-        {EX.S2, EX.p(), EX.O2, EX.Graph}
-      ])
+  describe "include?/3" do
+    test "valid cases" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p(), EX.O1},
+          {EX.S2, EX.p(), EX.O2, EX.Graph}
+        ])
 
-    assert Dataset.include?(dataset, {EX.S1, EX.p(), EX.O1})
-    refute Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2})
-    assert Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2, EX.Graph})
-    assert Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2}, graph: EX.Graph)
+      assert Dataset.include?(dataset, {EX.S1, EX.p(), EX.O1})
+      refute Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2})
+      assert Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2, EX.Graph})
+      assert Dataset.include?(dataset, {EX.S2, EX.p(), EX.O2}, graph: EX.Graph)
 
-    assert Dataset.include?(dataset, [{EX.S1, EX.p(), EX.O1}])
-    assert Dataset.include?(dataset, [{EX.S2, EX.p(), EX.O2}], graph: EX.Graph)
+      assert Dataset.include?(dataset, [{EX.S1, EX.p(), EX.O1}])
+      assert Dataset.include?(dataset, [{EX.S2, EX.p(), EX.O2}], graph: EX.Graph)
 
-    assert Dataset.include?(dataset, [
-             {EX.S1, EX.p(), EX.O1},
-             {EX.S2, EX.p(), EX.O2, EX.Graph}
-           ])
+      assert Dataset.include?(dataset, [
+               {EX.S1, EX.p(), EX.O1},
+               {EX.S2, EX.p(), EX.O2, EX.Graph}
+             ])
 
-    refute Dataset.include?(dataset, [
-             {EX.S1, EX.p(), EX.O1},
-             {EX.S2, EX.p(), EX.O2}
-           ])
+      refute Dataset.include?(dataset, [
+               {EX.S1, EX.p(), EX.O1},
+               {EX.S2, EX.p(), EX.O2}
+             ])
 
-    assert Dataset.include?(dataset, EX.S1 |> EX.p(EX.O1))
-    refute Dataset.include?(dataset, EX.S2 |> EX.p(EX.O2))
-    assert Dataset.include?(dataset, EX.p(EX.S2, EX.O2), graph: EX.Graph)
-    assert Dataset.include?(dataset, Graph.new(EX.S1 |> EX.p(EX.O1)))
-    assert Dataset.include?(dataset, dataset)
+      assert Dataset.include?(dataset, EX.S1 |> EX.p(EX.O1))
+      refute Dataset.include?(dataset, EX.S2 |> EX.p(EX.O2))
+      assert Dataset.include?(dataset, EX.p(EX.S2, EX.O2), graph: EX.Graph)
+      assert Dataset.include?(dataset, Graph.new(EX.S1 |> EX.p(EX.O1)))
+      assert Dataset.include?(dataset, dataset)
+    end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Dataset.include?(dataset(), Date.utc_today())
+      end
+    end
   end
 
   test "values/1" do

@@ -111,27 +111,6 @@ defmodule RDF.Description do
   @spec add(t, input, keyword) :: t
   def add(description, input, opts \\ [])
 
-  # This implementation is actually unnecessary as the implementation with the is_map clause
-  # would work perfectly fine with RDF.Descriptions Enumerable implementation.
-  # It exists only for performance reasons, since this version is roughly twice as fast.
-  def add(%__MODULE__{} = description, %__MODULE__{} = input_description, _opts) do
-    %__MODULE__{
-      description
-      | predications:
-          Map.merge(
-            description.predications,
-            input_description.predications,
-            fn _predicate, objects, new_objects ->
-              Map.merge(objects, new_objects)
-            end
-          )
-    }
-  end
-
-  def add(description, input, opts) when is_map(input) or is_list(input) do
-    Enum.reduce(input, description, &add(&2, &1, opts))
-  end
-
   def add(%__MODULE__{} = description, {subject, predicate, objects, _}, opts) do
     add(description, {subject, predicate, objects}, opts)
   end
@@ -165,6 +144,36 @@ defmodule RDF.Description do
               end
             )
       }
+    end
+  end
+
+  # This implementation is actually unnecessary as the implementation with the is_map clause
+  # would work perfectly fine with RDF.Descriptions Enumerable implementation.
+  # It exists only for performance reasons, since this version is roughly twice as fast.
+  def add(%__MODULE__{} = description, %__MODULE__{} = input_description, _opts) do
+    %__MODULE__{
+      description
+      | predications:
+          Map.merge(
+            description.predications,
+            input_description.predications,
+            fn _predicate, objects, new_objects ->
+              Map.merge(objects, new_objects)
+            end
+          )
+    }
+  end
+
+  if Version.match?(System.version(), "~> 1.10") do
+    def add(description, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.reduce(input, description, &add(&2, &1, opts))
+    end
+  else
+    def add(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def add(description, input, opts) when is_list(input) or is_map(input) do
+      Enum.reduce(input, description, &add(&2, &1, opts))
     end
   end
 
@@ -222,39 +231,6 @@ defmodule RDF.Description do
   @spec delete(t, input, keyword) :: t
   def delete(description, input, opts \\ [])
 
-  # This implementation is actually unnecessary as the implementation with the is_map clause
-  # would work perfectly fine with RDF.Descriptions Enumerable implementation.
-  # It exists only for performance reasons.
-  def delete(%__MODULE__{} = description, %__MODULE__{} = input_description, _opts) do
-    predications = description.predications
-
-    %__MODULE__{
-      description
-      | predications:
-          Enum.reduce(
-            input_description.predications,
-            predications,
-            fn {predicate, objects}, predications ->
-              if current_objects = Map.get(description.predications, predicate) do
-                rest = Map.drop(current_objects, Map.keys(objects))
-
-                if Enum.empty?(rest) do
-                  Map.delete(predications, predicate)
-                else
-                  Map.put(predications, predicate, rest)
-                end
-              else
-                predications
-              end
-            end
-          )
-    }
-  end
-
-  def delete(description, input, opts) when is_map(input) or is_list(input) do
-    Enum.reduce(input, description, &delete(&2, &1, opts))
-  end
-
   def delete(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
     if coerce_subject(subject) == description.subject do
       delete(description, {predicate, objects}, opts)
@@ -289,6 +265,48 @@ defmodule RDF.Description do
       }
     else
       description
+    end
+  end
+
+  # This implementation is actually unnecessary as the implementation with the is_map clause
+  # would work perfectly fine with RDF.Descriptions Enumerable implementation.
+  # It exists only for performance reasons.
+  def delete(%__MODULE__{} = description, %__MODULE__{} = input_description, _opts) do
+    predications = description.predications
+
+    %__MODULE__{
+      description
+      | predications:
+          Enum.reduce(
+            input_description.predications,
+            predications,
+            fn {predicate, objects}, predications ->
+              if current_objects = Map.get(description.predications, predicate) do
+                rest = Map.drop(current_objects, Map.keys(objects))
+
+                if Enum.empty?(rest) do
+                  Map.delete(predications, predicate)
+                else
+                  Map.put(predications, predicate, rest)
+                end
+              else
+                predications
+              end
+            end
+          )
+    }
+  end
+
+  if Version.match?(System.version(), "~> 1.10") do
+    def delete(description, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.reduce(input, description, &delete(&2, &1, opts))
+    end
+  else
+    def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def delete(description, input, opts) when is_list(input) or is_map(input) do
+      Enum.reduce(input, description, &delete(&2, &1, opts))
     end
   end
 
@@ -647,8 +665,17 @@ defmodule RDF.Description do
 
   def include?(%__MODULE__{}, %__MODULE__{}), do: false
 
-  def include?(description, predications) when is_map(predications) or is_list(predications) do
-    Enum.all?(predications, fn predication -> include?(description, predication) end)
+  if Version.match?(System.version(), "~> 1.10") do
+    def include?(description, input)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.all?(input, &include?(description, &1))
+    end
+  else
+    def include?(_, %_{}), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def include?(description, input) when is_list(input) or is_map(input) do
+      Enum.all?(input, &include?(description, &1))
+    end
   end
 
   @doc """

@@ -132,13 +132,13 @@ defmodule RDF.Dataset do
   @spec add(t, input, keyword) :: t
   def add(dataset, input, opts \\ [])
 
-  def add(dataset, {_, _, _, graph} = quad, opts),
+  def add(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
     do: do_add(dataset, destination_graph(opts, graph), quad)
 
-  def add(dataset, %Description{} = description, opts),
+  def add(%__MODULE__{} = dataset, %Description{} = description, opts),
     do: do_add(dataset, destination_graph(opts), description)
 
-  def add(dataset, %Graph{} = graph, opts),
+  def add(%__MODULE__{} = dataset, %Graph{} = graph, opts),
     do: do_add(dataset, destination_graph(opts, graph.name), graph)
 
   def add(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
@@ -147,11 +147,21 @@ defmodule RDF.Dataset do
     |> Enum.reduce(dataset, &add(&2, &1, opts))
   end
 
-  def add(dataset, input, opts) when is_list(input) or is_map(input) do
-    Enum.reduce(input, dataset, &add(&2, &1, opts))
+  if Version.match?(System.version(), "~> 1.10") do
+    def add(dataset, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.reduce(input, dataset, &add(&2, &1, opts))
+    end
+  else
+    def add(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def add(dataset, input, opts) when is_list(input) or is_map(input) do
+      Enum.reduce(input, dataset, &add(&2, &1, opts))
+    end
   end
 
-  def add(dataset, input, opts), do: do_add(dataset, destination_graph(opts), input)
+  def add(%__MODULE__{} = dataset, input, opts),
+    do: do_add(dataset, destination_graph(opts), input)
 
   defp do_add(dataset, graph_name, input) do
     %__MODULE__{
@@ -278,13 +288,13 @@ defmodule RDF.Dataset do
   @spec delete(t, input, keyword) :: t
   def delete(dataset, input, opts \\ [])
 
-  def delete(dataset, {_, _, _, graph} = quad, opts),
+  def delete(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
     do: do_delete(dataset, destination_graph(opts, graph), quad)
 
-  def delete(dataset, %Description{} = description, opts),
+  def delete(%__MODULE__{} = dataset, %Description{} = description, opts),
     do: do_delete(dataset, destination_graph(opts), description)
 
-  def delete(dataset, %Graph{} = graph, opts),
+  def delete(%__MODULE__{} = dataset, %Graph{} = graph, opts),
     do: do_delete(dataset, destination_graph(opts, graph.name), graph)
 
   def delete(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
@@ -293,11 +303,24 @@ defmodule RDF.Dataset do
     |> Enum.reduce(dataset, &delete(&2, &1, opts))
   end
 
-  def delete(dataset, input, opts) when is_list(input) or is_map(input) do
-    Enum.reduce(input, dataset, &delete(&2, &1, opts))
-  end
+  if Version.match?(System.version(), "~> 1.10") do
+    def delete(dataset, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.reduce(input, dataset, &delete(&2, &1, opts))
+    end
 
-  def delete(dataset, input, opts), do: do_delete(dataset, destination_graph(opts), input)
+    def delete(%__MODULE__{} = dataset, input, opts) when not is_struct(input),
+      do: do_delete(dataset, destination_graph(opts), input)
+  else
+    def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def delete(dataset, input, opts) when is_list(input) or is_map(input) do
+      Enum.reduce(input, dataset, &delete(&2, &1, opts))
+    end
+
+    def delete(%__MODULE__{} = dataset, input, opts),
+      do: do_delete(dataset, destination_graph(opts), input)
+  end
 
   defp do_delete(dataset, graph_name, input) do
     if existing_graph = dataset.graphs[graph_name] do
@@ -659,11 +682,23 @@ defmodule RDF.Dataset do
     |> Enum.all?(&include?(dataset, &1, opts))
   end
 
-  def include?(dataset, input, opts) when is_list(input) or is_map(input) do
-    Enum.all?(input, &include?(dataset, &1, opts))
-  end
+  if Version.match?(System.version(), "~> 1.10") do
+    def include?(dataset, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.all?(input, &include?(dataset, &1, opts))
+    end
 
-  def include?(dataset, input, opts), do: do_include?(dataset, destination_graph(opts), input)
+    def include?(dataset, input, opts) when not is_struct(input),
+      do: do_include?(dataset, destination_graph(opts), input)
+  else
+    def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
+
+    def include?(dataset, input, opts) when is_list(input) or is_map(input) do
+      Enum.all?(input, &include?(dataset, &1, opts))
+    end
+
+    def include?(dataset, input, opts), do: do_include?(dataset, destination_graph(opts), input)
+  end
 
   defp do_include?(%__MODULE__{graphs: graphs}, graph_name, input) do
     if graph = graphs[graph_name] do

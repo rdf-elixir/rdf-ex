@@ -24,6 +24,15 @@ defmodule RDF.Test.Case do
     end
   end
 
+  # TODO: Remove this when we dropped support for Elixir versions < 1.10
+  def struct_not_allowed_as_input_error do
+    if Version.match?(System.version(), "~> 1.10") do
+      FunctionClauseError
+    else
+      ArgumentError
+    end
+  end
+
   ###############################
   # RDF.Description
 

@@ -384,6 +384,16 @@ defmodule RDF.GraphTest do
         Graph.add(graph(), {EX.Subject, EX.prop(), self()})
       end
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.add(graph(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.add(graph(), RDF.dataset())
+      end
+    end
   end
 
   describe "put/3" do
@@ -553,6 +563,16 @@ defmodule RDF.GraphTest do
       assert graph.name == RDF.iri(EX.GraphName)
       assert graph.prefixes == PrefixMap.new(ex: EX)
       assert graph.base_iri == EX.base()
+    end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.put(graph(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.put(graph(), RDF.dataset())
+      end
     end
   end
 
@@ -733,6 +753,16 @@ defmodule RDF.GraphTest do
       assert graph.prefixes == PrefixMap.new(ex: EX)
       assert graph.base_iri == EX.base()
     end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.put_properties(graph(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.put_properties(graph(), RDF.dataset())
+      end
+    end
   end
 
   describe "delete/2" do
@@ -842,6 +872,16 @@ defmodule RDF.GraphTest do
 
       assert graph.name == RDF.iri(EX.GraphName)
       assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.delete(graph(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.delete(graph(), RDF.dataset())
+      end
     end
   end
 
@@ -964,31 +1004,43 @@ defmodule RDF.GraphTest do
     assert Enum.count(graph.descriptions) == 1
   end
 
-  test "include?/2" do
-    graph =
-      Graph.new([
-        {EX.S1, EX.p(), EX.O1},
-        {EX.S2, EX.p(), EX.O2}
-      ])
+  describe "include?/2" do
+    test "valid cases" do
+      graph =
+        Graph.new([
+          {EX.S1, EX.p(), EX.O1},
+          {EX.S2, EX.p(), EX.O2}
+        ])
 
-    assert Graph.include?(graph, {EX.S1, EX.p(), EX.O1})
-    assert Graph.include?(graph, {EX.S1, EX.p(), EX.O1, EX.Graph})
+      assert Graph.include?(graph, {EX.S1, EX.p(), EX.O1})
+      assert Graph.include?(graph, {EX.S1, EX.p(), EX.O1, EX.Graph})
 
-    assert Graph.include?(graph, [{EX.S1, EX.p(), EX.O1}])
+      assert Graph.include?(graph, [{EX.S1, EX.p(), EX.O1}])
 
-    assert Graph.include?(graph, [
-             {EX.S1, EX.p(), EX.O1},
-             {EX.S2, EX.p(), EX.O2}
-           ])
+      assert Graph.include?(graph, [
+               {EX.S1, EX.p(), EX.O1},
+               {EX.S2, EX.p(), EX.O2}
+             ])
 
-    refute Graph.include?(graph, [
-             {EX.S1, EX.p(), EX.O1},
-             {EX.S2, EX.p(), EX.O3}
-           ])
+      refute Graph.include?(graph, [
+               {EX.S1, EX.p(), EX.O1},
+               {EX.S2, EX.p(), EX.O3}
+             ])
 
-    assert Graph.include?(graph, EX.S1 |> EX.p(EX.O1))
-    assert Graph.include?(graph, Graph.new(EX.S1 |> EX.p(EX.O1)))
-    assert Graph.include?(graph, graph)
+      assert Graph.include?(graph, EX.S1 |> EX.p(EX.O1))
+      assert Graph.include?(graph, Graph.new(EX.S1 |> EX.p(EX.O1)))
+      assert Graph.include?(graph, graph)
+    end
+
+    test "structs are causing an error" do
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.include?(graph(), Date.utc_today())
+      end
+
+      assert_raise struct_not_allowed_as_input_error(), fn ->
+        Graph.include?(graph(), RDF.dataset())
+      end
+    end
   end
 
   test "values/1" do
