@@ -610,10 +610,6 @@ defmodule RDF.Description do
   @spec include?(t, input) :: boolean
   def include?(description, input)
 
-  def include?(description, predications) when is_map(predications) or is_list(predications) do
-    Enum.all?(predications, fn predication -> include?(description, predication) end)
-  end
-
   def include?(%__MODULE__{} = description, {subject, predicate, objects}) do
     coerce_subject(subject) == description.subject &&
       include?(description, {predicate, objects})
@@ -632,6 +628,27 @@ defmodule RDF.Description do
     else
       false
     end
+  end
+
+  def include?(
+        %__MODULE__{subject: subject, predications: predications},
+        %__MODULE__{subject: subject} = input
+      ) do
+    Enum.all?(input.predications, fn {predicate, objects} ->
+      if existing_objects = predications[predicate] do
+        Enum.all?(objects, fn {object, _} ->
+          Map.has_key?(existing_objects, object)
+        end)
+      else
+        false
+      end
+    end)
+  end
+
+  def include?(%__MODULE__{}, %__MODULE__{}), do: false
+
+  def include?(description, predications) when is_map(predications) or is_list(predications) do
+    Enum.all?(predications, fn predication -> include?(description, predication) end)
   end
 
   @doc """
