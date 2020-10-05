@@ -93,13 +93,13 @@ defmodule RDF.Dataset do
   @doc """
   Returns the dataset name IRI of `dataset`.
   """
-  @spec name(t) :: RDF.Statement.graph_name()
+  @spec name(t) :: Statement.graph_name()
   def name(%__MODULE__{} = dataset), do: dataset.name
 
   @doc """
   Changes the dataset name of `dataset`.
   """
-  @spec change_name(t, RDF.Statement.coercible_graph_name()) :: t
+  @spec change_name(t, Statement.coercible_graph_name()) :: t
   def change_name(%__MODULE__{} = dataset, new_name) do
     %__MODULE__{dataset | name: coerce_graph_name(new_name)}
   end
@@ -347,15 +347,11 @@ defmodule RDF.Dataset do
   def delete_graph(graph, graph_names)
 
   def delete_graph(%__MODULE__{} = dataset, graph_names) when is_list(graph_names) do
-    Enum.reduce(graph_names, dataset, fn graph_name, dataset ->
-      delete_graph(dataset, graph_name)
-    end)
+    Enum.reduce(graph_names, dataset, &delete_graph(&2, &1))
   end
 
-  def delete_graph(%__MODULE__{name: name, graphs: graphs}, graph_name) do
-    with graph_name = coerce_graph_name(graph_name) do
-      %__MODULE__{name: name, graphs: Map.delete(graphs, graph_name)}
-    end
+  def delete_graph(%__MODULE__{} = dataset, graph_name) do
+    %__MODULE__{dataset | graphs: Map.delete(dataset.graphs, coerce_graph_name(graph_name))}
   end
 
   @doc """
@@ -382,8 +378,8 @@ defmodule RDF.Dataset do
   """
   @impl Access
   @spec fetch(t, Statement.graph_name() | nil) :: {:ok, Graph.t()} | :error
-  def fetch(%__MODULE__{graphs: graphs}, graph_name) do
-    Access.fetch(graphs, coerce_graph_name(graph_name))
+  def fetch(%__MODULE__{} = dataset, graph_name) do
+    Access.fetch(dataset.graphs, coerce_graph_name(graph_name))
   end
 
   @doc """
@@ -416,21 +412,23 @@ defmodule RDF.Dataset do
   The graph with given name.
   """
   @spec graph(t, Statement.graph_name() | nil) :: Graph.t()
-  def graph(%__MODULE__{graphs: graphs}, graph_name),
-    do: Map.get(graphs, coerce_graph_name(graph_name))
+  def graph(%__MODULE__{} = dataset, graph_name) do
+    Map.get(dataset.graphs, coerce_graph_name(graph_name))
+  end
 
   @doc """
   The default graph of a `RDF.Dataset`.
   """
   @spec default_graph(t) :: Graph.t()
-  def default_graph(%__MODULE__{graphs: graphs}),
-    do: Map.get(graphs, nil, Graph.new())
+  def default_graph(%__MODULE__{} = dataset) do
+    Map.get(dataset.graphs, nil, Graph.new())
+  end
 
   @doc """
   The set of all graphs.
   """
   @spec graphs(t) :: [Graph.t()]
-  def graphs(%__MODULE__{graphs: graphs}), do: Map.values(graphs)
+  def graphs(%__MODULE__{} = dataset), do: Map.values(dataset.graphs)
 
   @doc """
   Gets and updates the graph with the given name, in a single pass.
@@ -457,19 +455,17 @@ defmodule RDF.Dataset do
   @impl Access
   @spec get_and_update(t, Statement.graph_name() | nil, update_graph_fun) :: {Graph.t(), input}
   def get_and_update(%__MODULE__{} = dataset, graph_name, fun) do
-    with graph_context = coerce_graph_name(graph_name) do
-      case fun.(get(dataset, graph_context)) do
-        {old_graph, new_graph} ->
-          {old_graph, put(dataset, new_graph, graph: graph_context)}
+    graph_context = coerce_graph_name(graph_name)
 
-        :pop ->
-          pop(dataset, graph_context)
+    case fun.(get(dataset, graph_context)) do
+      {old_graph, new_graph} ->
+        {old_graph, put(dataset, new_graph, graph: graph_context)}
 
-        other ->
-          raise "the given function must return a two-element tuple or :pop, got: #{
-                  inspect(other)
-                }"
-      end
+      :pop ->
+        pop(dataset, graph_context)
+
+      other ->
+        raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
     end
   end
 
@@ -483,7 +479,7 @@ defmodule RDF.Dataset do
       when graphs == %{},
       do: {nil, dataset}
 
-  def pop(%__MODULE__{name: name, graphs: graphs}) do
+  def pop(%__MODULE__{graphs: graphs} = dataset) do
     # TODO: Find a faster way ...
     [{graph_name, graph}] = Enum.take(graphs, 1)
     {{s, p, o}, popped_graph} = Graph.pop(graph)
@@ -493,7 +489,10 @@ defmodule RDF.Dataset do
         do: graphs |> Map.delete(graph_name),
         else: graphs |> Map.put(graph_name, popped_graph)
 
-    {{s, p, o, graph_name}, %__MODULE__{name: name, graphs: popped}}
+    {
+      {s, p, o, graph_name},
+      %__MODULE__{dataset | graphs: popped}
+    }
   end
 
   @doc """
@@ -514,13 +513,13 @@ defmodule RDF.Dataset do
   """
   @impl Access
   @spec pop(t, Statement.coercible_graph_name()) :: {Statement.t() | nil, t}
-  def pop(%__MODULE__{name: name, graphs: graphs} = dataset, graph_name) do
-    case Access.pop(graphs, coerce_graph_name(graph_name)) do
+  def pop(%__MODULE__{} = dataset, graph_name) do
+    case Access.pop(dataset.graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
         {nil, dataset}
 
       {graph, new_graphs} ->
-        {graph, %__MODULE__{name: name, graphs: new_graphs}}
+        {graph, %__MODULE__{dataset | graphs: new_graphs}}
     end
   end
 
@@ -537,8 +536,8 @@ defmodule RDF.Dataset do
       3
   """
   @spec statement_count(t) :: non_neg_integer
-  def statement_count(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, 0, fn {_, graph}, count ->
+  def statement_count(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, 0, fn {_, graph}, count ->
       count + Graph.triple_count(graph)
     end)
   end
@@ -555,8 +554,8 @@ defmodule RDF.Dataset do
       ...>   RDF.Dataset.subjects
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
-  def subjects(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, MapSet.new(), fn {_, graph}, subjects ->
+  def subjects(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, subjects ->
       MapSet.union(subjects, Graph.subjects(graph))
     end)
   end
@@ -573,8 +572,8 @@ defmodule RDF.Dataset do
       ...>   RDF.Dataset.predicates
       MapSet.new([EX.p1, EX.p2])
   """
-  def predicates(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, MapSet.new(), fn {_, graph}, predicates ->
+  def predicates(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, predicates ->
       MapSet.union(predicates, Graph.predicates(graph))
     end)
   end
@@ -595,8 +594,8 @@ defmodule RDF.Dataset do
       ...> ]) |> RDF.Dataset.objects
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
-  def objects(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, MapSet.new(), fn {_, graph}, objects ->
+  def objects(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, objects ->
       MapSet.union(objects, Graph.objects(graph))
     end)
   end
@@ -615,8 +614,8 @@ defmodule RDF.Dataset do
     MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
       RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
-  def resources(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, MapSet.new(), fn {_, graph}, resources ->
+  def resources(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, resources ->
       MapSet.union(resources, Graph.resources(graph))
     end)
   end
@@ -636,8 +635,8 @@ defmodule RDF.Dataset do
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   @spec statements(t) :: [Statement.t()]
-  def statements(%__MODULE__{graphs: graphs}) do
-    Enum.reduce(graphs, [], fn {_, graph}, all_statements ->
+  def statements(%__MODULE__{} = dataset) do
+    Enum.reduce(dataset.graphs, [], fn {_, graph}, all_statements ->
       statements = Graph.triples(graph)
 
       if graph.name do
@@ -667,13 +666,13 @@ defmodule RDF.Dataset do
   @spec include?(t, input, keyword) :: boolean
   def include?(dataset, input, opts \\ [])
 
-  def include?(dataset, {_, _, _, graph} = quad, opts),
+  def include?(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
     do: do_include?(dataset, destination_graph(opts, graph), quad)
 
-  def include?(dataset, %Description{} = description, opts),
+  def include?(%__MODULE__{} = dataset, %Description{} = description, opts),
     do: do_include?(dataset, destination_graph(opts), description)
 
-  def include?(dataset, %Graph{} = graph, opts),
+  def include?(%__MODULE__{} = dataset, %Graph{} = graph, opts),
     do: do_include?(dataset, destination_graph(opts, graph.name), graph)
 
   def include?(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
@@ -700,8 +699,8 @@ defmodule RDF.Dataset do
     def include?(dataset, input, opts), do: do_include?(dataset, destination_graph(opts), input)
   end
 
-  defp do_include?(%__MODULE__{graphs: graphs}, graph_name, input) do
-    if graph = graphs[graph_name] do
+  defp do_include?(%__MODULE__{} = dataset, graph_name, input) do
+    if graph = dataset.graphs[graph_name] do
       Graph.include?(graph, input)
     else
       false
@@ -719,13 +718,11 @@ defmodule RDF.Dataset do
         false
   """
   @spec describes?(t, Statement.t(), Statement.coercible_graph_name() | nil) :: boolean
-  def describes?(%__MODULE__{graphs: graphs}, subject, graph_context \\ nil) do
-    with graph_context = coerce_graph_name(graph_context) do
-      if graph = graphs[graph_context] do
-        Graph.describes?(graph, subject)
-      else
-        false
-      end
+  def describes?(%__MODULE__{} = dataset, subject, graph_context \\ nil) do
+    if graph = dataset.graphs[coerce_graph_name(graph_context)] do
+      Graph.describes?(graph, subject)
+    else
+      false
     end
   end
 
@@ -742,13 +739,13 @@ defmodule RDF.Dataset do
         [nil, RDF.iri(EX.Graph1)]
   """
   @spec who_describes(t, Statement.coercible_subject()) :: [Graph.t()]
-  def who_describes(%__MODULE__{graphs: graphs}, subject) do
-    with subject = coerce_subject(subject) do
-      graphs
-      |> Map.values()
-      |> Stream.filter(&Graph.describes?(&1, subject))
-      |> Enum.map(& &1.name)
-    end
+  def who_describes(%__MODULE__{} = dataset, subject) do
+    subject = coerce_subject(subject)
+
+    dataset.graphs
+    |> Map.values()
+    |> Stream.filter(&Graph.describes?(&1, subject))
+    |> Enum.map(& &1.name)
   end
 
   @doc """
@@ -804,10 +801,10 @@ defmodule RDF.Dataset do
 
   """
   @spec values(t, Statement.term_mapping()) :: map
-  def values(dataset, mapping \\ &RDF.Statement.default_term_mapping/1)
+  def values(dataset, mapping \\ &Statement.default_term_mapping/1)
 
-  def values(%__MODULE__{graphs: graphs}, mapping) do
-    Map.new(graphs, fn {graph_name, graph} ->
+  def values(%__MODULE__{} = dataset, mapping) do
+    Map.new(dataset.graphs, fn {graph_name, graph} ->
       {mapping.({:graph_name, graph_name}), Graph.values(graph, mapping)}
     end)
   end
@@ -827,12 +824,12 @@ defmodule RDF.Dataset do
 
   def equal?(_, _), do: false
 
-  defp clear_metadata(%__MODULE__{graphs: graphs} = dataset) do
+  defp clear_metadata(%__MODULE__{} = dataset) do
     %__MODULE__{
       dataset
       | graphs:
-          Map.new(graphs, fn {name, graph} ->
-            {name, RDF.Graph.clear_metadata(graph)}
+          Map.new(dataset.graphs, fn {name, graph} ->
+            {name, Graph.clear_metadata(graph)}
           end)
     }
   end
@@ -855,7 +852,7 @@ defmodule RDF.Dataset do
 
     def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
 
-    def reduce(dataset = %Dataset{}, {:suspend, acc}, fun) do
+    def reduce(%Dataset{} = dataset, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(dataset, &1, fun)}
     end
   end

@@ -79,13 +79,13 @@ defmodule RDF.Description do
   @doc """
   Returns the subject IRI or blank node of a description.
   """
-  @spec subject(t) :: RDF.Statement.subject()
+  @spec subject(t) :: Statement.subject()
   def subject(%__MODULE__{} = description), do: description.subject
 
   @doc """
   Changes the subject of a description.
   """
-  @spec change_subject(t, RDF.Statement.coercible_subject()) :: t
+  @spec change_subject(t, Statement.coercible_subject()) :: t
   def change_subject(%__MODULE__{} = description, new_subject) do
     %__MODULE__{description | subject: coerce_subject(new_subject)}
   end
@@ -318,15 +318,13 @@ defmodule RDF.Description do
   def delete_predicates(description, properties)
 
   def delete_predicates(%__MODULE__{} = description, properties) when is_list(properties) do
-    Enum.reduce(properties, description, fn property, description ->
-      delete_predicates(description, property)
-    end)
+    Enum.reduce(properties, description, &delete_predicates(&2, &1))
   end
 
-  def delete_predicates(%__MODULE__{subject: subject, predications: predications}, property) do
+  def delete_predicates(%__MODULE__{} = description, property) do
     %__MODULE__{
-      subject: subject,
-      predications: Map.delete(predications, coerce_predicate(property))
+      description
+      | predications: Map.delete(description.predications, coerce_predicate(property))
     }
   end
 
@@ -347,8 +345,9 @@ defmodule RDF.Description do
   """
   @impl Access
   @spec fetch(t, Statement.coercible_predicate()) :: {:ok, [Statement.object()]} | :error
-  def fetch(%__MODULE__{predications: predications}, predicate) do
-    with {:ok, objects} <- Access.fetch(predications, coerce_predicate(predicate)) do
+  def fetch(%__MODULE__{} = description, predicate) do
+    with {:ok, objects} <-
+           Access.fetch(description.predications, coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
   end
@@ -368,7 +367,7 @@ defmodule RDF.Description do
       :bar
   """
   @spec get(t, Statement.coercible_predicate(), any) :: [Statement.object()] | any
-  def get(description = %__MODULE__{}, predicate, default \\ nil) do
+  def get(%__MODULE__{} = description, predicate, default \\ nil) do
     case fetch(description, predicate) do
       {:ok, value} -> value
       :error -> default
@@ -388,7 +387,7 @@ defmodule RDF.Description do
       nil
   """
   @spec first(t, Statement.coercible_predicate()) :: Statement.object() | nil
-  def first(description = %__MODULE__{}, predicate) do
+  def first(%__MODULE__{} = description, predicate) do
     description
     |> get(predicate, [])
     |> List.first()
@@ -422,7 +421,7 @@ defmodule RDF.Description do
           Statement.coercible_object() | nil,
           ([Statement.Object] -> [Statement.Object])
         ) :: t
-  def update(description = %__MODULE__{}, predicate, initial \\ nil, fun) do
+  def update(%__MODULE__{} = description, predicate, initial \\ nil, fun) do
     predicate = coerce_predicate(predicate)
 
     case get(description, predicate) do
@@ -476,7 +475,7 @@ defmodule RDF.Description do
           Statement.coercible_predicate(),
           ([Statement.Object] -> {[Statement.Object], t} | :pop)
         ) :: {[Statement.Object], t}
-  def get_and_update(description = %__MODULE__{}, predicate, fun) do
+  def get_and_update(%__MODULE__{} = description, predicate, fun) do
     triple_predicate = coerce_predicate(predicate)
 
     case fun.(get(description, triple_predicate)) do
@@ -494,11 +493,11 @@ defmodule RDF.Description do
   @spec pop(t) :: {Triple.t() | [Statement.Object] | nil, t}
   def pop(description)
 
-  def pop(description = %__MODULE__{predications: predications})
+  def pop(%__MODULE__{predications: predications} = description)
       when map_size(predications) == 0,
       do: {nil, description}
 
-  def pop(%__MODULE__{subject: subject, predications: predications}) do
+  def pop(%__MODULE__{predications: predications} = description) do
     [{predicate, objects}] = Enum.take(predications, 1)
     [{object, _}] = Enum.take(objects, 1)
 
@@ -507,7 +506,10 @@ defmodule RDF.Description do
         do: elem(Map.pop(predications, predicate), 1),
         else: elem(pop_in(predications, [predicate, object]), 1)
 
-    {{subject, predicate, object}, %__MODULE__{subject: subject, predications: popped}}
+    {
+      {description.subject, predicate, object},
+      %__MODULE__{description | predications: popped}
+    }
   end
 
   @doc """
@@ -525,13 +527,16 @@ defmodule RDF.Description do
       {nil, RDF.Description.new(EX.S, init: {EX.P, EX.O})}
   """
   @impl Access
-  def pop(description = %__MODULE__{subject: subject, predications: predications}, predicate) do
-    case Access.pop(predications, coerce_predicate(predicate)) do
+  def pop(%__MODULE__{} = description, predicate) do
+    case Access.pop(description.predications, coerce_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
 
       {objects, new_predications} ->
-        {Map.keys(objects), %__MODULE__{subject: subject, predications: new_predications}}
+        {
+          Map.keys(objects),
+          %__MODULE__{description | predications: new_predications}
+        }
     end
   end
 
@@ -548,8 +553,9 @@ defmodule RDF.Description do
       MapSet.new([EX.p1, EX.p2])
   """
   @spec predicates(t) :: MapSet.t()
-  def predicates(%__MODULE__{predications: predications}),
-    do: predications |> Map.keys() |> MapSet.new()
+  def predicates(%__MODULE__{} = description) do
+    description.predications |> Map.keys() |> MapSet.new()
+  end
 
   @doc """
   The set of all resources used in the objects within a `RDF.Description`.
@@ -568,15 +574,16 @@ defmodule RDF.Description do
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   @spec objects(t) :: MapSet.t()
-  def objects(%__MODULE__{} = description),
-    do: objects(description, &RDF.resource?/1)
+  def objects(%__MODULE__{} = description) do
+    objects(description, &RDF.resource?/1)
+  end
 
   @doc """
   The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
   """
   @spec objects(t, (Statement.object() -> boolean)) :: MapSet.t()
-  def objects(%__MODULE__{predications: predications}, filter_fn) do
-    Enum.reduce(predications, MapSet.new(), fn {_, objects}, acc ->
+  def objects(%__MODULE__{} = description, filter_fn) do
+    Enum.reduce(description.predications, MapSet.new(), fn {_, objects}, acc ->
       objects
       |> Map.keys()
       |> Enum.filter(filter_fn)
@@ -600,9 +607,9 @@ defmodule RDF.Description do
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
   """
   @spec resources(t) :: MapSet.t()
-  def resources(description) do
+  def resources(%__MODULE__{} = description) do
     description
-    |> objects
+    |> objects()
     |> MapSet.union(predicates(description))
   end
 
@@ -610,7 +617,7 @@ defmodule RDF.Description do
   The list of all triples within a `RDF.Description`.
   """
   @spec triples(t) :: keyword
-  def triples(description = %__MODULE__{}), do: Enum.to_list(description)
+  def triples(%__MODULE__{} = description), do: Enum.to_list(description)
 
   defdelegate statements(description), to: __MODULE__, as: :triples
 
@@ -618,8 +625,10 @@ defmodule RDF.Description do
   Returns the number of statements of a `RDF.Description`.
   """
   @spec count(t) :: non_neg_integer
-  def count(%__MODULE__{predications: predications}) do
-    Enum.reduce(predications, 0, fn {_, objects}, count -> count + Enum.count(objects) end)
+  def count(%__MODULE__{} = description) do
+    Enum.reduce(description.predications, 0, fn {_, objects}, count ->
+      count + Enum.count(objects)
+    end)
   end
 
   @doc """
@@ -727,10 +736,10 @@ defmodule RDF.Description do
 
   """
   @spec values(t, Statement.term_mapping()) :: map
-  def values(description, mapping \\ &RDF.Statement.default_term_mapping/1)
+  def values(description, mapping \\ &Statement.default_term_mapping/1)
 
-  def values(%__MODULE__{predications: predications}, mapping) do
-    Map.new(predications, fn {predicate, objects} ->
+  def values(%__MODULE__{} = description, mapping) do
+    Map.new(description.predications, fn {predicate, objects} ->
       {
         mapping.({:predicate, predicate}),
         objects |> Map.keys() |> Enum.map(&mapping.({:object, &1}))
@@ -750,9 +759,12 @@ defmodule RDF.Description do
 
   def take(%__MODULE__{} = description, nil), do: description
 
-  def take(%__MODULE__{predications: predications} = description, predicates) do
-    predicates = Enum.map(predicates, &coerce_predicate/1)
-    %__MODULE__{description | predications: Map.take(predications, predicates)}
+  def take(%__MODULE__{} = description, predicates) do
+    %__MODULE__{
+      description
+      | predications:
+          Map.take(description.predications, Enum.map(predicates, &coerce_predicate/1))
+    }
   end
 
   @doc """
@@ -780,14 +792,14 @@ defmodule RDF.Description do
         when map_size(predications) == 0,
         do: {:done, acc}
 
-    def reduce(description = %Description{}, {:cont, acc}, fun) do
+    def reduce(%Description{} = description, {:cont, acc}, fun) do
       {triple, rest} = Description.pop(description)
       reduce(rest, fun.(triple, acc), fun)
     end
 
     def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
 
-    def reduce(description = %Description{}, {:suspend, acc}, fun) do
+    def reduce(%Description{} = description, {:suspend, acc}, fun) do
       {:suspended, acc, &reduce(description, &1, fun)}
     end
   end
