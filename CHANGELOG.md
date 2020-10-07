@@ -51,7 +51,9 @@ are specified.
   almost never the expected behaviour. This is fixed now by relying on the new
   `put/2` behaviour.
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
-  to `:value` 
+  to `:value`
+- allow the `base_iri` of `RDF.Vocabulary.Namespace`s to end with a `.` to support
+  vocabularies which use dots in the IRIs for further structuring (eg. CIM-based formats like CGMES)   
 
 ### Fixed
 

@@ -200,7 +200,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp base_iri!(opts) do
     base_iri = Keyword.fetch!(opts, :base_iri)
 
-    unless is_binary(base_iri) and String.ends_with?(base_iri, ["/", "#"]) do
+    unless is_binary(base_iri) and String.ends_with?(base_iri, ~w[/ # .]) do
       raise RDF.Namespace.InvalidVocabBaseIRIError,
             "a base_iri without a trailing '/' or '#' is invalid"
     else
