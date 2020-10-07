@@ -48,9 +48,11 @@ defmodule RDF.Dataset do
 
   ## Examples
 
-      RDF.Dataset.new({EX.S, EX.p, EX.O})
-
       RDF.Dataset.new(name: EX.GraphName)
+
+      RDF.Dataset.new(init: {EX.S, EX.p, EX.O})
+
+      RDF.Dataset.new({EX.S, EX.p, EX.O})
 
   """
   @spec new(input | keyword) :: t
@@ -59,7 +61,8 @@ defmodule RDF.Dataset do
   def new(data_or_options)
       when is_list(data_or_options) and length(data_or_options) != 0 do
     if Keyword.keyword?(data_or_options) do
-      new([], data_or_options)
+      {data, options} = Keyword.pop(data_or_options, :init)
+      new(data, options)
     else
       new(data_or_options, [])
     end
@@ -75,6 +78,9 @@ defmodule RDF.Dataset do
   Available options:
 
   - `name`: the name of the dataset to be created
+  - `init`: some data with which the dataset should be initialized; the data can be
+    provided in any form accepted by `add/3` and above that also with a function returning
+    the initialization data in any of these forms
 
   """
   @spec new(input, keyword) :: t
@@ -87,8 +93,12 @@ defmodule RDF.Dataset do
   def new(data, options) do
     %__MODULE__{}
     |> new(options)
-    |> add(data)
+    |> init(data)
   end
+
+  defp init(dataset, nil), do: dataset
+  defp init(dataset, fun) when is_function(fun), do: add(dataset, fun.())
+  defp init(dataset, data), do: add(dataset, data)
 
   @doc """
   Returns the dataset name IRI of `dataset`.

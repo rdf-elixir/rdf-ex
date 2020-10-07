@@ -56,16 +56,18 @@ defmodule RDF.Graph do
   @doc """
   Creates an `RDF.Graph`.
 
-  If a keyword list is given an empty graph is created.
+  If a keyword list with options is given an empty graph is created.
   Otherwise an unnamed graph initialized with the given data is created.
 
   See `new/2` for available arguments and the different ways to provide data.
 
   ## Examples
 
-      RDF.Graph.new({EX.S, EX.p, EX.O})
-
       RDF.Graph.new(name: EX.GraphName)
+
+      RDF.Graph.new(init: {EX.S, EX.p, EX.O})
+
+      RDF.Graph.new({EX.S, EX.p, EX.O})
 
   """
   @spec new(input | keyword) :: t
@@ -74,7 +76,8 @@ defmodule RDF.Graph do
   def new(data_or_options)
       when is_list(data_or_options) and length(data_or_options) != 0 do
     if Keyword.keyword?(data_or_options) do
-      new([], data_or_options)
+      {data, options} = Keyword.pop(data_or_options, :init)
+      new(data, options)
     else
       new(data_or_options, [])
     end
@@ -99,6 +102,9 @@ defmodule RDF.Graph do
     and will be used for example when serializing in a format with prefix support
   - `base_iri`: a base IRI which should be stored alongside the graph
     and will be used for example when serializing in a format with base IRI support
+  - `init`: some data with which the graph should be initialized; the data can be
+    provided in any form accepted by `add/3` and above that also with a function returning
+    the initialization data in any of these forms
 
   ## Examples
 
@@ -121,10 +127,14 @@ defmodule RDF.Graph do
   end
 
   def new(data, options) do
-    %__MODULE__{}
+    new()
     |> new(options)
-    |> add(data)
+    |> init(data)
   end
+
+  defp init(graph, nil), do: graph
+  defp init(graph, fun) when is_function(fun), do: add(graph, fun.())
+  defp init(graph, data), do: add(graph, data)
 
   @doc """
   Removes all triples from `graph`.

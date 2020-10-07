@@ -35,7 +35,7 @@ defmodule RDF.Diff do
   defp coerce_graph(%Description{} = description),
     do: if(Enum.empty?(description), do: Graph.new(), else: Graph.new(description))
 
-  defp coerce_graph(data), do: Graph.new(data)
+  defp coerce_graph(data), do: Graph.new(init: data)
 
   @doc """
   Computes a diff between two `RDF.Graph`s or `RDF.Description`s.

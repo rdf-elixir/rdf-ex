@@ -150,6 +150,53 @@ defmodule RDF.DatasetTest do
                {EX.Subject, EX.predicate(), EX.Object, EX.GraphName}
              )
     end
+
+    @tag skip: "This case is currently not supported, since it's indistinguishable from Keywords"
+    test "creating a dataset with a list of subject-predications pairs" do
+      ds =
+        Dataset.new([
+          {EX.S1,
+           [
+             {EX.P1, EX.O1},
+             %{EX.P2 => [EX.O2]}
+           ]}
+        ])
+
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O2})
+    end
+
+    test "with init data" do
+      ds =
+        Dataset.new(
+          init: [
+            {EX.S1,
+             [
+               {EX.P1, EX.O1},
+               %{EX.P2 => [EX.O2]}
+             ]}
+          ]
+        )
+
+      assert unnamed_dataset?(ds)
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O2})
+
+      ds =
+        Dataset.new(
+          name: EX.Dataset,
+          init: {EX.S, EX.p(), EX.O}
+        )
+
+      assert named_dataset?(ds, RDF.iri(EX.Dataset))
+      assert dataset_includes_statement?(ds, {EX.S, EX.p(), EX.O})
+    end
+
+    test "with an initializer function" do
+      ds = Dataset.new(init: fn -> {EX.S, EX.p(), EX.O} end)
+      assert unnamed_dataset?(ds)
+      assert dataset_includes_statement?(ds, {EX.S, EX.p(), EX.O})
+    end
   end
 
   test "name/1" do

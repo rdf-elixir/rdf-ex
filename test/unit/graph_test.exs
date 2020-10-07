@@ -156,6 +156,53 @@ defmodule RDF.GraphTest do
       g = Graph.new(Graph.new(prefixes: %{ex: XSD, rdfs: RDFS}), prefixes: prefix_map)
       assert g.prefixes == PrefixMap.new(ex: EX, rdfs: RDFS)
     end
+
+    @tag skip: "This case is currently not supported, since it's indistinguishable from Keywords"
+    test "creating a graph with a list of subject-predications pairs" do
+      g =
+        Graph.new([
+          {EX.S1,
+           [
+             {EX.P1, EX.O1},
+             %{EX.P2 => [EX.O2]}
+           ]}
+        ])
+
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O2})
+    end
+
+    test "with init data" do
+      g =
+        Graph.new(
+          init: [
+            {EX.S1,
+             [
+               {EX.P1, EX.O1},
+               %{EX.P2 => [EX.O2]}
+             ]}
+          ]
+        )
+
+      assert unnamed_graph?(g)
+      assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O2})
+
+      g =
+        Graph.new(
+          name: EX.Graph,
+          init: {EX.S, EX.p(), EX.O}
+        )
+
+      assert named_graph?(g, RDF.iri(EX.Graph))
+      assert graph_includes_statement?(g, {EX.S, EX.p(), EX.O})
+    end
+
+    test "with an initializer function" do
+      g = Graph.new(init: fn -> {EX.S, EX.p(), EX.O} end)
+      assert unnamed_graph?(g)
+      assert graph_includes_statement?(g, {EX.S, EX.p(), EX.O})
+    end
   end
 
   test "clear/1" do
