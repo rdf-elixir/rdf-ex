@@ -20,6 +20,7 @@ alias RDF.{
   Dataset,
 
   PrefixMap,
+  PropertyMap
 }
 
 alias RDF.BlankNode, as: BNode

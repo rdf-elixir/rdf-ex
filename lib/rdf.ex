@@ -252,6 +252,7 @@ defmodule RDF do
   def list(native_list, opts), do: RDF.List.from(native_list, opts)
 
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
+  defdelegate property_map(property_map), to: RDF.PropertyMap, as: :new
 
   defdelegate langString(value, opts), to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
