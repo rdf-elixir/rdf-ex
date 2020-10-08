@@ -29,6 +29,7 @@ are specified.
 - to `RDF.Dataset`
     - `RDF.Dataset.name/1` 
     - `RDF.Dataset.change_name/2`
+- `RDF.IRI.append/2`
 
 ### Changed
 

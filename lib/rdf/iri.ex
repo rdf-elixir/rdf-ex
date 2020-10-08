@@ -70,6 +70,31 @@ defmodule RDF.IRI do
   def new!(%__MODULE__{} = iri), do: valid!(iri)
 
   @doc """
+  Appends a String to a `RDF.IRI`.
+
+  ## Example
+
+      iex> ~I<http://example.com/> |> RDF.IRI.append("foo")
+      ~I<http://example.com/foo>
+
+      iex> EX.foo |> RDF.IRI.append("bar")
+      EX.foobar
+
+      iex> EX.Foo |> RDF.IRI.append("bar")
+      RDF.iri(EX.Foobar)
+  """
+  @spec append(t | module, String.t()) :: t
+  def append(iri, string)
+
+  def append(%__MODULE__{} = iri, string) do
+    %__MODULE__{iri | value: iri.value <> string}
+  end
+
+  def append(term, string) when maybe_ns_term(term) do
+    term |> Namespace.resolve_term!() |> append(string)
+  end
+
+  @doc """
   Coerces an IRI serving as a base IRI.
 
   As opposed to `new/1` this also accepts bare `RDF.Vocabulary.Namespace` modules
