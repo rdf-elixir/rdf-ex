@@ -43,7 +43,6 @@ jobs:
           - erlang: 20.3.1
             elixir: 1.8.2
     env:
-      MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +60,7 @@ jobs:
           mix deps.get
 
       - name: Run tests
-        run: mix coveralls.github
+        run: MIX_ENV=test mix coveralls.github
 
       - name: Retrieve PLT Cache
         uses: actions/cache@v1
