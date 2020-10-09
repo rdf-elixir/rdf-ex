@@ -16,14 +16,14 @@ defmodule RDF.Description do
   @behaviour Access
 
   import RDF.Statement
-  alias RDF.{Statement, Triple}
+  alias RDF.{Statement, Triple, PropertyMap}
 
   @type t :: %__MODULE__{
           subject: Statement.subject(),
           predications: predications
         }
 
-  @type predications :: %{Statement.predicate() => %{Statement.object() => nil}}
+  @type predications :: %{Statement.predicate() => %{Statement.object() => Annotation.t() | nil}}
 
   @type input ::
           Statement.coercible_t()
