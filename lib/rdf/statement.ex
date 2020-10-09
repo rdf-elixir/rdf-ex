@@ -5,7 +5,7 @@ defmodule RDF.Statement do
   A RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """
 
-  alias RDF.{BlankNode, IRI, Literal, Quad, Term, Triple}
+  alias RDF.{BlankNode, IRI, Literal, Quad, Term, Triple, PropertyMap}
   import RDF.Guards
 
   @type subject :: IRI.t() | BlankNode.t()
@@ -22,7 +22,9 @@ defmodule RDF.Statement do
   @type term_mapping :: (qualified_term -> any | nil)
 
   @type t :: Triple.t() | Quad.t()
-  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
+  @type coercible_t ::
+          {coercible_subject(), coercible_predicate(), coercible_object(), coercible_graph_name()}
+          | {coercible_subject(), coercible_predicate(), coercible_object()}
 
   @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.
@@ -36,8 +38,7 @@ defmodule RDF.Statement do
       iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
-  @spec coerce(Triple.coercible_t()) :: Triple.t()
-  @spec coerce(Quad.coercible_t()) :: Quad.t()
+  @spec coerce(coercible_t()) :: Triple.t() | Quad.t()
   def coerce(statement)
   def coerce({_, _, _} = triple), do: Triple.new(triple)
   def coerce({_, _, _, _} = quad), do: Quad.new(quad)
@@ -61,6 +62,16 @@ defmodule RDF.Statement do
   def coerce_predicate(bnode = %BlankNode{}), do: bnode
   def coerce_predicate(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_predicate(arg), do: raise(RDF.Triple.InvalidPredicateError, predicate: arg)
+
+  @doc false
+  @spec coerce_predicate(coercible_predicate, PropertyMap.t()) :: predicate
+  def coerce_predicate(term, context)
+
+  def coerce_predicate(term, %PropertyMap{} = context) when is_atom(term) do
+    PropertyMap.iri(context, term) || coerce_predicate(term)
+  end
+
+  def coerce_predicate(term, _), do: coerce_predicate(term)
 
   @doc false
   @spec coerce_object(coercible_object) :: object

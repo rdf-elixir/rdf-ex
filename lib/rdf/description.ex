@@ -26,7 +26,7 @@ defmodule RDF.Description do
   @type predications :: %{Statement.predicate() => %{Statement.object() => nil}}
 
   @type input ::
-          Triple.coercible_t()
+          Statement.coercible_t()
           | {
               Statement.coercible_predicate(),
               Statement.coercible_object() | [Statement.coercible_object()]
@@ -36,7 +36,7 @@ defmodule RDF.Description do
                 Statement.coercible_object() | [Statement.coercible_object()]
             }
           | [
-              Triple.coercible_t()
+              Statement.coercible_t()
               | {
                   Statement.coercible_predicate(),
                   Statement.coercible_object() | [Statement.coercible_object()]
@@ -68,13 +68,15 @@ defmodule RDF.Description do
   def new(%__MODULE__{} = description, opts), do: new(description.subject, opts)
 
   def new(subject, opts) do
+    {data, opts} = Keyword.pop(opts, :init)
+
     %__MODULE__{subject: coerce_subject(subject)}
-    |> init(Keyword.get(opts, :init))
+    |> init(data, opts)
   end
 
-  defp init(description, nil), do: description
-  defp init(description, fun) when is_function(fun), do: add(description, fun.())
-  defp init(description, data), do: add(description, data)
+  defp init(description, nil, _), do: description
+  defp init(description, fun, opts) when is_function(fun), do: add(description, fun.(), opts)
+  defp init(description, data, opts), do: add(description, data, opts)
 
   @doc """
   Returns the subject IRI or blank node of a description.
@@ -88,6 +90,14 @@ defmodule RDF.Description do
   @spec change_subject(t, Statement.coercible_subject()) :: t
   def change_subject(%__MODULE__{} = description, new_subject) do
     %__MODULE__{description | subject: coerce_subject(new_subject)}
+  end
+
+  defp context(nil), do: nil
+
+  defp context(opts) do
+    if property_map = Keyword.get(opts, :context) do
+      PropertyMap.new(property_map)
+    end
   end
 
   @doc """
@@ -123,11 +133,11 @@ defmodule RDF.Description do
     end
   end
 
-  def add(%__MODULE__{} = description, {predicate, objects}, _opts) do
+  def add(%__MODULE__{} = description, {predicate, objects}, opts) do
     normalized_objects =
       objects
       |> List.wrap()
-      |> Map.new(fn object -> {coerce_object(object), nil} end)
+      |> Map.new(&{coerce_object(&1), nil})
 
     if Enum.empty?(normalized_objects) do
       description
@@ -137,7 +147,7 @@ defmodule RDF.Description do
         | predications:
             Map.update(
               description.predications,
-              coerce_predicate(predicate),
+              coerce_predicate(predicate, context(opts)),
               normalized_objects,
               fn objects ->
                 Map.merge(objects, normalized_objects)
@@ -217,7 +227,7 @@ defmodule RDF.Description do
   def put(%__MODULE__{} = description, %__MODULE__{}, _opts), do: description
 
   def put(%__MODULE__{} = description, input, opts) do
-    put(description, description.subject |> new() |> add(input), opts)
+    put(description, description.subject |> new() |> add(input, opts), opts)
   end
 
   @doc """
@@ -243,8 +253,8 @@ defmodule RDF.Description do
     delete(description, {subject, predicate, objects}, opts)
   end
 
-  def delete(%__MODULE__{} = description, {predicate, objects}, _opts) do
-    predicate = coerce_predicate(predicate)
+  def delete(%__MODULE__{} = description, {predicate, objects}, opts) do
+    predicate = coerce_predicate(predicate, context(opts))
 
     if current_objects = Map.get(description.predications, predicate) do
       normalized_objects =
@@ -634,20 +644,20 @@ defmodule RDF.Description do
   @doc """
   Checks if the given `input` statements exist within `description`.
   """
-  @spec include?(t, input) :: boolean
-  def include?(description, input)
+  @spec include?(t, input, keyword) :: boolean
+  def include?(description, input, opts \\ [])
 
-  def include?(%__MODULE__{} = description, {subject, predicate, objects}) do
+  def include?(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
     coerce_subject(subject) == description.subject &&
-      include?(description, {predicate, objects})
+      include?(description, {predicate, objects}, opts)
   end
 
-  def include?(%__MODULE__{} = description, {subject, predicate, objects, _}) do
-    include?(description, {subject, predicate, objects})
+  def include?(%__MODULE__{} = description, {subject, predicate, objects, _}, opts) do
+    include?(description, {subject, predicate, objects}, opts)
   end
 
-  def include?(%__MODULE__{} = description, {predicate, objects}) do
-    if existing_objects = description.predications[coerce_predicate(predicate)] do
+  def include?(%__MODULE__{} = description, {predicate, objects}, opts) do
+    if existing_objects = description.predications[coerce_predicate(predicate, context(opts))] do
       objects
       |> List.wrap()
       |> Enum.map(&coerce_object/1)
@@ -659,7 +669,8 @@ defmodule RDF.Description do
 
   def include?(
         %__MODULE__{subject: subject, predications: predications},
-        %__MODULE__{subject: subject} = input
+        %__MODULE__{subject: subject} = input,
+        _opts
       ) do
     Enum.all?(input.predications, fn {predicate, objects} ->
       if existing_objects = predications[predicate] do
@@ -672,18 +683,18 @@ defmodule RDF.Description do
     end)
   end
 
-  def include?(%__MODULE__{}, %__MODULE__{}), do: false
+  def include?(%__MODULE__{}, %__MODULE__{}, _), do: false
 
   if Version.match?(System.version(), "~> 1.10") do
-    def include?(description, input)
+    def include?(description, input, opts)
         when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.all?(input, &include?(description, &1))
+      Enum.all?(input, &include?(description, &1, opts))
     end
   else
-    def include?(_, %_{}), do: raise(ArgumentError, "structs are not allowed as input")
+    def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
 
-    def include?(description, input) when is_list(input) or is_map(input) do
-      Enum.all?(input, &include?(description, &1))
+    def include?(description, input, opts) when is_list(input) or is_map(input) do
+      Enum.all?(input, &include?(description, &1, opts))
     end
   end
 

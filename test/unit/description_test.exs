@@ -55,6 +55,23 @@ defmodule RDF.DescriptionTest do
       desc = Description.new(EX.Subject, init: other_desc)
       assert description_of_subject(desc, iri(EX.Subject))
       assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+
+      desc =
+        Description.new(
+          EX.Subject,
+          init: %{
+            p1: EX.Object1,
+            p2: EX.Object2
+          },
+          context: %{
+            p1: EX.predicate1(),
+            p2: EX.predicate2()
+          }
+        )
+
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
     end
 
     test "with an initializer function" do
@@ -233,6 +250,75 @@ defmodule RDF.DescriptionTest do
       assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object4)})
     end
 
+    test "with a context" do
+      context =
+        PropertyMap.new(
+          p1: EX.p1(),
+          p2: EX.p2()
+        )
+
+      assert Description.add(description(), {iri(EX.Subject), :p, literal(42)},
+               context: [p: EX.predicate()]
+             )
+             |> description_includes_predication({EX.predicate(), literal(42)})
+
+      assert Description.add(description(), {iri(EX.Subject), :p, literal(42), EX.Graph},
+               context: %{p: EX.predicate()}
+             )
+             |> description_includes_predication({EX.predicate(), literal(42)})
+
+      desc =
+        Description.add(
+          description(),
+          [
+            p1: EX.O1,
+            p2: [EX.O2, ~L"foo", "bar", 42]
+          ],
+          context: context
+        )
+
+      assert description_includes_predication(desc, {EX.p1(), iri(EX.O1)})
+      assert description_includes_predication(desc, {EX.p2(), iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p2(), ~L"foo"})
+      assert description_includes_predication(desc, {EX.p2(), ~L"bar"})
+      assert description_includes_predication(desc, {EX.p2(), RDF.literal(42)})
+
+      desc =
+        Description.add(
+          description(),
+          %{
+            p1: EX.Object1,
+            p2: [EX.Object2, 42, bnode(:foo)]
+          },
+          context: context
+        )
+
+      assert Description.count(desc) == 4
+      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p2(), literal(42)})
+      assert description_includes_predication(desc, {EX.p2(), bnode(:foo)})
+
+      desc =
+        Description.add(
+          description(),
+          [
+            {:p1, EX.Object1},
+            {EX.Subject, :p2, EX.Object2},
+            %{p2: EX.Object3},
+            EX.predicate(EX.Other, EX.Object4)
+          ],
+          context: context
+        )
+
+      assert Description.count(desc) == 4
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object4)})
+    end
+
     test "triples with another subject are ignored" do
       assert empty_description(
                Description.add(description(), {EX.Other, EX.predicate(), iri(EX.Object)})
@@ -382,7 +468,6 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 3
-
       assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object4)})
       assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
@@ -395,6 +480,31 @@ defmodule RDF.DescriptionTest do
                desc,
                Description.new(EX.Other, init: {EX.Other, EX.predicate(), iri(EX.Object)})
              ) == desc
+    end
+
+    test "with a context" do
+      desc =
+        Description.put(
+          description(),
+          [
+            {:p1, EX.Object1},
+            {EX.Subject, :p2, EX.Object2},
+            %{p3: EX.Object3},
+            EX.predicate(EX.Other, EX.Object4)
+          ],
+          context: [
+            p1: EX.p1(),
+            p2: EX.p2(),
+            p3: EX.p3()
+          ]
+        )
+
+      assert Description.count(desc) == 4
+      assert description_of_subject(desc, iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p3(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object4)})
     end
 
     test "triples with another subject are ignored" do
@@ -529,6 +639,28 @@ defmodule RDF.DescriptionTest do
              ) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
+    test "with a context", %{description3: description3} do
+      desc =
+        Description.delete(
+          description3,
+          [
+            {:p1, EX.O1},
+            {EX.S, :p2, EX.O3},
+            %{p3: ~B<foo>},
+            EX.p3(EX.S, ~L"bar")
+          ],
+          context: [
+            p1: EX.p1(),
+            p2: EX.p2(),
+            p3: EX.p3()
+          ]
+        )
+
+      assert Description.count(desc) == 1
+      assert description_of_subject(desc, iri(EX.S))
+      assert description_includes_predication(desc, {EX.p1(), iri(EX.O2)})
+    end
+
     test "structs are causing an error" do
       assert_raise struct_not_allowed_as_input_error(), fn ->
         Description.delete(description(), Date.utc_today())
@@ -646,7 +778,7 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
-  describe "include?/2" do
+  describe "include?/3" do
     test "valid cases" do
       desc =
         Description.new(EX.S,
@@ -672,6 +804,16 @@ defmodule RDF.DescriptionTest do
       refute Description.include?(desc, {EX.p4(), EX.O1})
       refute Description.include?(desc, {EX.p1(), EX.O3})
       refute Description.include?(desc, {EX.p1(), [EX.O1, EX.O3]})
+
+      assert Description.include?(
+               desc,
+               %{
+                 p1: [EX.O1, EX.O2],
+                 p2: EX.O3,
+                 p3: [~B<foo>, "bar"]
+               },
+               context: %{p1: EX.p1(), p2: EX.p2(), p3: EX.p3()}
+             )
     end
 
     test "structs are causing an error" do

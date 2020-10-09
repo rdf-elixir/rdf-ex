@@ -13,6 +13,8 @@ defmodule RDF.PropertyMap do
 
   def new(), do: %__MODULE__{}
 
+  def new(%__MODULE__{} = initial), do: initial
+
   def new(initial) do
     {:ok, property_map} = new() |> add(initial)
 

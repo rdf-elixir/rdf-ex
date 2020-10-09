@@ -11,7 +11,7 @@ defmodule RDF.Test.Case do
 
   using do
     quote do
-      alias RDF.{Dataset, Graph, Description, IRI, XSD}
+      alias RDF.{Dataset, Graph, Description, IRI, XSD, PropertyMap}
       alias unquote(__MODULE__).{EX, FOAF}
 
       import RDF, only: [iri: 1, literal: 1, bnode: 1]

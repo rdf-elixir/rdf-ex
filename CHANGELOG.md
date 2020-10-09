@@ -18,6 +18,10 @@ are specified.
 
 ### Added
 
+- `RDF.PropertyMap` which allow definition of atoms for RDF properties. 
+  Such property maps can be provided to all RDF data structure functions 
+  accepting input data with the `:context` opt, allowing the use of the atoms
+  from the property map in the input data. 
 - to `RDF.Description`
     - `RDF.Description.subject/1` 
     - `RDF.Description.change_subject/2`
@@ -26,9 +30,11 @@ are specified.
     - `RDF.Graph.change_name/2`
     - `RDF.Graph.base_iri/1` 
     - `RDF.Graph.prefixes/1`
+    - `RDF.Graph.put_properties/3`
 - to `RDF.Dataset`
     - `RDF.Dataset.name/1` 
     - `RDF.Dataset.change_name/2`
+    - `RDF.Dataset.put_properties/3`
 - `RDF.IRI.append/2`
 
 ### Changed
@@ -41,7 +47,9 @@ are specified.
 - The `put/3` functions on `RDF.Graph` and `RDF.Dataset` now overwrite all 
   statements with same subject. Previously only statements with the same subject 
   AND predicate were overwritten, which was probably not the expected behaviour, 
-  since it's not inline with the common `put` semantics in Elixir.
+  since it's not inline with the common `put` semantics in Elixir. 
+  A function with the previous behaviour was added on `RDF.Graph` and `RDF.Dataset` 
+  with the `put_properties/3` function.
     - **CAUTION: This means the `RDF.Graph.put/2` and `RDF.Dataset.put/2` function have become more destructive now when not specified otherwise.**
     - Note: Although one could argue, that following this route `RDF.Dataset.put/3`
       would consequently have to overwrite whole graphs, this was not implemented
@@ -54,7 +62,10 @@ are specified.
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value`
 - allow the `base_iri` of `RDF.Vocabulary.Namespace`s to end with a `.` to support
-  vocabularies which use dots in the IRIs for further structuring (eg. CIM-based formats like CGMES)   
+  vocabularies which use dots in the IRIs for further structuring (eg. CIM-based formats like CGMES)
+- `RDF.Triple.new/1` now also accepts four-element tuples and simple ignores fourth element   
+- `RDF.Quad.new/1` now also accepts three-element tuples and simple assumes the fourth 
+  element to be `nil`    
 
 ### Fixed
 

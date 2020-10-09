@@ -151,6 +151,11 @@ defmodule RDF.DatasetTest do
              )
     end
 
+    test "with a context" do
+      ds = Dataset.new({EX.S, :p, EX.O}, context: [p: EX.p()])
+      assert dataset_includes_statement?(ds, {EX.S, EX.p(), EX.O})
+    end
+
     @tag skip: "This case is currently not supported, since it's indistinguishable from Keywords"
     test "creating a dataset with a list of subject-predications pairs" do
       ds =
@@ -800,6 +805,54 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O5, EX.Graph2})
     end
 
+    test "with a context" do
+      context =
+        PropertyMap.new(
+          p1: EX.p1(),
+          p2: EX.p2()
+        )
+
+      assert Dataset.add(dataset(), {EX.Subject, :p, 42}, context: [p: EX.predicate()])
+             |> dataset_includes_statement?({RDF.iri(EX.Subject), EX.predicate(), literal(42)})
+
+      assert Dataset.add(dataset(), {EX.Subject, :p, 42, EX.Graph}, context: %{p: EX.predicate()})
+             |> dataset_includes_statement?(
+               {RDF.iri(EX.Subject), EX.predicate(), literal(42), EX.Graph}
+             )
+
+      g =
+        Dataset.add(
+          dataset(),
+          [
+            {EX.S1, :p1, EX.O1},
+            {EX.S2, :p2, [EX.O21, EX.O22]}
+          ],
+          context: context
+        )
+
+      assert Dataset.statement_count(g) == 3
+      assert dataset_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert dataset_includes_statement?(g, {EX.S2, EX.p2(), EX.O21})
+      assert dataset_includes_statement?(g, {EX.S2, EX.p2(), EX.O22})
+
+      g =
+        Dataset.add(
+          dataset(),
+          [
+            {EX.S1,
+             [
+               {:p1, EX.O1},
+               %{p2: [EX.O2]}
+             ]}
+          ],
+          context: context
+        )
+
+      assert Dataset.statement_count(g) == 2
+      assert dataset_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert dataset_includes_statement?(g, {EX.S1, EX.p2(), EX.O2})
+    end
+
     test "duplicates are ignored" do
       ds = Dataset.add(dataset(), {EX.Subject, EX.predicate(), EX.Object, EX.GraphName})
       assert Dataset.add(ds, {EX.Subject, EX.predicate(), EX.Object, EX.GraphName}) == ds
@@ -1104,6 +1157,14 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.p2(), EX.O5})
     end
 
+    test "with a context" do
+      ds =
+        Dataset.new()
+        |> Dataset.put({EX.S, :p, EX.O}, context: [p: EX.p()])
+
+      assert dataset_includes_statement?(ds, {EX.S, EX.p(), EX.O})
+    end
+
     test "simultaneous use of the different forms to address the default context" do
       ds =
         Dataset.put(dataset(), [
@@ -1281,6 +1342,14 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O3})
       assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O4, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S2, EX.p(), EX.O5})
+    end
+
+    test "with a context" do
+      ds =
+        Dataset.new()
+        |> Dataset.put_properties({EX.S, :p, EX.O}, context: [p: EX.p()])
+
+      assert dataset_includes_statement?(ds, {EX.S, EX.p(), EX.O})
     end
 
     test "simultaneous use of the different forms to address the default context" do
@@ -1469,6 +1538,13 @@ defmodule RDF.DatasetTest do
       assert Dataset.delete(dataset2, dataset1) == Dataset.new({EX.S2, EX.p2(), EX.O2, EX.Graph})
     end
 
+    test "with a context", %{dataset2: dataset2} do
+      assert dataset2
+             |> Dataset.delete(%{EX.S2 => %{p2: EX.O2}}, graph: EX.Graph, context: [p2: EX.p2()])
+             |> Dataset.delete([{EX.S1, [p1: EX.O1]}], context: [p1: EX.p1()]) ==
+               Dataset.new()
+    end
+
     test "structs are causing an error" do
       assert_raise struct_not_allowed_as_input_error(), fn ->
         Dataset.delete(dataset(), Date.utc_today())
@@ -1571,6 +1647,15 @@ defmodule RDF.DatasetTest do
       assert Dataset.include?(dataset, EX.p(EX.S2, EX.O2), graph: EX.Graph)
       assert Dataset.include?(dataset, Graph.new(EX.S1 |> EX.p(EX.O1)))
       assert Dataset.include?(dataset, dataset)
+
+      assert Dataset.include?(
+               dataset,
+               [
+                 {EX.S1, :p, EX.O1},
+                 {EX.S2, :p, EX.O2, EX.Graph}
+               ],
+               context: [p: EX.p()]
+             )
     end
 
     test "structs are causing an error" do

@@ -56,15 +56,14 @@ defmodule RDF.Dataset do
 
   """
   @spec new(input | keyword) :: t
-  def new(data_or_options)
+  def new(data_or_opts)
 
-  def new(data_or_options)
-      when is_list(data_or_options) and length(data_or_options) != 0 do
-    if Keyword.keyword?(data_or_options) do
-      {data, options} = Keyword.pop(data_or_options, :init)
+  def new(data_or_opts) when is_list(data_or_opts) and length(data_or_opts) != 0 do
+    if Keyword.keyword?(data_or_opts) do
+      {data, options} = Keyword.pop(data_or_opts, :init)
       new(data, options)
     else
-      new(data_or_options, [])
+      new(data_or_opts, [])
     end
   end
 
@@ -84,21 +83,21 @@ defmodule RDF.Dataset do
 
   """
   @spec new(input, keyword) :: t
-  def new(data, options)
+  def new(data, opts)
 
-  def new(%__MODULE__{} = graph, options) do
-    %__MODULE__{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
+  def new(%__MODULE__{} = graph, opts) do
+    %__MODULE__{graph | name: opts |> Keyword.get(:name) |> coerce_graph_name()}
   end
 
-  def new(data, options) do
+  def new(data, opts) do
     %__MODULE__{}
-    |> new(options)
-    |> init(data)
+    |> new(opts)
+    |> init(data, opts)
   end
 
-  defp init(dataset, nil), do: dataset
-  defp init(dataset, fun) when is_function(fun), do: add(dataset, fun.())
-  defp init(dataset, data), do: add(dataset, data)
+  defp init(dataset, nil, _), do: dataset
+  defp init(dataset, fun, opts) when is_function(fun), do: add(dataset, fun.(), opts)
+  defp init(dataset, data, opts), do: add(dataset, data, opts)
 
   @doc """
   Returns the dataset name IRI of `dataset`.
@@ -143,13 +142,13 @@ defmodule RDF.Dataset do
   def add(dataset, input, opts \\ [])
 
   def add(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
-    do: do_add(dataset, destination_graph(opts, graph), quad)
+    do: do_add(dataset, destination_graph(opts, graph), quad, opts)
 
   def add(%__MODULE__{} = dataset, %Description{} = description, opts),
-    do: do_add(dataset, destination_graph(opts), description)
+    do: do_add(dataset, destination_graph(opts), description, opts)
 
   def add(%__MODULE__{} = dataset, %Graph{} = graph, opts),
-    do: do_add(dataset, destination_graph(opts, graph.name), graph)
+    do: do_add(dataset, destination_graph(opts, graph.name), graph, opts)
 
   def add(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
     other_dataset
@@ -171,9 +170,9 @@ defmodule RDF.Dataset do
   end
 
   def add(%__MODULE__{} = dataset, input, opts),
-    do: do_add(dataset, destination_graph(opts), input)
+    do: do_add(dataset, destination_graph(opts), input, opts)
 
-  defp do_add(dataset, graph_name, input) do
+  defp do_add(dataset, graph_name, input, opts) do
     %__MODULE__{
       dataset
       | graphs:
@@ -181,9 +180,9 @@ defmodule RDF.Dataset do
             dataset.graphs,
             graph_name,
             # when new:
-            fn -> Graph.new(input, name: graph_name) end,
+            fn -> Graph.new(input, Keyword.put(opts, :name, graph_name)) end,
             # when update:
-            fn graph -> Graph.add(graph, input) end
+            fn graph -> Graph.add(graph, input, opts) end
           )
     }
   end
@@ -299,13 +298,13 @@ defmodule RDF.Dataset do
   def delete(dataset, input, opts \\ [])
 
   def delete(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
-    do: do_delete(dataset, destination_graph(opts, graph), quad)
+    do: do_delete(dataset, destination_graph(opts, graph), quad, opts)
 
   def delete(%__MODULE__{} = dataset, %Description{} = description, opts),
-    do: do_delete(dataset, destination_graph(opts), description)
+    do: do_delete(dataset, destination_graph(opts), description, opts)
 
   def delete(%__MODULE__{} = dataset, %Graph{} = graph, opts),
-    do: do_delete(dataset, destination_graph(opts, graph.name), graph)
+    do: do_delete(dataset, destination_graph(opts, graph.name), graph, opts)
 
   def delete(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
     other_dataset
@@ -320,7 +319,7 @@ defmodule RDF.Dataset do
     end
 
     def delete(%__MODULE__{} = dataset, input, opts) when not is_struct(input),
-      do: do_delete(dataset, destination_graph(opts), input)
+      do: do_delete(dataset, destination_graph(opts), input, opts)
   else
     def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
 
@@ -329,12 +328,12 @@ defmodule RDF.Dataset do
     end
 
     def delete(%__MODULE__{} = dataset, input, opts),
-      do: do_delete(dataset, destination_graph(opts), input)
+      do: do_delete(dataset, destination_graph(opts), input, opts)
   end
 
-  defp do_delete(dataset, graph_name, input) do
+  defp do_delete(dataset, graph_name, input, opts) do
     if existing_graph = dataset.graphs[graph_name] do
-      new_graph = Graph.delete(existing_graph, input)
+      new_graph = Graph.delete(existing_graph, input, opts)
 
       %__MODULE__{
         dataset
@@ -677,13 +676,13 @@ defmodule RDF.Dataset do
   def include?(dataset, input, opts \\ [])
 
   def include?(%__MODULE__{} = dataset, {_, _, _, graph} = quad, opts),
-    do: do_include?(dataset, destination_graph(opts, graph), quad)
+    do: do_include?(dataset, destination_graph(opts, graph), quad, opts)
 
   def include?(%__MODULE__{} = dataset, %Description{} = description, opts),
-    do: do_include?(dataset, destination_graph(opts), description)
+    do: do_include?(dataset, destination_graph(opts), description, opts)
 
   def include?(%__MODULE__{} = dataset, %Graph{} = graph, opts),
-    do: do_include?(dataset, destination_graph(opts, graph.name), graph)
+    do: do_include?(dataset, destination_graph(opts, graph.name), graph, opts)
 
   def include?(%__MODULE__{} = dataset, %__MODULE__{} = other_dataset, opts) do
     other_dataset
@@ -698,7 +697,7 @@ defmodule RDF.Dataset do
     end
 
     def include?(dataset, input, opts) when not is_struct(input),
-      do: do_include?(dataset, destination_graph(opts), input)
+      do: do_include?(dataset, destination_graph(opts), input, opts)
   else
     def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
 
@@ -706,12 +705,13 @@ defmodule RDF.Dataset do
       Enum.all?(input, &include?(dataset, &1, opts))
     end
 
-    def include?(dataset, input, opts), do: do_include?(dataset, destination_graph(opts), input)
+    def include?(dataset, input, opts),
+      do: do_include?(dataset, destination_graph(opts), input, opts)
   end
 
-  defp do_include?(%__MODULE__{} = dataset, graph_name, input) do
+  defp do_include?(%__MODULE__{} = dataset, graph_name, input, opts) do
     if graph = dataset.graphs[graph_name] do
-      Graph.include?(graph, input)
+      Graph.include?(graph, input, opts)
     else
       false
     end

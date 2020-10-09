@@ -6,13 +6,9 @@ defmodule RDF.Triple do
   RDF values for subject, predicate and object.
   """
 
-  alias RDF.Statement
+  alias RDF.{Statement, PropertyMap}
 
   @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
-
-  @type coercible_t ::
-          {Statement.coercible_subject(), Statement.coercible_predicate(),
-           Statement.coercible_object()}
 
   @type t_values :: {String.t(), String.t(), any}
 
@@ -27,18 +23,33 @@ defmodule RDF.Triple do
 
       iex> RDF.Triple.new("http://example.com/S", "http://example.com/p", 42)
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+
       iex> RDF.Triple.new(EX.S, EX.p, 42)
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
+
+      iex> RDF.Triple.new(EX.S, :p, 42, RDF.PropertyMap.new(p: EX.p))
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
   @spec new(
           Statement.coercible_subject(),
           Statement.coercible_predicate(),
-          Statement.coercible_object()
+          Statement.coercible_object(),
+          PropertyMap.t() | nil
         ) :: t
-  def new(subject, predicate, object) do
+  def new(subject, predicate, object, property_map \\ nil)
+
+  def new(subject, predicate, object, nil) do
     {
       Statement.coerce_subject(subject),
       Statement.coerce_predicate(predicate),
+      Statement.coerce_object(object)
+    }
+  end
+
+  def new(subject, predicate, object, %PropertyMap{} = property_map) do
+    {
+      Statement.coerce_subject(subject),
+      Statement.coerce_predicate(predicate, property_map),
       Statement.coerce_object(object)
     }
   end
@@ -54,11 +65,24 @@ defmodule RDF.Triple do
 
       iex> RDF.Triple.new {"http://example.com/S", "http://example.com/p", 42}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+
       iex> RDF.Triple.new {EX.S, EX.p, 42}
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
+
+      iex> RDF.Triple.new {EX.S, EX.p, 42, EX.Graph}
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
+
+      iex> RDF.Triple.new {EX.S, :p, 42}, RDF.PropertyMap.new(p: EX.p)
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
-  @spec new(coercible_t) :: t
-  def new({subject, predicate, object}), do: new(subject, predicate, object)
+  @spec new(Statement.coercible_t(), PropertyMap.t() | nil) :: t
+  def new(statement, property_map \\ nil)
+
+  def new({subject, predicate, object}, property_map),
+    do: new(subject, predicate, object, property_map)
+
+  def new({subject, predicate, object, _}, property_map),
+    do: new(subject, predicate, object, property_map)
 
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Triple` of RDF terms.

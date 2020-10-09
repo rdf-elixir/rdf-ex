@@ -123,6 +123,21 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
+    test "with a context" do
+      g =
+        Graph.new(
+          [
+            {EX.Subject1, p1: EX.Object1},
+            %{EX.Subject2 => %{p2: EX.Object2}}
+          ],
+          context: %{p1: EX.predicate1(), p2: EX.predicate2()}
+        )
+
+      assert unnamed_graph?(g)
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
+    end
+
     test "with prefixes" do
       assert Graph.new(prefixes: %{ex: EX}) ==
                %Graph{prefixes: PrefixMap.new(ex: EX)}
@@ -305,6 +320,7 @@ defmodule RDF.GraphTest do
           EX.Subject3 => %{EX.predicate3() => EX.Object3}
         })
 
+      assert Graph.triple_count(g) == 3
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
@@ -325,11 +341,13 @@ defmodule RDF.GraphTest do
           ])
         )
 
+      assert Graph.triple_count(g) == 2
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
 
       g = Graph.add(g, Description.new(EX.Subject1, init: {EX.predicate3(), EX.Object3}))
 
+      assert Graph.triple_count(g) == 3
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate3(), EX.Object3})
@@ -348,6 +366,7 @@ defmodule RDF.GraphTest do
           Description.new(EX.Subject1, init: {EX.predicate3(), EX.Object3})
         ])
 
+      assert Graph.triple_count(g) == 3
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate3(), EX.Object3})
@@ -369,6 +388,7 @@ defmodule RDF.GraphTest do
           ])
         )
 
+      assert Graph.triple_count(g) == 3
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
@@ -382,6 +402,7 @@ defmodule RDF.GraphTest do
           ])
         )
 
+      assert Graph.triple_count(g) == 5
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object2})
       assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
@@ -420,6 +441,77 @@ defmodule RDF.GraphTest do
 
       assert graph.name == RDF.iri(EX.GraphName)
       assert graph.prefixes == PrefixMap.new(ex: EX)
+    end
+
+    test "with a context" do
+      context =
+        PropertyMap.new(
+          p1: EX.p1(),
+          p2: EX.p2()
+        )
+
+      assert Graph.add(graph(), {EX.Subject, :p, 42}, context: [p: EX.predicate()])
+             |> graph_includes_statement?({RDF.iri(EX.Subject), EX.predicate(), literal(42)})
+
+      assert Graph.add(graph(), {EX.Subject, :p, 42, EX.Graph}, context: %{p: EX.predicate()})
+             |> graph_includes_statement?({RDF.iri(EX.Subject), EX.predicate(), literal(42)})
+
+      g =
+        Graph.add(
+          graph(),
+          [
+            {EX.S1, :p1, EX.O1},
+            {EX.S2, :p2, [EX.O21, EX.O22]}
+          ],
+          context: context
+        )
+
+      assert Graph.triple_count(g) == 3
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O21})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O22})
+
+      g =
+        Graph.add(
+          graph(),
+          [
+            {EX.S1,
+             [
+               {:p1, EX.O1},
+               %{p2: [EX.O2]}
+             ]}
+          ],
+          context: context
+        )
+
+      assert Graph.triple_count(g) == 2
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.p2(), EX.O2})
+
+      g =
+        Graph.add(
+          graph(),
+          [
+            %{EX.S1 => {:p1, EX.O1}},
+            %{
+              EX.S1 => %{p1: EX.O11},
+              EX.S2 => %{p1: EX.O2}
+            },
+            {EX.S2, {:p2, EX.O2}},
+            [{EX.S2, {:p2, EX.O21}}],
+            EX.p2(EX.S2, EX.O22)
+          ],
+          context: context
+        )
+
+      assert Graph.triple_count(g) == 6
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O1})
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O11})
+
+      assert graph_includes_statement?(g, {EX.S2, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O21})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O22})
     end
 
     test "non-coercible Triple elements are causing an error" do
@@ -612,6 +704,24 @@ defmodule RDF.GraphTest do
       assert graph.base_iri == EX.base()
     end
 
+    test "with a context" do
+      g =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}])
+        |> Graph.put(
+          %{
+            EX.S1 => [p1: EX.O2],
+            EX.S2 => %{p1: EX.O2},
+            EX.S3 => %{p3: EX.O3}
+          },
+          context: [p1: EX.p1(), p3: EX.p3()]
+        )
+
+      assert Graph.triple_count(g) == 3
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S3, EX.p3(), EX.O3})
+    end
+
     test "structs are causing an error" do
       assert_raise struct_not_allowed_as_input_error(), fn ->
         Graph.put(graph(), Date.utc_today())
@@ -801,6 +911,25 @@ defmodule RDF.GraphTest do
       assert graph.base_iri == EX.base()
     end
 
+    test "with a context" do
+      g =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}])
+        |> Graph.put_properties(
+          %{
+            EX.S1 => [p1: EX.O2],
+            EX.S2 => %{p1: EX.O2},
+            EX.S3 => %{p3: EX.O3}
+          },
+          context: [p1: EX.p1(), p3: EX.p3()]
+        )
+
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.S1, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p1(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S2, EX.p2(), EX.O2})
+      assert graph_includes_statement?(g, {EX.S3, EX.p3(), EX.O3})
+    end
+
     test "structs are causing an error" do
       assert_raise struct_not_allowed_as_input_error(), fn ->
         Graph.put_properties(graph(), Date.utc_today())
@@ -812,7 +941,7 @@ defmodule RDF.GraphTest do
     end
   end
 
-  describe "delete/2" do
+  describe "delete/3" do
     setup do
       {:ok,
        graph1: Graph.new({EX.S, EX.p(), EX.O}),
@@ -910,6 +1039,18 @@ defmodule RDF.GraphTest do
                  {EX.S3, EX.p3(), ~B<foo>}
                ])
              ) == Graph.new({EX.S3, EX.p3(), ~L"bar"})
+    end
+
+    test "with a context", %{graph2: graph2} do
+      assert Graph.delete(
+               graph2,
+               [
+                 %{EX.S => %{p: EX.O1}},
+                 %{EX.S => {:p, [EX.O2]}}
+               ],
+               context: [p: EX.p()]
+             ) ==
+               Graph.new(name: EX.Graph)
     end
 
     test "preserves the name and prefixes" do
@@ -1051,7 +1192,7 @@ defmodule RDF.GraphTest do
     assert Enum.count(graph.descriptions) == 1
   end
 
-  describe "include?/2" do
+  describe "include?/3" do
     test "valid cases" do
       graph =
         Graph.new([
@@ -1077,6 +1218,15 @@ defmodule RDF.GraphTest do
       assert Graph.include?(graph, EX.S1 |> EX.p(EX.O1))
       assert Graph.include?(graph, Graph.new(EX.S1 |> EX.p(EX.O1)))
       assert Graph.include?(graph, graph)
+
+      assert Graph.include?(
+               graph,
+               [
+                 %{EX.S1 => %{p: EX.O1}},
+                 %{EX.S2 => {:p, [EX.O2]}}
+               ],
+               context: [p: EX.p()]
+             )
     end
 
     test "structs are causing an error" do

@@ -140,8 +140,8 @@ defmodule RDF.PrefixMap do
   and `namespace2` (the namespace for the prefix in the second prefix map).
   The value returned by the `conflict_resolver` function is used as the namespace
   for the prefix in the resulting prefix map.
-  Non-`RDF.IRI` values will be tried to be converted to converted to `RDF.IRI`
-  via `RDF.IRI.new` implicitly.
+  Non-`RDF.IRI` values will be tried to be converted to `RDF.IRI`s via
+  `RDF.IRI.new` implicitly.
 
   The most common conflict resolution strategies on can be chosen directly with
   the following atoms:

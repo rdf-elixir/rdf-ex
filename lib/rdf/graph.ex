@@ -71,15 +71,14 @@ defmodule RDF.Graph do
 
   """
   @spec new(input | keyword) :: t
-  def new(data_or_options)
+  def new(data_or_opts)
 
-  def new(data_or_options)
-      when is_list(data_or_options) and length(data_or_options) != 0 do
-    if Keyword.keyword?(data_or_options) do
-      {data, options} = Keyword.pop(data_or_options, :init)
+  def new(data_or_opts) when is_list(data_or_opts) and length(data_or_opts) != 0 do
+    if Keyword.keyword?(data_or_opts) do
+      {data, options} = Keyword.pop(data_or_opts, :init)
       new(data, options)
     else
-      new(data_or_options, [])
+      new(data_or_opts, [])
     end
   end
 
@@ -118,23 +117,23 @@ defmodule RDF.Graph do
 
   """
   @spec new(input, keyword) :: t
-  def new(data, options)
+  def new(data, opts)
 
-  def new(%__MODULE__{} = graph, options) do
-    %__MODULE__{graph | name: options |> Keyword.get(:name) |> coerce_graph_name()}
-    |> add_prefixes(Keyword.get(options, :prefixes))
-    |> set_base_iri(Keyword.get(options, :base_iri))
+  def new(%__MODULE__{} = graph, opts) do
+    %__MODULE__{graph | name: opts |> Keyword.get(:name) |> coerce_graph_name()}
+    |> add_prefixes(Keyword.get(opts, :prefixes))
+    |> set_base_iri(Keyword.get(opts, :base_iri))
   end
 
-  def new(data, options) do
+  def new(data, opts) do
     new()
-    |> new(options)
-    |> init(data)
+    |> new(opts)
+    |> init(data, opts)
   end
 
-  defp init(graph, nil), do: graph
-  defp init(graph, fun) when is_function(fun), do: add(graph, fun.())
-  defp init(graph, data), do: add(graph, data)
+  defp init(graph, nil, _), do: graph
+  defp init(graph, fun, opts) when is_function(fun), do: add(graph, fun.(), opts)
+  defp init(graph, data, opts), do: add(graph, data, opts)
 
   @doc """
   Removes all triples from `graph`.
@@ -337,43 +336,43 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   """
-  @spec delete(t, input) :: t
-  def delete(graph, input)
+  @spec delete(t, input, keyword) :: t
+  def delete(graph, input, opts \\ [])
 
-  def delete(%__MODULE__{} = graph, {subject, _, _} = triple),
-    do: do_delete(graph, coerce_subject(subject), triple)
+  def delete(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
+    do: do_delete(graph, coerce_subject(subject), triple, opts)
 
-  def delete(%__MODULE__{} = graph, {subject, predications}),
-    do: do_delete(graph, coerce_subject(subject), predications)
+  def delete(%__MODULE__{} = graph, {subject, predications}, opts),
+    do: do_delete(graph, coerce_subject(subject), predications, opts)
 
-  def delete(graph, {subject, predicate, object, _}),
-    do: delete(graph, {subject, predicate, object})
+  def delete(graph, {subject, predicate, object, _}, opts),
+    do: delete(graph, {subject, predicate, object}, opts)
 
-  def delete(%__MODULE__{} = graph, %Description{} = description),
-    do: do_delete(graph, description.subject, description)
+  def delete(%__MODULE__{} = graph, %Description{} = description, opts),
+    do: do_delete(graph, description.subject, description, opts)
 
-  def delete(%__MODULE__{} = graph, %__MODULE__{} = input) do
+  def delete(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
     Enum.reduce(input.descriptions, graph, fn {_, description}, graph ->
-      delete(graph, description)
+      delete(graph, description, opts)
     end)
   end
 
   if Version.match?(System.version(), "~> 1.10") do
-    def delete(%__MODULE__{} = graph, input)
+    def delete(%__MODULE__{} = graph, input, opts)
         when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.reduce(input, graph, &delete(&2, &1))
+      Enum.reduce(input, graph, &delete(&2, &1, opts))
     end
   else
-    def delete(_, %_{}), do: raise(ArgumentError, "structs are not allowed as input")
+    def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
 
-    def delete(%__MODULE__{} = graph, input) when is_list(input) or is_map(input) do
-      Enum.reduce(input, graph, &delete(&2, &1))
+    def delete(%__MODULE__{} = graph, input, opts) when is_list(input) or is_map(input) do
+      Enum.reduce(input, graph, &delete(&2, &1, opts))
     end
   end
 
-  defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, input) do
+  defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, input, opts) do
     if description = descriptions[subject] do
-      new_description = Description.delete(description, input)
+      new_description = Description.delete(description, input, opts)
 
       %__MODULE__{
         graph
@@ -792,42 +791,43 @@ defmodule RDF.Graph do
   @doc """
   Checks if the given `input` statements exist within `graph`.
   """
-  @spec include?(t, input) :: boolean
-  def include?(graph, input)
+  @spec include?(t, input, keyword) :: boolean
+  def include?(graph, input, opts \\ [])
 
-  def include?(%__MODULE__{} = graph, {subject, _, _} = triple),
-    do: do_include?(graph, coerce_subject(subject), triple)
+  def include?(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
+    do: do_include?(graph, coerce_subject(subject), triple, opts)
 
-  def include?(graph, {subject, predicate, object, _}),
-    do: include?(graph, {subject, predicate, object})
+  def include?(graph, {subject, predicate, object, _}, opts),
+    do: include?(graph, {subject, predicate, object}, opts)
 
-  def include?(%__MODULE__{} = graph, {subject, predications}),
-    do: do_include?(graph, coerce_subject(subject), predications)
+  def include?(%__MODULE__{} = graph, {subject, predications}, opts),
+    do: do_include?(graph, coerce_subject(subject), predications, opts)
 
-  def include?(%__MODULE__{} = graph, %Description{subject: subject} = description),
-    do: do_include?(graph, subject, description)
+  def include?(%__MODULE__{} = graph, %Description{subject: subject} = description, opts),
+    do: do_include?(graph, subject, description, opts)
 
-  def include?(graph, %__MODULE__{} = other_graph) do
+  def include?(graph, %__MODULE__{} = other_graph, opts) do
     other_graph
     |> descriptions()
-    |> Enum.all?(&include?(graph, &1))
+    |> Enum.all?(&include?(graph, &1, opts))
   end
 
   if Version.match?(System.version(), "~> 1.10") do
-    def include?(graph, input) when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.all?(input, &include?(graph, &1))
+    def include?(graph, input, opts)
+        when is_list(input) or (is_map(input) and not is_struct(input)) do
+      Enum.all?(input, &include?(graph, &1, opts))
     end
   else
-    def include?(_, %_{}), do: raise(ArgumentError, "structs are not allowed as input")
+    def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
 
-    def include?(graph, input) when is_list(input) or is_map(input) do
-      Enum.all?(input, &include?(graph, &1))
+    def include?(graph, input, opts) when is_list(input) or is_map(input) do
+      Enum.all?(input, &include?(graph, &1, opts))
     end
   end
 
-  defp do_include?(%__MODULE__{descriptions: descriptions}, subject, input) do
+  defp do_include?(%__MODULE__{descriptions: descriptions}, subject, input, opts) do
     if description = descriptions[subject] do
-      Description.include?(description, input)
+      Description.include?(description, input, opts)
     else
       false
     end
