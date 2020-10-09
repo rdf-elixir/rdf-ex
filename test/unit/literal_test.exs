@@ -41,7 +41,7 @@ defmodule RDF.LiteralTest do
 
     test "with custom datatype literals" do
       datatype_literal = RDF.TestDatatypes.Age.new(42).literal
-      assert %Literal{literal: typed_literal} = Literal.new(datatype_literal)
+      assert %Literal{literal: ^datatype_literal} = Literal.new(datatype_literal)
     end
 
     test "when options without datatype given" do
