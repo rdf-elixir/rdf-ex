@@ -23,7 +23,7 @@ defmodule RDF.Description do
           predications: predications
         }
 
-  @type predications :: %{Statement.predicate() => %{Statement.object() => Annotation.t() | nil}}
+  @type predications :: %{Statement.predicate() => %{Statement.object() => nil}}
 
   @type input ::
           Statement.coercible_t()
