@@ -15,7 +15,9 @@ defmodule RDF.Description do
 
   @behaviour Access
 
-  import RDF.Statement
+  import RDF.Statement,
+    only: [coerce_subject: 1, coerce_predicate: 1, coerce_predicate: 2, coerce_object: 1]
+
   alias RDF.{Statement, Triple, PropertyMap}
 
   @type t :: %__MODULE__{
@@ -719,12 +721,11 @@ defmodule RDF.Description do
   Returns a map of the native Elixir values of a `RDF.Description`.
 
   The subject is not part of the result. It can be converted separately with
-  `RDF.Term.value/1`.
+  `RDF.Term.value/1`, or, if you want the subject in an outer map, just put the
+  the description in a graph and use `RDF.Graph.values/2`.
 
-  The optional second argument allows to specify a custom mapping with a function
-  which will receive a tuple `{statement_position, rdf_term}` where
-  `statement_position` is one of the atoms `:predicate` or `:object`,
-  while `rdf_term` is the RDF term to be mapped.
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
 
   ## Examples
 
@@ -733,7 +734,37 @@ defmodule RDF.Description do
       %{"http://example.com/p" => ["Foo"]}
 
       iex> RDF.Description.new(~I<http://example.com/S>, init: {~I<http://example.com/p>, ~L"Foo"})
-      ...> |> RDF.Description.values(fn
+      ...> |> RDF.Description.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      %{p: ["Foo"]}
+
+  """
+  @spec values(t, PropertyMap.t() | nil) :: map
+  def values(description, property_map \\ nil)
+
+  def values(%__MODULE__{} = description, nil) do
+    map(description, &Statement.default_term_mapping/1)
+  end
+
+  def values(%__MODULE__{} = description, %PropertyMap{} = property_map) do
+    map(description, Statement.default_property_mapping(property_map))
+  end
+
+  @doc """
+  Returns a map of a `RDF.Description` where each element from its triples is mapped with the given function.
+
+  The subject is not part of the result. If you want the subject in an outer map,
+  just put the the description in a graph and use `RDF.Graph.map/2`.
+
+  The function `fun` will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:predicate` or `:object`, while
+  `rdf_term` is the RDF term to be mapped. When the given function returns
+  `nil` this will be interpreted as an error and will become the overhaul result
+  of the `map/2` call.
+
+  ## Examples
+
+      iex> RDF.Description.new(~I<http://example.com/S>, init: {~I<http://example.com/p>, ~L"Foo"})
+      ...> |> RDF.Description.map(fn
       ...>      {:predicate, predicate} ->
       ...>        predicate
       ...>        |> to_string()
@@ -746,14 +777,14 @@ defmodule RDF.Description do
       %{p: ["Foo"]}
 
   """
-  @spec values(t, Statement.term_mapping()) :: map
-  def values(description, mapping \\ &Statement.default_term_mapping/1)
+  @spec map(t, Statement.term_mapping()) :: map
+  def map(description, fun)
 
-  def values(%__MODULE__{} = description, mapping) do
+  def map(%__MODULE__{} = description, fun) do
     Map.new(description.predications, fn {predicate, objects} ->
       {
-        mapping.({:predicate, predicate}),
-        objects |> Map.keys() |> Enum.map(&mapping.({:object, &1}))
+        fun.({:predicate, predicate}),
+        objects |> Map.keys() |> Enum.map(&fun.({:object, &1}))
       }
     end)
   end

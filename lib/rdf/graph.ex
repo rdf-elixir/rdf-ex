@@ -15,9 +15,9 @@ defmodule RDF.Graph do
 
   @behaviour Access
 
-  import RDF.Statement
+  import RDF.Statement, only: [coerce_subject: 1, coerce_graph_name: 1]
   import RDF.Utils
-  alias RDF.{Description, IRI, PrefixMap, Statement}
+  alias RDF.{Description, IRI, PrefixMap, Statement, PropertyMap}
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -851,10 +851,8 @@ defmodule RDF.Graph do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Graph`.
 
-  The optional second argument allows to specify a custom mapping with a function
-  which will receive a tuple `{statement_position, rdf_term}` where
-  `statement_position` is one of the atoms `:subject`, `:predicate` or `:object`,
-  while `rdf_term` is the RDF term to be mapped.
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
 
   ## Examples
 
@@ -872,7 +870,40 @@ defmodule RDF.Graph do
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
       ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
       ...> ])
-      ...> |> RDF.Graph.values(fn
+      ...> |> RDF.Graph.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      %{
+        "http://example.com/S1" => %{p: ["Foo"]},
+        "http://example.com/S2" => %{p: [42]}
+      }
+
+  """
+  @spec values(t, PropertyMap.t() | nil) :: map
+  def values(graph, property_map \\ nil)
+
+  def values(%__MODULE__{} = graph, nil) do
+    map(graph, &Statement.default_term_mapping/1)
+  end
+
+  def values(%__MODULE__{} = graph, %PropertyMap{} = property_map) do
+    map(graph, Statement.default_property_mapping(property_map))
+  end
+
+  @doc """
+  Returns a nested map of a `RDF.Graph` where each element from its triples is mapped with the given function.
+
+  The function `fun` will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate` or `:object`,
+  while `rdf_term` is the RDF term to be mapped. When the given function returns
+  `nil` this will be interpreted as an error and will become the overhaul result
+  of the `map/2` call.
+
+  ## Examples
+
+      iex> RDF.Graph.new([
+      ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
+      ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
+      ...> ])
+      ...> |> RDF.Graph.map(fn
       ...>      {:predicate, predicate} ->
       ...>        predicate
       ...>        |> to_string()
@@ -888,14 +919,14 @@ defmodule RDF.Graph do
       }
 
   """
-  @spec values(t, Statement.term_mapping()) :: map
-  def values(graph, mapping \\ &Statement.default_term_mapping/1)
+  @spec map(t, Statement.term_mapping()) :: map
+  def map(description, fun)
 
-  def values(%__MODULE__{} = graph, mapping) do
+  def map(%__MODULE__{} = graph, fun) do
     Map.new(graph.descriptions, fn {subject, description} ->
       {
-        mapping.({:subject, subject}),
-        Description.values(description, mapping)
+        fun.({:subject, subject}),
+        Description.map(description, fun)
       }
     end)
   end

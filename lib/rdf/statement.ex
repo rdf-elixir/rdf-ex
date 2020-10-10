@@ -18,7 +18,8 @@ defmodule RDF.Statement do
   @type coercible_object :: object | any
   @type coercible_graph_name :: graph_name | atom | String.t()
 
-  @type qualified_term :: {atom, Term.t() | nil}
+  @type position :: :subject | :predicate | :object | :graph_name
+  @type qualified_term :: {position, Term.t() | nil}
   @type term_mapping :: (qualified_term -> any | nil)
 
   @type t :: Triple.t() | Quad.t()
@@ -67,8 +68,8 @@ defmodule RDF.Statement do
   @spec coerce_predicate(coercible_predicate, PropertyMap.t()) :: predicate
   def coerce_predicate(term, context)
 
-  def coerce_predicate(term, %PropertyMap{} = context) when is_atom(term) do
-    PropertyMap.iri(context, term) || coerce_predicate(term)
+  def coerce_predicate(term, %PropertyMap{} = property_map) when is_atom(term) do
+    PropertyMap.iri(property_map, term) || coerce_predicate(term)
   end
 
   def coerce_predicate(term, _), do: coerce_predicate(term)
@@ -98,6 +99,32 @@ defmodule RDF.Statement do
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Statement` of RDF terms.
 
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
+
+  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
+
+  ## Examples
+
+      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      {"http://example.com/S", "http://example.com/p", 42}
+
+      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+      {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
+      ...> |> RDF.Statement.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      {"http://example.com/S", :p, 42}
+
+  """
+  @spec values(t, PropertyMap.t() | nil) :: Triple.t_values() | Quad.t_values() | nil
+  def values(quad, property_map \\ nil)
+  def values({_, _, _} = triple, property_map), do: Triple.values(triple, property_map)
+  def values({_, _, _, _} = quad, property_map), do: Quad.values(quad, property_map)
+
+  @doc """
+  Returns a tuple of native Elixir values from a `RDF.Statement` of RDF terms.
+
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
   The optional second argument allows to specify a custom mapping with a function
@@ -109,13 +136,8 @@ defmodule RDF.Statement do
 
   ## Examples
 
-      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
-      {"http://example.com/S", "http://example.com/p", 42}
-      iex> RDF.Statement.values {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
-      {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
-
       iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
-      ...> |> RDF.Statement.values(fn
+      ...> |> RDF.Statement.map(fn
       ...>      {:subject, subject} ->
       ...>        subject |> to_string() |> String.last()
       ...>      {:predicate, predicate} ->
@@ -128,17 +150,27 @@ defmodule RDF.Statement do
       {"S", :p, 42, ~I<http://example.com/Graph>}
 
   """
-  @spec values(t | any, term_mapping) :: Triple.t_values() | Quad.t_values() | nil
-  def values(statement, mapping \\ &default_term_mapping/1)
-  def values({_, _, _} = triple, mapping), do: RDF.Triple.values(triple, mapping)
-  def values({_, _, _, _} = quad, mapping), do: RDF.Quad.values(quad, mapping)
-  def values(_, _), do: nil
+  @spec map(t, term_mapping()) :: Triple.t_values() | Quad.t_values() | nil | nil
+  def map(statement, fun)
+  def map({_, _, _} = triple, fun), do: RDF.Triple.map(triple, fun)
+  def map({_, _, _, _} = quad, fun), do: RDF.Quad.map(quad, fun)
 
   @doc false
   @spec default_term_mapping(qualified_term) :: any | nil
   def default_term_mapping(qualified_term)
   def default_term_mapping({:graph_name, nil}), do: nil
   def default_term_mapping({_, term}), do: RDF.Term.value(term)
+
+  @spec default_property_mapping(PropertyMap.t()) :: term_mapping
+  def default_property_mapping(%PropertyMap{} = property_map) do
+    fn
+      {:predicate, predicate} ->
+        PropertyMap.term(property_map, predicate) || default_term_mapping({:predicate, predicate})
+
+      other ->
+        default_term_mapping(other)
+    end
+  end
 
   @doc """
   Checks if the given tuple is a valid RDF statement, i.e. RDF triple or quad.

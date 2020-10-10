@@ -1681,6 +1681,19 @@ defmodule RDF.DatasetTest do
   end
 
   test "values/2" do
+    assert Dataset.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2(), EX.graph()}])
+           |> Dataset.values(PropertyMap.new(p: EX.p())) ==
+             %{
+               nil => %{
+                 RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]}
+               },
+               RDF.Term.value(EX.graph()) => %{
+                 RDF.Term.value(EX.s2()) => %{p: [RDF.Term.value(EX.o2())]}
+               }
+             }
+  end
+
+  test "map/2" do
     mapping = fn
       {:graph_name, graph_name} ->
         graph_name
@@ -1692,10 +1705,10 @@ defmodule RDF.DatasetTest do
         RDF.Term.value(term)
     end
 
-    assert Dataset.new() |> Dataset.values(mapping) == %{}
+    assert Dataset.new() |> Dataset.map(mapping) == %{}
 
     assert Dataset.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2(), EX.graph()}])
-           |> Dataset.values(mapping) ==
+           |> Dataset.map(mapping) ==
              %{
                nil => %{
                  RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]}

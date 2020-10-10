@@ -94,13 +94,16 @@ defprotocol RDF.Data do
 
   @doc """
   Returns a nested map of the native Elixir values of a RDF data structure.
+
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
   """
-  def values(data)
+  def values(data, property_map \\ nil)
 
   @doc """
-  Returns a nested map of the native Elixir values of a RDF data structure with values mapped with the given function.
+  Returns a map representation of a RDF data structure where each element from its statements is mapped with the given function.
   """
-  def values(data, mapping)
+  def map(data, fun)
 
   @doc """
   Checks if two RDF data structures are equal.
@@ -191,8 +194,11 @@ defimpl RDF.Data, for: RDF.Description do
 
   def subject_count(_), do: 1
   def statement_count(description), do: RDF.Description.count(description)
-  def values(description), do: RDF.Description.values(description)
-  def values(description, mapping), do: RDF.Description.values(description, mapping)
+
+  def values(description, property_map \\ nil),
+    do: RDF.Description.values(description, property_map)
+
+  def map(description, fun), do: RDF.Description.map(description, fun)
 
   def equal?(description, %RDF.Description{} = other_description) do
     RDF.Description.equal?(description, other_description)
@@ -273,8 +279,8 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def subject_count(graph), do: RDF.Graph.subject_count(graph)
   def statement_count(graph), do: RDF.Graph.triple_count(graph)
-  def values(graph), do: RDF.Graph.values(graph)
-  def values(graph, mapping), do: RDF.Graph.values(graph, mapping)
+  def values(graph, property_map \\ nil), do: RDF.Graph.values(graph, property_map)
+  def map(graph, fun), do: RDF.Graph.map(graph, fun)
 
   def equal?(graph, %RDF.Description{} = description),
     do: RDF.Data.equal?(description, graph)
@@ -348,8 +354,8 @@ defimpl RDF.Data, for: RDF.Dataset do
 
   def subject_count(dataset), do: dataset |> subjects |> Enum.count()
   def statement_count(dataset), do: RDF.Dataset.statement_count(dataset)
-  def values(dataset), do: RDF.Dataset.values(dataset)
-  def values(dataset, mapping), do: RDF.Dataset.values(dataset, mapping)
+  def values(dataset, property_map \\ nil), do: RDF.Dataset.values(dataset, property_map)
+  def map(dataset, fun), do: RDF.Dataset.map(dataset, fun)
 
   def equal?(dataset, %RDF.Description{} = description) do
     with [graph] <- RDF.Dataset.graphs(dataset) do

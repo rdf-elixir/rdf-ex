@@ -8,8 +8,12 @@ defmodule RDF.Quad do
 
   alias RDF.{Statement, PropertyMap}
 
-  @type t ::
-          {Statement.subject(), Statement.predicate(), Statement.object(), Statement.graph_name()}
+  @type t :: {
+          Statement.subject(),
+          Statement.predicate(),
+          Statement.object(),
+          Statement.graph_name()
+        }
 
   @type t_values :: {String.t(), String.t(), any, String.t()}
 
@@ -93,14 +97,10 @@ defmodule RDF.Quad do
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Quad` of RDF terms.
 
-  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
 
-  The optional second argument allows to specify a custom mapping with a function
-  which will receive a tuple `{statement_position, rdf_term}` where
-  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or
-  `:graph_name`, while `rdf_term` is the RDF term to be mapped. When the given
-  function returns `nil` this will be interpreted as an error and will become
-  the overhaul result of the `values/2` call.
+  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
   ## Examples
 
@@ -108,7 +108,36 @@ defmodule RDF.Quad do
       {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
 
       iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
-      ...> |> RDF.Quad.values(fn
+      ...> |> RDF.Quad.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      {"http://example.com/S", :p, 42,  "http://example.com/Graph"}
+
+  """
+  @spec values(t, PropertyMap.t() | nil) :: t_values | nil
+  def values(quad, property_map \\ nil)
+
+  def values(quad, nil) do
+    map(quad, &Statement.default_term_mapping/1)
+  end
+
+  def values(quad, %PropertyMap{} = property_map) do
+    map(quad, Statement.default_property_mapping(property_map))
+  end
+
+  @doc """
+  Returns a tuple where each element from a `RDF.Quad` is mapped with the given function.
+
+  Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
+
+  The function `fun` will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or
+  `:graph_name` while `rdf_term` is the RDF term to be mapped. When the given function
+  returns `nil` this will be interpreted as an error and will become the overhaul
+  result of the `map/2` call.
+
+  ## Examples
+
+      iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
+      ...> |> RDF.Quad.map(fn
       ...>      {:object, object} ->
       ...>        RDF.Term.value(object)
       ...>      {:graph_name, graph_name} ->
@@ -119,21 +148,17 @@ defmodule RDF.Quad do
       {:S, :p, 42, ~I<http://example.com/Graph>}
 
   """
-  @spec values(t | any, Statement.term_mapping()) :: t_values | nil
-  def values(quad, mapping \\ &Statement.default_term_mapping/1)
-
-  def values({subject, predicate, object, graph_name}, mapping) do
-    with subject_value when not is_nil(subject_value) <- mapping.({:subject, subject}),
-         predicate_value when not is_nil(predicate_value) <- mapping.({:predicate, predicate}),
-         object_value when not is_nil(object_value) <- mapping.({:object, object}),
-         graph_name_value <- mapping.({:graph_name, graph_name}) do
+  @spec map(t, Statement.term_mapping()) :: t_values | nil
+  def map({subject, predicate, object, graph_name}, fun) do
+    with subject_value when not is_nil(subject_value) <- fun.({:subject, subject}),
+         predicate_value when not is_nil(predicate_value) <- fun.({:predicate, predicate}),
+         object_value when not is_nil(object_value) <- fun.({:object, object}),
+         graph_name_value <- fun.({:graph_name, graph_name}) do
       {subject_value, predicate_value, object_value, graph_name_value}
     else
       _ -> nil
     end
   end
-
-  def values(_, _), do: nil
 
   @doc """
   Checks if the given tuple is a valid RDF quad.

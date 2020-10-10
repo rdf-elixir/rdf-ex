@@ -534,7 +534,7 @@ defmodule RDF.DataTest do
                }
     end
 
-    test "values/2", %{dataset: dataset} do
+    test "map/2", %{dataset: dataset} do
       mapping = fn
         {:graph_name, graph_name} ->
           graph_name
@@ -546,7 +546,7 @@ defmodule RDF.DataTest do
           RDF.Term.value(term)
       end
 
-      assert RDF.Data.values(dataset, mapping) ==
+      assert RDF.Data.map(dataset, mapping) ==
                %{
                  nil => %{
                    RDF.Term.value(RDF.iri(EX.S)) => %{

@@ -839,6 +839,12 @@ defmodule RDF.DescriptionTest do
   end
 
   test "values/2" do
+    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"})
+           |> Description.values(PropertyMap.new(p: EX.p())) ==
+             %{p: ["Foo"]}
+  end
+
+  test "map/2" do
     mapping = fn
       {:predicate, predicate} ->
         predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
@@ -847,9 +853,9 @@ defmodule RDF.DescriptionTest do
         RDF.Term.value(term)
     end
 
-    assert Description.new(EX.s()) |> Description.values(mapping) == %{}
+    assert Description.new(EX.s()) |> Description.map(mapping) == %{}
 
-    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"}) |> Description.values(mapping) ==
+    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"}) |> Description.map(mapping) ==
              %{p: ["Foo"]}
   end
 

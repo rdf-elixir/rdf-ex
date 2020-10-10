@@ -59,6 +59,11 @@ are specified.
   of overwriting only statements with the same subject and predicate, which was
   almost never the expected behaviour. This is fixed now by relying on the new
   `put/2` behaviour.
+- the `values/2` functions of `RDF.Statement`, `RDF.Triple`, `RDF.Quad`, `RDF.Description`,
+  `RDF.Graph` and `RDF.Dataset` now accept on their second argument an optional 
+  `RDF.PropertyMap`which will be used to map predicates accordingly; the variant of 
+  these `values/2` functions to provide a custom mapping function was extracted into 
+  a new function `map/2` on all of these modules 
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value`
 - allow the `base_iri` of `RDF.Vocabulary.Namespace`s to end with a `.` to support

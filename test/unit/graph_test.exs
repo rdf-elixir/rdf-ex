@@ -1252,6 +1252,15 @@ defmodule RDF.GraphTest do
   end
 
   test "values/2" do
+    assert Graph.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2()}])
+           |> Graph.values(PropertyMap.new(p: EX.p())) ==
+             %{
+               RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]},
+               RDF.Term.value(EX.s2()) => %{p: [RDF.Term.value(EX.o2())]}
+             }
+  end
+
+  test "map/2" do
     mapping = fn
       {:predicate, predicate} ->
         predicate |> to_string() |> String.split("/") |> List.last() |> String.to_atom()
@@ -1260,10 +1269,10 @@ defmodule RDF.GraphTest do
         RDF.Term.value(term)
     end
 
-    assert Graph.new() |> Graph.values(mapping) == %{}
+    assert Graph.new() |> Graph.map(mapping) == %{}
 
     assert Graph.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2()}])
-           |> Graph.values(mapping) ==
+           |> Graph.map(mapping) ==
              %{
                RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]},
                RDF.Term.value(EX.s2()) => %{p: [RDF.Term.value(EX.o2())]}

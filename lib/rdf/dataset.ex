@@ -17,8 +17,8 @@ defmodule RDF.Dataset do
 
   @behaviour Access
 
-  alias RDF.{Graph, Description, IRI, Statement}
-  import RDF.Statement
+  alias RDF.{Graph, Description, IRI, Statement, PropertyMap}
+  import RDF.Statement, only: [coerce_subject: 1, coerce_graph_name: 1]
   import RDF.Utils
 
   @type graph_name :: IRI.t() | nil
@@ -761,10 +761,8 @@ defmodule RDF.Dataset do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Dataset`.
 
-  The optional second argument allows to specify a custom mapping with a function
-  which will receive a tuple `{statement_position, rdf_term}` where
-  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object`,
-   or `graph_name` while `rdf_term` is the RDF term to be mapped.
+  When the optional `property_map` argument is given, predicates will be mapped
+  to the terms defined in the `RDF.PropertyMap` if present.
 
   ## Examples
 
@@ -783,12 +781,35 @@ defmodule RDF.Dataset do
         }
       }
 
+  """
+  @spec values(t, PropertyMap.t() | nil) :: map
+  def values(dataset, property_map \\ nil)
+
+  def values(%__MODULE__{} = dataset, nil) do
+    map(dataset, &Statement.default_term_mapping/1)
+  end
+
+  def values(%__MODULE__{} = dataset, %PropertyMap{} = property_map) do
+    map(dataset, Statement.default_property_mapping(property_map))
+  end
+
+  @doc """
+  Returns a nested map of a `RDF.Dataset` where each element from its quads is mapped with the given function.
+
+  The function `fun` will receive a tuple `{statement_position, rdf_term}` where
+  `statement_position` is one of the atoms `:subject`, `:predicate`, `:object` or
+  `:graph_name` while `rdf_term` is the RDF term to be mapped. When the given function
+  returns `nil` this will be interpreted as an error and will become the overhaul
+  result of the `map/2` call.
+
+  ## Examples
+
       iex> [
       ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, ~L"Foo", ~I<http://example.com/Graph>},
       ...>   {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.XSD.integer(42), }
       ...> ]
       ...> |> RDF.Dataset.new()
-      ...> |> RDF.Dataset.values(fn
+      ...> |> RDF.Dataset.map(fn
       ...>      {:graph_name, graph_name} ->
       ...>        graph_name
       ...>      {:predicate, predicate} ->
@@ -810,12 +831,12 @@ defmodule RDF.Dataset do
       }
 
   """
-  @spec values(t, Statement.term_mapping()) :: map
-  def values(dataset, mapping \\ &Statement.default_term_mapping/1)
+  @spec map(t, Statement.term_mapping()) :: map
+  def map(dataset, fun)
 
-  def values(%__MODULE__{} = dataset, mapping) do
+  def map(%__MODULE__{} = dataset, fun) do
     Map.new(dataset.graphs, fn {graph_name, graph} ->
-      {mapping.({:graph_name, graph_name}), Graph.values(graph, mapping)}
+      {fun.({:graph_name, graph_name}), Graph.map(graph, fun)}
     end)
   end
 
