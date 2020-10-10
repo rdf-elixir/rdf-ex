@@ -143,6 +143,15 @@ defmodule RDF.PropertyMap do
     end
   end
 
+  defimpl Enumerable do
+    alias RDF.PropertyMap
+    def reduce(%PropertyMap{iris: iris}, acc, fun), do: Enumerable.reduce(iris, acc, fun)
+
+    def member?(%PropertyMap{iris: iris}, mapping), do: Enumerable.member?(iris, mapping)
+    def count(%PropertyMap{iris: iris}), do: Enumerable.count(iris)
+    def slice(_property_map), do: {:error, __MODULE__}
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 

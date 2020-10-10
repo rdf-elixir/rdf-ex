@@ -171,9 +171,6 @@ defmodule RDF.PropertyMapTest do
              PropertyMap.new(Baz: EX.Baz)
   end
 
-  describe "expand_description/2" do
-  end
-
   describe "Access behaviour" do
     test "fetch/2" do
       assert @example_property_map[:foo] == ~I<http://example.com/test/foo>
@@ -195,6 +192,29 @@ defmodule RDF.PropertyMapTest do
 
       assert Access.get_and_update(@example_property_map, :foo, fn _ -> :pop end) ==
                {~I<http://example.com/test/foo>, PropertyMap.delete(@example_property_map, :foo)}
+    end
+  end
+
+  describe "Enumerable protocol" do
+    test "Enum.count" do
+      assert Enum.count(PropertyMap.new()) == 0
+      assert Enum.count(@example_property_map) == 3
+    end
+
+    test "Enum.member?" do
+      assert Enum.member?(@example_property_map, {:foo, ~I<http://example.com/test/foo>})
+      assert Enum.member?(@example_property_map, {:bar, ~I<http://example.com/test/bar>})
+      assert Enum.member?(@example_property_map, {:Baz, RDF.iri(EX.Baz)})
+      refute Enum.member?(@example_property_map, {:bar, ~I<http://example.com/test/foo>})
+    end
+
+    test "Enum.reduce" do
+      assert Enum.reduce(@example_property_map, [], fn mapping, acc -> [mapping | acc] end) ==
+               [
+                 {:foo, ~I<http://example.com/test/foo>},
+                 {:bar, ~I<http://example.com/test/bar>},
+                 {:Baz, RDF.iri(EX.Baz)}
+               ]
     end
   end
 end
