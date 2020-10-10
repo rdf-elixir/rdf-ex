@@ -142,4 +142,24 @@ defmodule RDF.PropertyMap do
         raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
     end
   end
+
+  defimpl Inspect do
+    import Inspect.Algebra
+
+    def inspect(property_map, opts) do
+      map = Map.to_list(property_map.iris)
+      open = color("%RDF.PropertyMap{", :map, opts)
+      sep = color(",", :map, opts)
+      close = color("}", :map, opts)
+
+      container_doc(open, map, close, opts, &to_map(&1, &2, color(" <=> ", :map, opts)),
+        separator: sep,
+        break: :strict
+      )
+    end
+
+    defp to_map({key, value}, opts, sep) do
+      concat(concat(to_doc(key, opts), sep), to_doc(value, opts))
+    end
+  end
 end
