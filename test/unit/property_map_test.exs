@@ -105,6 +105,31 @@ defmodule RDF.PropertyMapTest do
              }) == {:ok, @example_property_map}
     end
 
+    test "with a disjunctive PropertyMap" do
+      assert {:ok, property_map} =
+               PropertyMap.new()
+               |> PropertyMap.add(PropertyMap.new(foo: ~I<http://example.com/test/foo>))
+
+      assert PropertyMap.add(
+               property_map,
+               PropertyMap.new(%{
+                 bar: "http://example.com/test/bar",
+                 Baz: EX.Baz
+               })
+             ) == {:ok, @example_property_map}
+    end
+
+    test "with a conflicting PropertyMap" do
+      assert {:error, _} =
+               PropertyMap.add(@example_property_map, PropertyMap.new(foo: EX.other()))
+
+      assert {:error, _} =
+               PropertyMap.add(
+                 @example_property_map,
+                 PropertyMap.new(other: ~I<http://example.com/test/foo>)
+               )
+    end
+
     test "when a mapping to the same IRI exists" do
       assert PropertyMap.add(@example_property_map,
                foo: ~I<http://example.com/test/foo>,
@@ -141,6 +166,28 @@ defmodule RDF.PropertyMapTest do
                "bar" => "http://example.com/test/bar",
                "Baz" => EX.Baz
              }) == @example_property_map
+    end
+
+    test "with a disjunctive PropertyMap" do
+      assert PropertyMap.new()
+             |> PropertyMap.put(PropertyMap.new(foo: ~I<http://example.com/test/foo>))
+             |> PropertyMap.put(
+               PropertyMap.new(%{
+                 bar: "http://example.com/test/bar",
+                 Baz: EX.Baz
+               })
+             ) == @example_property_map
+    end
+
+    test "with a conflicting PropertyMap" do
+      assert @example_property_map
+             |> PropertyMap.put(PropertyMap.new(foo: EX.other()))
+             |> PropertyMap.put(PropertyMap.new(other: ~I<http://example.com/test/bar>)) ==
+               PropertyMap.new(
+                 foo: EX.other(),
+                 other: ~I<http://example.com/test/bar>,
+                 Baz: RDF.iri(EX.Baz)
+               )
     end
 
     test "when mapping exists" do
