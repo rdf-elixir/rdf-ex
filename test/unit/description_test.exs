@@ -317,6 +317,10 @@ defmodule RDF.DescriptionTest do
       assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.p2(), iri(EX.Object3)})
       assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object4)})
+
+      desc = Description.add(description(), [type: EX.Class], context: RDF.NS.RDF)
+      assert Description.count(desc) == 1
+      assert description_includes_predication(desc, {RDF.type(), iri(EX.Class)})
     end
 
     test "triples with another subject are ignored" do

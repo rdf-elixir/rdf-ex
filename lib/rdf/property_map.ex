@@ -3,6 +3,8 @@ defmodule RDF.PropertyMap do
             terms: %{}
 
   alias RDF.IRI
+  import RDF.Guards
+  import RDF.Utils, only: [downcase?: 1]
 
   @type t :: %__MODULE__{
           iris: %{atom => IRI.t()},
@@ -44,6 +46,20 @@ defmodule RDF.PropertyMap do
 
   def add(%__MODULE__{} = property_map, term, iri) do
     do_set(property_map, :add, coerce_term(term), IRI.new(iri))
+  end
+
+  def add(%__MODULE__{} = property_map, vocab_namespace) when maybe_ns_term(vocab_namespace) do
+    cond do
+      not RDF.Vocabulary.Namespace.vocabulary_namespace?(vocab_namespace) ->
+        raise ArgumentError, "expected a vocabulary namespace, but got #{vocab_namespace}"
+
+      not apply(vocab_namespace, :__strict__, []) ->
+        raise ArgumentError,
+              "expected a strict vocabulary namespace, but #{vocab_namespace} is non-strict"
+
+      true ->
+        add(property_map, mapping_from_vocab_namespace(vocab_namespace))
+    end
   end
 
   def add(%__MODULE__{} = property_map, mappings) do
@@ -127,6 +143,23 @@ defmodule RDF.PropertyMap do
 
   defp coerce_term(term) when is_atom(term), do: term
   defp coerce_term(term) when is_binary(term), do: String.to_atom(term)
+
+  defp mapping_from_vocab_namespace(vocab_namespace) do
+    aliases = apply(vocab_namespace, :__term_aliases__, [])
+
+    apply(vocab_namespace, :__terms__, [])
+    |> Enum.filter(&downcase?/1)
+    |> Enum.map(fn term -> {term, apply(vocab_namespace, term, [])} end)
+    |> Enum.group_by(fn {_term, iri} -> iri end)
+    |> Map.new(fn
+      {_, [mapping]} ->
+        mapping
+
+      {_, mappings} ->
+        Enum.find(mappings, fn {term, _iri} -> term in aliases end) ||
+          raise "conflicting non-alias terms for IRI should not occur in a vocab namespace"
+    end)
+  end
 
   @impl Access
   def pop(%__MODULE__{} = property_map, term) do

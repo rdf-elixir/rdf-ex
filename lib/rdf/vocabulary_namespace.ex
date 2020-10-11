@@ -12,6 +12,8 @@ defmodule RDF.Vocabulary.Namespace do
   alias RDF.Description
   alias RDF.Utils.ResourceClassifier
 
+  import RDF.Utils, only: [downcase?: 1]
+
   @vocabs_dir "priv/vocabs"
 
   defmacro __using__(_opts) do
@@ -74,6 +76,13 @@ defmodule RDF.Vocabulary.Namespace do
         @terms unquote(Macro.escape(terms))
         @impl Elixir.RDF.Namespace
         def __terms__, do: @terms |> Map.keys()
+
+        @spec __term_aliases__ :: [atom]
+        def __term_aliases__ do
+          @terms
+          |> Enum.filter(fn {_, term} -> term != true end)
+          |> Enum.map(fn {alias, _} -> alias end)
+        end
 
         @ignored_terms unquote(Macro.escape(ignored_terms))
 
@@ -440,9 +449,9 @@ defmodule RDF.Vocabulary.Namespace do
 
   defp proper_case?(term, base_iri, iri_suffix, data) do
     case ResourceClassifier.property?(term_to_iri(base_iri, iri_suffix), data) do
-      true -> not lowercase?(term)
-      false -> lowercase?(term)
-      nil -> lowercase?(term)
+      true -> not downcase?(term)
+      false -> downcase?(term)
+      nil -> downcase?(term)
     end
   end
 
@@ -450,12 +459,12 @@ defmodule RDF.Vocabulary.Namespace do
     violations
     |> Enum.group_by(fn
       {term, true} ->
-        if lowercase?(term),
+        if downcase?(term),
           do: :lowercased_term,
           else: :capitalized_term
 
       {term, _original} ->
-        if lowercase?(term),
+        if downcase?(term),
           do: :lowercased_alias,
           else: :capitalized_alias
     end)
@@ -595,7 +604,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp group_terms_by_case(terms) do
     terms
     |> Enum.group_by(fn {term, _} ->
-      if lowercase?(term),
+      if downcase?(term),
         do: :lowercased,
         else: :capitalized
     end)
@@ -603,12 +612,6 @@ defmodule RDF.Vocabulary.Namespace do
       {group, Map.new(term_mapping)}
     end)
   end
-
-  defp lowercase?(term) when is_atom(term),
-    do: Atom.to_string(term) |> lowercase?
-
-  defp lowercase?(term),
-    do: term =~ ~r/^(_|\p{Ll})/u
 
   defp strip_base_iri(iri, base_iri) do
     if String.starts_with?(iri, base_iri) do

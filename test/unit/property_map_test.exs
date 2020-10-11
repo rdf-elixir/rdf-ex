@@ -5,6 +5,15 @@ defmodule RDF.PropertyMapTest do
 
   alias RDF.PropertyMap
 
+  defmodule TestNS do
+    use RDF.Vocabulary.Namespace
+
+    defvocab ExampleWithConflict,
+      base_iri: "http://example.com/",
+      terms: ~w[term],
+      alias: [alias_term: "term"]
+  end
+
   @example_property_map %PropertyMap{
     iris: %{
       foo: ~I<http://example.com/test/foo>,
@@ -128,6 +137,33 @@ defmodule RDF.PropertyMapTest do
                  @example_property_map,
                  PropertyMap.new(other: ~I<http://example.com/test/foo>)
                )
+    end
+
+    test "with a strict vocabulary namespace" do
+      assert PropertyMap.add(PropertyMap.new(), RDF.NS.RDF) ==
+               {:ok,
+                PropertyMap.new(
+                  type: RDF.type(),
+                  first: RDF.first(),
+                  langString: RDF.langString(),
+                  nil: RDF.nil(),
+                  object: RDF.object(),
+                  predicate: RDF.predicate(),
+                  rest: RDF.rest(),
+                  subject: RDF.subject(),
+                  value: RDF.value()
+                )}
+    end
+
+    test "with a vocabulary namespace with multiple terms for the same IRI" do
+      assert PropertyMap.add(PropertyMap.new(), TestNS.ExampleWithConflict) ==
+               {:ok, PropertyMap.new(alias_term: "http://example.com/term")}
+    end
+
+    test "with a non-strict vocabulary namespace" do
+      assert_raise ArgumentError, ~r/non-strict/, fn ->
+        PropertyMap.add(PropertyMap.new(), EX)
+      end
     end
 
     test "when a mapping to the same IRI exists" do
