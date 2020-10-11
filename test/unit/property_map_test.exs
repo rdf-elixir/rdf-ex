@@ -118,6 +118,12 @@ defmodule RDF.PropertyMapTest do
                {:error,
                 "conflicting mapping for foo: http://example.com/test/other; already mapped to http://example.com/test/foo"}
     end
+
+    test "when another term mapping to the IRI exists" do
+      assert PropertyMap.add(@example_property_map, other: ~I<http://example.com/test/foo>) ==
+               {:error,
+                "conflicting mapping for other: http://example.com/test/foo; IRI already mapped to :foo"}
+    end
   end
 
   describe "put/2" do
@@ -149,6 +155,16 @@ defmodule RDF.PropertyMapTest do
                  Baz: EX.qux(),
                  quux: EX.quux()
                )
+    end
+
+    test "when another term mapping to the IRI exists" do
+      {:ok, expected_result} =
+        @example_property_map
+        |> PropertyMap.delete(:foo)
+        |> PropertyMap.add(other: ~I<http://example.com/test/foo>)
+
+      assert PropertyMap.put(@example_property_map, other: ~I<http://example.com/test/foo>) ==
+               expected_result
     end
   end
 
