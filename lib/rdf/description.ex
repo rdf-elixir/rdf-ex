@@ -636,12 +636,14 @@ defmodule RDF.Description do
   @doc """
   Returns the number of statements of a `RDF.Description`.
   """
-  @spec count(t) :: non_neg_integer
-  def count(%__MODULE__{} = description) do
+  @spec statement_count(t) :: non_neg_integer
+  def statement_count(%__MODULE__{} = description) do
     Enum.reduce(description.predications, 0, fn {_, objects}, count ->
       count + Enum.count(objects)
     end)
   end
+
+  defdelegate count(description), to: __MODULE__, as: :statement_count
 
   @doc """
   Checks if the given `input` statements exist within `description`.
@@ -827,7 +829,7 @@ defmodule RDF.Description do
     alias RDF.Description
 
     def member?(desc, triple), do: {:ok, Description.include?(desc, triple)}
-    def count(desc), do: {:ok, Description.count(desc)}
+    def count(desc), do: {:ok, Description.statement_count(desc)}
     def slice(_desc), do: {:error, __MODULE__}
 
     def reduce(%Description{predications: predications}, {:cont, acc}, _fun)

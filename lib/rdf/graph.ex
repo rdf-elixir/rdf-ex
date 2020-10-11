@@ -675,16 +675,18 @@ defmodule RDF.Graph do
       ...>   {EX.S1, EX.p1, EX.O1},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}])
-      ...> |> RDF.Graph.triple_count()
+      ...> |> RDF.Graph.statement_count()
       3
 
   """
-  @spec triple_count(t) :: non_neg_integer
-  def triple_count(%__MODULE__{} = graph) do
+  @spec statement_count(t) :: non_neg_integer
+  def statement_count(%__MODULE__{} = graph) do
     Enum.reduce(graph.descriptions, 0, fn {_subject, description}, count ->
       count + Description.count(description)
     end)
   end
+
+  defdelegate triple_count(graph), to: __MODULE__, as: :statement_count
 
   @doc """
   The set of all subjects used in the statements within a `RDF.Graph`.
@@ -1087,7 +1089,7 @@ defmodule RDF.Graph do
     alias RDF.Graph
 
     def member?(graph, triple), do: {:ok, Graph.include?(graph, triple)}
-    def count(graph), do: {:ok, Graph.triple_count(graph)}
+    def count(graph), do: {:ok, Graph.statement_count(graph)}
     def slice(_graph), do: {:error, __MODULE__}
 
     def reduce(%Graph{descriptions: descriptions}, {:cont, acc}, _fun)
