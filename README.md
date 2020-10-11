@@ -2,7 +2,7 @@
 
 # RDF.ex
 
-![](https://github.com/rdf-elixir/rdf-ex/workflows/CI/badge.svg)
+[![CI](https://github.com/rdf-elixir/rdf-ex/workflows/CI/badge.svg?branch=master)](https://github.com/rdf-elixir/rdf-ex/actions?query=branch%3Amaster+workflow%3ACI)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
 
 
