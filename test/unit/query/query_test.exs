@@ -21,6 +21,7 @@ defmodule RDF.QueryTest do
   def example_graph, do: @example_graph
 
   @example_query [{:s?, FOAF.name(), ~L"Peter Goodguy"}]
+  @example_query_map %{s?: %{FOAF.name() => ~L"Peter Goodguy"}}
 
   test "execute/2" do
     assert RDF.Query.execute(RDF.Query.bgp(@example_query), @example_graph) ==
@@ -28,6 +29,9 @@ defmodule RDF.QueryTest do
 
     assert RDF.Query.execute(@example_query, @example_graph) ==
              {:ok, BGP.Stream.execute(RDF.Query.bgp(@example_query), @example_graph)}
+
+    assert RDF.Query.execute(@example_query_map, @example_graph) ==
+             {:ok, BGP.Stream.execute(RDF.Query.bgp(@example_query_map), @example_graph)}
   end
 
   test "execute!/2" do
@@ -36,6 +40,9 @@ defmodule RDF.QueryTest do
 
     assert RDF.Query.execute!(@example_query, @example_graph) ==
              BGP.Stream.execute(RDF.Query.bgp(@example_query), @example_graph)
+
+    assert RDF.Query.execute!(@example_query_map, @example_graph) ==
+             BGP.Stream.execute(RDF.Query.bgp(@example_query_map), @example_graph)
   end
 
   test "stream/2" do
@@ -44,6 +51,9 @@ defmodule RDF.QueryTest do
 
     assert RDF.Query.stream(@example_query, @example_graph) ==
              {:ok, BGP.Stream.stream(RDF.Query.bgp(@example_query), @example_graph)}
+
+    assert RDF.Query.stream(@example_query_map, @example_graph) ==
+             {:ok, BGP.Stream.stream(RDF.Query.bgp(@example_query_map), @example_graph)}
   end
 
   test "stream!/2" do
@@ -52,5 +62,8 @@ defmodule RDF.QueryTest do
 
     assert RDF.Query.stream!(@example_query, @example_graph) ==
              BGP.Stream.stream(RDF.Query.bgp(@example_query), @example_graph)
+
+    assert RDF.Query.stream!(@example_query_map, @example_graph) ==
+             BGP.Stream.stream(RDF.Query.bgp(@example_query_map), @example_graph)
   end
 end

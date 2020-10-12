@@ -72,7 +72,7 @@ defmodule RDF.Query do
     {:ok, matcher.execute(query, graph, opts)}
   end
 
-  def execute(query, graph, opts) when is_list(query) or is_tuple(query) do
+  def execute(query, graph, opts) do
     with {:ok, bgp} <- Builder.bgp(query) do
       execute(bgp, graph, opts)
     end
@@ -140,7 +140,7 @@ defmodule RDF.Query do
     {:ok, matcher.stream(query, graph, opts)}
   end
 
-  def stream(query, graph, opts) when is_list(query) or is_tuple(query) do
+  def stream(query, graph, opts) do
     with {:ok, bgp} <- Builder.bgp(query) do
       stream(bgp, graph, opts)
     end
