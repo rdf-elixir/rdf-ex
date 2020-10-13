@@ -212,6 +212,30 @@ defmodule RDF.Query.BuilderTest do
                  {~B"s", :p, :o}
                ])
     end
+
+    test "with contexts" do
+      assert Builder.bgp(
+               %{
+                 s?: %{
+                   p1: :o?,
+                   p2: [42, true]
+                 },
+                 o?: [p3: ["foo", "bar"]]
+               },
+               context: %{
+                 p1: EX.p1(),
+                 p2: EX.p2(),
+                 p3: EX.p3()
+               }
+             ) ==
+               ok_bgp_struct([
+                 {:o, EX.p3(), ~L"foo"},
+                 {:o, EX.p3(), ~L"bar"},
+                 {:s, EX.p1(), :o},
+                 {:s, EX.p2(), XSD.integer(42)},
+                 {:s, EX.p2(), XSD.true()}
+               ])
+    end
   end
 
   describe "path/2" do
@@ -242,6 +266,25 @@ defmodule RDF.Query.BuilderTest do
 
     test "with_elements: true" do
       assert Builder.path([EX.s(), EX.p1(), EX.p2(), :o?], with_elements: true) ==
+               ok_bgp_struct([
+                 {EX.s(), EX.p1(), :el0},
+                 {:el0, EX.p2(), :o}
+               ])
+    end
+
+    test "with contexts" do
+      property_map = %{
+        p1: EX.p1(),
+        p2: EX.p2()
+      }
+
+      assert Builder.path([EX.s(), :p1, :p2, EX.o()], context: property_map) ==
+               ok_bgp_struct([
+                 {EX.s(), EX.p1(), RDF.bnode("0")},
+                 {RDF.bnode("0"), EX.p2(), EX.o()}
+               ])
+
+      assert Builder.path([EX.s(), :p1, :p2, :o?], context: property_map, with_elements: true) ==
                ok_bgp_struct([
                  {EX.s(), EX.p1(), :el0},
                  {:el0, EX.p2(), :o}

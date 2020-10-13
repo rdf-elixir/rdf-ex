@@ -2,51 +2,53 @@ defmodule RDF.Query.Builder do
   @moduledoc false
 
   alias RDF.Query.BGP
-  alias RDF.{IRI, BlankNode, Literal, Namespace}
+  alias RDF.{IRI, BlankNode, Literal, Namespace, PropertyMap}
   import RDF.Utils.Guards
   import RDF.Utils
 
-  def bgp(query) do
-    with {:ok, triple_patterns} <- triple_patterns(query) do
+  def bgp(query, opts \\ []) do
+    property_map = if context = Keyword.get(opts, :context), do: PropertyMap.new(context)
+
+    with {:ok, triple_patterns} <- triple_patterns(query, property_map) do
       {:ok, %BGP{triple_patterns: triple_patterns}}
     end
   end
 
-  def bgp!(query) do
-    case bgp(query) do
+  def bgp!(query, opts \\ []) do
+    case bgp(query, opts) do
       {:ok, bgp} -> bgp
       {:error, error} -> raise error
     end
   end
 
-  defp triple_patterns(query) when is_list(query) or is_map(query) do
+  defp triple_patterns(query, property_map) when is_list(query) or is_map(query) do
     flat_map_while_ok(query, fn triple ->
-      with {:ok, triple_pattern} <- triple_patterns(triple) do
+      with {:ok, triple_pattern} <- triple_patterns(triple, property_map) do
         {:ok, List.wrap(triple_pattern)}
       end
     end)
   end
 
-  defp triple_patterns({subject, predicate, objects}) do
+  defp triple_patterns({subject, predicate, objects}, property_map) do
     with {:ok, subject_pattern} <- subject_pattern(subject) do
-      do_triple_patterns(subject_pattern, {predicate, objects})
+      do_triple_patterns(subject_pattern, {predicate, objects}, property_map)
     end
   end
 
-  defp triple_patterns({subject, predications}) when is_map(predications) do
-    triple_patterns({subject, Map.to_list(predications)})
+  defp triple_patterns({subject, predications}, property_map) when is_map(predications) do
+    triple_patterns({subject, Map.to_list(predications)}, property_map)
   end
 
-  defp triple_patterns({subject, predications}) do
+  defp triple_patterns({subject, predications}, property_map) do
     with {:ok, subject_pattern} <- subject_pattern(subject) do
       predications
       |> List.wrap()
-      |> flat_map_while_ok(&do_triple_patterns(subject_pattern, &1))
+      |> flat_map_while_ok(&do_triple_patterns(subject_pattern, &1, property_map))
     end
   end
 
-  defp do_triple_patterns(subject_pattern, {predicate, objects}) do
-    with {:ok, predicate_pattern} <- predicate_pattern(predicate) do
+  defp do_triple_patterns(subject_pattern, {predicate, objects}, property_map) do
+    with {:ok, predicate_pattern} <- predicate_pattern(predicate, property_map) do
       objects
       |> List.wrap()
       |> map_while_ok(fn object ->
@@ -70,8 +72,8 @@ defmodule RDF.Query.Builder do
     end
   end
 
-  defp predicate_pattern(predicate) do
-    value = variable(predicate) || resource(predicate) || property(predicate)
+  defp predicate_pattern(predicate, property_map) do
+    value = variable(predicate) || resource(predicate) || property(predicate, property_map)
 
     if value do
       {:ok, value}
@@ -127,8 +129,13 @@ defmodule RDF.Query.Builder do
 
   defp resource(_), do: nil
 
-  defp property(:a), do: RDF.type()
-  defp property(_), do: nil
+  defp property(:a, _), do: RDF.type()
+
+  defp property(term, property_map) when is_atom(term) and not is_nil(property_map) do
+    PropertyMap.iri(property_map, term)
+  end
+
+  defp property(_, _), do: nil
 
   defp literal(%Literal{} = literal), do: literal
   defp literal(value), do: Literal.coerce(value)
@@ -144,7 +151,7 @@ defmodule RDF.Query.Builder do
 
   def path([subject | rest], opts) do
     path_pattern(subject, rest, [], 0, Keyword.get(opts, :with_elements, false))
-    |> bgp()
+    |> bgp(opts)
   end
 
   def path!(query, opts \\ []) do

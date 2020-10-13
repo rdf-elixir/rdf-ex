@@ -73,7 +73,7 @@ defmodule RDF.Query do
   end
 
   def execute(query, graph, opts) do
-    with {:ok, bgp} <- Builder.bgp(query) do
+    with {:ok, bgp} <- Builder.bgp(query, opts) do
       execute(bgp, graph, opts)
     end
   end
@@ -141,7 +141,7 @@ defmodule RDF.Query do
   end
 
   def stream(query, graph, opts) do
-    with {:ok, bgp} <- Builder.bgp(query) do
+    with {:ok, bgp} <- Builder.bgp(query, opts) do
       stream(bgp, graph, opts)
     end
   end

@@ -20,8 +20,8 @@ are specified.
 
 - `RDF.PropertyMap` which allow definition of atoms for RDF properties. 
   Such property maps can be provided to all RDF data structure functions 
-  accepting input data with the `:context` opt, allowing the use of the atoms
-  from the property map in the input data. 
+  accepting input data and BGP query patterns with the `:context` opt, 
+  allowing the use of the atoms from the property map in the input data. 
 - to `RDF.Description`
     - `RDF.Description.subject/1` 
     - `RDF.Description.change_subject/2`
