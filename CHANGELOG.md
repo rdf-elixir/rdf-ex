@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.9.0 - 2020-10-13
 
 The API of the all three RDF datastructures `RDF.Dataset`, `RDF.Graph` and 
 `RDF.Description` were changed, so that the functions taking input data consist only
@@ -13,7 +13,11 @@ of one field in order to open the possibility of introducing options on these
 functions. The supported ways with which RDF statements can be passed to the 
 RDF data structures were extended and unified to be supported across all functions 
 accepting input data. This includes also the way in which patterns for BGP queries
-are specified.
+are specified. Also the performance for adding data has been improved.
+
+For an introduction on the new data structure API and the commonly supported input formats
+read the updated [page on the RDF data structures in the guide](https://rdf-elixir.dev/rdf-ex/data-structures.html). 
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.9).
 
 
 ### Added
@@ -22,16 +26,16 @@ are specified.
   Such property maps can be provided to all RDF data structure functions 
   accepting input data and BGP query patterns with the `:context` opt, 
   allowing the use of the atoms from the property map in the input data. 
-- to `RDF.Description`
+- on `RDF.Description`
     - `RDF.Description.subject/1` 
     - `RDF.Description.change_subject/2`
-- to `RDF.Graph`
+- on `RDF.Graph`
     - `RDF.Graph.name/1` 
     - `RDF.Graph.change_name/2`
     - `RDF.Graph.base_iri/1` 
     - `RDF.Graph.prefixes/1`
     - `RDF.Graph.put_properties/3`
-- to `RDF.Dataset`
+- on `RDF.Dataset`
     - `RDF.Dataset.name/1` 
     - `RDF.Dataset.change_name/2`
     - `RDF.Dataset.put_properties/3`
@@ -81,7 +85,7 @@ are specified.
   functions like `RDF.Graph.subjects/1`, `RDF.Graph.subject_count/1`, `RDF.Graph.descriptions/1`   
 
 
-[Compare v0.8.2...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.2...HEAD)
+[Compare v0.8.2...v0.9.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.8.2...v0.9.0)
 
 
 
