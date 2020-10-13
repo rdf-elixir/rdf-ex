@@ -14,6 +14,8 @@ defmodule RDF.Vocabulary.Namespace do
 
   import RDF.Utils, only: [downcase?: 1]
 
+  @type t :: module
+
   @vocabs_dir "priv/vocabs"
 
   defmacro __using__(_opts) do
