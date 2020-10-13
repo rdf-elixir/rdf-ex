@@ -11,7 +11,7 @@ defmodule RDF.PrefixMap do
   @type namespace :: IRI.t()
 
   @type coercible_prefix :: atom | String.t()
-  @type coercible_namespace :: atom | String.t() | IRI.t()
+  @type coercible_namespace :: RDF.Vocabulary.Namespace.t() | String.t() | IRI.t()
 
   @type prefix_map :: %{prefix => namespace}
 
@@ -33,9 +33,9 @@ defmodule RDF.PrefixMap do
   def new, do: %__MODULE__{}
 
   @doc """
-  Creates a new `RDF.PrefixMap`.
+  Creates a new `RDF.PrefixMap` with initial mappings.
 
-  The prefix mappings can be passed as keyword lists or maps.
+  The initial prefix mappings can be passed as keyword lists or maps.
   The keys for the prefixes can be given as atoms or strings and will be normalized to atoms.
   The namespaces can be given as `RDF.IRI`s or strings and will be normalized to `RDF.IRI`s.
   """
@@ -63,10 +63,10 @@ defmodule RDF.PrefixMap do
       raise(ArgumentError, "Invalid prefix mapping: #{inspect(prefix)} => #{inspect(namespace)}")
 
   @doc """
-  Adds a prefix mapping to the given `RDF.PrefixMap`.
+  Adds a prefix mapping to `prefix_map`.
 
-  Unless a mapping of the given prefix to a different namespace already exists,
-  an ok tuple is returned, other an error tuple.
+  Unless a mapping of `prefix` to a different namespace already exists,
+  an `:ok` tuple is returned, otherwise an `:error` tuple.
   """
   @spec add(t, coercible_prefix, coercible_namespace) :: {:ok, t} | {:error, String.t()}
   def add(prefix_map, prefix, namespace)
@@ -231,7 +231,9 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Deletes a prefix mapping from the given `RDF.PrefixMap`.
+  Deletes the prefix mapping for `prefix` from `prefix_map`.
+
+  If no mapping for `prefix` exists, `prefix_map` is returned unchanged.
   """
   @spec delete(t, coercible_prefix) :: t
   def delete(prefix_map, prefix)
@@ -245,7 +247,7 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Drops the given `prefixes` from the given `prefix_map`.
+  Drops the given `prefixes` from `prefix_map`.
 
   If `prefixes` contains prefixes that are not in `prefix_map`, they're simply ignored.
   """
@@ -266,7 +268,7 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Returns the namespace for the given prefix in the given `RDF.PrefixMap`.
+  Returns the namespace for the given `prefix` in `prefix_map`.
 
   Returns `nil`, when the given `prefix` is not present in `prefix_map`.
   """
@@ -282,7 +284,7 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
-  Returns the prefix for the given namespace in the given `RDF.PrefixMap`.
+  Returns the prefix for the given `namespace` in `prefix_map`.
 
   Returns `nil`, when the given `namespace` is not present in `prefix_map`.
   """

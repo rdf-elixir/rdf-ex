@@ -107,6 +107,7 @@ defmodule RDF.Description do
       iex> RDF.Description.new(EX.S, init: {EX.P1, EX.O1})
       ...> |> RDF.Description.add({EX.P2, EX.O2})
       RDF.Description.new(EX.S, init: [{EX.P1, EX.O1}, {EX.P2, EX.O2}])
+
       iex> RDF.Description.new(EX.S, init: {EX.P, EX.O1})
       ...> |> RDF.Description.add({EX.P, [EX.O2, EX.O3]})
       RDF.Description.new(EX.S, init: [{EX.P, EX.O1}, {EX.P, EX.O2}, {EX.P, EX.O3}])

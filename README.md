@@ -10,6 +10,9 @@ An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model i
 
 The API documentation can be found [here](https://hexdocs.pm/rdf/). For a guide and more information about RDF.ex and it's related projects, go to <https://rdf-elixir.dev>.
 
+Migration guides for the various versions can be found in the [Wiki](https://github.com/rdf-elixir/rdf-ex/wiki).
+
+
 ## Features
 
 - fully compatible with the RDF 1.1 specification

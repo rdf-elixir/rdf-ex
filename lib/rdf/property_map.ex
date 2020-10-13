@@ -1,20 +1,49 @@
 defmodule RDF.PropertyMap do
-  defstruct iris: %{},
-            terms: %{}
+  @moduledoc """
+  A bidirectional mappings from atom names to `RDF.IRI`s of properties.
+
+  These mapping can be used in all functions of the RDF data structures
+  to provide the meaning of the predicate terms in input statements or
+  define how the IRIs of predicates should be mapped with the value mapping
+  functions like `RDF.Description.values/2` etc.
+  The `:context` option of these functions either take a `RDF.PropertyMap` directly
+  or anything from which a `RDF.PropertyMap` can be created with `new/1`.
+
+  Because the mapping is bidirectional each term and IRI can be used only in
+  one mapping of a `RDF.PropertyMap`.
+
+  `RDF.PropertyMap` implements the `Enumerable` protocol and the `Access` behaviour.
+  """
+
+  defstruct iris: %{}, terms: %{}
 
   alias RDF.IRI
   import RDF.Guards
   import RDF.Utils, only: [downcase?: 1]
+
+  @type coercible_term :: atom | String.t()
 
   @type t :: %__MODULE__{
           iris: %{atom => IRI.t()},
           terms: %{IRI.t() => atom}
         }
 
+  @type input :: t | map | keyword | RDF.Vocabulary.Namespace.t()
+
   @behaviour Access
 
+  @doc """
+  Creates an empty `RDF.PropertyMap`.
+  """
+  @spec new :: t
   def new(), do: %__MODULE__{}
 
+  @doc """
+  Creates a new `RDF.PropertyMap` with initial mappings.
+
+  See `add/2` for the different forms in which mappings can be provided.
+  """
+  @spec new(input) :: t
   def new(%__MODULE__{} = initial), do: initial
 
   def new(initial) do
@@ -28,18 +57,38 @@ defmodule RDF.PropertyMap do
   def from_opts(nil), do: nil
   def from_opts(opts), do: if(property_map = Keyword.get(opts, :context), do: new(property_map))
 
+  @doc """
+  Returns the IRI for the given `term` in `property_map`.
+
+  Returns `nil`, when the given `term` is not present in `property_map`.
+  """
+  @spec iri(t, coercible_term) :: IRI.t() | nil
   def iri(%__MODULE__{} = property_map, term) do
     Map.get(property_map.iris, coerce_term(term))
   end
 
+  @doc """
+  Returns the term for the given `namespace` in `prefix_map`.
+
+  Returns `nil`, when the given `namespace` is not present in `prefix_map`.
+  """
+  @spec term(t, IRI.coercible()) :: atom | nil
   def term(%__MODULE__{} = property_map, iri) do
     Map.get(property_map.terms, IRI.new(iri))
   end
 
+  @doc """
+  Returns whether a mapping for the given `term` is defined in `property_map`.
+  """
+  @spec iri_defined?(t, coercible_term) :: boolean
   def iri_defined?(%__MODULE__{} = property_map, term) do
     Map.has_key?(property_map.iris, coerce_term(term))
   end
 
+  @doc """
+  Returns whether a mapping for the given `iri` is defined in `property_map`.
+  """
+  @spec term_defined?(t, IRI.coercible()) :: boolean
   def term_defined?(%__MODULE__{} = property_map, iri) do
     Map.has_key?(property_map.terms, IRI.new(iri))
   end
@@ -49,10 +98,34 @@ defmodule RDF.PropertyMap do
     Access.fetch(property_map.iris, coerce_term(term))
   end
 
+  @doc """
+  Adds a property mapping between `term` and `iri` to `property_map`.
+
+  Unless another mapping for `term` or `iri` already exists, an `:ok` tuple
+  is returned, otherwise an `:error` tuple.
+  """
+  @spec add(t, coercible_term, IRI.coercible()) :: {:ok, t} | {:error, String.t()}
   def add(%__MODULE__{} = property_map, term, iri) do
     do_set(property_map, :add, coerce_term(term), IRI.new(iri))
   end
 
+  @doc """
+  Adds a set of property mappings to `property_map`.
+
+  The mappings can be passed in various ways:
+
+  - as keyword lists or maps where terms for the RDF properties can
+    be given as atoms or strings, while the property IRIs can be given as
+    `RDF.IRI`s or strings
+  - a strict `RDF.Vocabulary.Namespace` from which all lowercased terms are added
+    with their respective IRI; since IRIs can also be once in a
+    `RDF.PropertyMap` a defined alias term is preferred over an original term
+  - another `RDF.PropertyMap` from which all mappings are merged
+
+  Unless a mapping for any of the terms or IRIs in the `input` already exists,
+  an `:ok` tuple is returned, otherwise an `:error` tuple.
+  """
+  @spec add(t, input) :: {:ok, t} | {:error, String.t()}
   def add(%__MODULE__{} = property_map, vocab_namespace) when maybe_ns_term(vocab_namespace) do
     cond do
       not RDF.Vocabulary.Namespace.vocabulary_namespace?(vocab_namespace) ->
@@ -77,11 +150,37 @@ defmodule RDF.PropertyMap do
     end)
   end
 
+  @doc """
+  Adds a set of property mappings to `property_map` and raises an error on conflicts.
+
+  See `add/2` for the different forms in which mappings can be provided.
+  """
+  @spec add!(t, input) :: t
+  def add!(%__MODULE__{} = property_map, mappings) do
+    case add(property_map, mappings) do
+      {:ok, property_map} -> property_map
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
+  Adds a property mapping between `term` and `iri` to `property_map` overwriting existing mappings.
+  """
+  @spec put(t, coercible_term, IRI.coercible()) :: t
   def put(%__MODULE__{} = property_map, term, iri) do
     {:ok, added} = do_set(property_map, :put, coerce_term(term), IRI.new(iri))
     added
   end
 
+  @doc """
+  Adds a set of property mappings to `property_map` overwriting all existing mappings.
+
+  See `add/2` for the different forms in which mappings can be provided.
+
+  Note, that not just all mappings with the used terms in the input `mappings`
+  are overwritten, but also all mappings with IRIs in the input `mappings`
+  """
+  @spec put(t, input) :: t
   def put(%__MODULE__{} = property_map, mappings) do
     Enum.reduce(mappings, property_map, fn {term, iri}, property_map ->
       put(property_map, term, iri)
@@ -126,6 +225,12 @@ defmodule RDF.PropertyMap do
     |> do_set(:put, term, new_iri, old_iri, nil)
   end
 
+  @doc """
+  Deletes the property mapping for `term` from `property_map`.
+
+  If no mapping for `term` exists, `property_map` is returned unchanged.
+  """
+  @spec delete(t, coercible_term) :: t
   def delete(%__MODULE__{} = property_map, term) do
     term = coerce_term(term)
 
@@ -140,6 +245,12 @@ defmodule RDF.PropertyMap do
     end
   end
 
+  @doc """
+  Drops the given `terms` from the `property_map`.
+
+  If `terms` contains terms that are not in `property_map`, they're simply ignored.
+  """
+  @spec drop(t, [coercible_term]) :: t
   def drop(%__MODULE__{} = property_map, terms) when is_list(terms) do
     Enum.reduce(terms, property_map, fn term, property_map ->
       delete(property_map, term)
