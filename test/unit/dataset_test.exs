@@ -1681,16 +1681,22 @@ defmodule RDF.DatasetTest do
   end
 
   test "values/2" do
+    expected_result = %{
+      nil => %{
+        RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]}
+      },
+      RDF.Term.value(EX.graph()) => %{
+        RDF.Term.value(EX.s2()) => %{p: [RDF.Term.value(EX.o2())]}
+      }
+    }
+
     assert Dataset.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2(), EX.graph()}])
-           |> Dataset.values(PropertyMap.new(p: EX.p())) ==
-             %{
-               nil => %{
-                 RDF.Term.value(EX.s1()) => %{p: [RDF.Term.value(EX.o1())]}
-               },
-               RDF.Term.value(EX.graph()) => %{
-                 RDF.Term.value(EX.s2()) => %{p: [RDF.Term.value(EX.o2())]}
-               }
-             }
+           |> Dataset.values(context: PropertyMap.new(p: EX.p())) ==
+             expected_result
+
+    assert Dataset.new([{EX.s1(), EX.p(), EX.o1()}, {EX.s2(), EX.p(), EX.o2(), EX.graph()}])
+           |> Dataset.values(context: %{p: EX.p()}) ==
+             expected_result
   end
 
   test "map/2" do

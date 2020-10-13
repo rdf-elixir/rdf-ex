@@ -853,8 +853,8 @@ defmodule RDF.Graph do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Graph`.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
 
   ## Examples
 
@@ -872,22 +872,20 @@ defmodule RDF.Graph do
       ...>   {~I<http://example.com/S1>, ~I<http://example.com/p>, ~L"Foo"},
       ...>   {~I<http://example.com/S2>, ~I<http://example.com/p>, RDF.XSD.integer(42)}
       ...> ])
-      ...> |> RDF.Graph.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      ...> |> RDF.Graph.values(context: [p: ~I<http://example.com/p>])
       %{
         "http://example.com/S1" => %{p: ["Foo"]},
         "http://example.com/S2" => %{p: [42]}
       }
 
   """
-  @spec values(t, PropertyMap.t() | nil) :: map
-  def values(graph, property_map \\ nil)
-
-  def values(%__MODULE__{} = graph, nil) do
-    map(graph, &Statement.default_term_mapping/1)
-  end
-
-  def values(%__MODULE__{} = graph, %PropertyMap{} = property_map) do
-    map(graph, Statement.default_property_mapping(property_map))
+  @spec values(t, keyword) :: map
+  def values(%__MODULE__{} = graph, opts \\ []) do
+    if property_map = PropertyMap.from_opts(opts) do
+      map(graph, Statement.default_property_mapping(property_map))
+    else
+      map(graph, &Statement.default_term_mapping/1)
+    end
   end
 
   @doc """

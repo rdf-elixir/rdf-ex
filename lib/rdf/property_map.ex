@@ -23,6 +23,11 @@ defmodule RDF.PropertyMap do
     property_map
   end
 
+  @doc false
+  def from_opts(opts)
+  def from_opts(nil), do: nil
+  def from_opts(opts), do: if(property_map = Keyword.get(opts, :context), do: new(property_map))
+
   def iri(%__MODULE__{} = property_map, term) do
     Map.get(property_map.iris, coerce_term(term))
   end

@@ -761,8 +761,8 @@ defmodule RDF.Dataset do
   @doc """
   Returns a nested map of the native Elixir values of a `RDF.Dataset`.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
 
   ## Examples
 
@@ -782,15 +782,13 @@ defmodule RDF.Dataset do
       }
 
   """
-  @spec values(t, PropertyMap.t() | nil) :: map
-  def values(dataset, property_map \\ nil)
-
-  def values(%__MODULE__{} = dataset, nil) do
-    map(dataset, &Statement.default_term_mapping/1)
-  end
-
-  def values(%__MODULE__{} = dataset, %PropertyMap{} = property_map) do
-    map(dataset, Statement.default_property_mapping(property_map))
+  @spec values(t, keyword) :: map
+  def values(%__MODULE__{} = dataset, opts \\ []) do
+    if property_map = PropertyMap.from_opts(opts) do
+      map(dataset, Statement.default_property_mapping(property_map))
+    else
+      map(dataset, &Statement.default_term_mapping/1)
+    end
   end
 
   @doc """

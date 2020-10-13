@@ -844,7 +844,11 @@ defmodule RDF.DescriptionTest do
 
   test "values/2" do
     assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"})
-           |> Description.values(PropertyMap.new(p: EX.p())) ==
+           |> Description.values(context: PropertyMap.new(p: EX.p())) ==
+             %{p: ["Foo"]}
+
+    assert Description.new(EX.s(), init: {EX.s(), EX.p(), ~L"Foo"})
+           |> Description.values(context: %{p: EX.p()}) ==
              %{p: ["Foo"]}
   end
 

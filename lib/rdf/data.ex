@@ -93,10 +93,10 @@ defprotocol RDF.Data do
   @doc """
   Returns a nested map of the native Elixir values of a RDF data structure.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
   """
-  def values(data, property_map \\ nil)
+  def values(data, opts \\ [])
 
   @doc """
   Returns a map representation of a RDF data structure where each element from its statements is mapped with the given function.
@@ -201,8 +201,8 @@ defimpl RDF.Data, for: RDF.Description do
   def subject_count(_), do: 1
   def statement_count(description), do: Description.count(description)
 
-  def values(description, property_map \\ nil),
-    do: Description.values(description, property_map)
+  def values(description, opts \\ []),
+    do: Description.values(description, opts)
 
   def map(description, fun), do: Description.map(description, fun)
 
@@ -292,7 +292,7 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def subject_count(graph), do: Graph.subject_count(graph)
   def statement_count(graph), do: Graph.triple_count(graph)
-  def values(graph, property_map \\ nil), do: Graph.values(graph, property_map)
+  def values(graph, opts \\ []), do: Graph.values(graph, opts)
   def map(graph, fun), do: Graph.map(graph, fun)
 
   def equal?(graph, %Description{} = description),
@@ -373,7 +373,7 @@ defimpl RDF.Data, for: RDF.Dataset do
 
   def subject_count(dataset), do: dataset |> subjects |> Enum.count()
   def statement_count(dataset), do: Dataset.statement_count(dataset)
-  def values(dataset, property_map \\ nil), do: Dataset.values(dataset, property_map)
+  def values(dataset, opts \\ []), do: Dataset.values(dataset, opts)
   def map(dataset, fun), do: Dataset.map(dataset, fun)
 
   def equal?(dataset, %Description{} = description) do

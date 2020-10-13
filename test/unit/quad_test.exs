@@ -29,20 +29,20 @@ defmodule RDF.QuadTest do
       assert Quad.values(
                {~I<http://example.com/S>, ~I<http://example.com/p>, XSD.integer(42),
                 ~I<http://example.com/Graph>},
-               PropertyMap.new(p: ~I<http://example.com/p>)
+               context: %{p: ~I<http://example.com/p>}
              ) ==
                {"http://example.com/S", :p, 42, "http://example.com/Graph"}
 
       assert Quad.values(
                {~I<http://example.com/S>, ~I<http://example.com/p>, XSD.integer(42),
                 ~I<http://example.com/Graph>},
-               PropertyMap.new()
+               context: PropertyMap.new()
              ) ==
                {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
     end
 
     test "with an invalid RDF.Triple" do
-      refute Quad.values({self(), self(), self(), self()}, PropertyMap.new())
+      refute Quad.values({self(), self(), self(), self()}, context: PropertyMap.new())
     end
   end
 

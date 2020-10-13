@@ -94,14 +94,6 @@ defmodule RDF.Description do
     %__MODULE__{description | subject: coerce_subject(new_subject)}
   end
 
-  defp context(nil), do: nil
-
-  defp context(opts) do
-    if property_map = Keyword.get(opts, :context) do
-      PropertyMap.new(property_map)
-    end
-  end
-
   @doc """
   Add statements to a `RDF.Description`.
 
@@ -149,7 +141,7 @@ defmodule RDF.Description do
         | predications:
             Map.update(
               description.predications,
-              coerce_predicate(predicate, context(opts)),
+              coerce_predicate(predicate, PropertyMap.from_opts(opts)),
               normalized_objects,
               fn objects ->
                 Map.merge(objects, normalized_objects)
@@ -256,7 +248,7 @@ defmodule RDF.Description do
   end
 
   def delete(%__MODULE__{} = description, {predicate, objects}, opts) do
-    predicate = coerce_predicate(predicate, context(opts))
+    predicate = coerce_predicate(predicate, PropertyMap.from_opts(opts))
 
     if current_objects = Map.get(description.predications, predicate) do
       normalized_objects =
@@ -661,7 +653,8 @@ defmodule RDF.Description do
   end
 
   def include?(%__MODULE__{} = description, {predicate, objects}, opts) do
-    if existing_objects = description.predications[coerce_predicate(predicate, context(opts))] do
+    if existing_objects =
+         description.predications[coerce_predicate(predicate, PropertyMap.from_opts(opts))] do
       objects
       |> List.wrap()
       |> Enum.map(&coerce_object/1)
@@ -726,8 +719,8 @@ defmodule RDF.Description do
   `RDF.Term.value/1`, or, if you want the subject in an outer map, just put the
   the description in a graph and use `RDF.Graph.values/2`.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
 
   ## Examples
 
@@ -736,19 +729,17 @@ defmodule RDF.Description do
       %{"http://example.com/p" => ["Foo"]}
 
       iex> RDF.Description.new(~I<http://example.com/S>, init: {~I<http://example.com/p>, ~L"Foo"})
-      ...> |> RDF.Description.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      ...> |> RDF.Description.values(context: %{p: ~I<http://example.com/p>})
       %{p: ["Foo"]}
 
   """
-  @spec values(t, PropertyMap.t() | nil) :: map
-  def values(description, property_map \\ nil)
-
-  def values(%__MODULE__{} = description, nil) do
-    map(description, &Statement.default_term_mapping/1)
-  end
-
-  def values(%__MODULE__{} = description, %PropertyMap{} = property_map) do
-    map(description, Statement.default_property_mapping(property_map))
+  @spec values(t, keyword) :: map
+  def values(%__MODULE__{} = description, opts \\ []) do
+    if property_map = PropertyMap.from_opts(opts) do
+      map(description, Statement.default_property_mapping(property_map))
+    else
+      map(description, &Statement.default_term_mapping/1)
+    end
   end
 
   @doc """

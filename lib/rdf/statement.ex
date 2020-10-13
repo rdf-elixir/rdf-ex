@@ -99,8 +99,8 @@ defmodule RDF.Statement do
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Statement` of RDF terms.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
 
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
@@ -113,14 +113,14 @@ defmodule RDF.Statement do
       {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
 
       iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
-      ...> |> RDF.Statement.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      ...> |> RDF.Statement.values(context: %{p: ~I<http://example.com/p>})
       {"http://example.com/S", :p, 42}
 
   """
-  @spec values(t, PropertyMap.t() | nil) :: Triple.t_values() | Quad.t_values() | nil
-  def values(quad, property_map \\ nil)
-  def values({_, _, _} = triple, property_map), do: Triple.values(triple, property_map)
-  def values({_, _, _, _} = quad, property_map), do: Quad.values(quad, property_map)
+  @spec values(t, keyword) :: Triple.t_values() | Quad.t_values() | nil
+  def values(quad, opts \\ [])
+  def values({_, _, _} = triple, opts), do: Triple.values(triple, opts)
+  def values({_, _, _, _} = quad, opts), do: Quad.values(quad, opts)
 
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Statement` of RDF terms.

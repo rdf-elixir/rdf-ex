@@ -87,8 +87,8 @@ defmodule RDF.Triple do
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Triple` of RDF terms.
 
-  When the optional `property_map` argument is given, predicates will be mapped
-  to the terms defined in the `RDF.PropertyMap` if present.
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
 
   Returns `nil` if one of the components of the given tuple is not convertible via `RDF.Term.value/1`.
 
@@ -98,20 +98,17 @@ defmodule RDF.Triple do
       {"http://example.com/S", "http://example.com/p", 42}
 
       iex> {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}
-      ...> |> RDF.Triple.values(PropertyMap.new(p: ~I<http://example.com/p>))
+      ...> |> RDF.Triple.values(context: %{p: ~I<http://example.com/p>})
       {"http://example.com/S", :p, 42}
 
-
   """
-  @spec values(t, PropertyMap.t() | nil) :: t_values | nil
-  def values(triple, property_map \\ nil)
-
-  def values(triple, nil) do
-    map(triple, &Statement.default_term_mapping/1)
-  end
-
-  def values(triple, %PropertyMap{} = property_map) do
-    map(triple, Statement.default_property_mapping(property_map))
+  @spec values(t, keyword) :: t_values | nil
+  def values(triple, opts \\ []) do
+    if property_map = PropertyMap.from_opts(opts) do
+      map(triple, Statement.default_property_mapping(property_map))
+    else
+      map(triple, &Statement.default_term_mapping/1)
+    end
   end
 
   @doc """
