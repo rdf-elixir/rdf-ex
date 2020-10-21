@@ -98,6 +98,22 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
+  Adds a prefix mapping to `prefix_map` overwriting an existing mapping.
+  """
+  @spec put(t, coercible_prefix, coercible_namespace) :: t
+  def put(prefix_map, prefix, namespace)
+
+  def put(%__MODULE__{map: map}, prefix, %IRI{} = namespace) when is_atom(prefix) do
+    %__MODULE__{map: Map.put(map, prefix, namespace)}
+  end
+
+  def put(%__MODULE__{} = prefix_map, prefix, namespace) do
+    with {prefix, namespace} = normalize({prefix, namespace}) do
+      put(prefix_map, prefix, namespace)
+    end
+  end
+
+  @doc """
   Merges two `RDF.PrefixMap`s.
 
   The second prefix map can also be given as any structure which can converted

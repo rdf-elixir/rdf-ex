@@ -5,6 +5,21 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.PrefixMap.put/3` for adding a prefix mapping and overwrite an existing one
+ 
+### Changed
+
+- more compact Inspect form for `RDF.PrefixMap` 
+
+
+[Compare v0.9.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...HEAD)
+
+
+
 ## 0.9.0 - 2020-10-13
 
 The API of the all three RDF datastructures `RDF.Dataset`, `RDF.Graph` and 

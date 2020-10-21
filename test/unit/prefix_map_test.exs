@@ -115,6 +115,40 @@ defmodule RDF.PrefixMapTest do
     end
   end
 
+  describe "put/3" do
+    test "when no mapping of the given prefix exists" do
+      assert PrefixMap.put(@example1, :ex2, @ex_ns2) == @example2
+    end
+
+    test "when the prefix is given as a string" do
+      assert PrefixMap.put(@example1, "ex2", @ex_ns2) == @example2
+    end
+
+    test "when the IRI namespace is given as a string" do
+      assert PrefixMap.put(@example1, :ex2, "http://example.com/bar#") == @example2
+    end
+
+    test "when the IRI namespace is given as a RDF.Vocabulary.Namespace" do
+      assert PrefixMap.put(@example1, :ex, EX) == @example4
+    end
+
+    test "when the IRI namespace is given as a RDF.Vocabulary.Namespace which is not loaded yet" do
+      assert prefix_map = PrefixMap.new() |> PrefixMap.put(:rdfs, RDF.NS.RDFS)
+      assert PrefixMap.has_prefix?(prefix_map, :rdfs)
+    end
+
+    test "when the IRI namespace is given as an atom" do
+      assert_raise RDF.Namespace.UndefinedTermError, "foo is not a term on a RDF.Namespace", fn ->
+        PrefixMap.put(@example1, :ex, :foo)
+      end
+    end
+
+    test "when a mapping of the given prefix to a different namespace already exists" do
+      assert PrefixMap.put(@example1, :ex1, "http://example.com/bar#") ==
+               PrefixMap.new(ex1: "http://example.com/bar#")
+    end
+  end
+
   describe "merge/2" do
     test "when the prefix maps are disjunctive" do
       other_prefix_map = PrefixMap.new(ex3: @ex_ns3)
