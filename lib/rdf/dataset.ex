@@ -17,7 +17,7 @@ defmodule RDF.Dataset do
 
   @behaviour Access
 
-  alias RDF.{Graph, Description, IRI, Statement, PropertyMap}
+  alias RDF.{Graph, Description, IRI, Statement, PrefixMap, PropertyMap}
   import RDF.Statement, only: [coerce_subject: 1, coerce_graph_name: 1]
   import RDF.Utils
 
@@ -852,6 +852,22 @@ defmodule RDF.Dataset do
   end
 
   def equal?(_, _), do: false
+
+  @doc """
+  Returns the aggregated prefixes of all graphs of `dataset` as a `RDF.PrefixMap`.
+  """
+  @spec prefixes(t) :: PrefixMap.t() | nil
+  def prefixes(%__MODULE__{} = dataset) do
+    dataset
+    |> RDF.Dataset.graphs()
+    |> Enum.reduce(RDF.PrefixMap.new(), fn graph, prefixes ->
+      if graph.prefixes do
+        RDF.PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
+      else
+        prefixes
+      end
+    end)
+  end
 
   defp clear_metadata(%__MODULE__{} = dataset) do
     %__MODULE__{

@@ -4,7 +4,7 @@ defmodule RDF.Turtle.Encoder do
   use RDF.Serialization.Encoder
 
   alias RDF.Turtle.Encoder.State
-  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString}
+  alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString, PrefixMap}
 
   @document_structure [
     :base,
@@ -36,14 +36,19 @@ defmodule RDF.Turtle.Encoder do
   @ordered_properties MapSet.new(@predicate_order)
 
   @impl RDF.Serialization.Encoder
-  @callback encode(Graph.t() | Dataset.t(), keyword | map) :: {:ok, String.t()} | {:error, any}
+  @spec encode(Graph.t() | Dataset.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
-    with base =
-           Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
-           |> base_iri(data)
-           |> init_base_iri(),
-         prefixes = Keyword.get(opts, :prefixes) |> prefixes(data) |> init_prefixes(),
-         {:ok, state} = State.start_link(data, base, prefixes) do
+    base =
+      Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
+      |> base_iri(data)
+      |> init_base_iri()
+
+    prefixes =
+      Keyword.get(opts, :prefixes)
+      |> prefixes(data)
+      |> init_prefixes()
+
+    with {:ok, state} = State.start_link(data, base, prefixes) do
       try do
         State.preprocess(state)
 
@@ -74,7 +79,7 @@ defmodule RDF.Turtle.Encoder do
     raise "unknown Turtle document element: #{inspect(element)}"
   end
 
-  defp base_iri(nil, %RDF.Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
+  defp base_iri(nil, %Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
   defp base_iri(nil, _), do: RDF.default_base_iri()
   defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
 
@@ -91,19 +96,10 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp prefixes(nil, %RDF.Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+  defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
 
-  defp prefixes(nil, %RDF.Dataset{} = dataset) do
-    prefixes =
-      dataset
-      |> RDF.Dataset.graphs()
-      |> Enum.reduce(RDF.PrefixMap.new(), fn graph, prefixes ->
-        if graph.prefixes do
-          RDF.PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
-        else
-          prefixes
-        end
-      end)
+  defp prefixes(nil, %Dataset{} = dataset) do
+    prefixes = Dataset.prefixes(dataset)
 
     if Enum.empty?(prefixes) do
       RDF.default_prefixes()
@@ -113,7 +109,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp prefixes(nil, _), do: RDF.default_prefixes()
-  defp prefixes(prefixes, _), do: RDF.PrefixMap.new(prefixes)
+  defp prefixes(prefixes, _), do: PrefixMap.new(prefixes)
 
   defp init_prefixes(prefixes) do
     Enum.reduce(prefixes, %{}, fn {prefix, iri}, reverse ->

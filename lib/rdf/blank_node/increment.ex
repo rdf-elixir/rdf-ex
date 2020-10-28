@@ -14,6 +14,12 @@ defmodule RDF.BlankNode.Increment do
 
   alias RDF.BlankNode
 
+  @type state :: %{
+          optional(:prefix) => String.t(),
+          map: map,
+          counter: pos_integer
+        }
+
   @impl BlankNode.Generator.Algorithm
   def init(%{prefix: prefix} = opts) do
     opts

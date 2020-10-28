@@ -1757,6 +1757,14 @@ defmodule RDF.DatasetTest do
            )
   end
 
+  test "prefixes/1" do
+    assert Dataset.new()
+           |> Dataset.add(Graph.new(prefixes: [ex: EX, foo: RDFS]))
+           |> Dataset.add(Graph.new(name: EX.Graph, prefixes: [ex: EX, foo: OWL]))
+           |> Dataset.prefixes() ==
+             PrefixMap.new(ex: EX, foo: RDFS)
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Dataset.new(name: EX.foo())) == 0

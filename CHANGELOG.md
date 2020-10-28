@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Dataset.prefixes/1` for getting an aggregated `RDF.PrefixMap` over all graphs
 - `RDF.PrefixMap.put/3` for adding a prefix mapping and overwrite an existing one
  
 ### Changed
