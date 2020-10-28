@@ -76,7 +76,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp base_iri(nil, %RDF.Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
   defp base_iri(nil, _), do: RDF.default_base_iri()
-  defp base_iri(base_iri, _), do: RDF.iri(base_iri)
+  defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
 
   defp init_base_iri(nil), do: nil
 

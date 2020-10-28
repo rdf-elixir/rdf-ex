@@ -13,7 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
  
 ### Changed
 
-- more compact Inspect form for `RDF.PrefixMap` 
+- more compact Inspect form for `RDF.PrefixMap`
+- the `RDF.Turtle.Encoder` accepts `RDF.Vocabulary.Namespace` modules as `base`
 
 
 [Compare v0.9.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...HEAD)

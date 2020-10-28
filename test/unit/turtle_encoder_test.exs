@@ -115,7 +115,7 @@ defmodule RDF.Turtle.EncoderTest do
                  prefixes: %{},
                  base_iri: EX.other()
                ),
-               base_iri: EX.__base_iri__()
+               base_iri: EX
              ) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
