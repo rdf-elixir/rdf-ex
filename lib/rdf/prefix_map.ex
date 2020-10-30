@@ -396,12 +396,15 @@ defmodule RDF.PrefixMap do
   @spec prefixed_name_to_iri(t, String.t()) :: IRI.t() | nil
   def prefixed_name_to_iri(%__MODULE__{} = prefix_map, prefixed_name)
       when is_binary(prefixed_name) do
-    Enum.find_value(prefix_map, fn {prefix, namespace} ->
-      case String.replace_leading(prefixed_name, "#{prefix}:", IRI.to_string(namespace)) do
-        ^prefixed_name -> nil
-        iri -> IRI.new(iri)
-      end
-    end)
+    case String.split(prefixed_name, ":", parts: 2) do
+      [prefix, name] ->
+        if ns = namespace(prefix_map, prefix) do
+          RDF.iri(ns.value <> name)
+        end
+
+      _ ->
+        nil
+    end
   end
 
   defimpl Enumerable do
