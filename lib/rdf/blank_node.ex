@@ -41,6 +41,11 @@ defmodule RDF.BlankNode do
     do: value |> to_string |> new
 
   @doc """
+  Returns the internal string representation of a blank node.
+  """
+  def value(%__MODULE__{} = bnode), do: bnode.value
+
+  @doc """
   Tests for value equality of blank nodes.
 
   Returns `nil` when the given arguments are not comparable as blank nodes.
