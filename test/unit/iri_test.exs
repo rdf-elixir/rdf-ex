@@ -294,6 +294,10 @@ defmodule RDF.IRITest do
       assert IRI.merge("http://example.com/", "foo#") == IRI.new("http://example.com/foo#")
     end
 
+    test "with a fragment" do
+      assert IRI.merge("http://example.com/", "#foo") == IRI.new("http://example.com/#foo")
+    end
+
     @tag skip: "TODO: proper validation"
     test "with invalid iris" do
       Enum.each(invalid_iris(), fn invalid_iri ->
