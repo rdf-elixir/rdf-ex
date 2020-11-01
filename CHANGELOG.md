@@ -18,6 +18,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - more compact Inspect form for `RDF.PrefixMap`
 - the `RDF.Turtle.Encoder` accepts `RDF.Vocabulary.Namespace` modules as `base`
 
+### Fixed
+
+- `RDF.BlankNode`s based on refs weren't serializable to Turtle
+
 
 [Compare v0.9.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...HEAD)
 

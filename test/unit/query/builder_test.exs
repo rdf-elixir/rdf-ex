@@ -247,14 +247,14 @@ defmodule RDF.Query.BuilderTest do
     test "element count > 3" do
       assert Builder.path([EX.s(), EX.p1(), EX.p2(), EX.o()]) ==
                ok_bgp_struct([
-                 {EX.s(), EX.p1(), RDF.bnode("0")},
-                 {RDF.bnode("0"), EX.p2(), EX.o()}
+                 {EX.s(), EX.p1(), RDF.bnode("b0")},
+                 {RDF.bnode("b0"), EX.p2(), EX.o()}
                ])
 
       assert Builder.path([:s?, :p1?, :p2?, :o?]) ==
                ok_bgp_struct([
-                 {:s, :p1, RDF.bnode("0")},
-                 {RDF.bnode("0"), :p2, :o}
+                 {:s, :p1, RDF.bnode("b0")},
+                 {RDF.bnode("b0"), :p2, :o}
                ])
     end
 
@@ -280,8 +280,8 @@ defmodule RDF.Query.BuilderTest do
 
       assert Builder.path([EX.s(), :p1, :p2, EX.o()], context: property_map) ==
                ok_bgp_struct([
-                 {EX.s(), EX.p1(), RDF.bnode("0")},
-                 {RDF.bnode("0"), EX.p2(), EX.o()}
+                 {EX.s(), EX.p1(), RDF.bnode("b0")},
+                 {RDF.bnode("b0"), EX.p2(), EX.o()}
                ])
 
       assert Builder.path([EX.s(), :p1, :p2, :o?], context: property_map, with_elements: true) ==

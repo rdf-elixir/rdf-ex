@@ -177,10 +177,10 @@ defmodule RDF.Turtle.EncoderTest do
              ) ==
                """
                <http://example.org/#S1>
-                   <http://example.org/#p1> _:1, _:bar, _:foo .
+                   <http://example.org/#p1> _:b1, _:bar, _:foo .
 
                <http://example.org/#S2>
-                   <http://example.org/#p1> _:1, _:bar, _:foo .
+                   <http://example.org/#p1> _:b1, _:bar, _:foo .
                """
     end
 

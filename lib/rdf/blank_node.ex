@@ -31,14 +31,14 @@ defmodule RDF.BlankNode do
   @spec new(reference | String.t() | atom | integer) :: t
   def new(value)
 
-  def new(value) when is_binary(value),
-    do: %__MODULE__{value: value}
+  def new(string) when is_binary(string), do: %__MODULE__{value: string}
+  def new(atom) when is_atom(atom), do: atom |> to_string() |> new()
+  def new(integer) when is_integer(integer), do: new("b#{integer}")
 
-  def new(value) when is_reference(value),
-    do: value |> :erlang.ref_to_list() |> to_string |> String.replace(~r/\<|\>/, "") |> new
-
-  def new(value) when is_atom(value) or is_integer(value),
-    do: value |> to_string |> new
+  def new(ref) when is_reference(ref) do
+    "#Ref<" <> value = ref |> :erlang.ref_to_list() |> to_string()
+    value |> String.trim_trailing(">") |> new()
+  end
 
   @doc """
   Returns the internal string representation of a blank node.

@@ -62,7 +62,7 @@ defmodule RDF.NTriples.EncoderTest do
                ])
              ) ==
                """
-               <http://example.org/#S1> <http://example.org/#p1> _:1 .
+               <http://example.org/#S1> <http://example.org/#p1> _:b1 .
                <http://example.org/#S1> <http://example.org/#p1> _:bar .
                <http://example.org/#S1> <http://example.org/#p1> _:foo .
                """
