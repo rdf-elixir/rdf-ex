@@ -17,8 +17,7 @@ defmodule RDF.BlankNode do
   Creates a `RDF.BlankNode`.
   """
   @spec new :: t
-  def new,
-    do: new(make_ref())
+  def new, do: new(:erlang.unique_integer([:positive]))
 
   @doc """
   Creates a `RDF.BlankNode` with a user-defined value for its identity.

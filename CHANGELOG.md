@@ -17,6 +17,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - more compact Inspect form for `RDF.PrefixMap`
 - the `RDF.Turtle.Encoder` accepts `RDF.Vocabulary.Namespace` modules as `base`
+- `RDF.BlankNode.new/0` creates integer-based blank nodes, which is much more
+  efficient in terms of performance and memory consumption than the previous
+  ref-based blank nodes
+  
 
 ### Fixed
 
