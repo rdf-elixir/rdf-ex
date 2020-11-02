@@ -7,7 +7,7 @@ defmodule RDF.Serialization.Writer do
   use the proper `RDF.Serialization.Encoder` module.
   """
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.{Dataset, Graph, Description}
 
   @doc """
   Encodes and writes a graph or dataset to a string.
@@ -15,7 +15,7 @@ defmodule RDF.Serialization.Writer do
   It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
-  @spec write_string(module, Graph.t() | Dataset.t(), keyword) ::
+  @spec write_string(module, Description.t() | Graph.t() | Dataset.t(), keyword) ::
           {:ok, String.t()} | {:error, any}
   def write_string(encoder, data, opts \\ []) do
     encoder.encode(data, opts)
@@ -26,7 +26,7 @@ defmodule RDF.Serialization.Writer do
 
   As opposed to `write_string`, it raises an exception if an error occurs.
   """
-  @spec write_string!(module, Graph.t() | Dataset.t(), keyword) :: String.t()
+  @spec write_string!(module, Description.t() | Graph.t() | Dataset.t(), keyword) :: String.t()
   def write_string!(encoder, data, opts \\ []) do
     encoder.encode!(data, opts)
   end
@@ -43,7 +43,8 @@ defmodule RDF.Serialization.Writer do
 
   It returns `:ok` if successful or `{:error, reason}` if an error occurs.
   """
-  @spec write_file(module, Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok | {:error, any}
+  @spec write_file(module, Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) ::
+          :ok | {:error, any}
   def write_file(encoder, data, path, opts \\ []) do
     with {:ok, encoded_string} <- write_string(encoder, data, opts) do
       File.write(path, encoded_string, file_mode(encoder, opts))
@@ -57,7 +58,7 @@ defmodule RDF.Serialization.Writer do
 
   As opposed to `write_file`, it raises an exception if an error occurs.
   """
-  @spec write_file!(module, Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
+  @spec write_file!(module, Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
   def write_file!(encoder, data, path, opts \\ []) do
     with encoded_string = write_string!(encoder, data, opts) do
       File.write!(path, encoded_string, file_mode(encoder, opts))

@@ -289,6 +289,13 @@ defmodule RDF.Turtle.EncoderTest do
     end
   end
 
+  test "serializing a description" do
+    description = EX.S |> EX.p(EX.O)
+
+    assert Turtle.Encoder.encode!(description) ==
+             description |> Graph.new() |> Turtle.Encoder.encode!()
+  end
+
   describe "serializing a dataset" do
     test "prefixes of the graphs are merged properly" do
       dataset =

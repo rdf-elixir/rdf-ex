@@ -4,7 +4,7 @@ defmodule RDF.Serialization.Encoder do
   `RDF.Serialization` format.
   """
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.{Dataset, Graph, Description}
 
   @doc """
   Encodes a `RDF.Graph` or `RDF.Dataset`.
@@ -12,7 +12,8 @@ defmodule RDF.Serialization.Encoder do
   It returns an `{:ok, string}` tuple, with `string` being the serialized
   `RDF.Graph` or `RDF.Dataset`, or `{:error, reason}` if an error occurs.
   """
-  @callback encode(Graph.t() | Dataset.t(), keyword | map) :: {:ok, String.t()} | {:error, any}
+  @callback encode(Description.t() | Graph.t() | Dataset.t(), keyword | map) ::
+              {:ok, String.t()} | {:error, any}
 
   @doc """
   Encodes a `RDF.Graph` or `RDF.Dataset`.
@@ -22,7 +23,7 @@ defmodule RDF.Serialization.Encoder do
   Note: The `__using__` macro automatically provides an overridable default
   implementation based on the non-bang `encode` function.
   """
-  @callback encode!(Graph.t() | Dataset.t(), keyword | map) :: String.t()
+  @callback encode!(Description.t() | Graph.t() | Dataset.t(), keyword | map) :: String.t()
 
   defmacro __using__(_) do
     quote bind_quoted: [], unquote: true do
@@ -30,7 +31,7 @@ defmodule RDF.Serialization.Encoder do
 
       @impl unquote(__MODULE__)
       @dialyzer {:nowarn_function, encode!: 2}
-      @spec encode!(Graph.t() | Dataset.t(), keyword) :: String.t()
+      @spec encode!(Description.t() | Graph.t() | Dataset.t(), keyword) :: String.t()
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
           {:ok, data} -> data

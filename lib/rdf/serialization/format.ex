@@ -28,7 +28,7 @@ defmodule RDF.Serialization.Format do
   `decoder/0` functions in your `RDF.Serialization.Format` module.
   """
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.{Dataset, Graph, Description}
 
   @doc """
   An IRI of the serialization format.
@@ -99,19 +99,21 @@ defmodule RDF.Serialization.Format do
       def read_file!(file, opts \\ []),
         do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
 
-      @spec write_string(Graph.t() | Dataset.t(), keyword) :: {:ok, String.t()} | {:error, any}
+      @spec write_string(Description.t() | Graph.t() | Dataset.t(), keyword) ::
+              {:ok, String.t()} | {:error, any}
       def write_string(data, opts \\ []),
         do: RDF.Serialization.Writer.write_string(encoder(), data, opts)
 
-      @spec write_string!(Graph.t() | Dataset.t(), keyword) :: String.t()
+      @spec write_string!(Description.t() | Graph.t() | Dataset.t(), keyword) :: String.t()
       def write_string!(data, opts \\ []),
         do: RDF.Serialization.Writer.write_string!(encoder(), data, opts)
 
-      @spec write_file(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok | {:error, any}
+      @spec write_file(Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) ::
+              :ok | {:error, any}
       def write_file(data, path, opts \\ []),
         do: RDF.Serialization.Writer.write_file(encoder(), data, path, opts)
 
-      @spec write_file!(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
+      @spec write_file!(Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
       def write_file!(data, path, opts \\ []),
         do: RDF.Serialization.Writer.write_file!(encoder(), data, path, opts)
 
