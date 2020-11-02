@@ -46,7 +46,6 @@ defmodule RDF.Turtle.Encoder do
     prefixes =
       Keyword.get(opts, :prefixes)
       |> prefixes(data)
-      |> init_prefixes()
 
     with {:ok, state} = State.start_link(data, base, prefixes) do
       try do
@@ -111,12 +110,6 @@ defmodule RDF.Turtle.Encoder do
   defp prefixes(nil, _), do: RDF.default_prefixes()
   defp prefixes(prefixes, _), do: PrefixMap.new(prefixes)
 
-  defp init_prefixes(prefixes) do
-    Enum.reduce(prefixes, %{}, fn {prefix, iri}, reverse ->
-      Map.put(reverse, iri, to_string(prefix))
-    end)
-  end
-
   defp base_directive(nil, _), do: ""
 
   defp base_directive({_, base}, opts) do
@@ -126,7 +119,7 @@ defmodule RDF.Turtle.Encoder do
     end <> "\n\n"
   end
 
-  defp prefix_directive({ns, prefix}, opts) do
+  defp prefix_directive({prefix, ns}, opts) do
     case Keyword.get(opts, :directive_style) do
       :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
       _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
@@ -390,28 +383,7 @@ defmodule RDF.Turtle.Encoder do
       }]
 
   def prefixed_name(iri, prefixes) do
-    with {ns, name} <- split_iri(iri) do
-      case prefixes[ns] do
-        nil -> nil
-        prefix -> prefix <> ":" <> name
-      end
-    end
-  end
-
-  defp split_iri(%IRI{} = iri),
-    do: iri |> IRI.parse() |> split_iri()
-
-  defp split_iri(%URI{fragment: fragment} = uri) when not is_nil(fragment),
-    do: {RDF.iri(%URI{uri | fragment: ""}), fragment}
-
-  defp split_iri(%URI{path: nil}),
-    do: nil
-
-  defp split_iri(%URI{path: path} = uri) do
-    with [{pos, _}] = Regex.run(~r"[^/]*$"u, path, return: :index),
-         {ns_path, name} = String.split_at(path, pos) do
-      {RDF.iri(%URI{uri | path: ns_path}), name}
-    end
+    PrefixMap.prefixed_name(prefixes, iri)
   end
 
   defp quoted(string) do

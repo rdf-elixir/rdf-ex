@@ -5,7 +5,7 @@ defmodule RDF.Turtle.EncoderTest do
 
   doctest Turtle.Encoder
 
-  alias RDF.Graph
+  alias RDF.{Graph, PrefixMap}
   alias RDF.NS
   alias RDF.NS.{RDFS, OWL}
 
@@ -202,9 +202,9 @@ defmodule RDF.Turtle.EncoderTest do
                """
                @base <#{to_string(EX.__base_iri__())}> .
 
+               @prefix owl: <#{to_string(OWL.__base_iri__())}> .
                @prefix rdf: <#{to_string(RDF.__base_iri__())}> .
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
-               @prefix owl: <#{to_string(OWL.__base_iri__())}> .
 
                <>
                    a owl:Ontology .
@@ -331,9 +331,9 @@ defmodule RDF.Turtle.EncoderTest do
       assert Turtle.Encoder.encode!(dataset) ==
                """
                @prefix ex: <http://example.org/#> .
+               @prefix owl: <http://www.w3.org/2002/07/owl#> .
                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
                @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-               @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
                <http://other.example.com/S2>
                    a rdfs:Class .
@@ -366,10 +366,11 @@ defmodule RDF.Turtle.EncoderTest do
   describe "prefixed_name/2" do
     setup do
       {:ok,
-       prefixes: %{
-         RDF.iri(EX.__base_iri__()) => "ex",
-         ~I<http://example.org/> => "ex2"
-       }}
+       prefixes:
+         PrefixMap.new(
+           ex: EX,
+           ex2: ~I<http://example.org/>
+         )}
     end
 
     test "hash iri with existing prefix", %{prefixes: prefixes} do
@@ -383,7 +384,7 @@ defmodule RDF.Turtle.EncoderTest do
     end
 
     test "hash iri with non-existing prefix" do
-      refute Turtle.Encoder.prefixed_name(EX.foo(), %{})
+      refute Turtle.Encoder.prefixed_name(EX.foo(), PrefixMap.new())
     end
 
     test "slash iri with existing prefix", %{prefixes: prefixes} do
@@ -397,7 +398,7 @@ defmodule RDF.Turtle.EncoderTest do
     end
 
     test "slash iri with non-existing prefix" do
-      refute Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, %{})
+      refute Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, PrefixMap.new())
     end
   end
 
