@@ -1,43 +1,3 @@
-defmodule RDF.InspectHelper do
-  @moduledoc false
-
-  import Inspect.Algebra
-
-  def objects_doc(objects, opts) do
-    objects
-    |> Enum.map(fn {object, _} -> to_doc(object, opts) end)
-    |> fold_doc(fn object, acc -> line(object, acc) end)
-  end
-
-  def predications_doc(predications, opts) do
-    predications
-    |> Enum.map(fn {predicate, objects} ->
-      to_doc(predicate, opts)
-      |> line(objects_doc(objects, opts))
-      |> nest(4)
-    end)
-    |> fold_doc(fn predication, acc ->
-      line(predication, acc)
-    end)
-  end
-
-  def descriptions_doc(descriptions, opts) do
-    descriptions
-    |> Enum.map(fn {subject, description} ->
-      to_doc(subject, opts)
-      |> line(predications_doc(description.predications, opts))
-      |> nest(4)
-    end)
-    |> fold_doc(fn predication, acc ->
-      line(predication, acc)
-    end)
-  end
-
-  def surround_doc(left, doc, right) do
-    concat(concat(left, nest(doc, 1)), right)
-  end
-end
-
 defimpl Inspect, for: RDF.IRI do
   def inspect(%RDF.IRI{value: value}, _opts) do
     "~I<#{value}>"
@@ -57,49 +17,100 @@ defimpl Inspect, for: RDF.Literal do
 end
 
 defimpl Inspect, for: RDF.Description do
-  import Inspect.Algebra
-  import RDF.InspectHelper
+  def inspect(description, opts) do
+    if opts.structs do
+      try do
+        limit = opts.limit < RDF.Description.statement_count(description)
 
-  def inspect(%RDF.Description{subject: subject, predications: predications}, opts) do
-    doc =
-      space("subject:", to_doc(subject, opts))
-      |> line(predications_doc(predications, opts))
-      |> nest(4)
+        description =
+          if limit do
+            description.subject
+            |> RDF.Description.new(init: Enum.take(description, opts.limit))
+          else
+            description
+          end
 
-    surround_doc("#RDF.Description{", doc, "}")
+        body =
+          description
+          |> RDF.Turtle.write_string!(only: :triples)
+          |> String.trim_trailing()
+
+        "#RDF.Description\n#{body}#{if limit, do: "..\n..."}"
+      rescue
+        caught_exception ->
+          message =
+            "got #{inspect(caught_exception.__struct__)} with message " <>
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Description #{
+                description.subject
+              }"
+
+          exception = Inspect.Error.exception(message: message)
+
+          if opts.safe do
+            Inspect.inspect(exception, opts)
+          else
+            reraise(exception, __STACKTRACE__)
+          end
+      end
+    else
+      Inspect.Map.inspect(description, opts)
+    end
   end
 end
 
 defimpl Inspect, for: RDF.Graph do
-  import Inspect.Algebra
-  import RDF.InspectHelper
+  def inspect(graph, opts) do
+    if opts.structs do
+      try do
+        limit = opts.limit < RDF.Graph.statement_count(graph)
 
-  def inspect(%RDF.Graph{name: name, descriptions: descriptions}, opts) do
-    doc =
-      space("name:", to_doc(name, opts))
-      |> line(descriptions_doc(descriptions, opts))
-      |> nest(4)
+        graph =
+          if limit do
+            graph
+            |> RDF.Graph.clear()
+            |> RDF.Graph.add(Enum.take(graph, opts.limit))
+          else
+            graph
+          end
 
-    surround_doc("#RDF.Graph{", doc, "}")
+        header = "#RDF.Graph name: #{inspect(graph.name)}"
+
+        body =
+          graph
+          |> RDF.Turtle.write_string!()
+          |> String.trim_trailing()
+
+        "#{header}\n#{body}#{if limit, do: "..\n..."}"
+      rescue
+        caught_exception ->
+          message =
+            "got #{inspect(caught_exception.__struct__)} with message " <>
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Graph #{
+                graph.name
+              }"
+
+          exception = Inspect.Error.exception(message: message)
+
+          if opts.safe do
+            Inspect.inspect(exception, opts)
+          else
+            reraise(exception, __STACKTRACE__)
+          end
+      end
+    else
+      Inspect.Map.inspect(graph, opts)
+    end
   end
 end
 
 defimpl Inspect, for: RDF.Dataset do
   import Inspect.Algebra
-  import RDF.InspectHelper
 
-  def inspect(%RDF.Dataset{name: name} = dataset, opts) do
-    doc =
-      space("name:", to_doc(name, opts))
-      |> line(graphs_doc(RDF.Dataset.graphs(dataset), opts))
-      |> nest(4)
-
-    surround_doc("#RDF.Dataset{", doc, "}")
-  end
-
-  defp graphs_doc(graphs, opts) do
-    graphs
-    |> Enum.map(fn graph -> to_doc(graph, opts) end)
-    |> fold_doc(fn graph, acc -> line(graph, acc) end)
+  def inspect(dataset, opts) do
+    map = [name: dataset.name, graph_names: Map.keys(dataset.graphs)]
+    open = color("%RDF.Dataset{", :map, opts)
+    sep = color(",", :map, opts)
+    close = color("}", :map, opts)
+    container_doc(open, map, close, opts, &Inspect.List.keyword/2, separator: sep, break: :strict)
   end
 end

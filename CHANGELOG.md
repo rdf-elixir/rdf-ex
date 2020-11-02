@@ -15,10 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
  
 ### Changed
 
+- the Inspect form of the RDF data structures are now Turtle-based and respect
+  the usual `:limit` behaviour
 - more compact Inspect form for `RDF.PrefixMap`
 - the `RDF.Turtle.Encoder` accepts `RDF.Vocabulary.Namespace` modules as `base`
-- the performance of the `RDF.Turtle.Encoder` was improved (by using a more
-  efficient method for resolving IRIs to prefixed names for most use cases)
+- the performance of the `RDF.Turtle.Encoder` was improved (by using a for most 
+  use cases more efficient method for resolving IRIs to prefixed names)
 - `RDF.BlankNode.new/0` creates integer-based blank nodes, which is much more
   efficient in terms of performance and memory consumption than the previous
   ref-based blank nodes
