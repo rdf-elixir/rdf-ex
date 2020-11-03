@@ -2,7 +2,7 @@ defmodule RDF.Serialization.Format do
   @moduledoc """
   A behaviour for RDF serialization formats.
 
-  A `RDF.Serialization` for a format can be implemented like this
+  A serialization format can be implemented like this
 
       defmodule SomeFormat do
         use RDF.Serialization.Format
@@ -28,7 +28,8 @@ defmodule RDF.Serialization.Format do
   `decoder/0` functions in your `RDF.Serialization.Format` module.
   """
 
-  alias RDF.{Dataset, Graph, Description}
+  alias RDF.{Dataset, Graph}
+  alias RDF.Serialization.{Reader, Writer}
 
   @doc """
   An IRI of the serialization format.
@@ -73,41 +74,113 @@ defmodule RDF.Serialization.Format do
       @impl unquote(__MODULE__)
       def encoder, do: @encoder
 
-      defoverridable decoder: 0, encoder: 0
+      defoverridable unquote(__MODULE__)
 
+      @decoder_doc_ref """
+      See the [module documentation of the decoder](`#{@decoder}`) for the
+      available format-specific options, all of which can be used in this
+      function and will be passed them through to the decoder.
+      """
+
+      @doc """
+      Reads and decodes a serialized graph or dataset from a string.
+
+      It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
+      dataset, or `{:error, reason}` if an error occurs.
+
+      #{@decoder_doc_ref}
+      """
       @spec read_string(String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
-      def read_string(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string(decoder(), content, opts)
+      def read_string(content, opts \\ []), do: Reader.read_string(decoder(), content, opts)
 
+      @doc """
+      Reads and decodes a serialized graph or dataset from a string.
+
+      As opposed to `read_string/2`, it raises an exception if an error occurs.
+
+      #{@decoder_doc_ref}
+      """
       @spec read_string!(String.t(), keyword) :: Graph.t() | Dataset.t()
-      def read_string!(content, opts \\ []),
-        do: RDF.Serialization.Reader.read_string!(decoder(), content, opts)
+      def read_string!(content, opts \\ []), do: Reader.read_string!(decoder(), content, opts)
 
+      @doc """
+      Reads and decodes a serialized graph or dataset from a file.
+
+      It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
+      dataset, or `{:error, reason}` if an error occurs.
+
+      #{@decoder_doc_ref}
+      """
       @spec read_file(Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
-      def read_file(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file(decoder(), file, opts)
+      def read_file(file, opts \\ []), do: Reader.read_file(decoder(), file, opts)
 
+      @doc """
+      Reads and decodes a serialized graph or dataset from a file.
+
+      As opposed to `read_file/2`, it raises an exception if an error occurs.
+
+      #{@decoder_doc_ref}
+      """
       @spec read_file!(Path.t(), keyword) :: Graph.t() | Dataset.t()
-      def read_file!(file, opts \\ []),
-        do: RDF.Serialization.Reader.read_file!(decoder(), file, opts)
+      def read_file!(file, opts \\ []), do: Reader.read_file!(decoder(), file, opts)
 
-      @spec write_string(Description.t() | Graph.t() | Dataset.t(), keyword) ::
-              {:ok, String.t()} | {:error, any}
-      def write_string(data, opts \\ []),
-        do: RDF.Serialization.Writer.write_string(encoder(), data, opts)
+      @encoder_doc_ref """
+      See the [module documentation of the encoder](`#{@encoder}`) for the
+      available format-specific options, all of which can be used in this
+      function and will be passed them through to the encoder.
+      """
 
-      @spec write_string!(Description.t() | Graph.t() | Dataset.t(), keyword) :: String.t()
-      def write_string!(data, opts \\ []),
-        do: RDF.Serialization.Writer.write_string!(encoder(), data, opts)
+      @doc """
+      Serializes a RDF data structure to a string.
 
-      @spec write_file(Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) ::
-              :ok | {:error, any}
-      def write_file(data, path, opts \\ []),
-        do: RDF.Serialization.Writer.write_file(encoder(), data, path, opts)
+      It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
+      dataset, or `{:error, reason}` if an error occurs.
 
-      @spec write_file!(Description.t() | Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
-      def write_file!(data, path, opts \\ []),
-        do: RDF.Serialization.Writer.write_file!(encoder(), data, path, opts)
+      #{@encoder_doc_ref}
+      """
+      @spec write_string(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+      def write_string(data, opts \\ []), do: Writer.write_string(encoder(), data, opts)
+
+      @doc """
+      Serializes a RDF data structure to a string.
+
+      As opposed to `write_string/2`, it raises an exception if an error occurs.
+
+      #{@encoder_doc_ref}
+      """
+      @spec write_string!(RDF.Data.t(), keyword) :: String.t()
+      def write_string!(data, opts \\ []), do: Writer.write_string!(encoder(), data, opts)
+
+      @doc """
+      Serializes a RDF data structure to a file.
+
+      It returns `:ok` if successful or `{:error, reason}` if an error occurs.
+
+      ## Options
+
+      General serialization-independent options:
+
+      - `:force` - If not set to `true`, an error is raised when the given file
+        already exists (default: `false`)
+      - `:file_mode` - A list with the Elixir `File.open` modes to be used for writing
+        (default: `[:write, :exclusive]`)
+
+      #{@encoder_doc_ref}
+      """
+      @spec write_file(RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
+      def write_file(data, path, opts \\ []), do: Writer.write_file(encoder(), data, path, opts)
+
+      @doc """
+      Serializes a RDF data structure to a file.
+
+      As opposed to `write_file/3`, it raises an exception if an error occurs.
+
+      See `write_file/3` for the available format-independent options.
+
+      #{@encoder_doc_ref}
+      """
+      @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
+      def write_file!(data, path, opts \\ []), do: Writer.write_file!(encoder(), data, path, opts)
 
       @before_compile unquote(__MODULE__)
     end

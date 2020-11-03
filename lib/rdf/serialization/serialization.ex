@@ -1,6 +1,15 @@
 defmodule RDF.Serialization do
   @moduledoc """
-  General functions for working with RDF serializations.
+  Functions for working with RDF serializations generically.
+
+  Besides some reflection functions regarding available serialization formats,
+  this module includes the full serialization reader and writer API from the
+  serialization format modules.
+  As opposed to calling the reader and writer functions statically on the
+  serialization format module, they can be used more dynamically on this module
+  either by providing the format by name or media type with the `:format` option
+  or in the case of the read and write function on files by relying on detection
+  of the format by file extension.
   """
 
   alias RDF.{Dataset, Graph}
@@ -22,7 +31,7 @@ defmodule RDF.Serialization do
   ## Examples
 
       iex> RDF.Serialization.formats
-      [RDF.Turtle, JSON.LD, RDF.NTriples, RDF.NQuads]
+      #{inspect(@formats)}
 
   """
   @spec formats :: [format]
@@ -116,13 +125,16 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Reads and decodes a serialized graph or dataset from a string.
-
-  The format must be specified with the `format` option and a format name or the 
-  `media_type` option and the media type of the format.
+  Deserializes a graph or dataset from a string.
 
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
+
+  The format must be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format.
+
+  Please refer to the documentation of the decoder of a RDF serialization format
+  for format-specific options.
   """
   @spec read_string(String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_string(content, opts) do
@@ -132,12 +144,15 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Reads and decodes a serialized graph or dataset from a string.
+  Deserializes a graph or dataset from a string.
 
-  The format must be specified with the `format` option and a format name or the 
+  As opposed to `read_string/2`, it raises an exception if an error occurs.
+
+  The format must be specified with the `format` option and a format name or the
   `media_type` option and the media type of the format.
 
-  As opposed to `read_string`, it raises an exception if an error occurs.
+  Please refer to the documentation of the decoder of a RDF serialization format
+  for format-specific options.
   """
   @spec read_string!(String.t(), keyword) :: Graph.t() | Dataset.t()
   def read_string!(content, opts) do
@@ -149,14 +164,17 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Reads and decodes a serialized graph or dataset from a file.
-
-  The format can be specified with the `format` option and a format name or the 
-  `media_type` option and the media type of the format. If none of these are 
-  given, the format gets inferred from the extension of the given file name. 
+  Deserializes a graph or dataset from a file.
 
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
+
+  The format can be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format. If none of these are 
+  given, the format gets inferred from the extension of the given file name. 
+
+  Please refer to the documentation of the decoder of a RDF serialization format
+  for format-specific options.
   """
   @spec read_file(Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_file(file, opts \\ []) do
@@ -166,13 +184,16 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Reads and decodes a serialized graph or dataset from a file.
+  Deserializes a graph or dataset from a file.
+
+  As opposed to `read_file/2`, it raises an exception if an error occurs.
 
   The format can be specified with the `format` option and a format name or the 
   `media_type` option and the media type of the format. If none of these are 
   given, the format gets inferred from the extension of the given file name. 
 
-  As opposed to `read_file`, it raises an exception if an error occurs.
+  Please refer to the documentation of the decoder of a RDF serialization format
+  for format-specific options.
   """
   @spec read_file!(Path.t(), keyword) :: Graph.t() | Dataset.t()
   def read_file!(file, opts \\ []) do
@@ -184,13 +205,16 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Encodes and writes a graph or dataset to a string.
-
-  The format must be specified with the `format` option and a format name or the 
-  `media_type` option and the media type of the format.
+  Serializes a RDF data structure to a string.
 
   It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
   dataset, or `{:error, reason}` if an error occurs.
+
+  The format must be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format.
+
+  Please refer to the documentation of the encoder of a RDF serialization format
+  for format-specific options.
   """
   @spec write_string(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def write_string(data, opts) do
@@ -200,12 +224,15 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Encodes and writes a graph or dataset to a string.
+  Serializes a RDF data structure to a string.
 
-  The format must be specified with the `format` option and a format name or the 
+  As opposed to `write_string/2`, it raises an exception if an error occurs.
+
+  The format must be specified with the `format` option and a format name or the
   `media_type` option and the media type of the format.
 
-  As opposed to `write_string`, it raises an exception if an error occurs.
+  Please refer to the documentation of the encoder of a RDF serialization format
+  for format-specific options.
   """
   @spec write_string!(RDF.Data.t(), keyword) :: String.t()
   def write_string!(data, opts) do
@@ -217,7 +244,11 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Encodes and writes a graph or dataset to a file.
+  Serializes a RDF data structure to a file.
+
+  It returns `:ok` if successful or `{:error, reason}` if an error occurs.
+
+  ## Options
 
   The format can be specified with the `format` option and a format name or the
   `media_type` option and the media type of the format. If none of these are
@@ -228,9 +259,10 @@ defmodule RDF.Serialization do
   - `:force` - If not set to `true`, an error is raised when the given file
     already exists (default: `false`)
   - `:file_mode` - A list with the Elixir `File.open` modes to be used for writing
-    (default: `[:utf8, :write]`)
+    (default: `[:write, :exclusive]`)
 
-  It returns `:ok` if successful or `{:error, reason}` if an error occurs.
+  Please refer to the documentation of the encoder of a RDF serialization format
+  for format-specific options.
   """
   @spec write_file(RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
   def write_file(data, path, opts \\ []) do
@@ -240,15 +272,14 @@ defmodule RDF.Serialization do
   end
 
   @doc """
-  Encodes and writes a graph or dataset to a file.
+  Serializes a RDF data structure to a file.
 
-  The format can be specified with the `format` option and a format name or the
-  `media_type` option and the media type of the format. If none of these are
-  given, the format gets inferred from the extension of the given file name.
+  As opposed to `write_file/3`, it raises an exception if an error occurs.
 
-  See `write_file` for a list of other available options.
+  See `write_file/3` for the available format-independent options.
 
-  As opposed to `write_file`, it raises an exception if an error occurs.
+  Please refer to the documentation of the encoder of a RDF serialization format
+  for format-specific options.
   """
   @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
   def write_file!(data, path, opts \\ []) do

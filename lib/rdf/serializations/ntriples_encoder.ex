@@ -3,16 +3,14 @@ defmodule RDF.NTriples.Encoder do
 
   use RDF.Serialization.Encoder
 
-  alias RDF.{BlankNode, Dataset, Graph, IRI, XSD, Literal, Statement, Triple, LangString}
+  alias RDF.{BlankNode, IRI, XSD, Literal, Statement, Triple, LangString}
 
   @impl RDF.Serialization.Encoder
-  @callback encode(Graph.t() | Dataset.t(), keyword | map) :: {:ok, String.t()} | {:error, any}
+  @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, _opts \\ []) do
     result =
       data
-      |> Enum.reduce([], fn statement, result ->
-        [statement(statement) | result]
-      end)
+      |> Enum.reduce([], &[statement(&1) | &2])
       |> Enum.reverse()
       |> Enum.join("\n")
 

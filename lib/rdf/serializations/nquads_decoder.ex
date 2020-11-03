@@ -5,10 +5,10 @@ defmodule RDF.NQuads.Decoder do
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.Dataset
 
   @impl RDF.Serialization.Decoder
-  @spec decode(String.t(), keyword | map) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
+  @spec decode(String.t(), keyword) :: {:ok, Dataset.t()} | {:error, any}
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast} <- parse(tokens) do
@@ -24,13 +24,11 @@ defmodule RDF.NQuads.Decoder do
     end
   end
 
-  defp tokenize(content), do: content |> to_charlist |> :ntriples_lexer.string()
+  defp tokenize(content), do: content |> to_charlist() |> :ntriples_lexer.string()
 
   defp parse(tokens), do: tokens |> :nquads_parser.parse()
 
   defp build_dataset(ast) do
-    Enum.reduce(ast, RDF.Dataset.new(), fn quad, dataset ->
-      RDF.Dataset.add(dataset, quad)
-    end)
+    Enum.reduce(ast, Dataset.new(), &Dataset.add(&2, &1))
   end
 end

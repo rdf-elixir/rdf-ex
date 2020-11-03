@@ -5,10 +5,10 @@ defmodule RDF.NTriples.Decoder do
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.Graph
 
   @impl RDF.Serialization.Decoder
-  @spec decode(String.t(), keyword | map) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
+  @spec decode(String.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
   def decode(content, _opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast} <- parse(tokens) do
@@ -24,13 +24,11 @@ defmodule RDF.NTriples.Decoder do
     end
   end
 
-  defp tokenize(content), do: content |> to_charlist |> :ntriples_lexer.string()
+  defp tokenize(content), do: content |> to_charlist() |> :ntriples_lexer.string()
 
   defp parse(tokens), do: tokens |> :ntriples_parser.parse()
 
   defp build_graph(ast) do
-    Enum.reduce(ast, RDF.Graph.new(), fn triple, graph ->
-      RDF.Graph.add(graph, triple)
-    end)
+    Enum.reduce(ast, Graph.new(), &Graph.add(&2, &1))
   end
 end

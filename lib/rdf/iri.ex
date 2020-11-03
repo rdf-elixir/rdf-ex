@@ -181,7 +181,7 @@ defmodule RDF.IRI do
   Characters additionally allowed in IRI references are treated in the same way that unreserved
   characters are treated in URI references, per [section 6.5 of RFC3987](http://tools.ietf.org/html/rfc3987#section-6.5)
 
-  If the given is not an absolute IRI `nil` is returned.
+  If the given `base` is not an absolute IRI `nil` is returned.
   """
   @spec absolute(coercible, coercible) :: t | nil
   def absolute(iri, base) do

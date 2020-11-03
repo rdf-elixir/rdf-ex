@@ -5,7 +5,7 @@ defmodule RDF.Turtle.Decoder do
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
 
-  alias RDF.{Dataset, Graph, IRI}
+  alias RDF.{Graph, IRI}
 
   defmodule State do
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
@@ -24,16 +24,11 @@ defmodule RDF.Turtle.Decoder do
   end
 
   @impl RDF.Serialization.Decoder
-  @spec decode(String.t(), keyword | map) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
-  def decode(content, opts \\ %{})
-
-  def decode(content, opts) when is_list(opts),
-    do: decode(content, Map.new(opts))
-
-  def decode(content, opts) do
+  @spec decode(String.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
+  def decode(content, opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast} <- parse(tokens),
-         base_iri = Map.get(opts, :base, Map.get(opts, :base_iri, RDF.default_base_iri())) do
+         base_iri = Keyword.get(opts, :base, Keyword.get(opts, :base_iri, RDF.default_base_iri())) do
       build_graph(ast, base_iri && RDF.iri(base_iri))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
