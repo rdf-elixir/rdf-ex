@@ -31,7 +31,7 @@ defmodule RDF.Serialization.Encoder do
 
       @impl unquote(__MODULE__)
       @dialyzer {:nowarn_function, encode!: 2}
-      @spec encode!(Description.t() | Graph.t() | Dataset.t(), keyword) :: String.t()
+      @spec encode!(RDF.Data.t(), keyword) :: String.t()
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
           {:ok, data} -> data

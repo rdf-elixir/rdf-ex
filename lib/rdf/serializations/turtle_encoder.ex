@@ -36,8 +36,7 @@ defmodule RDF.Turtle.Encoder do
   @ordered_properties MapSet.new(@predicate_order)
 
   @impl RDF.Serialization.Encoder
-  @spec encode(Description.t() | Graph.t() | Dataset.t(), keyword) ::
-          {:ok, String.t()} | {:error, any}
+  @spec encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     base =
       Keyword.get(opts, :base, Keyword.get(opts, :base_iri))

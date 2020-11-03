@@ -192,7 +192,7 @@ defmodule RDF.Serialization do
   It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
-  @spec write_string(Graph.t() | Dataset.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec write_string(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def write_string(data, opts) do
     with {:ok, format} <- string_format(opts) do
       format.write_string(data, opts)
@@ -207,7 +207,7 @@ defmodule RDF.Serialization do
 
   As opposed to `write_string`, it raises an exception if an error occurs.
   """
-  @spec write_string!(Graph.t() | Dataset.t(), keyword) :: String.t()
+  @spec write_string!(RDF.Data.t(), keyword) :: String.t()
   def write_string!(data, opts) do
     with {:ok, format} <- string_format(opts) do
       format.write_string!(data, opts)
@@ -232,7 +232,7 @@ defmodule RDF.Serialization do
 
   It returns `:ok` if successful or `{:error, reason}` if an error occurs.
   """
-  @spec write_file(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok | {:error, any}
+  @spec write_file(RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
   def write_file(data, path, opts \\ []) do
     with {:ok, format} <- file_format(path, opts) do
       format.write_file(data, path, opts)
@@ -250,7 +250,7 @@ defmodule RDF.Serialization do
 
   As opposed to `write_file`, it raises an exception if an error occurs.
   """
-  @spec write_file!(Graph.t() | Dataset.t(), Path.t(), keyword) :: :ok
+  @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
   def write_file!(data, path, opts \\ []) do
     with {:ok, format} <- file_format(path, opts) do
       format.write_file!(data, path, opts)

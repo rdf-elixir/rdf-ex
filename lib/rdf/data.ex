@@ -3,6 +3,8 @@ defprotocol RDF.Data do
   An abstraction over the different data structures for collections of RDF statements.
   """
 
+  @type t :: RDF.Description.t() | RDF.Graph.t() | RDF.Dataset.t()
+
   @doc """
   Adds statements to a RDF data structure.
 
