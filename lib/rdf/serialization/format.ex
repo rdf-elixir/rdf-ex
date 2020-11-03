@@ -51,11 +51,6 @@ defmodule RDF.Serialization.Format do
   @callback media_type :: String.t()
 
   @doc """
-  A map with the supported options of the `Encoder` and `Decoder` for the serialization format.
-  """
-  @callback options :: map
-
-  @doc """
   The `RDF.Serialization.Decoder` module for the serialization format.
   """
   @callback decoder :: module
@@ -78,10 +73,7 @@ defmodule RDF.Serialization.Format do
       @impl unquote(__MODULE__)
       def encoder, do: @encoder
 
-      @impl unquote(__MODULE__)
-      def options, do: %{}
-
-      defoverridable decoder: 0, encoder: 0, options: 0
+      defoverridable decoder: 0, encoder: 0
 
       @spec read_string(String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
       def read_string(content, opts \\ []),
