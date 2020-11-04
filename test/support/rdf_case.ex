@@ -34,6 +34,11 @@ defmodule RDF.Test.Case do
     end
   end
 
+  def string_to_stream(string) do
+    {:ok, pid} = StringIO.open(string)
+    IO.binstream(pid, :line)
+  end
+
   ###############################
   # RDF.Description
 
