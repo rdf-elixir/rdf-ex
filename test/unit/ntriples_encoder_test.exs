@@ -14,6 +14,10 @@ defmodule RDF.NTriples.EncoderTest do
 
   defvocab EX, base_iri: "http://example.org/#", terms: [], strict: false
 
+  test "stream_support?/0" do
+    assert NTriples.Encoder.stream_support?()
+  end
+
   describe "serializing a graph" do
     test "an empty graph is serialized to an empty string" do
       assert NTriples.Encoder.encode!(Graph.new()) == ""
@@ -67,5 +71,32 @@ defmodule RDF.NTriples.EncoderTest do
                <http://example.org/#S1> <http://example.org/#p1> _:foo .
                """
     end
+  end
+
+  describe "stream/2" do
+    graph =
+      Graph.new([
+        {EX.S1, EX.p1(), EX.O1},
+        {EX.S2, EX.p2(), RDF.bnode("foo")},
+        {EX.S3, EX.p3(), ~L"foo"},
+        {EX.S3, EX.p3(), ~L"foo"en}
+      ])
+
+    expected_result = """
+    <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+    <http://example.org/#S2> <http://example.org/#p2> _:foo .
+    <http://example.org/#S3> <http://example.org/#p3> "foo"@en .
+    <http://example.org/#S3> <http://example.org/#p3> "foo" .
+    """
+
+    assert NTriples.Encoder.stream(graph, mode: :string)
+           |> Enum.to_list()
+           |> IO.iodata_to_binary() ==
+             expected_result
+
+    assert NTriples.Encoder.stream(graph, mode: :iodata)
+           |> Enum.to_list()
+           |> IO.iodata_to_binary() ==
+             expected_result
   end
 end
