@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- serialization functions for reading from and writing to streams 
+- general serialization functions for reading from and writing to streams
+  and implementations for N-Triples and N-Quads (Turtle still to come)
 - `RDF.Dataset.prefixes/1` for getting an aggregated `RDF.PrefixMap` over all graphs
 - `RDF.PrefixMap.put/3` for adding a prefix mapping and overwrite an existing one
 - `RDF.BlankNode.value/1` for getting the internal string representation of a blank node
