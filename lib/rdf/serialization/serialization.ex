@@ -244,6 +244,24 @@ defmodule RDF.Serialization do
   end
 
   @doc """
+  Serializes a RDF data structure to a stream.
+
+  The format must be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format.
+
+  Please refer to the documentation of the encoder of a RDF serialization format
+  for format-specific options and what the stream emits.
+  """
+  @spec write_stream(RDF.Data.t(), keyword) :: Enumerable.t()
+  def write_stream(data, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.write_stream(data, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
   Serializes a RDF data structure to a file.
 
   It returns `:ok` if successful or `{:error, reason}` if an error occurs.

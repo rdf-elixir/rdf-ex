@@ -151,6 +151,16 @@ defmodule RDF.Serialization.Format do
       @spec write_string!(RDF.Data.t(), keyword) :: String.t()
       def write_string!(data, opts \\ []), do: Writer.write_string!(encoder(), data, opts)
 
+      if @encoder.stream_support?() do
+        @doc """
+        Serializes a RDF data structure to a stream.
+
+        #{@encoder_doc_ref}
+        """
+        @spec write_stream(RDF.Data.t(), keyword) :: Enumerable.t()
+        def write_stream(data, opts \\ []), do: Writer.write_stream(encoder(), data, opts)
+      end
+
       @doc """
       Serializes a RDF data structure to a file.
 

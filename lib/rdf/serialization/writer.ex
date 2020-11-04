@@ -19,6 +19,15 @@ defmodule RDF.Serialization.Writer do
     encoder.encode!(data, opts)
   end
 
+  @spec write_stream(module, RDF.Data.t(), keyword) :: Enumerable.t()
+  def write_stream(encoder, data, opts \\ []) do
+    if encoder.stream_support?() do
+      encoder.stream(data, opts)
+    else
+      raise "#{inspect(encoder)} does not support streaming"
+    end
+  end
+
   @spec write_file(module, RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
   def write_file(encoder, data, path, opts \\ []) do
     with {:ok, encoded_string} <- write_string(encoder, data, opts) do

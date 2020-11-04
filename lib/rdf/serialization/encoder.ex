@@ -21,6 +21,17 @@ defmodule RDF.Serialization.Encoder do
   """
   @callback encode!(RDF.Data.t(), keyword) :: String.t()
 
+  @doc """
+  Serializes a RDF data structure into a stream.
+
+  It should return a stream emitting  either strings or iodata of the
+  serialized RDF data structure. If both forms are supported the form
+  should be configurable via the `:mode` option.
+  """
+  @callback stream(RDF.Data.t(), keyword) :: Enumerable.t()
+
+  @optional_callbacks stream: 2
+
   defmacro __using__(_) do
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
@@ -36,6 +47,16 @@ defmodule RDF.Serialization.Encoder do
       end
 
       defoverridable unquote(__MODULE__)
+
+      @before_compile unquote(__MODULE__)
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      @stream_support __MODULE__ |> Module.definitions_in() |> Keyword.has_key?(:stream)
+      @doc false
+      def stream_support?, do: @stream_support
     end
   end
 end
