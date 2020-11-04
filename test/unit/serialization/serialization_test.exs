@@ -1,131 +1,161 @@
 defmodule RDF.SerializationTest do
-  use ExUnit.Case
+  use RDF.Test.Case
 
   doctest RDF.Serialization
 
-  use RDF.Vocabulary.Namespace
+  alias RDF.Serialization
 
-  defvocab EX, base_iri: "http://example.org/", terms: [], strict: false
-
-  @example_turtle_file "test/data/cbd.ttl"
+  @example_graph Graph.new([{EX.S, RDF.type(), EX.O}], prefixes: %{"" => EX})
+  @example_ntriples_file "test/data/serialization_test_graph.nt"
+  @example_turtle_file "test/data/serialization_test_graph.ttl"
   @example_turtle_string """
-  @prefix ex: <http://example.org/#> .
-  ex:Aaron <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ex:Person .
-  """
-
-  @example_graph RDF.Graph.new([{EX.S, EX.p(), EX.O}])
-  @example_graph_turtle """
   @prefix : <#{to_string(EX.__base_iri__())}> .
 
   :S
-      :p :O .
+      a :O .
+  """
+  @example_ntriples_string """
+  <#{IRI.to_string(EX.S)}> <#{IRI.to_string(RDF.type())}> <#{IRI.to_string(EX.O)}> .
   """
 
   defp file(name), do: System.tmp_dir!() |> Path.join(name)
 
   describe "read_string/2" do
     test "with correct format name" do
-      assert {:ok, %RDF.Graph{}} =
-               RDF.Serialization.read_string(@example_turtle_string, format: :turtle)
+      assert Serialization.read_string(@example_turtle_string, format: :turtle) ==
+               {:ok, @example_graph}
     end
 
     test "with wrong format name" do
       assert {:error, "N-Triple scanner error" <> _} =
-               RDF.Serialization.read_string(@example_turtle_string, format: :ntriples)
+               Serialization.read_string(@example_turtle_string, format: :ntriples)
     end
 
     test "with invalid format name" do
       assert {:error, "unable to detect serialization format"} ==
-               RDF.Serialization.read_string(@example_turtle_string, format: :foo)
+               Serialization.read_string(@example_turtle_string, format: :foo)
     end
 
     test "with media_type" do
-      assert {:ok, %RDF.Graph{}} =
-               RDF.Serialization.read_string(@example_turtle_string, media_type: "text/turtle")
+      assert Serialization.read_string(@example_turtle_string, media_type: "text/turtle") ==
+               {:ok, @example_graph}
     end
   end
 
   describe "read_string!/2" do
     test "with correct format name" do
-      assert %RDF.Graph{} =
-               RDF.Serialization.read_string!(@example_turtle_string, format: :turtle)
+      assert Serialization.read_string!(@example_turtle_string, format: :turtle) ==
+               @example_graph
     end
 
     test "with wrong format name" do
       assert_raise RuntimeError, ~r/^N-Triple scanner error.*/, fn ->
-        RDF.Serialization.read_string!(@example_turtle_string, format: :ntriples)
+        Serialization.read_string!(@example_turtle_string, format: :ntriples)
       end
     end
 
     test "with invalid format name" do
       assert_raise RuntimeError, "unable to detect serialization format", fn ->
-        RDF.Serialization.read_string!(@example_turtle_string, format: :foo)
+        Serialization.read_string!(@example_turtle_string, format: :foo)
       end
     end
 
     test "with media_type" do
-      assert %RDF.Graph{} =
-               RDF.Serialization.read_string!(@example_turtle_string, media_type: "text/turtle")
+      assert Serialization.read_string!(@example_turtle_string, media_type: "text/turtle") ==
+               @example_graph
+    end
+  end
+
+  describe "read_stream/2" do
+    test "with correct format name" do
+      assert @example_ntriples_string
+             |> string_to_stream()
+             |> Serialization.read_stream(format: :ntriples) ==
+               Graph.clear_metadata(@example_graph)
+    end
+
+    test "with wrong format name" do
+      assert_raise RuntimeError, fn ->
+        @example_ntriples_string
+        |> string_to_stream()
+        |> Serialization.read_stream(format: :turtle)
+      end
+    end
+
+    test "with invalid format name" do
+      assert_raise RuntimeError, "unable to detect serialization format", fn ->
+        Serialization.read_stream(@example_ntriples_string, format: :foo)
+      end
+    end
+
+    test "with media_type" do
+      assert @example_ntriples_string
+             |> string_to_stream()
+             |> Serialization.read_stream(media_type: "application/n-triples") ==
+               Graph.clear_metadata(@example_graph)
     end
   end
 
   describe "read_file/2" do
     test "without arguments, i.e. via correct file extension" do
-      assert {:ok, %RDF.Graph{}} = RDF.Serialization.read_file(@example_turtle_file)
+      assert Serialization.read_file(@example_turtle_file) == {:ok, @example_graph}
     end
 
     test "with correct format name" do
-      assert {:ok, %RDF.Graph{}} =
-               RDF.Serialization.read_file(@example_turtle_file, format: :turtle)
+      assert Serialization.read_file(@example_turtle_file, format: :turtle) ==
+               {:ok, @example_graph}
     end
 
     test "with wrong format name" do
       assert {:error, "N-Triple scanner error" <> _} =
-               RDF.Serialization.read_file(@example_turtle_file, format: :ntriples)
+               Serialization.read_file(@example_turtle_file, format: :ntriples)
     end
 
     test "with invalid format name, but correct file extension" do
-      assert {:ok, %RDF.Graph{}} = RDF.Serialization.read_file(@example_turtle_file, format: :foo)
+      assert Serialization.read_file(@example_turtle_file, format: :foo) ==
+               {:ok, @example_graph}
     end
 
     test "with media_type" do
-      assert {:ok, %RDF.Graph{}} =
-               RDF.Serialization.read_file(@example_turtle_file, media_type: "text/turtle")
+      assert Serialization.read_file(@example_ntriples_file, media_type: "application/n-triples") ==
+               {:ok, Graph.clear_metadata(@example_graph)}
     end
   end
 
   describe "read_file!/2" do
     test "without arguments, i.e. via correct file extension" do
-      assert %RDF.Graph{} = RDF.Serialization.read_file!(@example_turtle_file)
+      assert Serialization.read_file!(@example_ntriples_file) ==
+               Graph.clear_metadata(@example_graph)
     end
 
     test "with correct format name" do
-      assert %RDF.Graph{} = RDF.Serialization.read_file!(@example_turtle_file, format: :turtle)
+      assert Serialization.read_file!(@example_turtle_file, format: :turtle) ==
+               @example_graph
     end
 
     test "with wrong format name" do
       assert_raise RuntimeError, ~r/^N-Triple scanner error.*/, fn ->
-        RDF.Serialization.read_file!(@example_turtle_file, format: :ntriples)
+        Serialization.read_file!(@example_turtle_file, format: :ntriples)
       end
     end
 
     test "with media_type name" do
-      assert %RDF.Graph{} =
-               RDF.Serialization.read_file!(@example_turtle_file, media_type: "text/turtle")
+      assert Serialization.read_file!(@example_turtle_file, media_type: "text/turtle") ==
+               @example_graph
     end
   end
 
   describe "write_string/2" do
     test "with name of available format" do
-      assert RDF.Serialization.write_string(@example_graph,
+      assert Serialization.write_string(@example_graph,
                format: :turtle,
                prefixes: %{"" => EX.__base_iri__()}
              ) ==
-               {:ok, @example_graph_turtle}
+               {:ok, @example_turtle_string}
     end
 
     test "with invalid format name" do
-      assert RDF.Serialization.write_string(@example_graph,
+      assert Serialization.write_string(@example_graph,
                format: :foo,
                prefixes: %{"" => EX.__base_iri__()}
              ) ==
@@ -133,26 +163,20 @@ defmodule RDF.SerializationTest do
     end
 
     test "with media type" do
-      assert RDF.Serialization.write_string(@example_graph,
-               media_type: "text/turtle",
-               prefixes: %{"" => EX.__base_iri__()}
-             ) ==
-               {:ok, @example_graph_turtle}
+      assert Serialization.write_string(@example_graph, media_type: "application/n-triples") ==
+               {:ok, @example_ntriples_string}
     end
   end
 
   describe "write_string!/2" do
     test "with name of available format" do
-      assert RDF.Serialization.write_string!(@example_graph,
-               format: :turtle,
-               prefixes: %{"" => EX.__base_iri__()}
-             ) ==
-               @example_graph_turtle
+      assert Serialization.write_string!(@example_graph, format: :ntriples) ==
+               @example_ntriples_string
     end
 
     test "with invalid format name" do
       assert_raise RuntimeError, "unable to detect serialization format", fn ->
-        RDF.Serialization.write_string!(@example_graph,
+        Serialization.write_string!(@example_graph,
           format: :foo,
           prefixes: %{"" => EX.__base_iri__()}
         )
@@ -160,11 +184,29 @@ defmodule RDF.SerializationTest do
     end
 
     test "with media type" do
-      assert RDF.Serialization.write_string!(@example_graph,
+      assert Serialization.write_string!(@example_graph,
                media_type: "text/turtle",
                prefixes: %{"" => EX.__base_iri__()}
              ) ==
-               @example_graph_turtle
+               @example_turtle_string
+    end
+  end
+
+  describe "write_stream/2" do
+    test "with name of available format" do
+      assert Serialization.write_stream(@example_graph, format: :ntriples)
+             |> stream_to_string() == @example_ntriples_string
+    end
+
+    test "with invalid format name" do
+      assert_raise RuntimeError, "unable to detect serialization format", fn ->
+        Serialization.write_stream(@example_graph, format: :foo)
+      end
+    end
+
+    test "with media type" do
+      assert Serialization.write_stream(@example_graph, media_type: "application/n-triples")
+             |> stream_to_string() == @example_ntriples_string
     end
   end
 
@@ -173,12 +215,11 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.ttl")
       if File.exists?(file), do: File.rm(file)
 
-      assert RDF.Serialization.write_file(@example_graph, file,
-               prefixes: %{"" => EX.__base_iri__()}
-             ) == :ok
+      assert Serialization.write_file(@example_graph, file, prefixes: %{"" => EX.__base_iri__()}) ==
+               :ok
 
       assert File.exists?(file)
-      assert File.read!(file) == @example_graph_turtle
+      assert File.read!(file) == @example_turtle_string
       File.rm(file)
     end
 
@@ -186,13 +227,13 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
 
-      assert RDF.Serialization.write_file(@example_graph, file,
+      assert Serialization.write_file(@example_graph, file,
                format: :turtle,
                prefixes: %{"" => EX.__base_iri__()}
              ) == :ok
 
       assert File.exists?(file)
-      assert File.read!(file) == @example_graph_turtle
+      assert File.read!(file) == @example_turtle_string
       File.rm(file)
     end
   end
@@ -202,12 +243,11 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.ttl")
       if File.exists?(file), do: File.rm(file)
 
-      assert RDF.Serialization.write_file!(@example_graph, file,
-               prefixes: %{"" => EX.__base_iri__()}
-             ) == :ok
+      assert Serialization.write_file!(@example_graph, file, prefixes: %{"" => EX.__base_iri__()}) ==
+               :ok
 
       assert File.exists?(file)
-      assert File.read!(file) == @example_graph_turtle
+      assert File.read!(file) == @example_turtle_string
       File.rm(file)
     end
 
@@ -215,13 +255,13 @@ defmodule RDF.SerializationTest do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
 
-      assert RDF.Serialization.write_file!(@example_graph, file,
+      assert Serialization.write_file!(@example_graph, file,
                format: :turtle,
                prefixes: %{"" => EX.__base_iri__()}
              ) == :ok
 
       assert File.exists?(file)
-      assert File.read!(file) == @example_graph_turtle
+      assert File.read!(file) == @example_turtle_string
       File.rm(file)
     end
   end

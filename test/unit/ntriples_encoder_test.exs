@@ -9,6 +9,7 @@ defmodule RDF.NTriples.EncoderTest do
   alias RDF.NS.XSD
 
   import RDF.Sigils
+  import RDF.Test.Case, only: [stream_to_string: 1]
 
   use RDF.Vocabulary.Namespace
 
@@ -90,13 +91,11 @@ defmodule RDF.NTriples.EncoderTest do
     """
 
     assert NTriples.Encoder.stream(graph, mode: :string)
-           |> Enum.to_list()
-           |> IO.iodata_to_binary() ==
+           |> stream_to_string() ==
              expected_result
 
     assert NTriples.Encoder.stream(graph, mode: :iodata)
-           |> Enum.to_list()
-           |> IO.iodata_to_binary() ==
+           |> stream_to_string() ==
              expected_result
   end
 end

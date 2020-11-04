@@ -39,6 +39,12 @@ defmodule RDF.Test.Case do
     IO.binstream(pid, :line)
   end
 
+  def stream_to_string(stream) do
+    stream
+    |> Enum.to_list()
+    |> IO.iodata_to_binary()
+  end
+
   ###############################
   # RDF.Description
 

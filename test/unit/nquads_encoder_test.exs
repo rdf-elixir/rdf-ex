@@ -9,6 +9,7 @@ defmodule RDF.NQuads.EncoderTest do
   alias RDF.NS.XSD
 
   import RDF.Sigils
+  import RDF.Test.Case, only: [stream_to_string: 1]
 
   use RDF.Vocabulary.Namespace
 
@@ -145,13 +146,11 @@ defmodule RDF.NQuads.EncoderTest do
     """
 
     assert NQuads.Encoder.stream(dataset, mode: :string)
-           |> Enum.to_list()
-           |> IO.iodata_to_binary() ==
+           |> stream_to_string() ==
              expected_result
 
     assert NQuads.Encoder.stream(dataset, mode: :iodata)
-           |> Enum.to_list()
-           |> IO.iodata_to_binary() ==
+           |> stream_to_string() ==
              expected_result
   end
 end
