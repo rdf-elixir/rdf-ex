@@ -83,7 +83,7 @@ defmodule RDF.Serialization.Format do
       """
 
       @doc """
-      Reads and decodes a serialized graph or dataset from a string.
+      Deserializes a graph or dataset from a string.
 
       It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
       dataset, or `{:error, reason}` if an error occurs.
@@ -94,7 +94,7 @@ defmodule RDF.Serialization.Format do
       def read_string(content, opts \\ []), do: Reader.read_string(decoder(), content, opts)
 
       @doc """
-      Reads and decodes a serialized graph or dataset from a string.
+      Deserializes a graph or dataset from a string.
 
       As opposed to `read_string/2`, it raises an exception if an error occurs.
 
@@ -104,7 +104,15 @@ defmodule RDF.Serialization.Format do
       def read_string!(content, opts \\ []), do: Reader.read_string!(decoder(), content, opts)
 
       @doc """
-      Reads and decodes a serialized graph or dataset from a file.
+      Deserializes a graph or dataset from a stream.
+
+      #{@decoder_doc_ref}
+      """
+      @spec read_stream(Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
+      def read_stream(stream, opts \\ []), do: Reader.read_stream(decoder(), stream, opts)
+
+      @doc """
+      Deserializes a graph or dataset from a file.
 
       It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
       dataset, or `{:error, reason}` if an error occurs.
@@ -115,7 +123,7 @@ defmodule RDF.Serialization.Format do
       def read_file(file, opts \\ []), do: Reader.read_file(decoder(), file, opts)
 
       @doc """
-      Reads and decodes a serialized graph or dataset from a file.
+      Deserializes a graph or dataset from a file.
 
       As opposed to `read_file/2`, it raises an exception if an error occurs.
 

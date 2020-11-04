@@ -164,6 +164,24 @@ defmodule RDF.Serialization do
   end
 
   @doc """
+  Deserializes a graph or dataset from a stream.
+
+  The format must be specified with the `format` option and a format name or the
+  `media_type` option and the media type of the format.
+
+  Please refer to the documentation of the decoder of a RDF serialization format
+  for format-specific options.
+  """
+  @spec read_stream(Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
+  def read_stream(stream, opts) do
+    with {:ok, format} <- string_format(opts) do
+      format.read_stream(stream, opts)
+    else
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
   Deserializes a graph or dataset from a file.
 
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or

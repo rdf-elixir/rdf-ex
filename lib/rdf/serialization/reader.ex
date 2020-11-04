@@ -19,6 +19,15 @@ defmodule RDF.Serialization.Reader do
     decoder.decode!(content, opts)
   end
 
+  @spec read_stream(module, Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
+  def read_stream(decoder, stream, opts \\ []) do
+    if decoder.stream_support?() do
+      decoder.decode_from_stream(stream, opts)
+    else
+      raise "#{inspect(decoder)} does not support streaming"
+    end
+  end
+
   @spec read_file(module, Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_file(decoder, file, opts \\ []) do
     case File.read(file) do
