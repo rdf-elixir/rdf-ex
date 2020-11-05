@@ -74,7 +74,7 @@ defmodule RDF.Serialization.Reader do
     end
   end
 
-  defp do_read_file!(true, decoder, file, opts) do
+  defp do_read_file!(_stream_mode, decoder, file, opts) do
     file
     |> File.stream!(file_mode(decoder, opts))
     |> decoder.decode_from_stream(opts)

@@ -24,9 +24,10 @@ defmodule RDF.Serialization.Encoder do
   @doc """
   Serializes a RDF data structure into a stream.
 
-  It should return a stream emitting  either strings or iodata of the
+  It should return a stream emitting either strings or iodata of the
   serialized RDF data structure. If both forms are supported the form
-  should be configurable via the `:mode` option.
+  should be configurable via the `:mode` option and its values `:string`
+  respective `:iodata`.
   """
   @callback stream(RDF.Data.t(), keyword) :: Enumerable.t()
 

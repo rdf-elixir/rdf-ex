@@ -121,6 +121,8 @@ defmodule RDF.Serialization.Format do
 
       General serialization-independent options:
 
+      - `:stream`: Allows to enable reading the data from a file directly via a
+      stream (default: `false` on this function, `true` on the bang version)
       - `:gzip`: Allows to read directly from a gzipped file (default: `false`)
       - `:file_mode`: A list with the Elixir `File.open` modes to be used for reading
         (default: `[:read, :utf8]`)
@@ -133,7 +135,8 @@ defmodule RDF.Serialization.Format do
       @doc """
       Deserializes a graph or dataset from a file.
 
-      As opposed to `read_file/2`, it raises an exception if an error occurs.
+      As opposed to `read_file/2`, it raises an exception if an error occurs and
+      defaults to `stream: true`.
 
       See `read_file/3` for the available format-independent options.
 
@@ -188,6 +191,11 @@ defmodule RDF.Serialization.Format do
 
       General serialization-independent options:
 
+      - `:stream`: Allows to enable writing the serialized data to the file directly
+        via a stream. Possible values: `:string` or `:iodata` for writing to the file
+        with a stream of strings respective IO lists, `true` if you want to use streams,
+        but don't care for the exact method or `false` for not writing with
+        a stream (default: `false` on this function, `:iodata` on the bang version)
       - `:gzip`: Allows to write directly to a gzipped file (default: `false`)
       - `:force`: If not set to `true`, an error is raised when the given file
         already exists (default: `false`)

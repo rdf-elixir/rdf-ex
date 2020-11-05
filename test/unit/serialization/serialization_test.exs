@@ -342,8 +342,8 @@ defmodule RDF.SerializationTest do
     end
 
     test "when stream: true and format does support streams" do
-      assert Serialization.use_file_streaming(NTriples.Decoder, stream: true)
-      assert Serialization.use_file_streaming(NTriples.Encoder, stream: true)
+      assert Serialization.use_file_streaming(NTriples.Decoder, stream: :iolist)
+      assert Serialization.use_file_streaming(NTriples.Encoder, stream: :string)
     end
 
     test "when stream: true and format does not support streams" do
@@ -366,8 +366,10 @@ defmodule RDF.SerializationTest do
     end
 
     test "when stream: true and format does support streams" do
-      assert Serialization.use_file_streaming!(NTriples.Decoder, stream: true)
-      assert Serialization.use_file_streaming!(NTriples.Encoder, stream: true)
+      assert Serialization.use_file_streaming!(NTriples.Decoder, stream: true) == true
+      assert Serialization.use_file_streaming!(NTriples.Encoder, stream: true) == true
+      assert Serialization.use_file_streaming!(NTriples.Encoder, stream: :iodata) == :iodata
+      assert Serialization.use_file_streaming!(NTriples.Encoder, stream: :string) == :string
     end
 
     test "when stream: true and format does not support streams" do

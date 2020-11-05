@@ -20,7 +20,8 @@ defmodule RDF.Serialization do
     RDF.Turtle,
     JSON.LD,
     RDF.NTriples,
-    RDF.NQuads
+    RDF.NQuads,
+    RDF.XML
   ]
 
   @doc """
@@ -195,6 +196,8 @@ defmodule RDF.Serialization do
 
   Other available serialization-independent options:
 
+  - `:stream`: Allows to enable reading the data from a file directly via a
+    stream (default: `false` on this function, `true` on the bang version)
   - `:gzip`: Allows to read directly from a gzipped file (default: `false`)
   - `:file_mode`: A list with the Elixir `File.open` modes to be used for reading
     (default: `[:read, :utf8]`)
@@ -212,11 +215,14 @@ defmodule RDF.Serialization do
   @doc """
   Deserializes a graph or dataset from a file.
 
-  As opposed to `read_file/2`, it raises an exception if an error occurs.
+  As opposed to `read_file/2`, it raises an exception if an error occurs and
+  defaults to `stream: true`.
 
   The format can be specified with the `format` option and a format name or the 
   `media_type` option and the media type of the format. If none of these are 
   given, the format gets inferred from the extension of the given file name. 
+
+  See `read_file/3` for the available format-independent options.
 
   Please refer to the documentation of the decoder of a RDF serialization format
   for format-specific options.
@@ -300,6 +306,11 @@ defmodule RDF.Serialization do
 
   Other available serialization-independent options:
 
+  - `:stream`: Allows to enable writing the serialized data to the file directly
+    via a stream. Possible values: `:string` or `:iodata` for writing to the file
+    with a stream of strings respective IO lists, `true` if you want to use streams,
+    but don't care for the exact method or `false` for not writing with
+    a stream (default: `false` on this function, `:iodata` on the bang version)
   - `:gzip`: Allows to write directly to a gzipped file (default: `false`)
   - `:force`: If not set to `true`, an error is raised when the given file
     already exists (default: `false`)
@@ -363,15 +374,18 @@ defmodule RDF.Serialization do
   @doc false
   def use_file_streaming(mod, opts) do
     case Keyword.get(opts, :stream) do
-      true ->
+      nil ->
+        false
+
+      false ->
+        false
+
+      stream_mode ->
         if mod.stream_support?() do
-          true
+          stream_mode
         else
           raise "#{inspect(mod)} does not support streams"
         end
-
-      _ ->
-        false
     end
   end
 
@@ -381,15 +395,15 @@ defmodule RDF.Serialization do
       nil ->
         mod.stream_support?()
 
-      true ->
+      false ->
+        false
+
+      stream_mode ->
         if mod.stream_support?() do
-          true
+          stream_mode
         else
           raise "#{inspect(mod)} does not support streams"
         end
-
-      false ->
-        false
     end
   end
 end

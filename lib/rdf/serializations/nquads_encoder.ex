@@ -21,6 +21,7 @@ defmodule RDF.NQuads.Encoder do
     case Keyword.get(opts, :mode, :string) do
       :string -> Stream.map(data, &statement(&1))
       :iodata -> Stream.map(data, &iolist_statement(&1))
+      invalid -> raise "Invalid stream mode: #{invalid}"
     end
   end
 
