@@ -350,4 +350,37 @@ defmodule RDF.Serialization do
       {:error, "unable to detect serialization format"}
     end
   end
+
+  @doc false
+  def use_file_streaming(mod, opts) do
+    case Keyword.get(opts, :stream) do
+      true ->
+        if mod.stream_support?() do
+          true
+        else
+          raise "#{inspect(mod)} does not support streams"
+        end
+
+      _ ->
+        false
+    end
+  end
+
+  @doc false
+  def use_file_streaming!(mod, opts) do
+    case Keyword.get(opts, :stream) do
+      nil ->
+        mod.stream_support?()
+
+      true ->
+        if mod.stream_support?() do
+          true
+        else
+          raise "#{inspect(mod)} does not support streams"
+        end
+
+      false ->
+        false
+    end
+  end
 end

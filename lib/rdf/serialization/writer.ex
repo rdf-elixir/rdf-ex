@@ -7,6 +7,8 @@ defmodule RDF.Serialization.Writer do
              implicitly use the proper `RDF.Serialization.Encoder` module.
              """
 
+  alias RDF.Serialization
+
   @default_file_mode ~w[write exclusive]a
 
   @spec write_string(module, RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
@@ -30,15 +32,47 @@ defmodule RDF.Serialization.Writer do
 
   @spec write_file(module, RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
   def write_file(encoder, data, path, opts \\ []) do
-    with {:ok, encoded_string} <- write_string(encoder, data, opts) do
+    encoder
+    |> Serialization.use_file_streaming(opts)
+    |> do_write_file(encoder, data, path, opts)
+
+    :ok
+  rescue
+    error in RuntimeError -> {:error, error.message}
+    error -> {:error, error}
+  end
+
+  defp do_write_file(false, encoder, data, path, opts) do
+    with {:ok, encoded_string} <- encoder.encode(data, opts) do
       File.write(path, encoded_string, file_mode(encoder, opts))
     end
   end
 
+  defp do_write_file(true, encoder, data, path, opts) do
+    data
+    |> encoder.stream(opts)
+    |> Enum.into(File.stream!(path, file_mode(encoder, opts)))
+  end
+
   @spec write_file!(module, RDF.Data.t(), Path.t(), keyword) :: :ok
   def write_file!(encoder, data, path, opts \\ []) do
-    encoded_string = write_string!(encoder, data, opts)
+    encoder
+    |> Serialization.use_file_streaming!(opts)
+    |> do_write_file!(encoder, data, path, opts)
+  end
+
+  defp do_write_file!(false, encoder, data, path, opts) do
+    encoded_string = encoder.encode!(data, opts)
     File.write!(path, encoded_string, file_mode(encoder, opts))
+  end
+  defp do_write_file!(true, encoder, data, path, opts) do
+    data
+    |> encoder.stream(opts)
+    |> Enum.into(File.stream!(path, file_mode(encoder, opts)))
+
+    :ok
+  end
+
   end
 
   defp file_mode(_encoder, opts) do

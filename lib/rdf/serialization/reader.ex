@@ -7,7 +7,7 @@ defmodule RDF.Serialization.Reader do
              implicitly use the proper `RDF.Serialization.Decoder` module.
              """
 
-  alias RDF.{Dataset, Graph}
+  alias RDF.{Serialization, Dataset, Graph}
 
   @spec read_string(module, String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_string(decoder, content, opts \\ []) do
@@ -30,15 +30,44 @@ defmodule RDF.Serialization.Reader do
 
   @spec read_file(module, Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_file(decoder, file, opts \\ []) do
+    decoder
+    |> Serialization.use_file_streaming(opts)
+    |> do_read_file(decoder, file, opts)
+  end
+
+  defp do_read_file(false, decoder, file, opts) do
     case File.read(file) do
-      {:ok, content} -> read_string(decoder, content, opts)
+      {:ok, content} -> decoder.decode(content, opts)
       {:error, reason} -> {:error, reason}
     end
   end
 
+  defp do_read_file(true, decoder, file, opts) do
+    {:ok,
+     file
+     |> File.stream!()
+     |> decoder.decode_from_stream(opts)}
+  rescue
+    error in RuntimeError -> {:error, error.message}
+    error -> {:error, error}
+  end
+
   @spec read_file!(module, Path.t(), keyword) :: Graph.t() | Dataset.t()
   def read_file!(decoder, file, opts \\ []) do
-    content = File.read!(file)
-    read_string!(decoder, content, opts)
+    decoder
+    |> Serialization.use_file_streaming!(opts)
+    |> do_read_file!(decoder, file, opts)
+  end
+
+  defp do_read_file!(false, decoder, file, opts) do
+    file
+    |> File.read!()
+    |> decoder.decode!(opts)
+  end
+
+  defp do_read_file!(true, decoder, file, opts) do
+    file
+    |> File.stream!()
+    |> decoder.decode_from_stream(opts)
   end
 end

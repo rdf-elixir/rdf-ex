@@ -3,7 +3,7 @@ defmodule RDF.SerializationTest do
 
   doctest RDF.Serialization
 
-  alias RDF.Serialization
+  alias RDF.{Serialization, NTriples, Turtle}
 
   @example_graph Graph.new([{EX.S, RDF.type(), EX.O}], prefixes: %{"" => EX})
   @example_ntriples_file "test/data/serialization_test_graph.nt"
@@ -211,19 +211,17 @@ defmodule RDF.SerializationTest do
   end
 
   describe "write_file/2" do
-    test "without arguments, i.e. via file extension" do
-      file = file("write_file_test.ttl")
+    test "without :format option, i.e. via file extension and with streaming" do
+      file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
 
-      assert Serialization.write_file(@example_graph, file, prefixes: %{"" => EX.__base_iri__()}) ==
-               :ok
-
+      assert Serialization.write_file(@example_graph, file, stream: true) == :ok
       assert File.exists?(file)
-      assert File.read!(file) == @example_turtle_string
+      assert File.read!(file) == @example_ntriples_string
       File.rm(file)
     end
 
-    test "with format name" do
+    test "with format name and without streaming" do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
 
@@ -239,7 +237,7 @@ defmodule RDF.SerializationTest do
   end
 
   describe "write_file!/2" do
-    test "without arguments, i.e. via file extension" do
+    test "without :format option, i.e. via file extension and without streaming" do
       file = file("write_file_test.ttl")
       if File.exists?(file), do: File.rm(file)
 
@@ -251,18 +249,62 @@ defmodule RDF.SerializationTest do
       File.rm(file)
     end
 
-    test "with format name" do
+    test "with format name and with streaming" do
       file = file("write_file_test.nt")
       if File.exists?(file), do: File.rm(file)
 
-      assert Serialization.write_file!(@example_graph, file,
-               format: :turtle,
-               prefixes: %{"" => EX.__base_iri__()}
-             ) == :ok
-
+      assert Serialization.write_file!(@example_graph, file, format: :ntriples) == :ok
       assert File.exists?(file)
-      assert File.read!(file) == @example_turtle_string
+      assert File.read!(file) == @example_ntriples_string
       File.rm(file)
+    end
+  end
+
+  describe "use_file_streaming/2" do
+    test "without opts" do
+      refute Serialization.use_file_streaming(NTriples.Decoder, [])
+      refute Serialization.use_file_streaming(NTriples.Encoder, [])
+      refute Serialization.use_file_streaming(Turtle.Decoder, [])
+      refute Serialization.use_file_streaming(Turtle.Encoder, [])
+    end
+
+    test "when stream: true and format does support streams" do
+      assert Serialization.use_file_streaming(NTriples.Decoder, stream: true)
+      assert Serialization.use_file_streaming(NTriples.Encoder, stream: true)
+    end
+
+    test "when stream: true and format does not support streams" do
+      assert_raise RuntimeError, "RDF.Turtle.Decoder does not support streams", fn ->
+        Serialization.use_file_streaming(Turtle.Decoder, stream: true)
+      end
+
+      assert_raise RuntimeError, "RDF.Turtle.Encoder does not support streams", fn ->
+        Serialization.use_file_streaming(Turtle.Encoder, stream: true)
+      end
+    end
+  end
+
+  describe "use_file_streaming!/2" do
+    test "without opts" do
+      assert Serialization.use_file_streaming!(NTriples.Decoder, [])
+      assert Serialization.use_file_streaming!(NTriples.Encoder, [])
+      refute Serialization.use_file_streaming!(Turtle.Decoder, [])
+      refute Serialization.use_file_streaming!(Turtle.Encoder, [])
+    end
+
+    test "when stream: true and format does support streams" do
+      assert Serialization.use_file_streaming!(NTriples.Decoder, stream: true)
+      assert Serialization.use_file_streaming!(NTriples.Encoder, stream: true)
+    end
+
+    test "when stream: true and format does not support streams" do
+      assert_raise RuntimeError, "RDF.Turtle.Decoder does not support streams", fn ->
+        Serialization.use_file_streaming!(Turtle.Decoder, stream: true)
+      end
+
+      assert_raise RuntimeError, "RDF.Turtle.Encoder does not support streams", fn ->
+        Serialization.use_file_streaming!(Turtle.Encoder, stream: true)
+      end
     end
   end
 end

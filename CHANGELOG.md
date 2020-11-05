@@ -17,6 +17,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
  
 ### Changed
 
+- all `read_file/3` and `write_file/3` functions on `RDF.Serialization` and the
+  modules of RDF serialization formats can use streaming via the `:stream` flag
+  option; for `read_file/3` and `write_file/3` it defaults to `false`, while for
+  `read_file!/3` and `write_file!/3` it defaults to `true` when the respective
+  format supports streams
 - the Inspect form of the RDF data structures are now Turtle-based and respect
   the usual `:limit` behaviour
 - more compact Inspect form for `RDF.PrefixMap`
@@ -27,7 +32,6 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   efficient in terms of performance and memory consumption than the previous
   ref-based blank nodes
   
-
 ### Fixed
 
 - `RDF.BlankNode`s based on refs weren't serializable to Turtle
