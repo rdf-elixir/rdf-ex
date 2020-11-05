@@ -9,6 +9,8 @@ defmodule RDF.Serialization.Reader do
 
   alias RDF.{Serialization, Dataset, Graph}
 
+  @default_file_mode ~w[read utf8]a
+
   @spec read_string(module, String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_string(decoder, content, opts \\ []) do
     decoder.decode(content, opts)
@@ -36,16 +38,19 @@ defmodule RDF.Serialization.Reader do
   end
 
   defp do_read_file(false, decoder, file, opts) do
-    case File.read(file) do
+    file
+    |> File.open(file_mode(decoder, opts), &IO.read(&1, :all))
+    |> case do
+      {:ok, {:error, error}} -> {:error, error}
       {:ok, content} -> decoder.decode(content, opts)
-      {:error, reason} -> {:error, reason}
+      {:error, error} -> {:error, error}
     end
   end
 
   defp do_read_file(true, decoder, file, opts) do
     {:ok,
      file
-     |> File.stream!()
+     |> File.stream!(file_mode(decoder, opts))
      |> decoder.decode_from_stream(opts)}
   rescue
     error in RuntimeError -> {:error, error.message}
@@ -61,13 +66,28 @@ defmodule RDF.Serialization.Reader do
 
   defp do_read_file!(false, decoder, file, opts) do
     file
-    |> File.read!()
-    |> decoder.decode!(opts)
+    |> File.open!(file_mode(decoder, opts), &IO.read(&1, :all))
+    |> case do
+      {:error, error} when is_tuple(error) -> error |> inspect() |> raise()
+      {:error, error} -> raise(error)
+      content -> decoder.decode!(content, opts)
+    end
   end
 
   defp do_read_file!(true, decoder, file, opts) do
     file
-    |> File.stream!()
+    |> File.stream!(file_mode(decoder, opts))
     |> decoder.decode_from_stream(opts)
   end
+
+  @doc false
+  def file_mode(_decoder, opts) do
+    opts
+    |> Keyword.get(:file_mode, @default_file_mode)
+    |> List.wrap()
+    |> set_gzip(Keyword.get(opts, :gzip))
+  end
+
+  defp set_gzip(file_mode, true), do: [:compressed | file_mode]
+  defp set_gzip(file_mode, _), do: file_mode
 end

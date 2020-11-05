@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - general serialization functions for reading from and writing to streams
   and implementations for N-Triples and N-Quads (Turtle still to come)
+- a `:gzip` option flag on all `read_file/3` and `write_file/3` functions
+  allows to and read and write all supported serialization formats from and to
+  gzipped files (works also with the new possibility to read and write files via streams)
 - `RDF.Dataset.prefixes/1` for getting an aggregated `RDF.PrefixMap` over all graphs
 - `RDF.PrefixMap.put/3` for adding a prefix mapping and overwrite an existing one
 - `RDF.BlankNode.value/1` for getting the internal string representation of a blank node

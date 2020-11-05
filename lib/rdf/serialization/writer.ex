@@ -65,6 +65,7 @@ defmodule RDF.Serialization.Writer do
     encoded_string = encoder.encode!(data, opts)
     File.write!(path, encoded_string, file_mode(encoder, opts))
   end
+
   defp do_write_file!(true, encoder, data, path, opts) do
     data
     |> encoder.stream(opts)
@@ -73,15 +74,18 @@ defmodule RDF.Serialization.Writer do
     :ok
   end
 
+  @doc false
+  def file_mode(_encoder, opts) do
+    opts
+    |> Keyword.get(:file_mode, @default_file_mode)
+    |> List.wrap()
+    |> set_force(Keyword.get(opts, :force))
+    |> set_gzip(Keyword.get(opts, :gzip))
   end
 
-  defp file_mode(_encoder, opts) do
-    file_mode = Keyword.get(opts, :file_mode, @default_file_mode)
+  defp set_force(file_mode, true), do: List.delete(file_mode, :exclusive)
+  defp set_force(file_mode, _), do: file_mode
 
-    if Keyword.get(opts, :force) do
-      List.delete(file_mode, :exclusive)
-    else
-      file_mode
-    end
-  end
+  defp set_gzip(file_mode, true), do: [:compressed | file_mode]
+  defp set_gzip(file_mode, _), do: file_mode
 end

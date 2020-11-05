@@ -187,9 +187,17 @@ defmodule RDF.Serialization do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
 
+  ## Options
+
   The format can be specified with the `format` option and a format name or the
   `media_type` option and the media type of the format. If none of these are 
   given, the format gets inferred from the extension of the given file name. 
+
+  Other available serialization-independent options:
+
+  - `:gzip`: Allows to read directly from a gzipped file (default: `false`)
+  - `:file_mode`: A list with the Elixir `File.open` modes to be used for reading
+    (default: `[:read, :utf8]`)
 
   Please refer to the documentation of the decoder of a RDF serialization format
   for format-specific options.
@@ -292,9 +300,10 @@ defmodule RDF.Serialization do
 
   Other available serialization-independent options:
 
-  - `:force` - If not set to `true`, an error is raised when the given file
+  - `:gzip`: Allows to write directly to a gzipped file (default: `false`)
+  - `:force`: If not set to `true`, an error is raised when the given file
     already exists (default: `false`)
-  - `:file_mode` - A list with the Elixir `File.open` modes to be used for writing
+  - `:file_mode`: A list with the Elixir `File.open` modes to be used for writing
     (default: `[:write, :exclusive]`)
 
   Please refer to the documentation of the encoder of a RDF serialization format

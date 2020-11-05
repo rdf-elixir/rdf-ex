@@ -260,6 +260,79 @@ defmodule RDF.SerializationTest do
     end
   end
 
+  test ":gzip opt" do
+    # first ensure that :gzip is not ignored on both read and write which would lead to a false positive
+    file = file("gzip_test.gz")
+    Serialization.write_file!(@example_graph, file, format: :turtle, gzip: true, force: true)
+    assert_raise RuntimeError, fn -> Serialization.read_file!(file, format: :turtle) end
+
+    Serialization.write_file!(@example_graph, file,
+      format: :ntriples,
+      gzip: true,
+      stream: true,
+      force: true
+    )
+
+    # Why do we get an UndefinedFunctionError (function :unicode.format_error/1 is undefined or private)
+    assert_raise UndefinedFunctionError, fn ->
+      Serialization.read_file!(file, format: :ntriples, stream: true)
+    end
+
+    :ok = Serialization.write_file(@example_graph, file, format: :turtle, gzip: true, force: true)
+    assert {:error, _} = Serialization.read_file(file, format: :turtle)
+
+    :ok =
+      Serialization.write_file(@example_graph, file,
+        format: :ntriples,
+        gzip: true,
+        stream: true,
+        force: true
+      )
+
+    assert {:error, _} = Serialization.read_file(file, format: :ntriples, stream: true)
+
+    # start of the actual tests
+    assert :ok =
+             Serialization.write_file(@example_graph, file,
+               format: :turtle,
+               gzip: true,
+               force: true
+             )
+
+    assert Serialization.read_file(file, format: :turtle, gzip: true) == {:ok, @example_graph}
+
+    assert :ok =
+             Serialization.write_file(@example_graph, file,
+               format: :ntriples,
+               gzip: true,
+               stream: true,
+               force: true
+             )
+
+    assert Serialization.read_file(file, format: :ntriples, stream: true, gzip: true) ==
+             {:ok, Graph.clear_metadata(@example_graph)}
+
+    assert :ok =
+             Serialization.write_file!(@example_graph, file,
+               format: :turtle,
+               gzip: true,
+               force: true
+             )
+
+    assert Serialization.read_file!(file, format: :turtle, gzip: true) == @example_graph
+
+    assert :ok =
+             Serialization.write_file!(@example_graph, file,
+               format: :ntriples,
+               gzip: true,
+               stream: true,
+               force: true
+             )
+
+    assert Serialization.read_file!(file, format: :ntriples, stream: true, gzip: true) ==
+             Graph.clear_metadata(@example_graph)
+  end
+
   describe "use_file_streaming/2" do
     test "without opts" do
       refute Serialization.use_file_streaming(NTriples.Decoder, [])
