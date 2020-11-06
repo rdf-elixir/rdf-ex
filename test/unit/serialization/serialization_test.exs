@@ -71,6 +71,34 @@ defmodule RDF.SerializationTest do
       assert @example_ntriples_string
              |> string_to_stream()
              |> Serialization.read_stream(format: :ntriples) ==
+               {:ok, Graph.clear_metadata(@example_graph)}
+    end
+
+    test "with wrong format name" do
+      assert {:error, "N-Triple scanner error" <> _} =
+               @example_turtle_string
+               |> string_to_stream()
+               |> Serialization.read_stream(format: :ntriples)
+    end
+
+    test "with invalid format name" do
+      assert {:error, "unable to detect serialization format"} ==
+               Serialization.read_stream(@example_ntriples_string, format: :foo)
+    end
+
+    test "with media_type" do
+      assert @example_ntriples_string
+             |> string_to_stream()
+             |> Serialization.read_stream(media_type: "application/n-triples") ==
+               {:ok, Graph.clear_metadata(@example_graph)}
+    end
+  end
+
+  describe "read_stream!/2" do
+    test "with correct format name" do
+      assert @example_ntriples_string
+             |> string_to_stream()
+             |> Serialization.read_stream!(format: :ntriples) ==
                Graph.clear_metadata(@example_graph)
     end
 
@@ -78,20 +106,20 @@ defmodule RDF.SerializationTest do
       assert_raise RuntimeError, fn ->
         @example_ntriples_string
         |> string_to_stream()
-        |> Serialization.read_stream(format: :turtle)
+        |> Serialization.read_stream!(format: :turtle)
       end
     end
 
     test "with invalid format name" do
       assert_raise RuntimeError, "unable to detect serialization format", fn ->
-        Serialization.read_stream(@example_ntriples_string, format: :foo)
+        Serialization.read_stream!(@example_ntriples_string, format: :foo)
       end
     end
 
     test "with media_type" do
       assert @example_ntriples_string
              |> string_to_stream()
-             |> Serialization.read_stream(media_type: "application/n-triples") ==
+             |> Serialization.read_stream!(media_type: "application/n-triples") ==
                Graph.clear_metadata(@example_graph)
     end
   end

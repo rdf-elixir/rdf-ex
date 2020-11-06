@@ -16,13 +16,13 @@ defmodule RDF.NQuads.Decoder do
   end
 
   @impl RDF.Serialization.Decoder
-  @spec decode_from_stream(Enumerable.t(), keyword) :: Dataset.t()
+  @spec decode_from_stream(Enumerable.t(), keyword) :: {:ok, Dataset.t()} | {:error, any}
   def decode_from_stream(stream, _opts \\ []) do
-    Enum.reduce(stream, Dataset.new(), fn line, dataset ->
+    Enum.reduce_while(stream, {:ok, Dataset.new()}, fn line, {:ok, dataset} ->
       case do_decode(line, false) do
-        {:ok, []} -> dataset
-        {:ok, [[quad]]} -> Dataset.add(dataset, quad)
-        {:error, error} -> raise error
+        {:ok, []} -> {:cont, {:ok, dataset}}
+        {:ok, [[quad]]} -> {:cont, {:ok, Dataset.add(dataset, quad)}}
+        {:error, _} = error -> {:halt, error}
       end
     end)
   end

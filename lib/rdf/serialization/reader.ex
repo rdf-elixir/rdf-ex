@@ -21,7 +21,8 @@ defmodule RDF.Serialization.Reader do
     decoder.decode!(content, opts)
   end
 
-  @spec read_stream(module, Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
+  @spec read_stream(module, Enumerable.t(), keyword) ::
+          {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_stream(decoder, stream, opts \\ []) do
     if decoder.stream_support?() do
       decoder.decode_from_stream(stream, opts)
@@ -30,10 +31,19 @@ defmodule RDF.Serialization.Reader do
     end
   end
 
+  @spec read_stream!(module, Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
+  def read_stream!(decoder, stream, opts \\ []) do
+    if decoder.stream_support?() do
+      decoder.decode_from_stream!(stream, opts)
+    else
+      raise "#{inspect(decoder)} does not support streaming"
+    end
+  end
+
   @spec read_file(module, Path.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_file(decoder, file, opts \\ []) do
     decoder
-    |> Serialization.use_file_streaming(opts)
+    |> Serialization.use_file_streaming!(opts)
     |> do_read_file(decoder, file, opts)
   end
 
@@ -48,10 +58,9 @@ defmodule RDF.Serialization.Reader do
   end
 
   defp do_read_file(true, decoder, file, opts) do
-    {:ok,
-     file
-     |> File.stream!(file_mode(decoder, opts))
-     |> decoder.decode_from_stream(opts)}
+    file
+    |> File.stream!(file_mode(decoder, opts))
+    |> decoder.decode_from_stream(opts)
   rescue
     error in RuntimeError -> {:error, error.message}
     error -> {:error, error}
@@ -77,7 +86,7 @@ defmodule RDF.Serialization.Reader do
   defp do_read_file!(_stream_mode, decoder, file, opts) do
     file
     |> File.stream!(file_mode(decoder, opts))
-    |> decoder.decode_from_stream(opts)
+    |> decoder.decode_from_stream!(opts)
   end
 
   @doc false

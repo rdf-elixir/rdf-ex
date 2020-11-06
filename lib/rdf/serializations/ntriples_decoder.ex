@@ -16,13 +16,13 @@ defmodule RDF.NTriples.Decoder do
   end
 
   @impl RDF.Serialization.Decoder
-  @spec decode_from_stream(Enumerable.t(), keyword) :: Graph.t()
+  @spec decode_from_stream(Enumerable.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
   def decode_from_stream(stream, _opts \\ []) do
-    Enum.reduce(stream, Graph.new(), fn line, graph ->
+    Enum.reduce_while(stream, {:ok, Graph.new()}, fn line, {:ok, graph} ->
       case do_decode(line, false) do
-        {:ok, []} -> graph
-        {:ok, [[triple]]} -> Graph.add(graph, triple)
-        {:error, error} -> raise error
+        {:ok, []} -> {:cont, {:ok, graph}}
+        {:ok, [[triple]]} -> {:cont, {:ok, Graph.add(graph, triple)}}
+        {:error, _} = error -> {:halt, error}
       end
     end)
   end

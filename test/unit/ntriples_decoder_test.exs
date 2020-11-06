@@ -152,6 +152,25 @@ defmodule RDF.NTriples.DecoderTest do
            """
            |> string_to_stream()
            |> Decoder.decode_from_stream() ==
+             {:ok,
+              Graph.new([
+                {EX.S1, EX.p1(), EX.O1},
+                {EX.S1, EX.p2(), ~B"foo"},
+                {EX.S2, EX.p3(), ~L"foo"en}
+              ])}
+  end
+
+  test "decode_from_stream!/2" do
+    assert """
+           <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+
+           <http://example.org/#S1> <http://example.org/#p2> _:foo .
+
+
+           <http://example.org/#S2> <http://example.org/#p3> "foo"@en .
+           """
+           |> string_to_stream()
+           |> Decoder.decode_from_stream!() ==
              Graph.new([
                {EX.S1, EX.p1(), EX.O1},
                {EX.S1, EX.p2(), ~B"foo"},
