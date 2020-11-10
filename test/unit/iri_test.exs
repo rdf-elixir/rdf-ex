@@ -339,6 +339,16 @@ defmodule RDF.IRITest do
     end
   end
 
+  test "in_namespace?/2" do
+    assert IRI.in_namespace?(IRI.new("http://example.com/foo"), "http://example.com/")
+    assert IRI.in_namespace?(IRI.new("http://example.com/foo#bar"), "http://example.com/foo#")
+    assert IRI.in_namespace?(IRI.new("http://example.com/foo"), IRI.new("http://example.com/"))
+    assert IRI.in_namespace?(EX.Foo, IRI.new("http://example.com/#"))
+    assert IRI.in_namespace?(IRI.new("http://example.com/#foo"), EX)
+    assert IRI.in_namespace?(EX.foo(), EX)
+    assert IRI.in_namespace?(EX.Foo, EX)
+  end
+
   describe "to_string/1" do
     test "with IRIs" do
       assert IRI.to_string(IRI.new("http://example.com/")) == "http://example.com/"
