@@ -441,15 +441,15 @@ defmodule RDF.Vocabulary.Namespace do
     |> Enum.filter(fn
       {term, true} ->
         if term not in aliased_terms do
-          proper_case?(term, base_iri, Atom.to_string(term), data)
+          improper_case?(term, base_iri, Atom.to_string(term), data)
         end
 
       {term, original_term} ->
-        proper_case?(term, base_iri, original_term, data)
+        improper_case?(term, base_iri, original_term, data)
     end)
   end
 
-  defp proper_case?(term, base_iri, iri_suffix, data) do
+  defp improper_case?(term, base_iri, iri_suffix, data) do
     case ResourceClassifier.property?(term_to_iri(base_iri, iri_suffix), data) do
       true -> not downcase?(term)
       false -> downcase?(term)
