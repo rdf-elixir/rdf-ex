@@ -21,18 +21,18 @@ defmodule RDF.Utils.ResourceClassifier do
 
   @property_properties (Enum.map(
                           ~w[
-      domain
-      range
-      subPropertyOf
-    ],
+                            domain
+                            range
+                            subPropertyOf
+                          ],
                           &rdfs_iri/1
                         ) ++
                           Enum.map(
                             ~w[
-      equivalentProperty
-      inverseOf
-      propertyDisjointWith
-    ],
+                              equivalentProperty
+                              inverseOf
+                              propertyDisjointWith
+                            ],
                             &owl_iri/1
                           ))
                        |> MapSet.new()
@@ -48,18 +48,18 @@ defmodule RDF.Utils.ResourceClassifier do
                       rdfs_iri("ContainerMembershipProperty")
                       | Enum.map(
                           ~w[
-                        ObjectProperty
-                        DatatypeProperty
-                        AnnotationProperty
-                        FunctionalProperty
-                        InverseFunctionalProperty
-                        SymmetricProperty
-                        AsymmetricProperty
-                        ReflexiveProperty
-                        IrreflexiveProperty
-                        TransitiveProperty
-                        DeprecatedProperty
-                      ],
+                            ObjectProperty
+                            DatatypeProperty
+                            AnnotationProperty
+                            FunctionalProperty
+                            InverseFunctionalProperty
+                            SymmetricProperty
+                            AsymmetricProperty
+                            ReflexiveProperty
+                            IrreflexiveProperty
+                            TransitiveProperty
+                            DeprecatedProperty
+                          ],
                           &owl_iri/1
                         )
                     ]
