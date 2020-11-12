@@ -1,5 +1,11 @@
 defmodule RDF.NTriples.Encoder do
-  @moduledoc false
+  @moduledoc """
+  An encoder for N-Triples serializations of RDF.ex data structures.
+
+  As for all encoders of `RDF.Serialization.Format`s, you normally won't use these
+  functions directly, but via one of the `write_` functions on the `RDF.NTriples`
+  format module or the generic `RDF.Serialization` module.
+  """
 
   use RDF.Serialization.Encoder
 

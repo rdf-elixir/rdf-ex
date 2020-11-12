@@ -1,5 +1,11 @@
 defmodule RDF.NQuads.Decoder do
-  @moduledoc false
+  @moduledoc """
+  A decoder for N-Quads serializations to `RDF.Dataset`s.
+
+  As for all decoders of `RDF.Serialization.Format`s, you normally won't use these
+  functions directly, but via one of the `read_` functions on the `RDF.NQuads` format
+  module or the generic `RDF.Serialization` module.
+  """
 
   use RDF.Serialization.Decoder
 

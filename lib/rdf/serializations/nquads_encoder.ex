@@ -1,5 +1,11 @@
 defmodule RDF.NQuads.Encoder do
-  @moduledoc false
+  @moduledoc """
+  An encoder for N-Quads serializations of RDF.ex data structures.
+
+  As for all encoders of `RDF.Serialization.Format`s, you normally won't use these
+  functions directly, but via one of the `write_` functions on the `RDF.NQuads`
+  format module or the generic `RDF.Serialization` module.
+  """
 
   use RDF.Serialization.Encoder
 

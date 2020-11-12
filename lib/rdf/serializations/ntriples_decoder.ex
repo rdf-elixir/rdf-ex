@@ -1,5 +1,11 @@
 defmodule RDF.NTriples.Decoder do
-  @moduledoc false
+  @moduledoc """
+  A decoder for N-Triples serializations to `RDF.Graph`s.
+
+  As for all decoders of `RDF.Serialization.Format`s, you normally won't use these
+  functions directly, but via one of the `read_` functions on the `RDF.NTriples` format
+  module or the generic `RDF.Serialization` module.
+  """
 
   use RDF.Serialization.Decoder
 
