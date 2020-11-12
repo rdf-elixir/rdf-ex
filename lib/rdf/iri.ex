@@ -242,6 +242,15 @@ defmodule RDF.IRI do
 
   @doc """
   Checks whether `iri` lies in `namespace`.
+
+  ## Examples
+
+      iex> RDF.IRI.in_namespace?(~I<http://example.com/foo>, ~I<http://example.com/>)
+      true
+      iex> RDF.IRI.in_namespace?(~I<http://example.com/foo/bar>, "http://example.com/")
+      true
+      iex> RDF.IRI.in_namespace?(~I<http://example.com/#foo>, EX)
+      true
   """
   @spec in_namespace?(t | module, String.t() | t | module) :: boolean
   def in_namespace?(iri, namespace)
