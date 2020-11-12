@@ -62,6 +62,8 @@ defimpl Inspect, for: RDF.Graph do
   def inspect(graph, opts) do
     if opts.structs do
       try do
+        no_metadata = Keyword.get(opts.custom_options, :no_metadata, false)
+
         limit = opts.limit < RDF.Graph.statement_count(graph)
 
         graph =
@@ -77,7 +79,7 @@ defimpl Inspect, for: RDF.Graph do
 
         body =
           graph
-          |> RDF.Turtle.write_string!()
+          |> RDF.Turtle.write_string!(only: if(no_metadata, do: :triples))
           |> String.trim_trailing()
 
         "#{header}\n#{body}#{if limit, do: "..\n..."}"
@@ -112,5 +114,75 @@ defimpl Inspect, for: RDF.Dataset do
     sep = color(",", :map, opts)
     close = color("}", :map, opts)
     container_doc(open, map, close, opts, &Inspect.List.keyword/2, separator: sep, break: :strict)
+  end
+end
+
+defimpl Inspect, for: RDF.Diff do
+  def inspect(diff, opts) do
+    if opts.structs do
+      try do
+        {additions, deletions} = unify_metadata(diff.additions, diff.deletions)
+
+        """
+        #RDF.Diff:
+        #{changes(additions, "  + ", opts.limit)}
+        #{changes(deletions, "  - ", opts.limit)}
+        """
+      rescue
+        caught_exception ->
+          message =
+            "got #{inspect(caught_exception.__struct__)} with message " <>
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Diff"
+
+          exception = Inspect.Error.exception(message: message)
+
+          if opts.safe do
+            Inspect.inspect(exception, opts)
+          else
+            reraise(exception, __STACKTRACE__)
+          end
+      end
+    else
+      Inspect.Map.inspect(diff, opts)
+    end
+  end
+
+  defp unify_metadata(additions, deletions) do
+    unified_base = unified_base(additions.base_iri, deletions.base_iri)
+    unified_prefixes = unified_prefixes(additions.prefixes, deletions.prefixes)
+
+    {
+      additions
+      |> RDF.Graph.set_base_iri(unified_base)
+      |> RDF.Graph.clear_prefixes()
+      |> RDF.Graph.add_prefixes(unified_prefixes),
+      deletions
+      |> RDF.Graph.set_base_iri(unified_base)
+      |> RDF.Graph.clear_prefixes()
+      |> RDF.Graph.add_prefixes(unified_prefixes)
+    }
+  end
+
+  defp unified_base(nil, nil), do: nil
+  defp unified_base(nil, deletions_base), do: deletions_base
+  defp unified_base(additions_base, _), do: additions_base
+
+  defp unified_prefixes(nil, nil), do: nil
+  defp unified_prefixes(additions_prefixes, nil), do: additions_prefixes
+  defp unified_prefixes(nil, deletions_prefixes), do: deletions_prefixes
+
+  defp unified_prefixes(additions_prefixes, deletions_prefixes) do
+    RDF.PrefixMap.merge(additions_prefixes, deletions_prefixes, :ignore)
+  end
+
+  defp changes(graph, prefix, limit) do
+    [_header | triples] =
+      graph
+      |> Kernel.inspect(limit: limit, custom_options: [no_metadata: true])
+      |> String.split("\n")
+
+    triples
+    |> Enum.map(&[prefix, &1])
+    |> Enum.intersperse("\n")
   end
 end

@@ -73,8 +73,7 @@ defmodule RDF.Turtle.Encoder do
         State.preprocess(state)
 
         {:ok,
-         opts
-         |> Keyword.get(:only, @document_structure)
+         (Keyword.get(opts, :only) || @document_structure)
          |> compile(base, prefixes, state, opts)}
       after
         State.stop(state)
