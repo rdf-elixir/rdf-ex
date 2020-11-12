@@ -40,10 +40,8 @@ jobs:
             elixir: 1.11.1
           - erlang: 22.2
             elixir: 1.10.4
-          - erlang: 21.3
-            elixir: 1.9.4
           - erlang: 20.3.1
-            elixir: 1.8.2
+            elixir: 1.9.4
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:

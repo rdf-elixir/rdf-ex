@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.9 are no longer supported
+
 ### Added
 
 - general serialization functions for reading from and writing to streams
@@ -175,6 +177,8 @@ allow for defining custom datatypes.
 For an introduction on how literals work now read the updated [page on literals in the guide](https://rdf-elixir.dev/rdf-ex/literals.html). 
 For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.8).
 
+Elixir versions < 1.8 are no longer supported
+
 ### Added
 
 - a lot of new datatypes like `xsd:float`, `xsd:byte` or `xsd:anyURI` -- all numeric XSD datatypes 
@@ -205,7 +209,6 @@ For more details on how to migrate from an earlier version read [this wiki page]
   you now always see the value, the lexical form and if the literal is valid
 - `RDF.Namespace.resolve_term/1` now returns ok or error tuples, but a new function 
   `RDF.Namespace.resolve_term!/1` with the old behaviour was added
-- Elixir versions < 1.8 are no longer supported
 
 ### Fixed
 
@@ -438,6 +441,8 @@ upgrading notes to RDF.ex 0.6
 
 ## 0.5.0 - 2018-09-17
 
+Elixir versions < 1.6 are no longer supported
+
 ### Added
 
 - Possibility to execute simple SPARQL queries against `RDF.Graph`s with 
@@ -468,7 +473,6 @@ upgrading notes to RDF.ex 0.6
 
 ### Changed
 
-- Elixir versions < 1.6 are no longer supported
 - `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
   given a language tag
 - Some of the defined structs now enforce keys on compile-time (via Elixirs 
@@ -600,6 +604,8 @@ upgrading notes to RDF.ex 0.6
 
 ## 0.2.0 - 2017-08-12
 
+Elixir versions < 1.4 are no longer supported
+
 ### Added
 
 - full Turtle support
@@ -614,7 +620,6 @@ upgrading notes to RDF.ex 0.6
 ### Changed
 
 - Rename `RDF.Statement.convert*` functions to `RDF.Statement.coerce*`
-- Don't support Elixir versions < 1.4
 
 ### Fixed
 
