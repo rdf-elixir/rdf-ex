@@ -41,6 +41,9 @@ Elixir versions < 1.9 are no longer supported
 ### Fixed
 
 - `RDF.BlankNode`s based on refs weren't serializable to Turtle
+- `RDF.Vocabulary.Namespace`s couldn't contain terms conflicting with functions
+  from Elixirs Kernel module; most of them are supported now, while for the  
+  remaining unsupported ones a proper error message is produced during compilation 
 
 
 [Compare v0.9.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...HEAD)

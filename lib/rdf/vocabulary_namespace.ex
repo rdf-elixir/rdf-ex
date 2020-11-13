@@ -63,6 +63,34 @@ defmodule RDF.Vocabulary.Namespace do
 
         @behaviour Elixir.RDF.Namespace
 
+        import Kernel,
+          except: [
+            min: 2,
+            max: 2,
+            div: 2,
+            rem: 2,
+            abs: 1,
+            ceil: 1,
+            floor: 1,
+            elem: 2,
+            send: 2,
+            apply: 2,
+            destructure: 2,
+            get_and_update_in: 2,
+            get_in: 2,
+            pop_in: 2,
+            put_in: 2,
+            put_elem: 2,
+            update_in: 2,
+            raise: 2,
+            reraise: 2,
+            inspect: 2,
+            struct: 1,
+            struct: 2,
+            use: 1,
+            use: 2
+          ]
+
         if unquote(file) do
           @external_resource unquote(file)
         end
@@ -326,8 +354,23 @@ defmodule RDF.Vocabulary.Namespace do
     in
     fn
     def
+    defp
+    defdelegate
+    defexception
+    defguard
+    defguardp
+    defimpl
+    defmacro
+    defmacrop
+    defmodule
+    defoverridable
+    defprotocol
+    defstruct
+    function_exported?
+    macro_exported?
     when
     if
+    unless
     for
     case
     with

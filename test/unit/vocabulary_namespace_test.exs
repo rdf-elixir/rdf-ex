@@ -15,6 +15,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             RDF.Vocabulary.NamespaceTest.TestNS.NonStrictExampleFromAliasedTerms}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.StrictExampleFromTerms}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSofEdgeCases.Example}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSwithKernelConflicts.Example}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithAliasesForElixirTerms.Example}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSwithUnderscoreTerms.Example}
   @compile {:no_warn_undefined,
@@ -299,6 +300,115 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert Example.receive(EX.S, 1) == RDF.description(EX.S, init: {EX.S, Example.receive(), 1})
   end
 
+  test "defvocab with terms in conflict with Kernel functions" do
+    defmodule NSwithKernelConflicts do
+      use RDF.Vocabulary.Namespace
+
+      defvocab Example,
+        base_iri: "http://example.com/ex#",
+        terms: ~w[
+          abs
+          apply
+          binary_part
+          binding
+          bit_size
+          byte_size
+          ceil
+          destructure
+          div
+          elem
+          exit
+          floor
+          get_and_update_in
+          get_in
+          hd
+          inspect
+          is_atom
+          is_tuple
+          length
+          make_ref
+          map_size
+          max
+          min
+          node
+          not
+          pop_in
+          put_elem
+          put_in
+          raise
+          rem
+          reraise
+          round
+          self
+          send
+          spawn
+          spawn_link
+          spawn_monitor
+          struct
+          throw
+          tl
+          to_charlist
+          to_string
+          trunc
+          tuple_size
+          update_in
+          use
+      ]
+    end
+
+    alias NSwithKernelConflicts.Example
+    alias TestNS.EX
+
+    assert Example.abs() == ~I<http://example.com/ex#abs>
+    assert Example.apply() == ~I<http://example.com/ex#apply>
+    assert Example.binary_part() == ~I<http://example.com/ex#binary_part>
+    assert Example.binding() == ~I<http://example.com/ex#binding>
+    assert Example.bit_size() == ~I<http://example.com/ex#bit_size>
+    assert Example.byte_size() == ~I<http://example.com/ex#byte_size>
+    assert Example.ceil() == ~I<http://example.com/ex#ceil>
+    assert Example.destructure() == ~I<http://example.com/ex#destructure>
+    assert Example.div() == ~I<http://example.com/ex#div>
+    assert Example.elem() == ~I<http://example.com/ex#elem>
+    assert Example.exit() == ~I<http://example.com/ex#exit>
+    assert Example.floor() == ~I<http://example.com/ex#floor>
+    assert Example.get_and_update_in() == ~I<http://example.com/ex#get_and_update_in>
+    assert Example.get_in() == ~I<http://example.com/ex#get_in>
+    assert Example.hd() == ~I<http://example.com/ex#hd>
+    assert Example.inspect() == ~I<http://example.com/ex#inspect>
+    assert Example.is_atom() == ~I<http://example.com/ex#is_atom>
+    assert Example.is_tuple() == ~I<http://example.com/ex#is_tuple>
+    assert Example.length() == ~I<http://example.com/ex#length>
+    assert Example.make_ref() == ~I<http://example.com/ex#make_ref>
+    assert Example.map_size() == ~I<http://example.com/ex#map_size>
+    assert Example.max() == ~I<http://example.com/ex#max>
+    assert Example.min() == ~I<http://example.com/ex#min>
+    assert Example.node() == ~I<http://example.com/ex#node>
+    assert Example.not() == ~I<http://example.com/ex#not>
+    assert Example.pop_in() == ~I<http://example.com/ex#pop_in>
+    assert Example.put_elem() == ~I<http://example.com/ex#put_elem>
+    assert Example.put_in() == ~I<http://example.com/ex#put_in>
+    assert Example.raise() == ~I<http://example.com/ex#raise>
+    assert Example.rem() == ~I<http://example.com/ex#rem>
+    assert Example.reraise() == ~I<http://example.com/ex#reraise>
+    assert Example.round() == ~I<http://example.com/ex#round>
+    assert Example.self() == ~I<http://example.com/ex#self>
+    assert Example.send() == ~I<http://example.com/ex#send>
+    assert Example.spawn() == ~I<http://example.com/ex#spawn>
+    assert Example.spawn_link() == ~I<http://example.com/ex#spawn_link>
+    assert Example.spawn_monitor() == ~I<http://example.com/ex#spawn_monitor>
+    assert Example.struct() == ~I<http://example.com/ex#struct>
+    assert Example.throw() == ~I<http://example.com/ex#throw>
+    assert Example.tl() == ~I<http://example.com/ex#tl>
+    assert Example.to_charlist() == ~I<http://example.com/ex#to_charlist>
+    assert Example.to_string() == ~I<http://example.com/ex#to_string>
+    assert Example.trunc() == ~I<http://example.com/ex#trunc>
+    assert Example.tuple_size() == ~I<http://example.com/ex#tuple_size>
+    assert Example.update_in() == ~I<http://example.com/ex#update_in>
+    assert Example.use() == ~I<http://example.com/ex#use>
+
+    assert %Description{} = EX.S |> Example.update_in(EX.O1, EX.O2)
+  end
+
   describe "defvocab with invalid terms" do
     test "terms with a special meaning for Elixir cause a failure" do
       assert_raise RDF.Namespace.InvalidTermError, ~r/unquote_splicing/s, fn ->
@@ -369,9 +479,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
             xor_: "xor",
             in_: "in",
             fn_: "fn",
-            def_: "def",
             when_: "when",
             if_: "if",
+            unless_: "unless",
             for_: "for",
             case_: "case",
             with_: "with",
@@ -382,7 +492,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
             import_: "import",
             require_: "require",
             super_: "super",
-            _aliases_: "__aliases__"
+            _aliases_: "__aliases__",
+            def_: "def",
+            defp_: "defp",
+            defoverridable_: "defoverridable",
+            defguardp_: "defguardp",
+            defimpl_: "defimpl",
+            defstruct_: "defstruct",
+            defmodule_: "defmodule",
+            defguard_: "defguard",
+            defmacro_: "defmacro",
+            defprotocol_: "defprotocol",
+            defdelegate_: "defdelegate",
+            defexception_: "defexception",
+            defmacrop_: "defmacrop",
+            function_exported: "function_exported?",
+            macro_exported: "macro_exported?"
           ]
       end
 
@@ -393,9 +518,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.xor_() == ~I<http://example.com/example#xor>
       assert Example.in_() == ~I<http://example.com/example#in>
       assert Example.fn_() == ~I<http://example.com/example#fn>
-      assert Example.def_() == ~I<http://example.com/example#def>
       assert Example.when_() == ~I<http://example.com/example#when>
       assert Example.if_() == ~I<http://example.com/example#if>
+      assert Example.unless_() == ~I<http://example.com/example#unless>
       assert Example.for_() == ~I<http://example.com/example#for>
       assert Example.case_() == ~I<http://example.com/example#case>
       assert Example.with_() == ~I<http://example.com/example#with>
@@ -407,6 +532,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.require_() == ~I<http://example.com/example#require>
       assert Example.super_() == ~I<http://example.com/example#super>
       assert Example._aliases_() == ~I<http://example.com/example#__aliases__>
+      assert Example.def_() == ~I<http://example.com/example#def>
+      assert Example.defp_() == ~I<http://example.com/example#defp>
+      assert Example.defoverridable_() == ~I<http://example.com/example#defoverridable>
+      assert Example.defguardp_() == ~I<http://example.com/example#defguardp>
+      assert Example.defimpl_() == ~I<http://example.com/example#defimpl>
+      assert Example.defstruct_() == ~I<http://example.com/example#defstruct>
+      assert Example.defmodule_() == ~I<http://example.com/example#defmodule>
+      assert Example.defguard_() == ~I<http://example.com/example#defguard>
+      assert Example.defmacro_() == ~I<http://example.com/example#defmacro>
+      assert Example.defprotocol_() == ~I<http://example.com/example#defprotocol>
+      assert Example.defdelegate_() == ~I<http://example.com/example#defdelegate>
+      assert Example.defexception_() == ~I<http://example.com/example#defexception>
+      assert Example.defmacrop_() == ~I<http://example.com/example#defmacrop>
+      assert Example.function_exported() == ~I<http://example.com/example#function_exported?>
+      assert Example.macro_exported() == ~I<http://example.com/example#macro_exported?>
     end
   end
 
