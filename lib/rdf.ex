@@ -122,14 +122,17 @@ defmodule RDF do
     default_prefixes() |> PrefixMap.merge!(prefix_mappings)
   end
 
-  defdelegate read_string(content, opts), to: RDF.Serialization
-  defdelegate read_string!(content, opts), to: RDF.Serialization
+  defdelegate read_string(string, opts), to: RDF.Serialization
+  defdelegate read_string!(string, opts), to: RDF.Serialization
+  defdelegate read_stream(stream, opts \\ []), to: RDF.Serialization
+  defdelegate read_stream!(stream, opts \\ []), to: RDF.Serialization
   defdelegate read_file(filename, opts \\ []), to: RDF.Serialization
   defdelegate read_file!(filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_string(content, opts), to: RDF.Serialization
-  defdelegate write_string!(content, opts), to: RDF.Serialization
-  defdelegate write_file(content, filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_file!(content, filename, opts \\ []), to: RDF.Serialization
+  defdelegate write_string(data, opts), to: RDF.Serialization
+  defdelegate write_string!(data, opts), to: RDF.Serialization
+  defdelegate write_stream(data, opts), to: RDF.Serialization
+  defdelegate write_file(data, filename, opts \\ []), to: RDF.Serialization
+  defdelegate write_file!(data, filename, opts \\ []), to: RDF.Serialization
 
   @doc """
   Checks if the given value is a RDF resource.
