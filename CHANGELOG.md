@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.9.1 - 2020-11-16
 
 Elixir versions < 1.9 are no longer supported
 
@@ -14,7 +14,7 @@ Elixir versions < 1.9 are no longer supported
 - general serialization functions for reading from and writing to streams
   and implementations for N-Triples and N-Quads (Turtle still to come)
 - a `:gzip` option flag on all `read_file/3` and `write_file/3` functions
-  allows to and read and write all supported serialization formats from and to
+  allows to read and write all supported serialization formats from and to
   gzipped files (works also with the new possibility to read and write files via streams)
 - `RDF.Dataset.prefixes/1` for getting an aggregated `RDF.PrefixMap` over all graphs
 - `RDF.PrefixMap.put/3` for adding a prefix mapping and overwrite an existing one
@@ -46,7 +46,7 @@ Elixir versions < 1.9 are no longer supported
   remaining unsupported ones a proper error message is produced during compilation 
 
 
-[Compare v0.9.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...HEAD)
+[Compare v0.9.0...v0.9.1](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.0...v0.9.1)
 
 
 
