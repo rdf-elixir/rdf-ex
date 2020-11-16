@@ -1,7 +1,7 @@
 defmodule RDF.Serialization.Decoder do
-  @moduledoc !"""
-             A behaviour for decoders of strings encoded in a specific `RDF.Serialization` format.
-             """
+  @moduledoc """
+  A behaviour for decoders of strings encoded in a specific `RDF.Serialization` format.
+  """
 
   alias RDF.{Dataset, Graph}
 

@@ -1,7 +1,7 @@
 defmodule RDF.Serialization.Encoder do
-  @moduledoc !"""
-             A behaviour for encoders of RDF data structures in a specific `RDF.Serialization` format.
-             """
+  @moduledoc """
+  A behaviour for encoders of RDF data structures in a specific `RDF.Serialization` format.
+  """
 
   @doc """
   Serializes a RDF data structure into a string.
