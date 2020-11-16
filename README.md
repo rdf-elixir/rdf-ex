@@ -39,10 +39,14 @@ There's still much to do for a complete RDF ecosystem for Elixir, which means th
 see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
-## Consulting and Partnership
+## Consulting, Partnership and Sponsoring
 
 If you need help with your Elixir and Linked Data projects, just contact <info@cokron.com> or visit <https://www.cokron.com/kontakt>
 
+
+## Acknowledgements
+
+The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive).
 
 
 ## License and Copyright
