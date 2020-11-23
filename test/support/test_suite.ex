@@ -24,7 +24,6 @@ defmodule RDF.TestSuite do
         Urdna2015EvalTest
       ],
       strict: false
-
   end
 
   @compile {:no_warn_undefined, RDF.TestSuite.NS.MF}
@@ -37,7 +36,7 @@ defmodule RDF.TestSuite do
   def dir(format), do: Path.join(RDF.TestData.dir(), String.upcase(format) <> "-TESTS")
   def file(filename, format), do: format |> dir |> Path.join(filename)
 
-  def manifest_path(format, filename),  do: file(filename, format)
+  def manifest_path(format, filename), do: file(filename, format)
 
   def manifest_graph(format, opts \\ []) do
     format

@@ -87,12 +87,12 @@ defmodule RDF.Triple do
   def has_bnode?({%BlankNode{}, _, _}), do: true
   def has_bnode?({_, %BlankNode{}, _}), do: true
   def has_bnode?({_, _, %BlankNode{}}), do: true
-  def has_bnode?({_, _, _}),            do: false
+  def has_bnode?({_, _, _}), do: false
 
   def include_value?({value, _, _}, value), do: true
   def include_value?({_, value, _}, value), do: true
   def include_value?({_, _, value}, value), do: true
-  def include_value?({_, _, _}),            do: false
+  def include_value?({_, _, _}), do: false
 
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Triple` of RDF terms.

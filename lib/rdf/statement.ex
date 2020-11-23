@@ -72,8 +72,7 @@ defmodule RDF.Statement do
   """
   def graph_name(statement)
   def graph_name({_, _, _, graph_name}), do: coerce_graph_name(graph_name)
-  def graph_name({_, _, _}),             do: nil
-
+  def graph_name({_, _, _}), do: nil
 
   @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.
@@ -261,8 +260,8 @@ defmodule RDF.Statement do
   def valid_graph_name?(_), do: false
 
   def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
-  def has_bnode?({_, _, _} = triple),  do: Triple.has_bnode?(triple)
+  def has_bnode?({_, _, _} = triple), do: Triple.has_bnode?(triple)
 
   def include_value?({_, _, _, _} = quad, value), do: Quad.include_value?(quad, value)
-  def include_value?({_, _, _} = triple, value),  do: Triple.include_value?(triple, value)
+  def include_value?({_, _, _} = triple, value), do: Triple.include_value?(triple, value)
 end

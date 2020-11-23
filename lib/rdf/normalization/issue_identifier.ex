@@ -34,7 +34,6 @@ defmodule RDF.Normalization.IssueIdentifier do
     GenServer.call(pid, :state)
   end
 
-
   @doc """
   Issues a new blank node identifier for a given existing blank node identifier.
 
@@ -56,7 +55,6 @@ defmodule RDF.Normalization.IssueIdentifier do
     GenServer.call(pid, :issued)
   end
 
-
   # Server Callbacks
 
   def init(state) do
@@ -67,38 +65,48 @@ defmodule RDF.Normalization.IssueIdentifier do
     {:reply, state, state}
   end
 
-  def handle_call({:issue_identifier, identifier}, _,
-        %{issued_identifiers: issued_identifiers, issue_order: issue_order,
-          counter: counter, prefix: prefix} = state) do
+  def handle_call(
+        {:issue_identifier, identifier},
+        _,
+        %{
+          issued_identifiers: issued_identifiers,
+          issue_order: issue_order,
+          counter: counter,
+          prefix: prefix
+        } = state
+      ) do
     case issued_identifiers[identifier] do
       nil ->
         with issued_identifier = prefix <> to_string(counter) do
           {:reply, issued_identifier,
-            %{state |
-               issued_identifiers: Map.put(issued_identifiers, identifier, issued_identifier),
-               issue_order: [identifier | issue_order], # TODO: Do we need this?
+           %{
+             state
+             | issued_identifiers: Map.put(issued_identifiers, identifier, issued_identifier),
+               # TODO: Do we need this?
+               issue_order: [identifier | issue_order],
                counter: counter + 1
-             }
-          }
+           }}
         end
+
       issued_identifier ->
         {:reply, issued_identifier, state}
     end
   end
 
-  def handle_call({:issued_identifier, identifier}, _,
-        %{issued_identifiers: issued_identifiers} = state) do
+  def handle_call(
+        {:issued_identifier, identifier},
+        _,
+        %{issued_identifiers: issued_identifiers} = state
+      ) do
     {:reply, Map.get(issued_identifiers, identifier), state}
   end
 
-  def handle_call({:issued?, identifier}, _,
-        %{issued_identifiers: issued_identifiers} = state) do
+  def handle_call({:issued?, identifier}, _, %{issued_identifiers: issued_identifiers} = state) do
     {:reply, Map.has_key?(issued_identifiers, identifier), state}
   end
 
-  def handle_call(:issued, _,
-        %{issued_identifiers: issued_identifiers} = state) do
-    {:reply, Map.keys(issued_identifiers), state} # TODO: or issue_order?
+  def handle_call(:issued, _, %{issued_identifiers: issued_identifiers} = state) do
+    # TODO: or issue_order?
+    {:reply, Map.keys(issued_identifiers), state}
   end
-
 end
