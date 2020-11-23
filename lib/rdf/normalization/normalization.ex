@@ -53,9 +53,9 @@ defmodule RDF.Normalization do
 
 
 
-#  def bnode_to_statements(state), do: Agent.get(state, &(&1.bnode_to_statements))
-#  def hash_to_bnodes(state),      do: Agent.get(state, &(&1.hash_to_bnodes))
-#  def canonical_issuer(state),    do: Agent.get(state, &(&1.canonical_issuer))
+  def bnode_to_statements(state), do: Agent.get(state, &(&1.bnode_to_statements))
+  def hash_to_bnodes(state),      do: Agent.get(state, &(&1.hash_to_bnodes))
+  def canonical_issuer(state),    do: Agent.get(state, &(&1.canonical_issuer))
 
   defp clear_hash_to_bnodes(state) do
     Map.put(state, :hash_to_bnodes, %{})
@@ -68,8 +68,7 @@ defmodule RDF.Normalization do
   end
 
   defp delete_bnode_hash(state, hash) do
-      %{ state | hash_to_bnodes: Map.delete(state.hash_to_bnodes, hash) }
-    end
+    %{ state | hash_to_bnodes: Map.delete(state.hash_to_bnodes, hash) }
   end
 
 
