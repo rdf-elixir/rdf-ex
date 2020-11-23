@@ -1,42 +1,63 @@
 defmodule RDF.Serialization.Encoder do
   @moduledoc """
-  A behaviour for encoders of `RDF.Graph`s or `RDF.Dataset`s in a specific
-  `RDF.Serialization` format.
+  A behaviour for encoders of RDF data structures in a specific `RDF.Serialization` format.
   """
 
-
   @doc """
-  Encodes a `RDF.Graph` or `RDF.Dataset`.
+  Serializes a RDF data structure into a string.
 
-  It returns an `{:ok, string}` tuple, with `string` being the serialized
-  `RDF.Graph` or `RDF.Dataset`, or `{:error, reason}` if an error occurs.
+  It should return an `{:ok, string}` tuple, with `string` being the serialized
+  RDF data structure, or `{:error, reason}` if an error occurs.
   """
-  @callback encode(RDF.Graph.t | RDF.Dataset.t, keyword) :: keyword(String.t)
+  @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
 
   @doc """
-  Encodes a `RDF.Graph` or `RDF.Dataset`.
+  Serializes a RDF data structure into a string.
 
   As opposed to `encode`, it raises an exception if an error occurs.
 
   Note: The `__using__` macro automatically provides an overridable default
   implementation based on the non-bang `encode` function.
   """
-  @callback encode!(RDF.Graph.t | RDF.Dataset.t, keyword) :: String.t
+  @callback encode!(RDF.Data.t(), keyword) :: String.t()
 
+  @doc """
+  Serializes a RDF data structure into a stream.
+
+  It should return a stream emitting either strings or iodata of the
+  serialized RDF data structure. If both forms are supported the form
+  should be configurable via the `:mode` option and its values `:string`
+  respective `:iodata`.
+  """
+  @callback stream(RDF.Data.t(), keyword) :: Enumerable.t()
+
+  @optional_callbacks stream: 2
 
   defmacro __using__(_) do
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
 
+      @impl unquote(__MODULE__)
+      @dialyzer {:nowarn_function, encode!: 2}
+      @spec encode!(RDF.Data.t(), keyword) :: String.t()
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
-          {:ok,    data}   -> data
+          {:ok, data} -> data
           {:error, reason} -> raise reason
         end
       end
 
-      defoverridable [encode!: 2]
+      defoverridable unquote(__MODULE__)
+
+      @before_compile unquote(__MODULE__)
     end
   end
 
+  defmacro __before_compile__(_env) do
+    quote do
+      @stream_support __MODULE__ |> Module.definitions_in() |> Keyword.has_key?(:stream)
+      @doc false
+      def stream_support?, do: @stream_support
+    end
+  end
 end

@@ -3,6 +3,8 @@ defprotocol RDF.Data do
   An abstraction over the different data structures for collections of RDF statements.
   """
 
+  @type t :: RDF.Description.t() | RDF.Graph.t() | RDF.Dataset.t()
+
   @doc """
   Adds statements to a RDF data structure.
 
@@ -14,17 +16,15 @@ defprotocol RDF.Data do
   `RDF.Dataset`. But it is always guaranteed that the resulting structure has
   a `RDF.Data` implementation.
   """
-  def merge(data, statements)
+  def merge(data, input, opts \\ [])
 
   @doc """
   Deletes statements from a RDF data structure.
 
   As opposed to the `delete` functions on RDF data structures directly, this
   function only deletes exactly matching structures.
-
-  TODO: rename this function to make the different semantics explicit
   """
-  def delete(data, statements)
+  def delete(data, input, opts \\ [])
 
   @doc """
   Deletes one statement from a RDF data structure and returns a tuple with deleted statement and the changed data structure.
@@ -34,7 +34,7 @@ defprotocol RDF.Data do
   @doc """
   Checks if the given statement exists within a RDF data structure.
   """
-  def include?(data, statements)
+  def include?(data, input, opts \\ [])
 
   @doc """
   Checks if a RDF data structure contains statements about the given resource.
@@ -92,183 +92,314 @@ defprotocol RDF.Data do
   """
   def statement_count(data)
 
+  @doc """
+  Returns a nested map of the native Elixir values of a RDF data structure.
+
+  When a `:context` option is given with a `RDF.PropertyMap`, predicates will
+  be mapped to the terms defined in the `RDF.PropertyMap`, if present.
+  """
+  def values(data, opts \\ [])
+
+  @doc """
+  Returns a map representation of a RDF data structure where each element from its statements is mapped with the given function.
+  """
+  def map(data, fun)
+
+  @doc """
+  Checks if two RDF data structures are equal.
+
+  Two RDF data structures are considered to be equal if they contain the same triples.
+
+  - comparing two `RDF.Description`s it's just the same as `RDF.Description.equal?/2`
+  - comparing two `RDF.Graph`s differs in `RDF.Graph.equal?/2` in that the graph
+    name is ignored
+  - comparing two `RDF.Dataset`s differs in `RDF.Dataset.equal?/2` in that the
+    dataset name is ignored
+  - a `RDF.Description` is equal to a `RDF.Graph`, if the graph has just one
+    description which equals the given description
+  - a `RDF.Description` is equal to a `RDF.Dataset`, if the dataset has just one
+    graph which contains only the given description
+  - a `RDF.Graph` is equal to a `RDF.Dataset`, if the dataset has just one
+    graph which equals the given graph; note that in this case the graph names
+    must match
+  """
+  def equal?(data1, data2)
 end
 
 defimpl RDF.Data, for: RDF.Description do
-  def merge(%RDF.Description{subject: subject} = description, {s, _, _} = triple) do
-    with ^subject <- RDF.Statement.coerce_subject(s) do
-      RDF.Description.add(description, triple)
+  alias RDF.{Description, Graph, Dataset, Statement}
+
+  def merge(description, input, opts \\ [])
+
+  def merge(%Description{subject: subject} = description, {s, _, _} = triple, opts) do
+    with ^subject <- Statement.coerce_subject(s) do
+      Description.add(description, triple, opts)
     else
       _ ->
-        RDF.Graph.new(description)
-        |> RDF.Graph.add(triple)
+        Graph.new(description)
+        |> Graph.add(triple, opts)
     end
   end
 
-  def merge(description, {_, _, _, _} = quad),
-    do: RDF.Dataset.new(description) |> RDF.Dataset.add(quad)
+  def merge(description, {_, _, _, _} = quad, opts),
+    do: Dataset.new(description) |> Dataset.add(quad, opts)
 
-  def merge(%RDF.Description{subject: subject} = description,
-            %RDF.Description{subject: other_subject} = other_description)
-    when other_subject == subject,
-    do: RDF.Description.add(description, other_description)
+  def merge(
+        %Description{subject: subject} = description,
+        %Description{subject: other_subject} = other_description,
+        opts
+      )
+      when other_subject == subject,
+      do: Description.add(description, other_description, opts)
 
-  def merge(description, %RDF.Description{} = other_description),
-    do: RDF.Graph.new(description) |> RDF.Graph.add(other_description)
+  def merge(description, %Description{} = other_description, opts),
+    do: Graph.new(description) |> Graph.add(other_description, opts)
 
-  def merge(description, %RDF.Graph{} = graph),
-    do: RDF.Data.merge(graph, description)
+  def merge(description, %Graph{} = graph, opts),
+    do: RDF.Data.merge(graph, description, opts)
 
-  def merge(description, %RDF.Dataset{} = dataset),
-    do: RDF.Data.merge(dataset, description)
+  def merge(description, %Dataset{} = dataset, opts),
+    do: RDF.Data.merge(dataset, description, opts)
 
+  def delete(description, input, opts \\ [])
 
-  def delete(%RDF.Description{subject: subject} = description,
-             %RDF.Description{subject: other_subject})
-    when subject != other_subject,     do: description
-  def delete(description, statements), do: RDF.Description.delete(description, statements)
+  def delete(
+        %Description{subject: subject} = description,
+        %Description{subject: other_subject},
+        _opts
+      )
+      when subject != other_subject,
+      do: description
 
+  def delete(description, input, opts), do: Description.delete(description, input, opts)
 
-  def pop(description),                do: RDF.Description.pop(description)
+  def pop(description), do: Description.pop(description)
 
-  def include?(description, statements),
-    do: RDF.Description.include?(description, statements)
+  def include?(description, input, opts \\ []),
+    do: Description.include?(description, input, opts)
 
   def describes?(description, subject),
-    do: RDF.Description.describes?(description, subject)
+    do: Description.describes?(description, subject)
 
-  def description(%RDF.Description{subject: subject} = description, s) do
-    with ^subject <- RDF.Statement.coerce_subject(s) do
+  def description(%Description{subject: subject} = description, s) do
+    with ^subject <- Statement.coerce_subject(s) do
       description
     else
-      _ -> RDF.Description.new(s)
+      _ -> Description.new(s)
     end
   end
 
   def descriptions(description), do: [description]
 
-  def statements(description), do: RDF.Description.statements(description)
+  def statements(description), do: Description.statements(description)
 
-  def subjects(%RDF.Description{subject: subject}), do: MapSet.new([subject])
-  def predicates(description), do: RDF.Description.predicates(description)
-  def objects(description),    do: RDF.Description.objects(description)
+  def subjects(%Description{subject: subject}), do: MapSet.new([subject])
+  def predicates(description), do: Description.predicates(description)
+  def objects(description), do: Description.objects(description)
 
-  def resources(%RDF.Description{subject: subject} = description),
-    do: RDF.Description.resources(description) |> MapSet.put(subject)
+  def resources(%Description{subject: subject} = description),
+    do: Description.resources(description) |> MapSet.put(subject)
 
-  def subject_count(_),             do: 1
-  def statement_count(description), do: RDF.Description.count(description)
-end
+  def subject_count(_), do: 1
+  def statement_count(description), do: Description.count(description)
 
+  def values(description, opts \\ []),
+    do: Description.values(description, opts)
 
-defimpl RDF.Data, for: RDF.Graph do
-  def merge(%RDF.Graph{name: name} = graph, {_, _, _, graph_context} = quad) do
-    with ^name <- RDF.Statement.coerce_graph_name(graph_context) do
-      RDF.Graph.add(graph, quad)
+  def map(description, fun), do: Description.map(description, fun)
+
+  def equal?(description, %Description{} = other_description) do
+    Description.equal?(description, other_description)
+  end
+
+  def equal?(description, %Graph{} = graph) do
+    with [single_description] <- Graph.descriptions(graph) do
+      Description.equal?(description, single_description)
     else
-      _ ->
-        RDF.Dataset.new(graph)
-        |> RDF.Dataset.add(quad)
+      _ -> false
     end
   end
 
-  def merge(graph, {_, _, _} = triple),
-    do: RDF.Graph.add(graph, triple)
+  def equal?(description, %Dataset{} = dataset) do
+    RDF.Data.equal?(dataset, description)
+  end
 
-  def merge(description, {_, _, _, _} = quad),
-    do: RDF.Dataset.new(description) |> RDF.Dataset.add(quad)
-
-  def merge(graph, %RDF.Description{} = description),
-    do: RDF.Graph.add(graph, description)
-
-  def merge(%RDF.Graph{name: name} = graph,
-            %RDF.Graph{name: other_name} = other_graph)
-    when other_name == name,
-    do: RDF.Graph.add(graph, other_graph)
-
-  def merge(graph, %RDF.Graph{} = other_graph),
-    do: RDF.Dataset.new(graph) |> RDF.Dataset.add(other_graph)
-
-  def merge(graph, %RDF.Dataset{} = dataset),
-    do: RDF.Data.merge(dataset, graph)
-
-
-  def delete(%RDF.Graph{name: name} = graph, %RDF.Graph{name: other_name})
-    when name != other_name,     do: graph
-  def delete(graph, statements), do: RDF.Graph.delete(graph, statements)
-
-  def pop(graph),                do: RDF.Graph.pop(graph)
-
-  def include?(graph, statements), do: RDF.Graph.include?(graph, statements)
-
-  def describes?(graph, subject),
-    do: RDF.Graph.describes?(graph, subject)
-
-  def description(graph, subject),
-    do: RDF.Graph.description(graph, subject) || RDF.Description.new(subject)
-
-  def descriptions(graph), do: RDF.Graph.descriptions(graph)
-
-  def statements(graph), do: RDF.Graph.statements(graph)
-
-  def subjects(graph),   do: RDF.Graph.subjects(graph)
-  def predicates(graph), do: RDF.Graph.predicates(graph)
-  def objects(graph),    do: RDF.Graph.objects(graph)
-  def resources(graph),  do: RDF.Graph.resources(graph)
-
-  def subject_count(graph),   do: RDF.Graph.subject_count(graph)
-  def statement_count(graph), do: RDF.Graph.triple_count(graph)
+  def equal?(_, _), do: false
 end
 
+defimpl RDF.Data, for: RDF.Graph do
+  alias RDF.{Description, Graph, Dataset, Statement}
+
+  def merge(graph, input, opts \\ [])
+
+  def merge(%Graph{name: name} = graph, {_, _, _, graph_context} = quad, opts) do
+    with ^name <- Statement.coerce_graph_name(graph_context) do
+      Graph.add(graph, quad, opts)
+    else
+      _ ->
+        Dataset.new(graph)
+        |> Dataset.add(quad, opts)
+    end
+  end
+
+  def merge(graph, {_, _, _} = triple, opts),
+    do: Graph.add(graph, triple, opts)
+
+  def merge(description, {_, _, _, _} = quad, opts),
+    do: Dataset.new(description) |> Dataset.add(quad, opts)
+
+  def merge(graph, %Description{} = description, opts),
+    do: Graph.add(graph, description, opts)
+
+  def merge(
+        %Graph{name: name} = graph,
+        %Graph{name: other_name} = other_graph,
+        opts
+      )
+      when other_name == name,
+      do: Graph.add(graph, other_graph, opts)
+
+  def merge(graph, %Graph{} = other_graph, opts),
+    do: Dataset.new(graph) |> Dataset.add(other_graph, opts)
+
+  def merge(graph, %Dataset{} = dataset, opts),
+    do: RDF.Data.merge(dataset, graph, opts)
+
+  def delete(graph, input, opts \\ [])
+
+  def delete(%Graph{name: name} = graph, %Graph{name: other_name}, _opts)
+      when name != other_name,
+      do: graph
+
+  def delete(graph, input, opts), do: Graph.delete(graph, input, opts)
+
+  def pop(graph), do: Graph.pop(graph)
+
+  def include?(graph, input, opts \\ []), do: Graph.include?(graph, input, opts)
+
+  def describes?(graph, subject),
+    do: Graph.describes?(graph, subject)
+
+  def description(graph, subject),
+    do: Graph.description(graph, subject) || Description.new(subject)
+
+  def descriptions(graph), do: Graph.descriptions(graph)
+
+  def statements(graph), do: Graph.statements(graph)
+
+  def subjects(graph), do: Graph.subjects(graph)
+  def predicates(graph), do: Graph.predicates(graph)
+  def objects(graph), do: Graph.objects(graph)
+  def resources(graph), do: Graph.resources(graph)
+
+  def subject_count(graph), do: Graph.subject_count(graph)
+  def statement_count(graph), do: Graph.triple_count(graph)
+  def values(graph, opts \\ []), do: Graph.values(graph, opts)
+  def map(graph, fun), do: Graph.map(graph, fun)
+
+  def equal?(graph, %Description{} = description),
+    do: RDF.Data.equal?(description, graph)
+
+  def equal?(graph, %Graph{} = other_graph),
+    do:
+      Graph.equal?(
+        %Graph{graph | name: nil},
+        %Graph{other_graph | name: nil}
+      )
+
+  def equal?(graph, %Dataset{} = dataset),
+    do: RDF.Data.equal?(dataset, graph)
+
+  def equal?(_, _), do: false
+end
 
 defimpl RDF.Data, for: RDF.Dataset do
-  def merge(dataset, {_, _, _} = triple),
-    do: RDF.Dataset.add(dataset, triple)
-  def merge(dataset, {_, _, _, _} = quad),
-    do: RDF.Dataset.add(dataset, quad)
-  def merge(dataset, %RDF.Description{} = description),
-    do: RDF.Dataset.add(dataset, description)
-  def merge(dataset, %RDF.Graph{} = graph),
-    do: RDF.Dataset.add(dataset, graph)
-  def merge(dataset, %RDF.Dataset{} = other_dataset),
-    do: RDF.Dataset.add(dataset, other_dataset)
+  alias RDF.{Description, Graph, Dataset, Statement}
 
+  def merge(dataset, input, opts \\ [])
 
-  def delete(%RDF.Dataset{name: name} = dataset, %RDF.Dataset{name: other_name})
-    when name != other_name,       do: dataset
-  def delete(dataset, statements), do: RDF.Dataset.delete(dataset, statements)
+  def merge(dataset, {_, _, _} = triple, opts),
+    do: Dataset.add(dataset, triple, opts)
 
-  def pop(dataset),                do: RDF.Dataset.pop(dataset)
+  def merge(dataset, {_, _, _, _} = quad, opts),
+    do: Dataset.add(dataset, quad, opts)
 
-  def include?(dataset, statements), do: RDF.Dataset.include?(dataset, statements)
+  def merge(dataset, %Description{} = description, opts),
+    do: Dataset.add(dataset, description, opts)
+
+  def merge(dataset, %Graph{} = graph, opts),
+    do: Dataset.add(dataset, graph, opts)
+
+  def merge(dataset, %Dataset{} = other_dataset, opts),
+    do: Dataset.add(dataset, other_dataset, opts)
+
+  def delete(dataset, input, opts \\ [])
+
+  def delete(%Dataset{name: name} = dataset, %Dataset{name: other_name}, _opts)
+      when name != other_name,
+      do: dataset
+
+  def delete(dataset, input, opts), do: Dataset.delete(dataset, input, opts)
+
+  def pop(dataset), do: Dataset.pop(dataset)
+
+  def include?(dataset, input, opts), do: Dataset.include?(dataset, input, opts)
 
   def describes?(dataset, subject),
-    do: RDF.Dataset.who_describes(dataset, subject) != []
+    do: Dataset.who_describes(dataset, subject) != []
 
   def description(dataset, subject) do
-    with subject = RDF.Statement.coerce_subject(subject) do
-      Enum.reduce RDF.Dataset.graphs(dataset), RDF.Description.new(subject), fn
-        %RDF.Graph{descriptions: %{^subject => graph_description}}, description ->
-          RDF.Description.add(description, graph_description)
-        _, description ->
-          description
-        end
-    end
+    subject = Statement.coerce_subject(subject)
+
+    Enum.reduce(Dataset.graphs(dataset), Description.new(subject), fn
+      %Graph{descriptions: %{^subject => graph_description}}, description ->
+        Description.add(description, graph_description)
+
+      _, description ->
+        description
+    end)
   end
 
   def descriptions(dataset) do
     dataset
     |> subjects
-    |> Enum.map(&(description(dataset, &1)))
+    |> Enum.map(&description(dataset, &1))
   end
 
-  def statements(dataset), do: RDF.Dataset.statements(dataset)
+  def statements(dataset), do: Dataset.statements(dataset)
 
-  def subjects(dataset),   do: RDF.Dataset.subjects(dataset)
-  def predicates(dataset), do: RDF.Dataset.predicates(dataset)
-  def objects(dataset),    do: RDF.Dataset.objects(dataset)
-  def resources(dataset),  do: RDF.Dataset.resources(dataset)
+  def subjects(dataset), do: Dataset.subjects(dataset)
+  def predicates(dataset), do: Dataset.predicates(dataset)
+  def objects(dataset), do: Dataset.objects(dataset)
+  def resources(dataset), do: Dataset.resources(dataset)
 
-  def subject_count(dataset),   do: dataset |> subjects |> Enum.count
-  def statement_count(dataset), do: RDF.Dataset.statement_count(dataset)
+  def subject_count(dataset), do: dataset |> subjects |> Enum.count()
+  def statement_count(dataset), do: Dataset.statement_count(dataset)
+  def values(dataset, opts \\ []), do: Dataset.values(dataset, opts)
+  def map(dataset, fun), do: Dataset.map(dataset, fun)
+
+  def equal?(dataset, %Description{} = description) do
+    with [graph] <- Dataset.graphs(dataset) do
+      RDF.Data.equal?(description, graph)
+    else
+      _ -> false
+    end
+  end
+
+  def equal?(dataset, %Graph{} = graph) do
+    with [single_graph] <- Dataset.graphs(dataset) do
+      Graph.equal?(graph, single_graph)
+    else
+      _ -> false
+    end
+  end
+
+  def equal?(dataset, %Dataset{} = other_dataset) do
+    Dataset.equal?(
+      %Dataset{dataset | name: nil},
+      %Dataset{other_dataset | name: nil}
+    )
+  end
+
+  def equal?(_, _), do: false
 end

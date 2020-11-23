@@ -1,9 +1,24 @@
 defmodule RDF.Turtle.Decoder do
-  @moduledoc false
+  @moduledoc """
+  A decoder for N-Triples serializations to `RDF.Graph`s.
+
+  As for all decoders of `RDF.Serialization.Format`s, you normally won't use these
+  functions directly, but via one of the `read_` functions on the `RDF.Turtle` format
+  module or the generic `RDF.Serialization` module.
+
+
+  ## Options
+
+  - `:base`: allows to specify the base URI to be used against relative URIs
+    when no base URI is defined with a `@base` directive within the document
+
+  """
 
   use RDF.Serialization.Decoder
-  
-  alias RDF.IRI
+
+  import RDF.Serialization.ParseHelper, only: [error_description: 1]
+
+  alias RDF.{Graph, IRI}
 
   defmodule State do
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
@@ -17,51 +32,54 @@ defmodule RDF.Turtle.Decoder do
     end
 
     def next_bnode(%State{bnode_counter: bnode_counter} = state) do
-      {RDF.bnode("b#{bnode_counter}"),
-        %State{state | bnode_counter: bnode_counter + 1}}
+      {RDF.bnode("b#{bnode_counter}"), %State{state | bnode_counter: bnode_counter + 1}}
     end
   end
 
-  def decode(content, opts \\ %{})
-
-  def decode(content, opts) when is_list(opts),
-    do: decode(content, Map.new(opts))
-
-  def decode(content, opts) do
+  @impl RDF.Serialization.Decoder
+  @spec decode(String.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
+  def decode(content, opts \\ []) do
     with {:ok, tokens, _} <- tokenize(content),
-         {:ok, ast}       <- parse(tokens),
-         base = Map.get(opts, :base) do
-      build_graph(ast, base && RDF.iri(base))
+         {:ok, ast} <- parse(tokens),
+         base_iri = Keyword.get(opts, :base, Keyword.get(opts, :base_iri, RDF.default_base_iri())) do
+      build_graph(ast, base_iri && RDF.iri(base_iri))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
-        {:error, "Turtle scanner error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error,
+         "Turtle scanner error on line #{error_line}: #{error_description(error_descriptor)}"}
+
       {:error, {error_line, :turtle_parser, error_descriptor}} ->
-        {:error, "Turtle parser error on line #{error_line}: #{inspect error_descriptor}"}
+        {:error,
+         "Turtle parser error on line #{error_line}: #{error_description(error_descriptor)}"}
     end
   end
 
-  def tokenize(content), do: content |> to_charlist |> :turtle_lexer.string
+  def tokenize(content), do: content |> to_charlist |> :turtle_lexer.string()
 
-  def parse([]),     do: {:ok, []}
-  def parse(tokens), do: tokens |> :turtle_parser.parse
+  def parse([]), do: {:ok, []}
+  def parse(tokens), do: tokens |> :turtle_parser.parse()
 
-  defp build_graph(ast, base) do
-    try do
-      {graph, _} =
-        Enum.reduce ast, {RDF.Graph.new, %State{base_iri: base}}, fn
-          {:triples, triples_ast}, {graph, state} ->
-            with {statements, state} = triples(triples_ast, state) do
-              {RDF.Graph.add(graph, statements), state}
-            end
+  defp build_graph(ast, base_iri) do
+    {graph, %State{namespaces: namespaces, base_iri: base_iri}} =
+      Enum.reduce(ast, {RDF.Graph.new(), %State{base_iri: base_iri}}, fn
+        {:triples, triples_ast}, {graph, state} ->
+          with {statements, state} = triples(triples_ast, state) do
+            {RDF.Graph.add(graph, statements), state}
+          end
 
-          {:directive, directive_ast}, {graph, state} ->
-            {graph, directive(directive_ast, state)}
+        {:directive, directive_ast}, {graph, state} ->
+          {graph, directive(directive_ast, state)}
+      end)
 
-        end
-      {:ok, graph}
-    rescue
-      error -> {:error, Exception.message(error)}
-    end
+    {:ok,
+     if Enum.empty?(namespaces) do
+       graph
+     else
+       RDF.Graph.add_prefixes(graph, namespaces)
+     end
+     |> RDF.Graph.set_base_iri(base_iri)}
+  rescue
+    error -> {:error, Exception.message(error)}
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do
@@ -78,15 +96,16 @@ defmodule RDF.Turtle.Decoder do
     cond do
       IRI.absolute?(iri) ->
         %State{state | base_iri: RDF.iri(iri)}
+
       base_iri != nil ->
         with absolute_iri = IRI.absolute(iri, base_iri) do
           %State{state | base_iri: absolute_iri}
         end
+
       true ->
-        raise "Could not resolve resolve relative IRI '#{iri}', no base iri provided"
+        raise "Could not resolve relative IRI '#{iri}', no base iri provided"
     end
   end
-
 
   defp triples({:blankNodePropertyList, _} = ast, state) do
     with {_, statements, state} = resolve_node(ast, [], state) do
@@ -96,15 +115,16 @@ defmodule RDF.Turtle.Decoder do
 
   defp triples({subject, predications}, state) do
     with {subject, statements, state} = resolve_node(subject, [], state) do
-      Enum.reduce predications, {statements, state}, fn {predicate, objects}, {statements, state} ->
+      Enum.reduce(predications, {statements, state}, fn {predicate, objects},
+                                                        {statements, state} ->
         with {predicate, statements, state} = resolve_node(predicate, statements, state) do
-          Enum.reduce objects, {statements, state}, fn object, {statements, state} ->
+          Enum.reduce(objects, {statements, state}, fn object, {statements, state} ->
             with {object, statements, state} = resolve_node(object, statements, state) do
               {[{subject, predicate, object} | statements], state}
             end
-          end
+          end)
         end
-      end
+      end)
     end
   end
 
@@ -112,7 +132,7 @@ defmodule RDF.Turtle.Decoder do
     if ns = State.ns(state, prefix) do
       {RDF.iri(ns <> local_name_unescape(name)), statements, state}
     else
-      raise "line #{line_number}: undefined prefix #{inspect prefix}"
+      raise "line #{line_number}: undefined prefix #{inspect(prefix)}"
     end
   end
 
@@ -120,12 +140,12 @@ defmodule RDF.Turtle.Decoder do
     if ns = State.ns(state, prefix) do
       {RDF.iri(ns), statements, state}
     else
-      raise "line #{line_number}: undefined prefix #{inspect prefix}"
+      raise "line #{line_number}: undefined prefix #{inspect(prefix)}"
     end
   end
 
   defp resolve_node({:relative_iri, relative_iri}, _, %State{base_iri: nil}) do
-    raise "Could not resolve resolve relative IRI '#{relative_iri}', no base iri provided"
+    raise "Could not resolve relative IRI '#{relative_iri}', no base iri provided"
   end
 
   defp resolve_node({:relative_iri, relative_iri}, statements, state) do
@@ -145,35 +165,43 @@ defmodule RDF.Turtle.Decoder do
     end
   end
 
-  defp resolve_node({{:string_literal_quote, _line, value}, {:datatype, datatype}}, statements, state) do
+  defp resolve_node(
+         {{:string_literal_quote, _line, value}, {:datatype, datatype}},
+         statements,
+         state
+       ) do
     with {datatype, statements, state} = resolve_node(datatype, statements, state) do
       {RDF.literal(value, datatype: datatype), statements, state}
     end
   end
 
   defp resolve_node({:collection, []}, statements, state) do
-    {RDF.nil, statements, state}
+    {RDF.nil(), statements, state}
   end
 
   defp resolve_node({:collection, elements}, statements, state) do
     with {first_list_node, state} = State.next_bnode(state),
          [first_element | rest_elements] = elements,
-         {first_element_node, statements, state} =
-           resolve_node(first_element, statements, state),
-         first_statement = [{first_list_node, RDF.first, first_element_node}] do
+         {first_element_node, statements, state} = resolve_node(first_element, statements, state),
+         first_statement = [{first_list_node, RDF.first(), first_element_node}] do
       {last_list_node, statements, state} =
-        Enum.reduce rest_elements, {first_list_node, statements ++ first_statement, state},
+        Enum.reduce(
+          rest_elements,
+          {first_list_node, statements ++ first_statement, state},
           fn element, {list_node, statements, state} ->
-            with {element_node, statements, state} =
-                   resolve_node(element, statements, state),
+            with {element_node, statements, state} = resolve_node(element, statements, state),
                  {next_list_node, state} = State.next_bnode(state) do
-              {next_list_node, statements ++ [
-                  {list_node,      RDF.rest,  next_list_node},
-                  {next_list_node, RDF.first, element_node},
-                ], state}
+              {next_list_node,
+               statements ++
+                 [
+                   {list_node, RDF.rest(), next_list_node},
+                   {next_list_node, RDF.first(), element_node}
+                 ], state}
             end
           end
-      {first_list_node, statements ++ [{last_list_node, RDF.rest, RDF.nil}], state}
+        )
+
+      {first_list_node, statements ++ [{last_list_node, RDF.rest(), RDF.nil()}], state}
     end
   end
 
@@ -186,5 +214,4 @@ defmodule RDF.Turtle.Decoder do
 
   defp local_name_unescape_map(e) when e in @reserved_characters, do: e
   defp local_name_unescape_map(_), do: false
-
 end

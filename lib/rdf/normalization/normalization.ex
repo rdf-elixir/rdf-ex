@@ -203,13 +203,13 @@ defmodule RDF.Normalization do
         |> RDF.Dataset.add(
              if Statement.has_bnode?(statement) do
                Statement.map statement, fn
-                 %BlankNode{} = bnode ->
+                 {_, %BlankNode{} = bnode} ->
                    state
                    |> canonical_issuer()
                    |> IssueIdentifier.issued_identifier(bnode)
                    |> String.slice(2..-1)
                    |> BlankNode.new
-                 node ->
+                 {_, node} ->
                    node
                end
              else
@@ -229,9 +229,9 @@ defmodule RDF.Normalization do
          statement
          |> Quad.new
          |> Statement.map(fn
-              ^node        -> ~B<a>
-              %BlankNode{} -> ~B<z>
-              node         -> node
+              {_, ^node}        -> ~B<a>
+              {_, %BlankNode{}} -> ~B<z>
+              {_, node}         -> node
             end)
          |> NQuads.write_string!
        end)

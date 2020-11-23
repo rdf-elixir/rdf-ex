@@ -1,7 +1,6 @@
 defmodule RDF.NQuads do
   @moduledoc """
-  `RDF.NQuads` provides support for reading the N-Quads serialization
-  format.
+  `RDF.NQuads` provides support for the N-Quads serialization format.
 
   N-Quads is a line-based plain-text format for encoding an RDF dataset, i.e. a
   collection of RDF graphs.
@@ -13,12 +12,12 @@ defmodule RDF.NQuads do
   see <https://www.w3.org/TR/n-quads/>
   """
 
-  use RDF.Serialization
+  use RDF.Serialization.Format
 
   import RDF.Sigils
 
-  @id           ~I<http://www.w3.org/ns/formats/N-Quads>
-  @extension    "nq"
-  @content_type "application/n-quads"
-
+  @id ~I<http://www.w3.org/ns/formats/N-Quads>
+  @name :nquads
+  @extension "nq"
+  @media_type "application/n-quads"
 end
