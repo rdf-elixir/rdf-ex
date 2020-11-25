@@ -152,9 +152,8 @@ defmodule RDF.Normalization do
   end
 
   defp create_canonical_identifiers(state) do
-    with non_normalized_identifiers = state.bnode_to_statements |> Map.keys() do
-      do_create_canonical_identifiers(state, non_normalized_identifiers)
-    end
+    non_normalized_identifiers = state.bnode_to_statements |> Map.keys()
+    do_create_canonical_identifiers(state, non_normalized_identifiers)
   end
 
   defp do_create_canonical_identifiers(state, non_normalized_identifiers, simple \\ true)
@@ -199,7 +198,7 @@ defmodule RDF.Normalization do
     do_create_canonical_identifiers(state, non_normalized_identifiers, simple)
   end
 
-  defp do_create_canonical_identifiers(state, non_normalized_identifiers, false), do: nil
+  defp do_create_canonical_identifiers(_state, _non_normalized_identifiers, false), do: nil
 
   # TODO: generalize this to RDF.Data
   defp canonicalize(state, data) do
@@ -225,17 +224,16 @@ defmodule RDF.Normalization do
     end)
   end
 
-  @doc """
-  <https://json-ld.github.io/normalization/spec/#hash-first-degree-quads>
-  """
-  defp hash_first_degree_quads(state, node) do
+  @doc !"<https://json-ld.github.io/normalization/spec/#hash-first-degree-quads>"
+  defp hash_first_degree_quads(state, ref_bnode_id) do
     bnode_to_statements(state)
-    |> Map.get(node, [])
+    |> Map.get(ref_bnode_id, [])
     |> Enum.map(fn statement ->
       statement
       |> Quad.new()
       |> Statement.map(fn
-        {_, ^node} -> ~B<a>
+        # TODO: see note in the spec: "potential need to normalize literals to their canonical representation here as well, if not done on the original input dataset"
+        {_, ^ref_bnode_id} -> ~B<a>
         {_, %BlankNode{}} -> ~B<z>
         {_, node} -> node
       end)
@@ -244,40 +242,48 @@ defmodule RDF.Normalization do
     |> Enum.sort()
     |> Enum.join()
     |> hash()
-    |> IO.inspect(label: "node: #{inspect(node)}, hash_first_degree_quads:")
+    |> IO.inspect(label: "node: #{inspect(ref_bnode_id)}, hash_first_degree_quads:")
   end
 
-  @doc """
-  <https://json-ld.github.io/normalization/spec/#hash-related-blank-node>
-  """
+  @doc !"<https://json-ld.github.io/normalization/spec/#hash-related-blank-node>"
   defp hash_related_bnode(state, related, statement, issuer, position) do
-    with identifier =
-           state |> canonical_issuer() |> IssueIdentifier.issue_identifier(related) ||
-             issuer |> IssueIdentifier.issue_identifier(related) ||
-             hash_first_degree_quads(state, related),
-         input = Integer.to_string(position),
-         input =
-           (if position != :g do
-              "#{input}<#{Statement.predicate(statement)}>"
-            else
-              input
-            end) <> identifier do
-      hash(input)
-      |> IO.inspect(label: "input: #{inspect(input)}, hash_related_bnode: ")
-    end
+    identifier =
+      state
+      |> canonical_issuer()
+      |> IssueIdentifier.issue_identifier(related) ||
+        issuer
+        |> IssueIdentifier.issue_identifier(related) ||
+        hash_first_degree_quads(state, related)
+
+    input = Integer.to_string(position)
+
+    input =
+      if position != :g do
+        "#{input}<#{Statement.predicate(statement)}>"
+      else
+        input
+      end <> identifier
+
+    hash(input)
+    |> IO.inspect(label: "input: #{inspect(input)}, hash_related_bnode: ")
   end
 
-  @doc """
-  <https://json-ld.github.io/normalization/spec/#hash-n-degree-quads>
-  """
+  @doc !"<https://json-ld.github.io/normalization/spec/#hash-n-degree-quads>"
+  # TODO: follow the recommendation in this issue:
+  # "An additional input to this algorithm should be added that allows it to be optionally skipped
+  # and throw an error if any equivalent related hashes were produced that must be permuted during
+  # step 5.4.4. For practical uses of the algorithm, this step should never be encountered and could
+  # be turned off, disabling canonizing datasets that include a need to run it as a security measure."
   def hash_n_degree_quads(state, identifier, issuer) do
+    # 1-3)
     hash_to_related_blank_nodes_map =
-      Enum.reduce(bnode_to_statements(state)[identifier], %{}, fn statement, map ->
-        Map.merge(map, hash_related_statement(state, identifier, statement, issuer), fn _,
-                                                                                        terms,
-                                                                                        new ->
-          terms ++ new
-        end)
+      bnode_to_statements(state)[identifier]
+      |> Enum.reduce(%{}, fn statement, map ->
+        Map.merge(
+          map,
+          hash_related_statement(state, identifier, statement, issuer),
+          fn _, terms, new -> terms ++ new end
+        )
       end)
 
     {data_to_hash, _, issuer} =
@@ -285,13 +291,18 @@ defmodule RDF.Normalization do
       |> Enum.sort()
       |> Enum.reduce({"", "", nil}, fn
         {related_hash, bnode_list}, {data_to_hash, chosen_path, chosen_issuer} ->
+          # 5.1)
+          data_to_hash = data_to_hash <> related_hash
+
+          # 5.2-4)
           {chosen_path, chosen_issuer} =
             bnode_list
             |> permutations()
             |> Enum.reduce({chosen_path, chosen_issuer}, fn
               permutation, {chosen_path, chosen_issuer} ->
                 issuer_copy = IssueIdentifier.copy(issuer)
-
+                chosen_path_length = String.length(chosen_path)
+                # 5.4.4)
                 {path, recursion_list} =
                   Enum.reduce_while(permutation, {"", []}, fn related, {path, recursion_list} ->
                     {path, recursion_list} =
@@ -315,8 +326,7 @@ defmodule RDF.Normalization do
                           {path <> issued_identifier, recursion_list}
                       end
 
-                    if Enum.empty?(chosen_path) or
-                         String.length(path) < String.length(chosen_path) do
+                    if chosen_path_length == 0 or String.length(path) < chosen_path_length do
                       {:cont, {path, recursion_list}}
                     else
                       {:halt, {path, recursion_list}}
@@ -339,8 +349,8 @@ defmodule RDF.Normalization do
 
                       issuer_copy = result_issuer
 
-                      if Enum.empty?(chosen_path) or
-                           String.length(path) < String.length(chosen_path) or
+                      if chosen_path_length == 0 or
+                           String.length(path) < chosen_path_length or
                            path <= chosen_path do
                         {:cont, {issuer_copy, path}}
                       else
@@ -349,13 +359,14 @@ defmodule RDF.Normalization do
                     end
                   )
 
-                if Enum.empty?(chosen_path) or path < chosen_path do
+                if chosen_path_length == 0 or path < chosen_path do
                   {path, issuer_copy}
                 else
                   {chosen_path, chosen_issuer}
                 end
             end)
 
+          # 5.5)
           {data_to_hash <> chosen_path, chosen_path, chosen_issuer}
       end)
 
