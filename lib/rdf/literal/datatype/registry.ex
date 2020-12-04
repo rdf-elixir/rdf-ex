@@ -36,7 +36,8 @@ defmodule RDF.Literal.Datatype.Registry do
                            XSD.Date,
                            XSD.Time,
                            XSD.DateTime,
-                           XSD.AnyURI
+                           XSD.AnyURI,
+                           XSD.Base64Binary
                          ] ++ @builtin_numeric_datatypes
 
   @builtin_datatypes [RDF.LangString | @builtin_xsd_datatypes]
