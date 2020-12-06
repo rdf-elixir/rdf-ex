@@ -52,7 +52,7 @@ defmodule RDF.XSD.Datatype do
   | `xsd:gMonthDay` | ❌ |
   | `xsd:gDay` | ❌ |
   | `xsd:gMonth` | ❌ |
-  | `xsd:base64Binary` | ❌ |
+  | `xsd:base64Binary` | `RDF.XSD.Base64Binary` |
   | `xsd:hexBinary` | ❌ |
   | `xsd:anyURI` | `RDF.XSD.AnyURI` |
   | `xsd:QName` | ❌ |
