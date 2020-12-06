@@ -235,15 +235,42 @@ defmodule RDF.XSD.Datatype do
       @doc """
       Creates a new `RDF.Literal` with this datatype and the given `value`.
       """
-      # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
-      # always returns true there, so the other branch is unnecessary. This could
-      # be fixed by generating a special version for primitives, but it's not worth
-      # maintaining different versions of this function which must be kept in-sync.
-      @dialyzer {:nowarn_function, new: 2}
       @impl RDF.Literal.Datatype
       def new(value, opts \\ [])
 
       def new(lexical, opts) when is_binary(lexical) do
+        if Keyword.get(opts, :as_value) do
+          from_value(lexical, opts)
+        else
+          from_lexical(lexical, opts)
+        end
+      end
+
+      def new(value, opts) do
+        from_value(value, opts)
+      end
+
+      @doc """
+      Creates a new `RDF.Literal` with this datatype and the given `value` or fails when it is not valid.
+      """
+      @impl RDF.Literal.Datatype
+      def new!(value, opts \\ []) do
+        literal = new(value, opts)
+
+        if valid?(literal) do
+          literal
+        else
+          raise ArgumentError, "#{inspect(value)} is not a valid #{inspect(__MODULE__)}"
+        end
+      end
+
+      @doc false
+      # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
+      # always returns true there, so the other branch is unnecessary. This could
+      # be fixed by generating a special version for primitives, but it's not worth
+      # maintaining different versions of this function which must be kept in-sync.
+      @dialyzer {:nowarn_function, from_lexical: 2}
+      def from_lexical(lexical, opts \\ []) when is_binary(lexical) do
         case lexical_mapping(lexical, opts) do
           @invalid_value ->
             build_invalid(lexical, opts)
@@ -257,7 +284,13 @@ defmodule RDF.XSD.Datatype do
         end
       end
 
-      def new(value, opts) do
+      @doc false
+      # Dialyzer causes a warning on all primitives since the facet_conform?/2 call
+      # always returns true there, so the other branch is unnecessary. This could
+      # be fixed by generating a special version for primitives, but it's not worth
+      # maintaining different versions of this function which must be kept in-sync.
+      @dialyzer {:nowarn_function, from_value: 2}
+      def from_value(value, opts \\ []) do
         case elixir_mapping(value, opts) do
           @invalid_value ->
             build_invalid(value, opts)
@@ -274,20 +307,6 @@ defmodule RDF.XSD.Datatype do
             else
               build_invalid(value, opts)
             end
-        end
-      end
-
-      @doc """
-      Creates a new `RDF.Literal` with this datatype and the given `value` or fails when it is not valid.
-      """
-      @impl RDF.Literal.Datatype
-      def new!(value, opts \\ []) do
-        literal = new(value, opts)
-
-        if valid?(literal) do
-          literal
-        else
-          raise ArgumentError, "#{inspect(value)} is not a valid #{inspect(__MODULE__)}"
         end
       end
 
