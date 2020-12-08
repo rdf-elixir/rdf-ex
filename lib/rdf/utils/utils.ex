@@ -4,6 +4,10 @@ defmodule RDF.Utils do
   def downcase?(term) when is_atom(term), do: term |> Atom.to_string() |> downcase?()
   def downcase?(term), do: term =~ ~r/^(_|\p{Ll})/u
 
+  def lazy_map_update(map, key, fun) do
+    lazy_map_update(map, key, fn -> fun.(nil) end, fun)
+  end
+
   def lazy_map_update(map, key, init_fun, fun) do
     case map do
       %{^key => value} ->
