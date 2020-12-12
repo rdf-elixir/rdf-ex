@@ -4,6 +4,9 @@
 
 [![CI](https://github.com/rdf-elixir/rdf-ex/workflows/CI/badge.svg?branch=master)](https://github.com/rdf-elixir/rdf-ex/actions?query=branch%3Amaster+workflow%3ACI)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/rdf/)
+[![Total Download](https://img.shields.io/hexpm/dt/rdf.svg)](https://hex.pm/packages/rdf)
+[![License](https://img.shields.io/hexpm/l/rdf.svg)](https://github.com/rdf-elixir/rdf-ex/blob/master/LICENSE.md)
 
 
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
@@ -36,12 +39,12 @@ There's still much to do for a complete RDF ecosystem for Elixir, which means th
 - more XSD datatypes
 - improving documentation
 
-see [CONTRIBUTING](CONTRIBUTING.md) for details.
+See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 ## Consulting, Partnership and Sponsoring
 
-If you need help with your Elixir and Linked Data projects, just contact <info@cokron.com> or visit <https://www.cokron.com/kontakt>
+If you need help with your Elixir and Linked Data projects, just contact <info@cokron.com> or visit <https://www.cokron.com/kontakt>.
 
 
 ## Acknowledgements
@@ -51,7 +54,7 @@ The development of this project was partly sponsored by [NetzeBW](https://www.ne
 
 ## License and Copyright
 
-(c) 2017-2020 Marcel Otto. MIT Licensed, see [LICENSE](LICENSE.md) for details.
+(c) 2017-present Marcel Otto. MIT Licensed, see [LICENSE](LICENSE.md) for details.
 
 
 [RDF.ex]:               https://hex.pm/packages/rdf
