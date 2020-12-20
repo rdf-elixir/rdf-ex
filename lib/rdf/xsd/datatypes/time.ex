@@ -38,28 +38,20 @@ defmodule RDF.XSD.Time do
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
     case Regex.run(@grammar, lexical) do
-      [_, time] ->
-        do_lexical_mapping(time, opts)
-
-      [_, time, tz] ->
-        do_lexical_mapping(
-          time,
-          opts |> Keyword.put_new(:tz, tz) |> Keyword.put_new(:lexical_present, true)
-        )
-
-      _ ->
-        @invalid_value
+      [_, time] -> do_lexical_mapping(time, nil, opts)
+      [_, time, tz] -> do_lexical_mapping(time, tz, opts)
+      _ -> @invalid_value
     end
   end
 
-  defp do_lexical_mapping(value, opts) do
+  defp do_lexical_mapping(value, tz, opts) do
+    do_lexical_mapping(value, Keyword.get(opts, :tz, tz))
+  end
+
+  defp do_lexical_mapping(value, tz) do
     case Time.from_iso8601(value) do
-      {:ok, time} -> elixir_mapping(time, opts)
+      {:ok, time} -> time_value(time, tz)
       _ -> @invalid_value
-    end
-    |> case do
-      {{_, true} = value, _} -> value
-      value -> value
     end
   end
 
@@ -70,19 +62,33 @@ defmodule RDF.XSD.Time do
 
   def elixir_mapping(%Time{} = value, opts) do
     if tz = Keyword.get(opts, :tz) do
-      case with_offset(value, tz) do
-        @invalid_value ->
-          @invalid_value
-
-        time ->
-          {{time, true}, unless(Keyword.get(opts, :lexical_present), do: Time.to_iso8601(value))}
-      end
+      elixir_mapping({value, tz}, opts)
     else
       value
     end
   end
 
+  def elixir_mapping({%Time{} = time, tz}, _opts) do
+    case time_value(time, tz) do
+      @invalid_value -> @invalid_value
+      time_with_tz -> {time_with_tz, Time.to_iso8601(time) <> if(tz == true, do: "Z", else: tz)}
+    end
+  end
+
   def elixir_mapping(_, _), do: @invalid_value
+
+  defp time_value(time, nil), do: time
+  defp time_value(time, false), do: time
+  defp time_value(time, true), do: {time, true}
+
+  defp time_value(time, zone) when is_binary(zone) do
+    case with_offset(time, zone) do
+      @invalid_value -> @invalid_value
+      time -> {time, true}
+    end
+  end
+
+  defp time_value(_, _), do: @invalid_value
 
   defp with_offset(time, zone) when zone in ~W[Z UTC GMT], do: time
 

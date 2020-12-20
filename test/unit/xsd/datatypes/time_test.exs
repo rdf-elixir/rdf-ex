@@ -15,6 +15,10 @@ defmodule RDF.XSD.TimeTest do
       # input => { value, lexical, canonicalized }
       ~T[00:00:00] => {~T[00:00:00], nil, "00:00:00"},
       ~T[00:00:00.123] => {~T[00:00:00.123], nil, "00:00:00.123"},
+      {~T[00:00:00], true} => {{~T[00:00:00], true}, nil, "00:00:00Z"},
+      {~T[00:00:00], "Z"} => {{~T[00:00:00], true}, nil, "00:00:00Z"},
+      {~T[01:00:00], "+01:00"} => {{~T[00:00:00], true}, "01:00:00+01:00", "00:00:00Z"},
+      {~T[01:00:00], "+00:00"} => {{~T[01:00:00], true}, "01:00:00+00:00", "01:00:00Z"},
       "00:00:00" => {~T[00:00:00], nil, "00:00:00"},
       "00:00:00.123" => {~T[00:00:00.123], nil, "00:00:00.123"},
       "00:00:00Z" => {{~T[00:00:00], true}, nil, "00:00:00Z"},
@@ -41,13 +45,13 @@ defmodule RDF.XSD.TimeTest do
       3.14,
       "00:00:00Z foo",
       "foo 00:00:00Z",
-      # this value representation is just internal and not accepted as
-      {~T[00:00:00], true},
-      {~T[00:00:00], "Z"}
+      {~T[00:00:00], "00:00"},
+      {~T[00:00:00], 42},
+      {"01:00:00", "+01:00"}
     ]
 
   describe "new/2" do
-    test "with date and tz opt" do
+    test "with time and tz opt" do
       assert XSD.Time.new("12:00:00", tz: "+01:00") ==
                %RDF.Literal{
                  literal: %XSD.Time{

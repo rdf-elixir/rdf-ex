@@ -5,6 +5,26 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.XSD.Base64Binary` datatype ([@pukkamustard](https://github.com/pukkamustard))
+
+### Changed
+
+- a new option `:as_value` to enforce interpretation of an input string as a value
+  instead of a lexical, which is needed on datatypes where the lexical space and
+  the value space both consist of strings
+- `RDF.XSD.Date` and `RDF.XSD.Time` both can now be initialized with tuples of an
+  Elixir `Date` resp. `Time` value and a timezone string (previously XSD date and 
+  time values with time zones could only be created from strings)
+
+
+[Compare v0.9.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.1...HEAD)
+
+
+
 ## 0.9.1 - 2020-11-16
 
 Elixir versions < 1.9 are no longer supported

@@ -56,22 +56,27 @@ defmodule RDF.XSD.Date do
   end
 
   @impl XSD.Datatype
-  @spec elixir_mapping(Date.t() | any, Keyword.t()) ::
+  @spec elixir_mapping(Date.t() | valid_value | any, Keyword.t()) ::
           value | {value, XSD.Datatype.uncanonical_lexical()}
   def elixir_mapping(value, opts)
 
   # Special case for date and dateTime, for which 0 is not a valid year
   def elixir_mapping(%Date{year: 0}, _), do: @invalid_value
+  def elixir_mapping({%Date{year: 0}, _}, _), do: @invalid_value
 
   def elixir_mapping(%Date{} = value, opts) do
     if tz = Keyword.get(opts, :tz) do
-      if valid_timezone?(tz) do
-        {{value, timezone_mapping(tz)}, nil}
-      else
-        @invalid_value
-      end
+      elixir_mapping({value, tz}, opts)
     else
       value
+    end
+  end
+
+  def elixir_mapping({%Date{} = value, tz}, _opts) when is_binary(tz) do
+    if valid_timezone?(tz) do
+      {{value, timezone_mapping(tz)}, nil}
+    else
+      @invalid_value
     end
   end
 
