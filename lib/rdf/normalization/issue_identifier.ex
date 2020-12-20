@@ -1,14 +1,14 @@
 defmodule RDF.Normalization.IssueIdentifier do
-  @moduledoc """
-  An identifier issuer is used to issue new blank node identifiers.
+  @moduledoc !"""
+             An identifier issuer is used to issue new blank node identifiers.
 
-  This is an implementation of the _Issue Identifier Algorithm_ as specified at
-  <https://json-ld.github.io/normalization/spec/#issue-identifier-algorithm>
+             This is an implementation of the _Issue Identifier Algorithm_ as specified at
+             <https://json-ld.github.io/normalization/spec/#issue-identifier-algorithm>
 
-  This algorithm issues a new blank node identifier for a given existing blank
-  node identifier. It also updates state information that tracks the order in
-  which new blank node identifiers were issued.
-  """
+             This algorithm issues a new blank node identifier for a given existing blank
+             node identifier. It also updates state information that tracks the order in
+             which new blank node identifiers were issued.
+             """
 
   use GenServer
 
@@ -30,7 +30,7 @@ defmodule RDF.Normalization.IssueIdentifier do
     %{issued_identifiers: %{}, issue_order: [], counter: 0, prefix: prefix}
   end
 
-  def state(pid) do
+  defp state(pid) do
     GenServer.call(pid, :state)
   end
 
@@ -65,48 +65,36 @@ defmodule RDF.Normalization.IssueIdentifier do
     {:reply, state, state}
   end
 
-  def handle_call(
-        {:issue_identifier, identifier},
-        _,
-        %{
-          issued_identifiers: issued_identifiers,
-          issue_order: issue_order,
-          counter: counter,
-          prefix: prefix
-        } = state
-      ) do
-    case issued_identifiers[identifier] do
+  def handle_call({:issue_identifier, identifier}, _, state) do
+    case state.issued_identifiers[identifier] do
       nil ->
-        with issued_identifier = prefix <> to_string(counter) do
-          {:reply, issued_identifier,
-           %{
-             state
-             | issued_identifiers: Map.put(issued_identifiers, identifier, issued_identifier),
-               # TODO: Do we need this?
-               issue_order: [identifier | issue_order],
-               counter: counter + 1
-           }}
-        end
+        issued_identifier = state.prefix <> to_string(state.counter)
+
+        {:reply, issued_identifier,
+         %{
+           state
+           | issued_identifiers: Map.put(state.issued_identifiers, identifier, issued_identifier),
+             # TODO: Do we need this?
+             issue_order: [identifier | state.issue_order],
+             counter: state.counter + 1
+         }}
 
       issued_identifier ->
         {:reply, issued_identifier, state}
     end
   end
 
-  def handle_call(
-        {:issued_identifier, identifier},
-        _,
-        %{issued_identifiers: issued_identifiers} = state
-      ) do
-    {:reply, Map.get(issued_identifiers, identifier), state}
+  def handle_call({:issued_identifier, identifier}, _, state) do
+    {:reply, Map.get(state.issued_identifiers, identifier), state}
   end
 
-  def handle_call({:issued?, identifier}, _, %{issued_identifiers: issued_identifiers} = state) do
-    {:reply, Map.has_key?(issued_identifiers, identifier), state}
+  def handle_call({:issued?, identifier}, _, state) do
+    {:reply, Map.has_key?(state.issued_identifiers, identifier), state}
   end
 
-  def handle_call(:issued, _, %{issued_identifiers: issued_identifiers} = state) do
+  def handle_call(:issued, _, state) do
     # TODO: or issue_order?
-    {:reply, Map.keys(issued_identifiers), state}
+    {:reply, state.issue_order, state}
+    #    {:reply, Map.keys(state.issued_identifiers), state}
   end
 end

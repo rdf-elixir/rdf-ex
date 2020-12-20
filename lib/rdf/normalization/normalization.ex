@@ -7,11 +7,11 @@ defmodule RDF.Normalization do
   """
 
   alias RDF.Normalization.IssueIdentifier
-  alias RDF.{Statement, Quad, BlankNode, NQuads, Data}
+  alias RDF.{Statement, Quad, BlankNode, NQuads, Data, Dataset}
 
   import RDF.Sigils
 
-  use GenServer
+  #  use GenServer
 
   # Client API
 
@@ -32,26 +32,52 @@ defmodule RDF.Normalization do
   #  end
 
   def normalize(input) do
-    with {:ok, pid} <- start_link(input) do
-      try do
-        GenServer.call(pid, :normalize)
-      after
-        stop(pid)
-      end
-    end
+    urdna2015(input)
   end
 
-  defp start_link(data, opts \\ []) do
-    GenServer.start_link(__MODULE__, data, opts)
-  end
+  #  def normalize(input) do
+  #    # TODO: We're passing in the input although not used - it's passed again on the call
+  #    with {:ok, pid} <- start_link(input) do
+  #      try do
+  #        GenServer.call(pid, {:normalize, input})
+  #      after
+  #        stop(pid)
+  #      end
+  #    end
+  #  end
+  #
+  #  defp start_link(data, opts \\ []) do
+  #    GenServer.start_link(__MODULE__, data, opts)
+  #  end
+  #
+  #  defp stop(pid, reason \\ :normal, timeout \\ :infinity) do
+  #    GenServer.stop(pid, reason, timeout)
+  #  end
+  #
+  #  #  def init(init_arg) do
+  #  #    {:ok, init_arg}
+  #  #  end
 
-  defp stop(pid, reason \\ :normal, timeout \\ :infinity) do
-    GenServer.stop(pid, reason, timeout)
-  end
-
+  # TODO: Why were these commented out? We were transition to a GenServer containing the state
   def bnode_to_statements(state), do: Agent.get(state, & &1.bnode_to_statements)
   def hash_to_bnodes(state), do: Agent.get(state, & &1.hash_to_bnodes)
   def canonical_issuer(state), do: Agent.get(state, & &1.canonical_issuer)
+
+  # -------------------------------
+
+  # Server Callbacks
+
+  #  def handle_call({:normalize, data}, _, state) do
+  #    {:reply, urdna2015(data), state}
+  #  end
+
+  defp init_state(data) do
+    %{
+      #      bnode_to_statements: init_bnode_to_statements(data),
+      #      hash_to_bnodes: %{}
+      #      canonical_issuer: IssueIdentifier.start_link("_:c14n")
+    }
+  end
 
   defp clear_hash_to_bnodes(state) do
     Map.put(state, :hash_to_bnodes, %{})
@@ -74,69 +100,6 @@ defmodule RDF.Normalization do
     %{state | hash_to_bnodes: Map.delete(state.hash_to_bnodes, hash)}
   end
 
-  # -------------------------------
-
-  # Server Callbacks
-
-  def handle_call({:normalize, data}, _, state) do
-    {:reply, normalize(data), state}
-  end
-
-  def normalize(input) do
-    urdna2015(input)
-  end
-
-  defp urdna2015(input) do
-    with state = init_state(input) do
-      create_canonical_identifiers(state)
-
-      hash_to_bnodes(state)
-      |> Enum.sort()
-      # Iterate over hashs having more than one node
-      |> Enum.each(fn {hash, identifier_list} ->
-        # Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
-        identifier_list
-        |> Enum.reduce([], fn identifier, hash_path_list ->
-          unless IssueIdentifier.issued?(canonical_issuer(state), identifier) do
-            # TODO: rework and possible parallelize this
-            result =
-              with {:ok, temporary_issuer} <- IssueIdentifier.start_link("_:b") do
-                IssueIdentifier.issue_identifier(temporary_issuer, identifier)
-                hash_n_degree_quads(state, identifier, temporary_issuer)
-              end
-
-            [result | hash_path_list]
-          else
-            hash_path_list
-          end
-        end)
-        |> Enum.sort()
-        # Create canonical replacements for nodes
-        |> Enum.each(fn {_hash, issuer} ->
-          issuer
-          |> IssueIdentifier.issued()
-          |> Enum.each(fn bnode ->
-            state
-            |> canonical_issuer()
-            |> IssueIdentifier.issue_identifier(node)
-          end)
-        end)
-
-        # TODO: stop the created temporary issuers
-      end)
-
-      canonicalize(state, input)
-    end
-  end
-
-  defp init_state(data) do
-    %{
-      bnode_to_statements: init_bnode_to_statements(data),
-      hash_to_bnodes: %{},
-      canonical_issuer: IssueIdentifier.start_link("_:c14n")
-    }
-  end
-
   # TODO: Problem this contains references to quads according to the spec 2.1)
   defp init_bnode_to_statements(data) do
     Enum.reduce(data, %{}, fn statement, bnode_to_statements ->
@@ -149,6 +112,54 @@ defmodule RDF.Normalization do
         end)
       end)
     end)
+  end
+
+  defp urdna2015(input) do
+    #    state = init_state(input)
+    {:ok, canonical_issuer} = IssueIdentifier.start_link("_:c14n")
+    bnode_to_statements = init_bnode_to_statements(input)
+    hash_to_bnodes = %{}
+    # TODO:   create_canonical_identifiers(state)
+
+    hash_to_bnodes
+    |> Enum.sort()
+    # Iterate over hashs having more than one node
+    |> Enum.each(fn {hash, identifier_list} ->
+      # Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
+      identifier_list
+      |> Enum.reduce([], fn identifier, hash_path_list ->
+        unless IssueIdentifier.issued?(canonical_issuer, identifier) do
+          # TODO: rework and possible parallelize this
+          result =
+            with {:ok, temporary_issuer} <- IssueIdentifier.start_link("_:b") do
+              IssueIdentifier.issue_identifier(temporary_issuer, identifier)
+
+              hash_n_degree_quads(
+                canonical_issuer,
+                bnode_to_statements,
+                identifier,
+                temporary_issuer
+              )
+            end
+
+          [result | hash_path_list]
+        else
+          hash_path_list
+        end
+      end)
+      |> Enum.sort()
+      # Create canonical replacements for nodes
+      |> Enum.each(fn {_hash, issuer} ->
+        issuer
+        |> IssueIdentifier.issued()
+        |> Enum.each(&IssueIdentifier.issue_identifier(canonical_issuer, &1))
+      end)
+
+      # TODO: stop the created temporary issuers
+    end)
+
+    # TODO: stop the created canonical_issuer
+    canonicalize(input, canonical_issuer)
   end
 
   defp create_canonical_identifiers(state) do
@@ -201,16 +212,16 @@ defmodule RDF.Normalization do
   defp do_create_canonical_identifiers(_state, _non_normalized_identifiers, false), do: nil
 
   # TODO: generalize this to RDF.Data
-  defp canonicalize(state, data) do
-    Enum.reduce(data, RDF.Dataset.new(), fn statement, canonicalized_data ->
+  defp canonicalize(data, canonical_issuer) do
+    Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
       canonicalized_data
-      |> RDF.Dataset.add(
+      |> Dataset.add(
         if Statement.has_bnode?(statement) do
           Statement.map(statement, fn
             {_, %BlankNode{} = bnode} ->
-              state
-              |> canonical_issuer()
+              canonical_issuer
               |> IssueIdentifier.issued_identifier(bnode)
+              # TODO: Can we get rid of this slicing?
               |> String.slice(2..-1)
               |> BlankNode.new()
 
@@ -225,8 +236,8 @@ defmodule RDF.Normalization do
   end
 
   @doc !"<https://json-ld.github.io/normalization/spec/#hash-first-degree-quads>"
-  defp hash_first_degree_quads(state, ref_bnode_id) do
-    bnode_to_statements(state)
+  defp hash_first_degree_quads(bnode_to_statements, ref_bnode_id) do
+    bnode_to_statements
     |> Map.get(ref_bnode_id, [])
     |> Enum.map(fn statement ->
       statement
@@ -246,14 +257,18 @@ defmodule RDF.Normalization do
   end
 
   @doc !"<https://json-ld.github.io/normalization/spec/#hash-related-blank-node>"
-  defp hash_related_bnode(state, related, statement, issuer, position) do
+  defp hash_related_bnode(
+         canonical_issuer,
+         bnode_to_statements,
+         related,
+         statement,
+         issuer,
+         position
+       ) do
     identifier =
-      state
-      |> canonical_issuer()
-      |> IssueIdentifier.issue_identifier(related) ||
-        issuer
-        |> IssueIdentifier.issue_identifier(related) ||
-        hash_first_degree_quads(state, related)
+      IssueIdentifier.issue_identifier(canonical_issuer, related) ||
+        IssueIdentifier.issue_identifier(issuer, related) ||
+        hash_first_degree_quads(bnode_to_statements, related)
 
     input = Integer.to_string(position)
 
@@ -274,14 +289,20 @@ defmodule RDF.Normalization do
   # and throw an error if any equivalent related hashes were produced that must be permuted during
   # step 5.4.4. For practical uses of the algorithm, this step should never be encountered and could
   # be turned off, disabling canonizing datasets that include a need to run it as a security measure."
-  def hash_n_degree_quads(state, identifier, issuer) do
+  def hash_n_degree_quads(canonical_issuer, bnode_to_statements, identifier, issuer) do
     # 1-3)
     hash_to_related_blank_nodes_map =
-      bnode_to_statements(state)[identifier]
+      bnode_to_statements[identifier]
       |> Enum.reduce(%{}, fn statement, map ->
         Map.merge(
           map,
-          hash_related_statement(state, identifier, statement, issuer),
+          hash_related_statement(
+            canonical_issuer,
+            bnode_to_statements,
+            identifier,
+            statement,
+            issuer
+          ),
           fn _, terms, new -> terms ++ new end
         )
       end)
@@ -306,8 +327,7 @@ defmodule RDF.Normalization do
                 {path, recursion_list} =
                   Enum.reduce_while(permutation, {"", []}, fn related, {path, recursion_list} ->
                     {path, recursion_list} =
-                      state
-                      |> canonical_issuer()
+                      canonical_issuer
                       |> IssueIdentifier.issued_identifier(related)
                       |> case do
                         nil ->
@@ -340,7 +360,12 @@ defmodule RDF.Normalization do
                     {issuer_copy, path},
                     fn related, {issuer_copy, path} ->
                       {result_hash, result_issuer} =
-                        hash_n_degree_quads(state, related, issuer_copy)
+                        hash_n_degree_quads(
+                          canonical_issuer,
+                          bnode_to_statements,
+                          related,
+                          issuer_copy
+                        )
 
                       path =
                         path <>
@@ -374,7 +399,13 @@ defmodule RDF.Normalization do
   end
 
   # 4.8.2.3.1) Group adjacent bnodes by hash
-  defp hash_related_statement(state, identifier, statement, issuer) do
+  defp hash_related_statement(
+         canonical_issuer,
+         bnode_to_statements,
+         identifier,
+         statement,
+         issuer
+       ) do
     %{
       s: Statement.subject(statement),
       p: Statement.predicate(statement),
@@ -386,9 +417,11 @@ defmodule RDF.Normalization do
         map
 
       {pos, term}, map ->
-        hash = hash_related_bnode(state, term, statement, issuer, pos)
+        hash =
+          hash_related_bnode(canonical_issuer, bnode_to_statements, term, statement, issuer, pos)
 
         Map.update(map, hash, [term], fn terms ->
+          # TODO: Check if order is irrelevant here and we can prepend here
           if term in terms, do: terms, else: terms ++ [term]
         end)
     end)
@@ -398,9 +431,9 @@ defmodule RDF.Normalization do
     :crypto.hash(:sha256, data) |> Base.encode16(case: :lower)
   end
 
-  defp permutations([]), do: [[]]
+  def permutations([]), do: [[]]
 
-  defp permutations(list) do
+  def permutations(list) do
     for elem <- list, rest <- permutations(list -- [elem]), do: [elem | rest]
   end
 end
