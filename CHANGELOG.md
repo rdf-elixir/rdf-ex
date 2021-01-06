@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.9.2 - 2021-01-06
 
 ### Added
 
@@ -21,7 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   time values with time zones could only be created from strings)
 
 
-[Compare v0.9.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.1...HEAD)
+[Compare v0.9.1...v0.9.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.1...v0.9.2)
 
 
 
