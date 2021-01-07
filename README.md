@@ -29,6 +29,7 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats; [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
 - validate data against [ShEx] schemas via the [ShEx.ex] package
+- map the RDF data structures to Elixir structs and back with [Grax] 
 
 
 ## Contributing
@@ -63,6 +64,7 @@ The development of this project was partly sponsored by [NetzeBW](https://www.ne
 [SPARQL.ex]:            https://hex.pm/packages/sparql
 [SPARQL.Client]:        https://hex.pm/packages/sparql_client
 [ShEx.ex]:              https://hex.pm/packages/shex
+[Grax]:                 https://hex.pm/packages/grax
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
 [Turtle]:               https://www.w3.org/TR/turtle/
