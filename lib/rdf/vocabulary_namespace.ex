@@ -1,6 +1,6 @@
 defmodule RDF.Vocabulary.Namespace do
   @moduledoc """
-  A RDF vocabulary as a `RDF.Namespace`.
+  An RDF vocabulary as a `RDF.Namespace`.
 
   `RDF.Vocabulary.Namespace` modules represent a RDF vocabulary as a `RDF.Namespace`.
   They can be defined with the `defvocab/2` macro of this module.

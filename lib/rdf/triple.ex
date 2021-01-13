@@ -2,7 +2,7 @@ defmodule RDF.Triple do
   @moduledoc """
   Helper functions for RDF triples.
 
-  A RDF Triple is represented as a plain Elixir tuple consisting of three valid
+  An RDF Triple is represented as a plain Elixir tuple consisting of three valid
   RDF values for subject, predicate and object.
   """
 

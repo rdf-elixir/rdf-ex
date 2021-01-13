@@ -2,7 +2,7 @@ defmodule RDF.Statement do
   @moduledoc """
   Helper functions for RDF statements.
 
-  A RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
+  An RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """
 
   alias RDF.{BlankNode, IRI, Literal, Quad, Term, Triple, PropertyMap}

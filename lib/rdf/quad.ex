@@ -2,7 +2,7 @@ defmodule RDF.Quad do
   @moduledoc """
   Helper functions for RDF quads.
 
-  A RDF Quad is represented as a plain Elixir tuple consisting of four valid
+  An RDF Quad is represented as a plain Elixir tuple consisting of four valid
   RDF values for subject, predicate, object and a graph name.
   """
 
