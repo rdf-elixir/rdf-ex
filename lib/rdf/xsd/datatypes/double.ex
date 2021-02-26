@@ -46,9 +46,15 @@ defmodule RDF.XSD.Double do
   end
 
   @impl XSD.Datatype
+  def lexical_mapping(lexical, opts)
+  def lexical_mapping("." <> lexical, opts), do: lexical_mapping("0." <> lexical, opts)
+
   def lexical_mapping(lexical, opts) do
     case Float.parse(lexical) do
       {float, ""} ->
+        float
+
+      {float, "."} ->
         float
 
       {float, remainder} ->

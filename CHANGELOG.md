@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- strings of the form `".0"` and `"0."` weren't recognized as valid XSD float  
+  and double literals
+ 
+
+[Compare v0.9.2...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.2...HEAD)
+
+
+
 ## 0.9.2 - 2021-01-06
 
 ### Added
