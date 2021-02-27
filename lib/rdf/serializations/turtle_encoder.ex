@@ -89,9 +89,7 @@ defmodule RDF.Turtle.Encoder do
     do: [:base, :prefixes] |> compile(base, prefixes, state, opts)
 
   defp compile(elements, base, prefixes, state, opts) when is_list(elements) do
-    elements
-    |> Enum.map(&compile(&1, base, prefixes, state, opts))
-    |> Enum.join()
+    Enum.map_join(elements, &compile(&1, base, prefixes, state, opts))
   end
 
   defp compile(element, _, _, _, _) do
