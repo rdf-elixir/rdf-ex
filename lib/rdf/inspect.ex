@@ -32,10 +32,10 @@ defimpl Inspect, for: RDF.Description do
 
         body =
           description
-          |> RDF.Turtle.write_string!(only: :triples)
+          |> RDF.Turtle.write_string!(only: :triples, indent: 2)
           |> String.trim_trailing()
 
-        "#RDF.Description\n#{body}#{if limit, do: "..\n..."}"
+        "#RDF.Description<\n#{body}#{if limit, do: "..\n..."}\n>"
       rescue
         caught_exception ->
           message =
@@ -75,14 +75,14 @@ defimpl Inspect, for: RDF.Graph do
             graph
           end
 
-        header = "#RDF.Graph name: #{inspect(graph.name)}"
+        header = "#RDF.Graph<name: #{inspect(graph.name)}"
 
         body =
           graph
-          |> RDF.Turtle.write_string!(only: if(no_metadata, do: :triples))
+          |> RDF.Turtle.write_string!(only: if(no_metadata, do: :triples), indent: 2)
           |> String.trim_trailing()
 
-        "#{header}\n#{body}#{if limit, do: "..\n..."}"
+        "#{header}\n#{body}#{if limit, do: "..\n..."}\n>"
       rescue
         caught_exception ->
           message =
@@ -124,9 +124,10 @@ defimpl Inspect, for: RDF.Diff do
         {additions, deletions} = unify_metadata(diff.additions, diff.deletions)
 
         """
-        #RDF.Diff:
+        #RDF.Diff<
         #{changes(additions, "  + ", opts.limit)}
         #{changes(deletions, "  - ", opts.limit)}
+        >
         """
       rescue
         caught_exception ->
@@ -180,6 +181,8 @@ defimpl Inspect, for: RDF.Diff do
       graph
       |> Kernel.inspect(limit: limit, custom_options: [no_metadata: true])
       |> String.split("\n")
+      # remove the trailing ">"
+      |> List.delete_at(-1)
 
     triples
     |> Enum.map(&[prefix, &1])
