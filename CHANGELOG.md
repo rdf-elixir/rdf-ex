@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `:indent` option on `RDF.Turtle.Encoder`, which allows to specify the number
+  of spaces the output should be indented
+
 ### Fixed
 
 - strings of the form `".0"` and `"0."` weren't recognized as valid XSD float  

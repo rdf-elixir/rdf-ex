@@ -19,6 +19,7 @@ defmodule RDF.Turtle.Encoder do
   - `:only`: Allows to specify which parts of a Turtle document should be generated.
     Possible values: `:base`, `:prefixes`, `:directives` (means the same as `[:base, :prefixes]`),
     `:triples` or a list with any combination of these values.
+  - `:indent`: Allows to specify the number of spaces the output should be indented.
 
   """
 
@@ -68,22 +69,22 @@ defmodule RDF.Turtle.Encoder do
       Keyword.get(opts, :prefixes)
       |> prefixes(data)
 
-    with {:ok, state} = State.start_link(data, base, prefixes) do
-      try do
-        State.preprocess(state)
+    {:ok, state} = State.start_link(data, base, prefixes)
 
-        {:ok,
-         (Keyword.get(opts, :only) || @document_structure)
-         |> compile(base, prefixes, state, opts)}
-      after
-        State.stop(state)
-      end
+    try do
+      State.preprocess(state)
+
+      {:ok,
+       (Keyword.get(opts, :only) || @document_structure)
+       |> compile(base, prefixes, state, opts)}
+    after
+      State.stop(state)
     end
   end
 
   defp compile(:base, base, _, _, opts), do: base_directive(base, opts)
   defp compile(:prefixes, _, prefixes, _, opts), do: prefix_directives(prefixes, opts)
-  defp compile(:triples, _, _, state, _), do: graph_statements(state)
+  defp compile(:triples, _, _, state, opts), do: graph_statements(state, opts)
 
   defp compile(:directives, base, prefixes, state, opts),
     do: [:base, :prefixes] |> compile(base, prefixes, state, opts)
@@ -131,17 +132,19 @@ defmodule RDF.Turtle.Encoder do
   defp base_directive(nil, _), do: ""
 
   defp base_directive({_, base}, opts) do
-    case Keyword.get(opts, :directive_style) do
-      :sparql -> "BASE <#{base}>"
-      _ -> "@base <#{base}> ."
-    end <> "\n\n"
+    indent(opts) <>
+      case Keyword.get(opts, :directive_style) do
+        :sparql -> "BASE <#{base}>"
+        _ -> "@base <#{base}> ."
+      end <> "\n\n"
   end
 
   defp prefix_directive({prefix, ns}, opts) do
-    case Keyword.get(opts, :directive_style) do
-      :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
-      _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
-    end
+    indent(opts) <>
+      case Keyword.get(opts, :directive_style) do
+        :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
+        _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
+      end
   end
 
   defp prefix_directives(prefixes, opts) do
@@ -151,13 +154,15 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp graph_statements(state) do
+  defp graph_statements(state, opts) do
+    indent = indent(opts)
+
     State.data(state)
     |> RDF.Data.descriptions()
     |> order_descriptions(state)
-    |> Enum.map(&description_statements(&1, state))
+    |> Enum.map(&description_statements(&1, state, Keyword.get(opts, :indent, 0)))
     |> Enum.reject(&is_nil/1)
-    |> Enum.join("\n")
+    |> Enum.map_join("\n", &(indent <> &1))
   end
 
   defp order_descriptions(descriptions, state) do
@@ -206,7 +211,7 @@ defmodule RDF.Turtle.Encoder do
     end)
   end
 
-  defp description_statements(description, state, nesting \\ 0) do
+  defp description_statements(description, state, nesting) do
     with %BlankNode{} <- description.subject,
          ref_count when ref_count < 2 <-
            State.bnode_ref_counter(state, description.subject) do
@@ -217,9 +222,8 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp full_description_statements(subject, description, state, nesting) do
-    with nesting = nesting + @indentation do
-      subject <> newline_indent(nesting) <> predications(description, state, nesting) <> " .\n"
-    end
+    nesting = nesting + @indentation
+    subject <> newline_indent(nesting) <> predications(description, state, nesting) <> " .\n"
   end
 
   defp full_description_statements(description, state, nesting) do
@@ -228,12 +232,12 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp blank_node_property_list(description, state, nesting) do
-    with indented = nesting + @indentation do
-      "[" <>
-        newline_indent(indented) <>
-        predications(description, state, indented) <>
-        newline_indent(nesting) <> "]"
-    end
+    indented = nesting + @indentation
+
+    "[" <>
+      newline_indent(indented) <>
+      predications(description, state, indented) <>
+      newline_indent(nesting) <> "]"
   end
 
   defp predications(description, state, nesting) do
@@ -301,13 +305,13 @@ defmodule RDF.Turtle.Encoder do
 
   @dialyzer {:nowarn_function, list_subject_description: 1}
   defp list_subject_description(description) do
-    with description = Description.delete_predicates(description, [RDF.first(), RDF.rest()]) do
-      if Enum.count(description.predications) == 0 do
-        # since the Turtle grammar doesn't allow bare lists, we add a statement
-        description |> RDF.type(RDF.List)
-      else
-        description
-      end
+    description = Description.delete_predicates(description, [RDF.first(), RDF.rest()])
+
+    if Enum.count(description.predications) == 0 do
+      # since the Turtle grammar doesn't allow bare lists, we add a statement
+      description |> RDF.type(RDF.List)
+    else
+      description
     end
   end
 
@@ -425,4 +429,8 @@ defmodule RDF.Turtle.Encoder do
 
   defp newline_indent(nesting),
     do: "\n" <> String.duplicate(@indentation_char, nesting)
+
+  defp indent(opts) when is_list(opts), do: opts |> Keyword.get(:indent) |> indent()
+  defp indent(nil), do: ""
+  defp indent(count), do: String.duplicate(" ", count)
 end
