@@ -107,6 +107,28 @@ defmodule RDF.Turtle.EncoderTest do
                <S1>
                    <p1> <O1> .
                """
+
+      base_without_hash = "http://example.com/foo"
+
+      assert Turtle.Encoder.encode!(
+               Graph.new(
+                 [
+                   {
+                     RDF.iri(base_without_hash <> "#S1"),
+                     RDF.iri(base_without_hash <> "#p1"),
+                     RDF.iri(base_without_hash <> "#O1")
+                   }
+                 ],
+                 prefixes: %{},
+                 base_iri: base_without_hash
+               )
+             ) ==
+               """
+               @base <#{base_without_hash}> .
+
+               <#S1>
+                   <#p1> <#O1> .
+               """
     end
 
     test "when a base IRI is given, it has used instead of the base IRI of the given graph" do

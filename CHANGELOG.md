@@ -14,13 +14,15 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- improvement of the Inspect forms RDF data structures: the content is now
-  enclosed in angle brackets and indented 
+- improvement of the Inspect forms of the RDF data structures: the content is
+  now enclosed in angle brackets and indented 
 
 ### Fixed
 
 - strings of the form `".0"` and `"0."` weren't recognized as valid XSD float  
   and double literals
+- the Turtle encoder handle base URIs without a trailing slash or hash properly  
+  (no longer raising a warning and ignoring them) 
  
 
 [Compare v0.9.2...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.2...HEAD)

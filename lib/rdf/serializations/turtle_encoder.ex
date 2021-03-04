@@ -102,17 +102,7 @@ defmodule RDF.Turtle.Encoder do
   defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
 
   defp init_base_iri(nil), do: nil
-
-  defp init_base_iri(base_iri) do
-    base_iri = to_string(base_iri)
-
-    if String.ends_with?(base_iri, ~w[/ #]) do
-      {:ok, base_iri}
-    else
-      IO.warn("invalid base_iri: #{base_iri}")
-      {:bad, base_iri}
-    end
-  end
+  defp init_base_iri(base_iri), do: {:ok, to_string(base_iri)}
 
   defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
 
