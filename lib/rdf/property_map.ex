@@ -312,7 +312,7 @@ defmodule RDF.PropertyMap do
 
     def member?(%PropertyMap{iris: iris}, mapping), do: Enumerable.member?(iris, mapping)
     def count(%PropertyMap{iris: iris}), do: Enumerable.count(iris)
-    def slice(_property_map), do: {:error, __MODULE__}
+    def slice(%PropertyMap{iris: iris}), do: Enumerable.slice(iris)
   end
 
   defimpl Inspect do

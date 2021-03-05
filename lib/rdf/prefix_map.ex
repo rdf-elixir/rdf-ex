@@ -412,7 +412,7 @@ defmodule RDF.PrefixMap do
 
     def member?(%RDF.PrefixMap{map: map}, mapping), do: Enumerable.member?(map, mapping)
     def count(%RDF.PrefixMap{map: map}), do: Enumerable.count(map)
-    def slice(_prefix_map), do: {:error, __MODULE__}
+    def slice(%RDF.PrefixMap{map: map}), do: Enumerable.slice(map)
   end
 
   defimpl Inspect do
