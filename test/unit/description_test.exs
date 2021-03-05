@@ -894,6 +894,21 @@ defmodule RDF.DescriptionTest do
            |> Description.equal?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O2}))
   end
 
+  test "triples/1" do
+    assert Description.new(EX.Subject,
+             init: [
+               {EX.predicate1(), EX.Object1},
+               {EX.predicate2(), EX.Object2},
+               {EX.predicate2(), EX.Object3}
+             ]
+           )
+           |> Description.triples() == [
+             {RDF.iri(EX.Subject), EX.predicate1(), RDF.iri(EX.Object1)},
+             {RDF.iri(EX.Subject), EX.predicate2(), RDF.iri(EX.Object2)},
+             {RDF.iri(EX.Subject), EX.predicate2(), RDF.iri(EX.Object3)}
+           ]
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Description.new(EX.foo())) == 0

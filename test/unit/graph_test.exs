@@ -1448,6 +1448,20 @@ defmodule RDF.GraphTest do
              Graph.new()
   end
 
+  test "triples/1" do
+    assert Graph.new([
+             {EX.S1, EX.p1(), EX.O1},
+             {EX.S2, EX.p2(), EX.O2},
+             {EX.S1, EX.p3(), EX.O3}
+           ])
+           |> Graph.triples() ==
+             [
+               {RDF.iri(EX.S1), EX.p1(), RDF.iri(EX.O1)},
+               {RDF.iri(EX.S1), EX.p3(), RDF.iri(EX.O3)},
+               {RDF.iri(EX.S2), EX.p2(), RDF.iri(EX.O2)}
+             ]
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Graph.new(name: EX.foo())) == 0

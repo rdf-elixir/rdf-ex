@@ -786,7 +786,11 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   @spec triples(t) :: [Statement.t()]
-  def triples(%__MODULE__{} = graph), do: Enum.to_list(graph)
+  def triples(%__MODULE__{} = graph) do
+    Enum.flat_map(graph.descriptions, fn {_, description} ->
+      Description.triples(description)
+    end)
+  end
 
   defdelegate statements(graph), to: __MODULE__, as: :triples
 
@@ -1088,21 +1092,16 @@ defmodule RDF.Graph do
 
     def member?(graph, triple), do: {:ok, Graph.include?(graph, triple)}
     def count(graph), do: {:ok, Graph.statement_count(graph)}
-    def slice(_graph), do: {:error, __MODULE__}
 
-    def reduce(%Graph{descriptions: descriptions}, {:cont, acc}, _fun)
-        when map_size(descriptions) == 0,
-        do: {:done, acc}
-
-    def reduce(%Graph{} = graph, {:cont, acc}, fun) do
-      {triple, rest} = Graph.pop(graph)
-      reduce(rest, fun.(triple, acc), fun)
+    def slice(graph) do
+      size = Graph.statement_count(graph)
+      {:ok, size, &Enumerable.List.slice(Graph.triples(graph), &1, &2, size)}
     end
 
-    def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
-
-    def reduce(%Graph{} = graph, {:suspend, acc}, fun) do
-      {:suspended, acc, &reduce(graph, &1, fun)}
+    def reduce(graph, acc, fun) do
+      graph
+      |> Graph.triples()
+      |> Enumerable.List.reduce(acc, fun)
     end
   end
 

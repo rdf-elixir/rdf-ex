@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- the performance of the `Enumerable` protocol implementations of the RDF data 
+  structures was significantly improved (for graphs almost 10x), which in turn
+  increases the performance of all functions built on top of that, eg. 
+  the N-Triples and N-Quads encoders
 - improvement of the Inspect forms of the RDF data structures: the content is
   now enclosed in angle brackets and indented 
 
@@ -21,7 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - strings of the form `".0"` and `"0."` weren't recognized as valid XSD float  
   and double literals
-- the Turtle encoder handle base URIs without a trailing slash or hash properly  
+- the Turtle encoder handles base URIs without a trailing slash or hash properly  
   (no longer raising a warning and ignoring them) 
  
 

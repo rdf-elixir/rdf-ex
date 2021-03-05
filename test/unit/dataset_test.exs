@@ -1765,6 +1765,21 @@ defmodule RDF.DatasetTest do
              PrefixMap.new(ex: EX, foo: RDFS)
   end
 
+  test "statements/1" do
+    assert Dataset.new([
+             {EX.S1, EX.p1(), EX.O1},
+             {EX.S1, EX.p2(), EX.O2},
+             {EX.S1, EX.p2(), EX.O2, EX.GraphName},
+             {EX.S2, EX.p2(), EX.O2, EX.GraphName}
+           ])
+           |> Dataset.statements() == [
+             {RDF.iri(EX.S1), EX.p1(), RDF.iri(EX.O1)},
+             {RDF.iri(EX.S1), EX.p2(), RDF.iri(EX.O2)},
+             {RDF.iri(EX.S1), EX.p2(), RDF.iri(EX.O2), RDF.iri(EX.GraphName)},
+             {RDF.iri(EX.S2), EX.p2(), RDF.iri(EX.O2), RDF.iri(EX.GraphName)}
+           ]
+  end
+
   describe "Enumerable protocol" do
     test "Enum.count" do
       assert Enum.count(Dataset.new(name: EX.foo())) == 0

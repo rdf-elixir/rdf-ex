@@ -622,7 +622,11 @@ defmodule RDF.Description do
   The list of all triples within a `RDF.Description`.
   """
   @spec triples(t) :: keyword
-  def triples(%__MODULE__{} = description), do: Enum.to_list(description)
+  def triples(%__MODULE__{subject: s} = description) do
+    Enum.flat_map(description.predications, fn {p, os} ->
+      Enum.map(os, fn {o, _} -> {s, p, o} end)
+    end)
+  end
 
   defdelegate statements(description), to: __MODULE__, as: :triples
 
@@ -821,22 +825,18 @@ defmodule RDF.Description do
     alias RDF.Description
 
     def member?(desc, triple), do: {:ok, Description.include?(desc, triple)}
+
     def count(desc), do: {:ok, Description.statement_count(desc)}
-    def slice(_desc), do: {:error, __MODULE__}
 
-    def reduce(%Description{predications: predications}, {:cont, acc}, _fun)
-        when map_size(predications) == 0,
-        do: {:done, acc}
-
-    def reduce(%Description{} = description, {:cont, acc}, fun) do
-      {triple, rest} = Description.pop(description)
-      reduce(rest, fun.(triple, acc), fun)
+    def slice(desc) do
+      size = Description.statement_count(desc)
+      {:ok, size, &Enumerable.List.slice(Description.triples(desc), &1, &2, size)}
     end
 
-    def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
-
-    def reduce(%Description{} = description, {:suspend, acc}, fun) do
-      {:suspended, acc, &reduce(description, &1, fun)}
+    def reduce(desc, acc, fun) do
+      desc
+      |> Description.triples()
+      |> Enumerable.List.reduce(acc, fun)
     end
   end
 

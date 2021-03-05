@@ -639,20 +639,15 @@ defmodule RDF.Dataset do
         ...>   {EX.S2, EX.p2, EX.O2},
         ...>   {EX.S1, EX.p2, EX.O3}]) |>
         ...>   RDF.Dataset.statements
-        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)},
-         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
-         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
+        [{RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)}]
   """
   @spec statements(t) :: [Statement.t()]
   def statements(%__MODULE__{} = dataset) do
-    Enum.reduce(dataset.graphs, [], fn {_, graph}, all_statements ->
-      statements = Graph.triples(graph)
-
-      if graph.name do
-        Enum.map(statements, fn {s, p, o} -> {s, p, o, graph.name} end)
-      else
-        statements
-      end ++ all_statements
+    Enum.flat_map(dataset.graphs, fn
+      {nil, graph} -> Graph.triples(graph)
+      {name, graph} -> Enum.map(graph, fn {s, p, o} -> {s, p, o, name} end)
     end)
   end
 
@@ -884,21 +879,16 @@ defmodule RDF.Dataset do
 
     def member?(dataset, statement), do: {:ok, Dataset.include?(dataset, statement)}
     def count(dataset), do: {:ok, Dataset.statement_count(dataset)}
-    def slice(_dataset), do: {:error, __MODULE__}
 
-    def reduce(%Dataset{graphs: graphs}, {:cont, acc}, _fun)
-        when map_size(graphs) == 0,
-        do: {:done, acc}
-
-    def reduce(%Dataset{} = dataset, {:cont, acc}, fun) do
-      {statement, rest} = Dataset.pop(dataset)
-      reduce(rest, fun.(statement, acc), fun)
+    def slice(dataset) do
+      size = Dataset.statement_count(dataset)
+      {:ok, size, &Enumerable.List.slice(Dataset.statements(dataset), &1, &2, size)}
     end
 
-    def reduce(_, {:halt, acc}, _fun), do: {:halted, acc}
-
-    def reduce(%Dataset{} = dataset, {:suspend, acc}, fun) do
-      {:suspended, acc, &reduce(dataset, &1, fun)}
+    def reduce(dataset, acc, fun) do
+      dataset
+      |> Dataset.statements()
+      |> Enumerable.List.reduce(acc, fun)
     end
   end
 
