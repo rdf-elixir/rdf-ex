@@ -1504,6 +1504,11 @@ defmodule RDF.GraphTest do
 
       assert g == Enum.reduce(g, graph(), fn triple, acc -> acc |> Graph.add(triple) end)
     end
+
+    test "Enum.at (for Enumerable.slice/1)" do
+      assert Graph.new({EX.S, EX.p(), EX.O})
+             |> Enum.at(0) == {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)}
+    end
   end
 
   describe "Collectable protocol" do

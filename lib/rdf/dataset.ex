@@ -880,9 +880,13 @@ defmodule RDF.Dataset do
     def member?(dataset, statement), do: {:ok, Dataset.include?(dataset, statement)}
     def count(dataset), do: {:ok, Dataset.statement_count(dataset)}
 
-    def slice(dataset) do
-      size = Dataset.statement_count(dataset)
-      {:ok, size, &Enumerable.List.slice(Dataset.statements(dataset), &1, &2, size)}
+    if Version.match?(System.version(), "~> 1.10") do
+      def slice(dataset) do
+        size = Dataset.statement_count(dataset)
+        {:ok, size, &Enumerable.List.slice(Dataset.statements(dataset), &1, &2, size)}
+      end
+    else
+      def slice(_), do: {:error, __MODULE__}
     end
 
     def reduce(dataset, acc, fun) do

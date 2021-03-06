@@ -315,5 +315,9 @@ defmodule RDF.PropertyMapTest do
                  {:Baz, RDF.iri(EX.Baz)}
                ]
     end
+
+    test "Enum.at (for Enumerable.slice/1)" do
+      assert Enum.at(@example_property_map, 0) == {:Baz, RDF.iri(EX.Baz)}
+    end
   end
 end

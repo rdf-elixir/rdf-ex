@@ -1093,9 +1093,13 @@ defmodule RDF.Graph do
     def member?(graph, triple), do: {:ok, Graph.include?(graph, triple)}
     def count(graph), do: {:ok, Graph.statement_count(graph)}
 
-    def slice(graph) do
-      size = Graph.statement_count(graph)
-      {:ok, size, &Enumerable.List.slice(Graph.triples(graph), &1, &2, size)}
+    if Version.match?(System.version(), "~> 1.10") do
+      def slice(graph) do
+        size = Graph.statement_count(graph)
+        {:ok, size, &Enumerable.List.slice(Graph.triples(graph), &1, &2, size)}
+      end
+    else
+      def slice(_), do: {:error, __MODULE__}
     end
 
     def reduce(graph, acc, fun) do

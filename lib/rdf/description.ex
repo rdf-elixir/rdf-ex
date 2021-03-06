@@ -828,9 +828,13 @@ defmodule RDF.Description do
 
     def count(desc), do: {:ok, Description.statement_count(desc)}
 
-    def slice(desc) do
-      size = Description.statement_count(desc)
-      {:ok, size, &Enumerable.List.slice(Description.triples(desc), &1, &2, size)}
+    if Version.match?(System.version(), "~> 1.10") do
+      def slice(desc) do
+        size = Description.statement_count(desc)
+        {:ok, size, &Enumerable.List.slice(Description.triples(desc), &1, &2, size)}
+      end
+    else
+      def slice(_), do: {:error, __MODULE__}
     end
 
     def reduce(desc, acc, fun) do

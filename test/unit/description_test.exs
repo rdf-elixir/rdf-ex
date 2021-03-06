@@ -953,6 +953,11 @@ defmodule RDF.DescriptionTest do
                  acc |> Description.add(triple)
                end)
     end
+
+    test "Enum.at (for Enumerable.slice/1)" do
+      assert Description.new(EX.S, init: {EX.S, EX.p(), EX.O})
+             |> Enum.at(0) == {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)}
+    end
   end
 
   describe "Collectable protocol" do

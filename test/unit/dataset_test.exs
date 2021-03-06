@@ -1829,6 +1829,11 @@ defmodule RDF.DatasetTest do
       assert ds ==
                Enum.reduce(ds, dataset(), fn statement, acc -> acc |> Dataset.add(statement) end)
     end
+
+    test "Enum.at (for Enumerable.slice/1)" do
+      assert Dataset.new({EX.S, EX.p(), EX.O, EX.Graph})
+             |> Enum.at(0) == {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O), RDF.iri(EX.Graph)}
+    end
   end
 
   describe "Collectable protocol" do

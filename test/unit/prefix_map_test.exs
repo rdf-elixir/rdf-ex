@@ -395,5 +395,9 @@ defmodule RDF.PrefixMapTest do
       assert Enum.reduce(@example2, [], fn mapping, acc -> [mapping | acc] end) ==
                [{:ex2, @ex_ns2}, {:ex1, @ex_ns1}]
     end
+
+    test "Enum.at (for Enumerable.slice/1)" do
+      assert Enum.at(@example2, 0) == {:ex1, @ex_ns1}
+    end
   end
 end
