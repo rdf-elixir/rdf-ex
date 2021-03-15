@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
+  both graphs had prefixes defined
+  
+
+[Compare v0.9.3...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.3...HEAD)
+
+
+
 ## 0.9.3 - 2021-03-09
 
 ### Added

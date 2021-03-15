@@ -173,7 +173,10 @@ defimpl Inspect, for: RDF.Diff do
   defp unified_prefixes(nil, deletions_prefixes), do: deletions_prefixes
 
   defp unified_prefixes(additions_prefixes, deletions_prefixes) do
-    RDF.PrefixMap.merge(additions_prefixes, deletions_prefixes, :ignore)
+    case RDF.PrefixMap.merge(additions_prefixes, deletions_prefixes, :ignore) do
+      {:ok, prefix_map} -> prefix_map
+      {:error, error} -> raise error
+    end
   end
 
   defp changes(graph, prefix, limit) do

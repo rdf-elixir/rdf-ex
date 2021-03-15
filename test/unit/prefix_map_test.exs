@@ -172,6 +172,11 @@ defmodule RDF.PrefixMapTest do
       assert PrefixMap.merge(@example2, ex3: @ex_ns3) == {:ok, @example3}
     end
 
+    test "when two PrefixMaps are given" do
+      prefix_map = PrefixMap.new(ex3: @ex_ns3)
+      assert PrefixMap.merge(prefix_map, prefix_map) == {:ok, prefix_map}
+    end
+
     test "when the second argument is not convertible to a prefix map" do
       assert_raise ArgumentError,
                    ~S["not convertible" is not convertible to a RDF.PrefixMap],
