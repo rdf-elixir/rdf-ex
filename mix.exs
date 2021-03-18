@@ -71,7 +71,7 @@ defmodule RDF.Mixfile do
       {:decimal, "~> 1.5"},
       {:protocol_ex, "~> 0.4"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.1", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:excoveralls, "~> 0.14", only: :test},
       {:benchee, "~> 1.0", only: :bench}
