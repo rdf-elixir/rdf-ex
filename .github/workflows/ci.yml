@@ -10,7 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-16.04
     env:
-      MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
@@ -41,7 +40,7 @@ jobs:
           elixir-version: ${{matrix.pair.elixir}}
 
       - name: Install Dependencies
-        run: mix deps.get --only test
+        run: mix deps.get
 
       - run: mix format --check-formatted
         if: ${{ matrix.lint }}
@@ -54,7 +53,7 @@ jobs:
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
 
-      - run: mix coveralls.github
+      - run: MIX_ENV=test mix coveralls.github
 
       - name: Retrieve PLT Cache
         uses: actions/cache@v1
@@ -70,4 +69,4 @@ jobs:
           mix dialyzer --plt
 
       - name: Run dialyzer
-        run: MIX_ENV=dev mix dialyzer --no-check
+        run: mix dialyzer --no-check
