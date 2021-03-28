@@ -24,26 +24,26 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - execute [SPARQL] queries against the in-memory data structures with the [SPARQL.ex] package or against any SPARQL endpoint with the [SPARQL.Client] package
 - RDF vocabularies as Elixir modules for safe, i.e. compile-time checked and concise usage of IRIs
 - most of the important XML schema datatypes for RDF literals
-- define custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
+- support for custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats; [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
-- validate data against [ShEx] schemas via the [ShEx.ex] package
-- map the RDF data structures to Elixir structs and back with [Grax] 
+- validation of RDF data against [ShEx] schemas with the [ShEx.ex] package
+- mapping of the RDF data structures to Elixir structs and back with [Grax] 
 
 
 ## Contributing
 
-There's still much to do for a complete RDF ecosystem for Elixir, which means there are plenty of opportunities for you to contribute. Here are some suggestions:
+There's still much to do for a complete RDF ecosystem for Elixir, which means there are plenty of opportunities to contribute. Here are some suggestions:
 
 - more serialization formats, like [RDFa], [N3], [CSVW], [HDT] etc.
 - more XSD datatypes
-- improving documentation
+- improving the documentation
 
 See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
-## Consulting, Partnership and Sponsoring
+## Consulting
 
 If you need help with your Elixir and Linked Data projects, just contact <info@cokron.com> or visit <https://www.cokron.com/kontakt>.
 
@@ -52,7 +52,7 @@ If you need help with your Elixir and Linked Data projects, just contact <info@c
 
 The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive).
 
-[JetBrains](https://www.jetbrains.com/?from=RDF.ex) sponsors the project with complimentary access to its development environments.
+[JetBrains](https://www.jetbrains.com/?from=RDF.ex) supports the project with complimentary access to its development environments.
 
 
 ## License and Copyright
