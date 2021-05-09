@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
+- the Turtle encoder was encoding IRIs as prefixed names even when they were
+  resulting in non-conform prefixed names
 - the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
   both graphs had prefixes defined
   

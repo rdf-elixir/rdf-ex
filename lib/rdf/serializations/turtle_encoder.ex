@@ -388,14 +388,21 @@ defmodule RDF.Turtle.Encoder do
 
   defp based_name(_, _), do: nil
 
-  defp typed_literal_term(%Literal{} = literal, state, nesting),
-    do:
-      ~s["#{Literal.lexical(literal)}"^^#{
-        literal |> Literal.datatype_id() |> term(state, :datatype, nesting)
-      }]
+  defp typed_literal_term(%Literal{} = literal, state, nesting) do
+    ~s["#{Literal.lexical(literal)}"^^#{
+      literal |> Literal.datatype_id() |> term(state, :datatype, nesting)
+    }]
+  end
 
   def prefixed_name(iri, prefixes) do
-    PrefixMap.prefixed_name(prefixes, iri)
+    case PrefixMap.prefix_name_pair(prefixes, iri) do
+      {prefix, name} -> if valid_pn_local?(name), do: prefix <> ":" <> name
+      _ -> nil
+    end
+  end
+
+  defp valid_pn_local?(name) do
+    String.match?(name, ~r/^([[:alpha:]]|[[:digit:]]|_|:)*$/u)
   end
 
   defp quoted(string) do

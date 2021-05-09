@@ -884,6 +884,36 @@ defmodule RDF.Turtle.EncoderTest do
     end
   end
 
+  test "don't encode IRIs as prefixed names when they will be non-conform" do
+    assert {
+             ~I<http://dbpedia.org/resource/(Ah,_the_Apple_Trees)_When_the_World_Was_Young>,
+             ~I<http://dbpedia.org/ontology/wikiPageWikiLink>,
+             ~I<http://dbpedia.org/resource/Bob_Dylan>
+           }
+           |> Graph.new()
+           |> Turtle.Encoder.encode!(prefixes: [dbr: ~I<http://dbpedia.org/resource/>]) ==
+             """
+             @prefix dbr: <http://dbpedia.org/resource/> .
+
+             <http://dbpedia.org/resource/(Ah,_the_Apple_Trees)_When_the_World_Was_Young>
+                 <http://dbpedia.org/ontology/wikiPageWikiLink> dbr:Bob_Dylan .
+             """
+
+    assert {
+             ~I<http://dbpedia.org/resource/Counterfeit²>,
+             ~I<http://dbpedia.org/ontology/wikiPageWikiLink>,
+             ~I<http://dbpedia.org/resource/Bob_Dylan>
+           }
+           |> Graph.new()
+           |> Turtle.Encoder.encode!(prefixes: [dbr: ~I<http://dbpedia.org/resource/>]) ==
+             """
+             @prefix dbr: <http://dbpedia.org/resource/> .
+
+             <http://dbpedia.org/resource/Counterfeit²>
+                 <http://dbpedia.org/ontology/wikiPageWikiLink> dbr:Bob_Dylan .
+             """
+  end
+
   describe "W3C test suite roundtrip" do
     @tag skip: "TODO: We need a Graph isomorphism comparison to implement this."
     test "..."

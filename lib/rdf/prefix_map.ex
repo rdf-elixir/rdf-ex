@@ -368,14 +368,29 @@ defmodule RDF.PrefixMap do
   end
 
   def prefixed_name(%__MODULE__{} = prefix_map, iri) when is_binary(iri) do
+    case prefix_name_pair(prefix_map, iri) do
+      {prefix, name} -> prefix <> ":" <> name
+      _ -> nil
+    end
+  end
+
+  @doc false
+  @spec prefix_name_pair(t, IRI.t() | String.t()) :: {String.t(), String.t()} | nil
+  def prefix_name_pair(prefix_map, iri)
+
+  def prefix_name_pair(%__MODULE__{} = prefix_map, %IRI{} = iri) do
+    prefix_name_pair(prefix_map, IRI.to_string(iri))
+  end
+
+  def prefix_name_pair(%__MODULE__{} = prefix_map, iri) when is_binary(iri) do
     Enum.find_value(prefix_map, fn {prefix, namespace} ->
-      case String.replace_leading(iri, IRI.to_string(namespace), ":") do
+      case String.trim_leading(iri, IRI.to_string(namespace)) do
         ^iri ->
           nil
 
         truncated_name ->
           unless String.contains?(truncated_name, ~w[/ #]) do
-            to_string(prefix) <> truncated_name
+            {to_string(prefix), truncated_name}
           end
       end
     end)
