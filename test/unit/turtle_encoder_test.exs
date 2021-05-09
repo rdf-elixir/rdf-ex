@@ -738,6 +738,21 @@ defmodule RDF.Turtle.EncoderTest do
       )
     end
 
+    test "language-tagged literals with newlines embedded are encoded with long quotes" do
+      Turtle.read_string!(~s[<http://a> <http:/b> """testing string parsing in Turtle.
+           """@en .])
+      |> assert_serialization(matches: [~s["""testing string parsing in Turtle.\n]])
+    end
+
+    test "language-tagged literals escaping" do
+      Turtle.read_string!(~s[<http://a> <http:/b> """string with " escaped quote marks"""@en .])
+      |> assert_serialization(
+        matches: [
+          ~r[string with \\" escaped quote mark]
+        ]
+      )
+    end
+
     test "language tagged literals specifies language for literal with language" do
       Turtle.read_string!(~s[<http://a> <http:/b> "string"@en .])
       |> assert_serialization(matches: [~r["string"@en]])

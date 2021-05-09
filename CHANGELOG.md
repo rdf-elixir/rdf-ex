@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - the Turtle encoder was encoding IRIs as prefixed names even when they were
   resulting in non-conform prefixed names
+- the Turtle encoder didn't properly escape special characters in language-tagged 
+  literals
 - the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
   both graphs had prefixes defined
   

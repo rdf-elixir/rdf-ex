@@ -351,7 +351,7 @@ defmodule RDF.Turtle.Encoder do
     do: to_string(bnode)
 
   defp term(%Literal{literal: %LangString{} = lang_string}, _, _, _) do
-    ~s["#{lang_string.value}"@#{lang_string.language}]
+    quoted(lang_string.value) <> "@" <> lang_string.language
   end
 
   defp term(%Literal{literal: %XSD.String{}} = literal, _, _, _) do
