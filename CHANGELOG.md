@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   resulting in non-conform prefixed names
 - the Turtle encoder didn't properly escape special characters in language-tagged 
   literals
+- the N-Triples and N-Quads encoders didn't properly escape special characters in 
+  both language-tagged and plain literals
 - the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
   both graphs had prefixes defined
   

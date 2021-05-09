@@ -42,11 +42,11 @@ defmodule RDF.NTriples.Encoder do
   end
 
   def term(%Literal{literal: %LangString{} = lang_string}) do
-    ~s["#{lang_string.value}"@#{lang_string.language}]
+    ~s["#{escape_string(lang_string.value)}"@#{lang_string.language}]
   end
 
   def term(%Literal{literal: %XSD.String{} = xsd_string}) do
-    ~s["#{xsd_string.value}"]
+    ~s["#{escape_string(xsd_string.value)}"]
   end
 
   def term(%Literal{} = literal) do
@@ -68,11 +68,11 @@ defmodule RDF.NTriples.Encoder do
   end
 
   def iolist_term(%Literal{literal: %LangString{} = lang_string}) do
-    [~s["], lang_string.value, ~s["@], lang_string.language]
+    [~s["], escape_string(lang_string.value), ~s["@], lang_string.language]
   end
 
   def iolist_term(%Literal{literal: %XSD.String{} = xsd_string}) do
-    [~s["], xsd_string.value, ~s["]]
+    [~s["], escape_string(xsd_string.value), ~s["]]
   end
 
   def iolist_term(%Literal{} = literal) do
@@ -81,5 +81,17 @@ defmodule RDF.NTriples.Encoder do
 
   def iolist_term(%BlankNode{} = bnode) do
     to_string(bnode)
+  end
+
+  @doc false
+  def escape_string(string) do
+    string
+    |> String.replace("\\", "\\\\\\\\")
+    |> String.replace("\b", "\\b")
+    |> String.replace("\f", "\\f")
+    |> String.replace("\t", "\\t")
+    |> String.replace("\n", "\\n")
+    |> String.replace("\r", "\\r")
+    |> String.replace("\"", ~S[\"])
   end
 end

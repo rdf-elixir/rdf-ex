@@ -72,6 +72,19 @@ defmodule RDF.NTriples.EncoderTest do
                <http://example.org/#S1> <http://example.org/#p1> _:foo .
                """
     end
+
+    test "string escaping" do
+      assert NTriples.Encoder.encode!(
+               Graph.new([
+                 {EX.S, EX.p(), ~s["foo"\n\r"bar"]},
+                 {EX.S, EX.p(), RDF.literal(~s["foo"\n\r"bar"], language: "en")}
+               ])
+             ) ==
+               """
+               <http://example.org/#S> <http://example.org/#p> "\\"foo\\"\\n\\r\\"bar\\""@en .
+               <http://example.org/#S> <http://example.org/#p> "\\"foo\\"\\n\\r\\"bar\\"" .
+               """
+    end
   end
 
   describe "stream/2" do

@@ -28,6 +28,8 @@ defmodule RDF.Turtle.Encoder do
   alias RDF.Turtle.Encoder.State
   alias RDF.{BlankNode, Dataset, Description, Graph, IRI, XSD, Literal, LangString, PrefixMap}
 
+  import RDF.NTriples.Encoder, only: [escape_string: 1]
+
   @document_structure [
     :base,
     :prefixes,
@@ -409,19 +411,8 @@ defmodule RDF.Turtle.Encoder do
     if String.contains?(string, ["\n", "\r"]) do
       ~s["""#{string}"""]
     else
-      ~s["#{escape(string)}"]
+      ~s["#{escape_string(string)}"]
     end
-  end
-
-  defp escape(string) do
-    string
-    |> String.replace("\\", "\\\\\\\\")
-    |> String.replace("\b", "\\b")
-    |> String.replace("\f", "\\f")
-    |> String.replace("\t", "\\t")
-    |> String.replace("\n", "\\n")
-    |> String.replace("\r", "\\r")
-    |> String.replace("\"", ~S[\"])
   end
 
   defp newline_indent(nesting),
