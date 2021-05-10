@@ -47,6 +47,7 @@ defmodule RDF do
     BlankNode,
     Triple,
     Quad,
+    Statement,
     Description,
     Graph,
     Dataset,
@@ -234,6 +235,10 @@ defmodule RDF do
 
   defdelegate quad(s, p, o, g), to: Quad, as: :new
   defdelegate quad(tuple), to: Quad, as: :new
+
+  defdelegate statement(s, p, o), to: Statement, as: :new
+  defdelegate statement(s, p, o, g), to: Statement, as: :new
+  defdelegate statement(tuple), to: Statement, as: :new
 
   defdelegate description(subject, opts \\ []), to: Description, as: :new
 

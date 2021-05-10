@@ -28,6 +28,28 @@ defmodule RDF.Statement do
           | {coercible_subject(), coercible_predicate(), coercible_object()}
 
   @doc """
+  Creates a `RDF.Triple` or `RDF.Quad` with proper RDF values.
+
+  An error is raised when the given elements are not coercible to RDF values.
+
+  Note: The `RDF.statement` function is a shortcut to this function.
+
+  ## Examples
+
+      iex> RDF.Statement.new({EX.S, EX.p, 42})
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
+
+      iex> RDF.Statement.new({EX.S, EX.p, 42, EX.Graph})
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
+  """
+  def new(tuple)
+  def new({_, _, _} = tuple), do: Triple.new(tuple)
+  def new({_, _, _, _} = tuple), do: Quad.new(tuple)
+
+  defdelegate new(s, p, o), to: Triple, as: :new
+  defdelegate new(s, p, o, g), to: Quad, as: :new
+
+  @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.
 
   An error is raised when the given elements are not coercible to RDF values.

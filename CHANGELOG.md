@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `RDF.statement/1`, `RDF.statement/3` and `RDF.statement/4` constructor functions 
+
 ### Fixed
 
 - the Turtle encoder was encoding IRIs as prefixed names even when they were
