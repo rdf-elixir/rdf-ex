@@ -95,6 +95,9 @@ defmodule RDF do
           ex: "http://example.com/"
         }
 
+  You can also set `:default_prefixes` to a module-function tuple `{mod, fun}`
+  with a function which should be called to determine the default prefixes.
+
   If you don't want the `standard_prefixes/0` to be part of the default prefixes,
   or you want to map the standard prefixes to different namespaces (strongly discouraged!),
   you can set the `use_standard_prefixes` compile-time configuration flag to `false`.
@@ -103,15 +106,25 @@ defmodule RDF do
         use_standard_prefixes: false
 
   """
-  @default_prefixes Application.get_env(:rdf, :default_prefixes, %{}) |> PrefixMap.new()
-  if Application.get_env(:rdf, :use_standard_prefixes, true) do
-    def default_prefixes() do
-      PrefixMap.merge!(@standard_prefixes, @default_prefixes)
-    end
-  else
-    def default_prefixes() do
-      @default_prefixes
-    end
+  case Application.get_env(:rdf, :default_prefixes, %{}) do
+    {mod, fun} ->
+      if Application.get_env(:rdf, :use_standard_prefixes, true) do
+        def default_prefixes() do
+          PrefixMap.merge!(@standard_prefixes, apply(unquote(mod), unquote(fun), []))
+        end
+      else
+        def default_prefixes(), do: apply(unquote(mod), unquote(fun), [])
+      end
+
+    default_prefixes ->
+      @default_prefixes PrefixMap.new(default_prefixes)
+      if Application.get_env(:rdf, :use_standard_prefixes, true) do
+        def default_prefixes() do
+          PrefixMap.merge!(@standard_prefixes, @default_prefixes)
+        end
+      else
+        def default_prefixes(), do: @default_prefixes
+      end
   end
 
   @doc """
