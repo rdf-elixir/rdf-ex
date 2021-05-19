@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.statement/1`, `RDF.statement/3` and `RDF.statement/4` constructor functions
 - the `:default_prefixes` configuration option now allows to set a `{mod, fun}`
   tuple, with a function which should be called to determine the default prefixes
+- the `:default_base_iri` configuration option now allows to set a `{mod, fun}`
+  tuple, with a function which should be called to determine the default base IRI
 
 ### Fixed
 

@@ -39,9 +39,15 @@ defmodule RDF.Turtle.Decoder do
   @impl RDF.Serialization.Decoder
   @spec decode(String.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
   def decode(content, opts \\ []) do
+    base_iri =
+      Keyword.get_lazy(
+        opts,
+        :base_iri,
+        fn -> Keyword.get_lazy(opts, :base, fn -> RDF.default_base_iri() end) end
+      )
+
     with {:ok, tokens, _} <- tokenize(content),
-         {:ok, ast} <- parse(tokens),
-         base_iri = Keyword.get(opts, :base, Keyword.get(opts, :base_iri, RDF.default_base_iri())) do
+         {:ok, ast} <- parse(tokens) do
       build_graph(ast, base_iri && RDF.iri(base_iri))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->

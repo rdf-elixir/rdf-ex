@@ -250,7 +250,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp source!(opts) do
     cond do
       Keyword.has_key?(opts, :file) ->
-        {:data, filename!(opts) |> RDF.read_file!()}
+        {:data, filename!(opts) |> RDF.read_file!(base_iri: nil)}
 
       rdf_data = Keyword.get(opts, :data) ->
         {:data, raw_rdf_data(rdf_data)}

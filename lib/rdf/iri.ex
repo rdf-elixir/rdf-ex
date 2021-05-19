@@ -39,10 +39,19 @@ defmodule RDF.IRI do
       config :rdf,
         default_base_iri: "http://my_app.example/"
 
+  You can also set `:default_base_iri` to a module-function tuple `{mod, fun}`
+  with a function which should be called to determine the default base IRI.
+
   See [section 5.1.4 of RFC 3987](https://tools.ietf.org/html/rfc3986#page-29)
   """
-  @default_base Application.get_env(:rdf, :default_base_iri)
-  def default_base, do: @default_base
+  case Application.get_env(:rdf, :default_base_iri) do
+    {mod, fun} ->
+      def default_base(), do: apply(unquote(mod), unquote(fun), [])
+
+    default_base ->
+      @default_base default_base
+      def default_base, do: @default_base
+  end
 
   @doc """
   Creates a `RDF.IRI`.
