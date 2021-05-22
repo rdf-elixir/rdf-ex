@@ -142,7 +142,7 @@ defmodule RDF.XSD.TestData do
     "+01.000" => {1.0e0, "+01.000", "1.0E0"},
     "1.0" => {1.0e0, "1.0", "1.0E0"},
     "-0" =>
-      if Version.match?(System.version(), "~> 1.12") do
+      if String.to_integer(System.otp_release()) >= 24 do
         {0.0e0, "-0", "-0.0E0"}
       else
         # This is actual wrong, but we won't fix this wrong behaviour in older Elixir versions
