@@ -54,9 +54,7 @@ defmodule RDF.LangString do
       literal
     else
       raise ArgumentError,
-            "#{inspect(value)} with language #{inspect(literal.literal.language)} is not a valid #{
-              inspect(__MODULE__)
-            }"
+            "#{inspect(value)} with language #{inspect(literal.literal.language)} is not a valid #{inspect(__MODULE__)}"
     end
   end
 

@@ -40,9 +40,7 @@ defimpl Inspect, for: RDF.Description do
         caught_exception ->
           message =
             "got #{inspect(caught_exception.__struct__)} with message " <>
-              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Description #{
-                description.subject
-              }"
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Description #{description.subject}"
 
           exception = Inspect.Error.exception(message: message)
 
@@ -87,9 +85,7 @@ defimpl Inspect, for: RDF.Graph do
         caught_exception ->
           message =
             "got #{inspect(caught_exception.__struct__)} with message " <>
-              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Graph #{
-                graph.name
-              }"
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Graph #{graph.name}"
 
           exception = Inspect.Error.exception(message: message)
 

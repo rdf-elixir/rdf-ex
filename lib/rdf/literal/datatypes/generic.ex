@@ -53,9 +53,7 @@ defmodule RDF.Literal.Generic do
       literal
     else
       raise ArgumentError,
-            "#{inspect(value)} with datatype #{inspect(literal.literal.datatype)} is not a valid #{
-              inspect(__MODULE__)
-            }"
+            "#{inspect(value)} with datatype #{inspect(literal.literal.datatype)} is not a valid #{inspect(__MODULE__)}"
     end
   end
 

@@ -39,15 +39,11 @@ defmodule RDF.NTriples.Decoder do
     else
       {:error, {error_line, :ntriples_lexer, error_descriptor}, _error_line_again} ->
         {:error,
-         "N-Triple scanner error#{if error_with_line_number, do: " on line #{error_line}"}: #{
-           error_description(error_descriptor)
-         }"}
+         "N-Triple scanner error#{if error_with_line_number, do: " on line #{error_line}"}: #{error_description(error_descriptor)}"}
 
       {:error, {error_line, :ntriples_parser, error_descriptor}} ->
         {:error,
-         "N-Triple parser error#{if error_with_line_number, do: " on line #{error_line}"}: #{
-           error_description(error_descriptor)
-         }"}
+         "N-Triple parser error#{if error_with_line_number, do: " on line #{error_line}"}: #{error_description(error_descriptor)}"}
     end
   end
 

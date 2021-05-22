@@ -210,9 +210,7 @@ defmodule RDF.XSD.BooleanTest do
     ]
     |> Enum.each(fn {left, right, result} ->
       assert XSD.Boolean.logical_and(left, right) == result,
-             "expected logical_and(#{inspect(left)}, #{inspect(right)}) to be #{inspect(result)}, but got #{
-               inspect(XSD.Boolean.logical_and(left, right))
-             }"
+             "expected logical_and(#{inspect(left)}, #{inspect(right)}) to be #{inspect(result)}, but got #{inspect(XSD.Boolean.logical_and(left, right))}"
     end)
   end
 
@@ -230,9 +228,7 @@ defmodule RDF.XSD.BooleanTest do
     ]
     |> Enum.each(fn {left, right, result} ->
       assert XSD.Boolean.logical_or(left, right) == result,
-             "expected logical_or(#{inspect(left)}, #{inspect(right)}) to be #{inspect(result)}, but got #{
-               inspect(XSD.Boolean.logical_and(left, right))
-             }"
+             "expected logical_or(#{inspect(left)}, #{inspect(right)}) to be #{inspect(result)}, but got #{inspect(XSD.Boolean.logical_and(left, right))}"
     end)
   end
 end

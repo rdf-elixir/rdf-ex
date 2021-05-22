@@ -275,9 +275,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
 
           Enum.each(@valid, fn {input, {_, _, canonicalized}} ->
             @tag example: %{input: input, canonicalized: canonicalized}
-            test "lexical of canonicalized #{unquote(datatype)} #{inspect(input, limit: 4)} is #{
-                   inspect(canonicalized, limit: 4)
-                 }",
+            test "lexical of canonicalized #{unquote(datatype)} #{inspect(input, limit: 4)} is #{inspect(canonicalized, limit: 4)}",
                  %{example: example} do
               assert unquote(datatype).new(example.input)
                      |> unquote(datatype).canonical()

@@ -511,9 +511,7 @@ defmodule RDF.LiteralTest do
         result = Literal.matches?(literal, pattern)
 
         assert result == expected_result,
-               "expected RDF.Literal.matches?(#{inspect(literal)}, #{inspect(pattern)}) to return #{
-                 inspect(expected_result)
-               }, but got #{result}"
+               "expected RDF.Literal.matches?(#{inspect(literal)}, #{inspect(pattern)}) to return #{inspect(expected_result)}, but got #{result}"
       end)
     end
 

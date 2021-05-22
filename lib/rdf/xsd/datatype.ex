@@ -455,9 +455,7 @@ defmodule RDF.XSD.Datatype do
         @datatype_name datatype_name
 
         def inspect(literal, _opts) do
-          "%#{@datatype_name}{value: #{inspect(literal.value)}, lexical: #{
-            literal |> literal.__struct__.lexical() |> inspect()
-          }}"
+          "%#{@datatype_name}{value: #{inspect(literal.value)}, lexical: #{literal |> literal.__struct__.lexical() |> inspect()}}"
         end
       end
     end
