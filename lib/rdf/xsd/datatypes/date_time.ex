@@ -27,6 +27,10 @@ defmodule RDF.XSD.DateTime do
   end
 
   @impl XSD.Datatype
+  def lexical_mapping(lexical, opts)
+
+  def lexical_mapping("+" <> _, _), do: @invalid_value
+
   def lexical_mapping(lexical, opts) do
     case DateTime.from_iso8601(lexical) do
       {:ok, datetime, _} ->
