@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.9.4 - 2021-05-26
 
 ### Added
 
@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   tuple, with a function which should be called to determine the default prefixes
 - the `:default_base_iri` configuration option now allows to set a `{mod, fun}`
   tuple, with a function which should be called to determine the default base IRI
+- support for Elixir 1.12 and OTP 24
 
 ### Fixed
 
@@ -26,8 +27,14 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
   both graphs had prefixes defined
   
+Note: In the canonical form of -0.0 in XSD doubles and floats the sign is removed
+in OTP versions < 24 although this is not standard conform. This has the
+consequence that the sign of -0.0 is also removed when casting these doubles and
+floats to decimals. These bugs won't be fixed. If you rely on the correct behavior
+in these cases, you'll have to upgrade to OTP 24 and a respective Elixir version.
 
-[Compare v0.9.3...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.3...HEAD)
+
+[Compare v0.9.3...v0.9.4](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.3...v0.9.4)
 
 
 
