@@ -39,6 +39,7 @@ defmodule RDF.Serialization.Writer do
 
     :ok
   rescue
+    error in FunctionClauseError -> reraise error, __STACKTRACE__
     error in RuntimeError -> {:error, error.message}
     error -> {:error, error}
   end

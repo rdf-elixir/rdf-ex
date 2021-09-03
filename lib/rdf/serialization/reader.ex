@@ -62,6 +62,7 @@ defmodule RDF.Serialization.Reader do
     |> File.stream!(file_mode(decoder, opts))
     |> decoder.decode_from_stream(opts)
   rescue
+    error in FunctionClauseError -> reraise error, __STACKTRACE__
     error in RuntimeError -> {:error, error.message}
     error -> {:error, error}
   end
