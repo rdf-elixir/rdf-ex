@@ -6,8 +6,9 @@ defmodule RDF.Test.Case do
 
   defvocab FOAF, base_iri: "http://xmlns.com/foaf/0.1/", terms: [], strict: false
 
-  alias RDF.{Dataset, Graph, Description, IRI}
+  alias RDF.{Dataset, Graph, Description, IRI, XSD}
   import RDF, only: [iri: 1]
+  import RDF.Sigils
 
   using do
     quote do
@@ -44,6 +45,75 @@ defmodule RDF.Test.Case do
     |> Enum.to_list()
     |> IO.iodata_to_binary()
   end
+
+  @iri ~I<http://example.com/Foo>
+  @bnode ~B<foo>
+  @valid_literal ~L"foo"
+  @invalid_literal XSD.integer("foo")
+
+  ###############################
+  # RDF.Statement
+
+  @valid_triple {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)}
+  def valid_triple(), do: @valid_triple
+
+  @valid_triples [
+    @valid_triple,
+    {@iri, @iri, @iri},
+    {@bnode, @iri, @iri},
+    {@iri, @iri, @bnode},
+    {@bnode, @iri, @bnode},
+    {@iri, @iri, @valid_literal},
+    {@bnode, @iri, @valid_literal},
+    {@iri, @iri, @invalid_literal},
+    {@bnode, @iri, @invalid_literal}
+  ]
+
+  def valid_triples(), do: @valid_triples
+
+  @valid_star_triples [
+    {@valid_triple, @iri, @iri},
+    {@iri, @iri, @valid_triple}
+  ]
+
+  def valid_star_triples(), do: @valid_star_triples
+
+  @valid_quads [
+    {@iri, @iri, @iri, @iri},
+    {@bnode, @iri, @iri, @iri},
+    {@iri, @iri, @bnode, @iri},
+    {@bnode, @iri, @bnode, @iri},
+    {@iri, @iri, @valid_literal, @iri},
+    {@bnode, @iri, @valid_literal, @iri},
+    {@iri, @iri, @invalid_literal, @iri},
+    {@bnode, @iri, @invalid_literal, @iri}
+  ]
+  def valid_quads(), do: @valid_quads
+
+  @valid_star_quads [
+    {@valid_triple, @iri, @iri, @iri},
+    {@iri, @iri, @valid_triple, @iri}
+  ]
+
+  def valid_star_quads(), do: @valid_star_quads
+
+  @invalid_triples [
+    {@iri, @bnode, @iri},
+    {@valid_literal, @iri, @iri},
+    {@iri, @valid_literal, @iri}
+  ]
+
+  def invalid_triples, do: @invalid_triples
+
+  @invalid_quads [
+    {@iri, @bnode, @iri, @iri},
+    {@iri, @iri, @iri, @bnode},
+    {@valid_literal, @iri, @iri, @iri},
+    {@iri, @valid_literal, @iri, @iri},
+    {@iri, @iri, @iri, @valid_literal}
+  ]
+
+  def invalid_quads(), do: @invalid_quads
 
   ###############################
   # RDF.Description
