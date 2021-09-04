@@ -243,15 +243,15 @@ defmodule RDF do
   defdelegate literal(value), to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
-  defdelegate triple(s, p, o), to: Triple, as: :new
-  defdelegate triple(tuple), to: Triple, as: :new
+  defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
+  defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
 
-  defdelegate quad(s, p, o, g), to: Quad, as: :new
-  defdelegate quad(tuple), to: Quad, as: :new
+  defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
+  defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
 
   defdelegate statement(s, p, o), to: Statement, as: :new
   defdelegate statement(s, p, o, g), to: Statement, as: :new
-  defdelegate statement(tuple), to: Statement, as: :new
+  defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
 
   defdelegate description(subject, opts \\ []), to: Description, as: :new
 

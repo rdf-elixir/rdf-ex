@@ -41,10 +41,13 @@ defmodule RDF.Statement do
 
       iex> RDF.Statement.new({EX.S, EX.p, 42, EX.Graph})
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
+
+      iex> RDF.Statement.new({EX.S, :p, 42, EX.Graph}, RDF.PropertyMap.new(p: EX.p))
+      {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
-  def new(tuple)
-  def new({_, _, _} = tuple), do: Triple.new(tuple)
-  def new({_, _, _, _} = tuple), do: Quad.new(tuple)
+  def new(tuple, property_map \\ nil)
+  def new({_, _, _} = tuple, property_map), do: Triple.new(tuple, property_map)
+  def new({_, _, _, _} = tuple, property_map), do: Quad.new(tuple, property_map)
 
   defdelegate new(s, p, o), to: Triple, as: :new
   defdelegate new(s, p, o, g), to: Quad, as: :new
@@ -61,10 +64,10 @@ defmodule RDF.Statement do
       iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
-  @spec coerce(coercible_t()) :: Triple.t() | Quad.t()
-  def coerce(statement)
-  def coerce({_, _, _} = triple), do: Triple.new(triple)
-  def coerce({_, _, _, _} = quad), do: Quad.new(quad)
+  @spec coerce(coercible_t(), PropertyMap.t() | nil) :: Triple.t() | Quad.t()
+  def coerce(statement, property_map \\ nil)
+  def coerce({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
+  def coerce({_, _, _, _} = quad, property_map), do: Quad.new(quad, property_map)
 
   @doc false
   @spec coerce_subject(coercible_subject) :: subject

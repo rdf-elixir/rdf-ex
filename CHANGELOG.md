@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`
+
+
+[Compare v0.9.4...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.4...HEAD)
+
+
+
 ## 0.9.4 - 2021-05-26
 
 ### Added
