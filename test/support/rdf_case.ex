@@ -54,6 +54,12 @@ defmodule RDF.Test.Case do
   ###############################
   # RDF.Statement
 
+  @statement {RDF.iri(EX.S), RDF.iri(EX.P), RDF.literal("Foo")}
+  def statement(), do: @statement
+
+  @coercible_statement {EX.S, EX.P, "Foo"}
+  def coercible_statement(), do: @coercible_statement
+
   @valid_triple {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)}
   def valid_triple(), do: @valid_triple
 
@@ -157,8 +163,10 @@ defmodule RDF.Test.Case do
     do: descriptions == %{}
 
   def graph_includes_statement?(graph, {subject, _, _} = statement) do
+    subject = if is_tuple(subject), do: subject, else: iri(subject)
+
     graph.descriptions
-    |> Map.get(iri(subject), %{})
+    |> Map.get(subject, %{})
     |> Enum.member?(statement)
   end
 
@@ -198,4 +206,25 @@ defmodule RDF.Test.Case do
     |> Map.get(iri(graph_context), named_graph(graph_context))
     |> graph_includes_statement?({subject, predicate, objects})
   end
+
+  ###############################
+  # RDF.Star annotations
+
+  @star_statement {@statement, EX.ap(), EX.ao()}
+  def star_statement(), do: @star_statement
+
+  @empty_annotation Description.new(@statement)
+  def empty_annotation(), do: @empty_annotation
+
+  @annotation Description.new(@statement, init: {EX.ap(), EX.ao()})
+  def annotation(), do: @annotation
+
+  @object_annotation Description.new(EX.As, init: {EX.ap(), @statement})
+  def object_annotation(), do: @object_annotation
+
+  @graph_with_annotation Graph.new(init: @annotation)
+  def graph_with_annotation(), do: @graph_with_annotation
+
+  @graph_with_annotations Graph.new(init: [@annotation, @object_annotation])
+  def graph_with_annotations(), do: @graph_with_annotations
 end

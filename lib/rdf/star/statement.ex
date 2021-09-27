@@ -71,13 +71,8 @@ defmodule RDF.Star.Statement do
   def coerce_subject({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce_subject(subject, _), do: RDF.Statement.coerce_subject(subject)
 
-  @doc false
-  @spec coerce_predicate(coercible_predicate) :: predicate
-  def coerce_predicate(iri), do: RDF.Statement.coerce_predicate(iri)
-
-  @doc false
-  @spec coerce_predicate(coercible_predicate, PropertyMap.t()) :: predicate
-  def coerce_predicate(term, context), do: RDF.Statement.coerce_predicate(term, context)
+  defdelegate coerce_predicate(coercible_predicate), to: RDF.Statement
+  defdelegate coerce_predicate(term, context), to: RDF.Statement
 
   @doc false
   @spec coerce_object(coercible_object, PropertyMap.t() | nil) :: object
@@ -85,9 +80,7 @@ defmodule RDF.Star.Statement do
   def coerce_object({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce_object(object, _), do: RDF.Statement.coerce_object(object)
 
-  @doc false
-  @spec coerce_graph_name(coercible_graph_name) :: graph_name
-  def coerce_graph_name(iri), do: RDF.Statement.coerce_graph_name(iri)
+  defdelegate coerce_graph_name(iri), to: RDF.Statement
 
   @doc """
   Checks if the given tuple is a valid RDF-star statement, i.e. RDF-star triple or quad.
@@ -123,4 +116,25 @@ defmodule RDF.Star.Statement do
 
   @spec valid_graph_name?(graph_name | any) :: boolean
   def valid_graph_name?(any), do: RDF.Statement.valid_graph_name?(any)
+
+  @doc """
+  Checks if the given tuple is a RDF-star statement annotating a triple on subject or object position.
+
+  Note: This function won't check if the given tuple or the annotated triple is valid.
+  Use `valid?/1` for this purpose.
+
+  ## Examples
+
+      iex> RDF.Star.Statement.annotation?({EX.S, EX.P, EX.O})
+      false
+      iex> RDF.Star.Statement.annotation?({EX.AS, EX.AP, {EX.S, EX.P, EX.O}})
+      true
+      iex> RDF.Star.Statement.annotation?({{EX.S, EX.P, EX.O}, EX.AP, EX.AO})
+      true
+
+  """
+  @spec annotation?(Triple.t() | Quad.t() | any) :: boolean
+  def annotation?({{_, _, _}, _, _}), do: true
+  def annotation?({_, _, {_, _, _}}), do: true
+  def annotation?(_), do: false
 end

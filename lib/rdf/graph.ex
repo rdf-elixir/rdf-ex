@@ -15,9 +15,10 @@ defmodule RDF.Graph do
 
   @behaviour Access
 
-  import RDF.Statement, only: [coerce_subject: 1, coerce_graph_name: 1]
+  alias RDF.{Description, IRI, PrefixMap, PropertyMap}
+  alias RDF.Star.Statement
+
   import RDF.Utils
-  alias RDF.{Description, IRI, PrefixMap, Statement, PropertyMap}
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -120,7 +121,7 @@ defmodule RDF.Graph do
   def new(data, opts)
 
   def new(%__MODULE__{} = graph, opts) do
-    %__MODULE__{graph | name: opts |> Keyword.get(:name) |> coerce_graph_name()}
+    %__MODULE__{graph | name: opts |> Keyword.get(:name) |> RDF.coerce_graph_name()}
     |> add_prefixes(Keyword.get(opts, :prefixes))
     |> set_base_iri(Keyword.get(opts, :base_iri))
   end
@@ -158,7 +159,7 @@ defmodule RDF.Graph do
   """
   @spec change_name(t, Statement.coercible_graph_name()) :: t
   def change_name(%__MODULE__{} = graph, new_name) do
-    %__MODULE__{graph | name: coerce_graph_name(new_name)}
+    %__MODULE__{graph | name: RDF.coerce_graph_name(new_name)}
   end
 
   @doc """
@@ -184,10 +185,10 @@ defmodule RDF.Graph do
   def add(graph, input, opts \\ [])
 
   def add(%__MODULE__{} = graph, {subject, predications}, opts),
-    do: do_add(graph, coerce_subject(subject), predications, opts)
+    do: do_add(graph, RDF.coerce_subject(subject), predications, opts)
 
   def add(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
-    do: do_add(graph, coerce_subject(subject), triple, opts)
+    do: do_add(graph, RDF.coerce_subject(subject), triple, opts)
 
   def add(graph, {subject, predicate, object, _}, opts),
     do: add(graph, {subject, predicate, object}, opts)
@@ -340,10 +341,10 @@ defmodule RDF.Graph do
   def delete(graph, input, opts \\ [])
 
   def delete(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
-    do: do_delete(graph, coerce_subject(subject), triple, opts)
+    do: do_delete(graph, RDF.coerce_subject(subject), triple, opts)
 
   def delete(%__MODULE__{} = graph, {subject, predications}, opts),
-    do: do_delete(graph, coerce_subject(subject), predications, opts)
+    do: do_delete(graph, RDF.coerce_subject(subject), predications, opts)
 
   def delete(graph, {subject, predicate, object, _}, opts),
     do: delete(graph, {subject, predicate, object}, opts)
@@ -404,7 +405,7 @@ defmodule RDF.Graph do
   end
 
   def delete_descriptions(%__MODULE__{} = graph, subject) do
-    %__MODULE__{graph | descriptions: Map.delete(graph.descriptions, coerce_subject(subject))}
+    %__MODULE__{graph | descriptions: Map.delete(graph.descriptions, RDF.coerce_subject(subject))}
   end
 
   defdelegate delete_subjects(graph, subjects), to: __MODULE__, as: :delete_descriptions
@@ -449,7 +450,7 @@ defmodule RDF.Graph do
           update_description_fun
         ) :: t
   def update(%__MODULE__{} = graph, subject, initial \\ nil, fun) do
-    subject = coerce_subject(subject)
+    subject = RDF.coerce_subject(subject)
 
     case get(graph, subject) do
       nil ->
@@ -491,31 +492,7 @@ defmodule RDF.Graph do
   @impl Access
   @spec fetch(t, Statement.coercible_subject()) :: {:ok, Description.t()} | :error
   def fetch(%__MODULE__{} = graph, subject) do
-    Access.fetch(graph.descriptions, coerce_subject(subject))
-  end
-
-  @doc """
-  Execute the given `query` against the given `graph`.
-
-  This is just a convenience delegator function to `RDF.Query.execute!/3` with
-  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
-
-  See `RDF.Query.execute/3` and `RDF.Query.execute!/3` for more information and examples.
-  """
-  def query(graph, query, opts \\ []) do
-    RDF.Query.execute!(query, graph, opts)
-  end
-
-  @doc """
-  Returns a `Stream` for the execution of the given `query` against the given `graph`.
-
-  This is just a convenience delegator function to `RDF.Query.stream!/3` with
-  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
-
-  See `RDF.Query.stream/3` and `RDF.Query.stream!/3` for more information and examples.
-  """
-  def query_stream(graph, query, opts \\ []) do
-    RDF.Query.stream!(query, graph, opts)
+    Access.fetch(graph.descriptions, RDF.coerce_subject(subject))
   end
 
   @doc """
@@ -542,13 +519,7 @@ defmodule RDF.Graph do
     end
   end
 
-  @doc """
-  The `RDF.Description` of the given subject.
-  """
-  @spec description(t, Statement.coercible_subject()) :: Description.t() | nil
-  def description(%__MODULE__{} = graph, subject) do
-    Map.get(graph.descriptions, coerce_subject(subject))
-  end
+  defdelegate description(graph, subject), to: __MODULE__, as: :get
 
   @doc """
   All `RDF.Description`s within a `RDF.Graph`.
@@ -585,7 +556,7 @@ defmodule RDF.Graph do
   @spec get_and_update(t, Statement.coercible_subject(), get_and_update_description_fun) ::
           {Description.t(), input}
   def get_and_update(%__MODULE__{} = graph, subject, fun) do
-    subject = coerce_subject(subject)
+    subject = RDF.coerce_subject(subject)
 
     case fun.(get(graph, subject)) do
       {old_description, new_description} ->
@@ -639,7 +610,7 @@ defmodule RDF.Graph do
   @impl Access
   @spec pop(t, Statement.coercible_subject()) :: {Description.t() | nil, t}
   def pop(%__MODULE__{} = graph, subject) do
-    case Access.pop(graph.descriptions, coerce_subject(subject)) do
+    case Access.pop(graph.descriptions, RDF.coerce_subject(subject)) do
       {nil, _} ->
         {nil, graph}
 
@@ -786,13 +757,20 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
   @spec triples(t) :: [Statement.t()]
-  def triples(%__MODULE__{} = graph) do
-    Enum.flat_map(graph.descriptions, fn {_, description} ->
-      Description.triples(description)
-    end)
+  def triples(%__MODULE__{} = graph, opts \\ []) do
+    if Keyword.get(opts, :filter_star, false) do
+      Enum.flat_map(graph.descriptions, fn
+        {subject, _} when is_tuple(subject) -> []
+        {_, description} -> Description.triples(description, opts)
+      end)
+    else
+      Enum.flat_map(graph.descriptions, fn {_, description} ->
+        Description.triples(description, opts)
+      end)
+    end
   end
 
-  defdelegate statements(graph), to: __MODULE__, as: :triples
+  defdelegate statements(graph, opts \\ []), to: __MODULE__, as: :triples
 
   @doc """
   Checks if the given `input` statements exist within `graph`.
@@ -801,13 +779,13 @@ defmodule RDF.Graph do
   def include?(graph, input, opts \\ [])
 
   def include?(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
-    do: do_include?(graph, coerce_subject(subject), triple, opts)
+    do: do_include?(graph, RDF.coerce_subject(subject), triple, opts)
 
   def include?(graph, {subject, predicate, object, _}, opts),
     do: include?(graph, {subject, predicate, object}, opts)
 
   def include?(%__MODULE__{} = graph, {subject, predications}, opts),
-    do: do_include?(graph, coerce_subject(subject), predications, opts)
+    do: do_include?(graph, RDF.coerce_subject(subject), predications, opts)
 
   def include?(%__MODULE__{} = graph, %Description{subject: subject} = description, opts),
     do: do_include?(graph, subject, description, opts)
@@ -851,7 +829,68 @@ defmodule RDF.Graph do
   """
   @spec describes?(t, Statement.coercible_subject()) :: boolean
   def describes?(%__MODULE__{} = graph, subject) do
-    Map.has_key?(graph.descriptions, coerce_subject(subject))
+    Map.has_key?(graph.descriptions, RDF.coerce_subject(subject))
+  end
+
+  @doc """
+  Creates a graph from another one by limiting its statements to those using one of the given `subjects`.
+
+  If `subjects` contains IRIs that are not used in the `graph`, they're simply ignored.
+
+  The optional `properties` argument allows to limit also properties of the subject descriptions.
+
+  If `nil` is passed as the `subjects`, the subjects will not be limited.
+  """
+  @spec take(
+          t,
+          [Statement.coercible_subject()] | Enum.t() | nil,
+          [Statement.coercible_predicate()] | Enum.t() | nil
+        ) :: t
+  def take(graph, subjects, properties \\ nil)
+
+  def take(%__MODULE__{} = graph, nil, nil), do: graph
+
+  def take(%__MODULE__{descriptions: descriptions} = graph, subjects, nil) do
+    %__MODULE__{
+      graph
+      | descriptions: Map.take(descriptions, Enum.map(subjects, &RDF.coerce_subject/1))
+    }
+  end
+
+  def take(%__MODULE__{} = graph, subjects, properties) do
+    graph = take(graph, subjects, nil)
+
+    %__MODULE__{
+      graph
+      | descriptions:
+          Map.new(graph.descriptions, fn {subject, description} ->
+            {subject, Description.take(description, properties)}
+          end)
+    }
+  end
+
+  @doc """
+  Execute the given `query` against the given `graph`.
+
+  This is just a convenience delegator function to `RDF.Query.execute!/3` with
+  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+
+  See `RDF.Query.execute/3` and `RDF.Query.execute!/3` for more information and examples.
+  """
+  def query(graph, query, opts \\ []) do
+    RDF.Query.execute!(query, graph, opts)
+  end
+
+  @doc """
+  Returns a `Stream` for the execution of the given `query` against the given `graph`.
+
+  This is just a convenience delegator function to `RDF.Query.stream!/3` with
+  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+
+  See `RDF.Query.stream/3` and `RDF.Query.stream!/3` for more information and examples.
+  """
+  def query_stream(graph, query, opts \\ []) do
+    RDF.Query.stream!(query, graph, opts)
   end
 
   @doc """
@@ -886,9 +925,9 @@ defmodule RDF.Graph do
   @spec values(t, keyword) :: map
   def values(%__MODULE__{} = graph, opts \\ []) do
     if property_map = PropertyMap.from_opts(opts) do
-      map(graph, Statement.default_property_mapping(property_map))
+      map(graph, RDF.Statement.default_property_mapping(property_map))
     else
-      map(graph, &Statement.default_term_mapping/1)
+      map(graph, &RDF.Statement.default_term_mapping/1)
     end
   end
 
@@ -900,6 +939,8 @@ defmodule RDF.Graph do
   while `rdf_term` is the RDF term to be mapped. When the given function returns
   `nil` this will be interpreted as an error and will become the overhaul result
   of the `map/2` call.
+
+  Note: RDF-star statements where the subject or object is a triple will be ignored.
 
   ## Examples
 
@@ -914,8 +955,8 @@ defmodule RDF.Graph do
       ...>        |> String.split("/")
       ...>        |> List.last()
       ...>        |> String.to_atom()
-      ...>    {_, term} ->
-      ...>      RDF.Term.value(term)
+      ...>      {_, term} ->
+      ...>        RDF.Term.value(term)
       ...>    end)
       %{
         "http://example.com/S1" => %{p: ["Foo"]},
@@ -927,49 +968,23 @@ defmodule RDF.Graph do
   def map(description, fun)
 
   def map(%__MODULE__{} = graph, fun) do
-    Map.new(graph.descriptions, fn {subject, description} ->
-      {
-        fun.({:subject, subject}),
-        Description.map(description, fun)
-      }
+    Enum.reduce(graph.descriptions, %{}, fn
+      {subject, _}, map when is_tuple(subject) ->
+        map
+
+      {subject, description}, map ->
+        case Description.map(description, fun) do
+          mapped_objects when map_size(mapped_objects) == 0 ->
+            map
+
+          mapped_objects ->
+            Map.put(
+              map,
+              fun.({:subject, subject}),
+              mapped_objects
+            )
+        end
     end)
-  end
-
-  @doc """
-  Creates a graph from another one by limiting its statements to those using one of the given `subjects`.
-
-  If `subjects` contains IRIs that are not used in the `graph`, they're simply ignored.
-
-  The optional `properties` argument allows to limit also properties of the subject descriptions.
-
-  If `nil` is passed as the `subjects`, the subjects will not be limited.
-  """
-  @spec take(
-          t,
-          [Statement.coercible_subject()] | Enum.t() | nil,
-          [Statement.coercible_predicate()] | Enum.t() | nil
-        ) :: t
-  def take(graph, subjects, properties \\ nil)
-
-  def take(%__MODULE__{} = graph, nil, nil), do: graph
-
-  def take(%__MODULE__{descriptions: descriptions} = graph, subjects, nil) do
-    %__MODULE__{
-      graph
-      | descriptions: Map.take(descriptions, Enum.map(subjects, &coerce_subject/1))
-    }
-  end
-
-  def take(%__MODULE__{} = graph, subjects, properties) do
-    graph = take(graph, subjects, nil)
-
-    %__MODULE__{
-      graph
-      | descriptions:
-          Map.new(graph.descriptions, fn {subject, description} ->
-            {subject, Description.take(description, properties)}
-          end)
-    }
   end
 
   @doc """

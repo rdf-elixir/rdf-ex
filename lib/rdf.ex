@@ -45,19 +45,23 @@ defmodule RDF do
     Namespace,
     Literal,
     BlankNode,
-    Triple,
-    Quad,
-    Statement,
     Description,
     Graph,
     Dataset,
+    Serialization,
     PrefixMap
   }
 
   import RDF.Guards
   import RDF.Utils.Bootstrapping
 
-  defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
+  @star? Application.get_env(:rdf, :star, true)
+  @doc """
+  Returns whether RDF-star support is enabled.
+  """
+  def star?(), do: @star?
+
+  defdelegate default_base_iri(), to: IRI, as: :default_base
 
   @standard_prefixes PrefixMap.new(
                        xsd: xsd_iri_base(),
@@ -136,17 +140,17 @@ defmodule RDF do
     default_prefixes() |> PrefixMap.merge!(prefix_mappings)
   end
 
-  defdelegate read_string(string, opts), to: RDF.Serialization
-  defdelegate read_string!(string, opts), to: RDF.Serialization
-  defdelegate read_stream(stream, opts \\ []), to: RDF.Serialization
-  defdelegate read_stream!(stream, opts \\ []), to: RDF.Serialization
-  defdelegate read_file(filename, opts \\ []), to: RDF.Serialization
-  defdelegate read_file!(filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_string(data, opts), to: RDF.Serialization
-  defdelegate write_string!(data, opts), to: RDF.Serialization
-  defdelegate write_stream(data, opts), to: RDF.Serialization
-  defdelegate write_file(data, filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_file!(data, filename, opts \\ []), to: RDF.Serialization
+  defdelegate read_string(string, opts), to: Serialization
+  defdelegate read_string!(string, opts), to: Serialization
+  defdelegate read_stream(stream, opts \\ []), to: Serialization
+  defdelegate read_stream!(stream, opts \\ []), to: Serialization
+  defdelegate read_file(filename, opts \\ []), to: Serialization
+  defdelegate read_file!(filename, opts \\ []), to: Serialization
+  defdelegate write_string(data, opts), to: Serialization
+  defdelegate write_string!(data, opts), to: Serialization
+  defdelegate write_stream(data, opts), to: Serialization
+  defdelegate write_file(data, filename, opts \\ []), to: Serialization
+  defdelegate write_file!(data, filename, opts \\ []), to: Serialization
 
   @doc """
   Checks if the given value is a RDF resource.
@@ -179,6 +183,10 @@ defmodule RDF do
       {:ok, iri} -> resource?(iri)
       _ -> false
     end
+  end
+
+  if @star? do
+    def resource?({_, _, _} = triple), do: RDF.Triple.valid?(triple)
   end
 
   def resource?(_), do: false
@@ -243,15 +251,41 @@ defmodule RDF do
   defdelegate literal(value), to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
-  defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
-  defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
+  if @star? do
+    alias RDF.Star.{Triple, Quad, Statement}
 
-  defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
-  defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
+    defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
+    defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
 
-  defdelegate statement(s, p, o), to: Statement, as: :new
-  defdelegate statement(s, p, o, g), to: Statement, as: :new
-  defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
+    defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
+    defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
+
+    defdelegate statement(s, p, o), to: Statement, as: :new
+    defdelegate statement(s, p, o, g), to: Statement, as: :new
+    defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
+
+    defdelegate coerce_subject(subject, property_map \\ nil), to: Statement
+    defdelegate coerce_predicate(predicate, property_map \\ nil), to: Statement
+    defdelegate coerce_object(object, property_map \\ nil), to: Statement
+    defdelegate coerce_graph_name(graph_name), to: Statement
+  else
+    alias RDF.{Triple, Quad, Statement}
+
+    defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
+    defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
+
+    defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
+    defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
+
+    defdelegate statement(s, p, o), to: Statement, as: :new
+    defdelegate statement(s, p, o, g), to: Statement, as: :new
+    defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
+
+    defdelegate coerce_subject(subject), to: Statement
+    defdelegate coerce_predicate(predicate, property_map \\ nil), to: Statement
+    defdelegate coerce_object(object), to: Statement
+    defdelegate coerce_graph_name(graph_name), to: Statement
+  end
 
   defdelegate description(subject, opts \\ []), to: Description, as: :new
 

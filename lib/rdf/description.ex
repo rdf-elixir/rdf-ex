@@ -15,10 +15,8 @@ defmodule RDF.Description do
 
   @behaviour Access
 
-  import RDF.Statement,
-    only: [coerce_subject: 1, coerce_predicate: 1, coerce_predicate: 2, coerce_object: 1]
-
-  alias RDF.{Statement, Triple, PropertyMap}
+  alias RDF.PropertyMap
+  alias RDF.Star.{Statement, Triple}
 
   @type t :: %__MODULE__{
           subject: Statement.subject(),
@@ -72,7 +70,7 @@ defmodule RDF.Description do
   def new(subject, opts) do
     {data, opts} = Keyword.pop(opts, :init)
 
-    %__MODULE__{subject: coerce_subject(subject)}
+    %__MODULE__{subject: RDF.coerce_subject(subject)}
     |> init(data, opts)
   end
 
@@ -91,7 +89,7 @@ defmodule RDF.Description do
   """
   @spec change_subject(t, Statement.coercible_subject()) :: t
   def change_subject(%__MODULE__{} = description, new_subject) do
-    %__MODULE__{description | subject: coerce_subject(new_subject)}
+    %__MODULE__{description | subject: RDF.coerce_subject(new_subject)}
   end
 
   @doc """
@@ -121,7 +119,7 @@ defmodule RDF.Description do
   end
 
   def add(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
-    if coerce_subject(subject) == description.subject do
+    if RDF.coerce_subject(subject) == description.subject do
       add(description, {predicate, objects}, opts)
     else
       description
@@ -132,7 +130,7 @@ defmodule RDF.Description do
     normalized_objects =
       objects
       |> List.wrap()
-      |> Map.new(&{coerce_object(&1), nil})
+      |> Map.new(&{RDF.coerce_object(&1), nil})
 
     if Enum.empty?(normalized_objects) do
       description
@@ -142,11 +140,9 @@ defmodule RDF.Description do
         | predications:
             Map.update(
               description.predications,
-              coerce_predicate(predicate, PropertyMap.from_opts(opts)),
+              RDF.coerce_predicate(predicate, PropertyMap.from_opts(opts)),
               normalized_objects,
-              fn objects ->
-                Map.merge(objects, normalized_objects)
-              end
+              &Map.merge(&1, normalized_objects)
             )
       }
     end
@@ -237,7 +233,7 @@ defmodule RDF.Description do
   def delete(description, input, opts \\ [])
 
   def delete(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
-    if coerce_subject(subject) == description.subject do
+    if RDF.coerce_subject(subject) == description.subject do
       delete(description, {predicate, objects}, opts)
     else
       description
@@ -249,13 +245,13 @@ defmodule RDF.Description do
   end
 
   def delete(%__MODULE__{} = description, {predicate, objects}, opts) do
-    predicate = coerce_predicate(predicate, PropertyMap.from_opts(opts))
+    predicate = RDF.coerce_predicate(predicate, PropertyMap.from_opts(opts))
 
     if current_objects = Map.get(description.predications, predicate) do
       normalized_objects =
         objects
         |> List.wrap()
-        |> Enum.map(&coerce_object/1)
+        |> Enum.map(&RDF.coerce_object/1)
 
       rest = Map.drop(current_objects, normalized_objects)
 
@@ -329,7 +325,7 @@ defmodule RDF.Description do
   def delete_predicates(%__MODULE__{} = description, property) do
     %__MODULE__{
       description
-      | predications: Map.delete(description.predications, coerce_predicate(property))
+      | predications: Map.delete(description.predications, RDF.coerce_predicate(property))
     }
   end
 
@@ -352,7 +348,7 @@ defmodule RDF.Description do
   @spec fetch(t, Statement.coercible_predicate()) :: {:ok, [Statement.object()]} | :error
   def fetch(%__MODULE__{} = description, predicate) do
     with {:ok, objects} <-
-           Access.fetch(description.predications, coerce_predicate(predicate)) do
+           Access.fetch(description.predications, RDF.coerce_predicate(predicate)) do
       {:ok, Map.keys(objects)}
     end
   end
@@ -427,15 +423,14 @@ defmodule RDF.Description do
           ([Statement.Object] -> [Statement.Object])
         ) :: t
   def update(%__MODULE__{} = description, predicate, initial \\ nil, fun) do
-    predicate = coerce_predicate(predicate)
+    predicate = RDF.coerce_predicate(predicate)
 
     case get(description, predicate) do
+      nil when is_nil(initial) ->
+        description
+
       nil ->
-        if initial do
-          put(description, {predicate, initial})
-        else
-          description
-        end
+        put(description, {predicate, initial})
 
       objects ->
         objects
@@ -481,7 +476,7 @@ defmodule RDF.Description do
           ([Statement.Object] -> {[Statement.Object], t} | :pop)
         ) :: {[Statement.Object], t}
   def get_and_update(%__MODULE__{} = description, predicate, fun) do
-    triple_predicate = coerce_predicate(predicate)
+    triple_predicate = RDF.coerce_predicate(predicate)
 
     case fun.(get(description, triple_predicate)) do
       {objects_to_return, new_objects} ->
@@ -533,7 +528,7 @@ defmodule RDF.Description do
   """
   @impl Access
   def pop(%__MODULE__{} = description, predicate) do
-    case Access.pop(description.predications, coerce_predicate(predicate)) do
+    case Access.pop(description.predications, RDF.coerce_predicate(predicate)) do
       {nil, _} ->
         {nil, description}
 
@@ -613,22 +608,37 @@ defmodule RDF.Description do
   """
   @spec resources(t) :: MapSet.t()
   def resources(%__MODULE__{} = description) do
-    description
-    |> objects()
+    objects(description)
     |> MapSet.union(predicates(description))
   end
 
   @doc """
   The list of all triples within a `RDF.Description`.
+
+  When the optional `:filter_star` flag is set to `true` RDF-star triples with a triple as subject or object
+  will be filtered. So, for a description with a triple as a subject you'll always get an empty list.
   """
-  @spec triples(t) :: keyword
-  def triples(%__MODULE__{subject: s} = description) do
-    Enum.flat_map(description.predications, fn {p, os} ->
-      Enum.map(os, fn {o, _} -> {s, p, o} end)
-    end)
+  @spec triples(t, keyword) :: list(Triple.t())
+  def triples(%__MODULE__{subject: s} = description, opts \\ []) do
+    filter_star = Keyword.get(opts, :filter_star, false)
+
+    cond do
+      filter_star and is_tuple(s) ->
+        []
+
+      filter_star ->
+        for {p, os} <- description.predications, {o, _} when not is_tuple(o) <- os do
+          {s, p, o}
+        end
+
+      true ->
+        for {p, os} <- description.predications, {o, _} <- os do
+          {s, p, o}
+        end
+    end
   end
 
-  defdelegate statements(description), to: __MODULE__, as: :triples
+  defdelegate statements(description, opts \\ []), to: __MODULE__, as: :triples
 
   @doc """
   Returns the number of statements of a `RDF.Description`.
@@ -649,7 +659,7 @@ defmodule RDF.Description do
   def include?(description, input, opts \\ [])
 
   def include?(%__MODULE__{} = description, {subject, predicate, objects}, opts) do
-    coerce_subject(subject) == description.subject &&
+    RDF.coerce_subject(subject) == description.subject &&
       include?(description, {predicate, objects}, opts)
   end
 
@@ -659,10 +669,10 @@ defmodule RDF.Description do
 
   def include?(%__MODULE__{} = description, {predicate, objects}, opts) do
     if existing_objects =
-         description.predications[coerce_predicate(predicate, PropertyMap.from_opts(opts))] do
+         description.predications[RDF.coerce_predicate(predicate, PropertyMap.from_opts(opts))] do
       objects
       |> List.wrap()
-      |> Enum.map(&coerce_object/1)
+      |> Enum.map(&RDF.coerce_object/1)
       |> Enum.all?(fn object -> Map.has_key?(existing_objects, object) end)
     else
       false
@@ -714,7 +724,7 @@ defmodule RDF.Description do
   """
   @spec describes?(t, Statement.subject()) :: boolean
   def describes?(%__MODULE__{subject: subject}, other_subject) do
-    subject == coerce_subject(other_subject)
+    subject == RDF.coerce_subject(other_subject)
   end
 
   @doc """
@@ -726,6 +736,8 @@ defmodule RDF.Description do
 
   When a `:context` option is given with a `RDF.PropertyMap`, predicates will
   be mapped to the terms defined in the `RDF.PropertyMap`, if present.
+
+  Note: RDF-star statements where the object is a triple will be ignored.
 
   ## Examples
 
@@ -741,9 +753,9 @@ defmodule RDF.Description do
   @spec values(t, keyword) :: map
   def values(%__MODULE__{} = description, opts \\ []) do
     if property_map = PropertyMap.from_opts(opts) do
-      map(description, Statement.default_property_mapping(property_map))
+      map(description, RDF.Statement.default_property_mapping(property_map))
     else
-      map(description, &Statement.default_term_mapping/1)
+      map(description, &RDF.Statement.default_term_mapping/1)
     end
   end
 
@@ -758,6 +770,8 @@ defmodule RDF.Description do
   `rdf_term` is the RDF term to be mapped. When the given function returns
   `nil` this will be interpreted as an error and will become the overhaul result
   of the `map/2` call.
+
+  Note: RDF-star statements where the object is a triple will be ignored.
 
   ## Examples
 
@@ -779,11 +793,21 @@ defmodule RDF.Description do
   def map(description, fun)
 
   def map(%__MODULE__{} = description, fun) do
-    Map.new(description.predications, fn {predicate, objects} ->
-      {
-        fun.({:predicate, predicate}),
-        objects |> Map.keys() |> Enum.map(&fun.({:object, &1}))
-      }
+    Enum.reduce(description.predications, %{}, fn {predicate, objects}, map ->
+      objects
+      |> Map.keys()
+      |> Enum.reject(&is_tuple/1)
+      |> case do
+        [] ->
+          map
+
+        objects ->
+          Map.put(
+            map,
+            fun.({:predicate, predicate}),
+            Enum.map(objects, &fun.({:object, &1}))
+          )
+      end
     end)
   end
 
@@ -803,7 +827,7 @@ defmodule RDF.Description do
     %__MODULE__{
       description
       | predications:
-          Map.take(description.predications, Enum.map(predicates, &coerce_predicate/1))
+          Map.take(description.predications, Enum.map(predicates, &RDF.coerce_predicate/1))
     }
   end
 
