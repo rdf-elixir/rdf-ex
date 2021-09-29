@@ -57,6 +57,10 @@ defmodule RDF.NTriples.Encoder do
     to_string(bnode)
   end
 
+  def term({s, p, o}) do
+    "<< #{term(s)} #{term(p)} #{term(o)} >>"
+  end
+
   @spec iolist_statement(Triple.t()) :: iolist
   def iolist_statement({subject, predicate, object}) do
     [iolist_term(subject), " ", iolist_term(predicate), " ", iolist_term(object), " .\n"]
