@@ -3,11 +3,13 @@
 Nonterminals turtleDoc statement directive prefixID base sparqlPrefix sparqlBase
   triples predicateObjectList objectList blankNodePropertyList semicolonSequence
   verb subject predicate object collection collection_elements
-  literal numericLiteral rdfLiteral booleanLiteral iri prefixedName blankNode.
+  literal numericLiteral rdfLiteral booleanLiteral iri prefixedName blankNode
+  annotation quotedTriple qtSubject qtObject .
 
 Terminals prefix_ns prefix_ln iriref blank_node_label anon
   string_literal_quote langtag integer decimal double boolean
-  '.' ';' ',' '[' ']' '(' ')' '^^' '@prefix' '@base' 'PREFIX' 'BASE' 'a' .
+  '.' ';' ',' '[' ']' '(' ')' '^^' '@prefix' '@base' 'PREFIX' 'BASE' 'a'
+  '<<' '>>' '{|' '|}' .
 
 Rootsymbol turtleDoc.
 
@@ -37,10 +39,11 @@ predicateObjectList -> verb objectList semicolonSequence : [{'$1', '$2'}] .
 predicateObjectList -> verb objectList semicolonSequence predicateObjectList : [{'$1', '$2'} | '$4'] .
 semicolonSequence -> ';' .
 semicolonSequence -> ';' semicolonSequence .
-%%: '$1' .
 
 objectList -> object                : ['$1'] .
 objectList -> object ',' objectList : ['$1' | '$3'] .
+objectList -> object annotation : ['$1', {annotation, '$2'}] .
+objectList -> object annotation ',' objectList : ['$1', {annotation, '$2'} | '$4'] .
 
 blankNodePropertyList -> '[' predicateObjectList ']' : {blankNodePropertyList, '$2'} .
 
@@ -49,12 +52,24 @@ verb      -> predicate              : '$1' .
 subject   -> iri                    : '$1' .
 subject   -> blankNode              : '$1' .
 subject   -> collection             : '$1' .
+subject   -> quotedTriple           : '$1' .
 predicate -> iri                    : '$1' .
 object    -> iri                    : '$1' .
 object    -> blankNode              : '$1' .
 object    -> collection             : '$1' .
 object    -> blankNodePropertyList  : '$1' .
 object    -> literal                : '$1' .
+object    -> quotedTriple           : '$1' .
+
+quotedTriple -> '<<' qtSubject verb qtObject '>>' : {quoted_triple, '$2',  '$3',  '$4' } .
+qtSubject -> iri : '$1' .
+qtSubject -> blankNode : '$1' .
+qtSubject -> quotedTriple : '$1' .
+qtObject  -> iri : '$1' .
+qtObject  -> blankNode : '$1' .
+qtObject  -> literal : '$1' .
+qtObject  -> quotedTriple : '$1' .
+annotation -> '{|' predicateObjectList '|}' : '$2' .
 
 collection -> '(' ')'                     : {collection, []} .
 collection -> '(' collection_elements ')' : {collection, '$2'} .

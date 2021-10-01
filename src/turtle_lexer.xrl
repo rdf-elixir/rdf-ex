@@ -70,6 +70,10 @@ a                                  : {token, {'a', TokenLine}}.
 \(	                               : {token, {'(', TokenLine}}.
 \)	                               : {token, {')', TokenLine}}.
 \^\^	                             : {token, {'^^', TokenLine}}.
+\<\<           	                   : {token, {'<<', TokenLine}}.
+\>\>           	                   : {token, {'>>', TokenLine}}.
+\{\|           	                   : {token, {'{|', TokenLine}}.
+\|\}           	                   : {token, {'|}', TokenLine}}.
 
 {WS}+                              : skip_token.
 {COMMENT}                          : skip_token.

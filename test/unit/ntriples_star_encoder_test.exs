@@ -11,15 +11,15 @@ defmodule RDF.Star.NTriples.EncoderTest do
   end
 
   test "annotations of triples on object position" do
-        assert NTriples.Encoder.encode!(
-                 Graph.new([
-                   statement(),
-                   {EX.AS, EX.ap(), statement()},
-                 ])
-               ) ==
-                 """
-                 <http://example.com/AS> <http://example.com/ap> << <http://example.com/S> <http://example.com/P> "Foo" >> .
-                 <http://example.com/S> <http://example.com/P> "Foo" .
-                 """
+    assert NTriples.Encoder.encode!(
+             Graph.new([
+               statement(),
+               {EX.AS, EX.ap(), statement()}
+             ])
+           ) ==
+             """
+             <http://example.com/AS> <http://example.com/ap> << <http://example.com/S> <http://example.com/P> "Foo" >> .
+             <http://example.com/S> <http://example.com/P> "Foo" .
+             """
   end
 end
