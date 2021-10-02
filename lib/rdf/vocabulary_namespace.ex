@@ -16,6 +16,8 @@ defmodule RDF.Vocabulary.Namespace do
 
   @type t :: module
 
+  # Note: We're not using :code.priv_dir/1 here on purpose, since vocabulary files should be
+  # searched in the vocabs dir of the project in which the vocabulary namespace is defined.
   @vocabs_dir "priv/vocabs"
 
   defmacro __using__(_opts) do
