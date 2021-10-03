@@ -16,8 +16,8 @@ defprotocol RDF.Term do
   @doc """
   Checks if the given value is a RDF term.
 
-  Note: As opposed to `RDF.term?` this function returns false on atoms and does
-  not try resolves those to IRIs.
+  Note: As opposed to `RDF.term?` this function returns `false` on atoms and does
+  not try to resolve them to IRIs.
 
   ## Examples
 
