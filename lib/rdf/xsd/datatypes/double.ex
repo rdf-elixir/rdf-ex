@@ -79,7 +79,7 @@ defmodule RDF.XSD.Double do
   @spec elixir_mapping(valid_value | integer | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   def elixir_mapping(value, _) when is_float(value), do: value
-  def elixir_mapping(value, _) when is_integer(value), do: value / 1
+  def elixir_mapping(value, _) when is_integer(value), do: :erlang.float(value)
   def elixir_mapping(value, _) when value in @special_values, do: value
   def elixir_mapping(_, _), do: @invalid_value
 
