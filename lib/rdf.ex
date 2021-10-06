@@ -265,7 +265,8 @@ defmodule RDF do
     defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
 
     defdelegate coerce_subject(subject, property_map \\ nil), to: Statement
-    defdelegate coerce_predicate(predicate, property_map \\ nil), to: Statement
+    defdelegate coerce_predicate(predicate), to: Statement
+    defdelegate coerce_predicate(predicate, property_map), to: Statement
     defdelegate coerce_object(object, property_map \\ nil), to: Statement
     defdelegate coerce_graph_name(graph_name), to: Statement
   else
@@ -282,7 +283,8 @@ defmodule RDF do
     defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
 
     defdelegate coerce_subject(subject), to: Statement
-    defdelegate coerce_predicate(predicate, property_map \\ nil), to: Statement
+    defdelegate coerce_predicate(predicate), to: Statement
+    defdelegate coerce_predicate(predicate, property_map), to: Statement
     defdelegate coerce_object(object), to: Statement
     defdelegate coerce_graph_name(graph_name), to: Statement
   end

@@ -23,6 +23,8 @@ defmodule RDF.Star.Statement do
           {coercible_subject(), coercible_predicate(), coercible_object(), coercible_graph_name()}
           | {coercible_subject(), coercible_predicate(), coercible_object()}
 
+  @type term_mapping :: RDF.Statement.term_mapping()
+
   @doc """
   Creates a `RDF.Star.Triple` or `RDF.Star.Quad` with proper RDF values.
 
@@ -71,8 +73,8 @@ defmodule RDF.Star.Statement do
   def coerce_subject({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce_subject(subject, _), do: RDF.Statement.coerce_subject(subject)
 
-  defdelegate coerce_predicate(coercible_predicate), to: RDF.Statement
-  defdelegate coerce_predicate(term, context), to: RDF.Statement
+  defdelegate coerce_predicate(predicate), to: RDF.Statement
+  defdelegate coerce_predicate(predicate, property_map), to: RDF.Statement
 
   @doc false
   @spec coerce_object(coercible_object, PropertyMap.t() | nil) :: object
