@@ -22,9 +22,8 @@ defmodule RDF.Turtle.Encoder.State do
   end
 
   def base_iri(state) do
-    with {:ok, base} <- base(state) do
-      RDF.iri(base)
-    else
+    case base(state) do
+      {:ok, base} -> RDF.iri(base)
       _ -> nil
     end
   end
@@ -32,13 +31,13 @@ defmodule RDF.Turtle.Encoder.State do
   def list_values(head, state), do: Agent.get(state, & &1.list_values[head])
 
   def preprocess(state) do
-    with data = data(state),
-         {bnode_ref_counter, list_parents} = bnode_info(data),
-         {list_nodes, list_values} = valid_lists(list_parents, bnode_ref_counter, data) do
-      Agent.update(state, &Map.put(&1, :bnode_ref_counter, bnode_ref_counter))
-      Agent.update(state, &Map.put(&1, :list_nodes, list_nodes))
-      Agent.update(state, &Map.put(&1, :list_values, list_values))
-    end
+    data = data(state)
+    {bnode_ref_counter, list_parents} = bnode_info(data)
+    {list_nodes, list_values} = valid_lists(list_parents, bnode_ref_counter, data)
+
+    Agent.update(state, &Map.put(&1, :bnode_ref_counter, bnode_ref_counter))
+    Agent.update(state, &Map.put(&1, :list_nodes, list_nodes))
+    Agent.update(state, &Map.put(&1, :list_values, list_values))
   end
 
   defp bnode_info(data) do
@@ -47,15 +46,23 @@ defmodule RDF.Turtle.Encoder.State do
     |> Enum.reduce(
       {%{}, %{}},
       fn %Description{subject: subject} = description, {bnode_ref_counter, list_parents} ->
+        # We don't count blank node subjects, because when a blank node only occurs as a subject in
+        # multiple triples, we still can and want to use the square bracket syntax for its encoding.
+
         list_parents =
           if match?(%BlankNode{}, subject) and
                to_list?(description, Map.get(bnode_ref_counter, subject, 0)),
              do: Map.put_new(list_parents, subject, nil),
              else: list_parents
 
+        bnode_ref_counter = handle_quoted_triples(subject, bnode_ref_counter)
+
         Enum.reduce(description.predications, {bnode_ref_counter, list_parents}, fn
           {predicate, objects}, {bnode_ref_counter, list_parents} ->
             Enum.reduce(Map.keys(objects), {bnode_ref_counter, list_parents}, fn
+              {_, _, _} = quoted_triple, {bnode_ref_counter, list_parents} ->
+                {handle_quoted_triples(quoted_triple, bnode_ref_counter), list_parents}
+
               %BlankNode{} = object, {bnode_ref_counter, list_parents} ->
                 {
                   # Note: The following conditional produces imprecise results
@@ -83,6 +90,21 @@ defmodule RDF.Turtle.Encoder.State do
     )
   end
 
+  defp handle_quoted_triples({s, _, o}, bnode_ref_counter) do
+    bnode_ref_counter =
+      case s do
+        %BlankNode{} -> Map.update(bnode_ref_counter, s, 1, &(&1 + 1))
+        _ -> bnode_ref_counter
+      end
+
+    case o do
+      %BlankNode{} -> Map.update(bnode_ref_counter, o, 1, &(&1 + 1))
+      _ -> bnode_ref_counter
+    end
+  end
+
+  defp handle_quoted_triples(_, bnode_ref_counter), do: bnode_ref_counter
+
   @list_properties MapSet.new([
                      RDF.Utils.Bootstrapping.rdf_iri("first"),
                      RDF.Utils.Bootstrapping.rdf_iri("rest")
@@ -94,21 +116,17 @@ defmodule RDF.Turtle.Encoder.State do
       Description.predicates(description) |> MapSet.equal?(@list_properties)
   end
 
-  defp to_list?(%Description{} = description, 0),
-    do: RDF.list?(description)
-
-  defp to_list?(_, _),
-    do: false
+  defp to_list?(%Description{} = description, 0), do: RDF.list?(description)
+  defp to_list?(_, _), do: false
 
   defp valid_lists(list_parents, bnode_ref_counter, data) do
     head_nodes = for {list_node, nil} <- list_parents, do: list_node
 
     all_list_nodes =
-      MapSet.new(
-        for {list_node, _} <- list_parents, Map.get(bnode_ref_counter, list_node, 0) < 2 do
-          list_node
-        end
-      )
+      for {list_node, _} <- list_parents, Map.get(bnode_ref_counter, list_node, 0) < 2 do
+        list_node
+      end
+      |> MapSet.new()
 
     Enum.reduce(head_nodes, {MapSet.new(), %{}}, fn head_node, {valid_list_nodes, list_values} ->
       with list when not is_nil(list) <-

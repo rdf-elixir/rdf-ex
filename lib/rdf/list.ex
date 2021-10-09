@@ -154,12 +154,7 @@ defmodule RDF.List do
   """
   @spec valid?(t) :: boolean
   def valid?(%__MODULE__{head: @rdf_nil}), do: true
-
-  def valid?(%__MODULE__{} = list) do
-    Enum.all?(list, fn node_description ->
-      RDF.bnode?(node_description.subject)
-    end)
-  end
+  def valid?(%__MODULE__{} = list), do: Enum.all?(list, &RDF.bnode?(&1.subject))
 
   @doc """
   Checks if a given resource is a RDF list node in a given `RDF.Graph`.
@@ -172,23 +167,16 @@ defmodule RDF.List do
   """
   @spec node?(any, Graph.t()) :: boolean
   def node?(list_node, graph)
-
-  def node?(@rdf_nil, _),
-    do: true
-
-  def node?(%BlankNode{} = list_node, graph),
-    do: do_node?(list_node, graph)
-
-  def node?(%IRI{} = list_node, graph),
-    do: do_node?(list_node, graph)
+  def node?(@rdf_nil, _), do: true
+  def node?(%BlankNode{} = list_node, graph), do: do_node?(list_node, graph)
+  def node?(%IRI{} = list_node, graph), do: do_node?(list_node, graph)
 
   def node?(list_node, graph) when maybe_ns_term(list_node),
     do: do_node?(RDF.iri(list_node), graph)
 
   def node?(_, _), do: false
 
-  defp do_node?(list_node, graph),
-    do: graph |> Graph.description(list_node) |> node?
+  defp do_node?(list_node, graph), do: graph |> Graph.description(list_node) |> node?()
 
   @doc """
   Checks if the given `RDF.Description` describes a RDF list node.

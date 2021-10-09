@@ -11,6 +11,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`
 
+### Changed
+
+- the `RDF.Turtle.Encoder` no longer supports the encoding of `RDF.Dataset`s; you'll have to 
+  aggregate a `RDF.Dataset` to a `RDF.Graph` on your own now
+
+
 
 [Compare v0.9.4...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.4...HEAD)
 

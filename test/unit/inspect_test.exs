@@ -34,6 +34,11 @@ defmodule RDF.InspectTest do
                   |> String.trim()) <> "\n>"
     end
 
+    test "it encodes the RDF-star graphs ands descriptions in Turtle-star" do
+      {_, triples} = inspect_parts(annotation(), limit: 2)
+      assert triples =~ "<< <http://example.com/S> <http://example.com/P> \"Foo\" >>"
+    end
+
     test ":limit option" do
       {_, triples} = inspect_parts(@test_description, limit: 2)
 
