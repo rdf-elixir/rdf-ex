@@ -62,6 +62,69 @@ defmodule RDF.Star.Graph.Test do
     end
   end
 
+  describe "annotate option on add/3" do
+    test "with a predicate-object pair" do
+      assert Graph.add(graph(), statement(), annotate: {EX.AP, EX.AO}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO})
+
+      assert Graph.add(graph(), [{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}],
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S2, EX.P2, EX.O2}, EX.AP, EX.AO})
+
+      expected_graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S1, EX.P1, EX.O2})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+
+      assert Graph.add(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert Graph.add(graph(), %{EX.S1 => %{EX.P1 => [EX.O1, EX.O2]}}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert Graph.add(graph(), Description.new(EX.S1, init: %{EX.P1 => [EX.O1, EX.O2]}),
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+    end
+
+    test "with multiple annotations" do
+      assert Graph.add(graph(), statement(), annotate: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+    end
+
+    test "with a description graph" do
+      assert Graph.add(graph(), statement(), annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+
+      assert Graph.add(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]},
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO2})
+    end
+  end
+
   describe "put/3" do
     test "with a proper triple as a subject" do
       graph =
@@ -115,6 +178,131 @@ defmodule RDF.Star.Graph.Test do
     end
   end
 
+  describe "annotate option on put/3" do
+    test "with a predicate-object pair" do
+      assert Graph.put(graph(), statement(), annotate: {EX.AP, EX.AO}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO})
+
+      assert Graph.put(graph(), [{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}],
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S2, EX.P2, EX.O2}, EX.AP, EX.AO})
+
+      expected_graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S1, EX.P1, EX.O2})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+
+      assert Graph.put(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert Graph.put(graph(), %{EX.S1 => %{EX.P1 => [EX.O1, EX.O2]}}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert Graph.put(graph(), Description.new(EX.S1, init: %{EX.P1 => [EX.O1, EX.O2]}),
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+    end
+
+    test "with multiple annotations" do
+      assert Graph.put(graph(), statement(), annotate: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+    end
+
+    test "with a description graph" do
+      assert Graph.put(graph(), statement(), annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+
+      assert Graph.put(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]},
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO2})
+    end
+
+    test "with a RDF.Graph" do
+      assert Graph.put(graph(), Graph.new({EX.S1, EX.P1, [EX.O1, EX.O2]}),
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO2})
+    end
+
+    test "when an annotation exists" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.AP1, EX.AO1})
+             |> Graph.put(statement(), annotate: {EX.AP, EX.AO}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO})
+
+      base_graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S1, EX.P1, EX.O2})
+
+      expected_graph =
+        base_graph
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP, EX.AO1})
+             |> Graph.put({EX.S1, EX.P1, [EX.O1, EX.O2]}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP1, EX.AO})
+             |> Graph.put(%{EX.S1 => %{EX.P1 => [EX.O1, EX.O2]}}, annotate: {EX.AP, EX.AO}) ==
+               expected_graph
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP1, EX.AO1})
+             |> Graph.put(Description.new(EX.S1, init: %{EX.P1 => [EX.O1, EX.O2]}),
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2})
+             |> Graph.put({EX.S1, EX.P1, [EX.O1, EX.O2]},
+               annotate: %{EX.AP3 => EX.AO3, EX.AP2 => EX.AO4}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO3})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP3, EX.AO3})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO4})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO4})
+    end
+  end
+
   test "put_properties/3" do
     graph =
       graph()
@@ -131,6 +319,158 @@ defmodule RDF.Star.Graph.Test do
 
     refute graph_includes_statement?(graph, {statement(), EX.ap(), EX.ao1()})
     assert graph_includes_statement?(graph, {statement(), EX.ap(), EX.ao2()})
+  end
+
+  describe "annotate option on put_properties/3" do
+    test "with a predicate-object pair" do
+      assert Graph.put_properties(graph(), statement(), annotate: {EX.AP, EX.AO}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO})
+
+      assert Graph.put_properties(graph(), [{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}],
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S2, EX.P2, EX.O2}, EX.AP, EX.AO})
+
+      expected_graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S1, EX.P1, EX.O2})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+
+      assert Graph.put_properties(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]},
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+
+      assert Graph.put_properties(graph(), %{EX.S1 => %{EX.P1 => [EX.O1, EX.O2]}},
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+
+      assert Graph.put_properties(
+               graph(),
+               Description.new(EX.S1, init: %{EX.P1 => [EX.O1, EX.O2]}),
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               expected_graph
+    end
+
+    test "with multiple annotations" do
+      assert Graph.put_properties(graph(), statement(),
+               annotate: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             ) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+    end
+
+    test "with a description graph" do
+      assert Graph.put_properties(graph(), statement(),
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP1, EX.AO1})
+               |> Graph.add({statement(), EX.AP2, EX.AO2})
+
+      assert Graph.put_properties(graph(), {EX.S1, EX.P1, [EX.O1, EX.O2]},
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO2})
+    end
+
+    test "with a RDF.Graph" do
+      assert Graph.put_properties(graph(), Graph.new({EX.S1, EX.P1, [EX.O1, EX.O2]}),
+               annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO2})
+    end
+
+    test "when an annotation exists" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.AP1, EX.AO1})
+             |> Graph.put_properties(statement(), annotate: {EX.AP, EX.AO}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO})
+
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.AP, EX.AO1})
+             |> Graph.put_properties(statement(), annotate: {EX.AP, EX.AO2}) ==
+               graph()
+               |> Graph.add(statement())
+               |> Graph.add({statement(), EX.AP, EX.AO2})
+
+      base_graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S1, EX.P2, EX.O2})
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP, EX.AO1})
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O1}, annotate: {EX.AP, EX.AO})
+             |> Graph.put_properties({EX.S1, EX.P2, EX.O2}, annotate: {EX.AP, EX.AO}) ==
+               base_graph
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP, EX.AO})
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP1, EX.AO})
+             |> Graph.put_properties(%{EX.S1 => %{EX.P1 => [EX.O1, EX.O2]}},
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               base_graph
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP1, EX.AO})
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: {EX.AP1, EX.AO1})
+             |> Graph.put_properties(Description.new(EX.S1, init: %{EX.P1 => [EX.O1, EX.O2]}),
+               annotate: {EX.AP, EX.AO}
+             ) ==
+               base_graph
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP, EX.AO})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP1, EX.AO1})
+
+      assert graph()
+             |> Graph.add(base_graph, annotate: %{EX.AP1 => EX.AO1, EX.AP2 => EX.AO2})
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2},
+               annotate: %{EX.AP3 => EX.AO3, EX.AP2 => EX.AO4}
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP3, EX.AO3})
+               |> Graph.add({{EX.S1, EX.P1, EX.O2}, EX.AP2, EX.AO4})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP2, EX.AO2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+    end
   end
 
   test "delete/3" do

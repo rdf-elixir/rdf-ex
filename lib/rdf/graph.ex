@@ -18,7 +18,7 @@ defmodule RDF.Graph do
   alias RDF.{Description, IRI, PrefixMap, PropertyMap}
   alias RDF.Star.Statement
 
-  import RDF.Utils
+  import RDF.{Sigils, Utils}
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -202,6 +202,14 @@ defmodule RDF.Graph do
   end
 
   def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}, opts) do
+    # normalize the annotations here, so we don't have to do this repeatedly in do_add/4
+    opts =
+      if annotation = Keyword.get(opts, :annotate) do
+        Keyword.put(opts, :annotate, normalize_annotation(annotation))
+      else
+        opts
+      end
+
     graph =
       Enum.reduce(descriptions, graph, fn {_, description}, graph ->
         add(graph, description, opts)
@@ -239,7 +247,21 @@ defmodule RDF.Graph do
             fn description -> Description.add(description, statements, opts) end
           )
     }
+    |> add_annotations(subject, statements, opts)
   end
+
+  defp add_annotations(graph, subject, statements, opts) do
+    if annotation = Keyword.get(opts, :annotate) |> normalize_annotation() do
+      Description.new(subject, init: statements)
+      |> Enum.reduce(graph, &add(&2, Description.change_subject(annotation, &1)))
+    else
+      graph
+    end
+  end
+
+  defp normalize_annotation(nil), do: nil
+  defp normalize_annotation(%Description{} = annotation), do: annotation
+  defp normalize_annotation(annotation), do: Description.new(~B<placeholder>, init: annotation)
 
   @doc """
   Adds statements to a `RDF.Graph` overwriting existing statements with the subjects given in the `input` data.
@@ -258,7 +280,7 @@ defmodule RDF.Graph do
   @spec put(t, input, keyword) :: t
   def put(graph, input, opts \\ [])
 
-  def put(%__MODULE__{} = graph, %__MODULE__{} = input, _opts) do
+  def put(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
     graph = %__MODULE__{
       graph
       | descriptions:
@@ -276,10 +298,19 @@ defmodule RDF.Graph do
     else
       graph
     end
+    |> put_annotations(input, opts)
   end
 
   def put(%__MODULE__{} = graph, input, opts) do
-    put(graph, new() |> add(input, opts), opts)
+    put(graph, new() |> add(input, Keyword.delete_first(opts, :annotate)), opts)
+  end
+
+  defp put_annotations(graph, input, opts) do
+    if annotation = Keyword.get(opts, :annotate) |> normalize_annotation() do
+      Enum.reduce(input, graph, &put(&2, Description.change_subject(annotation, &1)))
+    else
+      graph
+    end
   end
 
   @doc """
@@ -322,10 +353,11 @@ defmodule RDF.Graph do
     else
       graph
     end
+    |> put_annotations(input, opts)
   end
 
   def put_properties(%__MODULE__{} = graph, input, opts) do
-    put_properties(graph, new() |> add(input, opts), opts)
+    put_properties(graph, new() |> add(input, Keyword.delete_first(opts, :annotate)), opts)
   end
 
   @doc """

@@ -213,6 +213,19 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S, EX.p(), EX.O})
     end
 
+    test "a graph map" do
+      g =
+        Graph.new(%{
+          EX.Subject1 => [{EX.predicate1(), EX.Object1}, {EX.predicate2(), [EX.Object2]}],
+          EX.Subject3 => %{EX.predicate3() => EX.Object3}
+        })
+
+      assert Graph.triple_count(g) == 3
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate2(), EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
+    end
+
     test "with an initializer function" do
       g = Graph.new(init: fn -> {EX.S, EX.p(), EX.O} end)
       assert unnamed_graph?(g)
