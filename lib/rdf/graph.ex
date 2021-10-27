@@ -448,8 +448,9 @@ defmodule RDF.Graph do
   If `subject` is present in `graph` with `description` as description,
   `fun` is invoked with argument `description` and its result is used as the new
   description of `subject`. If `subject` is not present in `graph`,
-  `initial` is inserted as the description of `subject`. The initial value will
-  not be passed through the update function.
+  `initial` is inserted as the description of `subject`. If no `initial` value is
+  given, the `graph` remains unchanged. If `nil` is returned by `fun`, the
+  respective description will be removed from `graph`.
 
   The initial value and the returned objects by the update function will be tried
   te coerced to proper RDF descriptions before added. If the initial or returned
