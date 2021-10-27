@@ -91,6 +91,7 @@ defmodule RDF.Graph do
   The initial RDF triples can be provided
 
   - as a single statement tuple
+  - a nested subject-predicate-object map
   - a `RDF.Description`
   - a `RDF.Graph`
   - or a list with any combination of the former
@@ -168,6 +169,7 @@ defmodule RDF.Graph do
   The `input` can be provided
 
   - as a single statement tuple
+  - a nested subject-predicate-object map
   - a `RDF.Description`
   - a `RDF.Graph`
   - or a list with any combination of the former
