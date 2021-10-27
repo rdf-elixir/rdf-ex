@@ -182,6 +182,10 @@ defmodule RDF.Graph do
   Also when the statements to be added are given as another `RDF.Graph`, the
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
+
+  RDF* annotations to be added to all of given statements can be specified with
+  the `:annotate` keyword option and predicate-objects pairs as a tuple, list of
+  tuples or a map.
   """
   @spec add(t, input, keyword) :: t
   def add(graph, input, opts \\ [])
@@ -272,6 +276,11 @@ defmodule RDF.Graph do
   of this graph will be added. In case of conflicting prefix mappings the
   original prefix from `graph` will be kept.
 
+  RDF* annotations to be added to all of given statements can be specified with
+  the `:annotate` keyword option and predicate-objects pairs as a tuple, list of
+  tuples or a map. As with the actual asserted statements, the annotation will
+  overwrite existing annotations.
+
   ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
@@ -322,6 +331,11 @@ defmodule RDF.Graph do
   of this graph will be added. In case of conflicting prefix mappings the
   original prefix from `graph` will be kept.
 
+  RDF* annotations to be added to all of given statements can be specified with
+  the `:annotate` keyword option and predicate-objects pairs as a tuple, list of
+  tuples or a map. All exiting annotations of the asserted statements will be
+  overwritten.
+
   ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
@@ -365,11 +379,15 @@ defmodule RDF.Graph do
   @doc """
   Deletes statements from a `RDF.Graph`.
 
-  Note: When the statements to be deleted are given as another `RDF.Graph`,
+  When the statements to be deleted are given as another `RDF.Graph`,
   the graph name must not match graph name of the graph from which the statements
-  are deleted. If you want to delete only graphs with matching names, you can
+  are deleted. If you want to delete only statements with matching graph names, you can
   use `RDF.Data.delete/2`.
 
+  The optional `:delete_annotations` keyword option allows to set which of
+  annotations of the deleted statements should be deleted also.
+  Any of the possible values of `delete_annotations/3` can be provided here.
+  By default no annotations of the deleted statements will be removed.
   """
   @spec delete(t, input, keyword) :: t
   def delete(graph, input, opts \\ [])
@@ -421,28 +439,82 @@ defmodule RDF.Graph do
     else
       graph
     end
+    |> do_delete_delete_annotations(subject, input, opts)
+  end
+
+  defp do_delete_delete_annotations(graph, subject, statements, opts) do
+    if delete_annotations = Keyword.get(opts, :delete_annotations, false) do
+      delete_annotations(graph, Description.new(subject, init: statements), delete_annotations)
+    else
+      graph
+    end
+  end
+
+  @doc """
+  Deletes RDF-star annotations of a given set of statements.
+
+  The `statements` can be given in any input form (see `add/3`).
+
+  If `true` is given as the third argument or is `delete_annotations/2` is used,
+  all annotations of the given `statements` are deleted.
+
+  If a single predicate or list of predicates is given only statements with
+  these predicates from the annotations of the given `statements` are deleted.
+  """
+  @spec delete_annotations(
+          t,
+          input,
+          boolean | Statement.coercible_predicate() | [Statement.coercible_predicate()]
+        ) :: t
+  def delete_annotations(graph, statements, delete \\ true)
+  def delete_annotations(graph, _, false), do: graph
+
+  def delete_annotations(graph, statements, true) do
+    delete_descriptions(graph, statements |> new() |> triples())
+  end
+
+  def delete_annotations(graph, statements, predicates) do
+    statements
+    |> new()
+    |> Enum.reduce(graph, fn triple, graph ->
+      update(graph, triple, &Description.delete_predicates(&1, predicates))
+    end)
   end
 
   @doc """
   Deletes all statements with the given `subjects`.
 
   If `subjects` contains subjects that are not in `graph`, they're simply ignored.
+
+  The optional `:delete_annotations` keyword option allows to set which of
+  annotations of the deleted statements should be deleted also.
+  Any of the possible values of `delete_annotations/3` can be provided here.
+  By default no annotations of the deleted statements will be removed.
   """
   @spec delete_descriptions(
           t,
-          Statement.coercible_subject() | [Statement.coercible_subject()]
+          Statement.coercible_subject() | [Statement.coercible_subject()],
+          keyword
         ) :: t
-  def delete_descriptions(graph, subjects)
+  def delete_descriptions(graph, subjects, opts \\ [])
 
-  def delete_descriptions(%__MODULE__{} = graph, subjects) when is_list(subjects) do
-    Enum.reduce(subjects, graph, &delete_descriptions(&2, &1))
+  def delete_descriptions(%__MODULE__{} = graph, subjects, opts) when is_list(subjects) do
+    Enum.reduce(subjects, graph, &delete_descriptions(&2, &1, opts))
   end
 
-  def delete_descriptions(%__MODULE__{} = graph, subject) do
-    %__MODULE__{graph | descriptions: Map.delete(graph.descriptions, RDF.coerce_subject(subject))}
+  def delete_descriptions(%__MODULE__{} = graph, subject, opts) do
+    case Map.pop(graph.descriptions, RDF.coerce_subject(subject)) do
+      {nil, _} ->
+        graph
+
+      {deleted_description, descriptions} ->
+        %__MODULE__{graph | descriptions: descriptions}
+        |> delete_annotations(deleted_description, Keyword.get(opts, :delete_annotations, false))
+    end
   end
 
   defdelegate delete_subjects(graph, subjects), to: __MODULE__, as: :delete_descriptions
+  defdelegate delete_subjects(graph, subjects, opts), to: __MODULE__, as: :delete_descriptions
 
   @doc """
   Updates the description of the `subject` in `graph` with the given function.

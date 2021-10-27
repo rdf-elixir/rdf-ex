@@ -473,12 +473,181 @@ defmodule RDF.Star.Graph.Test do
     end
   end
 
+  describe "delete_annotations/3" do
+    test "with false, no annotations are deleted" do
+      graph = Graph.add(graph(), statement(), annotate: {EX.p(), EX.O})
+      assert Graph.delete_annotations(graph, statement(), false) == graph
+    end
+
+    test "with true, all annotations are deleted (default)" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete_annotations(statement(), true) ==
+               graph() |> Graph.add(statement())
+
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete_annotations(statement()) ==
+               graph() |> Graph.add(statement())
+    end
+
+    test "with a single predicate" do
+      assert graph()
+             |> Graph.add(statement(), annotate: [{EX.p1(), EX.O1}, {EX.p2(), EX.O2}])
+             |> Graph.delete_annotations(statement(), EX.p2()) ==
+               Graph.add(graph(), statement(), annotate: {EX.p1(), EX.O1})
+
+      graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S2, EX.P2, EX.O2})
+        |> Graph.add({EX.S3, EX.P3, EX.O3})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+        |> Graph.add({{EX.S3, EX.P3, EX.O3}, EX.AP, EX.AO})
+
+      assert Graph.delete_annotations(
+               graph,
+               [{EX.S1, EX.P1, EX.O1}, {EX.S3, EX.P3, EX.O3}],
+               EX.AP
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({EX.S3, EX.P3, EX.O3})
+    end
+
+    test "with a list of predicates" do
+      graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S2, EX.P2, EX.O2})
+        |> Graph.add({EX.S3, EX.P3, EX.O3})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, [EX.AO1, EX.AO2]})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+        |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+        |> Graph.add({{EX.S3, EX.P3, EX.O3}, EX.AP1, EX.AO})
+
+      assert Graph.delete_annotations(
+               graph,
+               [{EX.S1, EX.P1, EX.O1}, {EX.S3, EX.P3, EX.O3}],
+               [EX.AP1, EX.AP2]
+             ) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O1})
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({EX.S3, EX.P3, EX.O3})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+               |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+    end
+  end
+
   test "delete/3" do
     assert graph_with_annotation() |> Graph.delete(star_statement()) == graph()
   end
 
-  test "delete_description/3" do
+  describe "delete_annotations option on delete/3" do
+    test "with false, no annotations are deleted (default)" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete(statement(), delete_annotations: false) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete(statement()) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+    end
+
+    test "with true, all annotations are deleted" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete(statement(), delete_annotations: true) ==
+               graph()
+    end
+
+    test "annotations are even deleted, when the statements to be deleted are not present" do
+      assert graph_with_annotation() |> Graph.delete(statement(), delete_annotations: true) ==
+               graph()
+    end
+
+    test "with predicates" do
+      graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S2, EX.P2, EX.O2})
+        |> Graph.add({EX.S3, EX.P3, EX.O3})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, [EX.AO1, EX.AO2]})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+        |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+        |> Graph.add({{EX.S3, EX.P3, EX.O3}, EX.AP1, EX.AO})
+
+      assert Graph.delete(
+               graph,
+               [{EX.S1, EX.P1, EX.O1}, {EX.S3, EX.P3, EX.O3}],
+               delete_annotations: [EX.AP1, EX.AP2]
+             ) ==
+               graph()
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+               |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+
+      graph =
+        graph()
+        |> Graph.add(%{EX.S1 => %{EX.P1 => EX.O1, EX.P2 => EX.O2}},
+          annotate: %{EX.AP1 => EX.AO1}
+        )
+
+      assert Graph.delete(graph, {EX.S1, %{EX.P1 => EX.O1}}, delete_annotations: [EX.AP1, EX.AP2]) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P2, EX.O2}, EX.AP1, EX.AO1})
+    end
+  end
+
+  test "delete_descriptions/3" do
     assert graph_with_annotation() |> Graph.delete_descriptions(statement()) == graph()
+  end
+
+  describe "delete_annotations option on delete_descriptions/3" do
+    test "with false, no annotations are deleted (default)" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete_descriptions(EX.S, delete_annotations: false) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete_descriptions(EX.S) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+    end
+
+    test "with true, all annotations are deleted" do
+      assert graph()
+             |> Graph.add(statement(), annotate: {EX.p(), EX.O})
+             |> Graph.delete_descriptions(EX.S, delete_annotations: true) ==
+               graph()
+    end
+
+    test "with predicates" do
+      graph =
+        graph()
+        |> Graph.add({EX.S1, EX.P1, EX.O1})
+        |> Graph.add({EX.S2, EX.P2, EX.O2})
+        |> Graph.add({EX.S3, EX.P3, EX.O3})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, [EX.AO1, EX.AO2]})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO})
+        |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+        |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+        |> Graph.add({{EX.S3, EX.P3, EX.O3}, EX.AP1, EX.AO})
+
+      assert Graph.delete_descriptions(graph, [EX.S1, EX.S3], delete_annotations: [EX.AP1, EX.AP2]) ==
+               graph()
+               |> Graph.add({EX.S2, EX.P2, EX.O2})
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
+               |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
+    end
   end
 
   test "update/3" do
