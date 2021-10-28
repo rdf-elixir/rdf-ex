@@ -715,6 +715,20 @@ defmodule RDF.Star.Graph.Test do
     end
   end
 
+  describe "annotations/1" do
+    test "when no annotations exist" do
+      assert Graph.annotations(graph()) == graph()
+    end
+
+    test "when annotations exist" do
+      assert Graph.annotations(graph_with_annotation()) == graph_with_annotation()
+
+      assert graph_with_annotation()
+             |> Graph.add(statement())
+             |> Graph.annotations() == graph_with_annotation()
+    end
+  end
+
   test "include?/3" do
     assert Graph.include?(graph_with_annotations(), star_statement())
     assert Graph.include?(graph_with_annotations(), {EX.As, EX.ap(), statement()})

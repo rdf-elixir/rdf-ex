@@ -637,6 +637,21 @@ defmodule RDF.Graph do
   end
 
   @doc """
+  Returns the `RDF.Graph` of all annotations.
+
+  Note: The graph includes only triples where the subject is a quoted triple.
+  Triples where only the object is a quoted triple are NOT included.
+  """
+  @spec annotations(t) :: t
+  def annotations(%__MODULE__{} = graph) do
+    %__MODULE__{
+      graph
+      | descriptions:
+          for(annotation = {{_, _, _}, _} <- graph.descriptions, into: %{}, do: annotation)
+    }
+  end
+
+  @doc """
   Gets and updates the description of the given subject, in a single pass.
 
   Invokes the passed function on the `RDF.Description` of the given subject;
