@@ -280,7 +280,7 @@ defmodule RDF.Graph do
   def put(graph, input, opts \\ [])
 
   def put(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
-    graph = %__MODULE__{
+    new_graph = %__MODULE__{
       graph
       | descriptions:
           Enum.reduce(
@@ -293,10 +293,11 @@ defmodule RDF.Graph do
     }
 
     if input.prefixes do
-      add_prefixes(graph, input.prefixes, :ignore)
+      add_prefixes(new_graph, input.prefixes, :ignore)
     else
-      graph
+      new_graph
     end
+    |> handle_annotation_deletions(graph, input, opts)
     |> handle_annotation_additions(input, opts)
   end
 
@@ -327,7 +328,7 @@ defmodule RDF.Graph do
   def put_properties(graph, input, opts \\ [])
 
   def put_properties(%__MODULE__{} = graph, %__MODULE__{} = input, opts) do
-    graph = %__MODULE__{
+    new_graph = %__MODULE__{
       graph
       | descriptions:
           Enum.reduce(
@@ -345,10 +346,11 @@ defmodule RDF.Graph do
     }
 
     if input.prefixes do
-      add_prefixes(graph, input.prefixes, :ignore)
+      add_prefixes(new_graph, input.prefixes, :ignore)
     else
-      graph
+      new_graph
     end
+    |> handle_annotation_deletions(graph, input, opts)
     |> handle_annotation_additions(input, opts)
   end
 
@@ -515,6 +517,19 @@ defmodule RDF.Graph do
 
       true ->
         graph
+    end
+  end
+
+  defp handle_annotation_deletions(graph, original_graph, input, opts) do
+    if delete_annotations = Keyword.get(opts, :delete_annotations, false) do
+      diff =
+        original_graph
+        |> take(Map.keys(input.descriptions))
+        |> RDF.Diff.diff(input)
+
+      delete_annotations(graph, diff.deletions, delete_annotations)
+    else
+      graph
     end
   end
 

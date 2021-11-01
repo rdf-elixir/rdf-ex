@@ -614,6 +614,64 @@ defmodule RDF.Star.Graph.Test do
              expected_graph
   end
 
+  describe "put/3 with delete_annotations option" do
+    test "no annotations of overwritten statements are removed when delete_annotations is false (default)" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: false) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put({EX.S1, EX.P2, EX.O2}) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+    end
+
+    test "all annotations of overwritten statements are removed when delete_annotations is true" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: true) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+
+      assert graph()
+             |> Graph.add(
+               [
+                 {EX.S1, EX.P1, EX.O1},
+                 {EX.S2, EX.P2, EX.O2}
+               ],
+               add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             )
+             |> Graph.put({EX.S1, EX.P3, EX.O3},
+               add_annotations: [{EX.AP3, EX.AO3}],
+               delete_annotations: true
+             ) ==
+               graph()
+               |> Graph.add([
+                 {EX.S1, EX.P3, EX.O3},
+                 {{EX.S1, EX.P3, EX.O3}, {EX.AP3, EX.AO3}},
+                 {EX.S2, EX.P2, EX.O2},
+                 {{EX.S2, EX.P2, EX.O2}, {EX.AP1, EX.AO1}},
+                 {{EX.S2, EX.P2, EX.O2}, {EX.AP2, EX.AO2}}
+               ])
+    end
+
+    test "only the specified annotations of overwritten statements are removed" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1},
+               add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             )
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: EX.AP1) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({EX.S1, EX.P2, EX.O2})
+    end
+  end
+
   test "put_properties/3" do
     graph =
       graph()
@@ -865,6 +923,64 @@ defmodule RDF.Star.Graph.Test do
              put_annotation_properties: {EX.AP1, EX.AO1}
            ) ==
              expected_graph
+  end
+
+  describe "put_properties/3 with delete_annotations option" do
+    test "no annotations of overwritten statements are removed when delete_annotations is false (default)" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: false) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+    end
+
+    test "all annotations of overwritten statements are removed when delete_annotations is true" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: true) ==
+               graph()
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+
+      assert graph()
+             |> Graph.add(
+               [
+                 {EX.S1, EX.P1, EX.O1},
+                 {EX.S2, EX.P2, EX.O2}
+               ],
+               add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             )
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O3},
+               add_annotations: [{EX.AP3, EX.AO3}],
+               delete_annotations: true
+             ) ==
+               graph()
+               |> Graph.add([
+                 {EX.S1, EX.P1, EX.O3},
+                 {{EX.S1, EX.P1, EX.O3}, {EX.AP3, EX.AO3}},
+                 {EX.S2, EX.P2, EX.O2},
+                 {{EX.S2, EX.P2, EX.O2}, {EX.AP1, EX.AO1}},
+                 {{EX.S2, EX.P2, EX.O2}, {EX.AP2, EX.AO2}}
+               ])
+    end
+
+    test "only the specified annotations of overwritten statements are removed" do
+      assert graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O1},
+               add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             )
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: EX.AP1) ==
+               graph()
+               |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+               |> Graph.add({EX.S1, EX.P1, EX.O2})
+    end
   end
 
   test "delete/3" do
