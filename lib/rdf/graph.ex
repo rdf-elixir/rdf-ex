@@ -18,7 +18,7 @@ defmodule RDF.Graph do
   alias RDF.{Description, IRI, PrefixMap, PropertyMap}
   alias RDF.Star.Statement
 
-  import RDF.{Sigils, Utils}
+  import RDF.Utils
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -210,12 +210,7 @@ defmodule RDF.Graph do
 
   def add(graph, %__MODULE__{descriptions: descriptions, prefixes: prefixes}, opts) do
     # normalize the annotations here, so we don't have to do this repeatedly in do_add/4
-    opts =
-      if annotation = Keyword.get(opts, :annotate) do
-        Keyword.put(opts, :annotate, normalize_annotations(annotation))
-      else
-        opts
-      end
+    opts = RDF.Star.Graph.normalize_annotation_opts(opts)
 
     graph =
       Enum.reduce(descriptions, graph, fn {_, description}, graph ->
@@ -254,7 +249,7 @@ defmodule RDF.Graph do
             fn description -> Description.add(description, statements, opts) end
           )
     }
-    |> handle_addition_annotations({subject, statements}, opts)
+    |> RDF.Star.Graph.handle_addition_annotations({subject, statements}, opts)
   end
 
   @doc """
@@ -307,12 +302,12 @@ defmodule RDF.Graph do
     else
       new_graph
     end
-    |> handle_overwrite_annotations(graph, input, opts)
-    |> handle_addition_annotations(input, opts)
+    |> RDF.Star.Graph.handle_overwrite_annotations(graph, input, opts)
+    |> RDF.Star.Graph.handle_addition_annotations(input, opts)
   end
 
   def put(%__MODULE__{} = graph, input, opts) do
-    put(graph, new() |> add(input, clear_annotation_opts(opts)), opts)
+    put(graph, new() |> add(input, RDF.Star.Graph.clear_annotation_opts(opts)), opts)
   end
 
   @doc """
@@ -370,12 +365,12 @@ defmodule RDF.Graph do
     else
       new_graph
     end
-    |> handle_overwrite_annotations(graph, input, opts)
-    |> handle_addition_annotations(input, opts)
+    |> RDF.Star.Graph.handle_overwrite_annotations(graph, input, opts)
+    |> RDF.Star.Graph.handle_addition_annotations(input, opts)
   end
 
   def put_properties(%__MODULE__{} = graph, input, opts) do
-    put_properties(graph, new() |> add(input, clear_annotation_opts(opts)), opts)
+    put_properties(graph, new() |> add(input, RDF.Star.Graph.clear_annotation_opts(opts)), opts)
   end
 
   @doc """
@@ -445,7 +440,7 @@ defmodule RDF.Graph do
     else
       graph
     end
-    |> handle_deletion_annotations({subject, input}, opts)
+    |> RDF.Star.Graph.handle_deletion_annotations({subject, input}, opts)
   end
 
   @doc """
@@ -480,104 +475,12 @@ defmodule RDF.Graph do
 
       {deleted_description, descriptions} ->
         %__MODULE__{graph | descriptions: descriptions}
-        |> handle_deletion_annotations(deleted_description, opts)
+        |> RDF.Star.Graph.handle_deletion_annotations(deleted_description, opts)
     end
   end
 
   defdelegate delete_subjects(graph, subjects), to: __MODULE__, as: :delete_descriptions
   defdelegate delete_subjects(graph, subjects, opts), to: __MODULE__, as: :delete_descriptions
-
-  defp clear_annotation_opts(opts),
-    do: Keyword.drop(opts, ~w[add_annotations put_annotations put_annotation_properties]a)
-
-  defp handle_addition_annotations(graph, statements, opts) do
-    cond do
-      Enum.empty?(opts) ->
-        graph
-
-      put_annotations = Keyword.get(opts, :put_annotations) ->
-        put_annotations(graph, annotation_statements(statements, opts), put_annotations)
-
-      put_annotation_properties = Keyword.get(opts, :put_annotation_properties) ->
-        put_annotation_properties(
-          graph,
-          annotation_statements(statements, opts),
-          put_annotation_properties
-        )
-
-      add_annotations = Keyword.get(opts, :add_annotations) ->
-        add_annotations(graph, annotation_statements(statements, opts), add_annotations)
-
-      true ->
-        graph
-    end
-  end
-
-  defp handle_overwrite_annotations(graph, original_graph, statements, opts) do
-    cond do
-      Enum.empty?(opts) ->
-        graph
-
-      delete_annotations = Keyword.get(opts, :delete_annotations_on_deleted) ->
-        delete_annotations(graph, deletions(original_graph, statements), delete_annotations)
-
-      put_annotations = Keyword.get(opts, :put_annotations_on_deleted) ->
-        put_annotations(graph, deletions(original_graph, statements), put_annotations)
-
-      put_annotation_properties = Keyword.get(opts, :put_annotation_properties_on_deleted) ->
-        put_annotation_properties(
-          graph,
-          deletions(original_graph, statements),
-          put_annotation_properties
-        )
-
-      add_annotations = Keyword.get(opts, :add_annotations_on_deleted) ->
-        add_annotations(graph, deletions(original_graph, statements), add_annotations)
-
-      true ->
-        graph
-    end
-  end
-
-  defp handle_deletion_annotations(graph, statements, opts) do
-    cond do
-      Enum.empty?(opts) ->
-        graph
-
-      delete_annotations = Keyword.get(opts, :delete_annotations) ->
-        delete_annotations(graph, annotation_statements(statements, opts), delete_annotations)
-
-      put_annotations = Keyword.get(opts, :put_annotations) ->
-        put_annotations(graph, annotation_statements(statements, opts), put_annotations)
-
-      put_annotation_properties = Keyword.get(opts, :put_annotation_properties) ->
-        put_annotation_properties(
-          graph,
-          annotation_statements(statements, opts),
-          put_annotation_properties
-        )
-
-      add_annotations = Keyword.get(opts, :add_annotations) ->
-        add_annotations(graph, annotation_statements(statements, opts), add_annotations)
-
-      true ->
-        graph
-    end
-  end
-
-  defp annotation_statements({subject, predications}, opts),
-    do: Description.new(subject, Keyword.put(opts, :init, predications))
-
-  defp annotation_statements(statements, _), do: statements
-
-  defp deletions(original, input) do
-    diff =
-      original
-      |> take(Map.keys(input.descriptions))
-      |> RDF.Diff.diff(input)
-
-    diff.deletions
-  end
 
   @doc """
   Adds RDF-star annotations to the given set of statements.
@@ -588,24 +491,7 @@ defmodule RDF.Graph do
   a list of tuples or a map.
   """
   @spec add_annotations(t, input, Description.input() | nil) :: t
-  def add_annotations(graph, statements, annotations)
-
-  def add_annotations(%__MODULE__{} = graph, %rdf_struct{} = statements, annotations)
-      when rdf_struct in [__MODULE__, Description] do
-    if annotations = normalize_annotations(annotations) do
-      Enum.reduce(statements, graph, &add(&2, Description.change_subject(annotations, &1)))
-    else
-      graph
-    end
-  end
-
-  def add_annotations(graph, statements, annotations) do
-    add_annotations(graph, new(statements), annotations)
-  end
-
-  defp normalize_annotations(nil), do: nil
-  defp normalize_annotations(%Description{} = annotation), do: annotation
-  defp normalize_annotations(annotation), do: Description.new(~B<placeholder>, init: annotation)
+  defdelegate add_annotations(graph, statements, annotations), to: RDF.Star.Graph
 
   @doc """
   Adds RDF-star annotations to the given set of statements overwriting all existing annotations.
@@ -616,28 +502,7 @@ defmodule RDF.Graph do
   a list of tuples or a map.
   """
   @spec put_annotations(t, input, Description.input() | nil) :: t
-  def put_annotations(graph, statements, annotations)
-
-  def put_annotations(%__MODULE__{} = graph, %rdf_struct{} = statements, annotations)
-      when rdf_struct in [__MODULE__, Description] do
-    if annotations = normalize_annotations(annotations) do
-      Enum.reduce(
-        statements,
-        graph,
-        &%__MODULE__{
-          &2
-          | descriptions:
-              Map.put(&2.descriptions, &1, Description.change_subject(annotations, &1))
-        }
-      )
-    else
-      graph
-    end
-  end
-
-  def put_annotations(graph, statements, annotations) do
-    put_annotations(graph, new(statements), annotations)
-  end
+  defdelegate put_annotations(graph, statements, annotations), to: RDF.Star.Graph
 
   @doc """
   Adds RDF-star annotations to the given set of statements overwriting all existing annotations with the given properties.
@@ -648,24 +513,7 @@ defmodule RDF.Graph do
   a list of tuples or a map.
   """
   @spec put_annotation_properties(t, input, Description.input() | nil) :: t
-  def put_annotation_properties(graph, statements, annotations)
-
-  def put_annotation_properties(%__MODULE__{} = graph, %rdf_struct{} = statements, annotations)
-      when rdf_struct in [__MODULE__, Description] do
-    if annotations = normalize_annotations(annotations) do
-      Enum.reduce(
-        statements,
-        graph,
-        &put_properties(&2, Description.change_subject(annotations, &1))
-      )
-    else
-      graph
-    end
-  end
-
-  def put_annotation_properties(graph, statements, annotations) do
-    put_annotation_properties(graph, new(statements), annotations)
-  end
+  defdelegate put_annotation_properties(graph, statements, annotations), to: RDF.Star.Graph
 
   @doc """
   Deletes RDF-star annotations of a given set of statements.
@@ -683,20 +531,8 @@ defmodule RDF.Graph do
           input,
           boolean | Statement.coercible_predicate() | [Statement.coercible_predicate()]
         ) :: t
-  def delete_annotations(graph, statements, delete \\ true)
-  def delete_annotations(graph, _, false), do: graph
-
-  def delete_annotations(graph, statements, true) do
-    delete_descriptions(graph, statements |> new() |> triples())
-  end
-
-  def delete_annotations(graph, statements, predicates) do
-    statements
-    |> new()
-    |> Enum.reduce(graph, fn triple, graph ->
-      update(graph, triple, &Description.delete_predicates(&1, predicates))
-    end)
-  end
+  defdelegate delete_annotations(graph, statements), to: RDF.Star.Graph
+  defdelegate delete_annotations(graph, statements, delete), to: RDF.Star.Graph
 
   @doc """
   Updates the description of the `subject` in `graph` with the given function.
@@ -825,13 +661,7 @@ defmodule RDF.Graph do
   Triples where only the object is a quoted triple are NOT included.
   """
   @spec annotations(t) :: t
-  def annotations(%__MODULE__{} = graph) do
-    %__MODULE__{
-      graph
-      | descriptions:
-          for(annotation = {{_, _, _}, _} <- graph.descriptions, into: %{}, do: annotation)
-    }
-  end
+  defdelegate annotations(graph), to: RDF.Star.Graph
 
   @doc """
   Gets and updates the description of the given subject, in a single pass.

@@ -1,4 +1,4 @@
-defmodule RDF.Star.Graph.Test do
+defmodule RDF.Star.GraphTest do
   use RDF.Test.Case
 
   test "new/1" do
