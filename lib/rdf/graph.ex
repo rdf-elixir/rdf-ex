@@ -254,7 +254,7 @@ defmodule RDF.Graph do
             fn description -> Description.add(description, statements, opts) end
           )
     }
-    |> handle_annotation_additions(subject, statements, opts)
+    |> handle_addition_annotations({subject, statements}, opts)
   end
 
   @doc """
@@ -268,6 +268,16 @@ defmodule RDF.Graph do
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
+
+  What should happen with the annotations of statement which got delete during the
+  overwrite, can be controlled with these keyword options:
+
+  - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
+    statements (see `delete_annotations/3` on possible values)
+  - `:add_annotations_on_deleted`, `:put_annotations_on_deleted`,
+    `:put_annotation_properties_on_deleted`: add annotations about the deleted
+    statements with the respective addition semantics similar to the keyword
+    options with the `_on_deleted` suffix mentioned above
 
   ## Examples
 
@@ -297,8 +307,8 @@ defmodule RDF.Graph do
     else
       new_graph
     end
-    |> handle_annotation_deletions(graph, input, opts)
-    |> handle_annotation_additions(input, opts)
+    |> handle_overwrite_annotations(graph, input, opts)
+    |> handle_addition_annotations(input, opts)
   end
 
   def put(%__MODULE__{} = graph, input, opts) do
@@ -316,6 +326,16 @@ defmodule RDF.Graph do
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
+
+  What should happen with the annotations of statement which got delete during the
+  overwrite, can be controlled with these keyword options:
+
+  - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
+    statements (see `delete_annotations/3` on possible values)
+  - `:add_annotations_on_deleted`, `:put_annotations_on_deleted`,
+    `:put_annotation_properties_on_deleted`: add annotations about the deleted
+    statements with the respective addition semantics similar to the keyword
+    options with the `_on_deleted` suffix mentioned above
 
   ## Examples
 
@@ -350,8 +370,8 @@ defmodule RDF.Graph do
     else
       new_graph
     end
-    |> handle_annotation_deletions(graph, input, opts)
-    |> handle_annotation_additions(input, opts)
+    |> handle_overwrite_annotations(graph, input, opts)
+    |> handle_addition_annotations(input, opts)
   end
 
   def put_properties(%__MODULE__{} = graph, input, opts) do
@@ -367,9 +387,13 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   The optional `:delete_annotations` keyword option allows to set which of
-  annotations of the deleted statements should be deleted also.
+  RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
   By default no annotations of the deleted statements will be removed.
+  Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
+  keyword options can be used to add annotations about the deleted statements
+  with the addition semantics similar to the respective `add_annotations/3`,
+  `put_annotations/3` and `put_annotation_properties/3` counterparts.
   """
   @spec delete(t, input, keyword) :: t
   def delete(graph, input, opts \\ [])
@@ -421,15 +445,7 @@ defmodule RDF.Graph do
     else
       graph
     end
-    |> do_delete_delete_annotations(subject, input, opts)
-  end
-
-  defp do_delete_delete_annotations(graph, subject, statements, opts) do
-    if delete_annotations = Keyword.get(opts, :delete_annotations, false) do
-      delete_annotations(graph, Description.new(subject, init: statements), delete_annotations)
-    else
-      graph
-    end
+    |> handle_deletion_annotations({subject, input}, opts)
   end
 
   @doc """
@@ -438,9 +454,13 @@ defmodule RDF.Graph do
   If `subjects` contains subjects that are not in `graph`, they're simply ignored.
 
   The optional `:delete_annotations` keyword option allows to set which of
-  annotations of the deleted statements should be deleted also.
+  RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
   By default no annotations of the deleted statements will be removed.
+  Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
+  keyword options can be used to add annotations about the deleted statements
+  with the addition semantics similar to the respective `add_annotations/3`,
+  `put_annotations/3` and `put_annotation_properties/3` counterparts.
   """
   @spec delete_descriptions(
           t,
@@ -460,81 +480,104 @@ defmodule RDF.Graph do
 
       {deleted_description, descriptions} ->
         %__MODULE__{graph | descriptions: descriptions}
-        |> delete_annotations(deleted_description, Keyword.get(opts, :delete_annotations, false))
+        |> handle_deletion_annotations(deleted_description, opts)
     end
   end
 
   defdelegate delete_subjects(graph, subjects), to: __MODULE__, as: :delete_descriptions
   defdelegate delete_subjects(graph, subjects, opts), to: __MODULE__, as: :delete_descriptions
 
-  # We've duplicated this logic from handle_annotation_additions/3 instead of delegating to it
-  # with Description.new(subject, init: statements), since we don't want to perform the
-  # creation of descriptions unnecessarily when no annotations are given.
-  defp handle_annotation_additions(graph, subject, statements, opts) do
+  defp clear_annotation_opts(opts),
+    do: Keyword.drop(opts, ~w[add_annotations put_annotations put_annotation_properties]a)
+
+  defp handle_addition_annotations(graph, statements, opts) do
     cond do
       Enum.empty?(opts) ->
         graph
 
       put_annotations = Keyword.get(opts, :put_annotations) ->
-        put_annotations(
-          graph,
-          Description.new(subject, Keyword.put(opts, :init, statements)),
-          put_annotations
-        )
+        put_annotations(graph, annotation_statements(statements, opts), put_annotations)
 
       put_annotation_properties = Keyword.get(opts, :put_annotation_properties) ->
         put_annotation_properties(
           graph,
-          Description.new(subject, Keyword.put(opts, :init, statements)),
+          annotation_statements(statements, opts),
           put_annotation_properties
         )
 
       add_annotations = Keyword.get(opts, :add_annotations) ->
-        add_annotations(
-          graph,
-          Description.new(subject, Keyword.put(opts, :init, statements)),
-          add_annotations
-        )
+        add_annotations(graph, annotation_statements(statements, opts), add_annotations)
 
       true ->
         graph
     end
   end
 
-  defp handle_annotation_additions(graph, statements, opts) do
+  defp handle_overwrite_annotations(graph, original_graph, statements, opts) do
     cond do
       Enum.empty?(opts) ->
         graph
 
-      put_annotations = Keyword.get(opts, :put_annotations) ->
-        put_annotations(graph, statements, put_annotations)
+      delete_annotations = Keyword.get(opts, :delete_annotations_on_deleted) ->
+        delete_annotations(graph, deletions(original_graph, statements), delete_annotations)
 
-      put_annotation_properties = Keyword.get(opts, :put_annotation_properties) ->
-        put_annotation_properties(graph, statements, put_annotation_properties)
+      put_annotations = Keyword.get(opts, :put_annotations_on_deleted) ->
+        put_annotations(graph, deletions(original_graph, statements), put_annotations)
 
-      add_annotations = Keyword.get(opts, :add_annotations) ->
-        add_annotations(graph, statements, add_annotations)
+      put_annotation_properties = Keyword.get(opts, :put_annotation_properties_on_deleted) ->
+        put_annotation_properties(
+          graph,
+          deletions(original_graph, statements),
+          put_annotation_properties
+        )
+
+      add_annotations = Keyword.get(opts, :add_annotations_on_deleted) ->
+        add_annotations(graph, deletions(original_graph, statements), add_annotations)
 
       true ->
         graph
     end
   end
 
-  defp handle_annotation_deletions(graph, original_graph, input, opts) do
-    if delete_annotations = Keyword.get(opts, :delete_annotations, false) do
-      diff =
-        original_graph
-        |> take(Map.keys(input.descriptions))
-        |> RDF.Diff.diff(input)
+  defp handle_deletion_annotations(graph, statements, opts) do
+    cond do
+      Enum.empty?(opts) ->
+        graph
 
-      delete_annotations(graph, diff.deletions, delete_annotations)
-    else
-      graph
+      delete_annotations = Keyword.get(opts, :delete_annotations) ->
+        delete_annotations(graph, annotation_statements(statements, opts), delete_annotations)
+
+      put_annotations = Keyword.get(opts, :put_annotations) ->
+        put_annotations(graph, annotation_statements(statements, opts), put_annotations)
+
+      put_annotation_properties = Keyword.get(opts, :put_annotation_properties) ->
+        put_annotation_properties(
+          graph,
+          annotation_statements(statements, opts),
+          put_annotation_properties
+        )
+
+      add_annotations = Keyword.get(opts, :add_annotations) ->
+        add_annotations(graph, annotation_statements(statements, opts), add_annotations)
+
+      true ->
+        graph
     end
   end
 
-  defp clear_annotation_opts(opts),
-    do: Keyword.drop(opts, ~w[add_annotations put_annotations put_annotation_properties]a)
+  defp annotation_statements({subject, predications}, opts),
+    do: Description.new(subject, Keyword.put(opts, :init, predications))
+
+  defp annotation_statements(statements, _), do: statements
+
+  defp deletions(original, input) do
+    diff =
+      original
+      |> take(Map.keys(input.descriptions))
+      |> RDF.Diff.diff(input)
+
+    diff.deletions
+  end
 
   @doc """
   Adds RDF-star annotations to the given set of statements.

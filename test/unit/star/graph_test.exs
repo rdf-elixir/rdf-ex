@@ -614,11 +614,11 @@ defmodule RDF.Star.Graph.Test do
              expected_graph
   end
 
-  describe "put/3 with delete_annotations option" do
+  describe "put/3 with delete_annotations_on_deleted option" do
     test "no annotations of overwritten statements are removed when delete_annotations is false (default)" do
       assert graph()
              |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
-             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: false) ==
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations_on_deleted: false) ==
                graph()
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
                |> Graph.add({EX.S1, EX.P2, EX.O2})
@@ -634,7 +634,7 @@ defmodule RDF.Star.Graph.Test do
     test "all annotations of overwritten statements are removed when delete_annotations is true" do
       assert graph()
              |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
-             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: true) ==
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations_on_deleted: true) ==
                graph()
                |> Graph.add({EX.S1, EX.P2, EX.O2})
 
@@ -648,7 +648,7 @@ defmodule RDF.Star.Graph.Test do
              )
              |> Graph.put({EX.S1, EX.P3, EX.O3},
                add_annotations: [{EX.AP3, EX.AO3}],
-               delete_annotations: true
+               delete_annotations_on_deleted: true
              ) ==
                graph()
                |> Graph.add([
@@ -665,11 +665,45 @@ defmodule RDF.Star.Graph.Test do
              |> Graph.add({EX.S1, EX.P1, EX.O1},
                add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
              )
-             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations: EX.AP1) ==
+             |> Graph.put({EX.S1, EX.P2, EX.O2}, delete_annotations_on_deleted: EX.AP1) ==
                graph()
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
                |> Graph.add({EX.S1, EX.P2, EX.O2})
     end
+  end
+
+  test "put/3 with add_annotations_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put({EX.S1, EX.P2, EX.O2}, add_annotations_on_deleted: {EX.AP1, EX.AO2}) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P2, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO2})
+  end
+
+  test "put/3 with put_annotations_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put({EX.S1, EX.P2, EX.O2}, put_annotations_on_deleted: {EX.AP2, EX.AO2}) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P2, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+  end
+
+  test "put/3 with put_annotation_properties_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put({EX.S1, EX.P2, EX.O2},
+             put_annotation_properties_on_deleted: [
+               {EX.AP1, EX.AO12},
+               {EX.AP2, EX.AO2}
+             ]
+           ) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P2, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO12})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
   end
 
   test "put_properties/3" do
@@ -925,11 +959,11 @@ defmodule RDF.Star.Graph.Test do
              expected_graph
   end
 
-  describe "put_properties/3 with delete_annotations option" do
+  describe "put_properties/3 with delete_annotations_on_deleted option" do
     test "no annotations of overwritten statements are removed when delete_annotations is false (default)" do
       assert graph()
              |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
-             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: false) ==
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations_on_deleted: false) ==
                graph()
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP, EX.AO})
                |> Graph.add({EX.S1, EX.P1, EX.O2})
@@ -945,7 +979,7 @@ defmodule RDF.Star.Graph.Test do
     test "all annotations of overwritten statements are removed when delete_annotations is true" do
       assert graph()
              |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: [{EX.AP, EX.AO}])
-             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: true) ==
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations_on_deleted: true) ==
                graph()
                |> Graph.add({EX.S1, EX.P1, EX.O2})
 
@@ -959,7 +993,7 @@ defmodule RDF.Star.Graph.Test do
              )
              |> Graph.put_properties({EX.S1, EX.P1, EX.O3},
                add_annotations: [{EX.AP3, EX.AO3}],
-               delete_annotations: true
+               delete_annotations_on_deleted: true
              ) ==
                graph()
                |> Graph.add([
@@ -976,11 +1010,49 @@ defmodule RDF.Star.Graph.Test do
              |> Graph.add({EX.S1, EX.P1, EX.O1},
                add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
              )
-             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations: EX.AP1) ==
+             |> Graph.put_properties({EX.S1, EX.P1, EX.O2}, delete_annotations_on_deleted: EX.AP1) ==
                graph()
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
                |> Graph.add({EX.S1, EX.P1, EX.O2})
     end
+  end
+
+  test "put_properties/3 with add_annotations_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put_properties({EX.S1, EX.P1, EX.O2},
+             add_annotations_on_deleted: {EX.AP1, EX.AO2}
+           ) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO2})
+  end
+
+  test "put_properties/3 with put_annotations_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put_properties({EX.S1, EX.P1, EX.O2},
+             put_annotations_on_deleted: {EX.AP2, EX.AO2}
+           ) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+  end
+
+  test "put_properties/3 with put_annotation_properties_on_deleted option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.put_properties({EX.S1, EX.P1, EX.O2},
+             put_annotation_properties_on_deleted: [
+               {EX.AP1, EX.AO12},
+               {EX.AP2, EX.AO2}
+             ]
+           ) ==
+             graph()
+             |> Graph.add({EX.S1, EX.P1, EX.O2})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO12})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
   end
 
   test "delete/3" do
@@ -1047,6 +1119,41 @@ defmodule RDF.Star.Graph.Test do
     end
   end
 
+  test "delete/3 with add_annotations option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete({EX.S1, EX.P1, EX.O1},
+             add_annotations: {EX.AP1, EX.AO2}
+           ) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO2})
+  end
+
+  test "delete/3 with put_annotations option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete({EX.S1, EX.P1, EX.O1},
+             put_annotations: {EX.AP2, EX.AO2}
+           ) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+  end
+
+  test "delete/3 with put_annotation_properties option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete({EX.S1, EX.P1, EX.O1},
+             put_annotation_properties: [
+               {EX.AP1, EX.AO12},
+               {EX.AP2, EX.AO2}
+             ]
+           ) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO12})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+  end
+
   test "delete_descriptions/3" do
     assert graph_with_annotation() |> Graph.delete_descriptions(statement()) == graph()
   end
@@ -1089,6 +1196,37 @@ defmodule RDF.Star.Graph.Test do
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
                |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
     end
+  end
+
+  test "delete_descriptions/3 with add_annotations option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete_descriptions(EX.S1, add_annotations: {EX.AP1, EX.AO2}) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO2})
+  end
+
+  test "delete_descriptions/3 with put_annotations option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete_descriptions(EX.S1, put_annotations: {EX.AP2, EX.AO2}) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
+  end
+
+  test "delete_descriptions/3 with put_annotation_properties option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete_descriptions(EX.S1,
+             put_annotation_properties: [
+               {EX.AP1, EX.AO12},
+               {EX.AP2, EX.AO2}
+             ]
+           ) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO12})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
   end
 
   describe "add_annotations/3" do
