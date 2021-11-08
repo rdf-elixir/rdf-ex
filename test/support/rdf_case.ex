@@ -227,4 +227,7 @@ defmodule RDF.Test.Case do
 
   @graph_with_annotations Graph.new(init: [@annotation, @object_annotation])
   def graph_with_annotations(), do: @graph_with_annotations
+
+  @dataset_with_annotation Dataset.new(init: @annotation)
+  def dataset_with_annotation(), do: @dataset_with_annotation
 end
