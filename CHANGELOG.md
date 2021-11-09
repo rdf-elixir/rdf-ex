@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`
+- `RDF.Dataset.graph_count/1`
 
 ### Changed
 

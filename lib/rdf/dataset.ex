@@ -533,6 +533,24 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  The number of graphs within a `RDF.Dataset`.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2},
+      ...>   {EX.S1, EX.p2, EX.O3, EX.Graph}])
+      ...> |> RDF.Dataset.graph_count()
+      2
+
+  """
+  @spec graph_count(t) :: non_neg_integer
+  def graph_count(%__MODULE__{} = dataset) do
+    Enum.count(dataset.graphs)
+  end
+
+  @doc """
   The number of statements within a `RDF.Dataset`.
 
   ## Examples
