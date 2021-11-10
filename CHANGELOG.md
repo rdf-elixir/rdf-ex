@@ -9,13 +9,21 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`
+- Support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`.
 - `RDF.Dataset.graph_count/1`
+- The `RDF.NQuads.Encoder` now supports a `:default_graph_name` option, which
+  allow to specify the graph name to be used as the default for triples
+  from a `RDF.Graph` or `RDF.Description`.
 
 ### Changed
 
-- the `RDF.Turtle.Encoder` no longer supports the encoding of `RDF.Dataset`s; you'll have to 
-  aggregate a `RDF.Dataset` to a `RDF.Graph` on your own now
+- The `RDF.Turtle.Encoder` no longer supports the encoding of `RDF.Dataset`s.   
+  You'll have to aggregate a `RDF.Dataset` to a `RDF.Graph` on your own now.
+- The `RDF.NQuads.Encoder` now uses the `RDF.Graph.name/1` as the graph name for  
+  the triples of a `RDF.Graph`.
+  Previously the triples of an `RDF.Graph` were always encoded as part of default 
+  graph. You can use the new `:default_graph_name` option and set it to `nil` to get
+  the old behaviour.
 
 
 

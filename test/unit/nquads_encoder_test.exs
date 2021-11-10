@@ -24,6 +24,32 @@ defmodule RDF.NQuads.EncoderTest do
       assert NQuads.Encoder.encode!(Graph.new()) == ""
     end
 
+    test "graph name" do
+      assert Graph.new({EX.S1, EX.p1(), EX.O1}) |> NQuads.Encoder.encode!() ==
+               """
+               <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+               """
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1}, name: EX.Graph) |> NQuads.Encoder.encode!() ==
+               """
+               <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> <http://example.org/#Graph> .
+               """
+    end
+
+    test "default_graph_name opt" do
+      assert Graph.new({EX.S1, EX.p1(), EX.O1})
+             |> NQuads.Encoder.encode!(default_graph_name: EX.Graph) ==
+               """
+               <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> <http://example.org/#Graph> .
+               """
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1}, name: EX.Graph)
+             |> NQuads.Encoder.encode!(default_graph_name: nil) ==
+               """
+               <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+               """
+    end
+
     test "statements with IRIs only" do
       assert NQuads.Encoder.encode!(
                Graph.new([
@@ -87,6 +113,20 @@ defmodule RDF.NQuads.EncoderTest do
     end
   end
 
+  test "serializing a description" do
+    description = EX.S1 |> EX.p1(EX.O1)
+
+    assert NQuads.Encoder.encode!(description) ==
+             """
+             <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+             """
+
+    assert NQuads.Encoder.encode!(description, default_graph_name: EX.Graph) ==
+             """
+             <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> <http://example.org/#Graph> .
+             """
+  end
+
   describe "serializing a dataset" do
     test "an empty dataset is serialized to an empty string" do
       assert NQuads.Encoder.encode!(Dataset.new()) == ""
@@ -143,27 +183,59 @@ defmodule RDF.NQuads.EncoderTest do
   end
 
   describe "stream/2" do
-    dataset =
-      Dataset.new([
-        {EX.S1, EX.p1(), EX.O1},
-        {EX.S2, EX.p2(), RDF.bnode("foo"), EX.G},
-        {EX.S3, EX.p3(), ~L"foo"},
-        {EX.S3, EX.p3(), ~L"foo"en, EX.G}
-      ])
+    test "a dataset" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S2, EX.p2(), RDF.bnode("foo"), EX.G},
+          {EX.S3, EX.p3(), ~L"foo"},
+          {EX.S3, EX.p3(), ~L"foo"en, EX.G}
+        ])
 
-    expected_result = """
-    <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
-    <http://example.org/#S3> <http://example.org/#p3> "foo" .
-    <http://example.org/#S2> <http://example.org/#p2> _:foo <http://example.org/#G> .
-    <http://example.org/#S3> <http://example.org/#p3> "foo"@en <http://example.org/#G> .
-    """
+      expected_result = """
+      <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+      <http://example.org/#S3> <http://example.org/#p3> "foo" .
+      <http://example.org/#S2> <http://example.org/#p2> _:foo <http://example.org/#G> .
+      <http://example.org/#S3> <http://example.org/#p3> "foo"@en <http://example.org/#G> .
+      """
 
-    assert NQuads.Encoder.stream(dataset, mode: :string)
-           |> stream_to_string() ==
-             expected_result
+      assert NQuads.Encoder.stream(dataset, mode: :string)
+             |> stream_to_string() ==
+               expected_result
 
-    assert NQuads.Encoder.stream(dataset, mode: :iodata)
-           |> stream_to_string() ==
-             expected_result
+      assert NQuads.Encoder.stream(dataset, mode: :iodata)
+             |> stream_to_string() ==
+               expected_result
+    end
+
+    test "a graph" do
+      expected_unnamed_graph_result = """
+      <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> .
+      """
+
+      expected_named_graph_result = """
+      <http://example.org/#S1> <http://example.org/#p1> <http://example.org/#O1> <http://example.org/#Graph> .
+      """
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1})
+             |> NQuads.Encoder.stream(mode: :string)
+             |> stream_to_string() ==
+               expected_unnamed_graph_result
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1})
+             |> NQuads.Encoder.stream(mode: :iodata)
+             |> stream_to_string() ==
+               expected_unnamed_graph_result
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1}, name: EX.Graph)
+             |> NQuads.Encoder.stream(mode: :string)
+             |> stream_to_string() ==
+               expected_named_graph_result
+
+      assert Graph.new({EX.S1, EX.p1(), EX.O1}, name: EX.Graph)
+             |> NQuads.Encoder.stream(mode: :iodata)
+             |> stream_to_string() ==
+               expected_named_graph_result
+    end
   end
 end
