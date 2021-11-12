@@ -9,10 +9,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- RDF-star support on the RDF data structures and the N-Triples, N-Quads, Turtle
+  encoders and decoders
 - Support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`.
 - `RDF.Dataset.graph_count/1`
 - The `RDF.NQuads.Encoder` now supports a `:default_graph_name` option, which
-  allow to specify the graph name to be used as the default for triples
+  allows to specify the graph name to be used as the default for triples
   from a `RDF.Graph` or `RDF.Description`.
 
 ### Changed
