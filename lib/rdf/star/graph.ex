@@ -50,6 +50,40 @@ defmodule RDF.Star.Graph do
     }
   end
 
+  @spec without_annotations(Graph.t()) :: Graph.t()
+  def without_annotations(%Graph{} = graph) do
+    %Graph{
+      graph
+      | descriptions:
+          for(
+            non_annotation = {subject, _} when not is_tuple(subject) <- graph.descriptions,
+            into: %{},
+            do: non_annotation
+          )
+    }
+  end
+
+  @spec without_quoted_triples(Graph.t()) :: Graph.t()
+  def without_quoted_triples(%Graph{} = graph) do
+    %Graph{
+      graph
+      | descriptions:
+          Enum.reduce(graph.descriptions, graph.descriptions, fn
+            {subject, description}, descriptions when not is_tuple(subject) ->
+              description_without_quoted_triples = Description.without_quoted_triples(description)
+
+              if Enum.empty?(description_without_quoted_triples) do
+                Map.delete(descriptions, subject)
+              else
+                Map.put(descriptions, subject, description_without_quoted_triples)
+              end
+
+            {subject, _}, descriptions ->
+              Map.delete(descriptions, subject)
+          end)
+    }
+  end
+
   @spec add_annotations(Graph.t(), Graph.input(), Description.input() | nil) :: Graph.t()
   def add_annotations(graph, statements, annotations)
 

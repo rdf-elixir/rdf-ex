@@ -832,6 +832,30 @@ defmodule RDF.Description do
   end
 
   @doc """
+  Removes all objects from a description which are quoted triples.
+  """
+  @spec without_quoted_triples(t) :: t
+  def without_quoted_triples(%__MODULE__{} = description) do
+    %__MODULE__{
+      description
+      | predications:
+          Enum.reduce(description.predications, description.predications, fn
+            {predicate, objects}, predications ->
+              original_object_count = Enum.count(predications)
+
+              filtered_objects =
+                Enum.reject(objects, &match?({quoted_triple, _} when is_tuple(quoted_triple), &1))
+
+              case Enum.count(filtered_objects) do
+                0 -> Map.delete(predications, predicate)
+                ^original_object_count -> predications
+                _ -> Map.put(predications, predicate, Map.new(filtered_objects))
+              end
+          end)
+    }
+  end
+
+  @doc """
   Checks if two `RDF.Description`s are equal.
 
   Two `RDF.Description`s are considered to be equal if they contain the same triples.

@@ -1757,7 +1757,8 @@ defmodule RDF.Star.GraphTest do
 
   describe "annotations/1" do
     test "when no annotations exist" do
-      assert Graph.annotations(graph()) == graph()
+      assert Graph.annotations(RDF.graph()) == RDF.graph()
+      assert Graph.annotations(RDF.graph(statement())) == RDF.graph()
     end
 
     test "when annotations exist" do
@@ -1766,6 +1767,52 @@ defmodule RDF.Star.GraphTest do
       assert graph_with_annotation()
              |> Graph.add(statement())
              |> Graph.annotations() == graph_with_annotation()
+    end
+  end
+
+  describe "without_annotations/1" do
+    test "when no annotations exist" do
+      assert Graph.without_annotations(RDF.graph()) == RDF.graph()
+      assert Graph.without_annotations(RDF.graph(statement())) == RDF.graph(statement())
+    end
+
+    test "when annotations exist" do
+      assert Graph.without_annotations(graph_with_annotation()) == RDF.graph()
+
+      assert graph_with_annotation()
+             |> Graph.add(statement())
+             |> Graph.without_annotations() == RDF.graph(statement())
+    end
+
+    test "quoted triples on object position" do
+      assert Graph.without_annotations(graph_with_annotations()) == RDF.graph(object_annotation())
+
+      assert graph_with_annotations()
+             |> Graph.add(statement())
+             |> Graph.without_annotations() == RDF.graph([statement(), object_annotation()])
+    end
+  end
+
+  describe "without_quoted_triples/1" do
+    test "when no annotations exist" do
+      assert Graph.without_quoted_triples(RDF.graph()) == RDF.graph()
+      assert Graph.without_quoted_triples(RDF.graph(statement())) == RDF.graph(statement())
+    end
+
+    test "when annotations exist" do
+      assert Graph.without_quoted_triples(graph_with_annotation()) == RDF.graph()
+
+      assert graph_with_annotation()
+             |> Graph.add(statement())
+             |> Graph.without_quoted_triples() == RDF.graph(statement())
+    end
+
+    test "quoted triples on object position" do
+      assert Graph.without_quoted_triples(graph_with_annotations()) == RDF.graph()
+
+      assert graph_with_annotations()
+             |> Graph.add(statement())
+             |> Graph.without_quoted_triples() == RDF.graph(statement())
     end
   end
 

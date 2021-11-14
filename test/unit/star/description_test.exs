@@ -199,6 +199,36 @@ defmodule RDF.Star.Description.Test do
     assert Description.describes?(annotation(), coercible_statement())
   end
 
+  describe "without_quoted_triples/1" do
+    test "empty description" do
+      assert Description.without_quoted_triples(description()) == Description.new(description())
+    end
+
+    test "when the description has no quoted triples on object position" do
+      description =
+        Description.new(statement(),
+          init: [
+            {EX.ap1(), EX.ao()},
+            {EX.ap2(), EX.ao()}
+          ]
+        )
+
+      assert Description.without_quoted_triples(description) == description
+    end
+
+    test "when the description has quoted triples" do
+      assert Description.new(statement(),
+               init: [
+                 {EX.ap1(), EX.ao()},
+                 {EX.ap1(), statement()},
+                 {EX.ap2(), statement()}
+               ]
+             )
+             |> Description.without_quoted_triples() ==
+               Description.new(statement(), init: {EX.ap1(), EX.ao()})
+    end
+  end
+
   test "values/2" do
     assert Description.new(statement(), init: {EX.ap(), statement()})
            |> Description.values() == %{}
