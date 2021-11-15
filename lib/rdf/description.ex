@@ -617,6 +617,7 @@ defmodule RDF.Description do
 
   When the optional `:filter_star` flag is set to `true` RDF-star triples with a triple as subject or object
   will be filtered. So, for a description with a triple as a subject you'll always get an empty list.
+  The default value of the `:filter_star` flag is `false`.
   """
   @spec triples(t, keyword) :: list(Triple.t())
   def triples(%__MODULE__{subject: s} = description, opts \\ []) do

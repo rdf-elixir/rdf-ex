@@ -40,4 +40,18 @@ defmodule RDF.Star.Dataset.Test do
   test "delete/3" do
     assert Dataset.delete(dataset_with_annotation(), annotation()) == dataset()
   end
+
+  test ":filter_star opt on statements/1" do
+    assert dataset()
+           |> Dataset.put(statement())
+           |> Dataset.put(statement(), graph: EX.Graph)
+           |> Dataset.put({statement(), EX.ap1(), EX.AO1})
+           |> Dataset.put({statement(), EX.ap2(), "foo", EX.Graph})
+           |> Dataset.put({statement(), EX.ap3(), EX.AO3})
+           |> Dataset.statements(filter_star: true) ==
+             dataset()
+             |> Dataset.put(statement())
+             |> Dataset.put(statement(), graph: EX.Graph)
+             |> Dataset.statements()
+  end
 end

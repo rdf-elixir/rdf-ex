@@ -650,6 +650,9 @@ defmodule RDF.Dataset do
   @doc """
   All statements within all graphs of a `RDF.Dataset`.
 
+  When the optional `:filter_star` flag is set to `true` RDF-star statements with
+  a triple as subject or object will be filtered. The default value is `false`.
+
   ## Examples
 
         iex> RDF.Dataset.new([
@@ -661,11 +664,14 @@ defmodule RDF.Dataset do
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)},
          {RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)}]
   """
-  @spec statements(t) :: [Statement.t()]
-  def statements(%__MODULE__{} = dataset) do
+  @spec statements(t, keyword) :: [Statement.t()]
+  def statements(%__MODULE__{} = dataset, opts \\ []) do
     Enum.flat_map(dataset.graphs, fn
-      {nil, graph} -> Graph.triples(graph)
-      {name, graph} -> Enum.map(graph, fn {s, p, o} -> {s, p, o, name} end)
+      {nil, graph} ->
+        Graph.triples(graph, opts)
+
+      {name, graph} ->
+        graph |> Graph.triples(opts) |> Enum.map(fn {s, p, o} -> {s, p, o, name} end)
     end)
   end
 

@@ -899,6 +899,9 @@ defmodule RDF.Graph do
   @doc """
   The list of all statements within a `RDF.Graph`.
 
+  When the optional `:filter_star` flag is set to `true` RDF-star triples with
+  a triple as subject or object will be filtered. The default value is `false`.
+
   ## Examples
 
         iex> RDF.Graph.new([
@@ -910,7 +913,7 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
-  @spec triples(t) :: [Statement.t()]
+  @spec triples(t, keyword) :: [Statement.t()]
   def triples(%__MODULE__{} = graph, opts \\ []) do
     if Keyword.get(opts, :filter_star, false) do
       Enum.flat_map(graph.descriptions, fn
