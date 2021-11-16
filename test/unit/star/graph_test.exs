@@ -5,7 +5,7 @@ defmodule RDF.Star.GraphTest do
     assert Graph.new(init: {statement(), EX.ap(), EX.ao()})
            |> graph_includes_statement?({statement(), EX.ap(), EX.ao()})
 
-    assert Graph.new(init: annotation())
+    assert Graph.new(init: annotation_description())
            |> graph_includes_statement?({statement(), EX.ap(), EX.ao()})
   end
 
@@ -1691,57 +1691,60 @@ defmodule RDF.Star.GraphTest do
   end
 
   test "update/3" do
-    assert Graph.update(graph(), statement(), annotation(), fn _ -> raise "unexpected" end) ==
+    assert Graph.update(graph(), statement(), annotation_description(), fn _ ->
+             raise "unexpected"
+           end) ==
              graph_with_annotation()
 
     assert graph()
            |> Graph.add({statement(), EX.foo(), EX.bar()})
-           |> Graph.update(statement(), fn _ -> annotation() end) ==
+           |> Graph.update(statement(), fn _ -> annotation_description() end) ==
              graph_with_annotation()
   end
 
   test "fetch/2" do
-    assert graph_with_annotation() |> Graph.fetch(statement()) == {:ok, annotation()}
+    assert graph_with_annotation() |> Graph.fetch(statement()) == {:ok, annotation_description()}
   end
 
   test "get/3" do
-    assert graph_with_annotation() |> Graph.get(statement()) == annotation()
+    assert graph_with_annotation() |> Graph.get(statement()) == annotation_description()
   end
 
   test "get_and_update/3" do
     assert Graph.get_and_update(graph_with_annotation(), statement(), fn description ->
-             {description, object_annotation()}
+             {description, description_with_quoted_triple_object()}
            end) ==
-             {annotation(), Graph.new(init: {statement(), EX.ap(), statement()})}
+             {annotation_description(), Graph.new(init: {statement(), EX.ap(), statement()})}
   end
 
   test "pop/2" do
-    assert Graph.pop(graph_with_annotation(), statement()) == {annotation(), graph()}
+    assert Graph.pop(graph_with_annotation(), statement()) == {annotation_description(), graph()}
   end
 
   test "subject_count/1" do
-    assert Graph.subject_count(graph_with_annotations()) == 2
+    assert Graph.subject_count(graph_with_quoted_triples()) == 2
   end
 
   test "subjects/1" do
-    assert Graph.subjects(graph_with_annotations()) == MapSet.new([statement(), RDF.iri(EX.As)])
+    assert Graph.subjects(graph_with_quoted_triples()) ==
+             MapSet.new([statement(), RDF.iri(EX.As)])
   end
 
   test "objects/1" do
-    assert Graph.objects(graph_with_annotations()) == MapSet.new([statement(), EX.ao()])
+    assert Graph.objects(graph_with_quoted_triples()) == MapSet.new([statement(), EX.ao()])
   end
 
   describe "statements/1" do
     test "without the filter_star flag" do
-      assert Graph.statements(graph_with_annotations()) == [
+      assert Graph.statements(graph_with_quoted_triples()) == [
                star_statement(),
                {RDF.iri(EX.As), EX.ap(), statement()}
              ]
     end
 
     test "with the filter_star flag" do
-      assert Graph.statements(graph_with_annotations(), filter_star: true) == []
-      assert Graph.statements(graph_with_annotations(), filter_star: true) == []
+      assert Graph.statements(graph_with_quoted_triples(), filter_star: true) == []
+      assert Graph.statements(graph_with_quoted_triples(), filter_star: true) == []
 
       assert Graph.new(
                init: [
@@ -1785,11 +1788,13 @@ defmodule RDF.Star.GraphTest do
     end
 
     test "quoted triples on object position" do
-      assert Graph.without_annotations(graph_with_annotations()) == RDF.graph(object_annotation())
+      assert Graph.without_annotations(graph_with_quoted_triples()) ==
+               RDF.graph(description_with_quoted_triple_object())
 
-      assert graph_with_annotations()
+      assert graph_with_quoted_triples()
              |> Graph.add(statement())
-             |> Graph.without_annotations() == RDF.graph([statement(), object_annotation()])
+             |> Graph.without_annotations() ==
+               RDF.graph([statement(), description_with_quoted_triple_object()])
     end
   end
 
@@ -1808,29 +1813,29 @@ defmodule RDF.Star.GraphTest do
     end
 
     test "quoted triples on object position" do
-      assert Graph.without_quoted_triples(graph_with_annotations()) == RDF.graph()
+      assert Graph.without_quoted_triples(graph_with_quoted_triples()) == RDF.graph()
 
-      assert graph_with_annotations()
+      assert graph_with_quoted_triples()
              |> Graph.add(statement())
              |> Graph.without_quoted_triples() == RDF.graph(statement())
     end
   end
 
   test "include?/3" do
-    assert Graph.include?(graph_with_annotations(), star_statement())
-    assert Graph.include?(graph_with_annotations(), {EX.As, EX.ap(), statement()})
+    assert Graph.include?(graph_with_quoted_triples(), star_statement())
+    assert Graph.include?(graph_with_quoted_triples(), {EX.As, EX.ap(), statement()})
   end
 
   test "describes?/2" do
-    assert Graph.describes?(graph_with_annotations(), statement())
+    assert Graph.describes?(graph_with_quoted_triples(), statement())
   end
 
   test "values/2" do
-    assert graph_with_annotations() |> Graph.values() == %{}
+    assert graph_with_quoted_triples() |> Graph.values() == %{}
 
     assert Graph.new(
              init: [
-               annotation(),
+               annotation_description(),
                {EX.s(), EX.p(), ~L"Foo"},
                {EX.s(), EX.ap(), statement()}
              ]
@@ -1848,13 +1853,13 @@ defmodule RDF.Star.GraphTest do
         RDF.Term.value(term)
     end
 
-    assert graph_with_annotations() |> Graph.map(mapping) == %{}
+    assert graph_with_quoted_triples() |> Graph.map(mapping) == %{}
 
     assert Graph.new([
-             annotation(),
+             annotation_description(),
              {EX.s1(), EX.p(), EX.o1()},
              {EX.s2(), EX.p(), EX.o2()},
-             object_annotation()
+             description_with_quoted_triple_object()
            ])
            |> Graph.map(mapping) ==
              %{

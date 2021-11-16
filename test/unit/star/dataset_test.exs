@@ -38,7 +38,7 @@ defmodule RDF.Star.Dataset.Test do
   end
 
   test "delete/3" do
-    assert Dataset.delete(dataset_with_annotation(), annotation()) == dataset()
+    assert Dataset.delete(dataset_with_annotation(), annotation_description()) == dataset()
   end
 
   test ":filter_star opt on statements/1" do

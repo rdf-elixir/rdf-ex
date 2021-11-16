@@ -24,7 +24,7 @@ defmodule RDF.Star.Description.Test do
   end
 
   test "subject/1" do
-    assert Description.subject(empty_annotation()) == statement()
+    assert Description.subject(empty_annotation_description()) == statement()
   end
 
   test "change_subject/2" do
@@ -35,7 +35,7 @@ defmodule RDF.Star.Description.Test do
 
   describe "add/3" do
     test "with a proper triple as a subject" do
-      assert empty_annotation()
+      assert empty_annotation_description()
              |> Description.add({statement(), EX.ap(), EX.ao()})
              |> description_includes_predication({EX.ap(), EX.ao()})
     end
@@ -47,7 +47,7 @@ defmodule RDF.Star.Description.Test do
     end
 
     test "with a proper triple as a subject and object" do
-      assert empty_annotation()
+      assert empty_annotation_description()
              |> Description.add({statement(), EX.ap(), statement()})
              |> description_includes_predication({EX.ap(), statement()})
     end
@@ -62,81 +62,87 @@ defmodule RDF.Star.Description.Test do
     end
 
     test "with a list of predicate-object tuples" do
-      assert empty_annotation()
+      assert empty_annotation_description()
              |> Description.add([{EX.ap(), statement()}])
              |> description_includes_predication({EX.ap(), statement()})
     end
 
     test "with a description map" do
-      assert empty_annotation()
+      assert empty_annotation_description()
              |> Description.add(%{EX.ap() => statement()})
              |> description_includes_predication({EX.ap(), statement()})
     end
 
     test "with coercible triples" do
-      assert empty_annotation()
+      assert empty_annotation_description()
              |> Description.add({coercible_statement(), EX.ap(), coercible_statement()})
              |> description_includes_predication({EX.ap(), statement()})
     end
   end
 
   test "put/3" do
-    assert annotation()
+    assert annotation_description()
            |> Description.put({statement(), EX.ap(), EX.ao2()})
            |> description_includes_predication({EX.ap(), EX.ao2()})
 
-    assert annotation()
+    assert annotation_description()
            |> Description.put({statement(), EX.ap(), statement()})
            |> description_includes_predication({EX.ap(), statement()})
   end
 
   test "delete/3" do
-    assert Description.delete(annotation(), {statement(), EX.ap(), EX.ao()}) ==
-             empty_annotation()
+    assert Description.delete(annotation_description(), {statement(), EX.ap(), EX.ao()}) ==
+             empty_annotation_description()
 
-    assert Description.delete(object_annotation(), {EX.As, EX.ap(), statement()}) ==
+    assert Description.delete(
+             description_with_quoted_triple_object(),
+             {EX.As, EX.ap(), statement()}
+           ) ==
              Description.new(EX.As)
 
-    assert Description.delete(object_annotation(), {EX.ap(), statement()}) ==
+    assert Description.delete(description_with_quoted_triple_object(), {EX.ap(), statement()}) ==
              Description.new(EX.As)
   end
 
   test "delete_predicates/2" do
-    assert Description.delete_predicates(annotation(), EX.ap()) ==
-             empty_annotation()
+    assert Description.delete_predicates(annotation_description(), EX.ap()) ==
+             empty_annotation_description()
 
-    assert Description.delete_predicates(object_annotation(), EX.ap()) ==
+    assert Description.delete_predicates(description_with_quoted_triple_object(), EX.ap()) ==
              Description.new(EX.As)
   end
 
   test "fetch/2" do
-    assert Description.fetch(annotation(), EX.ap()) == {:ok, [EX.ao()]}
-    assert Description.fetch(object_annotation(), EX.ap()) == {:ok, [statement()]}
+    assert Description.fetch(annotation_description(), EX.ap()) == {:ok, [EX.ao()]}
+
+    assert Description.fetch(description_with_quoted_triple_object(), EX.ap()) ==
+             {:ok, [statement()]}
   end
 
   test "get/2" do
-    assert Description.get(annotation(), EX.ap()) == [EX.ao()]
-    assert Description.get(object_annotation(), EX.ap()) == [statement()]
+    assert Description.get(annotation_description(), EX.ap()) == [EX.ao()]
+    assert Description.get(description_with_quoted_triple_object(), EX.ap()) == [statement()]
   end
 
   test "first/2" do
-    assert Description.first(annotation(), EX.ap()) == EX.ao()
-    assert Description.first(object_annotation(), EX.ap()) == statement()
+    assert Description.first(annotation_description(), EX.ap()) == EX.ao()
+    assert Description.first(description_with_quoted_triple_object(), EX.ap()) == statement()
   end
 
   test "pop/2" do
-    assert Description.pop(annotation(), EX.ap()) == {[EX.ao()], empty_annotation()}
+    assert Description.pop(annotation_description(), EX.ap()) ==
+             {[EX.ao()], empty_annotation_description()}
 
-    assert Description.pop(object_annotation(), EX.ap()) ==
+    assert Description.pop(description_with_quoted_triple_object(), EX.ap()) ==
              {[statement()], Description.new(EX.As)}
   end
 
   test "update/4" do
     assert (description =
-              Description.update(empty_annotation(), EX.ap(), statement(), fn _ ->
+              Description.update(empty_annotation_description(), EX.ap(), statement(), fn _ ->
                 raise "unexpected"
               end)) ==
-             empty_annotation()
+             empty_annotation_description()
              |> Description.add(%{EX.ap() => statement()})
 
     assert Description.update(description, EX.ap(), statement(), fn
@@ -144,7 +150,7 @@ defmodule RDF.Star.Description.Test do
                assert statement == statement()
                [statement, {s, p, EX.O}]
            end) ==
-             empty_annotation()
+             empty_annotation_description()
              |> Description.add(%{EX.ap() => statement()})
              |> Description.add(%{EX.ap() => {EX.S, EX.P, EX.O}})
   end
@@ -195,8 +201,8 @@ defmodule RDF.Star.Description.Test do
   end
 
   test "describes?/2" do
-    assert Description.describes?(annotation(), statement())
-    assert Description.describes?(annotation(), coercible_statement())
+    assert Description.describes?(annotation_description(), statement())
+    assert Description.describes?(annotation_description(), coercible_statement())
   end
 
   describe "without_quoted_triples/1" do

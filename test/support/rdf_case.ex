@@ -208,26 +208,31 @@ defmodule RDF.Test.Case do
   end
 
   ###############################
-  # RDF.Star annotations
+  # RDF.Star
 
   @star_statement {@statement, EX.ap(), EX.ao()}
   def star_statement(), do: @star_statement
 
-  @empty_annotation Description.new(@statement)
-  def empty_annotation(), do: @empty_annotation
+  @empty_annotation_description Description.new(@statement)
+  def empty_annotation_description(), do: @empty_annotation_description
 
-  @annotation Description.new(@statement, init: {EX.ap(), EX.ao()})
-  def annotation(), do: @annotation
+  @annotation_description Description.new(@statement, init: {EX.ap(), EX.ao()})
+  def annotation_description(), do: @annotation_description
 
-  @object_annotation Description.new(EX.As, init: {EX.ap(), @statement})
-  def object_annotation(), do: @object_annotation
+  @description_with_quoted_triple_object Description.new(EX.As, init: {EX.ap(), @statement})
+  def description_with_quoted_triple_object(), do: @description_with_quoted_triple_object
 
-  @graph_with_annotation Graph.new(init: @annotation)
+  @graph_with_annotation Graph.new(init: @annotation_description)
   def graph_with_annotation(), do: @graph_with_annotation
 
-  @graph_with_annotations Graph.new(init: [@annotation, @object_annotation])
-  def graph_with_annotations(), do: @graph_with_annotations
+  @graph_with_quoted_triples Graph.new(
+                               init: [
+                                 @annotation_description,
+                                 @description_with_quoted_triple_object
+                               ]
+                             )
+  def graph_with_quoted_triples(), do: @graph_with_quoted_triples
 
-  @dataset_with_annotation Dataset.new(init: @annotation)
+  @dataset_with_annotation Dataset.new(init: @annotation_description)
   def dataset_with_annotation(), do: @dataset_with_annotation
 end
