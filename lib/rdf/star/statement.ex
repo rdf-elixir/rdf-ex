@@ -127,16 +127,16 @@ defmodule RDF.Star.Statement do
 
   ## Examples
 
-      iex> RDF.Star.Statement.annotation?({EX.S, EX.P, EX.O})
+      iex> RDF.Star.Statement.star_statement?({EX.S, EX.P, EX.O})
       false
-      iex> RDF.Star.Statement.annotation?({EX.AS, EX.AP, {EX.S, EX.P, EX.O}})
+      iex> RDF.Star.Statement.star_statement?({EX.AS, EX.AP, {EX.S, EX.P, EX.O}})
       true
-      iex> RDF.Star.Statement.annotation?({{EX.S, EX.P, EX.O}, EX.AP, EX.AO})
+      iex> RDF.Star.Statement.star_statement?({{EX.S, EX.P, EX.O}, EX.AP, EX.AO})
       true
 
   """
-  @spec annotation?(Triple.t() | Quad.t() | any) :: boolean
-  def annotation?({{_, _, _}, _, _}), do: true
-  def annotation?({_, _, {_, _, _}}), do: true
-  def annotation?(_), do: false
+  @spec star_statement?(Triple.t() | Quad.t() | any) :: boolean
+  def star_statement?({{_, _, _}, _, _}), do: true
+  def star_statement?({_, _, {_, _, _}}), do: true
+  def star_statement?(_), do: false
 end
