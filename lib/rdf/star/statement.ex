@@ -28,7 +28,7 @@ defmodule RDF.Star.Statement do
   @doc """
   Creates a `RDF.Star.Triple` or `RDF.Star.Quad` with proper RDF values.
 
-  An error is raised when the given elements are not coercible to RDF values.
+  An error is raised when the given elements are not coercible to RDF-star values.
 
   Note: The `RDF.statement` function is a shortcut to this function.
 
@@ -53,7 +53,7 @@ defmodule RDF.Star.Statement do
   @doc """
   Creates a `RDF.Star.Statement` tuple with proper RDF values.
 
-  An error is raised when the given elements are not coercible to RDF values.
+  An error is raised when the given elements are not coercible to RDF-star values.
 
   ## Examples
 
@@ -120,9 +120,9 @@ defmodule RDF.Star.Statement do
   def valid_graph_name?(any), do: RDF.Statement.valid_graph_name?(any)
 
   @doc """
-  Checks if the given tuple is a RDF-star statement annotating a triple on subject or object position.
+  Checks if the given tuple is a RDF-star statement with a quoted triple on subject or object position.
 
-  Note: This function won't check if the given tuple or the annotated triple is valid.
+  Note: This function won't check if the given tuple or the quoted triple is valid.
   Use `valid?/1` for this purpose.
 
   ## Examples

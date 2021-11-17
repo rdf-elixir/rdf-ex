@@ -264,7 +264,7 @@ defmodule RDF.Graph do
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
 
-  What should happen with the annotations of statement which got delete during the
+  What should happen with the annotations of statements which got deleted during the
   overwrite, can be controlled with these keyword options:
 
   - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
@@ -322,7 +322,7 @@ defmodule RDF.Graph do
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
 
-  What should happen with the annotations of statement which got delete during the
+  What should happen with the annotations of statements which got deleted during the
   overwrite, can be controlled with these keyword options:
 
   - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
@@ -382,7 +382,7 @@ defmodule RDF.Graph do
   use `RDF.Data.delete/2`.
 
   The optional `:delete_annotations` keyword option allows to set which of
-  RDF-star annotations of the deleted statements should be deleted.
+  the RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
   By default no annotations of the deleted statements will be removed.
   Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
@@ -449,7 +449,7 @@ defmodule RDF.Graph do
   If `subjects` contains subjects that are not in `graph`, they're simply ignored.
 
   The optional `:delete_annotations` keyword option allows to set which of
-  RDF-star annotations of the deleted statements should be deleted.
+  the RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
   By default no annotations of the deleted statements will be removed.
   Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
