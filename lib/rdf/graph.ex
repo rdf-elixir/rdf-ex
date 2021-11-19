@@ -224,16 +224,8 @@ defmodule RDF.Graph do
     end
   end
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def add(graph, input, opts) when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.reduce(input, graph, &add(&2, &1, opts))
-    end
-  else
-    def add(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def add(graph, input, opts) when is_list(input) or is_map(input) do
-      Enum.reduce(input, graph, &add(&2, &1, opts))
-    end
+  def add(graph, input, opts) when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.reduce(input, graph, &add(&2, &1, opts))
   end
 
   defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements, opts) do
@@ -411,17 +403,9 @@ defmodule RDF.Graph do
     end)
   end
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def delete(%__MODULE__{} = graph, input, opts)
-        when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.reduce(input, graph, &delete(&2, &1, opts))
-    end
-  else
-    def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def delete(%__MODULE__{} = graph, input, opts) when is_list(input) or is_map(input) do
-      Enum.reduce(input, graph, &delete(&2, &1, opts))
-    end
+  def delete(%__MODULE__{} = graph, input, opts)
+      when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.reduce(input, graph, &delete(&2, &1, opts))
   end
 
   defp do_delete(%__MODULE__{descriptions: descriptions} = graph, subject, input, opts) do
@@ -953,17 +937,9 @@ defmodule RDF.Graph do
     |> Enum.all?(&include?(graph, &1, opts))
   end
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def include?(graph, input, opts)
-        when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.all?(input, &include?(graph, &1, opts))
-    end
-  else
-    def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def include?(graph, input, opts) when is_list(input) or is_map(input) do
-      Enum.all?(input, &include?(graph, &1, opts))
-    end
+  def include?(graph, input, opts)
+      when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.all?(input, &include?(graph, &1, opts))
   end
 
   defp do_include?(%__MODULE__{descriptions: descriptions}, subject, input, opts) do
@@ -1265,13 +1241,9 @@ defmodule RDF.Graph do
     def member?(graph, triple), do: {:ok, Graph.include?(graph, triple)}
     def count(graph), do: {:ok, Graph.statement_count(graph)}
 
-    if Version.match?(System.version(), "~> 1.10") do
-      def slice(graph) do
-        size = Graph.statement_count(graph)
-        {:ok, size, &Enumerable.List.slice(Graph.triples(graph), &1, &2, size)}
-      end
-    else
-      def slice(_), do: {:error, __MODULE__}
+    def slice(graph) do
+      size = Graph.statement_count(graph)
+      {:ok, size, &Enumerable.List.slice(Graph.triples(graph), &1, &2, size)}
     end
 
     def reduce(graph, acc, fun) do

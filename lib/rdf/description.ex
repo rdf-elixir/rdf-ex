@@ -165,17 +165,9 @@ defmodule RDF.Description do
     }
   end
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def add(description, input, opts)
-        when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.reduce(input, description, &add(&2, &1, opts))
-    end
-  else
-    def add(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def add(description, input, opts) when is_list(input) or is_map(input) do
-      Enum.reduce(input, description, &add(&2, &1, opts))
-    end
+  def add(description, input, opts)
+      when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.reduce(input, description, &add(&2, &1, opts))
   end
 
   @doc """
@@ -298,17 +290,9 @@ defmodule RDF.Description do
     }
   end
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def delete(description, input, opts)
-        when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.reduce(input, description, &delete(&2, &1, opts))
-    end
-  else
-    def delete(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def delete(description, input, opts) when is_list(input) or is_map(input) do
-      Enum.reduce(input, description, &delete(&2, &1, opts))
-    end
+  def delete(description, input, opts)
+      when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.reduce(input, description, &delete(&2, &1, opts))
   end
 
   @doc """
@@ -698,17 +682,9 @@ defmodule RDF.Description do
 
   def include?(%__MODULE__{}, %__MODULE__{}, _), do: false
 
-  if Version.match?(System.version(), "~> 1.10") do
-    def include?(description, input, opts)
-        when is_list(input) or (is_map(input) and not is_struct(input)) do
-      Enum.all?(input, &include?(description, &1, opts))
-    end
-  else
-    def include?(_, %_{}, _), do: raise(ArgumentError, "structs are not allowed as input")
-
-    def include?(description, input, opts) when is_list(input) or is_map(input) do
-      Enum.all?(input, &include?(description, &1, opts))
-    end
+  def include?(description, input, opts)
+      when is_list(input) or (is_map(input) and not is_struct(input)) do
+    Enum.all?(input, &include?(description, &1, opts))
   end
 
   @doc """
@@ -877,13 +853,9 @@ defmodule RDF.Description do
 
     def count(desc), do: {:ok, Description.statement_count(desc)}
 
-    if Version.match?(System.version(), "~> 1.10") do
-      def slice(desc) do
-        size = Description.statement_count(desc)
-        {:ok, size, &Enumerable.List.slice(Description.triples(desc), &1, &2, size)}
-      end
-    else
-      def slice(_), do: {:error, __MODULE__}
+    def slice(desc) do
+      size = Description.statement_count(desc)
+      {:ok, size, &Enumerable.List.slice(Description.triples(desc), &1, &2, size)}
     end
 
     def reduce(desc, acc, fun) do

@@ -879,7 +879,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Dataset.add(dataset(), Date.utc_today())
       end
     end
@@ -1178,7 +1178,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Dataset.put(dataset(), Date.utc_today())
       end
     end
@@ -1365,7 +1365,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Dataset.put_properties(dataset(), Date.utc_today())
       end
     end
@@ -1546,7 +1546,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Dataset.delete(dataset(), Date.utc_today())
       end
     end
@@ -1659,7 +1659,7 @@ defmodule RDF.DatasetTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Dataset.include?(dataset(), Date.utc_today())
       end
     end

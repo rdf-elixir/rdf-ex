@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.10 are no longer supported
+
 ### Added
 
 - RDF-star support on the RDF data structures and the N-Triples, N-Quads, Turtle

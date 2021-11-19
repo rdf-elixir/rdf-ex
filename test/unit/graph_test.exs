@@ -538,11 +538,11 @@ defmodule RDF.GraphTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.add(graph(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.add(graph(), RDF.dataset())
       end
     end
@@ -736,11 +736,11 @@ defmodule RDF.GraphTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.put(graph(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.put(graph(), RDF.dataset())
       end
     end
@@ -944,11 +944,11 @@ defmodule RDF.GraphTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.put_properties(graph(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.put_properties(graph(), RDF.dataset())
       end
     end
@@ -1076,11 +1076,11 @@ defmodule RDF.GraphTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.delete(graph(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.delete(graph(), RDF.dataset())
       end
     end
@@ -1243,11 +1243,11 @@ defmodule RDF.GraphTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.include?(graph(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Graph.include?(graph(), RDF.dataset())
       end
     end

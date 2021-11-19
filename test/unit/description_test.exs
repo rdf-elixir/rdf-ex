@@ -361,15 +361,15 @@ defmodule RDF.DescriptionTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.add(description(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.add(description(), RDF.graph())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.add(description(), RDF.dataset())
       end
     end
@@ -518,15 +518,15 @@ defmodule RDF.DescriptionTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.put(description(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.put(description(), RDF.graph())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.put(description(), RDF.dataset())
       end
     end
@@ -666,15 +666,15 @@ defmodule RDF.DescriptionTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.delete(description(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.delete(description(), RDF.graph())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.delete(description(), RDF.dataset())
       end
     end
@@ -821,15 +821,15 @@ defmodule RDF.DescriptionTest do
     end
 
     test "structs are causing an error" do
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.include?(description(), Date.utc_today())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.include?(description(), RDF.graph())
       end
 
-      assert_raise struct_not_allowed_as_input_error(), fn ->
+      assert_raise FunctionClauseError, fn ->
         Description.include?(description(), RDF.dataset())
       end
     end
