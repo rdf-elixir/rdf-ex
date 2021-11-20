@@ -1798,26 +1798,26 @@ defmodule RDF.Star.GraphTest do
     end
   end
 
-  describe "without_quoted_triples/1" do
+  describe "without_star_statements/1" do
     test "when no annotations exist" do
-      assert Graph.without_quoted_triples(RDF.graph()) == RDF.graph()
-      assert Graph.without_quoted_triples(RDF.graph(statement())) == RDF.graph(statement())
+      assert Graph.without_star_statements(RDF.graph()) == RDF.graph()
+      assert Graph.without_star_statements(RDF.graph(statement())) == RDF.graph(statement())
     end
 
     test "when annotations exist" do
-      assert Graph.without_quoted_triples(graph_with_annotation()) == RDF.graph()
+      assert Graph.without_star_statements(graph_with_annotation()) == RDF.graph()
 
       assert graph_with_annotation()
              |> Graph.add(statement())
-             |> Graph.without_quoted_triples() == RDF.graph(statement())
+             |> Graph.without_star_statements() == RDF.graph(statement())
     end
 
     test "quoted triples on object position" do
-      assert Graph.without_quoted_triples(graph_with_quoted_triples()) == RDF.graph()
+      assert Graph.without_star_statements(graph_with_quoted_triples()) == RDF.graph()
 
       assert graph_with_quoted_triples()
              |> Graph.add(statement())
-             |> Graph.without_quoted_triples() == RDF.graph(statement())
+             |> Graph.without_star_statements() == RDF.graph(statement())
     end
   end
 

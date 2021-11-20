@@ -652,7 +652,7 @@ defmodule RDF.Graph do
 
   Note: This function excludes only triples where the subject is a quoted triple.
   If you want to exclude also triples where the object is a quoted triple,
-  you'll have to use `RDF.Graph.without_quoted_triples/1`.
+  you'll have to use `RDF.Graph.without_star_statements/1`.
   """
   @spec without_annotations(t) :: t
   defdelegate without_annotations(graph), to: RDF.Star.Graph
@@ -662,10 +662,10 @@ defmodule RDF.Graph do
 
   This function is relatively costly, since it requires a full walk-through of all triples.
   In many cases quoted triples are only used on subject position, where you can use
-  `RDF.Graph.without_annotations/1`.
+  the significantly faster `RDF.Graph.without_annotations/1`.
   """
-  @spec without_quoted_triples(t) :: t
-  defdelegate without_quoted_triples(graph), to: RDF.Star.Graph
+  @spec without_star_statements(t) :: t
+  defdelegate without_star_statements(graph), to: RDF.Star.Graph
 
   @doc """
   Gets and updates the description of the given subject, in a single pass.

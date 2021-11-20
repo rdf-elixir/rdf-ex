@@ -63,14 +63,15 @@ defmodule RDF.Star.Graph do
     }
   end
 
-  @spec without_quoted_triples(Graph.t()) :: Graph.t()
-  def without_quoted_triples(%Graph{} = graph) do
+  @spec without_star_statements(Graph.t()) :: Graph.t()
+  def without_star_statements(%Graph{} = graph) do
     %Graph{
       graph
       | descriptions:
           Enum.reduce(graph.descriptions, graph.descriptions, fn
             {subject, description}, descriptions when not is_tuple(subject) ->
-              description_without_quoted_triples = Description.without_quoted_triples(description)
+              description_without_quoted_triples =
+                Description.without_quoted_triple_objects(description)
 
               if Enum.empty?(description_without_quoted_triples) do
                 Map.delete(descriptions, subject)

@@ -811,8 +811,8 @@ defmodule RDF.Description do
   @doc """
   Removes all objects from a description which are quoted triples.
   """
-  @spec without_quoted_triples(t) :: t
-  def without_quoted_triples(%__MODULE__{} = description) do
+  @spec without_quoted_triple_objects(t) :: t
+  def without_quoted_triple_objects(%__MODULE__{} = description) do
     %__MODULE__{
       description
       | predications:
