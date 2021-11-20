@@ -1744,7 +1744,7 @@ defmodule RDF.Star.GraphTest do
 
     test "with the filter_star flag" do
       assert Graph.statements(graph_with_quoted_triples(), filter_star: true) == []
-      assert Graph.statements(graph_with_quoted_triples(), filter_star: true) == []
+      assert Graph.triples(graph_with_quoted_triples(), filter_star: true) == []
 
       assert Graph.new(
                init: [

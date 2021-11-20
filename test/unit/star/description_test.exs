@@ -186,7 +186,7 @@ defmodule RDF.Star.Description.Test do
                  {EX.ap(), statement()}
                ]
              )
-             |> Description.statements(filter_star: true) == [{EX.s(), EX.p(), EX.o()}]
+             |> Description.triples(filter_star: true) == [{EX.s(), EX.p(), EX.o()}]
     end
   end
 
