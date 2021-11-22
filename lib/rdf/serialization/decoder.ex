@@ -11,7 +11,25 @@ defmodule RDF.Serialization.Decoder do
   It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
   dataset, or `{:error, reason}` if an error occurs.
   """
+  @callback decode(String.t()) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
+
+  @doc """
+  Decodes a serialized `RDF.Graph` or `RDF.Dataset` from a string.
+
+  It returns an `{:ok, data}` tuple, with `data` being the deserialized graph or
+  dataset, or `{:error, reason}` if an error occurs.
+  """
   @callback decode(String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
+
+  @doc """
+  Decodes a serialized `RDF.Graph` or `RDF.Dataset` from a string.
+
+  As opposed to `decode/2`, it raises an exception if an error occurs.
+
+  Note: The `__using__` macro automatically provides an overridable default
+  implementation based on the non-bang `decode` function.
+  """
+  @callback decode!(String.t()) :: Graph.t() | Dataset.t()
 
   @doc """
   Decodes a serialized `RDF.Graph` or `RDF.Dataset` from a string.

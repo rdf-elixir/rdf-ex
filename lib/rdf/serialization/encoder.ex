@@ -9,7 +9,25 @@ defmodule RDF.Serialization.Encoder do
   It should return an `{:ok, string}` tuple, with `string` being the serialized
   RDF data structure, or `{:error, reason}` if an error occurs.
   """
+  @callback encode(RDF.Data.t()) :: {:ok, String.t()} | {:error, any}
+
+  @doc """
+  Serializes a RDF data structure into a string.
+
+  It should return an `{:ok, string}` tuple, with `string` being the serialized
+  RDF data structure, or `{:error, reason}` if an error occurs.
+  """
   @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+
+  @doc """
+  Serializes a RDF data structure into a string.
+
+  As opposed to `encode`, it raises an exception if an error occurs.
+
+  Note: The `__using__` macro automatically provides an overridable default
+  implementation based on the non-bang `encode` function.
+  """
+  @callback encode!(RDF.Data.t()) :: String.t()
 
   @doc """
   Serializes a RDF data structure into a string.
