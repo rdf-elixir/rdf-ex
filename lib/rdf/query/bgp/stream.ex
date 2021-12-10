@@ -14,12 +14,12 @@ defmodule RDF.Query.BGP.Stream do
   def stream(%BGP{triple_patterns: []}, _, _), do: to_stream([%{}])
 
   def stream(%BGP{triple_patterns: triple_patterns}, %Graph{} = graph, opts) do
-    {bnode_state, preprocessed_triple_patterns} = BlankNodeHandler.preprocess(triple_patterns)
+    {preprocessed_triple_patterns, bnode_state} = BlankNodeHandler.preprocess(triple_patterns)
 
     preprocessed_triple_patterns
     |> QueryPlanner.query_plan()
     |> do_execute(graph)
-    |> BlankNodeHandler.postprocess(triple_patterns, bnode_state, opts)
+    |> BlankNodeHandler.postprocess(bnode_state, opts)
   end
 
   @impl RDF.Query.BGP.Matcher

@@ -1,7 +1,6 @@
 defmodule RDF.Query.BGP.BlankNodeHandler do
   @moduledoc false
 
-  alias RDF.Query.BGP
   alias RDF.BlankNode
 
   @default_remove_bnode_query_variables Application.get_env(
@@ -11,57 +10,44 @@ defmodule RDF.Query.BGP.BlankNodeHandler do
                                         )
 
   def preprocess(triple_patterns) do
-    Enum.reduce(triple_patterns, {false, []}, fn
-      original_triple_pattern, {had_blank_nodes, triple_patterns} ->
-        {is_converted, triple_pattern} = convert_blank_nodes(original_triple_pattern)
-        {had_blank_nodes || is_converted, [triple_pattern | triple_patterns]}
-    end)
+    convert_triple_patterns(triple_patterns)
   end
 
-  defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, %BlankNode{} = o}),
-    do: {true, {bnode_var(s), bnode_var(p), bnode_var(o)}}
+  defp convert_triple_patterns(triple_patterns, acc \\ {[], []})
+  defp convert_triple_patterns([], acc), do: acc
 
-  defp convert_blank_nodes({s, %BlankNode{} = p, %BlankNode{} = o}),
-    do: {true, {s, bnode_var(p), bnode_var(o)}}
+  defp convert_triple_patterns([triple_pattern | rest], {converted, bnode_vars}) do
+    {converted_triple_pattern, bnode_vars} = convert_triple_pattern(triple_pattern, bnode_vars)
+    convert_triple_patterns(rest, {[converted_triple_pattern | converted], bnode_vars})
+  end
 
-  defp convert_blank_nodes({%BlankNode{} = s, p, %BlankNode{} = o}),
-    do: {true, {bnode_var(s), p, bnode_var(o)}}
+  defp convert_triple_pattern({s, p, o}, bnode_vars) do
+    {converted_s, bnode_vars} = convert_term(s, bnode_vars)
+    {converted_p, bnode_vars} = convert_term(p, bnode_vars)
+    {converted_o, bnode_vars} = convert_term(o, bnode_vars)
+    {{converted_s, converted_p, converted_o}, bnode_vars}
+  end
 
-  defp convert_blank_nodes({%BlankNode{} = s, %BlankNode{} = p, o}),
-    do: {true, {bnode_var(s), bnode_var(p), o}}
+  defp convert_term(%BlankNode{} = bnode, bnode_vars) do
+    bnode_var = bnode_var(bnode)
+    {bnode_var, [bnode_var | bnode_vars]}
+  end
 
-  defp convert_blank_nodes({%BlankNode{} = s, p, o}), do: {true, {bnode_var(s), p, o}}
-  defp convert_blank_nodes({s, %BlankNode{} = p, o}), do: {true, {s, bnode_var(p), o}}
-  defp convert_blank_nodes({s, p, %BlankNode{} = o}), do: {true, {s, p, bnode_var(o)}}
-  defp convert_blank_nodes(triple_pattern), do: {false, triple_pattern}
+  defp convert_term({_, _, _} = quoted_triple, bnode_vars) do
+    convert_triple_pattern(quoted_triple, bnode_vars)
+  end
+
+  defp convert_term(term, bnode_vars), do: {term, bnode_vars}
 
   defp bnode_var(bnode), do: bnode |> to_string() |> String.to_atom()
 
-  def postprocess(solutions, bgp, has_blank_nodes, opts) do
-    if has_blank_nodes and
-         Keyword.get(opts, :remove_bnode_query_variables, @default_remove_bnode_query_variables) do
-      bnode_vars = bgp |> bnodes() |> Enum.map(&bnode_var/1)
+  def postprocess(solutions, [], _), do: solutions
+
+  def postprocess(solutions, bnode_vars, opts) do
+    if Keyword.get(opts, :remove_bnode_query_variables, @default_remove_bnode_query_variables) do
       Enum.map(solutions, &Map.drop(&1, bnode_vars))
     else
       solutions
     end
   end
-
-  defp bnodes(%BGP{triple_patterns: triple_patterns}), do: bnodes(triple_patterns)
-
-  defp bnodes(triple_patterns) when is_list(triple_patterns) do
-    triple_patterns
-    |> Enum.flat_map(&bnodes/1)
-    |> Enum.uniq()
-  end
-
-  defp bnodes({%BlankNode{} = s, %BlankNode{} = p, %BlankNode{} = o}), do: [s, p, o]
-  defp bnodes({%BlankNode{} = s, %BlankNode{} = p, _}), do: [s, p]
-  defp bnodes({%BlankNode{} = s, _, %BlankNode{} = o}), do: [s, o]
-  defp bnodes({_, %BlankNode{} = p, %BlankNode{} = o}), do: [p, o]
-  defp bnodes({%BlankNode{} = s, _, _}), do: [s]
-  defp bnodes({_, %BlankNode{} = p, _}), do: [p]
-  defp bnodes({_, _, %BlankNode{} = o}), do: [o]
-
-  defp bnodes(_), do: []
 end

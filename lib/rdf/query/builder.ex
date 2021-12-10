@@ -1,5 +1,10 @@
 defmodule RDF.Query.Builder do
-  @moduledoc false
+  @moduledoc !"""
+             Functions for building `RDF.Query`s.
+
+             This functions are not intended to be used directly,
+             but through the `RDF.Query` API instead.
+             """
 
   alias RDF.Query.BGP
   alias RDF.{IRI, BlankNode, Literal, Namespace, PropertyMap}
@@ -30,7 +35,7 @@ defmodule RDF.Query.Builder do
   end
 
   defp triple_patterns({subject, predicate, objects}, property_map) do
-    with {:ok, subject_pattern} <- subject_pattern(subject) do
+    with {:ok, subject_pattern} <- subject_pattern(subject, property_map) do
       do_triple_patterns(subject_pattern, {predicate, objects}, property_map)
     end
   end
@@ -40,7 +45,7 @@ defmodule RDF.Query.Builder do
   end
 
   defp triple_patterns({subject, predications}, property_map) do
-    with {:ok, subject_pattern} <- subject_pattern(subject) do
+    with {:ok, subject_pattern} <- subject_pattern(subject, property_map) do
       predications
       |> List.wrap()
       |> flat_map_while_ok(&do_triple_patterns(subject_pattern, &1, property_map))
@@ -52,15 +57,15 @@ defmodule RDF.Query.Builder do
       objects
       |> List.wrap()
       |> map_while_ok(fn object ->
-        with {:ok, object_pattern} <- object_pattern(object) do
+        with {:ok, object_pattern} <- object_pattern(object, property_map) do
           {:ok, {subject_pattern, predicate_pattern, object_pattern}}
         end
       end)
     end
   end
 
-  defp subject_pattern(subject) do
-    value = variable(subject) || resource(subject)
+  defp subject_pattern(subject, property_map) do
+    value = variable(subject) || resource(subject) || quoted_triple(subject, property_map)
 
     if value do
       {:ok, value}
@@ -85,8 +90,10 @@ defmodule RDF.Query.Builder do
     end
   end
 
-  defp object_pattern(object) do
-    value = variable(object) || resource(object) || literal(object)
+  defp object_pattern(object, property_map) do
+    value =
+      variable(object) || resource(object) || literal(object) ||
+        quoted_triple(object, property_map)
 
     if value do
       {:ok, value}
@@ -139,6 +146,18 @@ defmodule RDF.Query.Builder do
 
   defp literal(%Literal{} = literal), do: literal
   defp literal(value), do: Literal.coerce(value)
+
+  defp quoted_triple({s, p, o}, property_map) do
+    with {:ok, subject} <- subject_pattern(s, property_map),
+         {:ok, predicate} <- predicate_pattern(p, property_map),
+         {:ok, object} <- object_pattern(o, property_map) do
+      {subject, predicate, object}
+    else
+      _ -> nil
+    end
+  end
+
+  defp quoted_triple(_, _), do: nil
 
   def path(query, opts \\ [])
 

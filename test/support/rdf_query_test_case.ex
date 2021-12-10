@@ -22,4 +22,6 @@ defmodule RDF.Query.Test.Case do
     do: %BGP{triple_patterns: [triple_pattern]}
 
   def ok_bgp_struct(triple_patterns), do: {:ok, bgp_struct(triple_patterns)}
+
+  def comparable(elements), do: MapSet.new(elements)
 end

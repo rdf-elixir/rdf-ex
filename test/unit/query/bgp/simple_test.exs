@@ -184,32 +184,34 @@ defmodule RDF.Query.BGP.SimpleTest do
              {EX.s1(), :p1, :o},
              {:s, :p2, EX.o2()}
            ])
-           |> execute(@example_graph) == [
-             %{
-               p1: EX.p1(),
-               o: EX.o1(),
-               s: EX.s3(),
-               p2: EX.p3()
-             },
-             %{
-               p1: EX.p2(),
-               o: EX.o2(),
-               s: EX.s3(),
-               p2: EX.p3()
-             },
-             %{
-               p1: EX.p1(),
-               o: EX.o1(),
-               s: EX.s1(),
-               p2: EX.p2()
-             },
-             %{
-               p1: EX.p2(),
-               o: EX.o2(),
-               s: EX.s1(),
-               p2: EX.p2()
-             }
-           ]
+           |> execute(@example_graph)
+           |> comparable() ==
+             comparable([
+               %{
+                 p1: EX.p1(),
+                 o: EX.o1(),
+                 s: EX.s3(),
+                 p2: EX.p3()
+               },
+               %{
+                 p1: EX.p2(),
+                 o: EX.o2(),
+                 s: EX.s3(),
+                 p2: EX.p3()
+               },
+               %{
+                 p1: EX.p1(),
+                 o: EX.o1(),
+                 s: EX.s1(),
+                 p2: EX.p2()
+               },
+               %{
+                 p1: EX.p2(),
+                 o: EX.o2(),
+                 s: EX.s1(),
+                 p2: EX.p2()
+               }
+             ])
   end
 
   test "blank nodes behave like variables, but don't appear in the solution" do
@@ -225,8 +227,9 @@ defmodule RDF.Query.BGP.SimpleTest do
              {EX.s1(), :p1, :o},
              {RDF.bnode("s"), :p2, EX.o2()}
            ])
-           |> execute(@example_graph) ==
-             [
+           |> execute(@example_graph)
+           |> comparable() ==
+             comparable([
                %{
                  p1: EX.p1(),
                  o: EX.o1(),
@@ -247,6 +250,6 @@ defmodule RDF.Query.BGP.SimpleTest do
                  o: EX.o2(),
                  p2: EX.p2()
                }
-             ]
+             ])
   end
 end
