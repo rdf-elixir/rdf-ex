@@ -196,29 +196,28 @@ defmodule RDF.Query.BGP.Simple do
 
   defp match(%Description{predications: predications}, {_, predicate_variable, object})
        when is_atom(predicate_variable) do
-    Enum.reduce(predications, [], fn {predicate, objects}, solutions ->
-      cond do
-        Map.has_key?(objects, object) ->
+    if quoted_triple_with_variables?(object) do
+      Enum.flat_map(predications, fn {predicate, objects} ->
+        objects
+        |> matching_object_triples(object)
+        |> Enum.map(&Map.put(&1, predicate_variable, predicate))
+      end)
+    else
+      Enum.reduce(predications, [], fn {predicate, objects}, solutions ->
+        if Map.has_key?(objects, object) do
           [%{predicate_variable => predicate} | solutions]
-
-        quoted_triple_with_variables?(object) ->
-          (objects
-           |> matching_object_triples(object)
-           |> Enum.map(&Map.put(&1, predicate_variable, predicate))) ++
-            solutions
-
-        true ->
+        else
           solutions
-      end
-    end)
+        end
+      end)
+    end
   end
 
   defp match(%Description{predications: predications}, {_, predicate, object_or_variable}) do
-    case predications[predicate] do
-      nil ->
-        []
-
-      objects ->
+    if objects = predications[predicate] do
+      if quoted_triple_with_variables?(object_or_variable) do
+        matching_object_triples(objects, object_or_variable)
+      else
         cond do
           # object_or_variable is a variable
           is_atom(object_or_variable) ->
@@ -228,13 +227,13 @@ defmodule RDF.Query.BGP.Simple do
           Map.has_key?(objects, object_or_variable) ->
             [%{}]
 
-          quoted_triple_with_variables?(object_or_variable) ->
-            matching_object_triples(objects, object_or_variable)
-
           # else
           true ->
             []
         end
+      end
+    else
+      []
     end
   end
 
