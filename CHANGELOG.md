@@ -5,14 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.10.0 - 2021-12-13
+
+This release adds RDF-star support on the RDF data structures, the N-Triples, N-Quads, 
+Turtle encoders and decoders and the BGP query engine. 
+For an introduction read the new [page on the RDF.ex guide](https://rdf-elixir.dev/rdf-ex/rdf-star.html).
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.10).
 
 Elixir versions < 1.10 are no longer supported
 
 ### Added
 
-- RDF-star support on the RDF data structures and the N-Triples, N-Quads, Turtle
-  encoders and decoders
 - Support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`.
 - `RDF.Dataset.graph_count/1`
 - The `RDF.NQuads.Encoder` now supports a `:default_graph_name` option, which
@@ -29,9 +32,8 @@ Elixir versions < 1.10 are no longer supported
   graph. You can use the new `:default_graph_name` option and set it to `nil` to get
   the old behaviour.
 
-
-
-[Compare v0.9.4...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.4...HEAD)
+  
+[Compare v0.9.4...v0.10.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.4...v0.10.0)
 
 
 
@@ -169,7 +171,7 @@ of one field in order to open the possibility of introducing options on these
 functions. The supported ways with which RDF statements can be passed to the 
 RDF data structures were extended and unified to be supported across all functions 
 accepting input data. This includes also the way in which patterns for BGP queries
-are specified. Also the performance for adding data has been improved.
+are specified. Also, the performance for adding data has been improved.
 
 For an introduction on the new data structure API and the commonly supported input formats
 read the updated [page on the RDF data structures in the guide](https://rdf-elixir.dev/rdf-ex/data-structures.html). 
