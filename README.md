@@ -19,6 +19,7 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 ## Features
 
 - fully compatible with the RDF 1.1 specification
+- support for the [RDF-star] extension
 - in-memory data structures for RDF descriptions, RDF graphs and RDF datasets
 - basic graph pattern matching against the in-memory data structures with streaming-support
 - execute [SPARQL] queries against the in-memory data structures with the [SPARQL.ex] package or against any SPARQL endpoint with the [SPARQL.Client] package
@@ -27,7 +28,7 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - support for custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a description DSL resembling Turtle in Elixir
-- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats; [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
+- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats (including the respective RDF-star extensions); [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
 - validation of RDF data against [ShEx] schemas with the [ShEx.ex] package
 - mapping of the RDF data structures to Elixir structs and back with [Grax] 
 
@@ -67,6 +68,7 @@ The development of this project was partly sponsored by [NetzeBW](https://www.ne
 [SPARQL.Client]:        https://hex.pm/packages/sparql_client
 [ShEx.ex]:              https://hex.pm/packages/shex
 [Grax]:                 https://hex.pm/packages/grax
+[RDF-star]:             https://w3c.github.io/rdf-star/cg-spec
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
 [Turtle]:               https://www.w3.org/TR/turtle/
