@@ -7,23 +7,34 @@ defmodule RDF.Star.NTriples.W3C.TestSuite do
 
   use ExUnit.Case, async: false
 
-  @ntriples_star_test_suite Path.join(RDF.TestData.dir(), "rdf-star/nt/syntax")
+  alias RDF.{TestSuite, NTriples}
+  alias TestSuite.NS.RDFT
 
-  ExUnit.Case.register_attribute(__ENV__, :nt_test)
+  @path RDF.TestData.path("rdf-star/nt/syntax")
+  @base "http://example/base/"
+  @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
-  @ntriples_star_test_suite
-  |> File.ls!()
-  |> Enum.filter(fn file -> Path.extname(file) == ".nt" end)
-  |> Enum.each(fn file ->
-    @nt_test file: Path.join(@ntriples_star_test_suite, file)
-    if file |> String.contains?("-bad-") do
-      test "Negative syntax test: #{file}", context do
-        assert {:error, _} = RDF.NTriples.read_file(context.registered.nt_test[:file])
-      end
-    else
-      test "Positive syntax test: #{file}", context do
-        assert {:ok, %RDF.Graph{}} = RDF.NTriples.read_file(context.registered.nt_test[:file])
-      end
+  @manifest
+  |> TestSuite.test_cases(RDFT.TestNTriplesPositiveSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      assert {:ok, %RDF.Graph{}} =
+               test_case
+               |> TestSuite.test_input_file_path(@path)
+               |> NTriples.read_file()
+    end
+  end)
+
+  @manifest
+  |> TestSuite.test_cases(RDFT.TestNTriplesNegativeSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      assert {:error, _} =
+               test_case
+               |> TestSuite.test_input_file_path(@path)
+               |> NTriples.read_file()
     end
   end)
 end

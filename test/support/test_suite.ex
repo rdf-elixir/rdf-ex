@@ -14,6 +14,10 @@ defmodule RDF.TestSuite do
         TestTurtlePositiveSyntax
         TestTurtleNegativeSyntax
         TestTurtleNegativeEval
+        TestNTriplesPositiveSyntax
+        TestNTriplesNegativeSyntax
+        TestNQuadsPositiveSyntax
+        TestNQuadsNegativeSyntax
       ],
       strict: false
   end
@@ -25,23 +29,16 @@ defmodule RDF.TestSuite do
 
   alias RDF.{Turtle, Graph, Description, IRI}
 
-  def dir(format), do: Path.join(RDF.TestData.dir(), String.upcase(format) <> "-TESTS")
-  def file(filename, format), do: format |> dir |> Path.join(filename)
-  def manifest_path(format), do: file("manifest.ttl", format)
+  def manifest_path(root), do: Path.join(root, "manifest.ttl")
 
-  def manifest_graph(format, opts \\ []) do
-    format
-    |> manifest_path
-    |> Turtle.read_file!(opts)
+  def manifest_graph(path, opts \\ []) do
+    Turtle.read_file!(path, opts)
   end
 
-  def test_cases(format, test_type, opts) do
-    format
-    |> manifest_graph(opts)
+  def test_cases(manifest_graph, test_type) do
+    manifest_graph
     |> Graph.descriptions()
-    |> Enum.filter(fn description ->
-      RDF.iri(test_type) in Description.get(description, RDF.type(), [])
-    end)
+    |> Enum.filter(&(RDF.iri(test_type) in Description.get(&1, RDF.type(), [])))
   end
 
   def test_name(test_case), do: value(test_case, MF.name())
@@ -58,12 +55,12 @@ defmodule RDF.TestSuite do
   def test_output_file(test_case),
     do: test_case |> Description.first(MF.result()) |> IRI.parse()
 
-  def test_input_file_path(test_case, format),
-    do: test_input_file(test_case).path |> Path.basename() |> file(format)
+  def test_input_file_path(test_case, path),
+    do: Path.join(path, test_input_file(test_case).path |> Path.basename())
 
-  def test_result_file_path(test_case, format),
-    do: test_output_file(test_case).path |> Path.basename() |> file(format)
+  def test_result_file_path(test_case, path),
+    do: Path.join(path, test_output_file(test_case).path |> Path.basename())
 
   defp value(description, property),
-    do: Description.first(description, property) |> to_string
+    do: Description.first(description, property) |> to_string()
 end

@@ -8,14 +8,15 @@ defmodule RDF.Turtle.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  ExUnit.Case.register_attribute(__ENV__, :test_case)
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
 
+  @path RDF.TestData.path("TURTLE-TESTS")
   @base "http://www.w3.org/2013/TurtleTests/"
+  @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
-  TestSuite.test_cases("Turtle", RDFT.TestTurtleEval, base: @base)
+  TestSuite.test_cases(@manifest, RDFT.TestTurtleEval)
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     if TestSuite.test_name(test_case) in ~w[
@@ -54,40 +55,40 @@ defmodule RDF.Turtle.W3C.Test do
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       with base = to_string(TestSuite.test_input_file(test_case)) do
         assert RDF.Graph.equal?(
-                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 TestSuite.test_input_file_path(test_case, @path)
                  |> Turtle.read_file!(base: base),
-                 TestSuite.test_result_file_path(test_case, "Turtle")
+                 TestSuite.test_result_file_path(test_case, @path)
                  |> NTriples.read_file!()
                )
       end
     end
   end)
 
-  TestSuite.test_cases("Turtle", RDFT.TestTurtlePositiveSyntax, base: @base)
+  TestSuite.test_cases(@manifest, RDFT.TestTurtlePositiveSyntax)
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       with base = to_string(TestSuite.test_input_file(test_case)) do
         assert {:ok, _} =
-                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 TestSuite.test_input_file_path(test_case, @path)
                  |> Turtle.read_file(base: base)
       end
     end
   end)
 
-  TestSuite.test_cases("Turtle", RDFT.TestTurtleNegativeSyntax, base: @base)
+  TestSuite.test_cases(@manifest, RDFT.TestTurtleNegativeSyntax)
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       with base = to_string(TestSuite.test_input_file(test_case)) do
         assert {:error, _} =
-                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 TestSuite.test_input_file_path(test_case, @path)
                  |> Turtle.read_file(base: base)
       end
     end
   end)
 
-  TestSuite.test_cases("Turtle", RDFT.TestTurtleNegativeEval, base: @base)
+  TestSuite.test_cases(@manifest, RDFT.TestTurtleNegativeEval)
   |> Enum.each(fn test_case ->
     if TestSuite.test_name(test_case) in ~w[turtle-eval-bad-01 turtle-eval-bad-02 turtle-eval-bad-03] do
       @tag skip: "TODO: IRI validation"
@@ -97,7 +98,7 @@ defmodule RDF.Turtle.W3C.Test do
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       with base = to_string(TestSuite.test_input_file(test_case)) do
         assert {:error, _} =
-                 TestSuite.test_input_file_path(test_case, "Turtle")
+                 TestSuite.test_input_file_path(test_case, @path)
                  |> Turtle.read_file(base: base)
       end
     end
