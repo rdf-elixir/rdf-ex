@@ -113,7 +113,7 @@ defmodule RDF.Turtle.Encoder do
   defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
 
   defp init_base_iri(nil), do: nil
-  defp init_base_iri(base_iri), do: {:ok, to_string(base_iri)}
+  defp init_base_iri(base_iri), do: to_string(base_iri)
 
   defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
 
@@ -122,7 +122,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp base_directive(nil, _), do: ""
 
-  defp base_directive({_, base}, opts) do
+  defp base_directive(base, opts) do
     if Keyword.get(opts, :implicit_base, false) do
       ""
     else
@@ -409,14 +409,13 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
+  defp based_name(_, nil), do: nil
 
-  defp based_name(iri, {:ok, base}) do
+  defp based_name(iri, base) do
     if String.starts_with?(iri, base) do
       "<#{String.slice(iri, String.length(base)..-1)}>"
     end
   end
-
-  defp based_name(_, _), do: nil
 
   defp typed_literal_term(%Literal{} = literal, state, nesting) do
     ~s["#{Literal.lexical(literal)}"^^#{literal |> Literal.datatype_id() |> term(state, :datatype, nesting)}]

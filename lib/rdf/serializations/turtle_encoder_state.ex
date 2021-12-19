@@ -22,9 +22,8 @@ defmodule RDF.Turtle.Encoder.State do
   end
 
   def base_iri(state) do
-    case base(state) do
-      {:ok, base} -> RDF.iri(base)
-      _ -> nil
+    if base = base(state) do
+      RDF.iri(base)
     end
   end
 
