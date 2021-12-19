@@ -7,34 +7,39 @@ defmodule RDF.Star.Turtle.W3C.EvalTest do
 
   use ExUnit.Case, async: false
 
-  @turtle_star_eval_test_suite Path.join(RDF.TestData.dir(), "rdf-star/turtle/eval")
+  alias RDF.{Turtle, TestSuite, NTriples}
+  alias TestSuite.NS.RDFT
 
-  ExUnit.Case.register_attribute(__ENV__, :turtle_test)
+  @path RDF.TestData.path("rdf-star/turtle/eval")
+  @base "http://example/base/"
+  @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
-  @turtle_star_eval_test_suite
-  |> File.ls!()
-  |> Enum.filter(fn file -> Path.extname(file) == ".ttl" and file != "manifest.ttl" end)
-  |> Enum.each(fn file ->
-    base = Path.basename(file, ".ttl")
+  TestSuite.test_cases(@manifest, RDFT.TestTurtleEval)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
 
-    if base in [
+    if (test_case |> TestSuite.test_input_file_path(@path) |> Path.basename(".ttl")) in [
          "turtle-star-eval-bnode-1",
          "turtle-star-eval-bnode-2",
          # TODO: this one just fails, because our blank node counter starts at 0 instead of 1
          "turtle-star-eval-annotation-2"
        ] do
+      @tag earl_result: :passed
+      @tag earl_mode: :semi_auto
       @tag skip: """
            The produced graphs are correct, but have different blank node labels than the result graph.
            TODO: Implement a graph isomorphism algorithm.
            """
     end
 
-    @turtle_test ttl_file: Path.join(@turtle_star_eval_test_suite, file),
-                 nt_file: Path.join(@turtle_star_eval_test_suite, base <> ".nt")
-    test "eval test: #{file}", context do
-      assert RDF.Turtle.read_file!(context.registered.turtle_test[:ttl_file])
-             |> RDF.Graph.clear_metadata() ==
-               RDF.NTriples.read_file!(context.registered.turtle_test[:nt_file])
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      assert RDF.Graph.equal?(
+               TestSuite.test_input_file_path(test_case, @path)
+               |> Turtle.read_file!()
+               |> RDF.Graph.clear_metadata(),
+               TestSuite.test_result_file_path(test_case, @path)
+               |> NTriples.read_file!()
+             )
     end
   end)
 end

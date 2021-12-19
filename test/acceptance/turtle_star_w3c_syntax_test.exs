@@ -7,22 +7,45 @@ defmodule RDF.Star.Turtle.W3C.SyntaxTest do
 
   use ExUnit.Case, async: false
 
-  @turtle_star_syntax_test_suite Path.join(RDF.TestData.dir(), "rdf-star/turtle/syntax")
+  alias RDF.{Turtle, TestSuite}
+  alias TestSuite.NS.RDFT
 
-  ExUnit.Case.register_attribute(__ENV__, :turtle_test)
+  @path RDF.TestData.path("rdf-star/turtle/syntax")
+  @base "http://example/base/"
+  @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
-  @turtle_star_syntax_test_suite
-  |> File.ls!()
-  |> Enum.filter(fn file -> Path.extname(file) == ".ttl" and file != "manifest.ttl" end)
-  |> Enum.each(fn file ->
-    @turtle_test file: Path.join(@turtle_star_syntax_test_suite, file)
-    if file |> String.contains?("-bad-") do
-      test "Negative syntax test: #{file}", context do
-        assert {:error, _} = RDF.Turtle.read_file(context.registered.turtle_test[:file])
+  TestSuite.test_cases(@manifest, RDFT.TestTurtlePositiveSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:ok, _} =
+                 TestSuite.test_input_file_path(test_case, @path)
+                 |> Turtle.read_file(base: base)
       end
-    else
-      test "Positive syntax test: #{file}", context do
-        assert {:ok, %RDF.Graph{}} = RDF.Turtle.read_file(context.registered.turtle_test[:file])
+    end
+  end)
+
+  TestSuite.test_cases(@manifest, RDFT.TestNTriplesPositiveSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:ok, _} =
+                 TestSuite.test_input_file_path(test_case, @path)
+                 |> Turtle.read_file(base: base)
+      end
+    end
+  end)
+
+  TestSuite.test_cases(@manifest, RDFT.TestTurtleNegativeSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      with base = to_string(TestSuite.test_input_file(test_case)) do
+        assert {:error, _} =
+                 TestSuite.test_input_file_path(test_case, @path)
+                 |> Turtle.read_file(base: base)
       end
     end
   end)
