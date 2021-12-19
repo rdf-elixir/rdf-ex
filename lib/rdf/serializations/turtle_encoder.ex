@@ -19,7 +19,12 @@ defmodule RDF.Turtle.Encoder do
   - `:implicit_base`: This boolean flag allows to use a base URI to get relative IRIs
     without embedding it explicitly in the content with a `@base` directive, so that
     the URIs will be resolved according to the remaining strategy specified in
-    section 5.1 of [RFC3986](https://www.ietf.org/rfc/rfc3986.txt).
+    section 5.1 of [RFC3986](https://www.ietf.org/rfc/rfc3986.txt) (default: `false`).
+  - `:base_description`: Allows to provide a description of the resource denoted by
+    the base URI. This option is especially useful when the base URI is actually not
+    specified, eg. in the common use case of wanting to describe the Turtle document
+    itself, which should be denoted by the URL where it is hosted as the implicit base
+    URI.
   - `:only`: Allows to specify which parts of a Turtle document should be generated.
     Possible values: `:base`, `:prefixes`, `:directives` (means the same as `[:base, :prefixes]`),
     `:triples` or a list with any combination of these values.
@@ -64,6 +69,8 @@ defmodule RDF.Turtle.Encoder do
   ]
   @ordered_properties MapSet.new(@predicate_order)
 
+  @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
+
   @impl RDF.Serialization.Encoder
   @spec encode(Graph.t() | Description.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ [])
@@ -79,6 +86,9 @@ defmodule RDF.Turtle.Encoder do
     prefixes =
       Keyword.get(opts, :prefixes)
       |> prefixes(graph)
+
+    {graph, base, opts} =
+      add_base_description(graph, base, Keyword.get(opts, :base_description), opts)
 
     {:ok, state} = State.start_link(graph, base, prefixes)
 
@@ -147,6 +157,21 @@ defmodule RDF.Turtle.Encoder do
       [] -> ""
       prefixes -> Enum.join(prefixes, "") <> "\n"
     end
+  end
+
+  defp add_base_description(graph, base, nil, opts), do: {graph, base, opts}
+
+  defp add_base_description(graph, nil, base_description, opts) do
+    add_base_description(
+      graph,
+      @implicit_default_base,
+      base_description,
+      Keyword.put(opts, :implicit_base, true)
+    )
+  end
+
+  defp add_base_description(graph, base, base_description, opts) do
+    {Graph.add(graph, Description.new(base, init: base_description)), base, opts}
   end
 
   defp graph_statements(state, opts) do

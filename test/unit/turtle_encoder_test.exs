@@ -174,6 +174,60 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
+    test ":base_description with a base IRI" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([{EX.S1, EX.p1(), EX.O1}],
+                 prefixes: %{}
+               ),
+               base_iri: EX,
+               base_description: %{EX.P2 => [EX.O2, EX.O3]}
+             ) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               <>
+                   <P2> <O2>, <O3> .
+
+               <S1>
+                   <p1> <O1> .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([{EX.S1, EX.p1(), EX.O1}],
+                 prefixes: %{},
+                 base_iri: EX
+               ),
+               base_description: %{EX.P2 => [EX.O2, EX.O3]}
+             ) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               <>
+                   <P2> <O2>, <O3> .
+
+               <S1>
+                   <p1> <O1> .
+               """
+    end
+
+    test ":base_description without a base IRI" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([{EX.S1, EX.p1(), EX.O1}],
+                 prefixes: %{ex: EX}
+               ),
+               base_description: %{EX.P2 => [EX.O2, EX.O3]}
+             ) ==
+               """
+               @prefix ex: <#{to_string(EX.__base_iri__())}> .
+
+               <>
+                   ex:P2 ex:O2, ex:O3 .
+
+               ex:S1
+                   ex:p1 ex:O1 .
+               """
+    end
+
     test "when no prefixes are given and no prefixes are in the given graph the default_prefixes are used" do
       assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p(), NS.XSD.string()})) ==
                """
