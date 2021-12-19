@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `:implicit_base` option on the `RDF.Turtle.Encoder` 
+
+
+[Compare v0.10.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...HEAD)
+
+
+
 ## 0.10.0 - 2021-12-13
 
 This release adds RDF-star support on the RDF data structures, the N-Triples, N-Quads, 

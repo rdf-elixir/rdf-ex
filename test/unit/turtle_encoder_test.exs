@@ -131,7 +131,7 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
-    test "when a base IRI is given, it has used instead of the base IRI of the given graph" do
+    test "when a base IRI is given, it is used instead of the base IRI of the given graph" do
       assert Turtle.Encoder.encode!(
                Graph.new([{EX.S1, EX.p1(), EX.O1}],
                  prefixes: %{},
@@ -142,6 +142,33 @@ defmodule RDF.Turtle.EncoderTest do
                """
                @base <#{to_string(EX.__base_iri__())}> .
 
+               <S1>
+                   <p1> <O1> .
+               """
+    end
+
+    test ":implicit_base option" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([{EX.S1, EX.p1(), EX.O1}],
+                 prefixes: %{},
+                 base_iri: EX.other()
+               ),
+               base_iri: EX,
+               implicit_base: true
+             ) ==
+               """
+               <S1>
+                   <p1> <O1> .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([{EX.S1, EX.p1(), EX.O1}],
+                 prefixes: %{},
+                 base_iri: EX
+               ),
+               implicit_base: true
+             ) ==
+               """
                <S1>
                    <p1> <O1> .
                """

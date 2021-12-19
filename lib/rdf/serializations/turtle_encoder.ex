@@ -9,13 +9,17 @@ defmodule RDF.Turtle.Encoder do
 
   ## Options
 
-  - `:base`: : Allows to specify the base URI to be used for a `@base` directive.
-    If not specified the one from the given graph is used or if there is also none
-    specified for the graph the `RDF.default_base_iri/0`.
   - `:prefixes`: Allows to specify the prefixes to be used as a `RDF.PrefixMap` or
     anything from which a `RDF.PrefixMap` can be created with `RDF.PrefixMap.new/1`.
     If not specified the ones from the given graph are used or if these are also not
     present the `RDF.default_prefixes/0`.
+  - `:base`: : Allows to specify the base URI to be used for a `@base` directive.
+    If not specified the one from the given graph is used or if there is also none
+    specified for the graph the `RDF.default_base_iri/0`.
+  - `:implicit_base`: This boolean flag allows to use a base URI to get relative IRIs
+    without embedding it explicitly in the content with a `@base` directive, so that
+    the URIs will be resolved according to the remaining strategy specified in
+    section 5.1 of [RFC3986](https://www.ietf.org/rfc/rfc3986.txt).
   - `:only`: Allows to specify which parts of a Turtle document should be generated.
     Possible values: `:base`, `:prefixes`, `:directives` (means the same as `[:base, :prefixes]`),
     `:triples` or a list with any combination of these values.
@@ -119,11 +123,15 @@ defmodule RDF.Turtle.Encoder do
   defp base_directive(nil, _), do: ""
 
   defp base_directive({_, base}, opts) do
-    indent(opts) <>
-      case Keyword.get(opts, :directive_style) do
-        :sparql -> "BASE <#{base}>"
-        _ -> "@base <#{base}> ."
-      end <> "\n\n"
+    if Keyword.get(opts, :implicit_base, false) do
+      ""
+    else
+      indent(opts) <>
+        case Keyword.get(opts, :directive_style) do
+          :sparql -> "BASE <#{base}>"
+          _ -> "@base <#{base}> ."
+        end <> "\n\n"
+    end
   end
 
   defp prefix_directive({prefix, ns}, opts) do
