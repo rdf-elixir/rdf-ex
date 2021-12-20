@@ -9,7 +9,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <>
-    dc:issued "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+    dc:issued "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
     foaf:maker <http://marcelotto.net/#me> ;
     foaf:primaryTopic <https://hex.pm/packages/rdf> .
 
@@ -48,280 +48,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bnode-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-5>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-4>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-4>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-5>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-ann-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-ann-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-4>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-7>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-6>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-8>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:semiAuto ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:semiAuto ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-bnode-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:semiAuto ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-bnode-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -334,20 +61,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -360,33 +74,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-5>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-quoted-annotation-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -399,98 +87,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-quoted-annotation-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-nested-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-compound-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -503,7 +100,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -516,11 +113,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bnode-1>
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-3>
 ] .
 
 [
@@ -529,46 +126,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-nested-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-inside-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -581,11 +139,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-1>
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-1>
 ] .
 
 [
@@ -594,11 +152,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-2>
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bnode-1>
 ] .
 
 [
@@ -607,7 +165,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -620,7 +178,410 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bnode-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-nested-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-compound-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-inside-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-nested-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bnode-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-ann-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-3>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-5>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-4>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-4>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-5>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-7>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-4>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-6>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-8>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-ann-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-3>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-3>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#turtle-star-bad-ann-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/syntax#nt-ttl-star-bad-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:semiAuto ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:semiAuto ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-bnode-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:semiAuto ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-bnode-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -633,9 +594,61 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2021-12-20T01:23:18.410439Z"^^xsd:dateTime ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
     earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-3>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-annotation-5>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-quoted-annotation-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2021-12-20T12:43:38.816319Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/turtle/eval#turtle-star-quoted-annotation-3>
 ] .
