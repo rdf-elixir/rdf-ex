@@ -105,7 +105,7 @@ defmodule EarlFormatter do
     Map.update(
       results,
       test_suite(test),
-      RDF.graph(prefixes: @prefixes),
+      RDF.graph(assertion, prefixes: @prefixes),
       &Graph.add(&1, assertion)
     )
   end
