@@ -12,13 +12,15 @@ defmodule EarlFormatter do
     defvocab EARL, base_iri: "http://www.w3.org/ns/earl#", terms: [], strict: false
     defvocab DC, base_iri: "http://purl.org/dc/terms/", terms: [], strict: false
     defvocab FOAF, base_iri: "http://xmlns.com/foaf/0.1/", terms: [], strict: false
+    defvocab DOAP, base_iri: "http://usefulinc.com/ns/doap#", terms: [], strict: false
   end
 
   @compile {:no_warn_undefined, EarlFormatter.NS.EARL}
   @compile {:no_warn_undefined, EarlFormatter.NS.DC}
   @compile {:no_warn_undefined, EarlFormatter.NS.FOAF}
+  @compile {:no_warn_undefined, EarlFormatter.NS.DOAP}
 
-  alias EarlFormatter.NS.{EARL, DC, FOAF}
+  alias EarlFormatter.NS.{EARL, DC, FOAF, DOAP}
   alias RDF.{Graph, Turtle}
 
   import RDF.Sigils
@@ -37,7 +39,7 @@ defmodule EarlFormatter do
               earl: EARL,
               dc: DC,
               foaf: FOAF,
-              doap: "http://usefulinc.com/ns/doap#"
+              doap: DOAP
             )
 
   @impl true
@@ -126,6 +128,14 @@ defmodule EarlFormatter do
   end
 
   defp project_metadata do
+    version = Mix.Project.config()[:version]
+    version_url = RDF.iri("https://hex.pm/packages/rdf/#{version}")
+
+    version_description =
+      version_url
+      |> DOAP.name("RDF.ex #{version}")
+      |> DOAP.revision(version)
+
     doap = Turtle.read_file!(@doap_file)
 
     # ensure the URIs we use here are consistent we the ones in the DOAP file
@@ -133,8 +143,13 @@ defmodule EarlFormatter do
     %RDF.Description{} = doap[@marcel]
 
     doap
-    |> Graph.add(@rdf_ex |> RDF.type([EARL.TestSubject, EARL.Software]))
+    |> Graph.add(
+      @rdf_ex
+      |> RDF.type([EARL.TestSubject, EARL.Software])
+      |> DOAP.release(version_url)
+    )
     |> Graph.add(@marcel |> RDF.type(EARL.Assertor))
+    |> Graph.add(version_description)
   end
 
   defp document_description(config) do

@@ -27,10 +27,6 @@
   ; doap:repository     <https://github.com/rdf-elixir/rdf-ex>
   ; doap:download-page  <https://hex.pm/packages/rdf>
   ; doap:bug-database   <https://github.com/rdf-elixir/rdf-ex/issues>
-  ; doap:release  [
-                    doap:name "RDF.ex 0.10.0" ;
-                    doap:revision "0.10.0"
-                  ]
   ; foaf:maker          <http://marcelotto.net/#me>
   ; dc:creator          <http://marcelotto.net/#me>
 .
