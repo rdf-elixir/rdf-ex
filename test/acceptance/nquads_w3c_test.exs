@@ -6,12 +6,13 @@ defmodule RDF.NQuads.W3C.TestSuite do
   """
 
   use ExUnit.Case, async: false
+  use EarlFormatter, test_suite: :nquads
 
   alias RDF.{TestSuite, NQuads}
   alias TestSuite.NS.RDFT
 
   @path RDF.TestData.path("N-QUADS-TESTS")
-  @base "http://example/base/"
+  @base "https://www.w3.org/2013/N-QuadsTests/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   @manifest

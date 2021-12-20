@@ -6,12 +6,13 @@ defmodule RDF.NTriples.W3C.TestSuite do
   """
 
   use ExUnit.Case, async: false
+  use EarlFormatter, test_suite: :ntriples
 
   alias RDF.{TestSuite, NTriples}
   alias TestSuite.NS.RDFT
 
   @path RDF.TestData.path("N-TRIPLES-TESTS")
-  @base "http://example/base/"
+  @base "https://www.w3.org/2013/N-TriplesTests/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   @manifest

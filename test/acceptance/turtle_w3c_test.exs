@@ -8,6 +8,7 @@ defmodule RDF.Turtle.W3C.Test do
   """
 
   use ExUnit.Case, async: false
+  use EarlFormatter, test_suite: :turtle
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
@@ -46,6 +47,8 @@ defmodule RDF.Turtle.W3C.Test do
             turtle-subm-10
             turtle-subm-14
           ] do
+      @tag earl_result: :passed
+      @tag earl_mode: :semi_auto
       @tag skip: """
            The produced graphs are correct, but have different blank node labels than the result graph.
            TODO: Implement a graph isomorphism algorithm.
@@ -90,7 +93,12 @@ defmodule RDF.Turtle.W3C.Test do
 
   TestSuite.test_cases(@manifest, RDFT.TestTurtleNegativeEval)
   |> Enum.each(fn test_case ->
-    if TestSuite.test_name(test_case) in ~w[turtle-eval-bad-01 turtle-eval-bad-02 turtle-eval-bad-03] do
+    if TestSuite.test_name(test_case) in ~w[
+            turtle-eval-bad-01
+            turtle-eval-bad-02
+            turtle-eval-bad-03
+          ] do
+      @tag earl_result: :failed
       @tag skip: "TODO: IRI validation"
     end
 

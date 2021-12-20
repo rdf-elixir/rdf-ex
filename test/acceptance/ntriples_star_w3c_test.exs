@@ -6,6 +6,7 @@ defmodule RDF.Star.NTriples.W3C.TestSuite do
   """
 
   use ExUnit.Case, async: false
+  use EarlFormatter, test_suite: :ntriples_star
 
   alias RDF.{TestSuite, NTriples}
   alias TestSuite.NS.RDFT

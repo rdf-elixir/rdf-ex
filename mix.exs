@@ -15,6 +15,7 @@ defmodule RDF.Mixfile do
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers() ++ [:protocol_ex],
+      aliases: aliases(),
 
       # Dialyzer
       dialyzer: dialyzer(),
@@ -38,7 +39,8 @@ defmodule RDF.Mixfile do
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        earl_reports: :test
       ]
     ]
   end
@@ -84,6 +86,25 @@ defmodule RDF.Mixfile do
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
       ignore_warnings: ".dialyzer_ignore"
     ]
+  end
+
+  defp aliases do
+    [
+      earl_reports: &earl_reports/1
+    ]
+  end
+
+  defp earl_reports(_) do
+    files = [
+      "test/acceptance/ntriples_w3c_test.exs",
+      "test/acceptance/ntriples_star_w3c_test.exs",
+      "test/acceptance/nquads_w3c_test.exs",
+      "test/acceptance/turtle_w3c_test.exs",
+      "test/acceptance/turtle_star_w3c_syntax_test.exs",
+      "test/acceptance/turtle_star_w3c_eval_test.exs"
+    ]
+
+    Mix.Task.run("test", ["--formatter", "EarlFormatter", "--seed", "0"] ++ files)
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
