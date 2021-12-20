@@ -1,0 +1,41 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+
+<https://hex.pm/packages/rdf> a doap:Project
+  ; doap:name           "RDF.ex"
+  ; doap:shortdesc      "An implementation of RDF for Elixir"
+  ; doap:description    "RDF.ex is a pure-Elixir library for working with Resource Description Framework (RDF) data."@en
+  ; doap:created        "2017-06-25"^^xsd:date
+  ; doap:developer      <http://marcelotto.net/#me>
+  ; doap:maintainer     <http://marcelotto.net/#me>
+  ; doap:documenter     <http://marcelotto.net/#me>
+  ; doap:platform       "Erlang/OTP"
+  ; doap:programming-language "Elixir"
+  ; doap:category       <http://dbpedia.org/resource/Resource_Description_Framework>
+                          , <http://dbpedia.org/resource/Elixir_(programming_language)>
+  ; doap:implements     <http://www.w3.org/TR/rdf11-concepts/>
+                          , <http://www.w3.org/TR/n-quads/>
+                          , <http://www.w3.org/TR/n-triples/>
+                          , <http://www.w3.org/TR/turtle/>
+                          , <https://w3c.github.io/rdf-star/rdf-star-cg-spec.html>
+  ; doap:homepage       <https://rdf-elixir.dev/>
+  ; doap:repository     <https://github.com/rdf-elixir/rdf-ex>
+  ; doap:download-page  <https://hex.pm/packages/rdf>
+  ; doap:bug-database   <https://github.com/rdf-elixir/rdf-ex/issues>
+  ; doap:release  [
+                    doap:name "RDF.ex 0.10.0" ;
+                    doap:revision "0.10.0"
+                  ]
+  ; foaf:maker          <http://marcelotto.net/#me>
+  ; dc:creator          <http://marcelotto.net/#me>
+.
+
+<http://marcelotto.net/#me> a foaf:Person
+  ; foaf:name          "Marcel Otto"
+  ; foaf:homepage      <http://marcelotto.net/>
+.
