@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- `:implicit_base` option on the `RDF.Turtle.Encoder` 
+- `:implicit_base` option on the `RDF.Turtle.Encoder`
+- `:base_description` option on the `RDF.Turtle.Encoder`
 
 
 [Compare v0.10.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...HEAD)
