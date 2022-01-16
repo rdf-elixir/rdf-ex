@@ -311,6 +311,12 @@ defmodule RDF do
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
   defdelegate property_map(property_map), to: RDF.PropertyMap, as: :new
 
+  ############################################################################
+  # These alias functions for the RDF.NS.RDF namespace are mandatory.
+  # Without them the property functions are inaccessible, since the namespace
+  # can't be aliased, because it gets in conflict with the root namespace
+  # of the project.
+
   defdelegate langString(value, opts), to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
 
