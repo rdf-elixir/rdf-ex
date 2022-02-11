@@ -15,6 +15,14 @@ defmodule RDF.Quad do
           Statement.graph_name()
         }
 
+  @type coercible_t ::
+          {
+            Statement.coercible_subject(),
+            Statement.coercible_predicate(),
+            Statement.coercible_object(),
+            Statement.coercible_graph_name()
+          }
+
   @type t_values :: {String.t(), String.t(), any, String.t()}
 
   @doc """

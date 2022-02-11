@@ -12,6 +12,13 @@ defmodule RDF.Star.Triple do
 
   @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
 
+  @type coercible_t ::
+          {
+            Statement.coercible_subject(),
+            Statement.coercible_predicate(),
+            Statement.coercible_object()
+          }
+
   @doc """
   Creates a `RDF.Star.Triple` with proper RDF-star values.
 

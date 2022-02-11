@@ -19,9 +19,7 @@ defmodule RDF.Star.Statement do
   @type coercible_graph_name :: RDF.Statement.coercible_graph_name()
 
   @type t :: Triple.t() | Quad.t()
-  @type coercible_t ::
-          {coercible_subject(), coercible_predicate(), coercible_object(), coercible_graph_name()}
-          | {coercible_subject(), coercible_predicate(), coercible_object()}
+  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
 
   @type term_mapping :: RDF.Statement.term_mapping()
 

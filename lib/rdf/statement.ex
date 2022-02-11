@@ -23,9 +23,7 @@ defmodule RDF.Statement do
   @type term_mapping :: (qualified_term -> any | nil)
 
   @type t :: Triple.t() | Quad.t()
-  @type coercible_t ::
-          {coercible_subject(), coercible_predicate(), coercible_object(), coercible_graph_name()}
-          | {coercible_subject(), coercible_predicate(), coercible_object()}
+  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
 
   @doc """
   Creates a `RDF.Triple` or `RDF.Quad` with proper RDF values.

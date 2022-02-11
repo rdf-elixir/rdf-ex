@@ -10,6 +10,13 @@ defmodule RDF.Triple do
 
   @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
 
+  @type coercible_t ::
+          {
+            Statement.coercible_subject(),
+            Statement.coercible_predicate(),
+            Statement.coercible_object()
+          }
+
   @type t_values :: {String.t(), String.t(), any}
 
   @doc """
