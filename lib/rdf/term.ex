@@ -11,7 +11,7 @@ defprotocol RDF.Term do
   see <https://www.w3.org/TR/sparql11-query/#defn_RDFTerm>
   """
 
-  @type t :: RDF.IRI.t() | RDF.BlankNode.t() | RDF.Literal.t()
+  @type t :: RDF.Resource.t() | RDF.Literal.t()
 
   @doc """
   Checks if the given value is a RDF term.

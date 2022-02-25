@@ -5,13 +5,13 @@ defmodule RDF.Statement do
   An RDF statement is either a `RDF.Triple` or a `RDF.Quad`.
   """
 
-  alias RDF.{BlankNode, IRI, Literal, Quad, Term, Triple, PropertyMap}
+  alias RDF.{Resource, BlankNode, IRI, Literal, Quad, Term, Triple, PropertyMap}
   import RDF.Guards
 
-  @type subject :: IRI.t() | BlankNode.t()
-  @type predicate :: IRI.t() | BlankNode.t()
-  @type object :: IRI.t() | BlankNode.t() | Literal.t()
-  @type graph_name :: IRI.t() | BlankNode.t() | nil
+  @type subject :: Resource.t()
+  @type predicate :: Resource.t()
+  @type object :: Resource.t() | Literal.t()
+  @type graph_name :: Resource.t() | nil
 
   @type coercible_subject :: subject | atom | String.t()
   @type coercible_predicate :: predicate | atom | String.t()

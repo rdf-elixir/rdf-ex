@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `:implicit_base` option on the `RDF.Turtle.Encoder`
 - `:base_description` option on the `RDF.Turtle.Encoder`
+- `RDF.Resource.t` type
 - `RDF.Triple.coercible_t`, `RDF.Quad.coercible_t`, `RDF.Star.Triple.coercible_t`  
   and `RDF.Star.Quad.coercible_t` types
 
