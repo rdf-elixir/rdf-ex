@@ -12,22 +12,40 @@ defmodule RDF.BlankNode.Generator do
 
   The state will be initialized according to the given `RDF.BlankNode.Generator.Algorithm`.
   """
-  def start_link(generation_mod, init_opts \\ %{}) do
-    GenServer.start_link(__MODULE__, {generation_mod, convert_opts(init_opts)})
+  def start_link(algorithm) when is_atom(algorithm) do
+    start_link({[algorithm: algorithm], []})
   end
+
+  def start_link({algorithm, gen_server_opts}) when is_atom(algorithm) do
+    start_link({[algorithm: algorithm], gen_server_opts})
+  end
+
+  def start_link({init_opts, gen_server_opts}) do
+    {algorithm, init_opts} = Keyword.pop!(init_opts, :algorithm)
+    GenServer.start_link(__MODULE__, {algorithm, Map.new(init_opts)}, gen_server_opts)
+  end
+
+  def start_link(init_opts), do: start_link({init_opts, []})
 
   @doc """
   Starts a blank node generator process without links (outside of a supervision tree).
 
   The state will be initialized according to the given `RDF.BlankNode.Generator.Algorithm`.
   """
-  def start(generation_mod, init_opts \\ %{}) do
-    GenServer.start(__MODULE__, {generation_mod, convert_opts(init_opts)})
+  def start(algorithm) when is_atom(algorithm) do
+    start({[algorithm: algorithm], []})
   end
 
-  defp convert_opts(nil), do: %{}
-  defp convert_opts(opts) when is_list(opts), do: Map.new(opts)
-  defp convert_opts(opts) when is_map(opts), do: opts
+  def start({algorithm, gen_server_opts}) when is_atom(algorithm) do
+    start({[algorithm: algorithm], gen_server_opts})
+  end
+
+  def start({init_opts, gen_server_opts}) do
+    {algorithm, init_opts} = Keyword.pop!(init_opts, :algorithm)
+    GenServer.start(__MODULE__, {algorithm, Map.new(init_opts)}, gen_server_opts)
+  end
+
+  def start(init_opts), do: start({init_opts, []})
 
   @doc """
   Synchronously stops the blank node generator with the given `reason`.

@@ -15,6 +15,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Triple.coercible_t`, `RDF.Quad.coercible_t`, `RDF.Star.Triple.coercible_t`  
   and `RDF.Star.Quad.coercible_t` types
 
+### Fixed
+
+- the interface of `RDF.BlankNode.Generator.start_link/1` was fixed, so that
+  generators can be started supervised
+
 
 [Compare v0.10.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...HEAD)
 

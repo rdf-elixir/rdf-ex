@@ -3,7 +3,7 @@ defmodule RDF.BlankNode.IncrementTest do
 
   import RDF, only: [bnode: 1]
 
-  alias RDF.BlankNode.{Generator, Increment}
+  alias RDF.BlankNode.Increment
 
   describe "generate/1" do
     test "without prefix" do
@@ -35,44 +35,5 @@ defmodule RDF.BlankNode.IncrementTest do
       assert Increment.generate_for("foo", %{counter: 1, map: %{"foo" => 0}, prefix: "b"}) ==
                {bnode("b0"), %{counter: 1, map: %{"foo" => 0}, prefix: "b"}}
     end
-  end
-
-  test "generator without prefix" do
-    {:ok, generator} = Generator.start_link(Increment)
-
-    assert Generator.generate(generator) == bnode(0)
-    assert Generator.generate(generator) == bnode(1)
-    assert Generator.generate_for(generator, "foo") == bnode(2)
-    assert Generator.generate(generator) == bnode(3)
-    assert Generator.generate_for(generator, "bar") == bnode(4)
-    assert Generator.generate(generator) == bnode(5)
-    assert Generator.generate_for(generator, "foo") == bnode(2)
-    assert Generator.generate(generator) == bnode(6)
-  end
-
-  test "generator with prefix" do
-    {:ok, generator} = Generator.start_link(Increment, prefix: "b")
-
-    assert Generator.generate(generator) == bnode("b0")
-    assert Generator.generate(generator) == bnode("b1")
-    assert Generator.generate_for(generator, "foo") == bnode("b2")
-    assert Generator.generate(generator) == bnode("b3")
-    assert Generator.generate_for(generator, "bar") == bnode("b4")
-    assert Generator.generate(generator) == bnode("b5")
-    assert Generator.generate_for(generator, "foo") == bnode("b2")
-    assert Generator.generate(generator) == bnode("b6")
-  end
-
-  test "generator with non-string values" do
-    {:ok, generator} = Generator.start_link(Increment, prefix: "b")
-
-    assert Generator.generate(generator) == bnode("b0")
-    assert Generator.generate(generator) == bnode("b1")
-    assert Generator.generate_for(generator, {:foo, 42}) == bnode("b2")
-    assert Generator.generate(generator) == bnode("b3")
-    assert Generator.generate_for(generator, [:bar, 3.14]) == bnode("b4")
-    assert Generator.generate(generator) == bnode("b5")
-    assert Generator.generate_for(generator, {:foo, 42}) == bnode("b2")
-    assert Generator.generate(generator) == bnode("b6")
   end
 end
