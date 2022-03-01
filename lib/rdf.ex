@@ -41,10 +41,11 @@ defmodule RDF do
   """
 
   alias RDF.{
+    Resource,
     IRI,
-    Namespace,
-    Literal,
     BlankNode,
+    Literal,
+    Namespace,
     Description,
     Graph,
     Dataset,
@@ -190,6 +191,9 @@ defmodule RDF do
   end
 
   def resource?(_), do: false
+
+  defdelegate resource(), to: Resource, as: :new
+  defdelegate resource(args), to: Resource, as: :new
 
   @doc """
   Checks if the given value is a RDF term.

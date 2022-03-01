@@ -12,7 +12,7 @@ defmodule RDF.Test.Case do
 
   using do
     quote do
-      alias RDF.{Dataset, Graph, Description, IRI, XSD, PrefixMap, PropertyMap, NS}
+      alias RDF.{Dataset, Graph, Description, IRI, BlankNode, XSD, PrefixMap, PropertyMap, NS}
       alias RDF.NS.{RDFS, OWL}
       alias unquote(__MODULE__).{EX, FOAF}
 

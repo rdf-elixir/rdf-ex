@@ -4,6 +4,7 @@ defmodule RDF.BlankNode.Generator do
   """
 
   use GenServer
+  use RDF.Resource.Generator
 
   # Client API ###############################################################
 
@@ -64,8 +65,14 @@ defmodule RDF.BlankNode.Generator do
   @doc """
   Generates a new blank node according to the `RDF.BlankNode.Generator.Algorithm` set up.
   """
+  @impl RDF.Resource.Generator
   def generate(pid) do
     GenServer.call(pid, :generate)
+  end
+
+  @impl RDF.Resource.Generator
+  def generate do
+    raise ArgumentError, "required pid of RDF.BlankNode.Generator missing"
   end
 
   @doc """

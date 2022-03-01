@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Resource.Generator`s which can be used to generate configurable ids
 - `:implicit_base` option on the `RDF.Turtle.Encoder`
 - `:base_description` option on the `RDF.Turtle.Encoder`
 - `RDF.Resource.t` type

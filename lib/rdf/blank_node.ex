@@ -13,6 +13,8 @@ defmodule RDF.BlankNode do
   @enforce_keys [:value]
   defstruct [:value]
 
+  use RDF.Resource.Generator
+
   @doc """
   Creates a `RDF.BlankNode`.
   """
@@ -43,6 +45,9 @@ defmodule RDF.BlankNode do
   Returns the internal string representation of a blank node.
   """
   def value(%__MODULE__{} = bnode), do: bnode.value
+
+  @impl RDF.Resource.Generator
+  def generate(), do: new()
 
   @doc """
   Tests for value equality of blank nodes.
