@@ -4,9 +4,11 @@ defmodule RDF.Resource do
 
   @type t :: IRI.t() | BlankNode.t()
 
-  @default_generator (Application.get_env(:rdf, :resource) || [generator: BlankNode])
-                     |> Generator.config()
+  def generator do
+    Application.get_env(:rdf, :resource, generator: BlankNode)
+    |> Generator.config()
+  end
 
-  def new(), do: Generator.generate(@default_generator, nil)
-  def new(args), do: Generator.generate(@default_generator, args)
+  def new(), do: generator() |> Generator.generate(nil)
+  def new(args), do: generator() |> Generator.generate(args)
 end
