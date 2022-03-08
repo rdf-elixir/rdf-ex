@@ -1,57 +1,52 @@
 defmodule RDF.Resource.Generator do
-  defmodule Config do
-    @enforce_keys [:generator]
-    defstruct [:generator, :arguments]
+  @type id_type :: :random_based | :value_based
 
-    @type t :: %__MODULE__{generator: module, arguments: any}
-  end
+  @callback generate(config :: any) :: RDF.Resource.t()
 
-  @callback generator_config() :: Config.t()
-  @callback generator_config(args :: any) :: Config.t()
+  @callback generate(config :: any, value :: binary) :: RDF.Resource.t()
 
-  @callback generator_arguments(args :: any, defaults :: any) :: any
-
-  @callback generate() :: RDF.Resource.t()
-
-  @callback generate(args :: any) :: RDF.Resource.t()
+  @callback generator_config(id_type, keyword) :: any
 
   defmacro __using__(_opts) do
     quote do
       @behaviour RDF.Resource.Generator
 
       @impl RDF.Resource.Generator
-      def generator_config(defaults \\ nil) do
-        %RDF.Resource.Generator.Config{
-          generator: __MODULE__,
-          arguments: generator_arguments(defaults, nil)
-        }
-      end
+      def generator_config(_, config), do: config
 
-      @impl RDF.Resource.Generator
-      def generator_arguments(args, defaults) when is_list(args) and is_list(defaults),
-        do: Keyword.merge(defaults, args)
-
-      def generator_arguments(nil, defaults), do: defaults
-      def generator_arguments(args, defaults), do: args
-
-      @impl RDF.Resource.Generator
-      def generate(_args), do: generate()
-
-      defoverridable generate: 1, generator_config: 1, generator_arguments: 2
+      defoverridable generator_config: 2
     end
   end
 
-  @doc false
-  def config(config) do
-    {generator, args} = Keyword.pop!(config, :generator)
-    default_args = unless Enum.empty?(args), do: args
-    generator.generator_config(default_args)
+  def generate(config) do
+    {generator, config} = config(:random_based, config)
+    generator.generate(config)
   end
 
-  @doc false
-  def generate(%Config{generator: generator, arguments: defaults}, args),
-    do: do_generate(generator, generator.generator_arguments(args, defaults))
+  def generate(config, value) do
+    {generator, config} = config(:value_based, config)
+    generator.generate(config, value)
+  end
 
-  defp do_generate(generator, nil), do: generator.generate()
-  defp do_generate(generator, args), do: generator.generate(args)
+  defp config(id_type, config) do
+    {random_config, config} = Keyword.pop(config, :random_based)
+    {value_based_config, config} = Keyword.pop(config, :value_based)
+
+    {generator, config} =
+      id_type
+      |> merge_config(config, random_config, value_based_config)
+      |> Keyword.pop!(:generator)
+
+    {generator, generator.generator_config(id_type, config)}
+  end
+
+  defp merge_config(:random_based, config, nil, _), do: config
+
+  defp merge_config(:random_based, config, random_config, _),
+    do: Keyword.merge(config, random_config)
+
+  defp merge_config(:value_based, config, _, nil), do: config
+
+  defp merge_config(:value_based, config, _, value_based_config),
+    do: Keyword.merge(config, value_based_config)
 end

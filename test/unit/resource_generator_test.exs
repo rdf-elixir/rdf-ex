@@ -5,25 +5,38 @@ defmodule RDF.ResourceId.GeneratorTest do
 
   alias RDF.Resource.Generator
 
-  test "RDF.BlankNode as a generator" do
-    assert %BlankNode{} = bnode1 = Generator.generate(BlankNode.generator_config(), nil)
-    assert %BlankNode{} = bnode2 = Generator.generate(BlankNode.generator_config(), nil)
-    assert bnode1 != bnode2
+  describe "RDF.BlankNode as a generator" do
+    test "generate/0" do
+      assert %BlankNode{} = bnode1 = Generator.generate(generator: BlankNode)
+      assert %BlankNode{} = bnode2 = Generator.generate(generator: BlankNode)
+      assert bnode1 != bnode2
+    end
+
+    test "generate/1" do
+      assert_raise Generator.ConfigError, fn ->
+        Generator.generate([generator: BlankNode], "test1")
+      end
+    end
   end
 
-  test "RDF.BlankNode.Generator as a generator" do
-    {:ok, generator} = start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Increment})
+  describe "RDF.BlankNode.Generator as a generator" do
+    test "generate/0" do
+      {:ok, generator} = start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Increment})
 
-    assert RDF.BlankNode.Generator.generator_config(generator)
-           |> Generator.generate(nil) ==
-             RDF.bnode(0)
+      config = [generator: BlankNode.Generator, pid: generator]
 
-    assert RDF.BlankNode.Generator.generator_config(generator)
-           |> Generator.generate(nil) ==
-             RDF.bnode(1)
+      assert Generator.generate(config) == RDF.bnode(0)
+      assert Generator.generate(config) == RDF.bnode(1)
+    end
 
-    assert RDF.BlankNode.Generator.generator_config(:foo)
-           |> Generator.generate(generator) ==
-             RDF.bnode(2)
+    test "generate/1" do
+      {:ok, generator} = start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Increment})
+
+      config = [generator: BlankNode.Generator, pid: generator]
+
+      assert Generator.generate(config, "test1") == RDF.bnode(0)
+      assert Generator.generate(config, "test2") == RDF.bnode(1)
+      assert Generator.generate(config, "test1") == RDF.bnode(0)
+    end
   end
 end

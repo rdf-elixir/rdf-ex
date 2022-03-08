@@ -71,8 +71,14 @@ defmodule RDF.BlankNode.Generator do
   end
 
   @impl RDF.Resource.Generator
-  def generate do
-    raise ArgumentError, "required pid of RDF.BlankNode.Generator missing"
+  def generate(pid, value) do
+    generate_for(pid, value)
+  end
+
+  @impl RDF.Resource.Generator
+  def generator_config(_, config) do
+    Keyword.get(config, :pid) ||
+      raise ArgumentError, "missing required :pid argument for RDF.BlankNode.Generator"
   end
 
   @doc """

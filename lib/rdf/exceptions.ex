@@ -57,3 +57,7 @@ end
 defmodule RDF.Query.InvalidError do
   defexception [:message]
 end
+
+defmodule RDF.Resource.Generator.ConfigError do
+  defexception [:message]
+end

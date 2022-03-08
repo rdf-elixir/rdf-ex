@@ -14,6 +14,7 @@ defmodule RDF.BlankNode do
   defstruct [:value]
 
   use RDF.Resource.Generator
+  alias RDF.Resource.Generator.ConfigError
 
   @doc """
   Creates a `RDF.BlankNode`.
@@ -47,7 +48,18 @@ defmodule RDF.BlankNode do
   def value(%__MODULE__{} = bnode), do: bnode.value
 
   @impl RDF.Resource.Generator
-  def generate(), do: new()
+  def generate(_), do: new()
+
+  @impl RDF.Resource.Generator
+  def generate(_, _) do
+    raise(
+      ConfigError,
+      """
+      Value-based resource generation is not supported by RDF.BlankNode.
+      Use RDF.BlankNode.Generator or another generator.
+      """
+    )
+  end
 
   @doc """
   Tests for value equality of blank nodes.
