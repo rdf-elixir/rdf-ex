@@ -1,6 +1,11 @@
 defmodule RDF.BlankNode.Generator do
   @moduledoc """
-  A GenServer generates `RDF.BlankNode`s using a `RDF.BlankNode.Generator.Algorithm`.
+  A GenServer which generates `RDF.BlankNode`s using a `RDF.BlankNode.Generator.Algorithm`.
+
+  This module implements the `RDF.Resource.Generator` behaviour.
+  The only `RDF.Resource.Generator` configuration it requires is the process
+  identifier. The actual configuration of the behaviour of this generator
+  is done on the GenServer itself via `start_link/1` and `start/1`.
   """
 
   use GenServer
@@ -11,7 +16,15 @@ defmodule RDF.BlankNode.Generator do
   @doc """
   Starts a blank node generator linked to the current process.
 
-  The state will be initialized according to the given `RDF.BlankNode.Generator.Algorithm`.
+  The `RDF.BlankNode.Generator.Algorithm` implementation is the only required
+  keyword option, which must be given with the `:algorithm` key or, if no other
+  options are required, can be given directly (instead of a keyword list).
+  The remaining options are used as the configuration for `init/1` of the
+  respective `RDF.BlankNode.Generator.Algorithm` implementation.
+
+  If you want to pass `GenServer.start_link/3` options, you'll can provide
+  two separate keyword lists as a tuple with the first being the `RDF.BlankNode.Generator`
+  configuration and the second the `GenServer.start_link/3` options.
   """
   def start_link(algorithm) when is_atom(algorithm) do
     start_link({[algorithm: algorithm], []})
@@ -31,7 +44,7 @@ defmodule RDF.BlankNode.Generator do
   @doc """
   Starts a blank node generator process without links (outside of a supervision tree).
 
-  The state will be initialized according to the given `RDF.BlankNode.Generator.Algorithm`.
+  The options are handled the same as `start_link/1`.
   """
   def start(algorithm) when is_atom(algorithm) do
     start({[algorithm: algorithm], []})

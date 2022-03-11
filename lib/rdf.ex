@@ -12,6 +12,7 @@ defmodule RDF do
   - the `RDF.Literal.Datatype` system
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
     functions: `RDF.Vocabulary.Namespace`
+  - a facility for the automatic generation of resource identifiers: `RDF.Resource.Generator`
   - modules for the construction of statements
     - `RDF.Triple`
     - `RDF.Quad`

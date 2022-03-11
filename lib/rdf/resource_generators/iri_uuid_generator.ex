@@ -4,6 +4,54 @@
 
 if Code.ensure_loaded?(UUID) do
   defmodule RDF.IRI.UUID.Generator do
+    @moduledoc """
+    A `RDF.Resource.Generator` for various kinds of UUID-based IRI identifiers.
+
+    This generator is only available when you have defined the [elixir_uuid](https://hex.pm/packages/elixir_uuid)
+    package as dependency in the Mixfile of your application.
+
+
+    ## Configuration options
+
+    - `:prefix`: The URI prefix to be prepended to the generated UUID.
+      It can be given also as `RDF.Vocabulary.Namespace` module.
+      If the `:uuid_format` is set explicitly to something other than `:urn`
+      (which is the default), this is a required parameter.
+    - `:uuid_version`: The UUID version to be used. Can be any of the
+      integers 1 and 4 for random-based identifiers (4 being the default) and
+      3 and 5 for value-based identifiers (5 being the default).
+    - `:uuid_format`: The format of the UUID to be generated. Can be any of the
+      following atoms:
+      - `:urn`: a standard UUID representation, prefixed with the UUID URN
+        (in this case the `:prefix` is not used) (the default when no `:prefix` given)
+      - `:default`: a standard UUID representation, appended to the `:prefix` value
+        (the default when a `:prefix` is given)
+      - `:hex`: a standard UUID without the `-` (dash) characters, appended to the
+        `:prefix` value
+    - `:uuid_namespace` (only with `:uuid_version` 3 and 5, where it is a required parameter)
+
+    When your generator configuration is just for a function producing one of
+    the two kinds of identifiers, you can use these options directly. Otherwise you
+    must provide the identifier-specific configuration under one of the keys
+    `:random_based` and `:value_based`.
+
+      
+    ## Example configuration
+
+        config :example, :id,
+          generator: RDF.IRI.UUID.Generator,
+          prefix: "http://example.com/",
+          uuid_format: :hex,
+          random_based: [
+            uuid_version: 1
+          ],
+          value_based: [
+            uuid_version: 3,
+            uuid_namespace: UUID.uuid5(:url, "http://your.application.com/example")
+          ]
+
+    """
+
     use RDF.Resource.Generator
 
     alias RDF.IRI

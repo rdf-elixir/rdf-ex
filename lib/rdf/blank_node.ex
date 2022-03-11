@@ -2,6 +2,10 @@ defmodule RDF.BlankNode do
   @moduledoc """
   An RDF blank node (aka bnode) is a local node of a graph without an IRI.
 
+  This module can also be used as `RDF.Resource.Generator` for the generation
+  of random identifiers, which is using the `new/0` function.
+  For the generation of value-based blank nodes, you can use `RDF.BlankNode.Generator`.
+
   see <https://www.w3.org/TR/rdf11-primer/#section-blank-node>
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>
   """
@@ -14,10 +18,10 @@ defmodule RDF.BlankNode do
   defstruct [:value]
 
   use RDF.Resource.Generator
-  alias RDF.Resource.Generator.ConfigError
+  alias RDF.Resource.Generator
 
   @doc """
-  Creates a `RDF.BlankNode`.
+  Creates a random `RDF.BlankNode`.
   """
   @spec new :: t
   def new, do: new(:erlang.unique_integer([:positive]))
@@ -47,20 +51,6 @@ defmodule RDF.BlankNode do
   """
   def value(%__MODULE__{} = bnode), do: bnode.value
 
-  @impl RDF.Resource.Generator
-  def generate(_), do: new()
-
-  @impl RDF.Resource.Generator
-  def generate(_, _) do
-    raise(
-      ConfigError,
-      """
-      Value-based resource generation is not supported by RDF.BlankNode.
-      Use RDF.BlankNode.Generator or another generator.
-      """
-    )
-  end
-
   @doc """
   Tests for value equality of blank nodes.
 
@@ -74,6 +64,20 @@ defmodule RDF.BlankNode do
 
   def equal_value?(_, _),
     do: nil
+
+  @impl RDF.Resource.Generator
+  def generate(_), do: new()
+
+  @impl RDF.Resource.Generator
+  def generate(_, _) do
+    raise(
+      Generator.ConfigError,
+      """
+      Value-based resource generation is not supported by RDF.BlankNode.
+      Use RDF.BlankNode.Generator or another generator.
+      """
+    )
+  end
 
   defimpl String.Chars do
     def to_string(bnode), do: "_:#{bnode.value}"
