@@ -10,14 +10,16 @@ defmodule RDF.Triple do
 
   @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
 
-  @type coercible_t ::
+  @type coercible ::
           {
             Statement.coercible_subject(),
             Statement.coercible_predicate(),
             Statement.coercible_object()
           }
 
-  @type t_values :: {String.t(), String.t(), any}
+  @type mapping_value :: {String.t(), String.t(), any}
+  # deprecated: This will be removed in v0.11.
+  @type t_values :: mapping_value
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.
@@ -82,7 +84,7 @@ defmodule RDF.Triple do
       iex> RDF.Triple.new {EX.S, :p, 42}, RDF.PropertyMap.new(p: EX.p)
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42)}
   """
-  @spec new(Statement.coercible_t(), PropertyMap.t() | nil) :: t
+  @spec new(Statement.coercible(), PropertyMap.t() | nil) :: t
   def new(statement, property_map \\ nil)
 
   def new({subject, predicate, object}, property_map),
@@ -109,7 +111,7 @@ defmodule RDF.Triple do
       {"http://example.com/S", :p, 42}
 
   """
-  @spec values(t, keyword) :: t_values | nil
+  @spec values(t, keyword) :: mapping_value | nil
   def values(triple, opts \\ []) do
     if property_map = PropertyMap.from_opts(opts) do
       map(triple, Statement.default_property_mapping(property_map))
@@ -139,7 +141,7 @@ defmodule RDF.Triple do
       {"S", "p", 42}
 
   """
-  @spec map(t, Statement.term_mapping()) :: t_values | nil
+  @spec map(t, Statement.term_mapping()) :: mapping_value | nil
   def map({subject, predicate, object}, fun) do
     with subject_value when not is_nil(subject_value) <- fun.({:subject, subject}),
          predicate_value when not is_nil(predicate_value) <- fun.({:predicate, predicate}),

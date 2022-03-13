@@ -17,15 +17,13 @@ defmodule RDF.Star.Quad do
           Statement.graph_name()
         }
 
-  @type coercible_t ::
+  @type coercible ::
           {
             Statement.coercible_subject(),
             Statement.coercible_predicate(),
             Statement.coercible_object(),
             Statement.coercible_graph_name()
           }
-
-  @type t_values :: {String.t(), String.t(), any, String.t()}
 
   @doc """
   Creates a `RDF.Star.Quad` with proper RDF-star values.
@@ -104,7 +102,7 @@ defmodule RDF.Star.Quad do
       {{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}, ~I<http://example.com/p2>, RDF.literal(43), ~I<http://example.com/Graph>}
 
   """
-  @spec new(Statement.coercible_t(), PropertyMap.t() | nil) :: t
+  @spec new(Statement.coercible(), PropertyMap.t() | nil) :: t
   def new(statement, property_map \\ nil)
 
   def new({subject, predicate, object, graph_name}, property_map) do

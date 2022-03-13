@@ -13,8 +13,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `:implicit_base` option on the `RDF.Turtle.Encoder`
 - `:base_description` option on the `RDF.Turtle.Encoder`
 - `RDF.Resource.t` type
-- `RDF.Triple.coercible_t`, `RDF.Quad.coercible_t`, `RDF.Star.Triple.coercible_t`  
-  and `RDF.Star.Quad.coercible_t` types
+- `RDF.Triple.coercible`, `RDF.Quad.coercible`, `RDF.Star.Triple.coercible`
+  and `RDF.Star.Quad.coercible` types
+
+### Changed
+
+- some types were renamed for consistency reasons; the old types were deprecated
+  and will be removed in v0.11
+  - `RDF.Statement.coercible_t` -> `RDF.Statement.coercible`
+  - `RDF.Star.Statement.coercible_t` -> `RDF.Star.Statement.coercible`
+  - `RDF.Triple.t_values` -> `RDF.Triple.mapping_value`
+  - `RDF.Quad.t_values` -> `RDF.Quad.mapping_value`
 
 ### Fixed
 

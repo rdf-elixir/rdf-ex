@@ -30,7 +30,7 @@ defmodule RDF.Graph do
         }
 
   @type input ::
-          Statement.coercible_t()
+          Statement.coercible()
           | {
               Statement.coercible_subject(),
               Description.input()

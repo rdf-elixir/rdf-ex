@@ -13,8 +13,8 @@ defmodule RDF.Statement do
   @type object :: Resource.t() | Literal.t()
   @type graph_name :: Resource.t() | nil
 
-  @type coercible_subject :: subject | atom | String.t()
-  @type coercible_predicate :: predicate | atom | String.t()
+  @type coercible_subject :: Resource.coercible()
+  @type coercible_predicate :: Resource.coercible()
   @type coercible_object :: object | any
   @type coercible_graph_name :: graph_name | atom | String.t()
 
@@ -23,7 +23,9 @@ defmodule RDF.Statement do
   @type term_mapping :: (qualified_term -> any | nil)
 
   @type t :: Triple.t() | Quad.t()
-  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
+  @type coercible :: Triple.coercible() | Quad.coercible()
+  # deprecated: This will be removed in v0.11.
+  @type coercible_t :: coercible
 
   @doc """
   Creates a `RDF.Triple` or `RDF.Quad` with proper RDF values.
@@ -62,7 +64,7 @@ defmodule RDF.Statement do
       iex> RDF.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
-  @spec coerce(coercible_t(), PropertyMap.t() | nil) :: Triple.t() | Quad.t()
+  @spec coerce(coercible(), PropertyMap.t() | nil) :: Triple.t() | Quad.t()
   def coerce(statement, property_map \\ nil)
   def coerce({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce({_, _, _, _} = quad, property_map), do: Quad.new(quad, property_map)
@@ -140,7 +142,7 @@ defmodule RDF.Statement do
       {"http://example.com/S", :p, 42}
 
   """
-  @spec values(t, keyword) :: Triple.t_values() | Quad.t_values() | nil
+  @spec values(t, keyword) :: Triple.mapping_value() | Quad.mapping_value() | nil
   def values(quad, opts \\ [])
   def values({_, _, _} = triple, opts), do: Triple.values(triple, opts)
   def values({_, _, _, _} = quad, opts), do: Quad.values(quad, opts)
@@ -173,7 +175,7 @@ defmodule RDF.Statement do
       {"S", :p, 42, ~I<http://example.com/Graph>}
 
   """
-  @spec map(t, term_mapping()) :: Triple.t_values() | Quad.t_values() | nil | nil
+  @spec map(t, term_mapping()) :: Triple.mapping_value() | Quad.mapping_value() | nil | nil
   def map(statement, fun)
   def map({_, _, _} = triple, fun), do: RDF.Triple.map(triple, fun)
   def map({_, _, _, _} = quad, fun), do: RDF.Quad.map(quad, fun)

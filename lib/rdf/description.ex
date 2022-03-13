@@ -26,7 +26,7 @@ defmodule RDF.Description do
   @type predications :: %{Statement.predicate() => %{Statement.object() => nil}}
 
   @type input ::
-          Statement.coercible_t()
+          Statement.coercible()
           | {
               Statement.coercible_predicate(),
               Statement.coercible_object() | [Statement.coercible_object()]
@@ -36,7 +36,7 @@ defmodule RDF.Description do
                 Statement.coercible_object() | [Statement.coercible_object()]
             }
           | [
-              Statement.coercible_t()
+              Statement.coercible()
               | {
                   Statement.coercible_predicate(),
                   Statement.coercible_object() | [Statement.coercible_object()]

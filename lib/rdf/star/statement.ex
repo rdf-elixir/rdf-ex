@@ -19,7 +19,9 @@ defmodule RDF.Star.Statement do
   @type coercible_graph_name :: RDF.Statement.coercible_graph_name()
 
   @type t :: Triple.t() | Quad.t()
-  @type coercible_t :: Triple.coercible_t() | Quad.coercible_t()
+  @type coercible :: Triple.coercible() | Quad.coercible()
+  # deprecated: This will be removed in v0.11.
+  @type coercible_t :: coercible
 
   @type term_mapping :: RDF.Statement.term_mapping()
 
@@ -60,7 +62,7 @@ defmodule RDF.Star.Statement do
       iex> RDF.Star.Statement.coerce {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
       {~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42), ~I<http://example.com/Graph>}
   """
-  @spec coerce(coercible_t(), PropertyMap.t() | nil) :: Triple.t() | Quad.t()
+  @spec coerce(coercible(), PropertyMap.t() | nil) :: Triple.t() | Quad.t()
   def coerce(statement, property_map \\ nil)
   def coerce({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce({_, _, _, _} = quad, property_map), do: Quad.new(quad, property_map)

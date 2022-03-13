@@ -19,9 +19,7 @@ defmodule RDF.IRI do
   alias RDF.Namespace
   import RDF.Guards
 
-  @type t :: %__MODULE__{
-          value: String.t()
-        }
+  @type t :: %__MODULE__{value: String.t()}
 
   @type coercible :: String.t() | URI.t() | module | t
 

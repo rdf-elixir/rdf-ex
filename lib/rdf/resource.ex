@@ -6,4 +6,6 @@ defmodule RDF.Resource do
   alias RDF.{IRI, BlankNode}
 
   @type t :: IRI.t() | BlankNode.t()
+
+  @type coercible :: IRI.coercible() | BlankNode.t()
 end

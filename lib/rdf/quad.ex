@@ -15,7 +15,7 @@ defmodule RDF.Quad do
           Statement.graph_name()
         }
 
-  @type coercible_t ::
+  @type coercible ::
           {
             Statement.coercible_subject(),
             Statement.coercible_predicate(),
@@ -23,7 +23,9 @@ defmodule RDF.Quad do
             Statement.coercible_graph_name()
           }
 
-  @type t_values :: {String.t(), String.t(), any, String.t()}
+  @type mapping_value :: {String.t(), String.t(), any, String.t()}
+  # deprecated: This will be removed in v0.11.
+  @type t_values :: mapping_value
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.
@@ -91,7 +93,7 @@ defmodule RDF.Quad do
       iex> RDF.Quad.new {EX.S, :p, 42, EX.Graph}, RDF.PropertyMap.new(p: EX.p)
       {RDF.iri("http://example.com/S"), RDF.iri("http://example.com/p"), RDF.literal(42), RDF.iri("http://example.com/Graph")}
   """
-  @spec new(Statement.coercible_t(), PropertyMap.t() | nil) :: t
+  @spec new(Statement.coercible(), PropertyMap.t() | nil) :: t
   def new(statement, property_map \\ nil)
 
   def new({subject, predicate, object, graph_name}, property_map) do
@@ -120,7 +122,7 @@ defmodule RDF.Quad do
       {"http://example.com/S", :p, 42,  "http://example.com/Graph"}
 
   """
-  @spec values(t, keyword) :: t_values | nil
+  @spec values(t, keyword) :: mapping_value | nil
   def values(quad, opts \\ []) do
     if property_map = PropertyMap.from_opts(opts) do
       map(quad, Statement.default_property_mapping(property_map))
@@ -154,7 +156,7 @@ defmodule RDF.Quad do
       {:S, :p, 42, ~I<http://example.com/Graph>}
 
   """
-  @spec map(t, Statement.term_mapping()) :: t_values | nil
+  @spec map(t, Statement.term_mapping()) :: mapping_value | nil
   def map({subject, predicate, object, graph_name}, fun) do
     with subject_value when not is_nil(subject_value) <- fun.({:subject, subject}),
          predicate_value when not is_nil(predicate_value) <- fun.({:predicate, predicate}),

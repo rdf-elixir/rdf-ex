@@ -10,9 +10,7 @@ defmodule RDF.BlankNode do
   and <https://www.w3.org/TR/rdf11-concepts/#section-blank-nodes>
   """
 
-  @type t :: %__MODULE__{
-          value: String.t()
-        }
+  @type t :: %__MODULE__{value: String.t()}
 
   @enforce_keys [:value]
   defstruct [:value]

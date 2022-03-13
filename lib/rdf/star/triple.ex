@@ -12,7 +12,7 @@ defmodule RDF.Star.Triple do
 
   @type t :: {Statement.subject(), Statement.predicate(), Statement.object()}
 
-  @type coercible_t ::
+  @type coercible ::
           {
             Statement.coercible_subject(),
             Statement.coercible_predicate(),
@@ -88,7 +88,7 @@ defmodule RDF.Star.Triple do
       iex> RDF.Star.Triple.new({{EX.S, :p, 42}, :p2, 43}, RDF.PropertyMap.new(p: EX.p, p2: EX.p2))
       {{~I<http://example.com/S>, ~I<http://example.com/p>, RDF.literal(42)}, ~I<http://example.com/p2>, RDF.literal(43)}
   """
-  @spec new(Statement.coercible_t(), PropertyMap.t() | nil) :: t
+  @spec new(Statement.coercible(), PropertyMap.t() | nil) :: t
   def new(statement, property_map \\ nil)
 
   def new({subject, predicate, object}, property_map),
