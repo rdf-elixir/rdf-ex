@@ -38,5 +38,19 @@ defmodule RDF.ResourceId.GeneratorTest do
       assert Generator.generate(config, "test2") == RDF.bnode(1)
       assert Generator.generate(config, "test1") == RDF.bnode(0)
     end
+
+    test "via Registry" do
+      {:ok, _} = start_supervised({Registry, [keys: :unique, name: Registry.ViaTest]})
+
+      name = {:via, Registry, {Registry.ViaTest, "bnode-generator-via-test"}}
+
+      {:ok, _} =
+        start_supervised({RDF.BlankNode.Generator, {RDF.BlankNode.Increment, [name: name]}})
+
+      config = [generator: BlankNode.Generator, pid: name]
+
+      assert Generator.generate(config) == RDF.bnode(0)
+      assert Generator.generate(config) == RDF.bnode(1)
+    end
   end
 end
