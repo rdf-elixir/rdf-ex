@@ -33,7 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   generators can be started supervised
 
 
-[Compare v0.10.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...HEAD)
+[Compare v0.10.0...v0.11.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...v0.11.0)
 
 
 
