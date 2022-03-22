@@ -5,16 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.10.0 - 2022-03-22
 
 ### Added
 
 - `RDF.Resource.Generator`s which can be used to generate configurable ids
 - `:implicit_base` option on the `RDF.Turtle.Encoder`
 - `:base_description` option on the `RDF.Turtle.Encoder`
-- `RDF.Resource.t` type
-- `RDF.Triple.coercible`, `RDF.Quad.coercible`, `RDF.Star.Triple.coercible`
-  and `RDF.Star.Quad.coercible` types
+- several new types: 
+  - `RDF.Resource.t` for all node identifiers, i.e. `RDF.IRI`s and `RDF.BlankNode`s 
+  - `RDF.Triple.coercible`, `RDF.Quad.coercible`, `RDF.Star.Triple.coercible`
+    and `RDF.Star.Quad.coercible` for tuples which can be coerced to the
+    respective statements
 
 ### Changed
 
