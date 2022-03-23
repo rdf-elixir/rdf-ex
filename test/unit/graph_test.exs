@@ -123,6 +123,42 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
+    test "creating an graph from a dataset" do
+      g =
+        Dataset.new([
+          {EX.Subject1, EX.predicate1(), EX.Object1, nil},
+          {EX.Subject2, EX.predicate2(), EX.Object2, EX.Graph1},
+          {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph1},
+          {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph2},
+          {EX.Subject4, EX.predicate4(), EX.Object4, EX.Graph2}
+        ])
+        |> Graph.new()
+
+      assert unnamed_graph?(g)
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
+      assert graph_includes_statement?(g, {EX.Subject4, EX.predicate4(), EX.Object4})
+
+      g =
+        Dataset.new([
+          {EX.Subject1, EX.predicate1(), EX.Object1, nil},
+          {EX.Subject2, EX.predicate2(), EX.Object2, EX.Graph1},
+          {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph1},
+          {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph2},
+          {EX.Subject4, EX.predicate4(), EX.Object4, EX.Graph2}
+        ])
+        |> Graph.new(name: EX.GraphName)
+
+      assert named_graph?(g, iri(EX.GraphName))
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
+      assert graph_includes_statement?(g, {EX.Subject4, EX.predicate4(), EX.Object4})
+    end
+
     test "with a context" do
       g =
         Graph.new(
@@ -423,6 +459,26 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
     end
 
+    test "a dataset" do
+      g =
+        Graph.add(
+          graph(),
+          Dataset.new([
+            {EX.Subject1, EX.predicate1(), EX.Object1, nil},
+            {EX.Subject2, EX.predicate2(), EX.Object2, EX.Graph1},
+            {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph1},
+            {EX.Subject3, EX.predicate3(), EX.Object3, EX.Graph2},
+            {EX.Subject4, EX.predicate4(), EX.Object4, EX.Graph2}
+          ])
+        )
+
+      assert Graph.triple_count(g) == 4
+      assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
+      assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
+      assert graph_includes_statement?(g, {EX.Subject3, EX.predicate3(), EX.Object3})
+      assert graph_includes_statement?(g, {EX.Subject4, EX.predicate4(), EX.Object4})
+    end
+
     test "merges the prefixes of another graph" do
       graph =
         Graph.new(prefixes: %{xsd: XSD})
@@ -543,7 +599,7 @@ defmodule RDF.GraphTest do
       end
 
       assert_raise FunctionClauseError, fn ->
-        Graph.add(graph(), RDF.dataset())
+        Graph.add(graph(), RDF.bnode())
       end
     end
   end
@@ -735,13 +791,19 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S3, EX.p3(), EX.O3})
     end
 
+    test "RDF.Datasets are causing an error" do
+      assert_raise ArgumentError, fn ->
+        Graph.put(graph(), RDF.dataset())
+      end
+    end
+
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
         Graph.put(graph(), Date.utc_today())
       end
 
       assert_raise FunctionClauseError, fn ->
-        Graph.put(graph(), RDF.dataset())
+        Graph.put(graph(), RDF.bnode())
       end
     end
   end
@@ -943,13 +1005,19 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S3, EX.p3(), EX.O3})
     end
 
+    test "RDF.Datasets are causing an error" do
+      assert_raise ArgumentError, fn ->
+        Graph.put_properties(graph(), RDF.dataset())
+      end
+    end
+
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
         Graph.put_properties(graph(), Date.utc_today())
       end
 
       assert_raise FunctionClauseError, fn ->
-        Graph.put_properties(graph(), RDF.dataset())
+        Graph.put_properties(graph(), RDF.bnode())
       end
     end
   end

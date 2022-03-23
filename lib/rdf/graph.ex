@@ -94,6 +94,7 @@ defmodule RDF.Graph do
   - a nested subject-predicate-object map
   - a `RDF.Description`
   - a `RDF.Graph`
+  - a `RDF.Dataset`
   - or a list with any combination of the former
 
   Available options:
@@ -224,6 +225,15 @@ defmodule RDF.Graph do
     end
   end
 
+  def add(graph, %RDF.Dataset{} = dataset, opts) do
+    # normalize the annotations here, so we don't have to do this repeatedly
+    opts = RDF.Star.Graph.normalize_annotation_opts(opts)
+
+    dataset
+    |> RDF.Dataset.graphs()
+    |> Enum.reduce(graph, &add(&2, &1, opts))
+  end
+
   def add(graph, input, opts) when is_list(input) or (is_map(input) and not is_struct(input)) do
     Enum.reduce(input, graph, &add(&2, &1, opts))
   end
@@ -298,6 +308,10 @@ defmodule RDF.Graph do
     |> RDF.Star.Graph.handle_addition_annotations(input, opts)
   end
 
+  def put(%__MODULE__{}, %RDF.Dataset{}, _opts) do
+    raise ArgumentError, "RDF.Graph.put/3 does not support RDF.Datasets"
+  end
+
   def put(%__MODULE__{} = graph, input, opts) do
     put(graph, new() |> add(input, RDF.Star.Graph.clear_annotation_opts(opts)), opts)
   end
@@ -359,6 +373,10 @@ defmodule RDF.Graph do
     end
     |> RDF.Star.Graph.handle_overwrite_annotations(graph, input, opts)
     |> RDF.Star.Graph.handle_addition_annotations(input, opts)
+  end
+
+  def put_properties(%__MODULE__{}, %RDF.Dataset{}, _opts) do
+    raise ArgumentError, "RDF.Graph.put_properties/3 does not support RDF.Datasets"
   end
 
   def put_properties(%__MODULE__{} = graph, input, opts) do

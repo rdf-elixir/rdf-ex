@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
+
+
+[Compare v0.11.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...HEAD)
+
+
+
 ## 0.10.0 - 2022-03-22
 
 ### Added
