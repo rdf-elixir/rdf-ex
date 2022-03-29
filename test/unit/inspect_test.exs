@@ -22,7 +22,7 @@ defmodule RDF.InspectTest do
   describe "RDF.Description" do
     test "it includes a header" do
       {header, _} = inspect_parts(@test_description)
-      assert header == "#RDF.Description<"
+      assert header == "#RDF.Description<subject: #{inspect(@test_description.subject)}"
     end
 
     test "it encodes the description in Turtle" do
@@ -32,6 +32,10 @@ defmodule RDF.InspectTest do
                "  " <>
                  (Turtle.write_string!(@test_description, only: :triples, indent: 2)
                   |> String.trim()) <> "\n>"
+    end
+
+    test "it includes the subject when empty" do
+      assert inspect(Description.new(EX.Foo)) =~ IRI.to_string(EX.Foo)
     end
 
     test "it encodes the RDF-star graphs and descriptions in Turtle-star" do

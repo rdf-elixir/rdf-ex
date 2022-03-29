@@ -30,12 +30,14 @@ defimpl Inspect, for: RDF.Description do
             description
           end
 
+        header = "#RDF.Description<subject: #{inspect(description.subject)}"
+
         body =
           description
           |> RDF.Turtle.write_string!(only: :triples, indent: 2)
           |> String.trim_trailing()
 
-        "#RDF.Description<\n#{body}#{if limit, do: "..\n..."}\n>"
+        "#{header}\n#{body}#{if limit, do: "..\n..."}\n>"
       rescue
         caught_exception ->
           message =

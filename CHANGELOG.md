@@ -11,6 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
 
+### Changed
+
+- The inspect string of `RDF.Description` now includes the subject separately, so 
+  it can be seen also when the description is empty.
+
 
 [Compare v0.11.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...HEAD)
 
