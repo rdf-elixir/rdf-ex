@@ -35,7 +35,8 @@ defmodule RDF.InspectTest do
     end
 
     test "it includes the subject when empty" do
-      assert inspect(Description.new(EX.Foo)) =~ IRI.to_string(EX.Foo)
+      assert inspect(Description.new(EX.Foo)) =~
+               "#RDF.Description<subject: #{inspect(RDF.iri(EX.Foo))}>"
     end
 
     test "it encodes the RDF-star graphs and descriptions in Turtle-star" do
