@@ -16,6 +16,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - The inspect string of `RDF.Description` now includes the subject separately, so 
   it can be seen also when the description is empty.
 
+### Fixed
+
+- When triples with an empty object list where added to an `RDF.Graph`, it 
+  included empty descriptions, which lead to inconsistent behaviour 
+  (for example it would be counted in `RDF.Graph.subject_count/1`).
+
 
 [Compare v0.11.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...HEAD)
 

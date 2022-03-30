@@ -18,8 +18,6 @@ defmodule RDF.Graph do
   alias RDF.{Description, IRI, PrefixMap, PropertyMap}
   alias RDF.Star.Statement
 
-  import RDF.Utils
-
   @type graph_description :: %{Statement.subject() => Description.t()}
 
   @type t :: %__MODULE__{
@@ -192,20 +190,21 @@ defmodule RDF.Graph do
   @spec add(t, input, keyword) :: t
   def add(graph, input, opts \\ [])
 
-  def add(%__MODULE__{} = graph, {subject, predications}, opts),
-    do: do_add(graph, RDF.coerce_subject(subject), predications, opts)
-
-  def add(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
-    do: do_add(graph, RDF.coerce_subject(subject), triple, opts)
-
-  def add(graph, {subject, predicate, object, _}, opts),
-    do: add(graph, {subject, predicate, object}, opts)
-
-  def add(%__MODULE__{} = graph, %Description{} = description, opts) do
-    if Description.count(description) > 0 do
-      do_add(graph, description.subject, description, opts)
-    else
+  def add(%__MODULE__{descriptions: descriptions} = graph, %Description{} = description, opts) do
+    if Enum.empty?(description) do
       graph
+    else
+      %__MODULE__{
+        graph
+        | descriptions:
+            Map.update(
+              descriptions,
+              description.subject,
+              description,
+              &Description.add(&1, description, opts)
+            )
+      }
+      |> RDF.Star.Graph.handle_addition_annotations(description, opts)
     end
   end
 
@@ -234,24 +233,17 @@ defmodule RDF.Graph do
     |> Enum.reduce(graph, &add(&2, &1, opts))
   end
 
+  def add(%__MODULE__{} = graph, {subject, predications}, opts),
+    do: add(graph, Description.new(subject, Keyword.put(opts, :init, predications)), opts)
+
+  def add(%__MODULE__{} = graph, {subject, _, _} = triple, opts),
+    do: add(graph, Description.new(subject, Keyword.put(opts, :init, triple)), opts)
+
+  def add(graph, {subject, predicate, object, _}, opts),
+    do: add(graph, {subject, predicate, object}, opts)
+
   def add(graph, input, opts) when is_list(input) or (is_map(input) and not is_struct(input)) do
     Enum.reduce(input, graph, &add(&2, &1, opts))
-  end
-
-  defp do_add(%__MODULE__{descriptions: descriptions} = graph, subject, statements, opts) do
-    %__MODULE__{
-      graph
-      | descriptions:
-          lazy_map_update(
-            descriptions,
-            subject,
-            # when new: create and initialize description with statements
-            fn -> Description.new(subject, Keyword.put(opts, :init, statements)) end,
-            # when update: merge statements description
-            fn description -> Description.add(description, statements, opts) end
-          )
-    }
-    |> RDF.Star.Graph.handle_addition_annotations({subject, statements}, opts)
   end
 
   @doc """

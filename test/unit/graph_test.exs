@@ -74,6 +74,10 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object2})
     end
 
+    test "initial triples with an empty object list" do
+      assert Graph.new({EX.Subject, EX.predicate(), []}) == Graph.new()
+    end
+
     test "creating a named graph with an initial description" do
       g =
         Description.new(EX.Subject, init: {EX.predicate(), EX.Object})
@@ -334,6 +338,12 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.S1, EX.P1, EX.O3})
       assert graph_includes_statement?(g, {EX.S1, EX.P2, EX.O4})
       assert graph_includes_statement?(g, {EX.S2, EX.P2, EX.O2})
+    end
+
+    test "empty object list" do
+      assert Graph.add(graph(), {EX.S, EX.P, []}) == graph()
+      graph = Graph.new({EX.S, EX.P, EX.O})
+      assert Graph.add(graph, {EX.S, EX.P, []}) == graph
     end
 
     test "a mixed list" do

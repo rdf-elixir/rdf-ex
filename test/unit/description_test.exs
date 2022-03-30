@@ -124,6 +124,11 @@ defmodule RDF.DescriptionTest do
       assert description_includes_predication(desc, {EX.p(), iri(EX.O2)})
     end
 
+    test "with a predicate-object tuple and an empty list of objects" do
+      assert Description.add(description(), {EX.p(), []}) ==
+               description()
+    end
+
     test "with a list of predicate-object tuples" do
       desc =
         Description.add(description(), [
