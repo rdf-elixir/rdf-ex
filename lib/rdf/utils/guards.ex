@@ -1,4 +1,8 @@
 defmodule RDF.Utils.Guards do
+  @moduledoc !"""
+             A collection of guards intended for internal use.
+             """
+
   defguard is_ordinary_atom(term)
            when is_atom(term) and term not in [nil, true, false]
 
