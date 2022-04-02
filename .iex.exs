@@ -1,6 +1,8 @@
 import RDF.Sigils
 import RDF.Guards
 
+require RDF.Graph
+
 alias RDF.NS
 alias RDF.NS.{RDFS, OWL, SKOS}
 

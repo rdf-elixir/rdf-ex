@@ -16,6 +16,7 @@ defmodule RDF.Graph do
   @behaviour Access
 
   alias RDF.{Description, IRI, PrefixMap, PropertyMap}
+  alias RDF.Graph.Builder
   alias RDF.Star.Statement
 
   @type graph_description :: %{Statement.subject() => Description.t()}
@@ -135,6 +136,10 @@ defmodule RDF.Graph do
   defp init(graph, nil, _), do: graph
   defp init(graph, fun, opts) when is_function(fun), do: add(graph, fun.(), opts)
   defp init(graph, data, opts), do: add(graph, data, opts)
+
+  defmacro build(opts \\ [], do: block) do
+    Builder.build(block, opts)
+  end
 
   @doc """
   Removes all triples from `graph`.

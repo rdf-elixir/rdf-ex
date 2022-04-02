@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- a `RDF.Graph` builder DSL available under the `RDF.Graph.build/2` function
 - `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
 - new guards in `RDF.Guards`: `is_statement/1` and `is_quad/1`
 
