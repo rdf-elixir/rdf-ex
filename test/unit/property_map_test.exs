@@ -35,6 +35,18 @@ defmodule RDF.PropertyMapTest do
            ) == @example_property_map
   end
 
+  test "terms/1" do
+    assert PropertyMap.terms(@example_property_map) == [:Baz, :bar, :foo]
+  end
+
+  test "iris/1" do
+    assert PropertyMap.iris(@example_property_map) == [
+             ~I<http://example.com/Baz>,
+             ~I<http://example.com/test/bar>,
+             ~I<http://example.com/test/foo>
+           ]
+  end
+
   describe "iri/2" do
     test "when the given term exists" do
       assert PropertyMap.iri(@example_property_map, "foo") ==

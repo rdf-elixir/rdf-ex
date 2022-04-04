@@ -58,6 +58,18 @@ defmodule RDF.PropertyMap do
   def from_opts(opts), do: if(property_map = Keyword.get(opts, :context), do: new(property_map))
 
   @doc """
+  Returns the list of all terms in the given `property_map`.
+  """
+  @spec terms(t) :: [atom]
+  def terms(%__MODULE__{iris: iris}), do: Map.keys(iris)
+
+  @doc """
+  Returns the list of all IRIs in the given `property_map`.
+  """
+  @spec iris(t) :: [IRI.t()]
+  def iris(%__MODULE__{terms: terms}), do: Map.keys(terms)
+
+  @doc """
   Returns the IRI for the given `term` in `property_map`.
 
   Returns `nil`, when the given `term` is not present in `property_map`.
