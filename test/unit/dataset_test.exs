@@ -1616,6 +1616,11 @@ defmodule RDF.DatasetTest do
     assert Enum.count(dataset.graphs) == 1
   end
 
+  test "statement_count/1" do
+    assert Dataset.statement_count(dataset()) == 0
+    assert Dataset.statement_count(Dataset.new(statement())) == 1
+  end
+
   describe "include?/3" do
     test "valid cases" do
       dataset =

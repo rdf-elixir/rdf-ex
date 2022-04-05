@@ -1283,6 +1283,11 @@ defmodule RDF.GraphTest do
     assert Enum.count(graph.descriptions) == 1
   end
 
+  test "statement_count/1" do
+    assert Graph.statement_count(graph()) == 0
+    assert Graph.statement_count(Graph.new(statement())) == 1
+  end
+
   describe "include?/3" do
     test "valid cases" do
       graph =

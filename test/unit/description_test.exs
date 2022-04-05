@@ -787,6 +787,11 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
+  test "statement_count/1" do
+    assert Description.statement_count(Description.new(EX.S)) == 0
+    assert Description.statement_count(description({EX.p(), EX.O})) == 1
+  end
+
   describe "include?/3" do
     test "valid cases" do
       desc =
