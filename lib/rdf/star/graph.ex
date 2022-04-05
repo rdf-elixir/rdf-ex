@@ -73,7 +73,7 @@ defmodule RDF.Star.Graph do
               description_without_quoted_triples =
                 Description.without_quoted_triple_objects(description)
 
-              if Enum.empty?(description_without_quoted_triples) do
+              if Description.empty?(description_without_quoted_triples) do
                 Map.delete(descriptions, subject)
               else
                 Map.put(descriptions, subject, description_without_quoted_triples)

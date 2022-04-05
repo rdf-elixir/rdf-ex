@@ -253,7 +253,7 @@ defmodule RDF.Turtle.Encoder do
   defp blank_node_property_list(description, state, nesting) do
     indented = nesting + @indentation
 
-    if Enum.empty?(description) do
+    if Description.empty?(description) do
       "[]"
     else
       "[" <>
@@ -348,7 +348,7 @@ defmodule RDF.Turtle.Encoder do
   defp list_subject_description(description) do
     description = Description.delete_predicates(description, [RDF.first(), RDF.rest()])
 
-    if Enum.count(description.predications) == 0 do
+    if Description.empty?(description) do
       # since the Turtle grammar doesn't allow bare lists, we add a statement
       description |> RDF.type(RDF.List)
     else

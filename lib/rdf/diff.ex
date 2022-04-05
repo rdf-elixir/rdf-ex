@@ -33,7 +33,7 @@ defmodule RDF.Diff do
   defp coerce_graph(nil), do: Graph.new()
 
   defp coerce_graph(%Description{} = description),
-    do: if(Enum.empty?(description), do: Graph.new(), else: Graph.new(description))
+    do: if(Description.empty?(description), do: Graph.new(), else: Graph.new(description))
 
   defp coerce_graph(data), do: Graph.new(init: data)
 

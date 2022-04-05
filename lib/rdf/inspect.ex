@@ -32,7 +32,7 @@ defimpl Inspect, for: RDF.Description do
 
         header = "#RDF.Description<subject: #{inspect(description.subject)}"
 
-        if Enum.empty?(description) do
+        if RDF.Description.empty?(description) do
           header <> ">"
         else
           body =

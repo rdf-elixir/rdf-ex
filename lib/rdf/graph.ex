@@ -196,7 +196,7 @@ defmodule RDF.Graph do
   def add(graph, input, opts \\ [])
 
   def add(%__MODULE__{descriptions: descriptions} = graph, %Description{} = description, opts) do
-    if Enum.empty?(description) do
+    if Description.empty?(description) do
       graph
     else
       %__MODULE__{
@@ -430,7 +430,7 @@ defmodule RDF.Graph do
       %__MODULE__{
         graph
         | descriptions:
-            if Enum.empty?(new_description) do
+            if Description.empty?(new_description) do
               Map.delete(descriptions, subject)
             else
               Map.put(descriptions, subject, new_description)
@@ -739,7 +739,7 @@ defmodule RDF.Graph do
     {triple, popped_description} = Description.pop(description)
 
     popped =
-      if Enum.empty?(popped_description),
+      if Description.empty?(popped_description),
         do: descriptions |> Map.delete(subject),
         else: descriptions |> Map.put(subject, popped_description)
 

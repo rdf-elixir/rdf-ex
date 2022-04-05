@@ -319,7 +319,7 @@ defmodule RDF.Dataset do
       %__MODULE__{
         dataset
         | graphs:
-            if Enum.empty?(new_graph) do
+            if Graph.empty?(new_graph) do
               Map.delete(dataset.graphs, graph_name)
             else
               Map.put(dataset.graphs, graph_name, new_graph)
@@ -475,7 +475,7 @@ defmodule RDF.Dataset do
     {{s, p, o}, popped_graph} = Graph.pop(graph)
 
     popped =
-      if Enum.empty?(popped_graph),
+      if Graph.empty?(popped_graph),
         do: graphs |> Map.delete(graph_name),
         else: graphs |> Map.put(graph_name, popped_graph)
 
