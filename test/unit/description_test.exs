@@ -792,6 +792,11 @@ defmodule RDF.DescriptionTest do
     assert Description.statement_count(description({EX.p(), EX.O})) == 1
   end
 
+  test "empty?/1" do
+    assert Description.empty?(Description.new(EX.S)) == true
+    assert Description.empty?(description({EX.p(), EX.O})) == false
+  end
+
   describe "include?/3" do
     test "valid cases" do
       desc =

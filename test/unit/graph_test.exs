@@ -1288,6 +1288,11 @@ defmodule RDF.GraphTest do
     assert Graph.statement_count(Graph.new(statement())) == 1
   end
 
+  test "empty?/1" do
+    assert Graph.empty?(graph()) == true
+    assert Graph.empty?(Graph.new(statement())) == false
+  end
+
   describe "include?/3" do
     test "valid cases" do
       graph =

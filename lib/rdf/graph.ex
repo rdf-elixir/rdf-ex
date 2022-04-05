@@ -929,6 +929,16 @@ defmodule RDF.Graph do
   defdelegate statements(graph, opts \\ []), to: __MODULE__, as: :triples
 
   @doc """
+  Returns if the given `graph` is empty.
+
+  Note: You should always prefer this over the use of `Enum.empty?/1` as it is significantly faster.
+  """
+  @spec empty?(t) :: boolean
+  def empty?(%__MODULE__{} = graph) do
+    Enum.empty?(graph.descriptions)
+  end
+
+  @doc """
   Checks if the given `input` statements exist within `graph`.
   """
   @spec include?(t, input, keyword) :: boolean

@@ -638,6 +638,16 @@ defmodule RDF.Description do
   defdelegate count(description), to: __MODULE__, as: :statement_count
 
   @doc """
+  Returns if the given `description` is empty.
+
+  Note: You should always prefer this over the use of `Enum.empty?/1` as it is significantly faster.
+  """
+  @spec empty?(t) :: boolean
+  def empty?(%__MODULE__{} = description) do
+    Enum.empty?(description.predications)
+  end
+
+  @doc """
   Checks if the given `input` statements exist within `description`.
   """
   @spec include?(t, input, keyword) :: boolean

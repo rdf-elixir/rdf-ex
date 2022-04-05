@@ -1621,6 +1621,12 @@ defmodule RDF.DatasetTest do
     assert Dataset.statement_count(Dataset.new(statement())) == 1
   end
 
+  test "empty?/1" do
+    assert Dataset.empty?(dataset()) == true
+    assert Dataset.empty?(Dataset.new(statement())) == false
+    assert Dataset.empty?(Dataset.new(graph())) == true
+  end
+
   describe "include?/3" do
     test "valid cases" do
       dataset =

@@ -657,6 +657,16 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  Returns if the given `dataset` is empty.
+
+  Note: You should always prefer this over the use of `Enum.empty?/1` as it is significantly faster.
+  """
+  @spec empty?(t) :: boolean
+  def empty?(%__MODULE__{} = dataset) do
+    Enum.empty?(dataset.graphs) or dataset |> graphs() |> Enum.all?(&Graph.empty?/1)
+  end
+
+  @doc """
   Checks if the given `input` statements exist within `dataset`.
 
   The `graph` option allows to set a different destination graph in which the
