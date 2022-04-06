@@ -90,6 +90,45 @@ defmodule RDF.Graph.BuilderTest do
              ])
   end
 
+  test "triples given as maps" do
+    graph =
+      RDF.Graph.build do
+        %{
+          EX.S => %{
+            EX.p1() => EX.O1,
+            EX.p2() => [EX.O2, EX.O3]
+          }
+        }
+      end
+
+    assert graph ==
+             RDF.graph([
+               EX.S
+               |> EX.p1(EX.O1)
+               |> EX.p2(EX.O2, EX.O3)
+             ])
+  end
+
+  test "triples given as nested list" do
+    graph =
+      RDF.Graph.build do
+        [
+          {EX.S,
+           [
+             {EX.p1(), EX.O1},
+             {EX.p2(), [EX.O2, EX.O3]}
+           ]}
+        ]
+      end
+
+    assert graph ==
+             RDF.graph([
+               EX.S
+               |> EX.p1(EX.O1)
+               |> EX.p2(EX.O2, EX.O3)
+             ])
+  end
+
   test "nested statements" do
     graph =
       RDF.Graph.build do
@@ -148,13 +187,6 @@ defmodule RDF.Graph.BuilderTest do
       RDF.Graph.build do
         EX.S |> EX.p(EX.O)
         "foo"
-      end
-    end
-
-    assert_raise Builder.Error, "invalid RDF data: {:ok, \"foo\"}", fn ->
-      RDF.Graph.build do
-        EX.S |> EX.p(EX.O)
-        {:ok, "foo"}
       end
     end
   end
@@ -324,7 +356,7 @@ defmodule RDF.Graph.BuilderTest do
         (fn ->
            RDF.Graph.build do
              # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix custom: TestNS.Custom
+             # @prefix cust: TestNS.Custom
              @prefix cust: RDF.Graph.BuilderTest.TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)
@@ -343,7 +375,7 @@ defmodule RDF.Graph.BuilderTest do
         (fn ->
            RDF.Graph.build do
              # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix custom: TestNS.Custom
+             # @prefix TestNS.Custom
              @prefix RDF.Graph.BuilderTest.TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)
@@ -383,7 +415,7 @@ defmodule RDF.Graph.BuilderTest do
         (fn ->
            RDF.Graph.build do
              # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix custom: TestNS.Custom
+             # @base TestNS.Custom
              @base RDF.Graph.BuilderTest.TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)

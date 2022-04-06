@@ -1,8 +1,6 @@
 defmodule RDF.Graph.Builder do
   alias RDF.{Description, Graph, Dataset, PrefixMap}
 
-  import RDF.Guards
-
   defmodule Error do
     defexception [:message]
   end
@@ -121,7 +119,8 @@ defmodule RDF.Graph.Builder do
   defp rdf?(%Description{}), do: true
   defp rdf?(%Graph{}), do: true
   defp rdf?(%Dataset{}), do: true
-  defp rdf?(statement) when is_statement(statement), do: true
+  defp rdf?(statements) when is_map(statements), do: true
+  defp rdf?(statements) when is_tuple(statements), do: true
   defp rdf?(list) when is_list(list), do: true
 
   defp rdf?(invalid) do
