@@ -12,7 +12,7 @@ defmodule RDF.Graph.BuilderTest do
   defmodule TestNS do
     use RDF.Vocabulary.Namespace
     defvocab EX, base_iri: "http://example.com/", terms: [], strict: false
-    defvocab Custom, base_iri: "http://custom.com/foo#", terms: [], strict: false
+    defvocab Custom, base_iri: "http://custom.com/foo/", terms: [], strict: false
     defvocab ImportTest, base_iri: "http://import.com/bar#", terms: [:foo, :Bar]
   end
 
@@ -410,6 +410,8 @@ defmodule RDF.Graph.BuilderTest do
 
   describe "@base" do
     test "with vocabulary namespace" do
+      import RDF.Sigils
+
       # we're wrapping this in a function to isolate the alias
       graph =
         (fn ->
@@ -418,12 +420,17 @@ defmodule RDF.Graph.BuilderTest do
              # @base TestNS.Custom
              @base RDF.Graph.BuilderTest.TestNS.Custom
 
-             Custom.S |> Custom.p(Custom.O)
+             ~I<S> |> Custom.p(~I<O>)
+             {~I<foo>, ~I<bar>, ~I<baz>}
            end
          end).()
 
       assert graph ==
-               RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O),
+               RDF.graph(
+                 [
+                   TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O),
+                   TestNS.Custom.foo() |> TestNS.Custom.bar(TestNS.Custom.baz())
+                 ],
                  base_iri: TestNS.Custom
                )
     end
@@ -433,10 +440,19 @@ defmodule RDF.Graph.BuilderTest do
         RDF.Graph.build do
           @base ~I<http://example.com/base>
 
-          EX.S |> EX.p(EX.O)
+          ~I<#S> |> EX.p(~I<#O>)
+          {~I<#foo>, ~I<#bar>, ~I<#baz>}
         end
 
-      assert graph == RDF.graph(EX.S |> EX.p(EX.O), base_iri: "http://example.com/base")
+      assert graph ==
+               RDF.graph(
+                 [
+                   ~I<http://example.com/base#S> |> EX.p(~I<http://example.com/base#O>),
+                   {~I<http://example.com/base#foo>, ~I<http://example.com/base#bar>,
+                    ~I<http://example.com/base#baz>}
+                 ],
+                 base_iri: "http://example.com/base"
+               )
     end
 
     test "with URI as string" do
@@ -444,22 +460,19 @@ defmodule RDF.Graph.BuilderTest do
         RDF.Graph.build do
           @base "http://example.com/base"
 
-          EX.S |> EX.p(EX.O)
+          ~I<#S> |> EX.p(~I<#O>)
+          {~I<#foo>, ~I<#bar>, ~I<#baz>}
         end
 
-      assert graph == RDF.graph(EX.S |> EX.p(EX.O), base_iri: "http://example.com/base")
-    end
-
-    test "with URI from variable" do
-      graph =
-        RDF.Graph.build do
-          foo = "http://example.com/base"
-          @base foo
-
-          EX.S |> EX.p(EX.O)
-        end
-
-      assert graph == RDF.graph(EX.S |> EX.p(EX.O), base_iri: "http://example.com/base")
+      assert graph ==
+               RDF.graph(
+                 [
+                   ~I<http://example.com/base#S> |> EX.p(~I<http://example.com/base#O>),
+                   {~I<http://example.com/base#foo>, ~I<http://example.com/base#bar>,
+                    ~I<http://example.com/base#baz>}
+                 ],
+                 base_iri: "http://example.com/base"
+               )
     end
 
     test "conflict with base_iri opt" do
@@ -467,10 +480,13 @@ defmodule RDF.Graph.BuilderTest do
         RDF.Graph.build base_iri: "http://example.com/old" do
           @base "http://example.com/base"
 
-          EX.S |> EX.p(EX.O)
+          ~I<#S> |> EX.p(~I<#O>)
         end
 
-      assert graph == RDF.graph(EX.S |> EX.p(EX.O), base_iri: "http://example.com/base")
+      assert graph ==
+               RDF.graph(~I<http://example.com/base#S> |> EX.p(~I<http://example.com/base#O>),
+                 base_iri: "http://example.com/base"
+               )
     end
   end
 

@@ -1,5 +1,5 @@
 defmodule RDF.Graph.Builder do
-  alias RDF.{Description, Graph, Dataset, PrefixMap}
+  alias RDF.{Description, Graph, Dataset, PrefixMap, IRI}
 
   defmodule Error do
     defexception [:message]
@@ -16,8 +16,11 @@ defmodule RDF.Graph.Builder do
 
   def build({:__block__, _, block}, opts) do
     {declarations, data} = Enum.split_with(block, &declaration?/1)
-    {prefixes, declarations} = extract_prefixes(declarations)
     {base, declarations} = extract_base(declarations)
+    base_string = base_string(base)
+    data = resolve_relative_iris(data, base_string)
+    declarations = resolve_relative_iris(declarations, base_string)
+    {prefixes, declarations} = extract_prefixes(declarations)
 
     quote do
       alias RDF.XSD
@@ -28,7 +31,12 @@ defmodule RDF.Graph.Builder do
 
       unquote(declarations)
 
-      RDF.Graph.Builder.do_build(unquote(data), unquote(opts), unquote(prefixes), unquote(base))
+      RDF.Graph.Builder.do_build(
+        unquote(data),
+        unquote(opts),
+        unquote(prefixes),
+        unquote(base_string)
+      )
     end
   end
 
@@ -57,6 +65,31 @@ defmodule RDF.Graph.Builder do
     Keyword.update(opts, :prefixes, RDF.default_prefixes(prefixes), fn opt_prefixes ->
       PrefixMap.new(prefixes)
       |> PrefixMap.merge!(opt_prefixes, :ignore)
+    end)
+  end
+
+  defp base_string(nil), do: nil
+  defp base_string(base) when is_binary(base), do: base
+  defp base_string(base) when is_atom(base), do: apply(base, :__base_iri__, [])
+  defp base_string({:sigil_I, _, [{_, _, [base]}, _]}), do: base
+
+  defp base_string(_) do
+    raise Error,
+      message: "invalid @base expression; only literal values are allowed as @base value"
+  end
+
+  defp resolve_relative_iris(ast, base) do
+    Macro.prewalk(ast, fn
+      {:sigil_I, meta_outer, [{:<<>>, meta_inner, [iri]}, list]} = sigil ->
+        if IRI.absolute?(iri) do
+          sigil
+        else
+          absolute = iri |> IRI.absolute(base) |> IRI.to_string()
+          {:sigil_I, meta_outer, [{:<<>>, meta_inner, [absolute]}, list]}
+        end
+
+      other ->
+        other
     end)
   end
 
