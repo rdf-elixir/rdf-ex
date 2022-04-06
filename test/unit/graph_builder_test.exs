@@ -490,6 +490,19 @@ defmodule RDF.Graph.BuilderTest do
     end
   end
 
+  test "exclude" do
+    graph =
+      RDF.Graph.build do
+        exclude "this is not a triple"
+
+        EX.S |> EX.p(EX.O)
+
+        exclude "this is not a triple"
+      end
+
+    assert graph == RDF.graph(EX.S |> EX.p(EX.O))
+  end
+
   test "opts" do
     initial = {EX.S, EX.p(), "init"}
 

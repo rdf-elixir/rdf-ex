@@ -3,7 +3,8 @@ locals_without_parens = [
   def_facet_constraint: 2,
   def_applicable_facet: 1,
   bgp: 1,
-  build: 2
+  build: 2,
+  exclude: 1
 ]
 
 [

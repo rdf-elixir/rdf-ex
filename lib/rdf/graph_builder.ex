@@ -12,6 +12,8 @@ defmodule RDF.Graph.Builder do
     defdelegate a(s, o1, o2, o3), to: RDF.NS.RDF, as: :type
     defdelegate a(s, o1, o2, o3, o4), to: RDF.NS.RDF, as: :type
     defdelegate a(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF, as: :type
+
+    def exclude(_), do: nil
   end
 
   def build({:__block__, _, block}, opts) do
