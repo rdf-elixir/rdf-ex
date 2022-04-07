@@ -370,12 +370,14 @@ defmodule RDF.Description do
       RDF.iri(EX.O)
       iex> RDF.Description.new(EX.S) |> RDF.Description.first(EX.foo)
       nil
+      iex> RDF.Description.new(EX.S) |> RDF.Description.first(EX.foo, :bar)
+      :bar
   """
-  @spec first(t, Statement.coercible_predicate()) :: Statement.object() | nil
-  def first(%__MODULE__{} = description, predicate) do
+  @spec first(t, Statement.coercible_predicate(), any) :: Statement.object() | nil
+  def first(%__MODULE__{} = description, predicate, default \\ nil) do
     description
     |> get(predicate, [])
-    |> List.first()
+    |> List.first() || default
   end
 
   @doc """

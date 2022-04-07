@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
 - `RDF.Description.empty?/1`, `RDF.Graph.empty?/1` and `RDF.Dataset.empty?/1` which
    are significantly faster than `Enum.empty?/1` 
+- `RDF.Description.first/2` now has a `RDF.Description.first/3` variant which
+  supports a default value
 - new guards in `RDF.Guards`: `is_statement/1` and `is_quad/1`
 - `RDF.PropertyMap.terms/1` and `RDF.PropertyMap.iris/1`
 

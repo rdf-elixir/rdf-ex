@@ -787,6 +787,14 @@ defmodule RDF.DescriptionTest do
     assert Enum.count(desc.predications) == 1
   end
 
+  test "first/3" do
+    assert EX.S |> EX.p(EX.O) |> Description.first(EX.p()) == RDF.iri(EX.O)
+    assert EX.S |> EX.p(EX.O1, EX.O2) |> Description.first(EX.p()) == RDF.iri(EX.O1)
+    assert EX.S |> EX.p(EX.O1, EX.O2) |> Description.first(EX.missing()) == nil
+    assert EX.S |> EX.p(EX.O1, EX.O2) |> Description.first(EX.missing(), :default) == :default
+    assert EX.S |> EX.p(false) |> Description.first(EX.p(), :default) == XSD.false()
+  end
+
   test "statement_count/1" do
     assert Description.statement_count(Description.new(EX.S)) == 0
     assert Description.statement_count(description({EX.p(), EX.O})) == 1
