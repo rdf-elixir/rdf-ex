@@ -191,19 +191,61 @@ defmodule RDF.Graph.BuilderTest do
     end
   end
 
-  test "variable assignments" do
-    graph =
-      RDF.Graph.build do
-        EX.S1 |> EX.p1(EX.O1)
-        literal = "foo"
-        EX.S2 |> EX.p2(literal)
-      end
+  describe "variable assignments" do
+    test "assignments on the outer level" do
+      graph =
+        RDF.Graph.build do
+          EX.S1 |> EX.p1(EX.O1)
+          literal = "foo"
+          EX.S2 |> EX.p2(literal)
+        end
 
-    assert graph ==
-             RDF.graph([
-               EX.S1 |> EX.p1(EX.O1),
-               EX.S2 |> EX.p2("foo")
-             ])
+      assert graph ==
+               RDF.graph([
+                 EX.S1 |> EX.p1(EX.O1),
+                 EX.S2 |> EX.p2("foo")
+               ])
+    end
+
+    test "including RDF data to assigned variables" do
+      graph =
+        RDF.Graph.build do
+          triple = EX.S |> EX.p(EX.O)
+          triple
+        end
+
+      assert graph == RDF.graph([EX.S |> EX.p(EX.O)])
+    end
+
+    test "assignments in blocks" do
+      graph =
+        RDF.Graph.build do
+          literal = "foo"
+
+          if false do
+            literal = "bar"
+            EX.S2 |> EX.p2(literal)
+          end
+
+          EX.S |> EX.p(literal)
+        end
+
+      assert graph == RDF.graph([EX.S |> EX.p("foo")])
+
+      graph =
+        RDF.Graph.build do
+          literal = "foo"
+
+          if true do
+            literal = "bar"
+            EX.S2 |> EX.p2(literal)
+          end
+
+          EX.S |> EX.p(literal)
+        end
+
+      assert graph == RDF.graph([EX.S |> EX.p("foo"), EX.S2 |> EX.p2("bar")])
+    end
   end
 
   test "function applications" do
