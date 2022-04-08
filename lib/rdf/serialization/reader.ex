@@ -10,7 +10,7 @@ defmodule RDF.Serialization.Reader do
   alias RDF.{Serialization, Dataset, Graph}
 
   @default_file_mode ~w[read utf8]a
-  @io_read_mode if Version.match?(System.version(), "~> 1.13.0"), do: :eof, else: :all
+  @io_read_mode if Version.match?(System.version(), ">= 1.13.0"), do: :eof, else: :all
 
   @spec read_string(module, String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_string(decoder, content, opts \\ []) do
