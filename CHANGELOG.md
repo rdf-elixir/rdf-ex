@@ -42,7 +42,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## 0.10.0 - 2022-03-22
+## 0.11.0 - 2022-03-22
+
+The main feature of this version are the `RDF.Resource.Generator`s.
+For an introduction see [this guide](https://rdf-elixir.dev/rdf-ex/resource-generators.html).
 
 ### Added
 
