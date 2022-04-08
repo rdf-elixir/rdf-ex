@@ -620,22 +620,25 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  Gets the description of the given subject.
+  Gets the description of the given `subject` in the given `graph`.
 
-  When the subject can not be found the optionally given default value or `nil` is returned.
+  When the subject can not be found the optionally given default value or
+  `nil` is returned.
 
   ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
       ...> |> RDF.Graph.get(EX.S1)
       RDF.Description.new(EX.S1, init: {EX.P1, EX.O1})
-      iex> RDF.Graph.new() |> RDF.Graph.get(EX.Foo)
+
+      iex> RDF.Graph.get(RDF.Graph.new(), EX.Foo)
       nil
-      iex> RDF.Graph.new() |> RDF.Graph.get(EX.Foo, :bar)
+
+      iex> RDF.Graph.get(RDF.Graph.new(), EX.Foo, :bar)
       :bar
 
   """
-  @spec get(t, Statement.coercible_subject(), Description.t() | nil) :: Description.t() | nil
+  @spec get(t, Statement.coercible_subject(), any) :: Description.t() | any
   def get(%__MODULE__{} = graph, subject, default \\ nil) do
     case fetch(graph, subject) do
       {:ok, value} -> value
@@ -643,7 +646,29 @@ defmodule RDF.Graph do
     end
   end
 
-  defdelegate description(graph, subject), to: __MODULE__, as: :get
+  @doc """
+  Returns the description of the given `subject` in the given `graph`.
+
+  As opposed to `get/3` this function returns an empty `RDF.Description` when
+  the subject does not exist in the given `graph`.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
+      ...> |> RDF.Graph.description(EX.S1)
+      RDF.Description.new(EX.S1, init: {EX.P1, EX.O1})
+
+      iex> RDF.Graph.description(RDF.Graph.new(), EX.Foo)
+      RDF.Description.new(EX.Foo)
+
+  """
+  @spec description(t, Statement.coercible_subject()) :: Description.t()
+  def description(%__MODULE__{} = graph, subject) do
+    case fetch(graph, subject) do
+      {:ok, value} -> value
+      :error -> Description.new(subject)
+    end
+  end
 
   @doc """
   All `RDF.Description`s within a `RDF.Graph`.

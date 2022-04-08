@@ -78,7 +78,7 @@ defprotocol RDF.Data do
   def predicates(data)
 
   @doc """
-  Returns the  set of all resources used in the objects within the statements of a RDF data structure.
+  Returns the set of all resources used in the objects within the statements of a RDF data structure.
   """
   def objects(data)
 
@@ -189,10 +189,10 @@ defimpl RDF.Data, for: RDF.Description do
     do: Description.describes?(description, subject)
 
   def description(%Description{subject: subject} = description, s) do
-    with ^subject <- Statement.coerce_subject(s) do
+    if match?(^subject, Statement.coerce_subject(s)) do
       description
     else
-      _ -> Description.new(s)
+      Description.new(s)
     end
   end
 
@@ -286,11 +286,9 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def include?(graph, input, opts \\ []), do: Graph.include?(graph, input, opts)
 
-  def describes?(graph, subject),
-    do: Graph.describes?(graph, subject)
+  def describes?(graph, subject), do: Graph.describes?(graph, subject)
 
-  def description(graph, subject),
-    do: Graph.description(graph, subject) || Description.new(subject)
+  def description(graph, subject), do: Graph.description(graph, subject)
 
   def descriptions(graph), do: Graph.descriptions(graph)
 

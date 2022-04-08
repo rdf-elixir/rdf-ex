@@ -209,7 +209,7 @@ defmodule RDF.List do
 
     defp do_reduce(%RDF.List{head: head, graph: graph}, {:cont, acc}, fun) do
       with description when not is_nil(description) <-
-             Graph.description(graph, head),
+             Graph.get(graph, head),
            [_] <- Description.get(description, RDF.first()),
            [rest] <- Description.get(description, RDF.rest()),
            acc = fun.(description, acc) do

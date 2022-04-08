@@ -23,6 +23,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- `RDF.Graph.description/2` is no longer an alias for `RDF.Graph.get/2`, but
+  has a different behaviour now: it will return an empty description when no
+  description for the requested subject exists in the graph
 - The inspect string of `RDF.Description` now includes the subject separately, so 
   it can be seen also when the description is empty.
 
