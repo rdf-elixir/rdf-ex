@@ -368,17 +368,33 @@ defmodule RDF.Graph.BuilderTest do
   end
 
   test "require" do
-    {graph, log} =
-      with_log(fn ->
-        RDF.Graph.build do
-          require Logger
-          Logger.info("logged successfully")
-          EX.S |> EX.p(EX.O)
-        end
-      end)
+    if Version.match?(System.version(), ">= 1.13.0") do
+      {graph, log} =
+        with_log(fn ->
+          RDF.Graph.build do
+            require Logger
+            Logger.info("logged successfully")
+            EX.S |> EX.p(EX.O)
+          end
+        end)
 
-    assert graph == RDF.graph(EX.S |> EX.p(EX.O))
-    assert log =~ "logged successfully"
+      assert graph == RDF.graph(EX.S |> EX.p(EX.O))
+      assert log =~ "logged successfully"
+    else
+      log =
+        capture_log(fn ->
+          graph =
+            RDF.Graph.build do
+              require Logger
+              Logger.info("logged successfully")
+              EX.S |> EX.p(EX.O)
+            end
+
+          assert graph == RDF.graph(EX.S |> EX.p(EX.O))
+        end)
+
+      assert log =~ "logged successfully"
+    end
   end
 
   test "use" do
