@@ -416,13 +416,36 @@ defmodule RDF.Turtle.EncoderTest do
                  ] .
                """
     end
+
+    test "serializing a pathological graph with an empty description" do
+      description = RDF.description(EX.S)
+      graph = %Graph{Graph.new() | descriptions: %{description.subject => description}}
+
+      assert_raise Graph.EmptyDescriptionError, fn ->
+        Turtle.Encoder.encode!(graph)
+      end
+    end
   end
 
-  test "serializing a description" do
-    description = EX.S |> EX.p(EX.O)
+  describe "serializing a description" do
+    test "a non-empty description" do
+      description = EX.S |> EX.p(EX.O)
 
-    assert Turtle.Encoder.encode!(description) ==
-             description |> Graph.new() |> Turtle.Encoder.encode!()
+      assert Turtle.Encoder.encode!(description) ==
+               description |> Graph.new() |> Turtle.Encoder.encode!()
+    end
+
+    test "an empty description" do
+      description = RDF.description(EX.S)
+
+      assert Turtle.Encoder.encode!(description) |> String.trim() ==
+               """
+               @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+               @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+               """
+               |> String.trim()
+    end
   end
 
   describe "prefixed_name/2" do

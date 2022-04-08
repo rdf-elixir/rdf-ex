@@ -31,6 +31,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - When triples with an empty object list where added to an `RDF.Graph`, it 
   included empty descriptions, which lead to inconsistent behaviour 
   (for example it would be counted in `RDF.Graph.subject_count/1`).
+- When an `RDF.Graph` contained empty descriptions these were rendered by 
+  the `RDF.Turtle.Encoder` to a subject without predicates and objects, i.e.
+  invalid Turtle. This actually shouldn't happen and is either caused by 
+  misuse or a bug. So instead, a `RDF.Graph.EmptyDescriptionError` with a 
+  detailed message will be raised now when this case is detected.
 
 
 [Compare v0.11.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...HEAD)

@@ -232,11 +232,15 @@ defmodule RDF.Turtle.Encoder do
   defp description_order(%{subject: s1}, %{subject: s2}), do: to_string(s1) < to_string(s2)
 
   defp description_statements(description, state, nesting) do
-    with %BlankNode{} <- description.subject,
-         ref_count when ref_count < 2 <- State.bnode_ref_counter(state, description.subject) do
-      unrefed_bnode_subject_term(description, ref_count, state, nesting)
+    if Description.empty?(description) do
+      raise Graph.EmptyDescriptionError, subject: description.subject
     else
-      _ -> full_description_statements(description, state, nesting)
+      with %BlankNode{} <- description.subject,
+           ref_count when ref_count < 2 <- State.bnode_ref_counter(state, description.subject) do
+        unrefed_bnode_subject_term(description, ref_count, state, nesting)
+      else
+        _ -> full_description_statements(description, state, nesting)
+      end
     end
   end
 
