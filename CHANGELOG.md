@@ -11,8 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - a `RDF.Graph` builder DSL available under the `RDF.Graph.build/2` function
 - `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
-- `RDF.Description.empty?/1`, `RDF.Graph.empty?/1` and `RDF.Dataset.empty?/1` which
-   are significantly faster than `Enum.empty?/1` 
+- `RDF.Description.empty?/1`, `RDF.Graph.empty?/1`, `RDF.Dataset.empty?/1` and
+  `RDF.Data.empty?/1` which are significantly faster than `Enum.empty?/1`
+  - By replacing all `Enum.empty?/1` uses over the RDF data structures with these    
+    new `empty?/1` functions throughout the code base, several functions benefit
+    from this performance improvement.
 - `RDF.Description.first/2` now has a `RDF.Description.first/3` variant which
   supports a default value
 - new guards in `RDF.Guards`: `is_statement/1` and `is_quad/1`

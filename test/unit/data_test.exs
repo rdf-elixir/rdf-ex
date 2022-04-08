@@ -90,6 +90,11 @@ defmodule RDF.DataTest do
       assert RDF.Data.pop(description) == Description.pop(description)
     end
 
+    test "empty?", %{description: description} do
+      assert RDF.Data.empty?(description) == false
+      assert RDF.Data.empty?(RDF.description(EX.S)) == true
+    end
+
     test "include?", %{description: description} do
       assert RDF.Data.include?(description, {EX.S, EX.p1(), EX.O2})
       refute RDF.Data.include?(description, {EX.Other, EX.p1(), EX.O2})
@@ -258,6 +263,11 @@ defmodule RDF.DataTest do
       assert RDF.Data.pop(graph) == Graph.pop(graph)
     end
 
+    test "empty?", %{graph: graph} do
+      assert RDF.Data.empty?(graph) == false
+      assert RDF.Data.empty?(RDF.graph()) == true
+    end
+
     test "include?", %{graph: graph} do
       assert RDF.Data.include?(graph, {EX.S, EX.p1(), EX.O2})
       assert RDF.Data.include?(graph, {EX.S2, EX.p2(), EX.O3})
@@ -417,6 +427,11 @@ defmodule RDF.DataTest do
 
     test "pop", %{dataset: dataset} do
       assert RDF.Data.pop(dataset) == Dataset.pop(dataset)
+    end
+
+    test "empty?", %{dataset: dataset} do
+      assert RDF.Data.empty?(dataset) == false
+      assert RDF.Data.empty?(RDF.dataset()) == true
     end
 
     test "include?", %{dataset: dataset} do

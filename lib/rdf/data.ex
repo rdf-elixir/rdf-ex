@@ -32,6 +32,11 @@ defprotocol RDF.Data do
   def pop(data)
 
   @doc """
+  Returns if the given RDF data structure is empty.
+  """
+  def empty?(data)
+
+  @doc """
   Checks if the given statement exists within a RDF data structure.
   """
   def include?(data, input, opts \\ [])
@@ -175,6 +180,8 @@ defimpl RDF.Data, for: RDF.Description do
 
   def pop(description), do: Description.pop(description)
 
+  def empty?(description), do: Description.empty?(description)
+
   def include?(description, input, opts \\ []),
     do: Description.include?(description, input, opts)
 
@@ -275,6 +282,8 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def pop(graph), do: Graph.pop(graph)
 
+  def empty?(graph), do: Graph.empty?(graph)
+
   def include?(graph, input, opts \\ []), do: Graph.include?(graph, input, opts)
 
   def describes?(graph, subject),
@@ -342,6 +351,8 @@ defimpl RDF.Data, for: RDF.Dataset do
   def delete(dataset, input, opts), do: Dataset.delete(dataset, input, opts)
 
   def pop(dataset), do: Dataset.pop(dataset)
+
+  def empty?(dataset), do: Dataset.empty?(dataset)
 
   def include?(dataset, input, opts), do: Dataset.include?(dataset, input, opts)
 
