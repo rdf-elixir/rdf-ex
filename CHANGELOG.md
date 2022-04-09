@@ -10,10 +10,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - a `RDF.Graph` builder DSL available under the `RDF.Graph.build/2` function
+- new `RDF.Sigils` `~i`, `~b` and `~l` as variants of the `~I`, `~B` and `~L`
+  sigils, which support string interpolation   
 - `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
 - `RDF.Description.empty?/1`, `RDF.Graph.empty?/1`, `RDF.Dataset.empty?/1` and
   `RDF.Data.empty?/1` which are significantly faster than `Enum.empty?/1`
-  - By replacing all `Enum.empty?/1` uses over the RDF data structures with these    
+  - By replacing all `Enum.empty?/1` uses over the RDF data structures with these
     new `empty?/1` functions throughout the code base, several functions benefit
     from this performance improvement.
 - `RDF.Description.first/2` now has a `RDF.Description.first/3` variant which

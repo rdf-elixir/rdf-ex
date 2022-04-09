@@ -6,7 +6,9 @@ defmodule RDF.Sigils do
   @doc ~S"""
   Handles the sigil `~I` for IRIs.
 
-  Note: The given IRI string is precompiled into an `RDF.IRI` struct.
+  It returns an `RDF.IRI` from the given string without interpolations and
+  without escape characters, except for the escaping of the closing sigil
+  character itself.
 
   ## Examples
 
@@ -20,7 +22,34 @@ defmodule RDF.Sigils do
   end
 
   @doc ~S"""
+  Handles the sigil `~i` for IRIs.
+
+  It returns an `RDF.IRI` from the given string as if it was a double quoted
+  string, unescaping characters and replacing interpolations.
+
+  ## Examples
+
+      iex> import RDF.Sigils
+      iex> ~i<http://example.com/#{String.downcase("Foo")}>
+      RDF.iri("http://example.com/foo")
+
+  """
+  defmacro sigil_i({:<<>>, _, [iri]}, []) when is_binary(iri) do
+    Macro.escape(RDF.iri!(iri))
+  end
+
+  defmacro sigil_i({:<<>>, line, pieces}, []) do
+    quote do
+      RDF.iri!(unquote({:<<>>, line, unescape_tokens(pieces)}))
+    end
+  end
+
+  @doc ~S"""
   Handles the sigil `~B` for blank nodes.
+
+  It returns an `RDF.BlankNode` from the given string without interpolations
+  and without escape characters, except for the escaping of the closing sigil
+  character itself.
 
   ## Examples
 
@@ -34,7 +63,32 @@ defmodule RDF.Sigils do
   end
 
   @doc ~S"""
+  Handles the sigil `~b` for blank nodes.
+
+  It returns an `RDF.BlankNode` from the given string as if it was a double quoted
+  string, unescaping characters and replacing interpolations.
+
+  ## Examples
+
+      iex> import RDF.Sigils
+      iex> ~b<foo#{String.downcase("Bar")}>
+      RDF.bnode("foobar")
+
+  """
+  defmacro sigil_b({:<<>>, _, [bnode]}, []) when is_binary(bnode) do
+    Macro.escape(RDF.BlankNode.new(bnode))
+  end
+
+  defmacro sigil_b({:<<>>, line, pieces}, []) do
+    quote do
+      RDF.BlankNode.new(unquote({:<<>>, line, unescape_tokens(pieces)}))
+    end
+  end
+
+  @doc ~S"""
   Handles the sigil `~L` for plain Literals.
+
+  It returns an `RDF.Literal` from the given string without interpolations and without escape characters, except for the escaping of the closing sigil character itself.
 
   The sigil modifier can be used to specify a language tag.
 
@@ -57,5 +111,50 @@ defmodule RDF.Sigils do
 
   defmacro sigil_L({:<<>>, _, [value]}, language) when is_binary(value) do
     Macro.escape(RDF.LangString.new(value, language: to_string(language)))
+  end
+
+  @doc ~S"""
+  Handles the sigil `~l` for blank nodes.
+
+  It returns an `RDF.Literal` from the given string as if it was a double quoted
+  string, unescaping characters and replacing interpolations.
+
+  ## Examples
+
+      iex> import RDF.Sigils
+      iex> ~l"foo #{String.downcase("Bar")}"
+      RDF.literal("foo bar")
+      iex> ~l"foo #{String.downcase("Bar")}"en
+      RDF.literal("foo bar", language: "en")
+
+  """
+  defmacro sigil_l(value, language)
+
+  defmacro sigil_l({:<<>>, _, [value]}, []) when is_binary(value) do
+    Macro.escape(RDF.XSD.String.new(value))
+  end
+
+  defmacro sigil_l({:<<>>, _, [value]}, language) when is_binary(value) do
+    Macro.escape(RDF.LangString.new(value, language: to_string(language)))
+  end
+
+  defmacro sigil_l({:<<>>, line, pieces}, []) do
+    quote do
+      RDF.XSD.String.new(unquote({:<<>>, line, unescape_tokens(pieces)}))
+    end
+  end
+
+  defmacro sigil_l({:<<>>, line, pieces}, language) do
+    quote do
+      RDF.LangString.new(unquote({:<<>>, line, unescape_tokens(pieces)}),
+        language: to_string(unquote(language))
+      )
+    end
+  end
+
+  defp unescape_tokens(tokens) do
+    for token <- tokens do
+      if is_binary(token), do: Macro.unescape_string(token), else: token
+    end
   end
 end
