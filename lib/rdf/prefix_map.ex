@@ -130,9 +130,8 @@ defmodule RDF.PrefixMap do
   def merge(prefix_map1, prefix_map2)
 
   def merge(%__MODULE__{map: map1}, %__MODULE__{map: map2}) do
-    with [] <- merge_conflicts(map1, map2) do
-      {:ok, %__MODULE__{map: Map.merge(map1, map2)}}
-    else
+    case merge_conflicts(map1, map2) do
+      [] -> {:ok, %__MODULE__{map: Map.merge(map1, map2)}}
       conflicts -> {:error, conflicts}
     end
   end
@@ -193,10 +192,10 @@ defmodule RDF.PrefixMap do
       end
     end
 
-    with resolved_merge = Map.merge(map1, map2, conflict_resolution),
-         [] <- resolved_merge_rest_conflicts(resolved_merge) do
-      {:ok, %__MODULE__{map: resolved_merge}}
-    else
+    resolved_merge = Map.merge(map1, map2, conflict_resolution)
+
+    case resolved_merge_rest_conflicts(resolved_merge) do
+      [] -> {:ok, %__MODULE__{map: resolved_merge}}
       conflicts -> {:error, conflicts}
     end
   end
