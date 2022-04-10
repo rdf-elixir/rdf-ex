@@ -1201,6 +1201,10 @@ defmodule RDF.Vocabulary.NamespaceTest do
                  ]
                )
     end
+
+    test "empty object list" do
+      assert EX.S |> EX.p1([]) == Description.new(EX.S)
+    end
   end
 
   describe "term resolution on the top-level RDF module" do
