@@ -137,6 +137,13 @@ defmodule RDF.Graph do
   defp init(graph, fun, opts) when is_function(fun), do: add(graph, fun.(), opts)
   defp init(graph, data, opts), do: add(graph, data, opts)
 
+  @doc """
+  Builds an `RDF.Graph` from a description of its content in a graph DSL.
+
+  All available opts of `new/2` are also supported here.
+
+  For a description of the DSL see [this guide](https://rdf-elixir.dev/rdf-ex/description-and-graph-dsl.html).
+  """
   defmacro build(opts \\ [], do: block) do
     Builder.build(block, opts)
   end
