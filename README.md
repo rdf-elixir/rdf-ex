@@ -27,7 +27,7 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - most of the important XML schema datatypes for RDF literals
 - support for custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
-- a description DSL resembling Turtle in Elixir
+- a DSL resembling Turtle to build RDF descriptions or full RDF graphs in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats (including the respective RDF-star extensions); [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
 - validation of RDF data against [ShEx] schemas with the [ShEx.ex] package
 - mapping of RDF data structures to Elixir structs and back with [Grax] 
