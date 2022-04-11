@@ -5,7 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 0.12.0 - 2022-04-11
+
+This version introduces a new graph builder DSL. See the [new guide](https://rdf-elixir.dev/rdf-ex/description-and-graph-dsl.html)
+for an introduction.
 
 ### Added
 
@@ -43,7 +46,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   detailed message will be raised now when this case is detected.
 
 
-[Compare v0.11.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...HEAD)
+[Compare v0.11.0...v0.12.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...v0.12.0)
 
 
 
