@@ -33,7 +33,7 @@ defmodule RDF.Turtle.Star.CompactGraph do
   end
 
   defp add_annotation(compact_graph, {{_, _, _} = quoted_triple, p, o} = triple, annotation) do
-    # Check if the compact graph still contains the annoted triple, we want to put the annotation under.
+    # Check if the compact graph still contains the annotated triple, we want to put the annotation under.
     if Graph.describes?(compact_graph, quoted_triple) do
       do_add_annotation(compact_graph, triple, annotation)
     else
