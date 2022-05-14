@@ -382,7 +382,8 @@ defimpl RDF.Data, for: RDF.Dataset do
   def objects(dataset), do: Dataset.objects(dataset)
   def resources(dataset), do: Dataset.resources(dataset)
 
-  def subject_count(dataset), do: dataset |> subjects |> Enum.count()
+  def subject_count(dataset), do: dataset |> subjects() |> MapSet.size()
+
   def statement_count(dataset), do: Dataset.statement_count(dataset)
   def values(dataset, opts \\ []), do: Dataset.values(dataset, opts)
   def map(dataset, fun), do: Dataset.map(dataset, fun)

@@ -528,7 +528,7 @@ defmodule RDF.Dataset do
   """
   @spec graph_count(t) :: non_neg_integer
   def graph_count(%__MODULE__{} = dataset) do
-    Enum.count(dataset.graphs)
+    map_size(dataset.graphs)
   end
 
   @doc """

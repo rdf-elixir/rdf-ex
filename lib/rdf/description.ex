@@ -488,7 +488,7 @@ defmodule RDF.Description do
     [{object, _}] = Enum.take(objects, 1)
 
     popped =
-      if Enum.count(objects) == 1,
+      if map_size(objects) == 1,
         do: elem(Map.pop(predications, predicate), 1),
         else: elem(pop_in(predications, [predicate, object]), 1)
 
@@ -633,7 +633,7 @@ defmodule RDF.Description do
   @spec statement_count(t) :: non_neg_integer
   def statement_count(%__MODULE__{} = description) do
     Enum.reduce(description.predications, 0, fn {_, objects}, count ->
-      count + Enum.count(objects)
+      count + map_size(objects)
     end)
   end
 
@@ -830,7 +830,7 @@ defmodule RDF.Description do
       | predications:
           Enum.reduce(description.predications, description.predications, fn
             {predicate, objects}, predications ->
-              original_object_count = Enum.count(predications)
+              original_object_count = map_size(predications)
 
               filtered_objects =
                 Enum.reject(objects, &match?({quoted_triple, _} when is_tuple(quoted_triple), &1))

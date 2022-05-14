@@ -819,7 +819,7 @@ defmodule RDF.Graph do
   """
   @spec subject_count(t) :: non_neg_integer
   def subject_count(%__MODULE__{} = graph) do
-    Enum.count(graph.descriptions)
+    map_size(graph.descriptions)
   end
 
   @doc """
