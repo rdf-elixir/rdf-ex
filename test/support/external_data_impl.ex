@@ -27,6 +27,8 @@ defmodule External do
     def values(_external, _opts \\ []), do: nil
     def map(_external, _fun), do: nil
 
-    def equal?(_, _), do: false
+    def equal?(%External{}, data) do
+      RDF.Data.equal?(data, RDF.graph(External.data()))
+    end
   end
 end

@@ -237,6 +237,14 @@ defimpl RDF.Data, for: RDF.Description do
     RDF.Data.equal?(dataset, description)
   end
 
+  def equal?(description, %_{} = other) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.equal?(other, description)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
+  end
+
   def equal?(_, _), do: false
 end
 
@@ -330,6 +338,14 @@ defimpl RDF.Data, for: RDF.Graph do
 
   def equal?(graph, %Dataset{} = dataset),
     do: RDF.Data.equal?(dataset, graph)
+
+  def equal?(graph, %_{} = other) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.equal?(other, graph)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
+  end
 
   def equal?(_, _), do: false
 end
@@ -431,6 +447,14 @@ defimpl RDF.Data, for: RDF.Dataset do
       %Dataset{dataset | name: nil},
       %Dataset{other_dataset | name: nil}
     )
+  end
+
+  def equal?(dataset, %_{} = other) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.equal?(other, dataset)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
   end
 
   def equal?(_, _), do: false
