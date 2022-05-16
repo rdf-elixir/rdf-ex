@@ -625,4 +625,21 @@ defmodule RDF.DataTest do
       refute RDF.Data.equal?(dataset, graph)
     end
   end
+
+  test "external RDF.Data protocol implementations" do
+    description = EX.S |> EX.p(EX.O2)
+
+    assert RDF.Data.merge(description, %External{}) ==
+             Description.add(description, External.data())
+
+    graph = RDF.graph({EX.S, EX.p(), EX.O2})
+
+    assert RDF.Data.merge(graph, %External{}) ==
+             Graph.add(graph, External.data())
+
+    dataset = RDF.dataset({EX.S, EX.p(), EX.O2})
+
+    assert RDF.Data.merge(dataset, %External{}) ==
+             Dataset.add(dataset, External.data())
+  end
 end

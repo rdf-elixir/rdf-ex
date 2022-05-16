@@ -9,6 +9,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- `RDF.Data.merge/3` is now commutative, i.e. structs which implement the
+  `RDF.Data` protocol can be given also as the second argument
+  (previously custom structs with `RDF.Data` protocol implementations always
+  had to be given as the first argument)
 - several performance improvements
 
 

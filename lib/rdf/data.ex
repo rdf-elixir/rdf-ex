@@ -3,8 +3,6 @@ defprotocol RDF.Data do
   An abstraction over the different data structures for collections of RDF statements.
   """
 
-  @type t :: RDF.Description.t() | RDF.Graph.t() | RDF.Dataset.t()
-
   @doc """
   Adds statements to a RDF data structure.
 
@@ -166,6 +164,14 @@ defimpl RDF.Data, for: RDF.Description do
   def merge(description, %Dataset{} = dataset, opts),
     do: RDF.Data.merge(dataset, description, opts)
 
+  def merge(description, %_{} = other, opts) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.merge(other, description, opts)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
+  end
+
   def delete(description, input, opts \\ [])
 
   def delete(
@@ -272,6 +278,14 @@ defimpl RDF.Data, for: RDF.Graph do
   def merge(graph, %Dataset{} = dataset, opts),
     do: RDF.Data.merge(dataset, graph, opts)
 
+  def merge(graph, %_{} = other, opts) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.merge(other, graph, opts)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
+  end
+
   def delete(graph, input, opts \\ [])
 
   def delete(%Graph{name: name} = graph, %Graph{name: other_name}, _opts)
@@ -339,6 +353,14 @@ defimpl RDF.Data, for: RDF.Dataset do
 
   def merge(dataset, %Dataset{} = other_dataset, opts),
     do: Dataset.add(dataset, other_dataset, opts)
+
+  def merge(dataset, %_{} = other, opts) do
+    if RDF.Data.impl_for(other) do
+      RDF.Data.merge(other, dataset, opts)
+    else
+      raise ArgumentError, "no RDF.Data implementation found for #{inspect(other)}"
+    end
+  end
 
   def delete(dataset, input, opts \\ [])
 
