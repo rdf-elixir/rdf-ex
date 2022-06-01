@@ -111,9 +111,7 @@ defmodule RDF.Vocabulary.Namespace do
 
         @spec __term_aliases__ :: [atom]
         def __term_aliases__ do
-          @terms
-          |> Enum.filter(fn {_, term} -> term != true end)
-          |> Enum.map(fn {alias, _} -> alias end)
+          for {alias, term} <- @terms, term != true, do: alias
         end
 
         @ignored_terms unquote(Macro.escape(ignored_terms))
@@ -159,27 +157,27 @@ defmodule RDF.Vocabulary.Namespace do
           def unquote(:"$handle_undefined_function")(term, []) do
             if MapSet.member?(@ignored_terms, term) do
               raise UndefinedFunctionError
-            else
-              term_to_iri(@base_iri, term)
             end
+
+            term_to_iri(@base_iri, term)
           end
 
           def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
+            if MapSet.member?(@ignored_terms, term) do
+              raise UndefinedFunctionError
+            end
+
             objects =
               case objects do
                 [objects] when is_list(objects) -> objects
                 _ -> objects
               end
 
-            if MapSet.member?(@ignored_terms, term) do
-              raise UndefinedFunctionError
-            else
-              case subject do
-                %Description{} -> subject
-                _ -> Description.new(subject)
-              end
-              |> Description.add({term_to_iri(@base_iri, term), objects})
+            case subject do
+              %Description{} -> subject
+              _ -> Description.new(subject)
             end
+            |> Description.add({term_to_iri(@base_iri, term), objects})
           end
         end
       end
@@ -389,12 +387,12 @@ defmodule RDF.Vocabulary.Namespace do
   def invalid_terms, do: @invalid_terms
 
   defp validate_terms!(terms) do
-    with aliased_terms = aliased_terms(terms) do
-      for {term, _} <- terms, term not in aliased_terms and not valid_term?(term) do
-        term
-      end
-      |> handle_invalid_terms!
+    aliased_terms = aliased_terms(terms)
+
+    for {term, _} <- terms, term not in aliased_terms and not valid_term?(term) do
+      term
     end
+    |> handle_invalid_terms!
 
     terms
   end
@@ -427,9 +425,8 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp detect_invalid_characters(terms) do
-    with aliased_terms = aliased_terms(terms) do
-      for {term, _} <- terms, term not in aliased_terms and not valid_characters?(term), do: term
-    end
+    aliased_terms = aliased_terms(terms)
+    for {term, _} <- terms, term not in aliased_terms and not valid_characters?(term), do: term
   end
 
   defp handle_invalid_characters([], _, terms), do: terms
@@ -638,10 +635,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp rdf_data_vocab_terms(data, base_iri) do
     data
     |> RDF.Data.resources()
-    |> Stream.filter(fn
-      %RDF.IRI{} -> true
-      _ -> false
-    end)
+    |> Stream.filter(&match?(%RDF.IRI{}, &1))
     |> Stream.map(&to_string/1)
     |> Stream.map(&strip_base_iri(&1, base_iri))
     |> Stream.filter(&vocab_term?/1)
@@ -667,11 +661,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   defp vocab_term?(""), do: false
-
-  defp vocab_term?(term) when is_binary(term) do
-    not String.contains?(term, "/")
-  end
-
+  defp vocab_term?(term) when is_binary(term), do: not String.contains?(term, "/")
   defp vocab_term?(_), do: false
 
   @doc false
