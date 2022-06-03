@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `RDF.Namespace` builders `defnamespace/3` and `create/4`
+
 ### Changed
 
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs

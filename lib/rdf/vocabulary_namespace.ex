@@ -119,7 +119,7 @@ defmodule RDF.Vocabulary.Namespace do
         @doc """
         Returns all known IRIs of the vocabulary.
         """
-        @spec __iris__ :: [Elixir.RDF.IRI.t()]
+        @impl Elixir.RDF.Namespace
         def __iris__ do
           @terms
           |> Enum.map(fn

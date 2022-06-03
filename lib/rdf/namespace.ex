@@ -8,6 +8,7 @@ defmodule RDF.Namespace do
   """
 
   alias RDF.IRI
+  alias RDF.Namespace.Builder
 
   import RDF.Guards
 
@@ -19,7 +20,39 @@ defmodule RDF.Namespace do
   @doc """
   All terms of a `RDF.Namespace`.
   """
-  @callback __terms__() :: [atom]
+  @callback __terms__ :: [atom]
+
+  @doc """
+  All `RDF.IRI`s of a `RDF.Namespace`.
+  """
+  @callback __iris__ :: [IRI.t()]
+
+  defmacro defnamespace({:__aliases__, _, [module]}, term_mapping, opts \\ []) do
+    env = __CALLER__
+    module = module(env, module)
+
+    quote do
+      result =
+        Builder.create!(
+          unquote(module),
+          unquote(term_mapping),
+          unquote(Macro.escape(env)),
+          unquote(opts)
+        )
+
+      alias unquote(module)
+
+      result
+    end
+  end
+
+  defdelegate create(module, term_mapping, location), to: Builder
+  defdelegate create(module, term_mapping, location, opts), to: Builder
+  defdelegate create!(module, term_mapping, location), to: Builder
+  defdelegate create!(module, term_mapping, location, opts), to: Builder
+
+  @doc false
+  def module(env, module), do: Module.concat(env.module, module)
 
   @doc """
   Resolves a qualified term to a `RDF.IRI`.
