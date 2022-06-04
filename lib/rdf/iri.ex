@@ -254,6 +254,8 @@ defmodule RDF.IRI do
 
       iex> RDF.IRI.in_namespace?(~I<http://example.com/foo>, ~I<http://example.com/>)
       true
+      iex> RDF.IRI.in_namespace?(EX.Foo, ~I<http://example.com/>)
+      true
       iex> RDF.IRI.in_namespace?(~I<http://example.com/foo/bar>, "http://example.com/")
       true
       iex> RDF.IRI.in_namespace?(~I<http://example.com/#foo>, EX)
@@ -262,11 +264,8 @@ defmodule RDF.IRI do
   @spec in_namespace?(t | module, String.t() | t | module) :: boolean
   def in_namespace?(iri, namespace)
 
-  def in_namespace?(%__MODULE__{value: value}, namespace) when is_binary(namespace),
-    do: String.starts_with?(value, namespace)
-
-  def in_namespace?(term, namespace) when maybe_ns_term(term),
-    do: term |> Namespace.resolve_term!() |> in_namespace?(namespace)
+  def in_namespace?(iri, namespace) when is_binary(namespace),
+    do: starts_with?(iri, namespace)
 
   def in_namespace?(iri, namespace) when maybe_ns_term(namespace),
     do: in_namespace?(iri, coerce_base(namespace))
@@ -274,7 +273,49 @@ defmodule RDF.IRI do
   def in_namespace?(iri, %__MODULE__{} = namespace),
     do: in_namespace?(iri, __MODULE__.to_string(namespace))
 
-  #  def in_namespace?(_, _), do: false
+  @doc """
+  Checks whether `iri` starts with any of the given prefixes.
+
+  ## Examples
+
+      iex> RDF.IRI.starts_with?(~I<http://example.com/foo>, "http://example.com/")
+      true
+      iex> RDF.IRI.starts_with?(EX.Foo, "http://example.com/")
+      true
+      iex> RDF.IRI.starts_with?(~I<http://example.com/foo/bar>, ["http://example.com/", "http://example.org/"])
+      true
+      iex> RDF.IRI.starts_with?(~I<http://example.com/#foo>, "http://example.org/")
+      false
+  """
+  @spec starts_with?(t | module, String.pattern()) :: boolean
+  def starts_with?(%__MODULE__{} = iri, prefix) do
+    String.starts_with?(iri.value, prefix)
+  end
+
+  def starts_with?(term, prefix) when maybe_ns_term(term),
+    do: term |> Namespace.resolve_term!() |> starts_with?(prefix)
+
+  @doc """
+  Checks whether `iri` end with any of the given suffixes.
+
+  ## Examples
+
+      iex> RDF.IRI.ends_with?(~I<http://example.com/foo>, "foo")
+      true
+      iex> RDF.IRI.ends_with?(EX.Foo, "Foo")
+      true
+      iex> RDF.IRI.ends_with?(~I<http://example.com/foo>, ["foo", "bar"])
+      true
+      iex> RDF.IRI.ends_with?(~I<http://example.com/foo>, "bar")
+      false
+  """
+  @spec ends_with?(t | module, String.t() | [String.t()]) :: boolean
+  def ends_with?(%__MODULE__{} = iri, suffix) do
+    String.ends_with?(iri.value, suffix)
+  end
+
+  def ends_with?(term, suffix) when maybe_ns_term(term),
+    do: term |> Namespace.resolve_term!() |> ends_with?(suffix)
 
   @doc """
   Tests for value equality of IRIs.

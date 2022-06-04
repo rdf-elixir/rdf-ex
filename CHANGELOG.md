@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Added
 
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
+- `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
 
 ### Changed
 
