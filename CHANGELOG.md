@@ -7,13 +7,22 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+In this version `RDF.Namespace` and `RDF.Vocabulary.Namespace` were completely rewritten.
+The generated namespaces are much more flexible now and compile faster.
+
 ### Added
 
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
+- `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
 
 ### Changed
 
+- Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the 
+ `:terms` list
+- When defining an alias for a term of vocabulary which would be invalid as an
+  Elixir term, the original term is now implicitly ignored and won't any longer
+  be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always

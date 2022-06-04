@@ -11,8 +11,9 @@ defmodule RDF.Namespace.Builder do
           {:ok, {:module, module(), binary(), term()}} | {:error, any}
   def create(module, term_mapping, location, opts \\ []) do
     moduledoc = opts[:moduledoc]
+    skip_normalization = opts[:skip_normalization]
 
-    with {:ok, term_mapping} <- normalize_term_mapping(term_mapping) do
+    with {:ok, term_mapping} <- normalize_term_mapping(term_mapping, skip_normalization) do
       property_terms = property_terms(term_mapping)
 
       body =
@@ -42,7 +43,7 @@ defmodule RDF.Namespace.Builder do
     quote do
       @moduledoc unquote(moduledoc)
 
-      @behaviour Elixir.RDF.Namespace
+      @behaviour RDF.Namespace
 
       import Kernel,
         except: [
@@ -131,7 +132,9 @@ defmodule RDF.Namespace.Builder do
     end
   end
 
-  defp normalize_term_mapping(term_mapping) do
+  defp normalize_term_mapping(term_mapping, true), do: {:ok, term_mapping}
+
+  defp normalize_term_mapping(term_mapping, _) do
     Enum.reduce_while(term_mapping, {:ok, %{}}, fn {term, iri}, {:ok, normalized} ->
       if valid_term?(term) do
         {:cont, {:ok, Map.put(normalized, term, RDF.iri(iri))}}

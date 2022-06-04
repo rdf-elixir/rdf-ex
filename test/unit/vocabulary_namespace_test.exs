@@ -26,6 +26,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
             RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedTermWithAlias}
   @compile {:no_warn_undefined,
             RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedAlias}
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.NSWithExplicitlyIgnoredElixirTerms.Example}
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.ExampleIgnoredLowercasedAlias}
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.ExampleIgnoredCapitalizedAlias}
 
   defmodule TestNS do
     use RDF.Vocabulary.Namespace
@@ -92,6 +98,15 @@ defmodule RDF.Vocabulary.NamespaceTest do
         term4: "term-4"
       ]
 
+    defvocab StrictExampleFromImplicitAliasedTerms,
+      base_iri: "http://example.com/strict_from_aliased_terms#",
+      terms: [
+        Term1: "term1",
+        term2: "Term2",
+        Term3: "Term-3",
+        term4: "term-4"
+      ]
+
     defvocab NonStrictExampleFromAliasedTerms,
       base_iri: "http://example.com/non_strict_from_aliased_terms#",
       terms: ~w[],
@@ -107,11 +122,15 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_iri: "http://example.com/ex#",
       terms: ~w[bar Bar],
       alias: [foo: "bar", baz: "bar", Foo: "Bar", Baz: "Bar"]
+
+    defvocab ExampleWithSynonymImplicitAliases,
+      base_iri: "http://example.com/ex#",
+      terms: [foo: "bar", baz: "bar", Foo: "Bar", Baz: "Bar"]
   end
 
   describe "defvocab with bad base iri" do
     test "without a base_iri, an error is raised" do
-      assert_raise KeyError, fn ->
+      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
         defmodule NSWithoutBaseIRI do
           use RDF.Vocabulary.Namespace
 
@@ -409,7 +428,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert %Description{} = EX.S |> Example.update_in(EX.O1, EX.O2)
   end
 
-  describe "defvocab with invalid terms" do
+  describe "defvocab with reserved terms" do
     test "terms with a special meaning for Elixir cause a failure" do
       assert_raise RDF.Namespace.InvalidTermError, ~r/unquote_splicing/s, fn ->
         defmodule NSWithElixirTerms do
@@ -417,53 +436,70 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
           defvocab Example,
             base_iri: "http://example.com/example#",
-            terms: RDF.Vocabulary.Namespace.invalid_terms()
+            terms: RDF.Namespace.Builder.reserved_terms()
         end
       end
     end
 
     test "alias terms with a special meaning for Elixir cause a failure" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r/unquote_splicing/s, fn ->
-        defmodule NSWithElixirAliasTerms do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Namespace.InvalidAliasError,
+                   ~r/alias 'and' in vocabulary namespace.*Example is a reserved term and can't be used as an alias/s,
+                   fn ->
+                     defmodule NSWithElixirAliasTerms do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/example#",
-            terms: ~w[foo],
-            alias: [
-              and: "foo",
-              or: "foo",
-              xor: "foo",
-              in: "foo",
-              fn: "foo",
-              def: "foo",
-              when: "foo",
-              if: "foo",
-              for: "foo",
-              case: "foo",
-              with: "foo",
-              quote: "foo",
-              unquote: "foo",
-              unquote_splicing: "foo",
-              alias: "foo",
-              import: "foo",
-              require: "foo",
-              super: "foo",
-              __aliases__: "foo"
-            ]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/example#",
+                         terms: ~w[foo],
+                         alias: [
+                           and: "foo",
+                           or: "foo",
+                           xor: "foo",
+                           in: "foo",
+                           fn: "foo",
+                           def: "foo",
+                           when: "foo",
+                           if: "foo",
+                           for: "foo",
+                           case: "foo",
+                           with: "foo",
+                           quote: "foo",
+                           unquote: "foo",
+                           unquote_splicing: "foo",
+                           alias: "foo",
+                           import: "foo",
+                           require: "foo",
+                           super: "foo",
+                           __aliases__: "foo"
+                         ]
+                     end
+                   end
     end
 
-    test "terms with a special meaning for Elixir don't cause a failure when they are ignored" do
+    test "terms with a special meaning for Elixir don't cause a failure when they are ignored via invalid_terms: :ignore" do
       defmodule NSWithIgnoredElixirTerms do
         use RDF.Vocabulary.Namespace
 
         defvocab Example,
           base_iri: "http://example.com/example#",
-          terms: RDF.Vocabulary.Namespace.invalid_terms(),
-          ignore: RDF.Vocabulary.Namespace.invalid_terms()
+          terms: RDF.Namespace.Builder.reserved_terms() ++ [:foo],
+          invalid_terms: :ignore
+
+        assert NSWithIgnoredElixirTerms.Example.__terms__() == [:foo]
       end
+    end
+
+    test "terms with a special meaning for Elixir don't cause a failure when they are ignored explicitly" do
+      defmodule NSWithExplicitlyIgnoredElixirTerms do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://example.com/example#",
+          terms: RDF.Namespace.Builder.reserved_terms(),
+          ignore: RDF.Namespace.Builder.reserved_terms()
+      end
+
+      assert NSWithExplicitlyIgnoredElixirTerms.Example.__terms__() == []
     end
 
     test "terms with a special meaning for Elixir don't cause a failure when an alias is defined" do
@@ -472,7 +508,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
         defvocab Example,
           base_iri: "http://example.com/example#",
-          terms: RDF.Vocabulary.Namespace.invalid_terms(),
+          terms: RDF.Namespace.Builder.reserved_terms(),
           alias: [
             and_: "and",
             or_: "or",
@@ -548,11 +584,25 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.function_exported() == ~I<http://example.com/example#function_exported?>
       assert Example.macro_exported() == ~I<http://example.com/example#macro_exported?>
     end
+
+    test "failures for reserved as aliased can't be ignored" do
+      assert_raise RDF.Namespace.InvalidAliasError, ~r/super/s, fn ->
+        defmodule NSWithElixirAliasTerms do
+          use RDF.Vocabulary.Namespace
+
+          defvocab Example,
+            base_iri: "http://example.com/example#",
+            terms: ~w[foo],
+            alias: [super: "foo"],
+            invalid_terms: :ignore
+        end
+      end
+    end
   end
 
   describe "defvocab invalid character handling" do
-    test "when a term contains unallowed characters and no alias defined, it fails when invalid_characters = :fail" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r/Foo-bar.*foo-bar/s, fn ->
+    test "when a term contains disallowed characters and no alias defined, it fails when invalid_characters: :fail" do
+      assert_raise RDF.Namespace.InvalidTermError, ~r/foo-bar.*Foo-bar/s, fn ->
         defmodule NSWithInvalidTerms1 do
           use RDF.Vocabulary.Namespace
 
@@ -563,7 +613,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
-    test "when a term contains unallowed characters it does not fail when invalid_characters = :ignore" do
+    test "when a term contains disallowed characters it does not fail when invalid_characters: :ignore" do
       defmodule NSWithInvalidTerms2 do
         use RDF.Vocabulary.Namespace
 
@@ -572,6 +622,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
           terms: ~w[Foo-bar foo-bar],
           invalid_characters: :ignore
       end
+    end
+
+    test "when a term contains disallowed characters it does not fail when invalid_characters: :warn" do
+      err =
+        ExUnit.CaptureIO.capture_io(:stderr, fn ->
+          defmodule NSWithInvalidTerms3 do
+            use RDF.Vocabulary.Namespace
+
+            defvocab Example,
+              base_iri: "http://example.com/example#",
+              terms: ~w[Foo-bar foo-bar],
+              invalid_characters: :warn
+          end
+        end)
+
+      assert err =~ "'foo-bar' is not valid term, since it contains invalid characters"
     end
   end
 
@@ -751,18 +817,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
         alias: [bar: "Bar"],
         ignore: ~w[Bar]a
 
-      defvocab ExampleIgnoredLowercasedAlias,
-        base_iri: "http://example.com/",
-        terms: ~w[foo Bar],
-        alias: [bar: "Bar"],
-        ignore: ~w[bar]a
-
-      defvocab ExampleIgnoredCapitalizedAlias,
-        base_iri: "http://example.com/",
-        terms: ~w[foo Bar],
-        alias: [Foo: "foo"],
-        ignore: ~w[Foo]a
-
       defvocab ExampleIgnoredNonStrictLowercasedTerm,
         base_iri: "http://example.com/",
         terms: ~w[],
@@ -809,18 +863,42 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert RDF.iri(ExampleIgnoredCapitalizedTermWithAlias.bar()) == ~I<http://example.com/Bar>
     end
 
-    test "resolution of ignored lowercased alias on a strict vocab fails" do
-      alias NSWithIgnoredTerms.ExampleIgnoredLowercasedAlias
+    test "ignored aliases raise a warning, but are still properly ignored" do
+      err =
+        ExUnit.CaptureIO.capture_io(:stderr, fn ->
+          defmodule IgnoredAliasTest do
+            use RDF.Vocabulary.Namespace
+
+            defvocab ExampleIgnoredLowercasedAlias,
+              base_iri: "http://example.com/",
+              terms: ~w[foo Bar],
+              alias: [bar: "Bar"],
+              ignore: ~w[bar]a
+
+            defvocab ExampleIgnoredCapitalizedAlias,
+              base_iri: "http://example.com/",
+              terms: ~w[foo Bar],
+              alias: [Foo: "foo"],
+              ignore: ~w[Foo]a
+          end
+        end)
+
+      assert err =~ "warning"
+      assert err =~ "ignoring alias 'bar'"
+      assert err =~ "ignoring alias 'Foo'"
+
+      alias RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.{
+        ExampleIgnoredLowercasedAlias,
+        ExampleIgnoredCapitalizedAlias
+      }
+
       assert ExampleIgnoredLowercasedAlias.__terms__() == [:Bar, :foo]
       assert RDF.iri(ExampleIgnoredLowercasedAlias.Bar) == ~I<http://example.com/Bar>
 
       assert_raise UndefinedFunctionError, fn ->
         RDF.iri(ExampleIgnoredLowercasedAlias.bar())
       end
-    end
 
-    test "resolution of ignored capitalized alias on a strict vocab fails" do
-      alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedAlias
       assert ExampleIgnoredCapitalizedAlias.__terms__() == [:Bar, :foo]
       assert RDF.iri(ExampleIgnoredCapitalizedAlias.foo()) == ~I<http://example.com/foo>
 
@@ -931,9 +1009,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "includes aliases" do
-      assert length(StrictExampleFromAliasedTerms.__terms__()) == 8
+      assert length(StrictExampleFromAliasedTerms.__terms__()) == 6
 
-      for term <- ~w[term1 Term1 term2 Term2 Term3 term4 Term-3 term-4]a do
+      for term <- ~w[term1 Term1 term2 Term2 Term3 term4]a do
         assert term in StrictExampleFromAliasedTerms.__terms__()
       end
     end
@@ -958,7 +1036,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   describe "term resolution in a strict vocab namespace" do
-    alias TestNS.{ExampleFromGraph, ExampleFromNTriplesFile, StrictExampleFromTerms}
+    alias TestNS.{
+      EXS,
+      ExampleFromGraph,
+      ExampleFromNTriplesFile,
+      StrictExampleFromTerms
+    }
 
     test "undefined terms" do
       assert_raise UndefinedFunctionError, fn ->
@@ -996,6 +1079,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "lowercased terms" do
+      assert EXS.foo() == ~I<http://example.com/strict#foo>
       assert ExampleFromGraph.foo() == ~I<http://example.com/from_graph#foo>
       assert RDF.iri(ExampleFromGraph.foo()) == ~I<http://example.com/from_graph#foo>
 
@@ -1058,24 +1142,38 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   describe "term resolution of aliases on a strict vocabulary" do
-    alias TestNS.StrictExampleFromAliasedTerms, as: Example
+    alias TestNS.StrictExampleFromAliasedTerms, as: Ex1
+    alias TestNS.StrictExampleFromImplicitAliasedTerms, as: Ex2
 
     test "the alias resolves to the correct IRI" do
-      assert RDF.iri(Example.Term1) == ~I<http://example.com/strict_from_aliased_terms#term1>
-      assert RDF.iri(Example.term2()) == ~I<http://example.com/strict_from_aliased_terms#Term2>
-      assert RDF.iri(Example.Term3) == ~I<http://example.com/strict_from_aliased_terms#Term-3>
-      assert RDF.iri(Example.term4()) == ~I<http://example.com/strict_from_aliased_terms#term-4>
+      assert RDF.iri(Ex1.Term1) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Ex1.term2()) == ~I<http://example.com/strict_from_aliased_terms#Term2>
+      assert RDF.iri(Ex1.Term3) == ~I<http://example.com/strict_from_aliased_terms#Term-3>
+      assert RDF.iri(Ex1.term4()) == ~I<http://example.com/strict_from_aliased_terms#term-4>
+
+      assert RDF.iri(Ex2.Term1) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Ex2.term2()) == ~I<http://example.com/strict_from_aliased_terms#Term2>
+      assert RDF.iri(Ex2.Term3) == ~I<http://example.com/strict_from_aliased_terms#Term-3>
+      assert RDF.iri(Ex2.term4()) == ~I<http://example.com/strict_from_aliased_terms#term-4>
     end
 
     test "the old term remains resolvable" do
-      assert RDF.iri(Example.term1()) == ~I<http://example.com/strict_from_aliased_terms#term1>
-      assert RDF.iri(Example.Term2) == ~I<http://example.com/strict_from_aliased_terms#Term2>
+      assert RDF.iri(Ex1.term1()) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Ex1.Term2) == ~I<http://example.com/strict_from_aliased_terms#Term2>
+
+      assert RDF.iri(Ex2.term1()) == ~I<http://example.com/strict_from_aliased_terms#term1>
+      assert RDF.iri(Ex2.Term2) == ~I<http://example.com/strict_from_aliased_terms#Term2>
     end
 
     test "defining multiple aliases for a term" do
-      alias TestNS.ExampleWithSynonymAliases, as: Example
-      assert Example.foo() == Example.baz()
-      assert RDF.iri(Example.foo()) == RDF.iri(Example.baz())
+      alias TestNS.ExampleWithSynonymAliases, as: Ex1
+      alias TestNS.ExampleWithSynonymImplicitAliases, as: Ex2
+
+      assert Ex1.foo() == Ex1.baz()
+      assert RDF.iri(Ex1.foo()) == RDF.iri(Ex1.baz())
+
+      assert Ex2.foo() == Ex2.baz()
+      assert RDF.iri(Ex2.foo()) == RDF.iri(Ex2.baz())
     end
   end
 
