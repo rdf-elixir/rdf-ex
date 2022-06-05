@@ -2,7 +2,7 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   import RDF.Vocabulary, only: [term_to_iri: 2]
   import RDF.Utils, only: [downcase?: 1]
 
-  alias RDF.Utils.ResourceClassifier
+  alias RDF.Vocabulary.ResourceClassifier
 
   def validate_case!(terms_and_ignored, nil, _, _, _), do: terms_and_ignored
 
