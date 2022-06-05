@@ -9,7 +9,7 @@ defmodule RDF.Vocabulary.Namespace do
   the `RDF.NS` module.
   """
 
-  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace}
+  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace, IRI}
 
   import RDF.Vocabulary.Namespace.{TermMapping, CaseValidation}
   import RDF.Vocabulary, only: [term_to_iri: 2, extract_terms: 2]
@@ -254,12 +254,23 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  defp normalize_base_uri(base_uri) do
-    unless is_binary(base_uri) and String.ends_with?(base_uri, ~w[/ # .]) do
-      raise RDF.Namespace.InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}"
-    else
+  defp normalize_base_uri(%IRI{} = base_iri), do: IRI.to_string(base_iri)
+
+  defp normalize_base_uri(base_uri) when is_binary(base_uri) do
+    if IRI.valid?(base_uri) do
       base_uri
+    else
+      raise RDF.Namespace.InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}"
     end
+  end
+
+  defp normalize_base_uri(base_uri) do
+    base_uri |> IRI.new() |> normalize_base_uri()
+  rescue
+    [Namespace.UndefinedTermError, IRI.InvalidError, FunctionClauseError] ->
+      reraise RDF.Namespace.InvalidVocabBaseIRIError,
+              "invalid base IRI: #{inspect(base_uri)}",
+              __STACKTRACE__
   end
 
   @doc false

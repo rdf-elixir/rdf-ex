@@ -42,6 +42,15 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_iri: "http://example.com/strict#",
       terms: ~w[foo bar]
 
+    @base_iri "http://example.com/"
+    defvocab ExampleWithBaseFromModuleAttribute,
+      base_iri: @base_iri,
+      terms: ~w[foo Bar]a
+
+    defvocab ExampleWithBaseFromIRI,
+      base_iri: ~I<http://example.com/>,
+      terms: ~w[foo Bar]a
+
     defvocab ExampleFromGraph,
       base_iri: "http://example.com/from_graph#",
       data:
@@ -135,18 +144,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
           use RDF.Vocabulary.Namespace
 
           defvocab Example, terms: []
-        end
-      end
-    end
-
-    test "when the base_iri doesn't end with '/' or '#', an error is raised" do
-      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
-        defmodule NSWithInvalidBaseIRI1 do
-          use RDF.Vocabulary.Namespace
-
-          defvocab Example,
-            base_iri: "http://example.com/base_iri4",
-            terms: []
         end
       end
     end
@@ -957,9 +954,13 @@ defmodule RDF.Vocabulary.NamespaceTest do
   test "__base_iri__ returns the base_iri" do
     alias TestNS.ExampleFromGraph, as: HashVocab
     alias TestNS.ExampleFromNTriplesFile, as: SlashVocab
+    alias TestNS.ExampleWithBaseFromModuleAttribute, as: BaseFromModuleAttribute
+    alias TestNS.ExampleWithBaseFromIRI, as: BaseFromIRI
 
     assert HashVocab.__base_iri__() == "http://example.com/from_graph#"
     assert SlashVocab.__base_iri__() == "http://example.com/from_ntriples/"
+    assert BaseFromModuleAttribute.__base_iri__() == "http://example.com/"
+    assert BaseFromIRI.__base_iri__() == "http://example.com/"
   end
 
   test "__iris__ returns all IRIs of the vocabulary" do
@@ -1040,7 +1041,9 @@ defmodule RDF.Vocabulary.NamespaceTest do
       EXS,
       ExampleFromGraph,
       ExampleFromNTriplesFile,
-      StrictExampleFromTerms
+      StrictExampleFromTerms,
+      ExampleWithBaseFromIRI,
+      ExampleWithBaseFromModuleAttribute
     }
 
     test "undefined terms" do
@@ -1088,12 +1091,17 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
       assert StrictExampleFromTerms.foo() == ~I<http://example.com/strict_from_terms#foo>
       assert RDF.iri(StrictExampleFromTerms.foo()) == ~I<http://example.com/strict_from_terms#foo>
+
+      assert ExampleWithBaseFromIRI.foo() == ~I<http://example.com/foo>
+      assert ExampleWithBaseFromModuleAttribute.foo() == ~I<http://example.com/foo>
     end
 
     test "capitalized terms" do
       assert RDF.iri(ExampleFromGraph.Bar) == ~I<http://example.com/from_graph#Bar>
       assert RDF.iri(ExampleFromNTriplesFile.Bar) == ~I<http://example.com/from_ntriples/Bar>
       assert RDF.iri(StrictExampleFromTerms.Bar) == ~I<http://example.com/strict_from_terms#Bar>
+      assert RDF.iri(ExampleWithBaseFromIRI.Bar) == ~I<http://example.com/Bar>
+      assert RDF.iri(ExampleWithBaseFromModuleAttribute.Bar) == ~I<http://example.com/Bar>
     end
 
     test "terms starting with an underscore" do
