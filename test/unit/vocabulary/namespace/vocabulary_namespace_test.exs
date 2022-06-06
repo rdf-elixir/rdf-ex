@@ -1313,6 +1313,32 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
+  describe "vocabulary_namespace?/1" do
+    test "with RDF.Vocabulary.Namespace modules" do
+      alias TestNS.ExampleWithBaseFromIRI, as: Example
+
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(TestNS.EX) == true
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(Example) == true
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF.NS.RDF) == true
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF.NS.RDFS) == true
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF.NS.OWL) == true
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF.NS.XSD) == true
+    end
+
+    test "with the top-level RDF module" do
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF) == true
+    end
+
+    test "with RDF.Namespace modules" do
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(RDF.TestNamespaces.SimpleNS) == false
+    end
+
+    test "with non-RDF.Vocabulary.Namespace modules" do
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(Enum) == false
+      assert RDF.Vocabulary.Namespace.vocabulary_namespace?(__MODULE__) == false
+    end
+  end
+
   describe "term resolution on the top-level RDF module" do
     test "capitalized terms" do
       assert RDF.iri(RDF.Property) == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
