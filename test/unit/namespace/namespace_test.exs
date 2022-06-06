@@ -91,4 +91,24 @@ defmodule RDF.NamespaceTest do
              ~I<http://example.com/foo>
            ]
   end
+
+  describe "namespace?/1" do
+    test "with RDF.Namespace modules" do
+      assert RDF.Namespace.namespace?(RDF.TestNamespaces.SimpleNS) == true
+      assert RDF.Namespace.namespace?(RDF.TestNamespaces.NSfromPropertyMap) == true
+    end
+
+    test "with RDF.Vocabulary.Namespace modules" do
+      assert RDF.Namespace.namespace?(EX) == true
+      assert RDF.Namespace.namespace?(RDF.NS.RDF) == true
+      assert RDF.Namespace.namespace?(RDF.NS.RDFS) == true
+      assert RDF.Namespace.namespace?(RDF.NS.OWL) == true
+      assert RDF.Namespace.namespace?(RDF.NS.XSD) == true
+    end
+
+    test "with non-RDF.Namespace modules" do
+      assert RDF.Namespace.namespace?(Enum) == false
+      assert RDF.Namespace.namespace?(__MODULE__) == false
+    end
+  end
 end

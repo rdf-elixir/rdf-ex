@@ -79,9 +79,8 @@ defmodule RDF.Namespace do
   """
   @spec resolve_term!(IRI.t() | module) :: IRI.t()
   def resolve_term!(expr) do
-    with {:ok, iri} <- resolve_term(expr) do
-      iri
-    else
+    case resolve_term(expr) do
+      {:ok, iri} -> iri
       {:error, error} -> raise error
     end
   end
@@ -112,16 +111,19 @@ defmodule RDF.Namespace do
   end
 
   defp do_resolve_term(namespace, term) do
-    is_module =
-      case Code.ensure_compiled(namespace) do
-        {:module, _} -> true
-        _ -> false
-      end
-
-    if is_module and Keyword.has_key?(namespace.__info__(:functions), :__resolve_term__) do
+    if namespace?(namespace) do
       namespace.__resolve_term__(term)
     else
       {:error, %RDF.Namespace.UndefinedTermError{message: "#{namespace} is not a RDF.Namespace"}}
+    end
+  end
+
+  @doc false
+  @spec namespace?(module) :: boolean
+  def namespace?(name) do
+    case Code.ensure_compiled(name) do
+      {:module, name} -> function_exported?(name, :__resolve_term__, 1)
+      _ -> false
     end
   end
 end
