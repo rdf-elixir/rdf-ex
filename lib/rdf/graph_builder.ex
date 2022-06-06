@@ -16,13 +16,14 @@ defmodule RDF.Graph.Builder do
     def exclude(_), do: nil
   end
 
-  def build({:__block__, _, block}, opts) do
+  def build({:__block__, _, block}, env, opts) do
+    env_aliases = env_aliases(env)
     {declarations, data} = Enum.split_with(block, &declaration?/1)
-    {base, declarations} = extract_base(declarations)
+    {base, declarations} = extract_base(declarations, env_aliases)
     base_string = base_string(base)
     data = resolve_relative_iris(data, base_string)
     declarations = resolve_relative_iris(declarations, base_string)
-    {prefixes, declarations} = extract_prefixes(declarations)
+    {prefixes, declarations} = extract_prefixes(declarations, env_aliases)
 
     quote do
       alias RDF.XSD
@@ -42,8 +43,8 @@ defmodule RDF.Graph.Builder do
     end
   end
 
-  def build(single, opts) do
-    build({:__block__, [], List.wrap(single)}, opts)
+  def build(single, env, opts) do
+    build({:__block__, [], List.wrap(single)}, env, opts)
   end
 
   @doc false
@@ -95,11 +96,14 @@ defmodule RDF.Graph.Builder do
     end)
   end
 
-  defp extract_base(declarations) do
+  defp extract_base(declarations, env_aliases) do
     {base, declarations} =
       Enum.reduce(declarations, {nil, []}, fn
         {:@, line, [{:base, _, [{:__aliases__, _, ns}] = aliases}]}, {_, declarations} ->
-          {Module.concat(ns), [{:alias, line, aliases} | declarations]}
+          {
+            ns |> expand_module(env_aliases) |> Module.concat(),
+            [{:alias, line, aliases} | declarations]
+          }
 
         {:@, _, [{:base, _, [base]}]}, {_, declarations} ->
           {base, declarations}
@@ -111,15 +115,16 @@ defmodule RDF.Graph.Builder do
     {base, Enum.reverse(declarations)}
   end
 
-  defp extract_prefixes(declarations) do
+  defp extract_prefixes(declarations, env_aliases) do
     {prefixes, declarations} =
       Enum.reduce(declarations, {[], []}, fn
         {:@, line, [{:prefix, _, [[{prefix, {:__aliases__, _, ns} = aliases}]]}]},
         {prefixes, declarations} ->
-          {[prefix(prefix, ns) | prefixes], [{:alias, line, [aliases]} | declarations]}
+          {[prefix(prefix, ns, env_aliases) | prefixes],
+           [{:alias, line, [aliases]} | declarations]}
 
         {:@, line, [{:prefix, _, [{:__aliases__, _, ns}] = aliases}]}, {prefixes, declarations} ->
-          {[prefix(ns) | prefixes], [{:alias, line, aliases} | declarations]}
+          {[prefix(ns, env_aliases) | prefixes], [{:alias, line, aliases} | declarations]}
 
         declaration, {prefixes, declarations} ->
           {prefixes, [declaration | declarations]}
@@ -128,17 +133,24 @@ defmodule RDF.Graph.Builder do
     {prefixes, Enum.reverse(declarations)}
   end
 
-  defp prefix(namespace) do
+  defp prefix(namespace, env_aliases) do
+    namespace
+    |> determine_prefix()
+    |> prefix(namespace, env_aliases)
+  end
+
+  defp prefix(prefix, namespace, env_aliases) do
+    {prefix, namespace |> expand_module(env_aliases) |> Module.concat()}
+  end
+
+  defp determine_prefix(namespace) do
     namespace
     |> Enum.reverse()
     |> hd()
     |> to_string()
     |> Macro.underscore()
     |> String.to_atom()
-    |> prefix(namespace)
   end
-
-  defp prefix(prefix, namespace), do: {prefix, Module.concat(namespace)}
 
   defp declaration?({:=, _, _}), do: true
   defp declaration?({:@, _, [{:prefix, _, _}]}), do: true
@@ -160,5 +172,27 @@ defmodule RDF.Graph.Builder do
 
   defp rdf?(invalid) do
     raise Error, message: "invalid RDF data: #{inspect(invalid)}"
+  end
+
+  defp expand_module([first | rest] = module, env_aliases) do
+    if full = env_aliases[first] do
+      full ++ rest
+    else
+      module
+    end
+  end
+
+  defp env_aliases(env) do
+    Map.new(env.aliases, fn {short, full} ->
+      {
+        module_to_atom_without_elixir_prefix(short),
+        full |> Module.split() |> Enum.map(&String.to_atom/1)
+      }
+    end)
+  end
+
+  defp module_to_atom_without_elixir_prefix(module) do
+    [short] = Module.split(module)
+    String.to_atom(short)
   end
 end

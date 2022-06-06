@@ -19,7 +19,7 @@ defmodule RDF.Graph.BuilderTest do
   @compile {:no_warn_undefined, __MODULE__.TestNS.EX}
   @compile {:no_warn_undefined, __MODULE__.TestNS.Custom}
 
-  alias __MODULE__.TestNS.EX
+  alias TestNS.EX
   alias RDF.NS
 
   defmodule UseTest do
@@ -346,7 +346,6 @@ defmodule RDF.Graph.BuilderTest do
       (fn ->
          RDF.Graph.build do
            alias TestNS.Custom
-           #          alias RDF.Graph.BuilderTest.TestNS.Custom
            Custom.S |> Custom.p(Custom.O)
          end
        end).()
@@ -359,8 +358,8 @@ defmodule RDF.Graph.BuilderTest do
     graph =
       (fn ->
          RDF.Graph.build do
-           import RDF.Graph.BuilderTest.TestNS.ImportTest
-           EX.S |> foo(RDF.Graph.BuilderTest.TestNS.ImportTest.Bar)
+           import TestNS.ImportTest
+           EX.S |> foo(TestNS.ImportTest.Bar)
          end
        end).()
 
@@ -399,9 +398,7 @@ defmodule RDF.Graph.BuilderTest do
       graph =
         (fn ->
            RDF.Graph.build do
-             # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix cust: TestNS.Custom
-             @prefix cust: RDF.Graph.BuilderTest.TestNS.Custom
+             @prefix cust: TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)
            end
@@ -418,9 +415,7 @@ defmodule RDF.Graph.BuilderTest do
       graph =
         (fn ->
            RDF.Graph.build do
-             # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix TestNS.Custom
-             @prefix RDF.Graph.BuilderTest.TestNS.Custom
+             @prefix TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)
            end
@@ -437,9 +432,7 @@ defmodule RDF.Graph.BuilderTest do
       graph =
         (fn ->
            RDF.Graph.build prefixes: [custom: EX] do
-             # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @prefix custom: TestNS.Custom
-             @prefix custom: RDF.Graph.BuilderTest.TestNS.Custom
+             @prefix custom: TestNS.Custom
 
              Custom.S |> Custom.p(Custom.O)
            end
@@ -460,9 +453,7 @@ defmodule RDF.Graph.BuilderTest do
       graph =
         (fn ->
            RDF.Graph.build do
-             # TODO: the following leads to a (RDF.Namespace.UndefinedTermError) Elixir.TestNS is not a RDF.Namespace
-             # @base TestNS.Custom
-             @base RDF.Graph.BuilderTest.TestNS.Custom
+             @base TestNS.Custom
 
              ~I<S> |> Custom.p(~I<O>)
              {~I<foo>, ~I<bar>, ~I<baz>}

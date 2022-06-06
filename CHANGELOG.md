@@ -37,6 +37,11 @@ The generated namespaces are much more flexible now and compile faster.
   had to be given as the first argument).
 - several performance improvements
 
+### Fixed
+
+- The RDF vocabulary namespaces used in `@prefix` and `@base` declarations in a
+  `RDF.Graph.build` block no longer have to be written out which had to be done
+  previously even when parts of the module were available as an alias.
 
 [Compare v0.12.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...HEAD)
 
