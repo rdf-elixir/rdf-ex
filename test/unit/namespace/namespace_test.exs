@@ -106,6 +106,10 @@ defmodule RDF.NamespaceTest do
       assert RDF.Namespace.namespace?(RDF.NS.XSD) == true
     end
 
+    test "with the top-level RDF module" do
+      assert RDF.Namespace.namespace?(RDF) == true
+    end
+
     test "with non-RDF.Namespace modules" do
       assert RDF.Namespace.namespace?(Enum) == false
       assert RDF.Namespace.namespace?(__MODULE__) == false
