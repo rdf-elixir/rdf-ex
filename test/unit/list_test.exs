@@ -9,8 +9,6 @@ defmodule RDF.ListTest do
 
   use RDF.Vocabulary.Namespace
 
-  defvocab EX, base_iri: "http://example.org/#", terms: [], strict: false
-
   setup do
     {:ok,
      empty: RDF.List.new(RDF.nil(), Graph.new()),

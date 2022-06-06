@@ -15,7 +15,7 @@ defmodule RDF.DatasetTest do
 
     test "creating an empty dataset with a coercible dataset name" do
       assert named_dataset("http://example.com/DatasetName")
-             |> named_dataset?(iri("http://example.com/DatasetName"))
+             |> named_dataset?(~I<http://example.com/DatasetName>)
 
       assert named_dataset(EX.Foo) |> named_dataset?(iri(EX.Foo))
     end

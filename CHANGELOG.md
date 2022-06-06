@@ -14,6 +14,8 @@ The generated namespaces are much more flexible now and compile faster.
 
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
 - `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
+- macro `RDF.Namespace.IRI.iri/1` which allows to resolve `RDF.Namespace` terms 
+  inside of pattern matches
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
 
 ### Changed

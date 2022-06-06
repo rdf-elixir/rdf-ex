@@ -13,6 +13,13 @@ defmodule RDF.SigilsTest do
     test "escaping" do
       assert ~I<http://example.com/f\no> == RDF.iri("http://example.com/f\\no")
     end
+
+    test "in pattern matches" do
+      assert (case RDF.iri("http://example.com/foo") do
+                ~I<http://example.com/foo> -> "match"
+                _ -> :mismatch
+              end) == "match"
+    end
   end
 
   describe "~i sigil" do

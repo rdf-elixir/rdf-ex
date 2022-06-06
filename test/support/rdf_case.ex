@@ -16,7 +16,8 @@ defmodule RDF.Test.Case do
       alias RDF.NS.{RDFS, OWL}
       alias unquote(__MODULE__).{EX, FOAF}
 
-      import RDF, only: [iri: 1, literal: 1, bnode: 1]
+      import RDF, only: [literal: 1, bnode: 1]
+      import RDF.Namespace.IRI
       import unquote(__MODULE__)
 
       import RDF.Sigils

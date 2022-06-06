@@ -23,7 +23,7 @@ defmodule RDF.GraphTest do
 
     test "creating an empty graph with a coercible graph name" do
       assert named_graph("http://example.com/graph/GraphName")
-             |> named_graph?(iri("http://example.com/graph/GraphName"))
+             |> named_graph?(~I<http://example.com/graph/GraphName>)
 
       assert named_graph(EX.Foo) |> named_graph?(iri(EX.Foo))
     end
