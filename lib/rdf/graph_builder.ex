@@ -1,5 +1,6 @@
 defmodule RDF.Graph.Builder do
-  alias RDF.{Description, Graph, Dataset, PrefixMap, IRI}
+  @moduledoc false
+  alias RDF.{Description, Graph, Dataset, PrefixMap, IRI, Vocabulary}
 
   defmodule Error do
     defexception [:message]
@@ -16,14 +17,20 @@ defmodule RDF.Graph.Builder do
     def exclude(_), do: nil
   end
 
-  def build({:__block__, _, block}, env, opts) do
+  def build(do_block, env, opts) do
+    build(do_block, env, namespace_context_mod(env), opts)
+  end
+
+  def build({:__block__, _, block}, env, namespace_context_mod, opts) do
     env_aliases = env_aliases(env)
     {declarations, data} = Enum.split_with(block, &declaration?/1)
     {base, declarations} = extract_base(declarations, env_aliases)
     base_string = base_string(base)
     data = resolve_relative_iris(data, base_string)
     declarations = resolve_relative_iris(declarations, base_string)
-    {prefixes, declarations} = extract_prefixes(declarations, env_aliases)
+
+    {prefixes, declarations} =
+      extract_prefixes(declarations, env_aliases, namespace_context_mod, env)
 
     quote do
       alias RDF.XSD
@@ -43,14 +50,18 @@ defmodule RDF.Graph.Builder do
     end
   end
 
-  def build(single, env, opts) do
-    build({:__block__, [], List.wrap(single)}, env, opts)
+  def build(single, env, namespace_context_mod, opts) do
+    build({:__block__, [], List.wrap(single)}, env, namespace_context_mod, opts)
   end
 
   @doc false
   def do_build(data, opts, prefixes, base) do
     RDF.graph(graph_opts(opts, prefixes, base))
     |> Graph.add(Enum.filter(data, &rdf?/1))
+  end
+
+  def namespace_context_mod(env) do
+    Module.concat(env.module, "GraphBuilderNS#{random_number()}")
   end
 
   defp graph_opts(opts, prefixes, base) do
@@ -115,16 +126,33 @@ defmodule RDF.Graph.Builder do
     {base, Enum.reverse(declarations)}
   end
 
-  defp extract_prefixes(declarations, env_aliases) do
+  defp extract_prefixes(declarations, env_aliases, namespace_context_mod, env) do
     {prefixes, declarations} =
       Enum.reduce(declarations, {[], []}, fn
+        {:@, line, [{:prefix, _, [{:__aliases__, _, ns}] = aliases}]}, {prefixes, declarations} ->
+          {
+            [prefix(ns, env_aliases) | prefixes],
+            [{:alias, line, aliases} | declarations]
+          }
+
         {:@, line, [{:prefix, _, [[{prefix, {:__aliases__, _, ns} = aliases}]]}]},
         {prefixes, declarations} ->
-          {[prefix(prefix, ns, env_aliases) | prefixes],
-           [{:alias, line, [aliases]} | declarations]}
+          {
+            [prefix(prefix, ns, env_aliases) | prefixes],
+            [{:alias, line, [aliases]} | declarations]
+          }
 
-        {:@, line, [{:prefix, _, [{:__aliases__, _, ns}] = aliases}]}, {prefixes, declarations} ->
-          {[prefix(ns, env_aliases) | prefixes], [{:alias, line, aliases} | declarations]}
+        {:@, line, [{:prefix, _, [[{prefix, uri}]]}]}, {prefixes, declarations}
+        when is_binary(uri) ->
+          ns = ad_hoc_namespace(prefix, uri, namespace_context_mod, env)
+
+          {
+            [prefix(prefix, ns, env_aliases) | prefixes],
+            [{:alias, line, [{:__aliases__, line, ns}]} | declarations]
+          }
+
+        {:@, _, [{:prefix, _, _}]} = expr, _ ->
+          raise Error, "invalid @prefix expression:\n\t#{Macro.to_string(expr)}"
 
         declaration, {prefixes, declarations} ->
           {prefixes, [declaration | declarations]}
@@ -150,6 +178,15 @@ defmodule RDF.Graph.Builder do
     |> to_string()
     |> Macro.underscore()
     |> String.to_atom()
+  end
+
+  defp ad_hoc_namespace(prefix, uri, namespace_context_mod, env) do
+    {:module, module, _, _} =
+      namespace_context_mod
+      |> Module.concat(prefix |> Atom.to_string() |> Macro.camelize())
+      |> Vocabulary.Namespace.create!(uri, [], env, strict: false)
+
+    module |> Module.split() |> Enum.map(&String.to_atom/1)
   end
 
   defp declaration?({:=, _, _}), do: true
@@ -194,5 +231,9 @@ defmodule RDF.Graph.Builder do
   defp module_to_atom_without_elixir_prefix(module) do
     [short] = Module.split(module)
     String.to_atom(short)
+  end
+
+  defp random_number do
+    :erlang.unique_integer([:positive])
   end
 end

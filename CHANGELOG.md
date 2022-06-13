@@ -17,6 +17,8 @@ The generated namespaces are much more flexible now and compile faster.
 - macro `RDF.Namespace.IRI.iri/1` which allows to resolve `RDF.Namespace` terms 
   inside of pattern matches
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
+- `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
+  with a `@prefix` declaration providing the URI of the namespace as a string  
 
 ### Changed
 

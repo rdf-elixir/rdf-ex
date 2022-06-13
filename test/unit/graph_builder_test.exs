@@ -427,6 +427,73 @@ defmodule RDF.Graph.BuilderTest do
                )
     end
 
+    test "ad-hoc vocabulary namespace for URIs given as string" do
+      # we're wrapping this in a function to isolate the alias
+      graph =
+        (fn ->
+           RDF.Graph.build do
+             @prefix ad: "http://example.com/ad-hoc/"
+
+             Ad.S |> Ad.p(Ad.O)
+           end
+         end).()
+
+      assert graph ==
+               RDF.graph(
+                 {
+                   RDF.iri("http://example.com/ad-hoc/S"),
+                   RDF.iri("http://example.com/ad-hoc/p"),
+                   RDF.iri("http://example.com/ad-hoc/O")
+                 },
+                 prefixes: RDF.default_prefixes(ad: "http://example.com/ad-hoc/")
+               )
+    end
+
+    test "two ad-hoc vocabulary namespaces for the same URI in the same context" do
+      # we're wrapping this in a function to isolate the alias
+      graph =
+        (fn ->
+           graph1 =
+             RDF.Graph.build do
+               @prefix ad: "http://example.com/ad-hoc/"
+               @prefix ex1: "http://example.com/ad-hoc/ex1#"
+
+               Ad.S |> Ad.p(Ex1.O)
+             end
+
+           RDF.Graph.build do
+             @prefix ad: "http://example.com/ad-hoc/"
+             @prefix ex2: "http://example.com/ad-hoc/ex2#"
+
+             graph1
+
+             Ad.S |> Ad.p(Ex2.O)
+           end
+         end).()
+
+      assert graph ==
+               RDF.graph(
+                 [
+                   {
+                     RDF.iri("http://example.com/ad-hoc/S"),
+                     RDF.iri("http://example.com/ad-hoc/p"),
+                     RDF.iri("http://example.com/ad-hoc/ex1#O")
+                   },
+                   {
+                     RDF.iri("http://example.com/ad-hoc/S"),
+                     RDF.iri("http://example.com/ad-hoc/p"),
+                     RDF.iri("http://example.com/ad-hoc/ex2#O")
+                   }
+                 ],
+                 prefixes:
+                   RDF.default_prefixes(
+                     ad: "http://example.com/ad-hoc/",
+                     ex1: "http://example.com/ad-hoc/ex1#",
+                     ex2: "http://example.com/ad-hoc/ex2#"
+                   )
+               )
+    end
+
     test "merge with prefixes opt" do
       # we're wrapping this in a function to isolate the alias
       graph =
