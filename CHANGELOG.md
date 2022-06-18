@@ -33,6 +33,11 @@ The generated namespaces are much more flexible now and compile faster.
 - When defining an alias for a term of vocabulary which would be invalid as an
   Elixir term, the original term is now implicitly ignored and won't any longer
   be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
+- `RDF.Graph.build/2` blocks are now wrapped in a function, so the aliases and
+  import no longer affect the caller context. `alias`es in the caller context are 
+  still available in the build block, but `import`s not and must be reimported in 
+  the build block. Variables in the caller context are also no longer available 
+  build block.
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always

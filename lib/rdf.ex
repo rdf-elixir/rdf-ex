@@ -342,5 +342,6 @@ defmodule RDF do
   defdelegate __base_iri__(), to: RDF.NS.RDF
   defdelegate __terms__(), to: RDF.NS.RDF
   defdelegate __iris__(), to: RDF.NS.RDF
+  defdelegate __strict__(), to: RDF.NS.RDF
   defdelegate __resolve_term__(term), to: RDF.NS.RDF
 end

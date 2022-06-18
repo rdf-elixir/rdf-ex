@@ -53,7 +53,7 @@ jobs:
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
 
-      - run: MIX_ENV=test mix coveralls.github
+      - run: MIX_ENV=test mix coveralls.github --warnings-as-errors
 
       - name: Retrieve PLT Cache
         uses: actions/cache@v1

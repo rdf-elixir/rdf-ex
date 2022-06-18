@@ -18,6 +18,7 @@ defmodule RDF.Graph.BuilderTest do
 
   @compile {:no_warn_undefined, __MODULE__.TestNS.EX}
   @compile {:no_warn_undefined, __MODULE__.TestNS.Custom}
+  @compile {:no_warn_undefined, RDF.Test.Case.EX}
 
   alias TestNS.EX
   alias RDF.NS
@@ -317,51 +318,53 @@ defmodule RDF.Graph.BuilderTest do
   end
 
   test "RDF.XSD is aliased" do
-    # we're wrapping this in a function to isolate the alias
     graph =
-      (fn ->
-         RDF.Graph.build do
-           EX.S |> EX.p(XSD.byte(42))
-         end
-       end).()
+      RDF.Graph.build do
+        EX.S |> EX.p(XSD.byte(42))
+      end
 
     assert graph == RDF.graph(EX.S |> EX.p(RDF.XSD.byte(42)))
   end
 
   test "default aliases" do
-    # we're wrapping this in a function to isolate the alias
     graph =
-      (fn ->
-         RDF.Graph.build do
-           OWL.Class |> RDFS.subClassOf(RDFS.Class)
-         end
-       end).()
+      RDF.Graph.build do
+        OWL.Class |> RDFS.subClassOf(RDFS.Class)
+      end
 
     assert graph == RDF.graph(NS.OWL.Class |> NS.RDFS.subClassOf(NS.RDFS.Class))
   end
 
   test "alias" do
-    # we're wrapping this in a function to isolate the alias
     graph =
-      (fn ->
-         RDF.Graph.build do
-           alias TestNS.Custom
-           Custom.S |> Custom.p(Custom.O)
-         end
-       end).()
+      RDF.Graph.build do
+        alias TestNS.Custom
+        Custom.S |> Custom.p(Custom.O)
+      end
 
     assert graph == RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O))
   end
 
-  test "import" do
-    # we're wrapping this in a function to isolate the import
+  test "aliasing an already taken name" do
     graph =
-      (fn ->
-         RDF.Graph.build do
-           import TestNS.ImportTest
-           EX.S |> foo(TestNS.ImportTest.Bar)
-         end
-       end).()
+      RDF.Graph.build do
+        alias RDF.Test.Case.EX, as: EX2
+        {EX2.S, EX.p(), EX2.foo()}
+      end
+
+    quote do
+      alias RDF.Test.Case.EX, as: EX2
+    end
+
+    assert graph == RDF.graph(RDF.Test.Case.EX.S |> EX.p(RDF.Test.Case.EX.foo()))
+  end
+
+  test "import" do
+    graph =
+      RDF.Graph.build do
+        import TestNS.ImportTest
+        EX.S |> foo(TestNS.ImportTest.Bar)
+      end
 
     assert graph == RDF.graph(EX.S |> TestNS.ImportTest.foo(TestNS.ImportTest.Bar))
   end
@@ -394,15 +397,12 @@ defmodule RDF.Graph.BuilderTest do
 
   describe "@prefix" do
     test "for vocabulary namespace with explicit prefix" do
-      # we're wrapping this in a function to isolate the alias
       graph =
-        (fn ->
-           RDF.Graph.build do
-             @prefix cust: TestNS.Custom
+        RDF.Graph.build do
+          @prefix cust: TestNS.Custom
 
-             Custom.S |> Custom.p(Custom.O)
-           end
-         end).()
+          Custom.S |> Custom.p(Custom.O)
+        end
 
       assert graph ==
                RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O),
@@ -411,15 +411,12 @@ defmodule RDF.Graph.BuilderTest do
     end
 
     test "for vocabulary namespace with auto-generated prefix" do
-      # we're wrapping this in a function to isolate the alias
       graph =
-        (fn ->
-           RDF.Graph.build do
-             @prefix TestNS.Custom
+        RDF.Graph.build do
+          @prefix TestNS.Custom
 
-             Custom.S |> Custom.p(Custom.O)
-           end
-         end).()
+          Custom.S |> Custom.p(Custom.O)
+        end
 
       assert graph ==
                RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O),
@@ -428,15 +425,12 @@ defmodule RDF.Graph.BuilderTest do
     end
 
     test "ad-hoc vocabulary namespace for URIs given as string" do
-      # we're wrapping this in a function to isolate the alias
       graph =
-        (fn ->
-           RDF.Graph.build do
-             @prefix ad: "http://example.com/ad-hoc/"
+        RDF.Graph.build do
+          @prefix ad: "http://example.com/ad-hoc/"
 
-             Ad.S |> Ad.p(Ad.O)
-           end
-         end).()
+          Ad.S |> Ad.p(Ad.O)
+        end
 
       assert graph ==
                RDF.graph(
@@ -450,35 +444,41 @@ defmodule RDF.Graph.BuilderTest do
     end
 
     test "two ad-hoc vocabulary namespaces for the same URI in the same context" do
-      # we're wrapping this in a function to isolate the alias
-      graph =
-        (fn ->
-           graph1 =
-             RDF.Graph.build do
-               @prefix ad: "http://example.com/ad-hoc/"
-               @prefix ex1: "http://example.com/ad-hoc/ex1#"
+      graph1 =
+        RDF.Graph.build do
+          @prefix ad: "http://example.com/ad-hoc/"
+          @prefix ex1: "http://example.com/ad-hoc/ex1#"
 
-               Ad.S |> Ad.p(Ex1.O)
-             end
+          Ad.S |> Ad.p(Ex1.O)
+        end
 
-           RDF.Graph.build do
-             @prefix ad: "http://example.com/ad-hoc/"
-             @prefix ex2: "http://example.com/ad-hoc/ex2#"
+      graph2 =
+        RDF.Graph.build do
+          @prefix ad: "http://example.com/ad-hoc/"
+          @prefix ex2: "http://example.com/ad-hoc/ex2#"
 
-             graph1
+          Ad.S |> Ad.p(Ex2.O)
+        end
 
-             Ad.S |> Ad.p(Ex2.O)
-           end
-         end).()
-
-      assert graph ==
+      assert graph1 ==
                RDF.graph(
                  [
                    {
                      RDF.iri("http://example.com/ad-hoc/S"),
                      RDF.iri("http://example.com/ad-hoc/p"),
                      RDF.iri("http://example.com/ad-hoc/ex1#O")
-                   },
+                   }
+                 ],
+                 prefixes:
+                   RDF.default_prefixes(
+                     ad: "http://example.com/ad-hoc/",
+                     ex1: "http://example.com/ad-hoc/ex1#"
+                   )
+               )
+
+      assert graph2 ==
+               RDF.graph(
+                 [
                    {
                      RDF.iri("http://example.com/ad-hoc/S"),
                      RDF.iri("http://example.com/ad-hoc/p"),
@@ -488,22 +488,18 @@ defmodule RDF.Graph.BuilderTest do
                  prefixes:
                    RDF.default_prefixes(
                      ad: "http://example.com/ad-hoc/",
-                     ex1: "http://example.com/ad-hoc/ex1#",
                      ex2: "http://example.com/ad-hoc/ex2#"
                    )
                )
     end
 
     test "merge with prefixes opt" do
-      # we're wrapping this in a function to isolate the alias
       graph =
-        (fn ->
-           RDF.Graph.build prefixes: [custom: EX] do
-             @prefix custom: TestNS.Custom
+        RDF.Graph.build prefixes: [custom: EX] do
+          @prefix custom: TestNS.Custom
 
-             Custom.S |> Custom.p(Custom.O)
-           end
-         end).()
+          Custom.S |> Custom.p(Custom.O)
+        end
 
       assert graph ==
                RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O),
@@ -516,16 +512,13 @@ defmodule RDF.Graph.BuilderTest do
     test "with vocabulary namespace" do
       import RDF.Sigils
 
-      # we're wrapping this in a function to isolate the alias
       graph =
-        (fn ->
-           RDF.Graph.build do
-             @base TestNS.Custom
+        RDF.Graph.build do
+          @base TestNS.Custom
 
-             ~I<S> |> Custom.p(~I<O>)
-             {~I<foo>, ~I<bar>, ~I<baz>}
-           end
-         end).()
+          ~I<S> |> Custom.p(~I<O>)
+          {~I<foo>, ~I<bar>, ~I<baz>}
+        end
 
       assert graph ==
                RDF.graph(
@@ -545,6 +538,8 @@ defmodule RDF.Graph.BuilderTest do
           ~I<#S> |> EX.p(~I<#O>)
           {~I<#foo>, ~I<#bar>, ~I<#baz>}
         end
+
+      import RDF.Sigils
 
       assert graph ==
                RDF.graph(
@@ -566,6 +561,8 @@ defmodule RDF.Graph.BuilderTest do
           {~I<#foo>, ~I<#bar>, ~I<#baz>}
         end
 
+      import RDF.Sigils
+
       assert graph ==
                RDF.graph(
                  [
@@ -584,6 +581,8 @@ defmodule RDF.Graph.BuilderTest do
 
           ~I<#S> |> EX.p(~I<#O>)
         end
+
+      import RDF.Sigils
 
       assert graph ==
                RDF.graph(~I<http://example.com/base#S> |> EX.p(~I<http://example.com/base#O>),

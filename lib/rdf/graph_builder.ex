@@ -18,40 +18,54 @@ defmodule RDF.Graph.Builder do
   end
 
   def build(do_block, env, opts) do
-    build(do_block, env, namespace_context_mod(env), opts)
+    build(do_block, env, builder_mod(env), opts)
   end
 
-  def build({:__block__, _, block}, env, namespace_context_mod, opts) do
+  def build({:__block__, _, block}, env, builder_mod, opts) do
     env_aliases = env_aliases(env)
+    block = expand_aliased_modules(block, env_aliases)
+    non_strict_ns = extract_non_strict_ns(block)
     {declarations, data} = Enum.split_with(block, &declaration?/1)
-    {base, declarations} = extract_base(declarations, env_aliases)
+    {base, declarations} = extract_base(declarations)
     base_string = base_string(base)
     data = resolve_relative_iris(data, base_string)
     declarations = resolve_relative_iris(declarations, base_string)
+    {prefixes, ad_hoc_ns, declarations} = extract_prefixes(declarations, builder_mod, env)
+    non_strict_ns = (non_strict_ns ++ ad_hoc_ns) |> Enum.uniq()
 
-    {prefixes, declarations} =
-      extract_prefixes(declarations, env_aliases, namespace_context_mod, env)
+    mod_body =
+      quote do
+        for mod <- unquote(non_strict_ns) do
+          @compile {:no_warn_undefined, mod}
+        end
+
+        def build(opts) do
+          alias RDF.XSD
+          alias RDF.NS.{RDFS, OWL}
+
+          import RDF.Sigils
+          import Helper
+
+          unquote(declarations)
+
+          RDF.Graph.Builder.do_build(
+            unquote(data),
+            opts,
+            unquote(prefixes),
+            unquote(base_string)
+          )
+        end
+      end
+
+    Module.create(builder_mod, mod_body, Macro.Env.location(env))
 
     quote do
-      alias RDF.XSD
-      alias RDF.NS.{RDFS, OWL}
-
-      import RDF.Sigils
-      import Helper
-
-      unquote(declarations)
-
-      RDF.Graph.Builder.do_build(
-        unquote(data),
-        unquote(opts),
-        unquote(prefixes),
-        unquote(base_string)
-      )
+      apply(unquote(builder_mod), :build, [unquote(opts)])
     end
   end
 
-  def build(single, env, namespace_context_mod, opts) do
-    build({:__block__, [], List.wrap(single)}, env, namespace_context_mod, opts)
+  def build(single, env, builder_mod, opts) do
+    build({:__block__, [], List.wrap(single)}, env, builder_mod, opts)
   end
 
   @doc false
@@ -60,8 +74,8 @@ defmodule RDF.Graph.Builder do
     |> Graph.add(Enum.filter(data, &rdf?/1))
   end
 
-  def namespace_context_mod(env) do
-    Module.concat(env.module, "GraphBuilderNS#{random_number()}")
+  def builder_mod(env) do
+    Module.concat(env.module, "GraphBuilder#{random_number()}")
   end
 
   defp graph_opts(opts, prefixes, base) do
@@ -107,14 +121,11 @@ defmodule RDF.Graph.Builder do
     end)
   end
 
-  defp extract_base(declarations, env_aliases) do
+  defp extract_base(declarations) do
     {base, declarations} =
       Enum.reduce(declarations, {nil, []}, fn
         {:@, line, [{:base, _, [{:__aliases__, _, ns}] = aliases}]}, {_, declarations} ->
-          {
-            ns |> expand_module(env_aliases) |> Module.concat(),
-            [{:alias, line, aliases} | declarations]
-          }
+          {Module.concat(ns), [{:alias, line, aliases} | declarations]}
 
         {:@, _, [{:base, _, [base]}]}, {_, declarations} ->
           {base, declarations}
@@ -126,49 +137,53 @@ defmodule RDF.Graph.Builder do
     {base, Enum.reverse(declarations)}
   end
 
-  defp extract_prefixes(declarations, env_aliases, namespace_context_mod, env) do
-    {prefixes, declarations} =
-      Enum.reduce(declarations, {[], []}, fn
-        {:@, line, [{:prefix, _, [{:__aliases__, _, ns}] = aliases}]}, {prefixes, declarations} ->
+  defp extract_prefixes(declarations, builder_mod, env) do
+    {prefixes, ad_hoc_ns, declarations} =
+      Enum.reduce(declarations, {[], [], []}, fn
+        {:@, line, [{:prefix, _, [{:__aliases__, _, ns}] = aliases}]},
+        {prefixes, ad_hoc_ns, declarations} ->
           {
-            [prefix(ns, env_aliases) | prefixes],
+            [prefix(ns) | prefixes],
+            ad_hoc_ns,
             [{:alias, line, aliases} | declarations]
           }
 
         {:@, line, [{:prefix, _, [[{prefix, {:__aliases__, _, ns} = aliases}]]}]},
-        {prefixes, declarations} ->
+        {prefixes, ad_hoc_ns, declarations} ->
           {
-            [prefix(prefix, ns, env_aliases) | prefixes],
+            [prefix(prefix, ns) | prefixes],
+            ad_hoc_ns,
             [{:alias, line, [aliases]} | declarations]
           }
 
-        {:@, line, [{:prefix, _, [[{prefix, uri}]]}]}, {prefixes, declarations}
+        {:@, line, [{:prefix, _, [[{prefix, uri}]]}]}, {prefixes, ad_hoc_ns, declarations}
         when is_binary(uri) ->
-          ns = ad_hoc_namespace(prefix, uri, namespace_context_mod, env)
+          ns = ad_hoc_namespace(prefix, uri, builder_mod, env)
 
           {
-            [prefix(prefix, ns, env_aliases) | prefixes],
+            [prefix(prefix, ns) | prefixes],
+            [Module.concat(ns) | ad_hoc_ns],
             [{:alias, line, [{:__aliases__, line, ns}]} | declarations]
           }
 
         {:@, _, [{:prefix, _, _}]} = expr, _ ->
           raise Error, "invalid @prefix expression:\n\t#{Macro.to_string(expr)}"
 
-        declaration, {prefixes, declarations} ->
-          {prefixes, [declaration | declarations]}
+        declaration, {prefixes, ad_hoc_ns, declarations} ->
+          {prefixes, ad_hoc_ns, [declaration | declarations]}
       end)
 
-    {prefixes, Enum.reverse(declarations)}
+    {prefixes, ad_hoc_ns, Enum.reverse(declarations)}
   end
 
-  defp prefix(namespace, env_aliases) do
+  defp prefix(namespace) do
     namespace
     |> determine_prefix()
-    |> prefix(namespace, env_aliases)
+    |> prefix(namespace)
   end
 
-  defp prefix(prefix, namespace, env_aliases) do
-    {prefix, namespace |> expand_module(env_aliases) |> Module.concat()}
+  defp prefix(prefix, namespace) do
+    {prefix, Module.concat(namespace)}
   end
 
   defp determine_prefix(namespace) do
@@ -180,9 +195,9 @@ defmodule RDF.Graph.Builder do
     |> String.to_atom()
   end
 
-  defp ad_hoc_namespace(prefix, uri, namespace_context_mod, env) do
+  defp ad_hoc_namespace(prefix, uri, builder_mod, env) do
     {:module, module, _, _} =
-      namespace_context_mod
+      builder_mod
       |> Module.concat(prefix |> Atom.to_string() |> Macro.camelize())
       |> Vocabulary.Namespace.create!(uri, [], env, strict: false)
 
@@ -211,6 +226,19 @@ defmodule RDF.Graph.Builder do
     raise Error, message: "invalid RDF data: #{inspect(invalid)}"
   end
 
+  defp expand_aliased_modules(ast, env_aliases) do
+    Macro.prewalk(ast, fn
+      {:__aliases__, [alias: false], _} = alias ->
+        alias
+
+      {:__aliases__, _, module} ->
+        {:__aliases__, [alias: false], expand_module(module, env_aliases)}
+
+      other ->
+        other
+    end)
+  end
+
   defp expand_module([first | rest] = module, env_aliases) do
     if full = env_aliases[first] do
       full ++ rest
@@ -231,6 +259,23 @@ defmodule RDF.Graph.Builder do
   defp module_to_atom_without_elixir_prefix(module) do
     [short] = Module.split(module)
     String.to_atom(short)
+  end
+
+  defp extract_non_strict_ns(block) do
+    modules =
+      block
+      |> Macro.prewalker()
+      |> Enum.reduce([], fn
+        {:__aliases__, _, mod}, modules -> [Module.concat(mod) | modules]
+        _, modules -> modules
+      end)
+      |> Enum.uniq()
+
+    for module <- modules, non_strict_vocab_namespace?(module), do: module
+  end
+
+  defp non_strict_vocab_namespace?(mod) do
+    Vocabulary.Namespace.vocabulary_namespace?(mod) and not mod.__strict__()
   end
 
   defp random_number do
