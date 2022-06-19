@@ -18,9 +18,11 @@ jobs:
           - pair:
               elixir: 1.10.4
               otp: 21.3
+            no-warnings-as-errors: true
           - pair:
               elixir: 1.11.3
               otp: 22.2
+            no-warnings-as-errors: true
           - pair:
               elixir: 1.12.3
               otp: 24.3
@@ -53,9 +55,10 @@ jobs:
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
 
-# TODO: ExCoveralls doesn't seem to support --warnings-as-errors which we rely on.
-#      - run: MIX_ENV=test mix coveralls.github --warnings-as-errors
-      - run: mix test --warnings-as-errors
+      - run: MIX_ENV=test mix coveralls.github --warnings-as-errors
+        if: ${{ !matrix.no-warnings-as-errors }}
+      - run: MIX_ENV=test mix coveralls.github
+        if: ${{ matrix.no-warnings-as-errors }}
 
       - name: Retrieve PLT Cache
         uses: actions/cache@v1
