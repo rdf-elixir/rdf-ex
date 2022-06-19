@@ -1,3 +1,5 @@
+# These tests rely on running with mix test --warnings-as-errors to ensure
+# the undefined-function warnings raised at compile-time are caught properly.
 defmodule RDF.Graph.BuilderTest do
   use ExUnit.Case
 

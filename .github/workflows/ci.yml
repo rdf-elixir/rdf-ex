@@ -53,7 +53,9 @@ jobs:
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
 
-      - run: MIX_ENV=test mix coveralls.github --warnings-as-errors
+# TODO: ExCoveralls doesn't seem to support --warnings-as-errors which we rely on.
+#      - run: MIX_ENV=test mix coveralls.github --warnings-as-errors
+      - run: mix test --warnings-as-errors
 
       - name: Retrieve PLT Cache
         uses: actions/cache@v1
