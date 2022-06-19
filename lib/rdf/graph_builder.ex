@@ -276,17 +276,21 @@ defmodule RDF.Graph.Builder do
     String.to_atom(short)
   end
 
-  defp extract_non_strict_ns(block) do
-    modules =
-      block
-      |> Macro.prewalker()
-      |> Enum.reduce([], fn
-        {:__aliases__, _, mod}, modules -> [Module.concat(mod) | modules]
-        _, modules -> modules
-      end)
-      |> Enum.uniq()
+  if Version.match?(System.version(), ">= 1.13.0") do
+    defp extract_non_strict_ns(block) do
+      modules =
+        block
+        |> Macro.prewalker()
+        |> Enum.reduce([], fn
+          {:__aliases__, _, mod}, modules -> [Module.concat(mod) | modules]
+          _, modules -> modules
+        end)
+        |> Enum.uniq()
 
-    for module <- modules, non_strict_vocab_namespace?(module), do: module
+      for module <- modules, non_strict_vocab_namespace?(module), do: module
+    end
+  else
+    defp extract_non_strict_ns(_), do: []
   end
 
   defp non_strict_vocab_namespace?(mod) do
