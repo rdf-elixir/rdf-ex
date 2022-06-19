@@ -17,13 +17,15 @@ defmodule RDF.Graph.Builder do
     def exclude(_), do: nil
   end
 
-  def build(do_block, env, opts) do
-    build(do_block, env, builder_mod(env), opts)
+  def build(do_block, env, bindings, opts) do
+    build(do_block, env, builder_mod(env), bindings, opts)
   end
 
-  def build({:__block__, _, block}, env, builder_mod, opts) do
+  def build({:__block__, _, block}, env, builder_mod, bindings, opts) do
     env_aliases = env_aliases(env)
     block = expand_aliased_modules(block, env_aliases)
+    {bindings_vars, bindings_pattern} = bindings_vars(bindings, builder_mod)
+    block = bind_vars(block, bindings_vars, builder_mod)
     non_strict_ns = extract_non_strict_ns(block)
     {declarations, data} = Enum.split_with(block, &declaration?/1)
     {base, declarations} = extract_base(declarations)
@@ -39,7 +41,7 @@ defmodule RDF.Graph.Builder do
           @compile {:no_warn_undefined, mod}
         end
 
-        def build(opts) do
+        def build(unquote(bindings_pattern), opts) do
           alias RDF.XSD
           alias RDF.NS.{RDFS, OWL}
 
@@ -60,12 +62,12 @@ defmodule RDF.Graph.Builder do
     Module.create(builder_mod, mod_body, Macro.Env.location(env))
 
     quote do
-      apply(unquote(builder_mod), :build, [unquote(opts)])
+      apply(unquote(builder_mod), :build, [Map.new(unquote(bindings)), unquote(opts)])
     end
   end
 
-  def build(single, env, builder_mod, opts) do
-    build({:__block__, [], List.wrap(single)}, env, builder_mod, opts)
+  def build(single, env, builder_mod, bindings, opts) do
+    build({:__block__, [], List.wrap(single)}, env, builder_mod, bindings, opts)
   end
 
   @doc false
@@ -245,6 +247,19 @@ defmodule RDF.Graph.Builder do
     else
       module
     end
+  end
+
+  defp bindings_vars(bindings, mod) do
+    vars = Enum.map(bindings, fn {key, _} -> key end)
+
+    {vars, {:%{}, [], Enum.map(vars, &{&1, Macro.var(&1, mod)})}}
+  end
+
+  defp bind_vars(block, bindings_vars, mod) do
+    Macro.prewalk(block, fn
+      {var, line, nil} = expr -> if var in bindings_vars, do: {var, line, mod}, else: expr
+      other -> other
+    end)
   end
 
   defp env_aliases(env) do

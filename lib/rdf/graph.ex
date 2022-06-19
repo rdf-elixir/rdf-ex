@@ -144,8 +144,8 @@ defmodule RDF.Graph do
 
   For a description of the DSL see [this guide](https://rdf-elixir.dev/rdf-ex/description-and-graph-dsl.html).
   """
-  defmacro build(opts \\ [], do: block) do
-    Builder.build(block, __CALLER__, Builder.builder_mod(__CALLER__), opts)
+  defmacro build(bindings \\ [], opts \\ [], do: block) do
+    Builder.build(block, __CALLER__, Builder.builder_mod(__CALLER__), bindings, opts)
   end
 
   @doc """

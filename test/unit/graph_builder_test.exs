@@ -495,7 +495,7 @@ defmodule RDF.Graph.BuilderTest do
 
     test "merge with prefixes opt" do
       graph =
-        RDF.Graph.build prefixes: [custom: EX] do
+        RDF.Graph.build [], prefixes: [custom: EX] do
           @prefix custom: TestNS.Custom
 
           Custom.S |> Custom.p(Custom.O)
@@ -604,6 +604,103 @@ defmodule RDF.Graph.BuilderTest do
     assert graph == RDF.graph(EX.S |> EX.p(EX.O))
   end
 
+  describe "bindings" do
+    test "passing a variable from the outer context" do
+      literal = "foo"
+
+      graph =
+        RDF.Graph.build literal: literal do
+          EX.S1 |> EX.p1(EX.O1)
+          EX.S2 |> EX.p2(literal)
+        end
+
+      assert graph ==
+               RDF.graph([
+                 EX.S1 |> EX.p1(EX.O1),
+                 EX.S2 |> EX.p2("foo")
+               ])
+    end
+
+    test "passing a complex expression from the outer context" do
+      literal = "foo"
+
+      graph =
+        RDF.Graph.build literal: String.upcase(literal <> "bar") do
+          EX.S1 |> EX.p1(EX.O1)
+          EX.S2 |> EX.p2(literal)
+        end
+
+      assert graph ==
+               RDF.graph([
+                 EX.S1 |> EX.p1(EX.O1),
+                 EX.S2 |> EX.p2("FOOBAR")
+               ])
+    end
+
+    test "passing a graph from a previous build step" do
+      graph =
+        (fn ->
+           graph1 =
+             RDF.Graph.build do
+               @prefix ad: "http://example.com/ad-hoc/"
+               @prefix ex1: "http://example.com/ad-hoc/ex1#"
+
+               Ad.S |> Ad.p(Ex1.O)
+             end
+
+           RDF.Graph.build graph: graph1 do
+             @prefix ad: "http://example.com/ad-hoc/"
+             @prefix ex2: "http://example.com/ad-hoc/ex2#"
+
+             graph
+
+             Ad.S |> Ad.p(Ex2.O)
+           end
+         end).()
+
+      assert graph ==
+               RDF.graph(
+                 [
+                   {
+                     RDF.iri("http://example.com/ad-hoc/S"),
+                     RDF.iri("http://example.com/ad-hoc/p"),
+                     RDF.iri("http://example.com/ad-hoc/ex1#O")
+                   },
+                   {
+                     RDF.iri("http://example.com/ad-hoc/S"),
+                     RDF.iri("http://example.com/ad-hoc/p"),
+                     RDF.iri("http://example.com/ad-hoc/ex2#O")
+                   }
+                 ],
+                 prefixes:
+                   RDF.default_prefixes(
+                     ad: "http://example.com/ad-hoc/",
+                     ex1: "http://example.com/ad-hoc/ex1#",
+                     ex2: "http://example.com/ad-hoc/ex2#"
+                   )
+               )
+    end
+
+    test "with opts" do
+      literal = "foo"
+
+      graph =
+        RDF.Graph.build [literal: literal], name: EX.Graph do
+          EX.S1 |> EX.p1(EX.O1)
+          EX.S2 |> EX.p2(literal)
+        end
+
+      assert graph ==
+               RDF.graph(
+                 [
+                   EX.S1 |> EX.p1(EX.O1),
+                   EX.S2 |> EX.p2("foo")
+                 ],
+                 name: EX.Graph
+               )
+    end
+  end
+
   test "opts" do
     initial = {EX.S, EX.p(), "init"}
 
@@ -615,7 +712,7 @@ defmodule RDF.Graph.BuilderTest do
     ]
 
     graph =
-      RDF.Graph.build opts do
+      RDF.Graph.build [], opts do
         EX.S |> EX.p(EX.O)
       end
 

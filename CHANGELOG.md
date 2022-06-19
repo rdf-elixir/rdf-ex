@@ -37,7 +37,8 @@ The generated namespaces are much more flexible now and compile faster.
   import no longer affect the caller context. `alias`es in the caller context are 
   still available in the build block, but `import`s not and must be reimported in 
   the build block. Variables in the caller context are also no longer available 
-  build block.
+  build block, but must be passed explicitly with the new optional `bindings`
+  argument of `RDF.Graph.build/3`.
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always
