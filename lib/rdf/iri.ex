@@ -58,7 +58,7 @@ defmodule RDF.IRI do
   def new(iri)
   def new(iri) when is_binary(iri), do: %__MODULE__{value: iri}
   def new(term) when maybe_ns_term(term), do: Namespace.resolve_term!(term)
-  def new(%URI{} = uri), do: uri |> URI.to_string() |> new
+  def new(%URI{} = uri), do: uri |> URI.to_string() |> new()
   def new(%__MODULE__{} = iri), do: iri
 
   @doc """
@@ -367,12 +367,8 @@ defmodule RDF.IRI do
   """
   @spec to_string(t | module) :: String.t()
   def to_string(iri)
-
-  def to_string(%__MODULE__{value: value}),
-    do: value
-
-  def to_string(term) when maybe_ns_term(term),
-    do: term |> new() |> __MODULE__.to_string()
+  def to_string(%__MODULE__{value: value}), do: value
+  def to_string(term) when maybe_ns_term(term), do: term |> new() |> __MODULE__.to_string()
 
   defimpl String.Chars do
     def to_string(iri), do: RDF.IRI.to_string(iri)
