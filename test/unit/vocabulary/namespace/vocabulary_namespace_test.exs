@@ -6,6 +6,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
   import RDF.Sigils
 
   alias RDF.Description
+  alias RDF.NS.RDFS
 
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.EX}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.ExampleFromGraph}
@@ -55,24 +56,16 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_iri: "http://example.com/from_graph#",
       data:
         RDF.Graph.new([
-          {~I<http://example.com/from_graph#foo>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-          {~I<http://example.com/from_graph#Bar>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-           ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+          {~I<http://example.com/from_graph#foo>, RDF.type(), RDF.Property},
+          {~I<http://example.com/from_graph#Bar>, RDF.type(), RDFS.Resource}
         ])
 
     defvocab ExampleFromDataset,
       base_iri: "http://example.com/from_dataset#",
       data:
         RDF.Dataset.new([
-          {~I<http://example.com/from_dataset#foo>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-          {~I<http://example.com/from_dataset#Bar>,
-           ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-           ~I<http://www.w3.org/2000/01/rdf-schema#Resource>,
+          {~I<http://example.com/from_dataset#foo>, RDF.type(), RDF.Property},
+          {~I<http://example.com/from_dataset#Bar>, RDF.type(), RDFS.Resource,
            ~I<http://example.com/from_dataset#Graph>}
         ])
 
@@ -648,10 +641,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
           case_violations: :fail,
           data:
             RDF.Graph.new([
-              {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-              {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+              {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
             ]),
           alias: [
             foo: "Foo",
@@ -669,10 +660,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
           case_violations: :ignore,
           data:
             RDF.Graph.new([
-              {~I<http://example.com/ex#Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-              {~I<http://example.com/ex#bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+              {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
             ]),
           alias: [
             foo: "Foo",
@@ -691,9 +680,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             case_violations: :fail,
             data:
               RDF.Graph.new([
-                {~I<http://example.com/ex#Foo>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>}
+                {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property}
               ])
         end
       end
@@ -709,9 +696,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             case_violations: :fail,
             data:
               RDF.Graph.new([
-                {~I<http://example.com/ex#bar>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-                 ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+                {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
               ])
         end
       end
@@ -727,9 +712,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             case_violations: :fail,
             data:
               RDF.Graph.new([
-                {~I<http://example.com/ex#foo>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>}
+                {~I<http://example.com/ex#foo>, RDF.type(), RDF.Property}
               ]),
             alias: [Foo: "foo"]
         end
@@ -746,9 +729,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             case_violations: :fail,
             data:
               RDF.Graph.new([
-                {~I<http://example.com/ex#Bar>,
-                 ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-                 ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+                {~I<http://example.com/ex#Bar>, RDF.type(), RDFS.Resource}
               ]),
             alias: [bar: "Bar"]
         end
@@ -764,12 +745,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
           case_violations: :fail,
           data:
             RDF.Graph.new([
-              {~I<http://example.com/ex#_Foo>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-              {~I<http://example.com/ex#_bar>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+              {~I<http://example.com/ex#_Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#_bar>, RDF.type(), RDFS.Resource}
             ])
       end
     end
@@ -783,10 +760,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         base_iri: "http://example.com/",
         data:
           RDF.Graph.new([
-            {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-             ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-            {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-             ~I<http://www.w3.org/2000/01/rdf-schema#Resource>}
+            {~I<http://example.com/foo>, RDF.type(), RDF.Property},
+            {~I<http://example.com/Bar>, RDF.type(), RDFS.Resource}
           ]),
         ignore: ["foo"]
 
@@ -794,10 +769,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
         base_iri: "http://example.com/",
         data:
           RDF.Dataset.new([
-            {~I<http://example.com/foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-             ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-            {~I<http://example.com/Bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-             ~I<http://www.w3.org/2000/01/rdf-schema#Resource>,
+            {~I<http://example.com/foo>, RDF.type(), RDF.Property},
+            {~I<http://example.com/Bar>, RDF.type(), RDFS.Resource,
              ~I<http://example.com/from_dataset#Graph>}
           ]),
         ignore: ~w[Bar]
@@ -939,10 +912,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
           base_iri: "http://example.com/",
           data:
             RDF.Dataset.new([
-              {~I<http://example.com/Foo>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>},
-              {~I<http://example.com/bar>, ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
-               ~I<http://www.w3.org/2000/01/rdf-schema#Resource>,
+              {~I<http://example.com/Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/bar>, RDF.type(), RDFS.Resource,
                ~I<http://example.com/from_dataset#Graph>}
             ]),
           case_violations: :fail,
