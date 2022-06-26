@@ -139,6 +139,18 @@ defmodule RDF.Vocabulary.NamespaceTest do
       base_iri: "http://example.com/ex#",
       terms: [foo: "bar", baz: "bar", Foo: "Bar", Baz: "Bar"]
 
+    defvocab ExampleWithAutoFixedCaseViolations,
+      base_iri: "http://example.com/ex#",
+      case_violations: :auto_fix,
+      data:
+        RDF.Graph.new([
+          {~I<http://example.com/ex#FooTest>, RDF.type(), RDF.Property},
+          {~I<http://example.com/ex#barTest>, RDF.type(), RDF.Property},
+          {~I<http://example.com/ex#bazTest>, RDF.type(), RDFS.Resource},
+          {~I<http://example.com/ex#baazTest>, RDF.type(), RDFS.Resource}
+        ]),
+      alias: [BaazAlias: :baazTest]
+
     defvocab ExampleWithCustomInlineCaseViolationFunction,
       base_iri: "http://example.com/ex#",
       case_violations: fn
@@ -797,6 +809,15 @@ defmodule RDF.Vocabulary.NamespaceTest do
               {~I<http://example.com/ex#_bar>, RDF.type(), RDFS.Resource}
             ])
       end
+    end
+
+    test "auto_fix case violations" do
+      alias TestNS.ExampleWithAutoFixedCaseViolations, as: Example
+
+      assert Example.fooTest() == RDF.iri(Example.__base_iri__() <> "FooTest")
+      assert Example.barTest() == RDF.iri(Example.__base_iri__() <> "barTest")
+      assert RDF.iri(Example.BazTest) == RDF.iri(Example.__base_iri__() <> "bazTest")
+      assert RDF.iri(Example.BaazAlias) == RDF.iri(Example.__base_iri__() <> "baazTest")
     end
 
     test "case violation function (inline)" do

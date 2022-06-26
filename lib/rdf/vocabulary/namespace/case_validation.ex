@@ -145,6 +145,10 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     terms_and_ignored
   end
 
+  defp do_handle_case_violations(terms_and_ignored, violation_groups, :auto_fix, base_iri) do
+    do_handle_case_violations(terms_and_ignored, violation_groups, &auto_fix_term/2, base_iri)
+  end
+
   defp do_handle_case_violations(terms_and_ignored, violation_groups, fun, base_iri)
        when is_function(fun) do
     {alias_violations, term_violations} =
@@ -209,4 +213,11 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   defp case_violation_warning(:lowercased_alias, term, _, _) do
     IO.warn("lowercased alias '#{term}' for a non-property resource")
   end
+
+  defp auto_fix_term(:property, term) do
+    {first, rest} = String.next_grapheme(term)
+    {:ok, String.downcase(first) <> rest}
+  end
+
+  defp auto_fix_term(:resource, term), do: {:ok, :string.titlecase(term)}
 end
