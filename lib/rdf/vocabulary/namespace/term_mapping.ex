@@ -72,12 +72,12 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     end)
   end
 
-  defp normalize_term(term) when is_atom(term), do: term
-  defp normalize_term(term) when is_binary(term), do: String.to_atom(term)
-  defp normalize_term(term), do: raise(RDF.Namespace.InvalidTermError, inspect(term))
+  def normalize_term(term) when is_atom(term), do: term
+  def normalize_term(term) when is_binary(term), do: String.to_atom(term)
+  def normalize_term(term), do: raise(RDF.Namespace.InvalidTermError, inspect(term))
 
-  defp normalize_aliased_term(term) when is_binary(term), do: term
-  defp normalize_aliased_term(term) when is_atom(term), do: Atom.to_string(term)
+  def normalize_aliased_term(term) when is_binary(term), do: term
+  def normalize_aliased_term(term) when is_atom(term), do: Atom.to_string(term)
 
   def normalize_ignored_terms(terms), do: MapSet.new(terms, &normalize_term/1)
 

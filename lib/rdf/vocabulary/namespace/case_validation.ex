@@ -2,6 +2,9 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   import RDF.Vocabulary, only: [term_to_iri: 2]
   import RDF.Utils, only: [downcase?: 1]
 
+  import RDF.Vocabulary.Namespace.TermMapping,
+    only: [normalize_term: 1, normalize_aliased_term: 1]
+
   alias RDF.Vocabulary.ResourceClassifier
 
   def validate_case!(terms_and_ignored, nil, _, _, _), do: terms_and_ignored
@@ -59,6 +62,10 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
       base_uri
     )
   end
+
+  defp do_handle_case_violations(terms_and_ignored, grouped_violations, _, _)
+       when map_size(grouped_violations) == 0,
+       do: terms_and_ignored
 
   defp do_handle_case_violations(_, violations, :fail, base_iri) do
     resource_name_violations = fn violations ->
@@ -136,6 +143,55 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     end
 
     terms_and_ignored
+  end
+
+  defp do_handle_case_violations(terms_and_ignored, violation_groups, fun, base_iri)
+       when is_function(fun) do
+    {alias_violations, term_violations} =
+      Map.split(violation_groups, [:capitalized_alias, :lowercased_alias])
+
+    do_handle_case_violations(terms_and_ignored, alias_violations, :fail, base_iri)
+
+    Enum.reduce(term_violations, terms_and_ignored, fn {group, violations}, terms_and_ignored ->
+      type =
+        case group do
+          :capitalized_term -> :property
+          :lowercased_term -> :resource
+        end
+
+      Enum.reduce(violations, terms_and_ignored, fn {term, _}, {terms, ignored_terms} ->
+        case fun.(type, Atom.to_string(term)) do
+          :ignore ->
+            {Map.delete(terms, term), MapSet.put(ignored_terms, term)}
+
+          {:error, error} ->
+            raise error
+
+          {:ok, alias} ->
+            {Map.put(terms, normalize_term(alias), normalize_aliased_term(term)), ignored_terms}
+        end
+      end)
+    end)
+  end
+
+  defp do_handle_case_violations(terms_and_ignored, violation_groups, {mod, fun}, base_iri)
+       when is_atom(mod) and is_atom(fun) do
+    do_handle_case_violations(
+      terms_and_ignored,
+      violation_groups,
+      &apply(mod, fun, [&1, &2]),
+      base_iri
+    )
+  end
+
+  defp do_handle_case_violations(terms_and_ignored, violation_groups, {mod, fun, args}, base_iri)
+       when is_atom(mod) and is_atom(fun) and is_list(args) do
+    do_handle_case_violations(
+      terms_and_ignored,
+      violation_groups,
+      &apply(mod, fun, [&1, &2 | args]),
+      base_iri
+    )
   end
 
   defp case_violation_warning(:capitalized_term, term, _, base_iri) do

@@ -12,13 +12,15 @@ The generated namespaces are much more flexible now and compile faster.
 
 ### Added
 
-- `RDF.Namespace` builders `defnamespace/3` and `create/4`
 - `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
+- `RDF.Namespace` builders `defnamespace/3` and `create/4`
 - macro `RDF.Namespace.IRI.iri/1` which allows to resolve `RDF.Namespace` terms 
   inside of pattern matches
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
 - `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
-  with a `@prefix` declaration providing the URI of the namespace as a string  
+  with a `@prefix` declaration providing the URI of the namespace as a string
+- the `case_violations` option of `defvocab` now supports custom handler functions,
+  either as an inline function or as a function on a separate module
 
 ### Changed
 
