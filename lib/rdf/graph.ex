@@ -739,7 +739,7 @@ defmodule RDF.Graph do
   """
   @impl Access
   @spec get_and_update(t, Statement.coercible_subject(), get_and_update_description_fun) ::
-          {Description.t(), input}
+          {Description.t(), t}
   def get_and_update(%__MODULE__{} = graph, subject, fun) do
     subject = RDF.coerce_subject(subject)
 

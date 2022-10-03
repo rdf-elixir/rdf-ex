@@ -443,7 +443,7 @@ defmodule RDF.Dataset do
       {RDF.Graph.new({EX.S, EX.P, EX.O}, name: EX.Graph), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   @impl Access
-  @spec get_and_update(t, Statement.graph_name() | nil, update_graph_fun) :: {Graph.t(), input}
+  @spec get_and_update(t, Statement.graph_name() | nil, update_graph_fun) :: {Graph.t(), t}
   def get_and_update(%__MODULE__{} = dataset, graph_name, fun) do
     graph_context = coerce_graph_name(graph_name)
 
