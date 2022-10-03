@@ -42,7 +42,7 @@ defmodule RDF.IRI do
 
   See [section 5.1.4 of RFC 3987](https://tools.ietf.org/html/rfc3986#page-29)
   """
-  case Application.get_env(:rdf, :default_base_iri) do
+  case Application.compile_env(:rdf, :default_base_iri) do
     {mod, fun} ->
       def default_base(), do: apply(unquote(mod), unquote(fun), [])
 

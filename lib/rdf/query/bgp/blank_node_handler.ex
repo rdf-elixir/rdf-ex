@@ -3,7 +3,7 @@ defmodule RDF.Query.BGP.BlankNodeHandler do
 
   alias RDF.BlankNode
 
-  @default_remove_bnode_query_variables Application.get_env(
+  @default_remove_bnode_query_variables Application.compile_env(
                                           :rdf,
                                           :default_remove_bnode_query_variables,
                                           true

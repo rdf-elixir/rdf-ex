@@ -27,6 +27,9 @@ The generated namespaces are much more flexible now and compile faster.
   which adapts the first letter of violating term accordingly. It also supports
   custom handler functions, either as an inline function or as a function on a 
   separate module.
+- `RDF.PrefixMap.to_list/1`
+- `RDF.PropertyMap.to_list/1`
+- support for Elixir 1.14
 
 ### Changed
 

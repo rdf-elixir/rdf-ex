@@ -56,7 +56,7 @@ defmodule RDF do
   import RDF.Guards
   import RDF.Utils.Bootstrapping
 
-  @star? Application.get_env(:rdf, :star, true)
+  @star? Application.compile_env(:rdf, :star, true)
   @doc """
   Returns whether RDF-star support is enabled.
   """
@@ -111,9 +111,9 @@ defmodule RDF do
         use_standard_prefixes: false
 
   """
-  case Application.get_env(:rdf, :default_prefixes, %{}) do
+  case Application.compile_env(:rdf, :default_prefixes, %{}) do
     {mod, fun} ->
-      if Application.get_env(:rdf, :use_standard_prefixes, true) do
+      if Application.compile_env(:rdf, :use_standard_prefixes, true) do
         def default_prefixes() do
           PrefixMap.merge!(@standard_prefixes, apply(unquote(mod), unquote(fun), []))
         end
@@ -123,7 +123,7 @@ defmodule RDF do
 
     default_prefixes ->
       @default_prefixes PrefixMap.new(default_prefixes)
-      if Application.get_env(:rdf, :use_standard_prefixes, true) do
+      if Application.compile_env(:rdf, :use_standard_prefixes, true) do
         def default_prefixes() do
           PrefixMap.merge!(@standard_prefixes, @default_prefixes)
         end

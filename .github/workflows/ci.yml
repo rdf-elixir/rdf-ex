@@ -25,20 +25,20 @@ jobs:
             no-warnings-as-errors: true
           - pair:
               elixir: 1.12.3
-              otp: 24.3.4
+              otp: 23.3
 # Although Elixir 1.12 supports this feature, we're expecting errors since the code to suppress
 # undefined-function-warnings on RDF.Graph.build blocks relies on Elixir 1.13 and is disabled
 # partially on older versions.
             no-warnings-as-errors: true
           - pair:
               elixir: 1.13.4
-              otp: 23.3
-          - pair:
-              elixir: 1.13.4
               otp: 24.3
           - pair:
-              elixir: 1.13.4
-              otp: 25.0
+              elixir: 1.14
+              otp: 24.3
+          - pair:
+              elixir: 1.14
+              otp: 25.1
             lint: lint
     steps:
       - uses: actions/checkout@v2
