@@ -28,7 +28,7 @@ defmodule RDF.PropertyMap do
           terms: %{IRI.t() => atom}
         }
 
-  @type input :: t | map | keyword | RDF.Vocabulary.Namespace.t()
+  @type input :: t | map | keyword | RDF.Namespace.t() | RDF.Vocabulary.Namespace.t()
 
   @behaviour Access
 
@@ -129,26 +129,33 @@ defmodule RDF.PropertyMap do
   - as keyword lists or maps where terms for the RDF properties can
     be given as atoms or strings, while the property IRIs can be given as
     `RDF.IRI`s or strings
-  - a strict `RDF.Vocabulary.Namespace` from which all lowercased terms are added
+  - a strict `RDF.Vocabulary.Namespace` from which all lowercase terms are added
     with their respective IRI; since IRIs can also be once in a
     `RDF.PropertyMap` a defined alias term is preferred over an original term
+  - a `RDF.Namespace` from which all lowercase terms are added
+    with their respective IRI
   - another `RDF.PropertyMap` from which all mappings are merged
 
   Unless a mapping for any of the terms or IRIs in the `input` already exists,
   an `:ok` tuple is returned, otherwise an `:error` tuple.
   """
   @spec add(t, input) :: {:ok, t} | {:error, String.t()}
-  def add(%__MODULE__{} = property_map, vocab_namespace) when maybe_ns_term(vocab_namespace) do
-    cond do
-      not RDF.Vocabulary.Namespace.vocabulary_namespace?(vocab_namespace) ->
-        raise ArgumentError, "expected a vocabulary namespace, but got #{vocab_namespace}"
+  def add(%__MODULE__{} = property_map, namespace) when maybe_ns_term(namespace) do
+    is_vocabulary_namespace = RDF.Vocabulary.Namespace.vocabulary_namespace?(namespace)
 
-      not apply(vocab_namespace, :__strict__, []) ->
+    cond do
+      not is_vocabulary_namespace and RDF.Namespace.namespace?(namespace) ->
+        add(property_map, mapping_from_namespace(namespace))
+
+      not is_vocabulary_namespace ->
+        raise ArgumentError, "expected a vocabulary namespace, but got #{namespace}"
+
+      not apply(namespace, :__strict__, []) ->
         raise ArgumentError,
-              "expected a strict vocabulary namespace, but #{vocab_namespace} is non-strict"
+              "expected a strict vocabulary namespace, but #{namespace} is non-strict"
 
       true ->
-        add(property_map, mapping_from_vocab_namespace(vocab_namespace))
+        add(property_map, mapping_from_vocab_namespace(namespace))
     end
   end
 
@@ -287,6 +294,11 @@ defmodule RDF.PropertyMap do
         Enum.find(mappings, fn {term, _iri} -> term in aliases end) ||
           raise "conflicting non-alias terms for IRI should not occur in a vocab namespace"
     end)
+  end
+
+  defp mapping_from_namespace(namespace) do
+    apply(namespace, :__term_mapping__, [])
+    |> Enum.filter(fn {term, _} -> downcase?(term) end)
   end
 
   @impl Access

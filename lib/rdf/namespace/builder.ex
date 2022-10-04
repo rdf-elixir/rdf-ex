@@ -112,6 +112,8 @@ defmodule RDF.Namespace.Builder do
   def define_namespace_functions(term_mapping) do
     quote do
       @term_mapping unquote(Macro.escape(term_mapping))
+      def __term_mapping__, do: @term_mapping
+
       @impl Elixir.RDF.Namespace
       def __terms__, do: Map.keys(@term_mapping)
 

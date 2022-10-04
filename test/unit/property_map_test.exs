@@ -7,11 +7,16 @@ defmodule RDF.PropertyMapTest do
 
   defmodule TestNS do
     use RDF.Vocabulary.Namespace
+    import RDF.Namespace
 
     defvocab ExampleWithConflict,
       base_iri: "http://example.com/",
       terms: ~w[term],
       alias: [alias_term: "term"]
+
+    defnamespace ExampleNamespace,
+      foo: "http://example1.com/foo",
+      Bar: "http://example2.com/Bar"
   end
 
   @example_property_map %PropertyMap{
@@ -176,6 +181,11 @@ defmodule RDF.PropertyMapTest do
       assert_raise ArgumentError, ~r/non-strict/, fn ->
         PropertyMap.add(PropertyMap.new(), EX)
       end
+    end
+
+    test "with a RDF.Namespace module" do
+      assert PropertyMap.add(PropertyMap.new(), TestNS.ExampleNamespace) ==
+               {:ok, PropertyMap.new(foo: "http://example1.com/foo")}
     end
 
     test "when a mapping to the same IRI exists" do

@@ -2,8 +2,8 @@ defmodule RDF.Namespace do
   @moduledoc """
   A behaviour for resolvers of atoms to `RDF.IRI`s.
 
-  Currently there's only one type of such namespaces: `RDF.Vocabulary.Namespace`,
-  but other types are thinkable and might be implemented in the future, eg.
+  Currently, there's only one type of such namespaces: `RDF.Vocabulary.Namespace`,
+  but other types are thinkable and might be implemented in the future, e.g.
   namespaces for JSON-LD contexts.
   """
 
@@ -11,6 +11,8 @@ defmodule RDF.Namespace do
   alias RDF.Namespace.Builder
 
   import RDF.Guards
+
+  @type t :: module
 
   @doc """
   Resolves a term to a `RDF.IRI`.
