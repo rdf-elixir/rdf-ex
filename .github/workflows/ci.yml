@@ -5,7 +5,8 @@ on:
   push:
     branches:
       - master
-
+    paths-ignore:
+      - '**.md'
 jobs:
   test:
     runs-on: ubuntu-18.04
