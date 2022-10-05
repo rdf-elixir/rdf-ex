@@ -2,11 +2,14 @@
 
 # RDF.ex
 
-[![CI](https://github.com/rdf-elixir/rdf-ex/workflows/CI/badge.svg?branch=master)](https://github.com/rdf-elixir/rdf-ex/actions?query=branch%3Amaster+workflow%3ACI)
 [![Hex.pm](https://img.shields.io/hexpm/v/rdf.svg?style=flat-square)](https://hex.pm/packages/rdf)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/rdf/)
 [![Total Download](https://img.shields.io/hexpm/dt/rdf.svg)](https://hex.pm/packages/rdf)
 [![License](https://img.shields.io/hexpm/l/rdf.svg)](https://github.com/rdf-elixir/rdf-ex/blob/master/LICENSE.md)
+
+[![ExUnit Tests](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-build-and-test.yml/badge.svg)](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-build-and-test.yml)
+[![Dialyzer](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-dialyzer.yml/badge.svg)](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-dialyzer.yml)
+[![Quality Checks](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-quality-checks.yml/badge.svg)](https://github.com/rdf-elixir/rdf-ex/actions/workflows/elixir-quality-checks.yml)
 
 
 An implementation of the [RDF](https://www.w3.org/TR/rdf11-primer/) data model in Elixir.
