@@ -1,0 +1,37 @@
+name: Elixir Quality Checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  quality_checks:
+    name: Formatting and Unused Deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: ["1.14.0"]
+        otp: ["25.1.1"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Elixir Project
+        uses: ./.github/actions/elixir-setup
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+          build-app: false
+
+      - name: Check for unused deps
+        run: mix deps.unlock --check-unused
+      - name: Check code formatting
+        run: mix format --check-formatted
+        # Check formatting even if there were unused deps so that
+        # we give devs as much feedback as possible & save some time.
+        if: always()

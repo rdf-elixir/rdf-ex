@@ -1,0 +1,58 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        include:
+          - pair:
+              elixir: 1.10.4
+              otp: 21.3
+            build-flags:
+          - pair:
+              elixir: 1.11.3
+              otp: 22.2
+            build-flags:
+          - pair:
+              elixir: 1.12.3
+              otp: 23.3
+            build-flags:
+          - pair:
+              elixir: 1.13.4
+              otp: 24.3
+            build-flags: --warnings-as-errors
+          - pair:
+              elixir: 1.14.0
+              otp: 24.3
+            build-flags: --warnings-as-errors
+          - pair:
+              elixir: 1.14.0
+              otp: 25.1
+            build-flags: --warnings-as-errors
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Elixir Project
+        uses: ./.github/actions/elixir-setup
+        with:
+          elixir-version: ${{ matrix.pair.elixir }}
+          otp-version: ${{ matrix.pair.otp }}
+          build-flags: --all-warnings ${{ matrix.build-flags }}
+
+      - name: Run Tests
+        run: mix coveralls.github ${{ matrix.build-flags }}
+        if: always()
