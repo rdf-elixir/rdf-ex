@@ -41,27 +41,7 @@ defmodule RDF.NamespaceTest do
                  init: {SimpleNS.foo(), ~I<http://example.com/Bar>}
                )
 
-      assert EX.Foo |> SimpleNS.foo([1, 2, 3]) ==
-               RDF.description(~I<http://example.com/Foo>,
-                 init: {SimpleNS.foo(), [1, 2, 3]}
-               )
-
-      assert EX.Foo |> SimpleNS.foo(1, 2) ==
-               RDF.description(~I<http://example.com/Foo>,
-                 init: {SimpleNS.foo(), [1, 2]}
-               )
-
-      assert EX.Foo |> SimpleNS.foo(1, 2, 3) ==
-               RDF.description(~I<http://example.com/Foo>,
-                 init: {SimpleNS.foo(), [1, 2, 3]}
-               )
-
-      assert EX.Foo |> SimpleNS.foo(1, 2, 3, 4) ==
-               RDF.description(~I<http://example.com/Foo>,
-                 init: {SimpleNS.foo(), [1, 2, 3, 4]}
-               )
-
-      assert EX.Foo |> SimpleNS.foo(1, 2, 3, 4, 5) ==
+      assert EX.Foo |> SimpleNS.foo([1, 2, 3, 4, 5]) ==
                RDF.description(~I<http://example.com/Foo>,
                  init: {SimpleNS.foo(), [1, 2, 3, 4, 5]}
                )

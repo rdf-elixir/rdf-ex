@@ -475,7 +475,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert Example.update_in() == ~I<http://example.com/ex#update_in>
     assert Example.use() == ~I<http://example.com/ex#use>
 
-    assert %Description{} = EX.S |> Example.update_in(EX.O1, EX.O2)
+    assert %Description{} = EX.S |> Example.update_in(EX.O)
   end
 
   describe "defvocab with reserved terms" do
@@ -1311,7 +1311,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
                Description.new(EX.S, init: [{EXS.foo(), EX.O1}, {EXS.bar(), EX.O2}])
     end
 
-    test "multiple statements with strict property terms and multiple objects in a list" do
+    test "multiple statements with strict property terms and multiple objects" do
       description =
         EX.S
         |> EXS.foo([EX.O1, EX.O2])
@@ -1324,24 +1324,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
                    {EXS.foo(), EX.O2},
                    {EXS.bar(), EX.O3},
                    {EXS.bar(), EX.O4}
-                 ]
-               )
-    end
-
-    test "multiple statements with strict property terms and multiple objects as arguments" do
-      description =
-        EX.S
-        |> EXS.foo(EX.O1, EX.O2)
-        |> EXS.bar(EX.O3, EX.O4, EX.O5)
-
-      assert description ==
-               Description.new(EX.S,
-                 init: [
-                   {EXS.foo(), EX.O1},
-                   {EXS.foo(), EX.O2},
-                   {EXS.bar(), EX.O3},
-                   {EXS.bar(), EX.O4},
-                   {EXS.bar(), EX.O5}
                  ]
                )
     end
@@ -1459,11 +1441,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     test "description DSL" do
       alias TestNS.EX
-      assert RDF.type(EX.S, 1) == RDF.NS.RDF.type(EX.S, 1)
-      assert RDF.subject(EX.S, 1, 2) == RDF.NS.RDF.subject(EX.S, 1, 2)
-      assert RDF.predicate(EX.S, 1, 2, 3) == RDF.NS.RDF.predicate(EX.S, 1, 2, 3)
-      assert RDF.object(EX.S, 1, 2, 3, 4) == RDF.NS.RDF.object(EX.S, 1, 2, 3, 4)
-      assert RDF.first(EX.S, 1, 2, 3, 4, 5) == RDF.NS.RDF.first(EX.S, 1, 2, 3, 4, 5)
+      assert RDF.type(EX.S, 42) == RDF.NS.RDF.type(EX.S, 42)
+      assert RDF.subject(EX.S, 42) == RDF.NS.RDF.subject(EX.S, 42)
+      assert RDF.predicate(EX.S, 42) == RDF.NS.RDF.predicate(EX.S, 42)
+      assert RDF.object(EX.S, 42) == RDF.NS.RDF.object(EX.S, 42)
+      assert RDF.first(EX.S, 42) == RDF.NS.RDF.first(EX.S, 42)
       assert RDF.rest(EX.S, [1, 2, 3, 4, 5, 6]) == RDF.NS.RDF.rest(EX.S, [1, 2, 3, 4, 5, 6])
 
       assert RDF.value(EX.S, [1, 2, 3, 4, 5, 6, 7]) ==

@@ -325,14 +325,6 @@ defmodule RDF do
     defdelegate unquote(term)(), to: RDF.NS.RDF
     @doc false
     defdelegate unquote(term)(s, o), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3, o4), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
   defdelegate langString(), to: RDF.NS.RDF

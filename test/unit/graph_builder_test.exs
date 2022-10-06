@@ -158,23 +158,15 @@ defmodule RDF.Graph.BuilderTest do
     graph =
       RDF.Graph.build do
         EX.S1 |> a(EX.Class1)
-        EX.S2 |> a(EX.Class1, EX.Class1)
-        EX.S3 |> a(EX.Class1, EX.Class2, EX.Class3)
-        EX.S4 |> a(EX.Class1, EX.Class2, EX.Class3)
-        EX.S5 |> a(EX.Class1, EX.Class2, EX.Class3, EX.Class4)
-        EX.S5 |> a(EX.Class1, EX.Class2, EX.Class3, EX.Class4, EX.Class5)
-        {EX.S6, a(), EX.O2}
+        EX.S2 |> a([EX.Class1, EX.Class2, EX.Class3, EX.Class4, EX.Class5])
+        {EX.S3, a(), EX.O}
       end
 
     assert graph ==
              RDF.graph([
                EX.S1 |> RDF.type(EX.Class1),
-               EX.S2 |> RDF.type(EX.Class1, EX.Class1),
-               EX.S3 |> RDF.type(EX.Class1, EX.Class2, EX.Class3),
-               EX.S4 |> RDF.type(EX.Class1, EX.Class2, EX.Class3),
-               EX.S5 |> RDF.type(EX.Class1, EX.Class2, EX.Class3, EX.Class4),
-               EX.S5 |> RDF.type(EX.Class1, EX.Class2, EX.Class3, EX.Class4, EX.Class5),
-               {EX.S6, RDF.type(), EX.O2}
+               EX.S2 |> RDF.type([EX.Class1, EX.Class2, EX.Class3, EX.Class4, EX.Class5]),
+               {EX.S3, RDF.type(), EX.O}
              ])
   end
 

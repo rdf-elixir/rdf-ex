@@ -94,7 +94,7 @@ defmodule RDF.ListTest do
                ~B<Foo>,
                Graph.new(
                  ~B<Foo>
-                 |> RDF.first(1, 2)
+                 |> RDF.first([1, 2])
                  |> RDF.rest(RDF.nil())
                )
              ) == nil
@@ -110,7 +110,7 @@ defmodule RDF.ListTest do
                )
                |> Graph.add(
                  ~B<Bar>
-                 |> RDF.first(2, 3)
+                 |> RDF.first([2, 3])
                  |> RDF.rest(RDF.nil())
                )
              ) == nil
@@ -122,7 +122,7 @@ defmodule RDF.ListTest do
                Graph.new(
                  ~B<Foo>
                  |> RDF.first(1)
-                 |> RDF.rest(~B<Bar>, ~B<Baz>)
+                 |> RDF.rest([~B<Bar>, ~B<Baz>])
                )
                |> Graph.add(
                  ~B<Bar>
@@ -146,7 +146,7 @@ defmodule RDF.ListTest do
                |> Graph.add(
                  ~B<Bar>
                  |> RDF.first(2)
-                 |> RDF.rest(RDF.nil(), ~B<Baz>)
+                 |> RDF.rest([RDF.nil(), ~B<Baz>])
                )
                |> Graph.add(
                  ~B<Baz>

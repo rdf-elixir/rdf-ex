@@ -90,22 +90,6 @@ defmodule RDF.Namespace.Builder do
       def unquote(term)(subject, object) do
         Description.new(subject, init: {unquote(Macro.escape(iri)), object})
       end
-
-      @doc false
-      def unquote(term)(subject, o1, o2),
-        do: unquote(term)(subject, [o1, o2])
-
-      @doc false
-      def unquote(term)(subject, o1, o2, o3),
-        do: unquote(term)(subject, [o1, o2, o3])
-
-      @doc false
-      def unquote(term)(subject, o1, o2, o3, o4),
-        do: unquote(term)(subject, [o1, o2, o3, o4])
-
-      @doc false
-      def unquote(term)(subject, o1, o2, o3, o4, o5),
-        do: unquote(term)(subject, [o1, o2, o3, o4, o5])
     end
   end
 

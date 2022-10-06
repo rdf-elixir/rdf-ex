@@ -33,6 +33,10 @@ The generated namespaces are much more flexible now and compile faster.
 
 ### Changed
 
+- Support for passing multiple objects as separate arguments to the property
+  functions of the description DSL on the vocabulary namespaces was removed   
+  to create space for further arguments for other purposes in the future. 
+  Multiple objects must be given now in a list instead. 
 - The `:base_iri` specified in `defvocab` can now be given in any form supported
   by `RDF.IRI.new/1`. There are also no longer restrictions on the expression 
   of this value. While previously the value had to be provided as a literal value,
