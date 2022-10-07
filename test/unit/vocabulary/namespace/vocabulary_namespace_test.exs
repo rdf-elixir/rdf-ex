@@ -314,7 +314,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
           inbits
           inlist
           receive
-          __info__
           __MODULE__
           __FILE__
           __DIR__
@@ -345,7 +344,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
     assert Example.inlist() == ~I<http://example.com/ex#inlist>
     assert Example.receive() == ~I<http://example.com/ex#receive>
     #    assert Example.__block__   == ~I<http://example.com/ex#__block__>
-    assert Example.__info__() == ~I<http://example.com/ex#__info__>
     assert Example.__MODULE__() == ~I<http://example.com/ex#__MODULE__>
     assert Example.__FILE__() == ~I<http://example.com/ex#__FILE__>
     assert Example.__DIR__() == ~I<http://example.com/ex#__DIR__>
@@ -579,6 +577,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
             require_: "require",
             super_: "super",
             _aliases_: "__aliases__",
+            _info_: "__info__",
             def_: "def",
             defp_: "defp",
             defoverridable_: "defoverridable",
@@ -1301,6 +1300,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert EXS.foo(EX.S, EX.O) == Description.new(EX.S, init: {EXS.foo(), EX.O})
     end
 
+    test "description accessor" do
+      assert Description.new(EX.S, init: {EXS.foo(), EX.O})
+             |> EXS.foo() == [RDF.iri(EX.O)]
+    end
+
     test "multiple statements with strict property terms and one object" do
       description =
         EX.S
@@ -1439,7 +1443,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert RDF.nil() == ~I<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>
     end
 
-    test "description DSL" do
+    test "description builder" do
       alias TestNS.EX
       assert RDF.type(EX.S, 42) == RDF.NS.RDF.type(EX.S, 42)
       assert RDF.subject(EX.S, 42) == RDF.NS.RDF.subject(EX.S, 42)
@@ -1450,6 +1454,27 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
       assert RDF.value(EX.S, [1, 2, 3, 4, 5, 6, 7]) ==
                RDF.NS.RDF.value(EX.S, [1, 2, 3, 4, 5, 6, 7])
+    end
+
+    test "description accessor" do
+      alias TestNS.EX
+
+      description =
+        EX.S
+        |> RDF.type(EX.Class)
+        |> RDF.subject(42)
+        |> RDF.predicate(42)
+        |> RDF.object(42)
+        |> RDF.first(42)
+        |> RDF.rest([1, 2, 3, 4, 5, 6])
+
+      assert description |> RDF.type() == description |> RDF.NS.RDF.type()
+      assert description |> RDF.subject() == description |> RDF.NS.RDF.subject()
+      assert description |> RDF.predicate() == description |> RDF.NS.RDF.predicate()
+      assert description |> RDF.object() == description |> RDF.NS.RDF.object()
+      assert description |> RDF.first() == description |> RDF.NS.RDF.first()
+      assert description |> RDF.rest() == description |> RDF.NS.RDF.rest()
+      assert description |> RDF.value() == description |> RDF.NS.RDF.value()
     end
   end
 end

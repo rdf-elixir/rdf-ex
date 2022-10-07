@@ -83,6 +83,10 @@ defmodule RDF.Namespace.Builder do
       @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
       def unquote(term)(subject, object)
 
+      def unquote(term)(%Description{} = subject) do
+        Description.get(subject, unquote(Macro.escape(iri)))
+      end
+
       def unquote(term)(%Description{} = subject, object) do
         Description.add(subject, {unquote(Macro.escape(iri)), object})
       end
@@ -172,6 +176,7 @@ defmodule RDF.Namespace.Builder do
     require
     super
     __aliases__
+    __info__
   ]a
 
   @doc false

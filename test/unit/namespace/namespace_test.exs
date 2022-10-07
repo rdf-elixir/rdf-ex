@@ -46,6 +46,18 @@ defmodule RDF.NamespaceTest do
                  init: {SimpleNS.foo(), [1, 2, 3, 4, 5]}
                )
     end
+
+    test "description accessor" do
+      assert RDF.description(~I<http://example.com/foo>,
+               init: {SimpleNS.foo(), ~I<http://example.com/bar>}
+             )
+             |> SimpleNS.foo() ==
+               [~I<http://example.com/bar>]
+
+      assert RDF.description(~I<http://example.com/foo>)
+             |> SimpleNS.foo() ==
+               nil
+    end
   end
 
   test "resolving module name atoms for non-property terms" do

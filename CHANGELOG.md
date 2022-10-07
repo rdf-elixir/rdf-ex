@@ -20,6 +20,9 @@ The generated namespaces are much more flexible now and compile faster.
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
 - macro `RDF.Namespace.IRI.iri/1` which allows to resolve `RDF.Namespace` terms 
   inside of pattern matches
+- The property functions on the `RDF.Namespace` and `RDF.Vocabulary.Namespace` modules
+  now also have a single argument variant, which allows to query the objects for the
+  respective property from a `RDF.Description`
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
 - `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
   with a `@prefix` declaration providing the URI of the namespace as a string

@@ -324,6 +324,8 @@ defmodule RDF do
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(), to: RDF.NS.RDF
     @doc false
+    defdelegate unquote(term)(s), to: RDF.NS.RDF
+    @doc false
     defdelegate unquote(term)(s, o), to: RDF.NS.RDF
   end
 
