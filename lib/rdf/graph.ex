@@ -17,7 +17,7 @@ defmodule RDF.Graph do
 
   alias RDF.{Description, IRI, PrefixMap, PropertyMap}
   alias RDF.Graph.Builder
-  alias RDF.Star.Statement
+  alias RDF.Star.{Statement, Triple, Quad}
 
   @type graph_description :: %{Statement.subject() => Description.t()}
 
@@ -944,7 +944,7 @@ defmodule RDF.Graph do
          {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)}]
   """
-  @spec triples(t, keyword) :: [Statement.t()]
+  @spec triples(t, keyword) :: [Triple.t()]
   def triples(%__MODULE__{} = graph, opts \\ []) do
     if Keyword.get(opts, :filter_star, false) do
       Enum.flat_map(graph.descriptions, fn
@@ -959,6 +959,47 @@ defmodule RDF.Graph do
   end
 
   defdelegate statements(graph, opts \\ []), to: __MODULE__, as: :triples
+
+  @doc """
+  The list of all statements within a `RDF.Graph` as quads.
+
+  When the optional `:filter_star` flag is set to `true` RDF-star triples with
+  a triple as subject or object will be filtered. The default value is `false`.
+
+  ## Examples
+
+        iex> RDF.Graph.new([
+        ...>   {EX.S1, EX.p1, EX.O1},
+        ...>   {EX.S2, EX.p2, EX.O2},
+        ...>   {EX.S1, EX.p2, EX.O3}
+        ...>  ], name: EX.Graph)
+        ...> |> RDF.Graph.quads()
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3), RDF.iri(EX.Graph)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2), RDF.iri(EX.Graph)}]
+
+        iex> RDF.Graph.new([
+        ...>   {EX.S1, EX.p1, EX.O1},
+        ...>   {EX.S2, EX.p2, EX.O2},
+        ...>   {EX.S1, EX.p2, EX.O3}])
+        ...> |> RDF.Graph.quads()
+        [{RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), nil},
+         {RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3), nil},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2), nil}]
+  """
+  @spec quads(t, keyword) :: [Quad.t()]
+  def quads(%__MODULE__{name: name} = graph, opts \\ []) do
+    if Keyword.get(opts, :filter_star, false) do
+      Enum.flat_map(graph.descriptions, fn
+        {subject, _} when is_tuple(subject) -> []
+        {_, description} -> Description.quads(description, name, opts)
+      end)
+    else
+      Enum.flat_map(graph.descriptions, fn {_, description} ->
+        Description.quads(description, name, opts)
+      end)
+    end
+  end
 
   @doc """
   Returns if the given `graph` is empty.

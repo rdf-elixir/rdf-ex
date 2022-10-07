@@ -627,6 +627,27 @@ defmodule RDF.Description do
 
   defdelegate statements(description, opts \\ []), to: __MODULE__, as: :triples
 
+  @doc false
+  @spec quads(t, keyword) :: list(Quad.t())
+  def quads(%__MODULE__{subject: s} = description, graph, opts \\ []) do
+    filter_star = Keyword.get(opts, :filter_star, false)
+
+    cond do
+      filter_star and is_tuple(s) ->
+        []
+
+      filter_star ->
+        for {p, os} <- description.predications, {o, _} when not is_tuple(o) <- os do
+          {s, p, o, graph}
+        end
+
+      true ->
+        for {p, os} <- description.predications, {o, _} <- os do
+          {s, p, o, graph}
+        end
+    end
+  end
+
   @doc """
   Returns the number of statements of a `RDF.Description`.
   """

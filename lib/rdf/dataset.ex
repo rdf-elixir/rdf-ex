@@ -17,7 +17,7 @@ defmodule RDF.Dataset do
 
   @behaviour Access
 
-  alias RDF.{Graph, Description, IRI, Statement, PrefixMap, PropertyMap}
+  alias RDF.{Graph, Description, IRI, Statement, Quad, Triple, PrefixMap, PropertyMap}
   import RDF.Statement, only: [coerce_subject: 1, coerce_graph_name: 1]
   import RDF.Utils
 
@@ -540,7 +540,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Dataset.statement_count
+      ...>   RDF.Dataset.statement_count()
       3
   """
   @spec statement_count(t) :: non_neg_integer
@@ -559,7 +559,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Dataset.subjects
+      ...>   RDF.Dataset.subjects()
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
   """
   def subjects(%__MODULE__{} = dataset) do
@@ -577,7 +577,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.p2, EX.O2},
       ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Dataset.predicates
+      ...>   RDF.Dataset.predicates()
       MapSet.new([EX.p1, EX.p2])
   """
   def predicates(%__MODULE__{} = dataset) do
@@ -599,7 +599,7 @@ defmodule RDF.Dataset do
       ...>   {EX.S3, EX.p1, EX.O2},
       ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
       ...>   {EX.S5, EX.p3, "foo"}
-      ...> ]) |> RDF.Dataset.objects
+      ...> ]) |> RDF.Dataset.objects()
       MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
   """
   def objects(%__MODULE__{} = dataset) do
@@ -618,7 +618,7 @@ defmodule RDF.Dataset do
     ...>   {EX.S2, EX.p1, EX.O2, EX.Graph},
     ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
     ...>   {EX.S3, EX.p1, "foo"}
-    ...> ]) |> RDF.Dataset.resources
+    ...> ]) |> RDF.Dataset.resources()
     MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
       RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
@@ -631,6 +631,10 @@ defmodule RDF.Dataset do
   @doc """
   All statements within all graphs of a `RDF.Dataset`.
 
+  While the statements of named graphs are returned as quad tuples, the statements
+  of the default graph are returned as triples. If you want to get quads or triples
+  uniformly, use the `quads/2` resp. `triples/2` functions instead.
+
   When the optional `:filter_star` flag is set to `true` RDF-star statements with
   a triple as subject or object will be filtered. The default value is `false`.
 
@@ -639,8 +643,8 @@ defmodule RDF.Dataset do
         iex> RDF.Dataset.new([
         ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
         ...>   {EX.S2, EX.p2, EX.O2},
-        ...>   {EX.S1, EX.p2, EX.O3}]) |>
-        ...>   RDF.Dataset.statements
+        ...>   {EX.S1, EX.p2, EX.O3}])
+        ...> |> RDF.Dataset.statements()
         [{RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
          {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)},
          {RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)}]
@@ -648,12 +652,57 @@ defmodule RDF.Dataset do
   @spec statements(t, keyword) :: [Statement.t()]
   def statements(%__MODULE__{} = dataset, opts \\ []) do
     Enum.flat_map(dataset.graphs, fn
-      {nil, graph} ->
-        Graph.triples(graph, opts)
-
-      {name, graph} ->
-        graph |> Graph.triples(opts) |> Enum.map(fn {s, p, o} -> {s, p, o, name} end)
+      {nil, graph} -> Graph.triples(graph, opts)
+      {_, graph} -> Graph.quads(graph, opts)
     end)
+  end
+
+  @doc """
+  All statements within all graphs of a `RDF.Dataset` as quads.
+
+  When the optional `:filter_star` flag is set to `true` RDF-star statements with
+  a triple as subject or object will be filtered. The default value is `false`.
+
+  ## Examples
+
+        iex> RDF.Dataset.new([
+        ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
+        ...>   {EX.S2, EX.p2, EX.O2},
+        ...>   {EX.S1, EX.p2, EX.O3}])
+        ...> |> RDF.Dataset.quads()
+        [{RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3), nil},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2), nil},
+         {RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1), RDF.iri(EX.Graph)}]
+  """
+  @spec quads(t, keyword) :: [Quad.t()]
+  def quads(%__MODULE__{} = dataset, opts \\ []) do
+    Enum.flat_map(dataset.graphs, fn {_, graph} -> Graph.quads(graph, opts) end)
+  end
+
+  @doc """
+  All statements within all graphs of a `RDF.Dataset` as triples.
+
+  When the optional `:filter_star` flag is set to `true` RDF-star statements with
+  a triple as subject or object will be filtered. The default value is `false`.
+
+  Note: When a triple is present in multiple graphs it will be present in the resulting
+  list of triples multiple times for performance reasons. If you want to get a list with
+  unique triples, you'll have to apply `Enum.uniq/1` on the result.
+
+  ## Examples
+
+        iex> RDF.Dataset.new([
+        ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
+        ...>   {EX.S2, EX.p2, EX.O2},
+        ...>   {EX.S1, EX.p2, EX.O3}])
+        ...> |> RDF.Dataset.triples()
+        [{RDF.iri(EX.S1), RDF.iri(EX.p2), RDF.iri(EX.O3)},
+         {RDF.iri(EX.S2), RDF.iri(EX.p2), RDF.iri(EX.O2)},
+         {RDF.iri(EX.S1), RDF.iri(EX.p1), RDF.iri(EX.O1)}]
+  """
+  @spec triples(t, keyword) :: [Triple.t()]
+  def triples(%__MODULE__{} = dataset, opts \\ []) do
+    Enum.flat_map(dataset.graphs, fn {_, graph} -> Graph.triples(graph, opts) end)
   end
 
   @doc """
