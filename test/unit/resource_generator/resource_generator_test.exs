@@ -21,7 +21,8 @@ defmodule RDF.ResourceId.GeneratorTest do
 
   describe "RDF.BlankNode.Generator as a generator" do
     test "generate/0" do
-      {:ok, generator} = start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Increment})
+      {:ok, generator} =
+        start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Generator.Increment})
 
       config = [generator: BlankNode.Generator, pid: generator]
 
@@ -30,7 +31,8 @@ defmodule RDF.ResourceId.GeneratorTest do
     end
 
     test "generate/1" do
-      {:ok, generator} = start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Increment})
+      {:ok, generator} =
+        start_supervised({RDF.BlankNode.Generator, RDF.BlankNode.Generator.Increment})
 
       config = [generator: BlankNode.Generator, pid: generator]
 
@@ -45,7 +47,9 @@ defmodule RDF.ResourceId.GeneratorTest do
       name = {:via, Registry, {Registry.ViaTest, "bnode-generator-via-test"}}
 
       {:ok, _} =
-        start_supervised({RDF.BlankNode.Generator, {RDF.BlankNode.Increment, [name: name]}})
+        start_supervised(
+          {RDF.BlankNode.Generator, {RDF.BlankNode.Generator.Increment, [name: name]}}
+        )
 
       config = [generator: BlankNode.Generator, pid: name]
 

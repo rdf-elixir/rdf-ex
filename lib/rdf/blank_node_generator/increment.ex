@@ -1,4 +1,4 @@
-defmodule RDF.BlankNode.Increment do
+defmodule RDF.BlankNode.Generator.Increment do
   @moduledoc """
   An implementation of a `RDF.BlankNode.Generator.Algorithm` which returns `RDF.BlankNode`s with incremented identifiers.
 

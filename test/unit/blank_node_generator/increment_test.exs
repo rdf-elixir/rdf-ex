@@ -1,9 +1,9 @@
-defmodule RDF.BlankNode.IncrementTest do
+defmodule RDF.BlankNode.Generator.IncrementTest do
   use RDF.Test.Case
 
   import RDF, only: [bnode: 1]
 
-  alias RDF.BlankNode.Increment
+  alias RDF.BlankNode.Generator.Increment
 
   describe "generate/1" do
     test "without prefix" do

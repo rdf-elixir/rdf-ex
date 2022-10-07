@@ -3,7 +3,8 @@ defmodule RDF.BlankNode.GeneratorTest do
 
   import RDF, only: [bnode: 1]
 
-  alias RDF.BlankNode.{Generator, Increment}
+  alias RDF.BlankNode.Generator
+  alias RDF.BlankNode.Generator.Increment
 
   describe "Increment generator" do
     test "generator without prefix" do
