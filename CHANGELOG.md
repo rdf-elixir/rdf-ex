@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 In this version `RDF.Namespace` and `RDF.Vocabulary.Namespace` were completely rewritten.
 The generated namespaces are much more flexible now and compile faster.
 
+Elixir versions < 1.11 are no longer supported
+
 ### Added
 
 - The `defvocab` macro can now be safely used in any module and guarantees cleanes 
