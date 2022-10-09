@@ -69,22 +69,20 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
 
   defp do_handle_case_violations(_, violations, :fail, base_iri) do
     resource_name_violations = fn violations ->
-      violations
-      |> Enum.map(fn {term, true} -> base_iri |> term_to_iri(term) |> to_string() end)
-      |> Enum.join("\n- ")
+      Enum.map_join(violations, "\n- ", fn {term, true} ->
+        base_iri |> term_to_iri(term) |> to_string()
+      end)
     end
 
     alias_violations = fn violations ->
-      violations
-      |> Enum.map(fn {term, original} ->
+      Enum.map_join(violations, "\n- ", fn {term, original} ->
         "alias #{term} for #{term_to_iri(base_iri, original)}"
       end)
-      |> Enum.join("\n- ")
     end
 
     violation_error_lines =
       violations
-      |> Enum.map(fn
+      |> Enum.map_join(fn
         {:capitalized_term, violations} ->
           """
           Terms for properties should be lowercased, but the following properties are
@@ -121,7 +119,6 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
 
           """
       end)
-      |> Enum.join()
 
     raise RDF.Namespace.InvalidTermError, """
     Case violations detected

@@ -235,13 +235,12 @@ defmodule RDF.PrefixMap do
   """
   @spec merge!(t, t | map | keyword, conflict_resolver | nil) :: t
   def merge!(prefix_map1, prefix_map2, conflict_resolver \\ nil) do
-    with {:ok, new_prefix_map} <- merge(prefix_map1, prefix_map2, conflict_resolver) do
-      new_prefix_map
-    else
-      {:error, conflicts} ->
-        conflicts = conflicts |> Stream.map(&inspect/1) |> Enum.join(", ")
+    case merge(prefix_map1, prefix_map2, conflict_resolver) do
+      {:ok, new_prefix_map} ->
+        new_prefix_map
 
-        raise "conflicting prefix mappings: #{conflicts}"
+      {:error, conflicts} ->
+        raise "conflicting prefix mappings: #{Enum.map_join(conflicts, ", ", &inspect/1)}"
     end
   end
 

@@ -92,9 +92,7 @@ defmodule RDF.Serialization.ParseHelper do
   end
 
   def error_description(error_descriptor) when is_list(error_descriptor) do
-    error_descriptor
-    |> Stream.map(&to_string/1)
-    |> Enum.join("")
+    Enum.map_join(error_descriptor, &to_string/1)
   end
 
   def error_description(error_descriptor), do: inspect(error_descriptor)

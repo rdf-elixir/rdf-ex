@@ -270,8 +270,7 @@ defmodule RDF.Turtle.Encoder do
   defp predications(description, state, nesting) do
     description.predications
     |> order_predications()
-    |> Enum.map(&predication(&1, state, nesting))
-    |> Enum.join(" ;" <> newline_indent(nesting))
+    |> Enum.map_join(" ;" <> newline_indent(nesting), &predication(&1, state, nesting))
   end
 
   @dialyzer {:nowarn_function, order_predications: 1}
@@ -430,11 +429,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp term(list, state, _, nesting) when is_list(list) do
-    "(" <>
-      (list
-       |> Enum.map(&term(&1, state, :list, nesting))
-       |> Enum.join(" ")) <>
-      ")"
+    "(" <> Enum.map_join(list, " ", &term(&1, state, :list, nesting)) <> ")"
   end
 
   defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
