@@ -628,7 +628,7 @@ defmodule RDF.Description do
   defdelegate statements(description, opts \\ []), to: __MODULE__, as: :triples
 
   @doc false
-  @spec quads(t, keyword) :: list(Quad.t())
+  @spec quads(t, keyword) :: list(RDF.Quad.t())
   def quads(%__MODULE__{subject: s} = description, graph, opts \\ []) do
     filter_star = Keyword.get(opts, :filter_star, false)
 
