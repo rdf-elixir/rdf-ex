@@ -48,7 +48,7 @@ defmodule RDF.Literal do
   @spec new(t | any, keyword) :: t | nil
   def new(value, opts) do
     cond do
-      length(opts) == 0 ->
+      opts == [] ->
         new(value)
 
       Keyword.has_key?(opts, :language) ->

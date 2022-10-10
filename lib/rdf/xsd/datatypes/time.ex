@@ -176,25 +176,23 @@ defmodule RDF.XSD.Time do
   def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
   def do_cast(literal) do
-    cond do
-      XSD.DateTime.datatype?(literal) ->
-        case literal.value do
-          %NaiveDateTime{} = datetime ->
-            datetime
-            |> NaiveDateTime.to_time()
-            |> new()
+    if XSD.DateTime.datatype?(literal) do
+      case literal.value do
+        %NaiveDateTime{} = datetime ->
+          datetime
+          |> NaiveDateTime.to_time()
+          |> new()
 
-          %DateTime{} ->
-            [_date, time_with_zone] =
-              literal
-              |> XSD.DateTime.canonical_lexical_with_zone()
-              |> String.split("T", parts: 2)
+        %DateTime{} ->
+          [_date, time_with_zone] =
+            literal
+            |> XSD.DateTime.canonical_lexical_with_zone()
+            |> String.split("T", parts: 2)
 
-            new(time_with_zone)
-        end
-
-      true ->
-        super(literal)
+          new(time_with_zone)
+      end
+    else
+      super(literal)
     end
   end
 

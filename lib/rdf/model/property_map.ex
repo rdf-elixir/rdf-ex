@@ -161,9 +161,8 @@ defmodule RDF.PropertyMap do
 
   def add(%__MODULE__{} = property_map, mappings) do
     Enum.reduce_while(mappings, {:ok, property_map}, fn {term, iri}, {:ok, property_map} ->
-      with {:ok, property_map} <- add(property_map, term, iri) do
-        {:cont, {:ok, property_map}}
-      else
+      case add(property_map, term, iri) do
+        {:ok, property_map} -> {:cont, {:ok, property_map}}
         error -> {:halt, error}
       end
     end)

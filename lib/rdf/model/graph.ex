@@ -918,7 +918,7 @@ defmodule RDF.Graph do
       MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
         RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
   """
-  def resources(graph = %__MODULE__{} = graph) do
+  def resources(%__MODULE__{} = graph) do
     Enum.reduce(graph.descriptions, MapSet.new(), fn {_, description}, acc ->
       description
       |> Description.resources()

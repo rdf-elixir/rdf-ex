@@ -965,46 +965,45 @@ defmodule RDF.Turtle.EncoderTest do
   end
 
   defp assert_serialization(graph, opts) do
-    with prefixes = Keyword.get(opts, :prefixes, %{}),
-         base_iri = Keyword.get(opts, :base_iri),
-         matches = Keyword.get(opts, :matches, []),
-         neg_matches = Keyword.get(opts, :neg_matches, []) do
-      assert {:ok, serialized} =
-               Turtle.write_string(graph, prefixes: prefixes, base_iri: base_iri)
+    prefixes = Keyword.get(opts, :prefixes, %{})
+    base_iri = Keyword.get(opts, :base_iri)
+    matches = Keyword.get(opts, :matches, [])
+    neg_matches = Keyword.get(opts, :neg_matches, [])
 
-      matches
-      |> Stream.map(fn
-        {pattern, message} ->
-          {pattern, ~s[output\n\n#{serialized}\n\n#{message}]}
+    assert {:ok, serialized} = Turtle.write_string(graph, prefixes: prefixes, base_iri: base_iri)
 
-        pattern ->
-          {pattern, ~s[output\n\n#{serialized}\n\ndoesn't include #{inspect(pattern)}]}
-      end)
-      |> Enum.each(fn
-        {%Regex{} = pattern, message} ->
-          assert Regex.match?(pattern, serialized), message
+    matches
+    |> Stream.map(fn
+      {pattern, message} ->
+        {pattern, ~s[output\n\n#{serialized}\n\n#{message}]}
 
-        {contents, message} ->
-          assert String.contains?(serialized, contents), message
-      end)
+      pattern ->
+        {pattern, ~s[output\n\n#{serialized}\n\ndoesn't include #{inspect(pattern)}]}
+    end)
+    |> Enum.each(fn
+      {%Regex{} = pattern, message} ->
+        assert Regex.match?(pattern, serialized), message
 
-      neg_matches
-      |> Stream.map(fn
-        {pattern, message} ->
-          {pattern, ~s[output\n\n#{serialized}\n\n#{message}]}
+      {contents, message} ->
+        assert String.contains?(serialized, contents), message
+    end)
 
-        pattern ->
-          {pattern, ~s[output\n\n#{serialized}\n\ndoes include #{inspect(pattern)}]}
-      end)
-      |> Enum.each(fn
-        {%Regex{} = pattern, message} ->
-          refute Regex.match?(pattern, serialized), message
+    neg_matches
+    |> Stream.map(fn
+      {pattern, message} ->
+        {pattern, ~s[output\n\n#{serialized}\n\n#{message}]}
 
-        {contents, message} ->
-          refute String.contains?(serialized, contents), message
-      end)
+      pattern ->
+        {pattern, ~s[output\n\n#{serialized}\n\ndoes include #{inspect(pattern)}]}
+    end)
+    |> Enum.each(fn
+      {%Regex{} = pattern, message} ->
+        refute Regex.match?(pattern, serialized), message
 
-      serialized
-    end
+      {contents, message} ->
+        refute String.contains?(serialized, contents), message
+    end)
+
+    serialized
   end
 end

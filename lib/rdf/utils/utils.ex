@@ -24,9 +24,8 @@ defmodule RDF.Utils do
   def map_while_ok(enum, fun) do
     with {:ok, mapped} <-
            Enum.reduce_while(enum, {:ok, []}, fn e, {:ok, acc} ->
-             with {:ok, value} <- fun.(e) do
-               {:cont, {:ok, [value | acc]}}
-             else
+             case fun.(e) do
+               {:ok, value} -> {:cont, {:ok, [value | acc]}}
                error -> {:halt, error}
              end
            end) do

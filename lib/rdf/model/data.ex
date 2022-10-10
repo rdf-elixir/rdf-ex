@@ -135,12 +135,9 @@ defimpl RDF.Data, for: RDF.Description do
   def merge(description, input, opts \\ [])
 
   def merge(%Description{subject: subject} = description, {s, _, _} = triple, opts) do
-    with ^subject <- Statement.coerce_subject(s) do
-      Description.add(description, triple, opts)
-    else
-      _ ->
-        Graph.new(description)
-        |> Graph.add(triple, opts)
+    case Statement.coerce_subject(s) do
+      ^subject -> Description.add(description, triple, opts)
+      _ -> description |> Graph.new() |> Graph.add(triple, opts)
     end
   end
 
@@ -226,9 +223,8 @@ defimpl RDF.Data, for: RDF.Description do
   end
 
   def equal?(description, %Graph{} = graph) do
-    with [single_description] <- Graph.descriptions(graph) do
-      Description.equal?(description, single_description)
-    else
+    case Graph.descriptions(graph) do
+      [single_description] -> Description.equal?(description, single_description)
       _ -> false
     end
   end
@@ -254,12 +250,9 @@ defimpl RDF.Data, for: RDF.Graph do
   def merge(graph, input, opts \\ [])
 
   def merge(%Graph{name: name} = graph, {_, _, _, graph_context} = quad, opts) do
-    with ^name <- Statement.coerce_graph_name(graph_context) do
-      Graph.add(graph, quad, opts)
-    else
-      _ ->
-        Dataset.new(graph)
-        |> Dataset.add(quad, opts)
+    case Statement.coerce_graph_name(graph_context) do
+      ^name -> Graph.add(graph, quad, opts)
+      _ -> graph |> Dataset.new() |> Dataset.add(quad, opts)
     end
   end
 
@@ -427,17 +420,15 @@ defimpl RDF.Data, for: RDF.Dataset do
   def map(dataset, fun), do: Dataset.map(dataset, fun)
 
   def equal?(dataset, %Description{} = description) do
-    with [graph] <- Dataset.graphs(dataset) do
-      RDF.Data.equal?(description, graph)
-    else
+    case Dataset.graphs(dataset) do
+      [graph] -> RDF.Data.equal?(description, graph)
       _ -> false
     end
   end
 
   def equal?(dataset, %Graph{} = graph) do
-    with [single_graph] <- Dataset.graphs(dataset) do
-      Graph.equal?(graph, single_graph)
-    else
+    case Dataset.graphs(dataset) do
+      [single_graph] -> Graph.equal?(graph, single_graph)
       _ -> false
     end
   end

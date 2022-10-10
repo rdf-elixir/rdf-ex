@@ -34,9 +34,10 @@ defmodule RDF.NQuads.Decoder do
   end
 
   defp do_decode(content, error_with_line_number) do
-    with {:ok, tokens, _} <- tokenize(content) do
-      parse(tokens)
-    else
+    case tokenize(content) do
+      {:ok, tokens, _} ->
+        parse(tokens)
+
       {:error, {error_line, :ntriples_lexer, error_descriptor}, _error_line_again} ->
         {:error,
          "N-Quad scanner error#{if error_with_line_number, do: " on line #{error_line}"}: #{error_description(error_descriptor)}"}

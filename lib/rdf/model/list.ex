@@ -39,21 +39,21 @@ defmodule RDF.List do
     do: new(RDF.iri(head), graph)
 
   def new(head, graph) do
-    with list = %__MODULE__{head: head, graph: graph} do
-      if well_formed?(list) do
-        list
-      end
+    list = %__MODULE__{head: head, graph: graph}
+
+    if well_formed?(list) do
+      list
     end
   end
 
   defp well_formed?(list) do
     Enum.reduce_while(list, MapSet.new(), fn node_description, preceding_nodes ->
-      with head = node_description.subject do
-        if MapSet.member?(preceding_nodes, head) do
-          {:halt, false}
-        else
-          {:cont, MapSet.put(preceding_nodes, head)}
-        end
+      head = node_description.subject
+
+      if MapSet.member?(preceding_nodes, head) do
+        {:halt, false}
+      else
+        {:cont, MapSet.put(preceding_nodes, head)}
       end
     end) && true
   end
@@ -73,11 +73,10 @@ defmodule RDF.List do
   """
   @spec from(Enumerable.t(), keyword) :: t
   def from(list, opts \\ []) do
-    with head = Keyword.get(opts, :head, RDF.bnode()),
-         graph = Keyword.get(opts, :graph, RDF.graph()),
-         {head, graph} = do_from(list, head, graph, opts) do
-      %__MODULE__{head: head, graph: graph}
-    end
+    head = Keyword.get(opts, :head, RDF.bnode())
+    graph = Keyword.get(opts, :graph, RDF.graph())
+    {head, graph} = do_from(list, head, graph, opts)
+    %__MODULE__{head: head, graph: graph}
   end
 
   defp do_from([], _, graph, _) do
@@ -89,23 +88,22 @@ defmodule RDF.List do
   end
 
   defp do_from([list | rest], head, graph, opts) when is_list(list) do
-    with {nested_list_node, graph} = do_from(list, RDF.bnode(), graph, opts) do
-      do_from([nested_list_node | rest], head, graph, opts)
-    end
+    {nested_list_node, graph} = do_from(list, RDF.bnode(), graph, opts)
+    do_from([nested_list_node | rest], head, graph, opts)
   end
 
   defp do_from([first | rest], head, graph, opts) do
-    with {next, graph} = do_from(rest, RDF.bnode(), graph, opts) do
-      {
-        head,
-        Graph.add(
-          graph,
-          head
-          |> RDF.first(first)
-          |> RDF.rest(next)
-        )
-      }
-    end
+    {next, graph} = do_from(rest, RDF.bnode(), graph, opts)
+
+    {
+      head,
+      Graph.add(
+        graph,
+        head
+        |> RDF.first(first)
+        |> RDF.rest(next)
+      )
+    }
   end
 
   defp do_from(enumerable, head, graph, opts) do
@@ -211,8 +209,9 @@ defmodule RDF.List do
       with description when not is_nil(description) <-
              Graph.get(graph, head),
            [_] <- Description.get(description, RDF.first()),
-           [rest] <- Description.get(description, RDF.rest()),
-           acc = fun.(description, acc) do
+           [rest] <- Description.get(description, RDF.rest()) do
+        acc = fun.(description, acc)
+
         if rest == @rdf_nil do
           case acc do
             {:cont, acc} -> {:done, acc}

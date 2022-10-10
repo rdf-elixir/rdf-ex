@@ -91,19 +91,17 @@ defmodule RDF.XSD.DateTime do
   def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
   def do_cast(literal) do
-    cond do
-      XSD.Date.datatype?(literal) ->
-        case literal.value do
-          {value, zone} ->
-            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
+    if XSD.Date.datatype?(literal) do
+      case literal.value do
+        {value, zone} ->
+          (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
 
-          value ->
-            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00"
-        end
-        |> new()
-
-      true ->
-        super(literal)
+        value ->
+          (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00"
+      end
+      |> new()
+    else
+      super(literal)
     end
   end
 

@@ -80,9 +80,8 @@ defmodule RDF.PrefixMap do
   end
 
   def add(%__MODULE__{} = prefix_map, prefix, namespace) do
-    with {prefix, namespace} = normalize({prefix, namespace}) do
-      add(prefix_map, prefix, namespace)
-    end
+    {prefix, namespace} = normalize({prefix, namespace})
+    add(prefix_map, prefix, namespace)
   end
 
   @doc """
@@ -90,9 +89,8 @@ defmodule RDF.PrefixMap do
   """
   @spec add!(t, coercible_prefix, coercible_namespace) :: t
   def add!(prefix_map, prefix, namespace) do
-    with {:ok, new_prefix_map} <- add(prefix_map, prefix, namespace) do
-      new_prefix_map
-    else
+    case add(prefix_map, prefix, namespace) do
+      {:ok, new_prefix_map} -> new_prefix_map
       {:error, error} -> raise error
     end
   end
@@ -108,9 +106,8 @@ defmodule RDF.PrefixMap do
   end
 
   def put(%__MODULE__{} = prefix_map, prefix, namespace) do
-    with {prefix, namespace} = normalize({prefix, namespace}) do
-      put(prefix_map, prefix, namespace)
-    end
+    {prefix, namespace} = normalize({prefix, namespace})
+    put(prefix_map, prefix, namespace)
   end
 
   @doc """

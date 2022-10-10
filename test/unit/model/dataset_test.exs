@@ -1598,7 +1598,7 @@ defmodule RDF.DatasetTest do
 
     {quad, dataset} = Dataset.new({EX.S, EX.p(), EX.O, EX.Graph}) |> Dataset.pop()
     assert quad == {iri(EX.S), iri(EX.p()), iri(EX.O), iri(EX.Graph)}
-    assert Enum.count(dataset.graphs) == 0
+    assert Enum.empty?(dataset.graphs)
 
     {{subject, predicate, object, _}, dataset} =
       Dataset.new([{EX.S, EX.p(), EX.O, EX.Graph}, {EX.S, EX.p(), EX.O}])

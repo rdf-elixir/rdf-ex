@@ -21,12 +21,10 @@ defmodule RDF.XSD.Boolean do
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, _) do
-    with lexical do
-      cond do
-        lexical in ~W[true 1] -> true
-        lexical in ~W[false 0] -> false
-        true -> @invalid_value
-      end
+    cond do
+      lexical in ~W[true 1] -> true
+      lexical in ~W[false 0] -> false
+      true -> @invalid_value
     end
   end
 

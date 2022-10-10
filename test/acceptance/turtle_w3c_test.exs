@@ -56,14 +56,14 @@ defmodule RDF.Turtle.W3C.Test do
     end
 
     test TestSuite.test_title(test_case), %{test_case: test_case} do
-      with base = to_string(TestSuite.test_input_file(test_case)) do
-        assert RDF.Graph.equal?(
-                 TestSuite.test_input_file_path(test_case, @path)
-                 |> Turtle.read_file!(base: base),
-                 TestSuite.test_result_file_path(test_case, @path)
-                 |> NTriples.read_file!()
-               )
-      end
+      base = to_string(TestSuite.test_input_file(test_case))
+
+      assert RDF.Graph.equal?(
+               TestSuite.test_input_file_path(test_case, @path)
+               |> Turtle.read_file!(base: base),
+               TestSuite.test_result_file_path(test_case, @path)
+               |> NTriples.read_file!()
+             )
     end
   end)
 
@@ -71,11 +71,11 @@ defmodule RDF.Turtle.W3C.Test do
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
-      with base = to_string(TestSuite.test_input_file(test_case)) do
-        assert {:ok, _} =
-                 TestSuite.test_input_file_path(test_case, @path)
-                 |> Turtle.read_file(base: base)
-      end
+      base = to_string(TestSuite.test_input_file(test_case))
+
+      assert {:ok, _} =
+               TestSuite.test_input_file_path(test_case, @path)
+               |> Turtle.read_file(base: base)
     end
   end)
 
@@ -83,11 +83,11 @@ defmodule RDF.Turtle.W3C.Test do
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
-      with base = to_string(TestSuite.test_input_file(test_case)) do
-        assert {:error, _} =
-                 TestSuite.test_input_file_path(test_case, @path)
-                 |> Turtle.read_file(base: base)
-      end
+      base = to_string(TestSuite.test_input_file(test_case))
+
+      assert {:error, _} =
+               TestSuite.test_input_file_path(test_case, @path)
+               |> Turtle.read_file(base: base)
     end
   end)
 
@@ -104,11 +104,11 @@ defmodule RDF.Turtle.W3C.Test do
 
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
-      with base = to_string(TestSuite.test_input_file(test_case)) do
-        assert {:error, _} =
-                 TestSuite.test_input_file_path(test_case, @path)
-                 |> Turtle.read_file(base: base)
-      end
+      base = to_string(TestSuite.test_input_file(test_case))
+
+      assert {:error, _} =
+               TestSuite.test_input_file_path(test_case, @path)
+               |> Turtle.read_file(base: base)
     end
   end)
 end

@@ -149,22 +149,20 @@ defmodule RDF.XSD.Date do
   def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
   def do_cast(literal) do
-    cond do
-      XSD.DateTime.datatype?(literal) ->
-        case literal.value do
-          %NaiveDateTime{} = datetime ->
-            datetime
-            |> NaiveDateTime.to_date()
-            |> new()
+    if XSD.DateTime.datatype?(literal) do
+      case literal.value do
+        %NaiveDateTime{} = datetime ->
+          datetime
+          |> NaiveDateTime.to_date()
+          |> new()
 
-          %DateTime{} = datetime ->
-            datetime
-            |> DateTime.to_date()
-            |> new(tz: XSD.DateTime.tz(literal))
-        end
-
-      true ->
-        super(literal)
+        %DateTime{} = datetime ->
+          datetime
+          |> DateTime.to_date()
+          |> new(tz: XSD.DateTime.tz(literal))
+      end
+    else
+      super(literal)
     end
   end
 

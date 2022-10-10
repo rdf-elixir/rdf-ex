@@ -157,9 +157,8 @@ defmodule RDF.Serialization do
   """
   @spec read_string!(String.t(), keyword) :: Graph.t() | Dataset.t()
   def read_string!(content, opts) do
-    with {:ok, format} <- string_format(opts) do
-      format.read_string!(content, opts)
-    else
+    case string_format(opts) do
+      {:ok, format} -> format.read_string!(content, opts)
       {:error, error} -> raise error
     end
   end
@@ -196,9 +195,8 @@ defmodule RDF.Serialization do
   """
   @spec read_stream!(Enumerable.t(), keyword) :: Graph.t() | Dataset.t()
   def read_stream!(stream, opts) do
-    with {:ok, format} <- string_format(opts) do
-      format.read_stream!(stream, opts)
-    else
+    case string_format(opts) do
+      {:ok, format} -> format.read_stream!(stream, opts)
       {:error, error} -> raise error
     end
   end
@@ -250,9 +248,8 @@ defmodule RDF.Serialization do
   """
   @spec read_file!(Path.t(), keyword) :: Graph.t() | Dataset.t()
   def read_file!(file, opts \\ []) do
-    with {:ok, format} <- file_format(file, opts) do
-      format.read_file!(file, opts)
-    else
+    case file_format(file, opts) do
+      {:ok, format} -> format.read_file!(file, opts)
       {:error, error} -> raise error
     end
   end
@@ -289,9 +286,8 @@ defmodule RDF.Serialization do
   """
   @spec write_string!(RDF.Data.t(), keyword) :: String.t()
   def write_string!(data, opts) do
-    with {:ok, format} <- string_format(opts) do
-      format.write_string!(data, opts)
-    else
+    case string_format(opts) do
+      {:ok, format} -> format.write_string!(data, opts)
       {:error, error} -> raise error
     end
   end
@@ -307,9 +303,8 @@ defmodule RDF.Serialization do
   """
   @spec write_stream(RDF.Data.t(), keyword) :: Enumerable.t()
   def write_stream(data, opts) do
-    with {:ok, format} <- string_format(opts) do
-      format.write_stream(data, opts)
-    else
+    case string_format(opts) do
+      {:ok, format} -> format.write_stream(data, opts)
       {:error, error} -> raise error
     end
   end
@@ -360,9 +355,8 @@ defmodule RDF.Serialization do
   """
   @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
   def write_file!(data, path, opts \\ []) do
-    with {:ok, format} <- file_format(path, opts) do
-      format.write_file!(data, path, opts)
-    else
+    case file_format(path, opts) do
+      {:ok, format} -> format.write_file!(data, path, opts)
       {:error, error} -> raise error
     end
   end

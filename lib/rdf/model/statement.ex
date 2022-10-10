@@ -72,8 +72,8 @@ defmodule RDF.Statement do
   @doc false
   @spec coerce_subject(coercible_subject) :: subject
   def coerce_subject(iri)
-  def coerce_subject(iri = %IRI{}), do: iri
-  def coerce_subject(bnode = %BlankNode{}), do: bnode
+  def coerce_subject(%IRI{} = iri), do: iri
+  def coerce_subject(%BlankNode{} = bnode), do: bnode
   def coerce_subject("_:" <> identifier), do: RDF.bnode(identifier)
   def coerce_subject(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_subject(arg), do: raise(RDF.Triple.InvalidSubjectError, subject: arg)
@@ -81,11 +81,11 @@ defmodule RDF.Statement do
   @doc false
   @spec coerce_predicate(coercible_predicate) :: predicate
   def coerce_predicate(iri)
-  def coerce_predicate(iri = %IRI{}), do: iri
+  def coerce_predicate(%IRI{} = iri), do: iri
   # Note: Although, RDF does not allow blank nodes for properties, JSON-LD allows
   # them, by introducing the notion of "generalized RDF".
   # TODO: Support an option `:strict_rdf` to explicitly disallow them or produce warnings or ...
-  def coerce_predicate(bnode = %BlankNode{}), do: bnode
+  def coerce_predicate(%BlankNode{} = bnode), do: bnode
   def coerce_predicate(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
   def coerce_predicate(arg), do: raise(RDF.Triple.InvalidPredicateError, predicate: arg)
 
@@ -102,9 +102,9 @@ defmodule RDF.Statement do
   @doc false
   @spec coerce_object(coercible_object) :: object
   def coerce_object(iri)
-  def coerce_object(iri = %IRI{}), do: iri
-  def coerce_object(literal = %Literal{}), do: literal
-  def coerce_object(bnode = %BlankNode{}), do: bnode
+  def coerce_object(%IRI{} = iri), do: iri
+  def coerce_object(%Literal{} = literal), do: literal
+  def coerce_object(%BlankNode{} = bnode), do: bnode
   def coerce_object(bool) when is_boolean(bool), do: Literal.new(bool)
   def coerce_object(atom) when maybe_ns_term(atom), do: RDF.iri(atom)
   def coerce_object(arg), do: Literal.new(arg)
@@ -113,8 +113,8 @@ defmodule RDF.Statement do
   @spec coerce_graph_name(coercible_graph_name) :: graph_name
   def coerce_graph_name(iri)
   def coerce_graph_name(nil), do: nil
-  def coerce_graph_name(iri = %IRI{}), do: iri
-  def coerce_graph_name(bnode = %BlankNode{}), do: bnode
+  def coerce_graph_name(%IRI{} = iri), do: iri
+  def coerce_graph_name(%BlankNode{} = bnode), do: bnode
   def coerce_graph_name("_:" <> identifier), do: RDF.bnode(identifier)
   def coerce_graph_name(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
 

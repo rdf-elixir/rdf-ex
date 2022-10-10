@@ -196,10 +196,10 @@ defmodule RDF.ListTest do
     |> Enum.each(fn {type, element} ->
       @tag element: element
       test "list with #{type} element", %{element: element} do
-        with {bnode, graph_with_list} = one_element_list(element) do
-          assert RDF.List.from([element], head: bnode) ==
-                   RDF.List.new(bnode, graph_with_list)
-        end
+        {bnode, graph_with_list} = one_element_list(element)
+
+        assert RDF.List.from([element], head: bnode) ==
+                 RDF.List.new(bnode, graph_with_list)
       end
     end)
 

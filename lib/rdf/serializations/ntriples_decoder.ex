@@ -34,9 +34,10 @@ defmodule RDF.NTriples.Decoder do
   end
 
   defp do_decode(string, error_with_line_number) do
-    with {:ok, tokens, _} <- tokenize(string) do
-      parse(tokens)
-    else
+    case tokenize(string) do
+      {:ok, tokens, _} ->
+        parse(tokens)
+
       {:error, {error_line, :ntriples_lexer, error_descriptor}, _error_line_again} ->
         {:error,
          "N-Triple scanner error#{if error_with_line_number, do: " on line #{error_line}"}: #{error_description(error_descriptor)}"}

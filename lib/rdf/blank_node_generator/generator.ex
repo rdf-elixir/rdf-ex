@@ -110,15 +110,13 @@ defmodule RDF.BlankNode.Generator do
 
   @impl GenServer
   def handle_call(:generate, _from, {generation_mod, state}) do
-    with {bnode, new_state} = generation_mod.generate(state) do
-      {:reply, bnode, {generation_mod, new_state}}
-    end
+    {bnode, new_state} = generation_mod.generate(state)
+    {:reply, bnode, {generation_mod, new_state}}
   end
 
   @impl GenServer
   def handle_call({:generate_for, string}, _from, {generation_mod, state}) do
-    with {bnode, new_state} = generation_mod.generate_for(string, state) do
-      {:reply, bnode, {generation_mod, new_state}}
-    end
+    {bnode, new_state} = generation_mod.generate_for(string, state)
+    {:reply, bnode, {generation_mod, new_state}}
   end
 end
