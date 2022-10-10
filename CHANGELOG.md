@@ -66,6 +66,8 @@ Elixir versions < 1.11 are no longer supported
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always
   had to be given as the first argument).
+- `RDF.XSD.Datatype.Mismatch` exception was renamed to
+  `RDF.XSD.Datatype.MismatchError` for consistency reasons
 - several performance improvements
 
 ### Fixed

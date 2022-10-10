@@ -226,11 +226,11 @@ defmodule RDF.XSD.Datatype do
 
       def datatype!(%datatype{} = literal) do
         datatype?(datatype) ||
-          raise RDF.XSD.Datatype.Mismatch, value: literal, expected_type: __MODULE__
+          raise RDF.XSD.Datatype.MismatchError, value: literal, expected_type: __MODULE__
       end
 
       def datatype!(value),
-        do: raise(RDF.XSD.Datatype.Mismatch, value: value, expected_type: __MODULE__)
+        do: raise(RDF.XSD.Datatype.MismatchError, value: value, expected_type: __MODULE__)
 
       @doc """
       Creates a new `RDF.Literal` with this datatype and the given `value`.

@@ -47,7 +47,7 @@ defmodule RDF.Graph.EmptyDescriptionError do
   end
 end
 
-defmodule RDF.XSD.Datatype.Mismatch do
+defmodule RDF.XSD.Datatype.MismatchError do
   defexception [:value, :expected_type]
 
   def message(%{value: value, expected_type: expected_type}) do
