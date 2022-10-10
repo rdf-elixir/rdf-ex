@@ -74,6 +74,11 @@ defmodule RDF.PrefixMapTest do
       assert PrefixMap.add(@example1, "ex2", @ex_ns2) == {:ok, @example2}
     end
 
+    test "when the empty prefix is given" do
+      assert PrefixMap.add(PrefixMap.new(), "", @ex_ns1) ==
+               {:ok, %PrefixMap{map: %{"": @ex_ns1}}}
+    end
+
     test "when the IRI namespace is given as a string" do
       assert PrefixMap.add(@example1, :ex2, "http://example.com/bar#") == {:ok, @example2}
     end

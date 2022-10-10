@@ -250,6 +250,16 @@ defmodule RDF.Turtle.EncoderTest do
                :S
                    :p :O .
                """
+
+      assert Turtle.Encoder.encode!(Graph.new({EX.S, EX.p(), EX.O}),
+               prefixes: PrefixMap.new("": EX.__base_iri__())
+             ) ==
+               """
+               @prefix : <#{to_string(EX.__base_iri__())}> .
+
+               :S
+                   :p :O .
+               """
     end
 
     test "statements with literals" do
