@@ -14,8 +14,8 @@ defmodule RDF.XSD.ShortTest do
       RDF.XSD.Facets.Pattern
     ],
     facets: %{
-      min_inclusive: -32768,
-      max_inclusive: 32767,
+      min_inclusive: -32_768,
+      max_inclusive: 32_767,
       min_exclusive: nil,
       max_exclusive: nil,
       total_digits: nil,

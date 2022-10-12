@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Readability.LargeNumbers
 defmodule RDF.XSD.StringTest do
   use RDF.XSD.Datatype.Test.Case,
     datatype: RDF.XSD.String,

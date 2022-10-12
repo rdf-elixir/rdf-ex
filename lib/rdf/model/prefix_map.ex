@@ -139,6 +139,7 @@ defmodule RDF.PrefixMap do
     merge(prefix_map, new(other_prefixes))
   rescue
     FunctionClauseError ->
+      # credo:disable-for-next-line Credo.Check.Warning.RaiseInsideRescue
       raise ArgumentError, "#{inspect(other_prefixes)} is not convertible to a RDF.PrefixMap"
   end
 

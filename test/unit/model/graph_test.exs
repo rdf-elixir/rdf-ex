@@ -1266,7 +1266,7 @@ defmodule RDF.GraphTest do
 
     {triple, graph} = Graph.new({EX.S, EX.p(), EX.O}) |> Graph.pop()
     assert {iri(EX.S), iri(EX.p()), iri(EX.O)} == triple
-    assert Enum.count(graph.descriptions) == 0
+    assert Enum.empty?(graph.descriptions)
 
     {{subject, predicate, _}, graph} =
       Graph.new([{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
@@ -1565,6 +1565,7 @@ defmodule RDF.GraphTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
+      # credo:disable-for-next-line Credo.Check.Warning.ExpensiveEmptyEnumCheck
       assert Enum.count(Graph.new(name: EX.foo())) == 0
       assert Enum.count(Graph.new({EX.S, EX.p(), EX.O})) == 1
       assert Enum.count(Graph.new([{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])) == 2

@@ -186,7 +186,7 @@ defmodule RDF.LangStringTest do
 
     test "when given a literal with a datatype which is not castable" do
       assert RDF.XSD.String.new("foo") |> LangString.cast() == nil
-      assert RDF.XSD.Integer.new(12345) |> LangString.cast() == nil
+      assert RDF.XSD.Integer.new(12_345) |> LangString.cast() == nil
     end
 
     test "with invalid literals" do

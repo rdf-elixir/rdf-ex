@@ -318,6 +318,7 @@ defmodule RDF.PropertyMapTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
+      # credo:disable-for-next-line Credo.Check.Warning.ExpensiveEmptyEnumCheck
       assert Enum.count(PropertyMap.new()) == 0
       assert Enum.count(@example_property_map) == 3
     end

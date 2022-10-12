@@ -10,6 +10,6 @@ defmodule RDF.XSD.Short do
     id: RDF.Utils.Bootstrapping.xsd_iri("short"),
     base: RDF.XSD.Int
 
-  def_facet_constraint RDF.XSD.Facets.MinInclusive, -32768
-  def_facet_constraint RDF.XSD.Facets.MaxInclusive, 32767
+  def_facet_constraint RDF.XSD.Facets.MinInclusive, -32_768
+  def_facet_constraint RDF.XSD.Facets.MaxInclusive, 32_767
 end

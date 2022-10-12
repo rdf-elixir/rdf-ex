@@ -11,5 +11,5 @@ defmodule RDF.XSD.UnsignedShort do
     base: RDF.XSD.UnsignedInt
 
   def_facet_constraint RDF.XSD.Facets.MinInclusive, 0
-  def_facet_constraint RDF.XSD.Facets.MaxInclusive, 65535
+  def_facet_constraint RDF.XSD.Facets.MaxInclusive, 65_535
 end

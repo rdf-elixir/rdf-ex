@@ -1793,6 +1793,7 @@ defmodule RDF.DatasetTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
+      # credo:disable-for-next-line Credo.Check.Warning.ExpensiveEmptyEnumCheck
       assert Enum.count(Dataset.new(name: EX.foo())) == 0
       assert Enum.count(Dataset.new({EX.S, EX.p(), EX.O, EX.Graph})) == 1
 

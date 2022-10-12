@@ -21,6 +21,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
     applicable_facets = Keyword.get(opts, :applicable_facets, [])
     facets = Keyword.get(opts, :facets)
 
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote do
       alias RDF.XSD
       alias RDF.XSD.Datatype

@@ -269,6 +269,7 @@ defmodule RDF.Graph.BuilderTest do
       RDF.Graph.build do
         foo = false
 
+        # credo:disable-for-next-line Credo.Check.Refactor.CondStatements
         cond do
           true -> EX.S1 |> EX.p1(EX.O1)
         end

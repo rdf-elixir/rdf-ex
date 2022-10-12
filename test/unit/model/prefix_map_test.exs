@@ -389,6 +389,7 @@ defmodule RDF.PrefixMapTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
+      # credo:disable-for-next-line Credo.Check.Warning.ExpensiveEmptyEnumCheck
       assert Enum.count(PrefixMap.new()) == 0
       assert Enum.count(@example1) == 1
       assert Enum.count(@example2) == 2

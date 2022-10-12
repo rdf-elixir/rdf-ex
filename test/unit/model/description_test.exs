@@ -770,7 +770,7 @@ defmodule RDF.DescriptionTest do
 
     {triple, desc} = Description.new(EX.S, init: {EX.S, EX.p(), EX.O}) |> Description.pop()
     assert {iri(EX.S), iri(EX.p()), iri(EX.O)} == triple
-    assert Enum.count(desc.predications) == 0
+    assert Enum.empty?(desc.predications)
 
     {{subject, predicate, _}, desc} =
       Description.new(EX.S, init: [{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
@@ -934,6 +934,7 @@ defmodule RDF.DescriptionTest do
 
   describe "Enumerable protocol" do
     test "Enum.count" do
+      # credo:disable-for-next-line Credo.Check.Warning.ExpensiveEmptyEnumCheck
       assert Enum.count(Description.new(EX.foo())) == 0
       assert Enum.count(Description.new(EX.S, init: {EX.S, EX.p(), EX.O})) == 1
 

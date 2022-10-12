@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Readability.LargeNumbers
 defmodule RDF.XSD.TestData do
   @moduledoc """
   Shared definitions for the `RDF.XSD.Datatype` tests.

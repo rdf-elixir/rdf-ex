@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Readability.ModuleDoc
 defmodule RDF.TestDatatypes do
   defmodule Initials do
     use RDF.XSD.Datatype.Restriction,

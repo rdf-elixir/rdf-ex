@@ -222,6 +222,7 @@ defmodule RDF.Literal.Datatype do
         |> to_string()
       end
 
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote do
       @behaviour unquote(__MODULE__)
 
