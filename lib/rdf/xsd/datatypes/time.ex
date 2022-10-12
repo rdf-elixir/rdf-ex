@@ -1,11 +1,13 @@
 defmodule RDF.XSD.Time do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD times.
+  `RDF.XSD.Datatype` for `xsd:time`.
 
   Options:
 
   - `tz`: this allows to specify a timezone which is not supported by Elixir's `Time` struct; note,
     that it will also overwrite an eventually already present timezone in an input lexical
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#time>
   """
 
   @type valid_value :: Time.t() | {Time.t(), true}

@@ -1,4 +1,8 @@
 defmodule RDF.XSD.Datatype.Test.Case do
+  @moduledoc """
+  `ExUnit.CaseTemplate` for test of `RDF.XSD.Datatype`s.
+  """
+
   use ExUnit.CaseTemplate
 
   alias RDF.XSD

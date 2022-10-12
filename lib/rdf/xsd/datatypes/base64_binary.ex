@@ -1,6 +1,8 @@
 defmodule RDF.XSD.Base64Binary do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD base64Binary.
+  `RDF.XSD.Datatype` for `xsd:base64Binary`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#base64Binary>
   """
 
   @type valid_value :: binary()

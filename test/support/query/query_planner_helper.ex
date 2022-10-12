@@ -1,4 +1,6 @@
 defmodule RDF.QueryPlannerHelper do
+  @moduledoc false
+
   import RDF.Guards
 
   def better?(left, right) do

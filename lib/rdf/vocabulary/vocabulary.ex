@@ -1,4 +1,6 @@
 defmodule RDF.Vocabulary do
+  @moduledoc !"Various functions for working RDF vocabularies and their URIs."
+
   alias RDF.IRI
 
   @path "priv/vocabs"

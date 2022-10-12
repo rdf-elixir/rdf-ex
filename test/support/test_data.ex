@@ -1,4 +1,10 @@
 defmodule RDF.TestData do
+  @moduledoc """
+  Functions for accessing test data.
+
+  Both internal and official test data for the W3C test suites.
+  """
+
   @dir Path.join(File.cwd!(), "test/data/")
   def dir, do: @dir
 

@@ -1,6 +1,8 @@
 defmodule RDF.XSD.Double do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD doubles.
+  `RDF.XSD.Datatype` for `xsd:double`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#double>
   """
 
   @type special_values :: :positive_infinity | :negative_infinity | :nan

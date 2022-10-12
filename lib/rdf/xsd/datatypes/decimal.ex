@@ -1,6 +1,8 @@
 defmodule RDF.XSD.Decimal do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD decimals.
+  `RDF.XSD.Datatype` for `xsd:decimal`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#decimal>
   """
 
   @type valid_value :: Decimal.t()

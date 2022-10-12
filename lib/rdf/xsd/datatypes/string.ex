@@ -1,6 +1,8 @@
 defmodule RDF.XSD.String do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD strings.
+  `RDF.XSD.Datatype` for `xsd:string`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#string>
   """
 
   @type valid_value :: String.t()

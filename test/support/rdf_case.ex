@@ -1,4 +1,8 @@
 defmodule RDF.Test.Case do
+  @moduledoc """
+  Common `ExUnit.CaseTemplate` for RDF tests including test data.
+  """
+
   use ExUnit.CaseTemplate
 
   use RDF.Vocabulary.Namespace

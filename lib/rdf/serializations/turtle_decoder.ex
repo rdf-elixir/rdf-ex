@@ -21,6 +21,8 @@ defmodule RDF.Turtle.Decoder do
   alias RDF.{Graph, IRI}
 
   defmodule State do
+    @moduledoc !"The internal state of the `RDF.Turtle.Encoder`."
+
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
 
     def add_namespace(%State{namespaces: namespaces} = state, ns, iri) do

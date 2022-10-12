@@ -1,6 +1,8 @@
 defmodule RDF.XSD.Boolean do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD booleans.
+  `RDF.XSD.Datatype` for `xsd:boolean`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#boolean>
   """
 
   @type valid_value :: boolean

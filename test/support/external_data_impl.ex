@@ -1,4 +1,8 @@
 defmodule External do
+  @moduledoc """
+  A dummy struct to test external `RDF.Data` protocol implementations.
+  """
+
   defstruct []
 
   import RDF.Sigils

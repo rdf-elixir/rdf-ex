@@ -1,4 +1,8 @@
 defmodule RDF.Query.Test.Case do
+  @moduledoc """
+  `ExUnit.CaseTemplate` for `RDF.Query` tests.
+  """
+
   use ExUnit.CaseTemplate
 
   using do

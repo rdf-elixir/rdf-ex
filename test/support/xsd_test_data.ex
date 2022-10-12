@@ -1,4 +1,8 @@
 defmodule RDF.XSD.TestData do
+  @moduledoc """
+  Shared definitions for the `RDF.XSD.Datatype` tests.
+  """
+
   @zero %{
     0 => {0, nil, "0"},
     "0" => {0, nil, "0"},

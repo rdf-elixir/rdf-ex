@@ -1,4 +1,6 @@
 defmodule RDF.TestNamespaces do
+  @moduledoc false
+
   import RDF.Sigils
   import RDF.Namespace
 

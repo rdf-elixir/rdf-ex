@@ -1,5 +1,6 @@
 defmodule RDF.Graph.Builder do
   @moduledoc false
+
   alias RDF.{Description, Graph, Dataset, PrefixMap, IRI, Vocabulary}
 
   defmodule Error do
@@ -7,6 +8,8 @@ defmodule RDF.Graph.Builder do
   end
 
   defmodule Helper do
+    @moduledoc !"Functions which are auto-imported in every `RDF.Graph.Builder` block"
+
     defdelegate a(), to: RDF.NS.RDF, as: :type
     defdelegate a(s, o), to: RDF.NS.RDF, as: :type
 

@@ -7,6 +7,8 @@ defmodule EarlFormatter do
   use GenServer
 
   defmodule NS do
+    @moduledoc false
+
     use RDF.Vocabulary.Namespace
 
     defvocab EARL, base_iri: "http://www.w3.org/ns/earl#", terms: [], strict: false

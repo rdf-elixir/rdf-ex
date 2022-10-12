@@ -1,6 +1,8 @@
 defmodule RDF.XSD.DateTime do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD dateTimes.
+  `RDF.XSD.Datatype` for `xsd:dateTime`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#dateTime>
   """
 
   @type valid_value :: DateTime.t() | NaiveDateTime.t()

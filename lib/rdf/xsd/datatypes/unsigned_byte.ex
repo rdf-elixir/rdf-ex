@@ -1,4 +1,10 @@
 defmodule RDF.XSD.UnsignedByte do
+  @moduledoc """
+  `RDF.XSD.Datatype` for `xsd:unsignedByte`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#unsignedByte>
+  """
+
   use RDF.XSD.Datatype.Restriction,
     name: "unsignedByte",
     id: RDF.Utils.Bootstrapping.xsd_iri("unsignedByte"),

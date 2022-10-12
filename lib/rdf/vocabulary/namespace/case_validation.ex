@@ -1,4 +1,6 @@
 defmodule RDF.Vocabulary.Namespace.CaseValidation do
+  @moduledoc false
+
   import RDF.Vocabulary, only: [term_to_iri: 2]
   import RDF.Utils, only: [downcase?: 1]
 
