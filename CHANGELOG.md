@@ -38,6 +38,7 @@ Elixir versions < 1.11 are no longer supported
 - `RDF.PrefixMap.to_list/1`
 - `RDF.PropertyMap.to_list/1`
 - support for Elixir 1.14
+- support for Decimal v2
 
 ### Changed
 

@@ -83,7 +83,8 @@ defmodule RDF.XSD.Numeric do
 
   def do_compare(_, _), do: nil
 
-  defp compare_decimal_value(%D{} = left, %D{} = right), do: D.cmp(left, right)
+  defp compare_decimal_value(%D{} = left, %D{} = right),
+    do: XSD.Decimal.decimal_compare(left, right)
 
   defp compare_decimal_value(%D{} = left, right),
     do: compare_decimal_value(left, new_decimal(right))
