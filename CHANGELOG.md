@@ -68,6 +68,9 @@ Elixir versions < 1.11 are no longer supported
   had to be given as the first argument).
 - `RDF.XSD.Datatype.Mismatch` exception was renamed to
   `RDF.XSD.Datatype.MismatchError` for consistency reasons
+- the `Inspect` implementation for the `RDF.Literal`, `RDF.PrefixMap` and  
+  `RDF.PropertyMap` structs now return a string with a valid Elixir expression
+  that recreates the struct when evaluated
 - several performance improvements
 
 ### Fixed

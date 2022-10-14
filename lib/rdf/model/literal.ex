@@ -146,10 +146,10 @@ defmodule RDF.Literal do
       %RDF.Literal{literal: %RDF.XSD.String{value: "foo"}}
 
       iex> RDF.Literal.new!("foo", datatype: RDF.NS.XSD.integer)
-      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.Literal{literal: %RDF.XSD.Integer{value: nil, lexical: "foo"}, valid: false}
+      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.XSD.Integer{value: nil, lexical: "foo"}
 
       iex> RDF.Literal.new!("foo", datatype: RDF.langString)
-      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.Literal{literal: %RDF.LangString{value: "foo", language: nil}, valid: false}
+      ** (RDF.Literal.InvalidError) invalid RDF.Literal: %RDF.LangString{value: "foo", language: nil}
 
   """
   @spec new!(t | any, keyword) :: t
@@ -159,7 +159,7 @@ defmodule RDF.Literal do
     if valid?(literal) do
       literal
     else
-      raise RDF.Literal.InvalidError, "invalid RDF.Literal: #{inspect(literal)}"
+      raise RDF.Literal.InvalidError, "invalid RDF.Literal: #{inspect(literal.literal)}"
     end
   end
 

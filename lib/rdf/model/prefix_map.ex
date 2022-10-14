@@ -450,20 +450,4 @@ defmodule RDF.PrefixMap do
       def slice(%RDF.PrefixMap{map: map}), do: Enumerable.slice(map)
     end
   end
-
-  defimpl Inspect do
-    import Inspect.Algebra
-
-    def inspect(prefix_map, opts) do
-      map = Map.to_list(prefix_map.map)
-      open = color("%RDF.PrefixMap{", :map, opts)
-      sep = color(",", :map, opts)
-      close = color("}", :map, opts)
-
-      container_doc(open, map, close, opts, &Inspect.List.keyword/2,
-        separator: sep,
-        break: :strict
-      )
-    end
-  end
 end

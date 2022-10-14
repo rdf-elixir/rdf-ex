@@ -12,7 +12,13 @@ end
 
 defimpl Inspect, for: RDF.Literal do
   def inspect(literal, _opts) do
-    "%RDF.Literal{literal: #{inspect(literal.literal)}, valid: #{RDF.Literal.valid?(literal)}}"
+    string = "%RDF.Literal{literal: #{inspect(literal.literal)}}"
+
+    if RDF.Literal.valid?(literal) do
+      string
+    else
+      "#invalid #{string}"
+    end
   end
 end
 

@@ -366,11 +366,11 @@ defmodule RDF.PropertyMap do
 
     def inspect(property_map, opts) do
       map = Map.to_list(property_map.iris)
-      open = color("%RDF.PropertyMap{", :map, opts)
+      open = color("RDF.PropertyMap.new(%{", :map, opts)
       sep = color(",", :map, opts)
-      close = color("}", :map, opts)
+      close = color("})", :map, opts)
 
-      container_doc(open, map, close, opts, &to_map(&1, &2, color(" <=> ", :map, opts)),
+      container_doc(open, map, close, opts, &to_map(&1, &2, color(" => ", :map, opts)),
         separator: sep,
         break: :strict
       )
