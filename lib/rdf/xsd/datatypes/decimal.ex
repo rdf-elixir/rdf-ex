@@ -58,6 +58,8 @@ defmodule RDF.XSD.Decimal do
   end
 
   @impl XSD.Datatype
+  # TODO: this nowarn_function can be removed when support for decimal 1.0 is dropped
+  @dialyzer {:nowarn_function, lexical_mapping: 2}
   def lexical_mapping(lexical, opts) do
     if String.contains?(lexical, ~w[e E]) do
       @invalid_value
