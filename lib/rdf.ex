@@ -4,11 +4,14 @@ defmodule RDF do
 
   RDF.ex consists of:
 
-  - modules for the nodes of an RDF graph
-    - `RDF.Term`
+  - structs for the nodes of an RDF graph
     - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
+  - various modules making working with the nodes of an RDF graph easier
+    - `RDF.Term`
+    - `RDF.Sigils`
+    - `RDF.Guards`
   - the `RDF.Literal.Datatype` system
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
     functions: `RDF.Vocabulary.Namespace`
@@ -17,7 +20,7 @@ defmodule RDF do
     - `RDF.Triple`
     - `RDF.Quad`
     - `RDF.Statement`
-  - modules for collections of statements
+  - structs for collections of statements
     - `RDF.Description`
     - `RDF.Graph`
     - `RDF.Dataset`
@@ -154,7 +157,7 @@ defmodule RDF do
   defdelegate write_file!(data, filename, opts \\ []), to: Serialization
 
   @doc """
-  Checks if the given value is a RDF resource.
+  Checks if the given value is a `RDF.Resource`, i.e. a `RDF.IRI` or `RDF.BlankNode`.
 
   ## Examples
 
@@ -193,7 +196,7 @@ defmodule RDF do
   def resource?(_), do: false
 
   @doc """
-  Checks if the given value is a RDF term.
+  Checks if the given value is a `RDF.Term`, i.e. a `RDF.IRI`, `RDF.BlankNode` or `RDF.Literal`.
 
   ## Examples
 

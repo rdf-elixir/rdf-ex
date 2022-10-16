@@ -25,13 +25,17 @@ Elixir versions < 1.11 are no longer supported
 - The property functions on the `RDF.Namespace` and `RDF.Vocabulary.Namespace` modules
   now also have a single argument variant, which allows to query the objects for the
   respective property from a `RDF.Description`
-- `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2` 
-- `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
-  with a `@prefix` declaration providing the URI of the namespace as a string
 - The `case_violations` option of `defvocab` now supports an `:auto_fix` option 
   which adapts the first letter of violating term accordingly. It also supports
   custom handler functions, either as an inline function or as a function on a 
   separate module.
+- `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
+  with a `@prefix` declaration providing the URI of the namespace as a string
+- a lot of new `RDF.Guards`: `is_rdf_iri/1`, `is_rdf_bnode/1`, `is_rdf_literal/1`
+  `is_rdf_literal/2`, `is_plain_rdf_literal/1`, `is_typed_rdf_literal/1`,
+  `is_rdf_resource/1`, `is_rdf_term/1`, `is_rdf_triple/1`, `is_rdf_quad/1` and
+  `is_rdf_statement/1`
+- `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2`
 - `RDF.Graph.quads/2` and `RDF.Dataset.quads/2` to get all statements of a 
   `RDF.Graph` and `RDF.Dataset` as quads
 - `RDF.Dataset.triples/2` to get all statements of a `RDF.Dataset` as triples
