@@ -86,15 +86,17 @@ defmodule RDF.Vocabulary.Namespace do
 
   def create(module, base_uri, vocab, location, opts)
 
-  def create(module, base_uri, vocab_path, location, opts) when is_binary(vocab_path) do
-    file = vocab_from_path(vocab_path)
+  def create(module, base_uri, file, location, opts) when is_binary(file) do
+    compile_path = Vocabulary.compile_path(file)
 
     create(
       module,
       base_uri,
-      RDF.read_file!(file, base_iri: nil),
+      RDF.read_file!(compile_path, base_iri: nil),
       location,
-      Keyword.put(opts, :file, file)
+      opts
+      |> Keyword.put(:file, file)
+      |> Keyword.put(:compile_path, compile_path)
     )
   end
 
@@ -151,10 +153,17 @@ defmodule RDF.Vocabulary.Namespace do
 
   def define_namespace_functions(base_iri, terms, ignored_terms, strict, opts) do
     file = Keyword.get(opts, :file)
+    compile_path = Keyword.get(opts, :compile_path)
 
     quote do
       if unquote(file) do
-        @external_resource unquote(file)
+        @external_resource unquote(compile_path)
+
+        @spec __file__ :: String.t() | nil
+        def __file__, do: unquote(__MODULE__).path(__MODULE__, unquote(file))
+      else
+        @spec __file__ :: nil
+        def __file__, do: nil
       end
 
       @strict unquote(strict)
@@ -241,19 +250,6 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  defp vocab_from_path(vocab_path) do
-    cond do
-      File.exists?(vocab_path) ->
-        vocab_path
-
-      File.exists?(expanded_filename = Path.expand(vocab_path, Vocabulary.path())) ->
-        expanded_filename
-
-      true ->
-        raise File.Error, path: vocab_path, action: "find", reason: :enoent
-    end
-  end
-
   defp normalize_base_uri(%IRI{} = base_iri), do: IRI.to_string(base_iri)
 
   defp normalize_base_uri(base_uri) when is_binary(base_uri) do
@@ -271,6 +267,14 @@ defmodule RDF.Vocabulary.Namespace do
       reraise RDF.Namespace.InvalidVocabBaseIRIError,
               "invalid base IRI: #{inspect(base_uri)}",
               __STACKTRACE__
+  end
+
+  @doc false
+  def path(module, path) do
+    case :application.get_application(module) do
+      :undefined -> nil
+      {:ok, app_name} -> Path.join([:code.priv_dir(app_name), Vocabulary.dir(), path])
+    end
   end
 
   @doc false

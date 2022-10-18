@@ -1,10 +1,22 @@
 defmodule RDF.Vocabulary do
-  @moduledoc !"Various functions for working RDF vocabularies and their URIs."
+  @moduledoc !"Various functions for working with RDF vocabularies and their URIs."
 
   alias RDF.IRI
 
-  @path "priv/vocabs"
-  def path, do: @path
+  @dir "vocabs"
+  def dir, do: @dir
+
+  @compile_path "priv/#{@dir}"
+
+  def compile_path(file) do
+    cond do
+      File.exists?(path = Path.expand(file, @compile_path)) -> path
+      # We also support other directories, in particular for tests.
+      # However, these vocab files will NOT be accessible at runtime!
+      File.exists?(file) -> file
+      true -> raise File.Error, path: file, action: "find", reason: :enoent
+    end
+  end
 
   def extract_terms(data, base_iri) do
     data

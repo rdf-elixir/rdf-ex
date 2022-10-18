@@ -1103,6 +1103,26 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
+  describe "__file__" do
+    test "for manually defined vocabulary namespaces" do
+      refute RDF.NS.XSD.__file__()
+      refute TestNS.EX.__file__()
+      refute TestNS.ExampleFromGraph.__file__()
+    end
+
+    test "for vocabulary namespaces from files" do
+      assert RDF.NS.RDFS.__file__() == expected_vocab_path("rdfs.ttl")
+    end
+
+    test "for vocabulary namespaces created in tests" do
+      refute TestNS.ExampleFromNTriplesFile.__file__()
+    end
+
+    def expected_vocab_path(file) do
+      Path.join([:code.priv_dir(:rdf), "vocabs", file])
+    end
+  end
+
   test "resolving an unqualified term raises an error" do
     assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(:foo) end
   end
