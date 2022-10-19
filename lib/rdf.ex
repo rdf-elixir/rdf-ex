@@ -41,6 +41,9 @@ defmodule RDF do
   This top-level module provides shortcut functions for the construction of the
   basic elements and structures of RDF and some general helper functions.
 
+  It also can be `use`'ed to add basic imports and aliases for working with RDF.ex
+  on any module. See `__using__/1` for details.
+
   For a general introduction you may refer to the guides on the [homepage](https://rdf-elixir.dev).
   """
 
@@ -341,4 +344,30 @@ defmodule RDF do
   defdelegate __iris__(), to: RDF.NS.RDF
   defdelegate __strict__(), to: RDF.NS.RDF
   defdelegate __resolve_term__(term), to: RDF.NS.RDF
+
+  @doc """
+  Adds basic imports and aliases for working with RDF.ex.
+
+  This allows to write
+
+      use RDF
+
+  instead of the following
+
+      import RDF.Sigils
+      import RDF.Guards
+      import RDF.Namespace.IRI
+
+      alias RDF.{XSD, NTriples, NQuads, Turtle}
+
+  """
+  defmacro __using__(_opts) do
+    quote do
+      import RDF.Sigils
+      import RDF.Guards
+      import RDF.Namespace.IRI
+
+      alias RDF.{XSD, NTriples, NQuads, Turtle}
+    end
+  end
 end

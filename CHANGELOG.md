@@ -37,6 +37,8 @@ Elixir versions < 1.11 are no longer supported
   `is_rdf_literal/2`, `is_plain_rdf_literal/1`, `is_typed_rdf_literal/1`,
   `is_rdf_resource/1`, `is_rdf_term/1`, `is_rdf_triple/1`, `is_rdf_quad/1` and
   `is_rdf_statement/1`
+- an implementation of `__using__` on the top-level `RDF` module, which allows to
+  add basic imports and aliases with a simple `use RDF` 
 - `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2`
 - `RDF.Graph.quads/2` and `RDF.Dataset.quads/2` to get all statements of a 
   `RDF.Graph` and `RDF.Dataset` as quads
