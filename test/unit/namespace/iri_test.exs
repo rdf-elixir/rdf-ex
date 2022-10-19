@@ -5,13 +5,20 @@ defmodule RDF.Namespace.IRITest do
 
   import RDF.Namespace.IRI
 
+  alias RDF.TestNamespaces.SimpleNS
+
   describe "term_to_iri/1" do
     test "with a property function from a vocabulary namespace" do
       assert term_to_iri(EX.foo()) == EX.foo()
       assert term_to_iri(RDF.NS.OWL.sameAs()) == RDF.NS.OWL.sameAs()
     end
 
-    test "with a term atom from a vocabulary namespace" do
+    test "with a term atom from a RDF.Namespace" do
+      assert term_to_iri(SimpleNS.foo()) == ~I<http://example.com/foo>
+      assert term_to_iri(SimpleNS.Baz) == ~I<http://example.com/Baz>
+    end
+
+    test "with a term atom from a RDF.Vocabulary.Namespace" do
       assert term_to_iri(EX.Foo) == RDF.iri(EX.Foo)
     end
 
