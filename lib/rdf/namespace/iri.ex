@@ -1,6 +1,6 @@
 defmodule RDF.Namespace.IRI do
   @moduledoc """
-  Provides the `iri/1` macro to resolve IRI values inside of pattern matches.
+  Provides the `term_to_iri/1` macro to resolve IRI values inside of pattern matches.
   """
 
   @doc """
@@ -19,13 +19,13 @@ defmodule RDF.Namespace.IRI do
       import RDF.Namespace.IRI
 
       case expr do
-        iri(EX.Foo) -> ...
-        iri(EX.bar()) -> ...
+        term_to_iri(EX.Foo) -> ...
+        term_to_iri(EX.bar()) -> ...
         ...
       end
 
   """
-  defmacro iri({{:., _, [{:__aliases__, _, _} = module_alias, _fun_name]}, _, []} = expr) do
+  defmacro term_to_iri({{:., _, [{:__aliases__, _, _} = module_alias, _fun_name]}, _, []} = expr) do
     {module, _} = Code.eval_quoted(module_alias, [], __CALLER__)
 
     if RDF.Namespace.namespace?(module) do
@@ -35,9 +35,9 @@ defmodule RDF.Namespace.IRI do
     end
   end
 
-  defmacro iri({:__aliases__, _, _} = expr), do: resolve_to_iri(expr, __CALLER__)
+  defmacro term_to_iri({:__aliases__, _, _} = expr), do: resolve_to_iri(expr, __CALLER__)
 
-  defmacro iri(expr), do: forbidden_iri_expr(expr)
+  defmacro term_to_iri(expr), do: forbidden_iri_expr(expr)
 
   defp resolve_to_iri(expr, env) do
     {value, _} = Code.eval_quoted(expr, [], env)
@@ -49,6 +49,7 @@ defmodule RDF.Namespace.IRI do
   end
 
   defp forbidden_iri_expr(expr) do
-    raise ArgumentError, "forbidden expression in RDF.Guard.iri/1 call: #{Macro.to_string(expr)}"
+    raise ArgumentError,
+          "forbidden expression in RDF.Guard.term_to_iri/1 call: #{Macro.to_string(expr)}"
   end
 end

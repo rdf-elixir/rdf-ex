@@ -20,7 +20,7 @@ Elixir versions < 1.11 are no longer supported
   `MyApplication.Vocab` module directly under the root module of the application.
 - `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
-- macro `RDF.Namespace.IRI.iri/1` which allows to resolve `RDF.Namespace` terms 
+- macro `RDF.Namespace.IRI.term_to_iri/1` which allows to resolve `RDF.Namespace` terms 
   inside of pattern matches
 - `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns  
   the path to the vocabulary file they were generated from 

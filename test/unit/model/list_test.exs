@@ -49,7 +49,7 @@ defmodule RDF.ListTest do
         )
 
       assert %RDF.List{} = list = RDF.List.new(EX.Foo, graph)
-      assert list.head == iri(EX.Foo)
+      assert list.head == RDF.iri(EX.Foo)
     end
 
     test "with other properties on its nodes" do
@@ -183,7 +183,7 @@ defmodule RDF.ListTest do
     end
 
     %{
-      "IRI" => iri(EX.Foo),
+      "IRI" => RDF.iri(EX.Foo),
       "blank node" => ~B<Foo>,
       "literal" => ~L<Foo>,
       "string" => "Foo",
@@ -279,7 +279,7 @@ defmodule RDF.ListTest do
     end
 
     test "head option with unresolved namespace-qualified name" do
-      assert RDF.List.from([42], head: EX.Foo).head == iri(EX.Foo)
+      assert RDF.List.from([42], head: EX.Foo).head == RDF.iri(EX.Foo)
     end
   end
 

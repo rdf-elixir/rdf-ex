@@ -25,7 +25,7 @@ defmodule RDF.GraphTest do
       assert named_graph("http://example.com/graph/GraphName")
              |> named_graph?(~I<http://example.com/graph/GraphName>)
 
-      assert named_graph(EX.Foo) |> named_graph?(iri(EX.Foo))
+      assert named_graph(EX.Foo) |> named_graph?(RDF.iri(EX.Foo))
     end
 
     test "creating an unnamed graph with an initial triple" do
@@ -36,7 +36,7 @@ defmodule RDF.GraphTest do
 
     test "creating a named graph with an initial triple" do
       g = Graph.new({EX.Subject, EX.predicate(), EX.Object}, name: EX.GraphName)
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
@@ -64,12 +64,12 @@ defmodule RDF.GraphTest do
           name: EX.GraphName
         )
 
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate2(), EX.Object2})
 
       g = Graph.new({EX.Subject, EX.predicate(), [EX.Object1, EX.Object2]}, name: EX.GraphName)
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object2})
     end
@@ -83,7 +83,7 @@ defmodule RDF.GraphTest do
         Description.new(EX.Subject, init: {EX.predicate(), EX.Object})
         |> Graph.new(name: EX.GraphName)
 
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
@@ -106,14 +106,14 @@ defmodule RDF.GraphTest do
         Graph.new({EX.Subject, EX.predicate(), EX.Object})
         |> Graph.new(name: EX.GraphName)
 
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
 
       g =
         Graph.new({EX.Subject, EX.predicate(), EX.Object}, name: EX.OtherGraphName)
         |> Graph.new(name: EX.GraphName)
 
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
@@ -155,7 +155,7 @@ defmodule RDF.GraphTest do
         ])
         |> Graph.new(name: EX.GraphName)
 
-      assert named_graph?(g, iri(EX.GraphName))
+      assert named_graph?(g, RDF.iri(EX.GraphName))
       assert Graph.triple_count(g) == 4
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object1})
       assert graph_includes_statement?(g, {EX.Subject2, EX.predicate2(), EX.Object2})
@@ -285,13 +285,13 @@ defmodule RDF.GraphTest do
   end
 
   test "change_name/2" do
-    assert Graph.change_name(graph(), EX.NewGraph).name == iri(EX.NewGraph)
+    assert Graph.change_name(graph(), EX.NewGraph).name == RDF.iri(EX.NewGraph)
     assert Graph.change_name(named_graph(), nil).name == nil
   end
 
   describe "add/3" do
     test "a proper triple" do
-      assert Graph.add(graph(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
+      assert Graph.add(graph(), {RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object)})
              |> graph_includes_statement?({EX.Subject, EX.predicate(), EX.Object})
     end
 
@@ -595,7 +595,7 @@ defmodule RDF.GraphTest do
 
     test "non-coercible Triple elements are causing an error" do
       assert_raise RDF.IRI.InvalidError, fn ->
-        Graph.add(graph(), {"not a IRI", EX.predicate(), iri(EX.Object)})
+        Graph.add(graph(), {"not a IRI", EX.predicate(), RDF.iri(EX.Object)})
       end
 
       assert_raise RDF.Literal.InvalidError, fn ->
@@ -1265,21 +1265,21 @@ defmodule RDF.GraphTest do
     assert Graph.pop(Graph.new()) == {nil, Graph.new()}
 
     {triple, graph} = Graph.new({EX.S, EX.p(), EX.O}) |> Graph.pop()
-    assert {iri(EX.S), iri(EX.p()), iri(EX.O)} == triple
+    assert {RDF.iri(EX.S), RDF.iri(EX.p()), RDF.iri(EX.O)} == triple
     assert Enum.empty?(graph.descriptions)
 
     {{subject, predicate, _}, graph} =
       Graph.new([{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
       |> Graph.pop()
 
-    assert {subject, predicate} == {iri(EX.S), iri(EX.p())}
+    assert {subject, predicate} == {RDF.iri(EX.S), RDF.iri(EX.p())}
     assert Enum.count(graph.descriptions) == 1
 
     {{subject, _, _}, graph} =
       Graph.new([{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
       |> Graph.pop()
 
-    assert subject == iri(EX.S)
+    assert subject == RDF.iri(EX.S)
     assert Enum.count(graph.descriptions) == 1
   end
 
@@ -1581,7 +1581,7 @@ defmodule RDF.GraphTest do
     end
 
     test "Enum.member?" do
-      refute Enum.member?(Graph.new(), {iri(EX.S), EX.p(), iri(EX.O)})
+      refute Enum.member?(Graph.new(), {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)})
       assert Enum.member?(Graph.new({EX.S, EX.p(), EX.O}), {EX.S, EX.p(), EX.O})
 
       g =

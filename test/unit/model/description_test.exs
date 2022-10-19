@@ -19,7 +19,7 @@ defmodule RDF.DescriptionTest do
     end
 
     test "with an unresolved subject IRI term atom" do
-      assert description_of_subject(Description.new(EX.Bar), iri(EX.Bar))
+      assert description_of_subject(Description.new(EX.Bar), RDF.iri(EX.Bar))
     end
 
     test "with a BlankNode subject" do
@@ -29,14 +29,18 @@ defmodule RDF.DescriptionTest do
     test "with another description" do
       existing_description = description({EX.Subject, EX.predicate(), EX.Object})
       new_description = Description.new(existing_description)
-      assert description_of_subject(new_description, iri(EX.Subject))
-      refute description_includes_predication(new_description, {EX.predicate(), iri(EX.Object)})
+      assert description_of_subject(new_description, RDF.iri(EX.Subject))
+
+      refute description_includes_predication(
+               new_description,
+               {EX.predicate(), RDF.iri(EX.Object)}
+             )
     end
 
     test "with init data" do
       desc = Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object)})
 
       desc =
         Description.new(
@@ -47,14 +51,14 @@ defmodule RDF.DescriptionTest do
           ]
         )
 
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
 
       other_desc = Description.new(EX.Subject2, init: {EX.Subject2, EX.predicate(), EX.Object})
       desc = Description.new(EX.Subject, init: other_desc)
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object)})
 
       desc =
         Description.new(
@@ -69,15 +73,15 @@ defmodule RDF.DescriptionTest do
           }
         )
 
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
     end
 
     test "with an initializer function" do
       desc = Description.new(EX.Subject, init: fn -> {EX.Subject, EX.predicate(), EX.Object} end)
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object)})
     end
   end
 
@@ -87,41 +91,44 @@ defmodule RDF.DescriptionTest do
 
   test "change_subject/2" do
     assert Description.change_subject(description(), EX.NewSubject).subject ==
-             iri(EX.NewSubject)
+             RDF.iri(EX.NewSubject)
   end
 
   describe "add/3" do
     test "with a triple" do
-      assert Description.add(description(), {iri(EX.Subject), EX.predicate(), iri(EX.Object)})
-             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+      assert Description.add(
+               description(),
+               {RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object)}
+             )
+             |> description_includes_predication({EX.predicate(), RDF.iri(EX.Object)})
 
-      assert Description.add(description(), {iri(EX.Subject), EX.predicate(), bnode(:foo)})
+      assert Description.add(description(), {RDF.iri(EX.Subject), EX.predicate(), bnode(:foo)})
              |> description_includes_predication({EX.predicate(), bnode(:foo)})
 
-      assert Description.add(description(), {iri(EX.Subject), EX.predicate(), literal(42)})
+      assert Description.add(description(), {RDF.iri(EX.Subject), EX.predicate(), literal(42)})
              |> description_includes_predication({EX.predicate(), literal(42)})
     end
 
     test "with a quad" do
       assert Description.add(
                description(),
-               {iri(EX.Subject), EX.predicate(), iri(EX.Object), EX.Graph}
+               {RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object), EX.Graph}
              )
-             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+             |> description_includes_predication({EX.predicate(), RDF.iri(EX.Object)})
 
       assert Description.add(description(), {EX.Subject, EX.predicate(), 42, nil})
              |> description_includes_predication({EX.predicate(), literal(42)})
     end
 
     test "with a predicate-object tuple" do
-      assert Description.add(description(), {EX.predicate(), iri(EX.Object)})
-             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+      assert Description.add(description(), {EX.predicate(), RDF.iri(EX.Object)})
+             |> description_includes_predication({EX.predicate(), RDF.iri(EX.Object)})
     end
 
     test "with a predicate-object tuple and a list of objects" do
-      desc = Description.add(description(), {EX.p(), [iri(EX.O1), iri(EX.O2)]})
-      assert description_includes_predication(desc, {EX.p(), iri(EX.O1)})
-      assert description_includes_predication(desc, {EX.p(), iri(EX.O2)})
+      desc = Description.add(description(), {EX.p(), [RDF.iri(EX.O1), RDF.iri(EX.O2)]})
+      assert description_includes_predication(desc, {EX.p(), RDF.iri(EX.O1)})
+      assert description_includes_predication(desc, {EX.p(), RDF.iri(EX.O2)})
     end
 
     test "with a predicate-object tuple and an empty list of objects" do
@@ -136,8 +143,8 @@ defmodule RDF.DescriptionTest do
           {EX.predicate(), EX.Object2}
         ])
 
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object2)})
 
       desc =
         Description.add(description(), [
@@ -145,8 +152,8 @@ defmodule RDF.DescriptionTest do
           {EX.p2(), [EX.O2, ~L"foo", "bar", 42]}
         ])
 
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.O1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.O1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.O2)})
       assert description_includes_predication(desc, {EX.p2(), ~L"foo"})
       assert description_includes_predication(desc, {EX.p2(), ~L"bar"})
       assert description_includes_predication(desc, {EX.p2(), RDF.literal(42)})
@@ -159,8 +166,8 @@ defmodule RDF.DescriptionTest do
           {EX.Subject, EX.predicate2(), EX.Object2}
         ])
 
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
 
       desc =
         Description.add(description(), [
@@ -168,9 +175,9 @@ defmodule RDF.DescriptionTest do
           {EX.Subject, EX.predicate2(), [EX.Object2, EX.Object3]}
         ])
 
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object3)})
     end
 
     test "a list of mixed triples and predicate-object-pairs" do
@@ -181,10 +188,10 @@ defmodule RDF.DescriptionTest do
           {EX.Other, EX.predicate(), EX.Object3}
         ])
 
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
-      refute description_includes_predication(desc, {EX.predicate(), iri(EX.Object3)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object2)})
+      refute description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object3)})
     end
 
     test "with a description map with coercible RDF terms" do
@@ -192,10 +199,10 @@ defmodule RDF.DescriptionTest do
         description([{EX.predicate1(), EX.Object1}, {EX.predicate2(), EX.Object2}])
         |> Description.add(%{EX.predicate3() => EX.Object3})
 
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3(), RDF.iri(EX.Object3)})
 
       desc =
         Description.add(desc, %{
@@ -205,16 +212,16 @@ defmodule RDF.DescriptionTest do
         })
 
       assert Description.count(desc) == 5
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.predicate2(), literal(42)})
-      assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate3(), RDF.iri(EX.Object3)})
       assert description_includes_predication(desc, {EX.predicate3(), bnode(:foo)})
     end
 
     test "a map of predications with non-coercible RDF terms" do
       assert_raise RDF.IRI.InvalidError, fn ->
-        Description.add(description(), %{"not a IRI" => iri(EX.Object)})
+        Description.add(description(), %{"not a IRI" => RDF.iri(EX.Object)})
       end
 
       assert_raise RDF.Literal.InvalidError, fn ->
@@ -238,10 +245,10 @@ defmodule RDF.DescriptionTest do
           Description.new(EX.Other, init: {EX.Other, EX.predicate3(), EX.Object3})
         )
 
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3(), RDF.iri(EX.Object3)})
 
       desc =
         Description.add(
@@ -249,10 +256,10 @@ defmodule RDF.DescriptionTest do
           Description.new(EX.Other, init: {EX.Other, EX.predicate1(), EX.Object4})
         )
 
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object4)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3(), RDF.iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object4)})
     end
 
     test "with a context" do
@@ -262,12 +269,12 @@ defmodule RDF.DescriptionTest do
           p2: EX.p2()
         )
 
-      assert Description.add(description(), {iri(EX.Subject), :p, literal(42)},
+      assert Description.add(description(), {RDF.iri(EX.Subject), :p, literal(42)},
                context: [p: EX.predicate()]
              )
              |> description_includes_predication({EX.predicate(), literal(42)})
 
-      assert Description.add(description(), {iri(EX.Subject), :p, literal(42), EX.Graph},
+      assert Description.add(description(), {RDF.iri(EX.Subject), :p, literal(42), EX.Graph},
                context: %{p: EX.predicate()}
              )
              |> description_includes_predication({EX.predicate(), literal(42)})
@@ -282,8 +289,8 @@ defmodule RDF.DescriptionTest do
           context: context
         )
 
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.O1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.O1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.O2)})
       assert description_includes_predication(desc, {EX.p2(), ~L"foo"})
       assert description_includes_predication(desc, {EX.p2(), ~L"bar"})
       assert description_includes_predication(desc, {EX.p2(), RDF.literal(42)})
@@ -299,8 +306,8 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 4
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.Object2)})
       assert description_includes_predication(desc, {EX.p2(), literal(42)})
       assert description_includes_predication(desc, {EX.p2(), bnode(:foo)})
 
@@ -317,20 +324,20 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 4
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object3)})
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object4)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object4)})
 
       desc = Description.add(description(), [type: EX.Class], context: RDF.NS.RDF)
       assert Description.count(desc) == 1
-      assert description_includes_predication(desc, {RDF.type(), iri(EX.Class)})
+      assert description_includes_predication(desc, {RDF.type(), RDF.iri(EX.Class)})
     end
 
     test "triples with another subject are ignored" do
       assert empty_description(
-               Description.add(description(), {EX.Other, EX.predicate(), iri(EX.Object)})
+               Description.add(description(), {EX.Other, EX.predicate(), RDF.iri(EX.Object)})
              )
     end
 
@@ -345,10 +352,10 @@ defmodule RDF.DescriptionTest do
 
     test "coercion" do
       assert Description.add(description(), {EX.Subject, EX.P, EX.O})
-             |> description_includes_predication({iri(EX.P), iri(EX.O)})
+             |> description_includes_predication({RDF.iri(EX.P), RDF.iri(EX.O)})
 
       assert Description.add(description(), {"http://example.com/predicate", EX.Object})
-             |> description_includes_predication({EX.predicate(), iri(EX.Object)})
+             |> description_includes_predication({EX.predicate(), RDF.iri(EX.Object)})
 
       desc = Description.add(description(), {"http://example.com/predicate", [42, true]})
       assert description_includes_predication(desc, {EX.predicate(), literal(42)})
@@ -357,7 +364,7 @@ defmodule RDF.DescriptionTest do
 
     test "non-coercible Triple elements are causing an error" do
       assert_raise RDF.IRI.InvalidError, fn ->
-        Description.add(description(), {"not a IRI", iri(EX.Object)})
+        Description.add(description(), {"not a IRI", RDF.iri(EX.Object)})
       end
 
       assert_raise RDF.Literal.InvalidError, fn ->
@@ -383,35 +390,35 @@ defmodule RDF.DescriptionTest do
   describe "put/3" do
     test "with a triple" do
       desc =
-        description({iri(EX.Subject), EX.predicate(), iri(EX.Object1)})
-        |> Description.put({iri(EX.Subject), EX.predicate(), iri(EX.Object2)})
+        description({RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object1)})
+        |> Description.put({RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object2)})
 
       assert Description.count(desc) == 1
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object2)})
     end
 
     test "with a quad" do
       desc =
-        description({iri(EX.Subject), EX.predicate(), iri(EX.Object1)})
-        |> Description.put({iri(EX.Subject), EX.predicate(), iri(EX.Object2), EX.Graph})
+        description({RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object1)})
+        |> Description.put({RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object2), EX.Graph})
 
       assert Description.count(desc) == 1
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object2)})
     end
 
     test "with a predicate-object tuple" do
       desc =
-        description({iri(EX.Subject), EX.p(), iri(EX.O1)})
-        |> Description.put({EX.p(), [iri(EX.O2), iri(EX.O3)]})
+        description({RDF.iri(EX.Subject), EX.p(), RDF.iri(EX.O1)})
+        |> Description.put({EX.p(), [RDF.iri(EX.O2), RDF.iri(EX.O3)]})
 
       assert Description.count(desc) == 2
-      assert description_includes_predication(desc, {EX.p(), iri(EX.O2)})
-      assert description_includes_predication(desc, {EX.p(), iri(EX.O3)})
+      assert description_includes_predication(desc, {EX.p(), RDF.iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p(), RDF.iri(EX.O3)})
     end
 
     test "with a list of predicate-object tuples" do
       desc =
-        description({iri(EX.Subject), EX.p2(), iri(EX.O1)})
+        description({RDF.iri(EX.Subject), EX.p2(), RDF.iri(EX.O1)})
         |> Description.put([
           {EX.p1(), EX.O1},
           {EX.p2(), [EX.O2]},
@@ -419,8 +426,8 @@ defmodule RDF.DescriptionTest do
         ])
 
       assert Description.count(desc) == 5
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.O1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.O2)})
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.O1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.O2)})
       assert description_includes_predication(desc, {EX.p2(), ~L"foo"})
       assert description_includes_predication(desc, {EX.p2(), ~L"bar"})
       assert description_includes_predication(desc, {EX.p2(), RDF.literal(42)})
@@ -429,8 +436,8 @@ defmodule RDF.DescriptionTest do
     test "with a list of triples" do
       desc =
         description([
-          {iri(EX.Subject), EX.predicate1(), iri(EX.Object)},
-          {iri(EX.Subject), EX.predicate2(), iri(EX.Object)}
+          {RDF.iri(EX.Subject), EX.predicate1(), RDF.iri(EX.Object)},
+          {RDF.iri(EX.Subject), EX.predicate2(), RDF.iri(EX.Object)}
         ])
         |> Description.put([
           {EX.Subject, EX.predicate1(), EX.Object1},
@@ -439,10 +446,10 @@ defmodule RDF.DescriptionTest do
         ])
 
       assert Description.count(desc) == 4
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object3)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object4)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object4)})
     end
 
     test "with a description map with coercible RDF terms" do
@@ -454,11 +461,11 @@ defmodule RDF.DescriptionTest do
         })
 
       assert Description.count(desc) == 4
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object3)})
       assert description_includes_predication(desc, {EX.predicate2(), literal(42)})
       assert description_includes_predication(desc, {EX.predicate3(), bnode(:foo)})
-      refute description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
+      refute description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
     end
 
     test "with an empty map" do
@@ -477,9 +484,9 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 3
-      assert description_includes_predication(desc, {EX.predicate1(), iri(EX.Object4)})
-      assert description_includes_predication(desc, {EX.predicate2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.predicate3(), iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate1(), RDF.iri(EX.Object4)})
+      assert description_includes_predication(desc, {EX.predicate2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.predicate3(), RDF.iri(EX.Object3)})
     end
 
     test "with a description on another subject" do
@@ -487,7 +494,7 @@ defmodule RDF.DescriptionTest do
 
       assert Description.put(
                desc,
-               Description.new(EX.Other, init: {EX.Other, EX.predicate(), iri(EX.Object)})
+               Description.new(EX.Other, init: {EX.Other, EX.predicate(), RDF.iri(EX.Object)})
              ) == desc
     end
 
@@ -509,16 +516,16 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 4
-      assert description_of_subject(desc, iri(EX.Subject))
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.Object1)})
-      assert description_includes_predication(desc, {EX.p2(), iri(EX.Object2)})
-      assert description_includes_predication(desc, {EX.p3(), iri(EX.Object3)})
-      assert description_includes_predication(desc, {EX.predicate(), iri(EX.Object4)})
+      assert description_of_subject(desc, RDF.iri(EX.Subject))
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.Object1)})
+      assert description_includes_predication(desc, {EX.p2(), RDF.iri(EX.Object2)})
+      assert description_includes_predication(desc, {EX.p3(), RDF.iri(EX.Object3)})
+      assert description_includes_predication(desc, {EX.predicate(), RDF.iri(EX.Object4)})
     end
 
     test "triples with another subject are ignored" do
       assert empty_description(
-               Description.put(description(), {EX.Other, EX.predicate(), iri(EX.Object)})
+               Description.put(description(), {EX.Other, EX.predicate(), RDF.iri(EX.Object)})
              )
     end
 
@@ -666,8 +673,8 @@ defmodule RDF.DescriptionTest do
         )
 
       assert Description.count(desc) == 1
-      assert description_of_subject(desc, iri(EX.S))
-      assert description_includes_predication(desc, {EX.p1(), iri(EX.O2)})
+      assert description_of_subject(desc, RDF.iri(EX.S))
+      assert description_includes_predication(desc, {EX.p1(), RDF.iri(EX.O2)})
     end
 
     test "structs are causing an error" do
@@ -769,21 +776,21 @@ defmodule RDF.DescriptionTest do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 
     {triple, desc} = Description.new(EX.S, init: {EX.S, EX.p(), EX.O}) |> Description.pop()
-    assert {iri(EX.S), iri(EX.p()), iri(EX.O)} == triple
+    assert {RDF.iri(EX.S), RDF.iri(EX.p()), RDF.iri(EX.O)} == triple
     assert Enum.empty?(desc.predications)
 
     {{subject, predicate, _}, desc} =
       Description.new(EX.S, init: [{EX.S, EX.p(), EX.O1}, {EX.S, EX.p(), EX.O2}])
       |> Description.pop()
 
-    assert {subject, predicate} == {iri(EX.S), iri(EX.p())}
+    assert {subject, predicate} == {RDF.iri(EX.S), RDF.iri(EX.p())}
     assert Enum.count(desc.predications) == 1
 
     {{subject, _, _}, desc} =
       Description.new(EX.S, init: [{EX.S, EX.p1(), EX.O1}, {EX.S, EX.p2(), EX.O2}])
       |> Description.pop()
 
-    assert subject == iri(EX.S)
+    assert subject == RDF.iri(EX.S)
     assert Enum.count(desc.predications) == 1
   end
 
@@ -944,7 +951,7 @@ defmodule RDF.DescriptionTest do
     end
 
     test "Enum.member?" do
-      refute Enum.member?(Description.new(EX.S), {iri(EX.S), EX.p(), iri(EX.O)})
+      refute Enum.member?(Description.new(EX.S), {RDF.iri(EX.S), EX.p(), RDF.iri(EX.O)})
       assert Enum.member?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O}), {EX.S, EX.p(), EX.O})
 
       desc =
@@ -1033,18 +1040,18 @@ defmodule RDF.DescriptionTest do
       assert Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})[
                EX.predicate()
              ] == [
-               iri(EX.Object)
+               RDF.iri(EX.Object)
              ]
 
       assert Description.new(EX.Subject, init: {EX.Subject, EX.Predicate, EX.Object})[
                EX.Predicate
              ] == [
-               iri(EX.Object)
+               RDF.iri(EX.Object)
              ]
 
       assert Description.new(EX.Subject, init: {EX.Subject, EX.predicate(), EX.Object})[
                "http://example.com/predicate"
-             ] == [iri(EX.Object)]
+             ] == [RDF.iri(EX.Object)]
 
       assert Description.new(EX.Subject,
                init: [
@@ -1053,7 +1060,7 @@ defmodule RDF.DescriptionTest do
                  {EX.Subject, EX.predicate2(), EX.Object3}
                ]
              )[EX.predicate1()] ==
-               [iri(EX.Object1), iri(EX.Object2)]
+               [RDF.iri(EX.Object1), RDF.iri(EX.Object2)]
     end
   end
 end
