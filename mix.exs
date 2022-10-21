@@ -75,7 +75,7 @@ defmodule RDF.Mixfile do
       {:elixir_uuid, "~> 1.2", optional: true},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.28", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
       {:excoveralls, "~> 0.15", only: :test},
       {:benchee, "~> 1.1", only: :bench}
     ]
