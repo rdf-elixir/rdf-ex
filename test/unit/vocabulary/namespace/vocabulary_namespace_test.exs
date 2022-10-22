@@ -1320,9 +1320,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert EXS.foo(EX.S, EX.O) == Description.new(EX.S, init: {EXS.foo(), EX.O})
     end
 
-    test "description accessor" do
+    test "description accessor with strict property term" do
       assert Description.new(EX.S, init: {EXS.foo(), EX.O})
              |> EXS.foo() == [RDF.iri(EX.O)]
+    end
+
+    test "description accessor with non-strict property term" do
+      assert Description.new(EX.S, init: {EX.foo(), EX.O})
+             |> EX.foo() == [RDF.iri(EX.O)]
     end
 
     test "multiple statements with strict property terms and one object" do

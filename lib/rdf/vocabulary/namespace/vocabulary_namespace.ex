@@ -230,6 +230,14 @@ defmodule RDF.Vocabulary.Namespace do
         term_to_iri(@base_iri, term)
       end
 
+      def unquote(:"$handle_undefined_function")(term, [%Description{} = subject]) do
+        if MapSet.member?(@ignored_terms, term) do
+          raise UndefinedFunctionError
+        end
+
+        Description.get(subject, term_to_iri(@base_iri, term))
+      end
+
       def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
         if MapSet.member?(@ignored_terms, term) do
           raise UndefinedFunctionError
