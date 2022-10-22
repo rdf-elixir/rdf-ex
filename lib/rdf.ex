@@ -357,6 +357,8 @@ defmodule RDF do
       import RDF.Sigils
       import RDF.Guards
       import RDF.Namespace.IRI
+    
+      require RDF.Graph
 
       alias RDF.{XSD, NTriples, NQuads, Turtle}
 
@@ -366,6 +368,8 @@ defmodule RDF do
       import RDF.Sigils
       import RDF.Guards
       import RDF.Namespace.IRI
+
+      require RDF.Graph
 
       alias RDF.{XSD, NTriples, NQuads, Turtle}
     end

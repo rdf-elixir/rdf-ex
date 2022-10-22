@@ -35,6 +35,17 @@ defmodule RDFTest do
       assert term_to_iri(EX.bar()) == RDF.iri("http://example.com/bar")
     end
 
+    test "require RDF.Graph" do
+      use RDF
+
+      graph =
+        RDF.Graph.build do
+          EX.S |> EX.p(EX.O)
+        end
+
+      assert %RDF.Graph{} = graph
+    end
+
     test "add various aliases" do
       use RDF
 
