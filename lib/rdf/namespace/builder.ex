@@ -97,7 +97,7 @@ defmodule RDF.Namespace.Builder do
     end
   end
 
-  def define_namespace_functions(term_mapping) do
+  defp define_namespace_functions(term_mapping) do
     quote do
       @term_mapping unquote(Macro.escape(term_mapping))
       def __term_mapping__, do: @term_mapping
@@ -179,7 +179,6 @@ defmodule RDF.Namespace.Builder do
     __info__
   ]a
 
-  @doc false
   def reserved_terms, do: @reserved_terms
 
   def reserved_term?(term) when term in @reserved_terms, do: true

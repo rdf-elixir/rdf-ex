@@ -151,7 +151,7 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  def define_namespace_functions(base_iri, terms, ignored_terms, strict, opts) do
+  defp define_namespace_functions(base_iri, terms, ignored_terms, strict, opts) do
     file = Keyword.get(opts, :file)
     compile_path = Keyword.get(opts, :compile_path)
 
@@ -220,7 +220,7 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  def define_undefined_function_handler do
+  defp define_undefined_function_handler do
     quote do
       def unquote(:"$handle_undefined_function")(term, []) do
         if MapSet.member?(@ignored_terms, term) do
