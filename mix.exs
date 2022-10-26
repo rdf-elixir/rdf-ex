@@ -36,6 +36,7 @@ defmodule RDF.Mixfile do
       # ExCoveralls
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
+        check: :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
@@ -91,7 +92,16 @@ defmodule RDF.Mixfile do
 
   defp aliases do
     [
-      earl_reports: &earl_reports/1
+      earl_reports: &earl_reports/1,
+      check: [
+        "clean",
+        "deps.unlock --check-unused",
+        "compile --warnings-as-errors",
+        "format --check-formatted",
+        "deps.unlock --check-unused",
+        "test --warnings-as-errors",
+        "credo"
+      ]
     ]
   end
 
