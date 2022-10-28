@@ -9,7 +9,7 @@ defmodule RDF.Vocabulary.Namespace do
   the `RDF.NS` module.
   """
 
-  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace, IRI}
+  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace}
   alias RDF.Vocabulary.Namespace.TermMapping
 
   import RDF.Vocabulary, only: [term_to_iri: 2]
