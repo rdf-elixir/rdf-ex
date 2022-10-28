@@ -5,7 +5,6 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     defexception [:message, label: "Case violations"]
   end
 
-  import RDF.Vocabulary, only: [term_to_iri: 2]
   import RDF.Utils, only: [downcase?: 1]
 
   alias RDF.Vocabulary.Namespace.TermMapping
@@ -22,22 +21,23 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   end
 
   defp detect_case_violations(term_mapping, data) do
-    base_uri = term_mapping.base_uri
-    aliased_terms = term_mapping.aliased_terms
-
     Enum.filter(term_mapping.terms, fn
-      {term, true} -> if term not in aliased_terms, do: improper_case?(term, base_uri, term, data)
-      {term, original_term} -> improper_case?(term, base_uri, original_term, data)
+      {term, true} ->
+        if term not in term_mapping.aliased_terms,
+          do: improper_case?(term_mapping, term, term, data)
+
+      {term, original_term} ->
+        improper_case?(term_mapping, term, original_term, data)
     end)
   end
 
-  defp improper_case?(term, base_iri, iri_suffix, data) when is_atom(term),
-    do: improper_case?(Atom.to_string(term), base_iri, iri_suffix, data)
+  defp improper_case?(term_mapping, term, iri_suffix, data) when is_atom(term),
+    do: improper_case?(term_mapping, Atom.to_string(term), iri_suffix, data)
 
-  defp improper_case?("_" <> _, _, _, _), do: false
+  defp improper_case?(_, "_" <> _, _, _), do: false
 
-  defp improper_case?(term, base_iri, iri_suffix, data) do
-    case ResourceClassifier.property?(term_to_iri(base_iri, iri_suffix), data) do
+  defp improper_case?(term_mapping, term, iri_suffix, data) do
+    case ResourceClassifier.property?(TermMapping.term_to_iri(term_mapping, iri_suffix), data) do
       true -> not downcase?(term)
       false -> downcase?(term)
       nil -> downcase?(term)
@@ -67,17 +67,15 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
        do: term_mapping
 
   defp do_handle_case_violations(term_mapping, violations, :fail) do
-    base_iri = term_mapping.base_uri
-
     resource_name_violations = fn violations ->
       Enum.map_join(violations, "\n- ", fn {term, true} ->
-        base_iri |> term_to_iri(term) |> to_string()
+        term_mapping |> TermMapping.term_to_iri(term) |> to_string()
       end)
     end
 
     alias_violations = fn violations ->
       Enum.map_join(violations, "\n- ", fn {term, original} ->
-        "alias #{term} for #{term_to_iri(base_iri, original)}"
+        "alias #{term} for #{TermMapping.term_to_iri(term_mapping, original)}"
       end)
     end
 
@@ -134,7 +132,7 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   defp do_handle_case_violations(term_mapping, violation_groups, :warn) do
     for {type, violations} <- violation_groups,
         {term, original} <- violations do
-      case_violation_warning(type, term, original, term_mapping.base_uri)
+      case_violation_warning(type, term, original, term_mapping)
     end
 
     term_mapping
@@ -178,12 +176,14 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     do_handle_case_violations(term_mapping, violation_groups, &apply(mod, fun, [&1, &2 | args]))
   end
 
-  defp case_violation_warning(:capitalized_term, term, _, base_iri) do
-    IO.warn("'#{term_to_iri(base_iri, term)}' is a capitalized property")
+  defp case_violation_warning(:capitalized_term, term, _, term_mapping) do
+    IO.warn("'#{TermMapping.term_to_iri(term_mapping, term)}' is a capitalized property")
   end
 
-  defp case_violation_warning(:lowercased_term, term, _, base_iri) do
-    IO.warn("'#{term_to_iri(base_iri, term)}' is a lowercased non-property resource")
+  defp case_violation_warning(:lowercased_term, term, _, term_mapping) do
+    IO.warn(
+      "'#{TermMapping.term_to_iri(term_mapping, term)}' is a lowercased non-property resource"
+    )
   end
 
   defp case_violation_warning(:capitalized_alias, term, _, _) do

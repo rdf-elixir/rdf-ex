@@ -112,7 +112,7 @@ defmodule RDF.Vocabulary.Namespace do
   end
 
   def create(module, base_uri, terms, location, opts) do
-    term_mapping = TermMapping.new(module, base_uri, terms, opts)
+    term_mapping = TermMapping.new(module, base_uri, terms, Macro.Env.stacktrace(location), opts)
 
     namespace_builder_opts =
       if term_mapping.strict do

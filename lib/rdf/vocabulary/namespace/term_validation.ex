@@ -75,7 +75,10 @@ defmodule RDF.Vocabulary.Namespace.TermValidation do
        ) do
     Enum.each(
       invalid_terms,
-      &IO.warn("ignoring term '#{&1}', since it contains invalid characters")
+      &TermMapping.warn(
+        term_mapping,
+        "ignoring term '#{&1}', since it contains invalid characters"
+      )
     )
 
     TermMapping.ignore_terms(term_mapping, invalid_terms)

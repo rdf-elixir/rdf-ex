@@ -245,6 +245,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   describe "defvocab with bad aliases" do
+    test "when an alias uses invalid types, an error is raised" do
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/invalid term type: 42/,
+                   fn ->
+                     defmodule NSWithInvalidTypesInAliases do
+                       use RDF.Vocabulary.Namespace
+
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         terms: [:foo],
+                         alias: [foo: 42]
+                     end
+                   end
+    end
+
     test "when an alias contains invalid characters, an error is raised" do
       assert_raise RDF.Vocabulary.Namespace.CompileError,
                    ~r/alias 'foo-bar' contains invalid characters/,

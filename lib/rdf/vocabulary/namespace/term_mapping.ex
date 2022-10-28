@@ -2,6 +2,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   @moduledoc false
 
   defstruct module: nil,
+            stacktrace: nil,
             base_uri: nil,
             strict: true,
             data: nil,
@@ -30,17 +31,17 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   end
 
   import RDF.Namespace.Builder, only: [valid_term?: 1, valid_characters?: 1, reserved_term?: 1]
-  import RDF.Vocabulary, only: [term_to_iri: 2]
 
   alias RDF.{IRI, Namespace}
   alias RDF.Vocabulary.Namespace.{CompileError, TermValidation, CaseValidation}
 
-  def new(module, base_uri, terms, opts \\ []) do
+  def new(module, base_uri, terms, stacktrace, opts \\ []) do
     {terms, opts} = extract_aliases(terms, opts)
 
     %__MODULE__{
       module: module,
-      terms: Map.new(terms, &{normalize_term(&1), true}),
+      stacktrace: stacktrace,
+      terms: Map.new(terms, &{normalize_term!(&1, InvalidTermError, stacktrace), true}),
       strict: Keyword.get(opts, :strict, true),
       invalid_character_handling: Keyword.get(opts, :invalid_characters, :fail),
       invalid_term_handling: Keyword.get(opts, :invalid_terms, :fail),
@@ -85,22 +86,26 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   end
 
   def ignore_term(term_mapping, term, opts \\ []) do
-    term = normalize_term(term)
+    case normalize_term(term) do
+      {:ok, term} ->
+        if not Keyword.get(opts, :validate_existence, false) or
+             not term_mapping.strict or
+             Map.has_key?(term_mapping.terms, term) do
+          %{
+            term_mapping
+            | terms: Map.delete(term_mapping.terms, term),
+              ignored_terms: MapSet.put(term_mapping.ignored_terms, term)
+          }
+        else
+          add_error(
+            term_mapping,
+            InvalidIgnoreTermError,
+            "'#{term}' is not a term in this vocabulary namespace"
+          )
+        end
 
-    if not Keyword.get(opts, :validate_existence, false) or
-         not term_mapping.strict or
-         Map.has_key?(term_mapping.terms, term) do
-      %{
-        term_mapping
-        | terms: Map.delete(term_mapping.terms, term),
-          ignored_terms: MapSet.put(term_mapping.ignored_terms, term)
-      }
-    else
-      add_error(
-        term_mapping,
-        InvalidIgnoreTermError,
-        "'#{term}' is not a term in this vocabulary namespace"
-      )
+      {:error, error} ->
+        add_error(term_mapping, InvalidIgnoreTermError, error)
     end
   end
 
@@ -109,53 +114,59 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   end
 
   def add_alias(term_mapping, term, alias) do
-    term = normalize_term(term)
-    alias = normalize_term(alias)
+    with {:ok, term} <- normalize_term(term),
+         {:ok, alias} <- normalize_term(alias) do
+      cond do
+        reserved_term?(alias) ->
+          add_error(
+            term_mapping,
+            InvalidAliasError,
+            "alias '#{alias}' is a reserved term and can't be used as an alias"
+          )
 
-    cond do
-      reserved_term?(alias) ->
-        add_error(
-          term_mapping,
-          InvalidAliasError,
-          "alias '#{alias}' is a reserved term and can't be used as an alias"
-        )
+        not valid_characters?(alias) ->
+          add_error(
+            term_mapping,
+            InvalidAliasError,
+            "alias '#{alias}' contains invalid characters"
+          )
 
-      not valid_characters?(alias) ->
-        add_error(term_mapping, InvalidAliasError, "alias '#{alias}' contains invalid characters")
+        Map.has_key?(term_mapping.terms, alias) ->
+          add_error(
+            term_mapping,
+            InvalidAliasError,
+            "alias '#{alias}' conflicts with an existing term or alias"
+          )
 
-      Map.has_key?(term_mapping.terms, alias) ->
-        add_error(
-          term_mapping,
-          InvalidAliasError,
-          "alias '#{alias}' conflicts with an existing term or alias"
-        )
+        Map.get(term_mapping.terms, term, true) != true ->
+          add_error(
+            term_mapping,
+            InvalidAliasError,
+            "alias '#{alias}' is referring to alias '#{term}'"
+          )
 
-      Map.get(term_mapping.terms, term, true) != true ->
-        add_error(
-          term_mapping,
-          InvalidAliasError,
-          "alias '#{alias}' is referring to alias '#{term}'"
-        )
+        term_mapping.strict and not Map.has_key?(term_mapping.terms, term) and
+            term not in term_mapping.ignored_terms ->
+          add_error(
+            term_mapping,
+            InvalidAliasError,
+            "term '#{term}' is not a term in this namespace"
+          )
 
-      term_mapping.strict and not Map.has_key?(term_mapping.terms, term) and
-          term not in term_mapping.ignored_terms ->
-        add_error(
-          term_mapping,
-          InvalidAliasError,
-          "term '#{term}' is not a term in this namespace"
-        )
+        alias in term_mapping.ignored_terms ->
+          add_error(term_mapping, InvalidAliasError, "ignoring alias '#{alias}'")
 
-      alias in term_mapping.ignored_terms ->
-        add_error(term_mapping, InvalidAliasError, "ignoring alias '#{alias}'")
-
-      true ->
-        if valid_term?(term) do
-          term_mapping
-        else
-          ignore_term(term_mapping, term)
-        end
-        |> Map.update!(:terms, &Map.put(&1, alias, Atom.to_string(term)))
-        |> Map.update!(:aliased_terms, &MapSet.put(&1, term))
+        true ->
+          if valid_term?(term) do
+            term_mapping
+          else
+            ignore_term(term_mapping, term)
+          end
+          |> Map.update!(:terms, &Map.put(&1, alias, Atom.to_string(term)))
+          |> Map.update!(:aliased_terms, &MapSet.put(&1, term))
+      end
+    else
+      {:error, error} -> add_error(term_mapping, InvalidAliasError, error)
     end
   end
 
@@ -179,7 +190,19 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   def raise_error(%{errors: []} = term_mapping), do: term_mapping
 
   def raise_error(term_mapping) do
-    raise CompileError, error_report(term_mapping)
+    raise_error(term_mapping, CompileError, error_report(term_mapping))
+  end
+
+  def raise_error(%{stacktrace: stacktrace}, exception, message) do
+    raise_error(stacktrace, exception, message)
+  end
+
+  def raise_error(stacktrace, exception, message) do
+    reraise exception, [message: message], stacktrace
+  end
+
+  def warn(term_mapping, message) do
+    IO.warn(message, term_mapping.stacktrace)
   end
 
   defp error_report(term_mapping) do
@@ -213,20 +236,28 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
       end)
   end
 
+  def term_to_iri(%{base_uri: base_uri}, term) do
+    RDF.Vocabulary.term_to_iri(base_uri, term)
+  end
+
   def term_mapping(term_mapping) do
     Enum.flat_map(term_mapping.terms, fn
-      {term, true} -> [{term, term_to_iri(term_mapping.base_uri, term)}]
-      {term, original} -> [{term, term_to_iri(term_mapping.base_uri, original)}]
+      {term, true} -> [{term, term_to_iri(term_mapping, term)}]
+      {term, original} -> [{term, term_to_iri(term_mapping, original)}]
     end)
   end
 
-  defp normalize_term(term) when is_atom(term), do: term
-  defp normalize_term(term) when is_binary(term), do: String.to_atom(term)
+  defp normalize_term(term) when is_atom(term), do: {:ok, term}
+  defp normalize_term(term) when is_binary(term), do: {:ok, String.to_atom(term)}
 
   defp normalize_term(term) do
-    raise(
-      InvalidTermError,
-      "invalid term type: #{inspect(term)}; only strings and atoms are allowed"
-    )
+    {:error, "invalid term type: #{inspect(term)}; only strings and atoms are allowed"}
+  end
+
+  defp normalize_term!(term, error, stacktrace) do
+    case normalize_term(term) do
+      {:ok, term} -> term
+      {:error, message} -> raise_error(stacktrace, error, message)
+    end
   end
 end
