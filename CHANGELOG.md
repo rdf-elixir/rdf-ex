@@ -14,13 +14,8 @@ Elixir versions < 1.11 are no longer supported
 
 ### Added
 
-- The `defvocab` macro can now be safely used in any module and guarantees cleanes 
-  of the base module. So, a surrounding namespace (like `NS`) is no longer necessary
-  (although still useful for foreign vocabularies), eg. to define a
-  `MyApplication.Vocab` module directly under the root module of the application.
 - `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
-- macro `RDF.Namespace.IRI.term_to_iri/1` which allows to resolve `RDF.Namespace` terms 
   inside of pattern matches
 - `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns  
   the path to the vocabulary file they were generated from 
@@ -33,7 +28,8 @@ Elixir versions < 1.11 are no longer supported
   separate module.
 - `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
   with a `@prefix` declaration providing the URI of the namespace as a string
-- a lot of new `RDF.Guards`: `is_rdf_iri/1`, `is_rdf_bnode/1`, `is_rdf_literal/1`
+- `RDF.Namespace.IRI.term_to_iri/1` macro which allows to resolve `RDF.Namespace` terms
+- a lot of new `RDF.Guards`: `is_rdf_iri/1`, `is_rdf_bnode/1`, `is_rdf_literal/1`,
   `is_rdf_literal/2`, `is_plain_rdf_literal/1`, `is_typed_rdf_literal/1`,
   `is_rdf_resource/1`, `is_rdf_term/1`, `is_rdf_triple/1`, `is_rdf_quad/1` and
   `is_rdf_statement/1`
@@ -48,12 +44,34 @@ Elixir versions < 1.11 are no longer supported
 - support for Elixir 1.14
 - support for Decimal v2
 
+
 ### Changed
 
+#### Breaking
+
 - Support for passing multiple objects as separate arguments to the property
-  functions of the description DSL on the vocabulary namespaces was removed   
-  to create space for further arguments for other purposes in the future. 
-  Multiple objects must be given now in a list instead. 
+  functions of the description DSL on the vocabulary namespaces was removed
+  to create space for further arguments for other purposes in the future.
+  Multiple objects must be given now in a list instead.
+- When defining an alias for a term of vocabulary which would be invalid as an
+  Elixir term, the original term is now implicitly ignored and won't any longer
+  be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
+- `RDF.Graph.build/2` blocks are now wrapped in a function, so the aliases and
+  import no longer affect the caller context. `alias`es in the caller context are
+  still available in the build block, but `import`s not and must be reimported in
+  the build block. Variables in the caller context are also no longer available
+  build block, but must be passed explicitly with the new optional `bindings`
+  argument of `RDF.Graph.build/3`.
+- `RDF.BlankNode.Increment` was renamed to `RDF.BlankNode.Generator.Increment`
+- `RDF.XSD.Datatype.Mismatch` exception was renamed to
+  `RDF.XSD.Datatype.MismatchError` for consistency reasons
+
+#### Non-breaking
+
+- The `defvocab` macro can now be safely used in any module and guarantees cleanliness
+  of the base module. So, a surrounding namespace (like `NS`) is no longer necessary.
+  Although still useful for foreign vocabularies, this can be useful eg. to define a
+  `MyApplication.Vocab` module directly under the root module of the application.
 - The `:base_iri` specified in `defvocab` can now be given in any form supported
   by `RDF.IRI.new/1`. There are also no longer restrictions on the expression 
   of this value. While previously the value had to be provided as a literal value,
@@ -62,31 +80,22 @@ Elixir versions < 1.11 are no longer supported
   The `:base_iri` also no longer has to end with a `/` or `#`.
 - Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the 
  `:terms` list.
-- When defining an alias for a term of vocabulary which would be invalid as an
-  Elixir term, the original term is now implicitly ignored and won't any longer
-  be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
-- `RDF.Graph.build/2` blocks are now wrapped in a function, so the aliases and
-  import no longer affect the caller context. `alias`es in the caller context are 
-  still available in the build block, but `import`s not and must be reimported in 
-  the build block. Variables in the caller context are also no longer available 
-  build block, but must be passed explicitly with the new optional `bindings`
-  argument of `RDF.Graph.build/3`.
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always
   had to be given as the first argument).
-- `RDF.XSD.Datatype.Mismatch` exception was renamed to
-  `RDF.XSD.Datatype.MismatchError` for consistency reasons
 - the `Inspect` implementation for the `RDF.Literal`, `RDF.PrefixMap` and  
   `RDF.PropertyMap` structs now return a string with a valid Elixir expression
   that recreates the struct when evaluated
 - several performance improvements
 
+
 ### Fixed
 
 - The RDF vocabulary namespaces used in `@prefix` and `@base` declarations in a
-  `RDF.Graph.build` block no longer have to be written out which had to be done
+  `RDF.Graph.build` block no longer have to be written out, which had to be done
   previously even when parts of the module were available as an alias.
+- No warning on lowercased non-property resources in vocabularies
 
 [Compare v0.12.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...HEAD)
 
