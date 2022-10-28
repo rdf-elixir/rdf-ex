@@ -257,7 +257,7 @@ defmodule RDF.Vocabulary.Namespace do
   def path(module, path) do
     case :application.get_application(module) do
       :undefined -> nil
-      {:ok, app_name} -> Path.join([:code.priv_dir(app_name), Vocabulary.dir(), path])
+      {:ok, app_name} -> Vocabulary.path(app_name, path)
     end
   end
 

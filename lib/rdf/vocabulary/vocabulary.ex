@@ -1,13 +1,16 @@
 defmodule RDF.Vocabulary do
-  @moduledoc !"Various functions for working with RDF vocabularies and their URIs."
+  @moduledoc """
+  Various functions for working with RDF vocabularies and their URIs.
+  """
 
   alias RDF.IRI
 
   @dir "vocabs"
-  def dir, do: @dir
 
   @compile_path "priv/#{@dir}"
 
+  @doc false
+  @spec compile_path(binary) :: binary
   def compile_path(file) do
     cond do
       File.exists?(path = Path.expand(file, @compile_path)) -> path
@@ -18,6 +21,24 @@ defmodule RDF.Vocabulary do
     end
   end
 
+  @doc """
+  Returns the path the vocabulary directory of the given application.
+  """
+  @spec path(Application.app()) :: binary
+  def path(app_name) do
+    app_name |> :code.priv_dir() |> Path.join(@dir)
+  end
+
+  @doc """
+  Returns the path the given file or directory in the vocabulary directory of the given application.
+  """
+  @spec path(Application.app(), Path.t()) :: binary
+  def path(app_name, path) do
+    app_name |> path() |> Path.join(path)
+  end
+
+  @doc false
+  @spec extract_terms(RDF.Data.t(), binary) :: [atom]
   def extract_terms(data, base_iri) do
     data
     |> RDF.Data.resources()
