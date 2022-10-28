@@ -55,15 +55,11 @@ defmodule RDF.XSD.Datatype.MismatchError do
   end
 end
 
-defmodule RDF.Namespace.InvalidVocabBaseIRIError do
+defmodule RDF.Vocabulary.Namespace.CompileError do
   defexception [:message]
 end
 
 defmodule RDF.Namespace.InvalidTermError do
-  defexception [:message]
-end
-
-defmodule RDF.Namespace.InvalidAliasError do
   defexception [:message]
 end
 

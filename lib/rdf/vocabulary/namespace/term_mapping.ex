@@ -1,87 +1,60 @@
 defmodule RDF.Vocabulary.Namespace.TermMapping do
   @moduledoc false
 
+  defstruct module: nil,
+            base_uri: nil,
+            strict: true,
+            data: nil,
+            terms: %{},
+            ignored_terms: MapSet.new(),
+            aliased_terms: MapSet.new(),
+            invalid_character_handling: :fail,
+            invalid_term_handling: :fail,
+            case_violation_handling: :warn,
+            errors: []
+
+  defmodule InvalidVocabBaseIRIError do
+    defexception [:message, label: "Invalid base URI"]
+  end
+
+  defmodule InvalidTermError do
+    defexception [:message, label: "Invalid terms"]
+  end
+
+  defmodule InvalidAliasError do
+    defexception [:message, label: "Invalid aliases"]
+  end
+
+  defmodule InvalidIgnoreTermError do
+    defexception [:message, label: "Invalid ignore terms"]
+  end
+
   import RDF.Namespace.Builder, only: [valid_term?: 1, valid_characters?: 1, reserved_term?: 1]
   import RDF.Vocabulary, only: [term_to_iri: 2]
 
-  def normalize_terms(module, terms, ignored_terms, strict, opts) do
-    aliases =
-      opts
-      |> Keyword.get(:alias, [])
-      |> Keyword.new(fn {alias, original_term} ->
-        {normalize_term(alias), normalize_term(original_term)}
-      end)
+  alias RDF.{IRI, Namespace}
+  alias RDF.Vocabulary.Namespace.{CompileError, TermValidation, CaseValidation}
 
-    terms = Map.new(terms, &{normalize_term(&1), true})
+  def new(module, base_uri, terms, opts \\ []) do
+    {terms, opts} = extract_aliases(terms, opts)
 
-    normalized_terms =
-      Enum.reduce(aliases, terms, fn {alias, original_term}, terms ->
-        cond do
-          reserved_term?(alias) ->
-            raise RDF.Namespace.InvalidAliasError,
-                  "alias '#{alias}' in vocabulary namespace #{module} is a reserved term and can't be used as an alias"
-
-          not valid_characters?(alias) ->
-            raise RDF.Namespace.InvalidAliasError,
-                  "alias '#{alias}' in vocabulary namespace #{module} contains invalid characters"
-
-          Map.get(terms, alias) == true ->
-            raise RDF.Namespace.InvalidAliasError,
-                  "alias '#{alias}' in vocabulary namespace #{module} already defined"
-
-          strict and not Map.has_key?(terms, original_term) ->
-            raise RDF.Namespace.InvalidAliasError,
-                  "term '#{original_term}' is not a term in vocabulary namespace #{module}"
-
-          Map.get(terms, original_term, true) != true ->
-            raise RDF.Namespace.InvalidAliasError,
-                  "'#{original_term}' is already an alias in vocabulary namespace #{module}"
-
-          true ->
-            if alias in ignored_terms do
-              IO.warn("ignoring alias '#{alias}' in vocabulary namespace #{module}")
-            end
-
-            if valid_term?(original_term) and original_term not in ignored_terms do
-              terms
-            else
-              Map.delete(terms, original_term)
-            end
-            |> Map.put(alias, normalize_aliased_term(original_term))
-        end
-      end)
-      |> Map.drop(MapSet.to_list(ignored_terms))
-
-    {normalized_terms, aliases}
+    %__MODULE__{
+      module: module,
+      terms: Map.new(terms, &{normalize_term(&1), true}),
+      strict: Keyword.get(opts, :strict, true),
+      invalid_character_handling: Keyword.get(opts, :invalid_characters, :fail),
+      invalid_term_handling: Keyword.get(opts, :invalid_terms, :fail),
+      case_violation_handling: Keyword.get(opts, :case_violations, :warn)
+    }
+    |> set_base_uri(base_uri)
+    |> ignore_terms(Keyword.get(opts, :ignore, []), validate_existence: true)
+    |> add_aliases(Keyword.get(opts, :alias, []))
+    |> TermValidation.validate()
+    |> CaseValidation.validate_case(Keyword.get(opts, :data))
+    |> raise_error()
   end
 
-  def term_mapping(base_uri, terms, ignored_terms) do
-    Enum.flat_map(terms, fn
-      {term, true} ->
-        [{term, term_to_iri(base_uri, term)}]
-
-      {term, original} ->
-        iri = term_to_iri(base_uri, original)
-        original = normalize_term(original)
-
-        if valid_term?(original) and original not in ignored_terms do
-          [{term, iri}, {original, iri}]
-        else
-          [{term, iri}]
-        end
-    end)
-  end
-
-  def normalize_term(term) when is_atom(term), do: term
-  def normalize_term(term) when is_binary(term), do: String.to_atom(term)
-  def normalize_term(term), do: raise(RDF.Namespace.InvalidTermError, inspect(term))
-
-  def normalize_aliased_term(term) when is_binary(term), do: term
-  def normalize_aliased_term(term) when is_atom(term), do: Atom.to_string(term)
-
-  def normalize_ignored_terms(terms), do: MapSet.new(terms, &normalize_term/1)
-
-  def extract_aliases(terms, opts) do
+  defp extract_aliases(terms, opts) do
     aliases = opts |> Keyword.get(:alias, []) |> Keyword.new()
 
     {terms, aliases} =
@@ -93,85 +66,167 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     {terms, Keyword.put(opts, :alias, aliases)}
   end
 
-  def aliases(terms) do
-    for {alias, term} <- terms, term != true, do: alias
+  defp set_base_uri(term_mapping, %IRI{} = base_iri),
+    do: set_base_uri(term_mapping, IRI.to_string(base_iri))
+
+  defp set_base_uri(term_mapping, base_uri) when is_binary(base_uri) do
+    if IRI.valid?(base_uri) do
+      %__MODULE__{term_mapping | base_uri: base_uri}
+    else
+      add_error(term_mapping, InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}")
+    end
   end
 
-  def validate!({terms, ignored_terms}, opts) do
-    {invalid_terms, invalid_characters} =
-      Enum.reduce(terms, {[], []}, fn
-        {term, _}, {invalid_terms, invalid_character_terms} ->
-          cond do
-            reserved_term?(term) ->
-              {[term | invalid_terms], invalid_character_terms}
+  defp set_base_uri(term_mapping, base_uri) do
+    set_base_uri(term_mapping, IRI.new(base_uri))
+  rescue
+    [Namespace.UndefinedTermError, IRI.InvalidError, FunctionClauseError] ->
+      add_error(term_mapping, InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}")
+  end
 
-            not valid_characters?(term) ->
-              {invalid_terms, [term | invalid_character_terms]}
+  def ignore_term(term_mapping, term, opts \\ []) do
+    term = normalize_term(term)
 
-            true ->
-              {
-                invalid_terms,
-                invalid_character_terms
-              }
-          end
+    if not Keyword.get(opts, :validate_existence, false) or
+         not term_mapping.strict or
+         Map.has_key?(term_mapping.terms, term) do
+      %{
+        term_mapping
+        | terms: Map.delete(term_mapping.terms, term),
+          ignored_terms: MapSet.put(term_mapping.ignored_terms, term)
+      }
+    else
+      add_error(
+        term_mapping,
+        InvalidIgnoreTermError,
+        "'#{term}' is not a term in this vocabulary namespace"
+      )
+    end
+  end
+
+  def ignore_terms(term_mapping, terms, opts \\ []) do
+    Enum.reduce(terms, term_mapping, &ignore_term(&2, &1, opts))
+  end
+
+  def add_alias(term_mapping, term, alias) do
+    term = normalize_term(term)
+    alias = normalize_term(alias)
+
+    cond do
+      reserved_term?(alias) ->
+        add_error(
+          term_mapping,
+          InvalidAliasError,
+          "alias '#{alias}' is a reserved term and can't be used as an alias"
+        )
+
+      not valid_characters?(alias) ->
+        add_error(term_mapping, InvalidAliasError, "alias '#{alias}' contains invalid characters")
+
+      Map.has_key?(term_mapping.terms, alias) ->
+        add_error(
+          term_mapping,
+          InvalidAliasError,
+          "alias '#{alias}' conflicts with an existing term or alias"
+        )
+
+      Map.get(term_mapping.terms, term, true) != true ->
+        add_error(
+          term_mapping,
+          InvalidAliasError,
+          "alias '#{alias}' is referring to alias '#{term}'"
+        )
+
+      term_mapping.strict and not Map.has_key?(term_mapping.terms, term) and
+          term not in term_mapping.ignored_terms ->
+        add_error(
+          term_mapping,
+          InvalidAliasError,
+          "term '#{term}' is not a term in this namespace"
+        )
+
+      alias in term_mapping.ignored_terms ->
+        add_error(term_mapping, InvalidAliasError, "ignoring alias '#{alias}'")
+
+      true ->
+        if valid_term?(term) do
+          term_mapping
+        else
+          ignore_term(term_mapping, term)
+        end
+        |> Map.update!(:terms, &Map.put(&1, alias, Atom.to_string(term)))
+        |> Map.update!(:aliased_terms, &MapSet.put(&1, term))
+    end
+  end
+
+  def add_aliases(term_mapping, aliases) do
+    Enum.reduce(aliases, term_mapping, fn {alias, original_term}, term_mapping ->
+      add_alias(term_mapping, original_term, alias)
+    end)
+  end
+
+  def add_error(term_mapping, error, message) do
+    add_error(term_mapping, error.exception(message))
+  end
+
+  def add_error(term_mapping, error) do
+    %{term_mapping | errors: [error | term_mapping.errors]}
+  end
+
+  def errors(%{errors: []}), do: nil
+  def errors(%{errors: errors}), do: Enum.reverse(errors)
+
+  def raise_error(%{errors: []} = term_mapping), do: term_mapping
+
+  def raise_error(term_mapping) do
+    raise CompileError, error_report(term_mapping)
+  end
+
+  defp error_report(term_mapping) do
+    grouped_errors =
+      term_mapping
+      |> errors()
+      |> Enum.group_by(fn
+        %{label: label} -> label
+        %type{} -> to_string(type)
       end)
 
-    {terms, ignored_terms}
-    |> handle_invalid_terms!(
-      invalid_terms,
-      Keyword.get(opts, :invalid_terms, :fail)
-    )
-    |> handle_invalid_characters!(
-      invalid_characters,
-      Keyword.get(opts, :invalid_characters, :fail)
-    )
-  end
-
-  defp handle_invalid_terms!(terms_and_ignored, [], _), do: terms_and_ignored
-
-  defp handle_invalid_terms!({terms, aliases}, invalid_terms, :ignore) do
-    {Map.drop(terms, invalid_terms), MapSet.union(aliases, MapSet.new(invalid_terms))}
-  end
-
-  defp handle_invalid_terms!(_, invalid_terms, :fail) do
-    raise RDF.Namespace.InvalidTermError, """
-    The following terms can not be used, because they conflict with the Elixir semantics:
-
-    - #{Enum.join(invalid_terms, "\n- ")}
-
-    You have the following options:
-
-    - define an alias with the :alias option on defvocab
-    - ignore the resource with the :ignore option on defvocab
     """
+
+    ================================================================================
+    Errors while compiling vocabulary #{term_mapping.module}
+    ================================================================================
+
+    """ <>
+      Enum.map_join(grouped_errors, fn {group, errors} ->
+        """
+        #{group}
+        #{String.duplicate("-", String.length(group))}
+
+        #{Enum.map_join(errors, "\n", fn error -> if String.contains?(message = Exception.message(error), "\n") do
+            message
+          else
+            "- " <> message
+          end end)}
+
+        """
+      end)
   end
 
-  defp handle_invalid_characters!(terms_and_ignored, [], _), do: terms_and_ignored
-
-  defp handle_invalid_characters!({terms, ignored_terms}, invalid_terms, :ignore) do
-    {Map.drop(terms, invalid_terms), MapSet.union(ignored_terms, MapSet.new(invalid_terms))}
-  end
-
-  defp handle_invalid_characters!(_, invalid_terms, :fail) do
-    raise RDF.Namespace.InvalidTermError, """
-    The following terms contain invalid characters:
-
-    - #{Enum.join(invalid_terms, "\n- ")}
-
-    You have the following options:
-
-    - if you are in control of the vocabulary, consider renaming the resource
-    - define an alias with the :alias option on defvocab
-    - change the handling of invalid characters with the :invalid_characters option on defvocab
-    - ignore the resource with the :ignore option on defvocab
-    """
-  end
-
-  defp handle_invalid_characters!(terms_and_ignored, invalid_terms, :warn) do
-    Enum.each(invalid_terms, fn term ->
-      IO.warn("'#{term}' is not valid term, since it contains invalid characters")
+  def term_mapping(term_mapping) do
+    Enum.flat_map(term_mapping.terms, fn
+      {term, true} -> [{term, term_to_iri(term_mapping.base_uri, term)}]
+      {term, original} -> [{term, term_to_iri(term_mapping.base_uri, original)}]
     end)
+  end
 
-    terms_and_ignored
+  defp normalize_term(term) when is_atom(term), do: term
+  defp normalize_term(term) when is_binary(term), do: String.to_atom(term)
+
+  defp normalize_term(term) do
+    raise(
+      InvalidTermError,
+      "invalid term type: #{inspect(term)}; only strings and atoms are allowed"
+    )
   end
 end

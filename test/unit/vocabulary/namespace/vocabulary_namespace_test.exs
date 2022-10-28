@@ -192,35 +192,41 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   describe "defvocab with bad base iri" do
     test "without a base_iri, an error is raised" do
-      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
-        defmodule NSWithoutBaseIRI do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/invalid base IRI: nil/,
+                   fn ->
+                     defmodule NSWithoutBaseIRI do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example, terms: []
-        end
-      end
+                       defvocab Example, terms: []
+                     end
+                   end
     end
 
     test "when the base_iri isn't a valid IRI, an error is raised" do
-      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
-        defmodule NSWithInvalidBaseIRI2 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/invalid base IRI: "invalid"/,
+                   fn ->
+                     defmodule NSWithInvalidBaseIRI2 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "invalid",
-            terms: []
-        end
-      end
+                       defvocab Example,
+                         base_iri: "invalid",
+                         terms: []
+                     end
+                   end
 
-      assert_raise RDF.Namespace.InvalidVocabBaseIRIError, fn ->
-        defmodule NSWithInvalidBaseIRI3 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/invalid base IRI: :foo/,
+                   fn ->
+                     defmodule NSWithInvalidBaseIRI3 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: :foo,
-            terms: []
-        end
-      end
+                       defvocab Example,
+                         base_iri: :foo,
+                         terms: []
+                     end
+                   end
     end
   end
 
@@ -240,55 +246,63 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   describe "defvocab with bad aliases" do
     test "when an alias contains invalid characters, an error is raised" do
-      assert_raise RDF.Namespace.InvalidAliasError, fn ->
-        defmodule NSWithInvalidTerms do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/alias 'foo-bar' contains invalid characters/,
+                   fn ->
+                     defmodule NSWithInvalidTerms do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            terms: ~w[foo],
-            alias: ["foo-bar": "foo"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         terms: ~w[foo],
+                         alias: ["foo-bar": "foo"]
+                     end
+                   end
     end
 
     test "when trying to map an already existing term, an error is raised" do
-      assert_raise RDF.Namespace.InvalidAliasError, fn ->
-        defmodule NSWithInvalidAliases1 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/alias 'foo' conflicts with an existing term/,
+                   fn ->
+                     defmodule NSWithInvalidAliases1 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            terms: ~w[foo bar],
-            alias: [foo: "bar"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         terms: ~w[foo bar],
+                         alias: [foo: "bar"]
+                     end
+                   end
     end
 
     test "when strict and trying to map to a term not in the vocabulary, an error is raised" do
-      assert_raise RDF.Namespace.InvalidAliasError, fn ->
-        defmodule NSWithInvalidAliases2 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/term 'bar' is not a term in this namespace/,
+                   fn ->
+                     defmodule NSWithInvalidAliases2 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            terms: ~w[],
-            alias: [foo: "bar"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         terms: ~w[],
+                         alias: [foo: "bar"]
+                     end
+                   end
     end
 
     test "when defining an alias for an alias, an error is raised" do
-      assert_raise RDF.Namespace.InvalidAliasError, fn ->
-        defmodule NSWithInvalidAliases3 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/alias 'baz' is referring to alias 'foo'/,
+                   fn ->
+                     defmodule NSWithInvalidAliases3 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            terms: ~w[bar],
-            alias: [foo: "bar", baz: "foo"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         terms: ~w[bar],
+                         alias: [foo: "bar", baz: "foo"]
+                     end
+                   end
     end
   end
 
@@ -478,20 +492,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
   describe "defvocab with reserved terms" do
     test "terms with a special meaning for Elixir cause a failure" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r/unquote_splicing/s, fn ->
-        defmodule NSWithElixirTerms do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/The following terms can not be used, because they conflict with reserved Elixir terms:.*unquote_splicing/s,
+                   fn ->
+                     defmodule NSWithElixirTerms do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/example#",
-            terms: RDF.Namespace.Builder.reserved_terms()
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/example#",
+                         terms: RDF.Namespace.Builder.reserved_terms()
+                     end
+                   end
     end
 
     test "alias terms with a special meaning for Elixir cause a failure" do
-      assert_raise RDF.Namespace.InvalidAliasError,
-                   ~r/alias 'and' in vocabulary namespace.*Example is a reserved term and can't be used as an alias/s,
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/alias 'and' is a reserved term and can't be used as an alias/s,
                    fn ->
                      defmodule NSWithElixirAliasTerms do
                        use RDF.Vocabulary.Namespace
@@ -634,32 +650,36 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.macro_exported() == ~I<http://example.com/example#macro_exported?>
     end
 
-    test "failures for reserved as aliased can't be ignored" do
-      assert_raise RDF.Namespace.InvalidAliasError, ~r/super/s, fn ->
-        defmodule NSWithElixirAliasTerms do
-          use RDF.Vocabulary.Namespace
+    test "failures for reserved terms as aliases can't be ignored" do
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/alias 'super' is a reserved term and can't be used as an alias/s,
+                   fn ->
+                     defmodule NSWithElixirAliasTerms do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/example#",
-            terms: ~w[foo],
-            alias: [super: "foo"],
-            invalid_terms: :ignore
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/example#",
+                         terms: ~w[foo],
+                         alias: [super: "foo"],
+                         invalid_terms: :ignore
+                     end
+                   end
     end
   end
 
   describe "defvocab invalid character handling" do
     test "when a term contains disallowed characters and no alias defined, it fails when invalid_characters: :fail" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r/foo-bar.*Foo-bar/s, fn ->
-        defmodule NSWithInvalidTerms1 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/The following terms contain invalid characters:.*foo-bar.*Foo-bar/s,
+                   fn ->
+                     defmodule NSWithInvalidTerms1 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/example#",
-            terms: ~w[Foo-bar foo-bar]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/example#",
+                         terms: ~w[Foo-bar foo-bar]
+                     end
+                   end
     end
 
     test "when a term contains disallowed characters it does not fail when invalid_characters: :ignore" do
@@ -686,7 +706,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           end
         end)
 
-      assert err =~ "'foo-bar' is not valid term, since it contains invalid characters"
+      assert err =~ "ignoring term 'foo-bar', since it contains invalid characters"
     end
   end
 
@@ -730,69 +750,77 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "a capitalized property without an alias and :case_violations == :fail, raises an error" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r<http://example\.com/ex#Foo>s, fn ->
-        defmodule NSWithBadCasedTerms3 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r<Case violations.*http://example\.com/ex#Foo>s,
+                   fn ->
+                     defmodule NSWithBadCasedTerms3 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            case_violations: :fail,
-            data:
-              RDF.Graph.new([
-                {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property}
-              ])
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: :fail,
+                         data:
+                           RDF.Graph.new([
+                             {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property}
+                           ])
+                     end
+                   end
     end
 
     test "a lowercased non-property without an alias and :case_violations == :fail, raises an error" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r<http://example\.com/ex#bar>s, fn ->
-        defmodule NSWithBadCasedTerms4 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r<Case violations.*http://example\.com/ex#bar>s,
+                   fn ->
+                     defmodule NSWithBadCasedTerms4 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            case_violations: :fail,
-            data:
-              RDF.Graph.new([
-                {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
-              ])
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: :fail,
+                         data:
+                           RDF.Graph.new([
+                             {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
+                           ])
+                     end
+                   end
     end
 
     test "a capitalized alias for a property and :case_violations == :fail, raises an error" do
-      assert_raise RDF.Namespace.InvalidTermError, fn ->
-        defmodule NSWithBadCasedTerms5 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r<Case violations.*http://example\.com/ex#foo>s,
+                   fn ->
+                     defmodule NSWithBadCasedTerms5 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            case_violations: :fail,
-            data:
-              RDF.Graph.new([
-                {~I<http://example.com/ex#foo>, RDF.type(), RDF.Property}
-              ]),
-            alias: [Foo: "foo"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: :fail,
+                         data:
+                           RDF.Graph.new([
+                             {~I<http://example.com/ex#foo>, RDF.type(), RDF.Property}
+                           ]),
+                         alias: [Foo: "foo"]
+                     end
+                   end
     end
 
     test "a lowercased alias for a non-property and :case_violations == :fail, raises an error" do
-      assert_raise RDF.Namespace.InvalidTermError, fn ->
-        defmodule NSWithBadCasedTerms6 do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r<Case violations.*http://example\.com/ex#Bar>s,
+                   fn ->
+                     defmodule NSWithBadCasedTerms6 do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab Example,
-            base_iri: "http://example.com/ex#",
-            case_violations: :fail,
-            data:
-              RDF.Graph.new([
-                {~I<http://example.com/ex#Bar>, RDF.type(), RDFS.Resource}
-              ]),
-            alias: [bar: "Bar"]
-        end
-      end
+                       defvocab Example,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: :fail,
+                         data:
+                           RDF.Graph.new([
+                             {~I<http://example.com/ex#Bar>, RDF.type(), RDFS.Resource}
+                           ]),
+                         alias: [bar: "Bar"]
+                     end
+                   end
     end
 
     test "terms starting with an underscore are not checked" do
@@ -849,21 +877,86 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "case violation in aliases fail with case violation function" do
-      assert_raise RDF.Namespace.InvalidTermError, ~r/Foo/s, fn ->
-        defmodule NSCaseViolationInAlias do
-          use RDF.Vocabulary.Namespace
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r<Case violations.*Foo>s,
+                   fn ->
+                     defmodule NSCaseViolationInAlias do
+                       use RDF.Vocabulary.Namespace
 
-          defvocab ExampleWithCustomCaseViolationFunction,
-            base_iri: "http://example.com/ex#",
-            case_violations: {ExampleCaseViolationHandler, :fix},
-            data:
-              RDF.Graph.new([
-                {~I<http://example.com/ex#FooTest>, RDF.type(), RDF.Property}
-              ]),
-            alias: [Foo: :FooTest]
-        end
-      end
+                       defvocab ExampleWithCustomCaseViolationFunction,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: {ExampleCaseViolationHandler, :fix},
+                         data:
+                           RDF.Graph.new([
+                             {~I<http://example.com/ex#FooTest>, RDF.type(), RDF.Property}
+                           ]),
+                         alias: [Foo: :FooTest]
+                     end
+                   end
     end
+  end
+
+  test "error report" do
+    assert_raise RDF.Vocabulary.Namespace.CompileError,
+                 """
+
+                 ================================================================================
+                 Errors while compiling vocabulary Elixir.RDF.Vocabulary.NamespaceTest.NSErrorReportTest.ErrorsFromTerms
+                 ================================================================================
+
+                 Invalid aliases
+                 ---------------
+
+                 - alias 'def' is a reserved term and can't be used as an alias
+                 - term 'missing_term' is not a term in this namespace
+
+                 Invalid base URI
+                 ----------------
+
+                 - invalid base IRI: "invalid-base-uri"
+
+                 Invalid ignore terms
+                 --------------------
+
+                 - 'not_existing' is not a term in this vocabulary namespace
+
+                 Invalid terms
+                 -------------
+
+                 The following terms can not be used, because they conflict with reserved Elixir terms:
+
+                 - super
+
+                 You have the following options:
+
+                 - define an alias with the :alias option on defvocab
+                 - ignore the resource with the :ignore option on defvocab
+
+
+                 The following terms contain invalid characters:
+
+                 - invalid-character
+
+                 You have the following options:
+
+                 - if you are in control of the vocabulary, consider renaming the resource
+                 - define an alias with the :alias option on defvocab
+                 - change the handling of invalid characters with the :invalid_characters option on defvocab
+                 - ignore the resource with the :ignore option on defvocab
+
+
+                 """,
+                 fn ->
+                   defmodule NSErrorReportTest do
+                     use RDF.Vocabulary.Namespace
+
+                     defvocab ErrorsFromTerms,
+                       base_iri: "invalid-base-uri",
+                       terms: ~w[foo Bar invalid-character super],
+                       alias: [def: "foo", dangling_alias: :missing_term],
+                       ignore: [:not_existing]
+                   end
+                 end
   end
 
   describe "defvocab ignore terms" do
@@ -947,50 +1040,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert RDF.iri(ExampleIgnoredCapitalizedTermWithAlias.bar()) == ~I<http://example.com/Bar>
     end
 
-    test "ignored aliases raise a warning, but are still properly ignored" do
-      err =
-        ExUnit.CaptureIO.capture_io(:stderr, fn ->
-          defmodule IgnoredAliasTest do
-            use RDF.Vocabulary.Namespace
-
-            defvocab ExampleIgnoredLowercasedAlias,
-              base_iri: "http://example.com/",
-              terms: ~w[foo Bar],
-              alias: [bar: "Bar"],
-              ignore: ~w[bar]a
-
-            defvocab ExampleIgnoredCapitalizedAlias,
-              base_iri: "http://example.com/",
-              terms: ~w[foo Bar],
-              alias: [Foo: "foo"],
-              ignore: ~w[Foo]a
-          end
-        end)
-
-      assert err =~ "warning"
-      assert err =~ "ignoring alias 'bar'"
-      assert err =~ "ignoring alias 'Foo'"
-
-      alias RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.{
-        ExampleIgnoredLowercasedAlias,
-        ExampleIgnoredCapitalizedAlias
-      }
-
-      assert ExampleIgnoredLowercasedAlias.__terms__() == [:Bar, :foo]
-      assert RDF.iri(ExampleIgnoredLowercasedAlias.Bar) == ~I<http://example.com/Bar>
-
-      assert_raise UndefinedFunctionError, fn ->
-        RDF.iri(ExampleIgnoredLowercasedAlias.bar())
-      end
-
-      assert ExampleIgnoredCapitalizedAlias.__terms__() == [:Bar, :foo]
-      assert RDF.iri(ExampleIgnoredCapitalizedAlias.foo()) == ~I<http://example.com/foo>
-
-      assert_raise RDF.Namespace.UndefinedTermError, fn ->
-        RDF.iri(ExampleIgnoredCapitalizedAlias.Foo)
-      end
-    end
-
     test "resolution of ignored lowercased term on a non-strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredNonStrictLowercasedTerm
 
@@ -1033,6 +1082,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
           case_violations: :fail,
           ignore: ~w[Foo bar]a
       end
+    end
+
+    test "ignoring aliases raises an error" do
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/Invalid ignore terms.*'bar' is not a term/s,
+                   fn ->
+                     defmodule IgnoredAliasTest1 do
+                       use RDF.Vocabulary.Namespace
+
+                       defvocab ExampleIgnoredLowercasedAlias,
+                         base_iri: "http://example.com/",
+                         terms: ~w[foo Bar],
+                         alias: [bar: "Bar"],
+                         ignore: ~w[bar]a
+                     end
+                   end
     end
   end
 

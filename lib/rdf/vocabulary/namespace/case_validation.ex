@@ -1,35 +1,33 @@
 defmodule RDF.Vocabulary.Namespace.CaseValidation do
   @moduledoc false
 
+  defmodule CaseViolationError do
+    defexception [:message, label: "Case violations"]
+  end
+
   import RDF.Vocabulary, only: [term_to_iri: 2]
   import RDF.Utils, only: [downcase?: 1]
 
-  import RDF.Vocabulary.Namespace.TermMapping,
-    only: [normalize_term: 1, normalize_aliased_term: 1]
-
+  alias RDF.Vocabulary.Namespace.TermMapping
   alias RDF.Vocabulary.ResourceClassifier
 
-  def validate_case!(terms_and_ignored, nil, _, _, _), do: terms_and_ignored
+  def validate_case(term_mapping, data)
 
-  def validate_case!({terms, ignored_terms}, data, base_iri, aliases, opts) do
-    handling = Keyword.get(opts, :case_violations, :warn)
+  def validate_case(term_mapping, nil), do: term_mapping
 
-    if handling == :ignore do
-      {terms, ignored_terms}
-    else
-      handle_case_violations(
-        {terms, ignored_terms},
-        detect_case_violations(terms, data, base_iri, Keyword.values(aliases)),
-        handling,
-        base_iri
-      )
-    end
+  def validate_case(%{case_violation_handling: :ignore} = term_mapping, _), do: term_mapping
+
+  def validate_case(term_mapping, data) do
+    handle_case_violations(term_mapping, detect_case_violations(term_mapping, data))
   end
 
-  defp detect_case_violations(terms, data, base_iri, aliased_terms) do
-    Enum.filter(terms, fn
-      {term, true} -> if term not in aliased_terms, do: improper_case?(term, base_iri, term, data)
-      {term, original_term} -> improper_case?(term, base_iri, original_term, data)
+  defp detect_case_violations(term_mapping, data) do
+    base_uri = term_mapping.base_uri
+    aliased_terms = term_mapping.aliased_terms
+
+    Enum.filter(term_mapping.terms, fn
+      {term, true} -> if term not in aliased_terms, do: improper_case?(term, base_uri, term, data)
+      {term, original_term} -> improper_case?(term, base_uri, original_term, data)
     end)
   end
 
@@ -54,22 +52,23 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     end)
   end
 
-  defp handle_case_violations(terms_and_ignored, [], _, _), do: terms_and_ignored
+  defp handle_case_violations(term_mapping, []), do: term_mapping
 
-  defp handle_case_violations(terms_and_ignored, violations, handling, base_uri) do
+  defp handle_case_violations(term_mapping, violations) do
     do_handle_case_violations(
-      terms_and_ignored,
+      term_mapping,
       group_case_violations(violations),
-      handling,
-      base_uri
+      term_mapping.case_violation_handling
     )
   end
 
-  defp do_handle_case_violations(terms_and_ignored, grouped_violations, _, _)
+  defp do_handle_case_violations(term_mapping, grouped_violations, _)
        when map_size(grouped_violations) == 0,
-       do: terms_and_ignored
+       do: term_mapping
 
-  defp do_handle_case_violations(_, violations, :fail, base_iri) do
+  defp do_handle_case_violations(term_mapping, violations, :fail) do
+    base_iri = term_mapping.base_uri
+
     resource_name_violations = fn violations ->
       Enum.map_join(violations, "\n- ", fn {term, true} ->
         base_iri |> term_to_iri(term) |> to_string()
@@ -83,8 +82,7 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     end
 
     violation_error_lines =
-      violations
-      |> Enum.map_join(fn
+      Enum.map_join(violations, fn
         {:capitalized_term, violations} ->
           """
           Terms for properties should be lowercased, but the following properties are
@@ -122,9 +120,7 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
           """
       end)
 
-    raise RDF.Namespace.InvalidTermError, """
-    Case violations detected
-
+    TermMapping.add_error(term_mapping, CaseViolationError, """
     #{violation_error_lines}
     You have the following options:
 
@@ -132,69 +128,54 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
     - define a properly cased alias with the :alias option on defvocab
     - change the handling of case violations with the :case_violations option on defvocab
     - ignore the resource with the :ignore option on defvocab
-    """
+    """)
   end
 
-  defp do_handle_case_violations(terms_and_ignored, violation_groups, :warn, base_iri) do
+  defp do_handle_case_violations(term_mapping, violation_groups, :warn) do
     for {type, violations} <- violation_groups,
         {term, original} <- violations do
-      case_violation_warning(type, term, original, base_iri)
+      case_violation_warning(type, term, original, term_mapping.base_uri)
     end
 
-    terms_and_ignored
+    term_mapping
   end
 
-  defp do_handle_case_violations(terms_and_ignored, violation_groups, :auto_fix, base_iri) do
-    do_handle_case_violations(terms_and_ignored, violation_groups, &auto_fix_term/2, base_iri)
+  defp do_handle_case_violations(term_mapping, violation_groups, :auto_fix) do
+    do_handle_case_violations(term_mapping, violation_groups, &auto_fix_term/2)
   end
 
-  defp do_handle_case_violations(terms_and_ignored, violation_groups, fun, base_iri)
+  defp do_handle_case_violations(term_mapping, violation_groups, fun)
        when is_function(fun) do
     {alias_violations, term_violations} =
       Map.split(violation_groups, [:capitalized_alias, :lowercased_alias])
 
-    do_handle_case_violations(terms_and_ignored, alias_violations, :fail, base_iri)
+    term_mapping = do_handle_case_violations(term_mapping, alias_violations, :fail)
 
-    Enum.reduce(term_violations, terms_and_ignored, fn {group, violations}, terms_and_ignored ->
+    Enum.reduce(term_violations, term_mapping, fn {group, violations}, term_mapping ->
       type =
         case group do
           :capitalized_term -> :property
           :lowercased_term -> :resource
         end
 
-      Enum.reduce(violations, terms_and_ignored, fn {term, _}, {terms, ignored_terms} ->
+      Enum.reduce(violations, term_mapping, fn {term, _}, term_mapping ->
         case fun.(type, Atom.to_string(term)) do
-          :ignore ->
-            {Map.delete(terms, term), MapSet.put(ignored_terms, term)}
-
-          {:error, error} ->
-            raise error
-
-          {:ok, alias} ->
-            {Map.put(terms, normalize_term(alias), normalize_aliased_term(term)), ignored_terms}
+          :ignore -> TermMapping.ignore_term(term_mapping, term)
+          {:error, error} -> raise error
+          {:ok, alias} -> TermMapping.add_alias(term_mapping, term, alias)
         end
       end)
     end)
   end
 
-  defp do_handle_case_violations(terms_and_ignored, violation_groups, {mod, fun}, base_iri)
+  defp do_handle_case_violations(term_mapping, violation_groups, {mod, fun})
        when is_atom(mod) and is_atom(fun) do
-    do_handle_case_violations(
-      terms_and_ignored,
-      violation_groups,
-      &apply(mod, fun, [&1, &2]),
-      base_iri
-    )
+    do_handle_case_violations(term_mapping, violation_groups, &apply(mod, fun, [&1, &2]))
   end
 
-  defp do_handle_case_violations(terms_and_ignored, violation_groups, {mod, fun, args}, base_iri)
+  defp do_handle_case_violations(term_mapping, violation_groups, {mod, fun, args})
        when is_atom(mod) and is_atom(fun) and is_list(args) do
-    do_handle_case_violations(
-      terms_and_ignored,
-      violation_groups,
-      &apply(mod, fun, [&1, &2 | args]),
-      base_iri
-    )
+    do_handle_case_violations(term_mapping, violation_groups, &apply(mod, fun, [&1, &2 | args]))
   end
 
   defp case_violation_warning(:capitalized_term, term, _, base_iri) do

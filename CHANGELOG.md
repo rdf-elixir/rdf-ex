@@ -53,6 +53,10 @@ Elixir versions < 1.11 are no longer supported
   functions of the description DSL on the vocabulary namespaces was removed
   to create space for further arguments for other purposes in the future.
   Multiple objects must be given now in a list instead.
+- All errors found during the compilation of `RDF.Vocabulary.Namespace` are 
+  now collectively reported under a single `RDF.Vocabulary.Namespace.CompileError`.
+- An `ignore` term in a `defvocab` definition which actually is not a term of
+  the vocabulary namespace is now considered an error.
 - When defining an alias for a term of vocabulary which would be invalid as an
   Elixir term, the original term is now implicitly ignored and won't any longer
   be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
@@ -68,6 +72,8 @@ Elixir versions < 1.11 are no longer supported
 
 #### Non-breaking
 
+- The compilation of a vocabulary namespaces now fails in error cases with a report
+  showing all problems founds at once, so 
 - The `defvocab` macro can now be safely used in any module and guarantees cleanliness
   of the base module. So, a surrounding namespace (like `NS`) is no longer necessary.
   Although still useful for foreign vocabularies, this can be useful eg. to define a

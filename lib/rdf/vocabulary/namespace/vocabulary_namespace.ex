@@ -10,9 +10,9 @@ defmodule RDF.Vocabulary.Namespace do
   """
 
   alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace, IRI}
+  alias RDF.Vocabulary.Namespace.TermMapping
 
-  import RDF.Vocabulary.Namespace.{TermMapping, CaseValidation}
-  import RDF.Vocabulary, only: [term_to_iri: 2, extract_terms: 2]
+  import RDF.Vocabulary, only: [term_to_iri: 2]
 
   @type t :: module
 
@@ -102,45 +102,35 @@ defmodule RDF.Vocabulary.Namespace do
 
   def create(module, base_uri, %struct{} = data, location, opts)
       when struct in [Graph, Dataset] do
-    do_create(
+    create(
       module,
       base_uri,
-      extract_terms(data, base_uri),
+      Vocabulary.extract_terms(data, base_uri),
       location,
       Keyword.put(opts, :data, data)
     )
   end
 
   def create(module, base_uri, terms, location, opts) do
-    {terms, opts} = extract_aliases(terms, opts)
-    do_create(module, base_uri, terms, location, opts)
-  end
+    term_mapping = TermMapping.new(module, base_uri, terms, opts)
 
-  defp do_create(module, base_uri, terms, location, opts) do
-    base_uri = normalize_base_uri(base_uri)
-    strict = Keyword.get(opts, :strict, true)
-    ignored_terms = Keyword.get(opts, :ignore, []) |> normalize_ignored_terms()
-    {terms, aliases} = normalize_terms(module, terms, ignored_terms, strict, opts)
-
-    {terms, ignored_terms} =
-      {terms, ignored_terms}
-      |> validate!(opts)
-      |> validate_case!(Keyword.get(opts, :data), base_uri, aliases, opts)
-
-    Namespace.Builder.create(
-      module,
-      term_mapping(base_uri, terms, ignored_terms),
-      location,
-      if strict do
+    namespace_builder_opts =
+      if term_mapping.strict do
         opts
       else
         Keyword.put(opts, :add_after, define_undefined_function_handler())
       end
       |> Keyword.put(
         :namespace_functions,
-        define_namespace_functions(base_uri, terms, ignored_terms, strict, opts)
+        define_namespace_functions(term_mapping, opts)
       )
       |> Keyword.put(:skip_normalization, true)
+
+    Namespace.Builder.create(
+      module,
+      TermMapping.term_mapping(term_mapping),
+      location,
+      namespace_builder_opts
     )
   end
 
@@ -151,7 +141,7 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  defp define_namespace_functions(base_iri, terms, ignored_terms, strict, opts) do
+  defp define_namespace_functions(term_mapping, opts) do
     file = Keyword.get(opts, :file)
     compile_path = Keyword.get(opts, :compile_path)
 
@@ -166,22 +156,22 @@ defmodule RDF.Vocabulary.Namespace do
         def __file__, do: nil
       end
 
-      @strict unquote(strict)
+      @strict unquote(term_mapping.strict)
       @spec __strict__ :: boolean
       def __strict__, do: @strict
 
-      @base_iri unquote(base_iri)
+      @base_iri unquote(term_mapping.base_uri)
       @spec __base_iri__ :: String.t()
       def __base_iri__, do: @base_iri
 
-      @terms unquote(Macro.escape(terms))
+      @terms unquote(Macro.escape(term_mapping.terms))
       @impl Elixir.RDF.Namespace
       def __terms__, do: Map.keys(@terms)
 
       @spec __term_aliases__ :: [atom]
-      def __term_aliases__, do: RDF.Vocabulary.Namespace.TermMapping.aliases(@terms)
+      def __term_aliases__, do: unquote(__MODULE__).aliases(@terms)
 
-      @ignored_terms unquote(Macro.escape(ignored_terms))
+      @ignored_terms unquote(Macro.escape(term_mapping.ignored_terms))
 
       @doc """
       Returns all known IRIs of the vocabulary.
@@ -201,7 +191,7 @@ defmodule RDF.Vocabulary.Namespace do
       def __resolve_term__(term) do
         case @terms[term] do
           nil ->
-            if @strict or MapSet.member?(@ignored_terms, term) do
+            if @strict or term in @ignored_terms do
               {:error,
                %Elixir.RDF.Namespace.UndefinedTermError{
                  message: "undefined term #{term} in strict vocabulary #{__MODULE__}"
@@ -223,7 +213,7 @@ defmodule RDF.Vocabulary.Namespace do
   defp define_undefined_function_handler do
     quote do
       def unquote(:"$handle_undefined_function")(term, []) do
-        if MapSet.member?(@ignored_terms, term) do
+        if term in @ignored_terms do
           raise UndefinedFunctionError
         end
 
@@ -231,7 +221,7 @@ defmodule RDF.Vocabulary.Namespace do
       end
 
       def unquote(:"$handle_undefined_function")(term, [%Description{} = subject]) do
-        if MapSet.member?(@ignored_terms, term) do
+        if term in @ignored_terms do
           raise UndefinedFunctionError
         end
 
@@ -239,7 +229,7 @@ defmodule RDF.Vocabulary.Namespace do
       end
 
       def unquote(:"$handle_undefined_function")(term, [subject | objects]) do
-        if MapSet.member?(@ignored_terms, term) do
+        if term in @ignored_terms do
           raise UndefinedFunctionError
         end
 
@@ -258,23 +248,9 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
-  defp normalize_base_uri(%IRI{} = base_iri), do: IRI.to_string(base_iri)
-
-  defp normalize_base_uri(base_uri) when is_binary(base_uri) do
-    if IRI.valid?(base_uri) do
-      base_uri
-    else
-      raise RDF.Namespace.InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}"
-    end
-  end
-
-  defp normalize_base_uri(base_uri) do
-    base_uri |> IRI.new() |> normalize_base_uri()
-  rescue
-    [Namespace.UndefinedTermError, IRI.InvalidError, FunctionClauseError] ->
-      reraise RDF.Namespace.InvalidVocabBaseIRIError,
-              "invalid base IRI: #{inspect(base_uri)}",
-              __STACKTRACE__
+  @doc false
+  def aliases(terms) do
+    for {alias, term} <- terms, term != true, do: alias
   end
 
   @doc false
