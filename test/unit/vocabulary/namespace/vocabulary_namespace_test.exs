@@ -151,6 +151,19 @@ defmodule RDF.Vocabulary.NamespaceTest do
         ]),
       alias: [BaazAlias: :baazTest]
 
+    defvocab ExampleWithAutoFixedCaseViolationsAllowLowercaseResource,
+      base_iri: "http://example.com/ex#",
+      case_violations: :auto_fix,
+      allow_lowercase_resource_terms: true,
+      data:
+        RDF.Graph.new([
+          {~I<http://example.com/ex#FooTest>, RDF.type(), RDF.Property},
+          {~I<http://example.com/ex#barTest>, RDF.type(), RDF.Property},
+          {~I<http://example.com/ex#bazTest>, RDF.type(), RDFS.Resource},
+          {~I<http://example.com/ex#baazTest>, RDF.type(), RDFS.Resource}
+        ]),
+      alias: [BaazAlias: :baazTest]
+
     defvocab ExampleWithCustomInlineCaseViolationFunction,
       base_iri: "http://example.com/ex#",
       case_violations: fn
@@ -800,6 +813,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
                    end
     end
 
+    test "a lowercased non-property term is allowed with allow_lowercase_resource_terms: true" do
+      defmodule NSWithAllowedLowercaseResourceTerm do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          allow_lowercase_resource_terms: true,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#bar>, RDF.type(), RDFS.Resource}
+            ])
+      end
+    end
+
     test "a capitalized alias for a property and :case_violations == :fail, raises an error" do
       assert_raise RDF.Vocabulary.Namespace.CompileError,
                    ~r<Case violations.*http://example\.com/ex#foo>s,
@@ -838,6 +866,22 @@ defmodule RDF.Vocabulary.NamespaceTest do
                    end
     end
 
+    test "a lowercased alias for a non-property term is allowed with allow_lowercase_resource_terms: true" do
+      defmodule NSWithAllowedLowercaseResourceAlias do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          allow_lowercase_resource_terms: true,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#Bar>, RDF.type(), RDFS.Resource}
+            ]),
+          alias: [bar: "Bar"]
+      end
+    end
+
     test "terms starting with an underscore are not checked" do
       defmodule NSWithUnderscoreTerms do
         use RDF.Vocabulary.Namespace
@@ -860,6 +904,15 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.barTest() == RDF.iri(Example.__base_iri__() <> "barTest")
       assert RDF.iri(Example.BazTest) == RDF.iri(Example.__base_iri__() <> "bazTest")
       assert RDF.iri(Example.BaazAlias) == RDF.iri(Example.__base_iri__() <> "baazTest")
+    end
+
+    test "auto_fix case violations with allow_lowercase_resource_terms: true" do
+      alias TestNS.ExampleWithAutoFixedCaseViolationsAllowLowercaseResource, as: Example
+
+      assert Example.fooTest() == RDF.iri(Example.__base_iri__() <> "FooTest")
+      assert Example.barTest() == RDF.iri(Example.__base_iri__() <> "barTest")
+      assert RDF.iri(Example.BaazAlias) == RDF.iri(Example.__base_iri__() <> "baazTest")
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(Example.BazTest) end
     end
 
     test "case violation function (inline)" do

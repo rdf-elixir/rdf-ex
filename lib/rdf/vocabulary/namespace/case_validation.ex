@@ -36,12 +36,27 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
 
   defp improper_case?(_, "_" <> _, _, _), do: false
 
-  defp improper_case?(term_mapping, term, iri_suffix, data) do
+  defp improper_case?(
+         %{allow_lowercase_resource_terms: false} = term_mapping,
+         term,
+         iri_suffix,
+         data
+       ) do
     case ResourceClassifier.property?(TermMapping.term_to_iri(term_mapping, iri_suffix), data) do
       true -> not downcase?(term)
       false -> downcase?(term)
       nil -> downcase?(term)
     end
+  end
+
+  defp improper_case?(
+         %{allow_lowercase_resource_terms: true} = term_mapping,
+         term,
+         iri_suffix,
+         data
+       ) do
+    ResourceClassifier.property?(TermMapping.term_to_iri(term_mapping, iri_suffix), data) and
+      not downcase?(term)
   end
 
   defp group_case_violations(violations) do

@@ -28,6 +28,8 @@ Elixir versions < 1.11 are no longer supported
   which adapts the first letter of violating term accordingly. It also supports
   custom handler functions, either as an inline function or as a function on a 
   separate module.
+- New option `allow_lowercase_resource_terms` option which can be set to `true`
+  to no longer complain about lowercased terms for non-property resources.
 - `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
   with a `@prefix` declaration providing the URI of the namespace as a string
 - `RDF.Namespace.IRI.term_to_iri/1` macro which allows to resolve `RDF.Namespace` terms

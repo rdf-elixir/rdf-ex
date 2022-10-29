@@ -12,6 +12,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
             invalid_character_handling: :fail,
             invalid_term_handling: :fail,
             case_violation_handling: :warn,
+            allow_lowercase_resource_terms: false,
             errors: []
 
   defmodule InvalidVocabBaseIRIError do
@@ -45,7 +46,8 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
       strict: Keyword.get(opts, :strict, true),
       invalid_character_handling: Keyword.get(opts, :invalid_characters, :fail),
       invalid_term_handling: Keyword.get(opts, :invalid_terms, :fail),
-      case_violation_handling: Keyword.get(opts, :case_violations, :warn)
+      case_violation_handling: Keyword.get(opts, :case_violations, :warn),
+      allow_lowercase_resource_terms: Keyword.get(opts, :allow_lowercase_resource_terms, false)
     }
     |> set_base_uri(base_uri)
     |> ignore_terms(Keyword.get(opts, :ignore, []), validate_existence: true)
