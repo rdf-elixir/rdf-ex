@@ -18,7 +18,9 @@ Elixir versions < 1.11 are no longer supported
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
   inside of pattern matches
 - `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns  
-  the path to the vocabulary file they were generated from 
+  the path to the vocabulary file they were generated from
+- `RDF.Vocabulary.path/1` returning the path to the vocabulary directory of an
+  application and `RDF.Vocabulary.path/2` returning the path to the files within it
 - The property functions on the `RDF.Namespace` and `RDF.Vocabulary.Namespace` modules
   now also have a single argument variant, which allows to query the objects for the
   respective property from a `RDF.Description`
