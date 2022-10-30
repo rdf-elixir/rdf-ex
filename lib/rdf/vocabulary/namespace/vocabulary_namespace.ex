@@ -27,9 +27,10 @@ defmodule RDF.Vocabulary.Namespace do
   """
   defmacro defvocab({:__aliases__, _, [module]}, spec) do
     env = __CALLER__
+    stacktrace = Macro.Env.stacktrace(env)
     module = Namespace.module(env, module)
     {base_iri, spec} = Keyword.pop(spec, :base_iri)
-    {input, opts} = input(module, spec)
+    {input, opts} = input(module, stacktrace, spec)
     no_warn_undefined = if Keyword.get(opts, :strict) == false, do: no_warn_undefined(module)
 
     [
@@ -54,28 +55,39 @@ defmodule RDF.Vocabulary.Namespace do
 
   @required_input_opts ~w[file data terms]a
 
-  defp input(module, opts), do: do_input(module, nil, opts, @required_input_opts)
-
-  defp do_input(module, nil, _, []) do
-    raise ArgumentError,
+  defp input(module, stacktrace, opts) do
+    case extract_input(opts) do
+      {[], _} ->
+        TermMapping.raise_error(
+          stacktrace,
+          ArgumentError,
           "none of #{Enum.join(@required_input_opts, ", ")} are given on defvocab for #{module}"
-  end
+        )
 
-  defp do_input(_, input, opts, []), do: {input, opts}
+      {[{_, input}], opts} ->
+        {input, opts}
 
-  defp do_input(module, input, opts, [opt | rest]) do
-    case Keyword.pop(opts, opt) do
-      {nil, opts} ->
-        do_input(module, input, opts, rest)
-
-      {value, opts} ->
-        if input do
-          raise ArgumentError,
-                "multiple values for #{Enum.join(@required_input_opts, ", ")} are given on defvocab for #{module}"
+      {inputs, opts} ->
+        if Keyword.has_key?(inputs, :file) and Keyword.has_key?(inputs, :data) do
+          TermMapping.raise_error(
+            stacktrace,
+            ArgumentError,
+            "both :file and :data are given on defvocab for #{module}"
+          )
         else
-          do_input(module, value, opts, rest)
+          {term_restriction, [{_, input}]} = Keyword.pop!(inputs, :terms)
+          {input, Keyword.put(opts, :term_restriction, term_restriction)}
         end
     end
+  end
+
+  defp extract_input(opts) do
+    Enum.reduce(@required_input_opts, {[], opts}, fn input_opt, {inputs, opts} ->
+      case Keyword.pop(opts, input_opt) do
+        {nil, opts} -> {inputs, opts}
+        {input, opts} -> {[{input_opt, input} | inputs], opts}
+      end
+    end)
   end
 
   defp no_warn_undefined(module) do

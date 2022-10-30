@@ -966,6 +966,59 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.NSTermRestrictionTest.RestrictionByTermList}
+
+  describe "defvocab term restrictions" do
+    test "restricting terms from data with a list of filtered and aliased terms" do
+      defmodule NSTermRestrictionTest do
+        use RDF.Vocabulary.Namespace
+
+        defvocab RestrictionByTermList,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#Bar-Bar>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baaz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#qux>, RDF.type(), RDF.Property}
+            ]),
+          terms: [
+            :Baz,
+            foo: :Foo,
+            Bar: "Bar-Bar"
+          ]
+      end
+
+      alias NSTermRestrictionTest.RestrictionByTermList
+      assert RestrictionByTermList.__terms__() == [:Bar, :Baz, :Foo, :foo]
+      assert RestrictionByTermList.foo() == ~I<http://example.com/ex#Foo>
+      assert RDF.iri(RestrictionByTermList.Foo) == ~I<http://example.com/ex#Foo>
+      assert RDF.iri(RestrictionByTermList.Bar) == ~I<http://example.com/ex#Bar-Bar>
+      assert RDF.iri(RestrictionByTermList.Baz) == ~I<http://example.com/ex#Baz>
+      assert_raise UndefinedFunctionError, fn -> RestrictionByTermList.qux() end
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(RestrictionByTermList.Baaz) end
+    end
+
+    test "when terms are specified which are not in the vocabulary" do
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/Unknown terms.*'Baz' is not a term in this vocabulary/s,
+                   fn ->
+                     defmodule NSTermRestrictionTest do
+                       use RDF.Vocabulary.Namespace
+
+                       defvocab RestrictionOfUnknownTerms,
+                         base_iri: "http://example.com/ex#",
+                         case_violations: :fail,
+                         file: "test/data/vocab_ns_example.ttl",
+                         terms: ~w[Baz]
+                     end
+                   end
+    end
+  end
+
   test "error report" do
     assert_raise RDF.Vocabulary.Namespace.CompileError,
                  """

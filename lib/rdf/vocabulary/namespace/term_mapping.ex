@@ -15,6 +15,8 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
             errors: [],
             stacktrace: nil
 
+  @type t :: %__MODULE__{}
+
   defmodule InvalidVocabBaseIRIError do
     defexception [:message, label: "Invalid base URI"]
   end
@@ -31,19 +33,24 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     defexception [:message, label: "Invalid ignore terms"]
   end
 
+  defmodule UnknownTermError do
+    defexception [:message, label: "Unknown terms"]
+  end
+
   import RDF.Namespace.Builder, only: [valid_term?: 1, valid_characters?: 1, reserved_term?: 1]
 
   alias RDF.{IRI, Namespace}
   alias RDF.Vocabulary.Namespace.{CompileError, TermValidation, CaseValidation}
 
   def new(module, base_uri, terms, stacktrace, opts \\ []) do
-    {terms, opts} = extract_aliases(terms, opts)
+    aliases = opts |> Keyword.get(:alias, []) |> Keyword.new()
+    {terms, aliases} = extract_aliases(terms, aliases, stacktrace)
 
     %__MODULE__{
       module: module,
       stacktrace: stacktrace,
+      terms: terms,
       data: Keyword.get(opts, :data),
-      terms: Map.new(terms, &{normalize_term!(&1, InvalidTermError, stacktrace), true}),
       strict: Keyword.get(opts, :strict, true),
       invalid_character_handling: Keyword.get(opts, :invalid_characters, :fail),
       invalid_term_handling: Keyword.get(opts, :invalid_terms, :fail),
@@ -52,22 +59,43 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     }
     |> set_base_uri(base_uri)
     |> ignore_terms(Keyword.get(opts, :ignore, []), validate_existence: true)
-    |> add_aliases(Keyword.get(opts, :alias, []))
+    |> apply_term_restrictions(Keyword.get(opts, :term_restriction))
+    |> add_aliases(aliases)
     |> TermValidation.validate()
     |> CaseValidation.validate_case()
     |> raise_error()
   end
 
-  defp extract_aliases(terms, opts) do
-    aliases = opts |> Keyword.get(:alias, []) |> Keyword.new()
+  defp apply_term_restrictions(term_mapping, nil), do: term_mapping
 
-    {terms, aliases} =
-      Enum.reduce(terms, {[], aliases}, fn
-        {_, term} = alias, {terms, aliases} -> {[term | terms], [alias | aliases]}
-        term, {terms, aliases} -> {[term | terms], aliases}
-      end)
+  defp apply_term_restrictions(term_mapping, term_restriction) when is_list(term_restriction) do
+    {term_restriction, aliases} = extract_aliases(term_restriction, [], term_mapping.stacktrace)
 
-    {terms, Keyword.put(opts, :alias, aliases)}
+    term_mapping
+    |> restrict_terms(term_restriction)
+    |> add_aliases(aliases)
+  end
+
+  defp restrict_terms(term_mapping, term_restriction) do
+    vocab_terms = term_mapping.terms
+
+    Enum.reduce(term_restriction, %{term_mapping | terms: term_restriction}, fn
+      {term, _}, term_mapping ->
+        if Map.has_key?(vocab_terms, term) do
+          term_mapping
+        else
+          add_error(term_mapping, UnknownTermError, "'#{term}' is not a term in this vocabulary")
+        end
+    end)
+  end
+
+  defp extract_aliases(terms, aliases, stacktrace) do
+    add_term = &Map.put(&1, normalize_term!(&2, InvalidTermError, stacktrace), true)
+
+    Enum.reduce(terms, {%{}, aliases}, fn
+      {_, term} = alias, {terms, aliases} -> {add_term.(terms, term), [alias | aliases]}
+      term, {terms, aliases} -> {add_term.(terms, term), aliases}
+    end)
   end
 
   defp set_base_uri(term_mapping, %IRI{} = base_iri),
@@ -190,13 +218,13 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   def errors(%{errors: []}), do: nil
   def errors(%{errors: errors}), do: Enum.reverse(errors)
 
-  def raise_error(%{errors: []} = term_mapping), do: term_mapping
+  def raise_error(%__MODULE__{errors: []} = term_mapping), do: term_mapping
 
   def raise_error(term_mapping) do
     raise_error(term_mapping, CompileError, error_report(term_mapping))
   end
 
-  def raise_error(%{stacktrace: stacktrace}, exception, message) do
+  def raise_error(%__MODULE__{stacktrace: stacktrace}, exception, message) do
     raise_error(stacktrace, exception, message)
   end
 

@@ -24,6 +24,10 @@ Elixir versions < 1.11 are no longer supported
 - The property functions on the `RDF.Namespace` and `RDF.Vocabulary.Namespace` modules
   now also have a single argument variant, which allows to query the objects for the
   respective property from a `RDF.Description`
+- Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the
+  `:terms` list.
+- The `:terms` option can now also be used in conjunction with the `:file` and
+  `:data` options to restrict the terms loaded from the vocabulary data.
 - The `case_violations` option of `defvocab` now supports an `:auto_fix` option 
   which adapts the first letter of violating term accordingly. It also supports
   custom handler functions, either as an inline function or as a function on a 
@@ -76,8 +80,6 @@ Elixir versions < 1.11 are no longer supported
 
 #### Non-breaking
 
-- The compilation of a vocabulary namespaces now fails in error cases with a report
-  showing all problems founds at once, so 
 - The `defvocab` macro can now be safely used in any module and guarantees cleanliness
   of the base module. So, a surrounding namespace (like `NS`) is no longer necessary.
   Although still useful for foreign vocabularies, this can be useful eg. to define a
@@ -88,8 +90,6 @@ Elixir versions < 1.11 are no longer supported
   now any expression returning a value accepted by `RDF.IRI.new/1` can be given 
   (e.g. function calls, module attributes etc.).
   The `:base_iri` also no longer has to end with a `/` or `#`.
-- Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the 
- `:terms` list.
 - `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
   which implement the `RDF.Data` protocol can be given also as the second argument
   (previously custom structs with `RDF.Data` protocol implementations always
