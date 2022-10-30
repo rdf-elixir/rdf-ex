@@ -113,6 +113,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
     defvocab StrictExampleFromImplicitAliasedTerms,
       base_iri: "http://example.com/strict_from_aliased_terms#",
       terms: [
+        :term5,
+        :term6,
         Term1: "term1",
         term2: "Term2",
         Term3: "Term-3",
@@ -243,7 +245,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
   end
 
-  describe "defvocab with bad terms" do
+  describe "defvocab with bad file" do
     test "when the given file not found, an error is raised" do
       assert_raise File.Error, fn ->
         defmodule NSWithMissingVocabFile do
@@ -1401,6 +1403,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert RDF.iri(Ex2.term2()) == ~I<http://example.com/strict_from_aliased_terms#Term2>
       assert RDF.iri(Ex2.Term3) == ~I<http://example.com/strict_from_aliased_terms#Term-3>
       assert RDF.iri(Ex2.term4()) == ~I<http://example.com/strict_from_aliased_terms#term-4>
+      assert RDF.iri(Ex2.term5()) == ~I<http://example.com/strict_from_aliased_terms#term5>
+      assert RDF.iri(Ex2.term6()) == ~I<http://example.com/strict_from_aliased_terms#term6>
     end
 
     test "the old term remains resolvable" do
