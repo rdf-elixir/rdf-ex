@@ -2,7 +2,6 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   @moduledoc false
 
   defstruct module: nil,
-            stacktrace: nil,
             base_uri: nil,
             strict: true,
             data: nil,
@@ -13,7 +12,8 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
             invalid_term_handling: :fail,
             case_violation_handling: :warn,
             allow_lowercase_resource_terms: false,
-            errors: []
+            errors: [],
+            stacktrace: nil
 
   defmodule InvalidVocabBaseIRIError do
     defexception [:message, label: "Invalid base URI"]
@@ -42,6 +42,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     %__MODULE__{
       module: module,
       stacktrace: stacktrace,
+      data: Keyword.get(opts, :data),
       terms: Map.new(terms, &{normalize_term!(&1, InvalidTermError, stacktrace), true}),
       strict: Keyword.get(opts, :strict, true),
       invalid_character_handling: Keyword.get(opts, :invalid_characters, :fail),
@@ -53,7 +54,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     |> ignore_terms(Keyword.get(opts, :ignore, []), validate_existence: true)
     |> add_aliases(Keyword.get(opts, :alias, []))
     |> TermValidation.validate()
-    |> CaseValidation.validate_case(Keyword.get(opts, :data))
+    |> CaseValidation.validate_case()
     |> raise_error()
   end
 

@@ -10,17 +10,19 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   alias RDF.Vocabulary.Namespace.TermMapping
   alias RDF.Vocabulary.ResourceClassifier
 
-  def validate_case(term_mapping, data)
+  def validate_case(term_mapping)
 
-  def validate_case(term_mapping, nil), do: term_mapping
+  def validate_case(%{data: nil} = term_mapping), do: term_mapping
 
-  def validate_case(%{case_violation_handling: :ignore} = term_mapping, _), do: term_mapping
+  def validate_case(%{case_violation_handling: :ignore} = term_mapping), do: term_mapping
 
-  def validate_case(term_mapping, data) do
-    handle_case_violations(term_mapping, detect_case_violations(term_mapping, data))
+  def validate_case(term_mapping) do
+    handle_case_violations(term_mapping, detect_case_violations(term_mapping))
   end
 
-  defp detect_case_violations(term_mapping, data) do
+  defp detect_case_violations(term_mapping) do
+    data = term_mapping.data
+
     Enum.filter(term_mapping.terms, fn
       {term, true} ->
         if term not in term_mapping.aliased_terms,
