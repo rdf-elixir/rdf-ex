@@ -8,11 +8,10 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   import RDF.Utils, only: [downcase?: 1]
 
   alias RDF.Vocabulary.Namespace.TermMapping
-  alias RDF.Vocabulary.ResourceClassifier
 
   def validate_case(term_mapping)
 
-  def validate_case(%{data: nil} = term_mapping), do: term_mapping
+  def validate_case(%{term_classification: nil} = term_mapping), do: term_mapping
 
   def validate_case(%{case_violation_handling: :ignore} = term_mapping), do: term_mapping
 
@@ -21,44 +20,28 @@ defmodule RDF.Vocabulary.Namespace.CaseValidation do
   end
 
   defp detect_case_violations(term_mapping) do
-    data = term_mapping.data
-
     Enum.filter(term_mapping.terms, fn
       {term, true} ->
         if term not in term_mapping.aliased_terms,
-          do: improper_case?(term_mapping, term, term, data)
+          do: improper_case?(term_mapping, Atom.to_string(term), term)
 
       {term, original_term} ->
-        improper_case?(term_mapping, term, original_term, data)
+        improper_case?(term_mapping, Atom.to_string(term), String.to_atom(original_term))
     end)
   end
 
-  defp improper_case?(term_mapping, term, iri_suffix, data) when is_atom(term),
-    do: improper_case?(term_mapping, Atom.to_string(term), iri_suffix, data)
+  defp improper_case?(_, "_" <> _, _), do: false
 
-  defp improper_case?(_, "_" <> _, _, _), do: false
-
-  defp improper_case?(
-         %{allow_lowercase_resource_terms: false} = term_mapping,
-         term,
-         iri_suffix,
-         data
-       ) do
-    case ResourceClassifier.property?(TermMapping.term_to_iri(term_mapping, iri_suffix), data) do
-      true -> not downcase?(term)
-      false -> downcase?(term)
+  defp improper_case?(%{allow_lowercase_resource_terms: false} = term_mapping, term, original) do
+    case term_mapping.term_classification[original] do
+      :property -> not downcase?(term)
+      :resource -> downcase?(term)
       nil -> downcase?(term)
     end
   end
 
-  defp improper_case?(
-         %{allow_lowercase_resource_terms: true} = term_mapping,
-         term,
-         iri_suffix,
-         data
-       ) do
-    ResourceClassifier.property?(TermMapping.term_to_iri(term_mapping, iri_suffix), data) and
-      not downcase?(term)
+  defp improper_case?(%{allow_lowercase_resource_terms: true} = term_mapping, term, original) do
+    term_mapping.term_classification[original] == :property and not downcase?(term)
   end
 
   defp group_case_violations(violations) do

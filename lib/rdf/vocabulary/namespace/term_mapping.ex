@@ -8,6 +8,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
             terms: %{},
             ignored_terms: MapSet.new(),
             aliased_terms: MapSet.new(),
+            term_classification: nil,
             invalid_character_handling: :fail,
             invalid_term_handling: :fail,
             case_violation_handling: :warn,
@@ -41,6 +42,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
 
   alias RDF.{IRI, Namespace}
   alias RDF.Vocabulary.Namespace.{CompileError, TermValidation, CaseValidation}
+  alias RDF.Vocabulary.ResourceClassifier
 
   def new(module, base_uri, terms, stacktrace, opts \\ []) do
     aliases = opts |> Keyword.get(:alias, []) |> Keyword.new()
@@ -60,6 +62,7 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     |> set_base_uri(base_uri)
     |> ignore_terms(Keyword.get(opts, :ignore, []), validate_existence: true)
     |> apply_term_restrictions(Keyword.get(opts, :term_restriction))
+    |> classify_terms()
     |> add_aliases(aliases)
     |> TermValidation.validate()
     |> CaseValidation.validate_case()
@@ -114,6 +117,27 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   rescue
     [Namespace.UndefinedTermError, IRI.InvalidError, FunctionClauseError] ->
       add_error(term_mapping, InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}")
+  end
+
+  defp classify_terms(%{data: nil} = term_mapping), do: term_mapping
+
+  defp classify_terms(term_mapping) do
+    %{
+      term_mapping
+      | term_classification:
+          Map.new(term_mapping.terms, fn
+            {term, true} -> {term, classify_term(term_mapping, term)}
+            {_alias, term} -> {term, classify_term(term_mapping, term)}
+          end)
+    }
+  end
+
+  defp classify_term(term_mapping, term) do
+    case ResourceClassifier.property?(term_to_iri(term_mapping, term), term_mapping.data) do
+      true -> :property
+      false -> :resource
+      nil -> nil
+    end
   end
 
   def ignore_term(term_mapping, term, opts \\ []) do
