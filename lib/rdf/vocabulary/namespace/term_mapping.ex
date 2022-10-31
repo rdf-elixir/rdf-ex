@@ -38,6 +38,10 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     defexception [:message, label: "Unknown terms"]
   end
 
+  defmodule TermHandlerError do
+    defexception [:message, label: "Errors during custom term handler"]
+  end
+
   import RDF.Namespace.Builder, only: [valid_term?: 1, valid_characters?: 1, reserved_term?: 1]
 
   alias RDF.{IRI, Namespace}
@@ -79,9 +83,48 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     |> add_aliases(aliases)
   end
 
+  defp apply_term_restrictions(term_mapping, term_handler) when is_function(term_handler) do
+    term_mapping = classify_terms(term_mapping)
+
+    Enum.reduce(term_mapping.term_classification, term_mapping, fn {term, type}, term_mapping ->
+      case term_handler.(type, to_string(term)) do
+        {:ok, result} ->
+          result = normalize_term!(result, InvalidTermError, term_mapping.stacktrace)
+
+          if result == term do
+            term_mapping
+          else
+            add_alias(term_mapping, term, result)
+          end
+
+        :ignore ->
+          ignore_term(term_mapping, term)
+
+        {:error, %{} = error} ->
+          add_error(term_mapping, error)
+
+        {:error, error} ->
+          add_error(term_mapping, TermHandlerError, to_string(error))
+
+        {:abort, error} ->
+          raise error
+      end
+    end)
+  end
+
+  defp apply_term_restrictions(term_mapping, {mod, fun}) do
+    apply_term_restrictions(term_mapping, &apply(mod, fun, [&1, &2]))
+  end
+
+  defp apply_term_restrictions(term_mapping, {mod, fun, args}) do
+    apply_term_restrictions(term_mapping, &apply(mod, fun, [&1, &2 | args]))
+  end
+
   defp restrict_terms(term_mapping, term_restriction) do
     vocab_terms = term_mapping.terms
 
+    # We do not ignore the remaining terms via ignore_terms for performance reasons, since
+    # this list-based restriction method is exactly for dealing with larger vocabularies.
     Enum.reduce(term_restriction, %{term_mapping | terms: term_restriction}, fn
       {term, _}, term_mapping ->
         if Map.has_key?(vocab_terms, term) do
@@ -120,6 +163,10 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   end
 
   defp classify_terms(%{data: nil} = term_mapping), do: term_mapping
+
+  defp classify_terms(%{term_classification: term_classification} = term_mapping)
+       when not is_nil(term_classification),
+       do: term_mapping
 
   defp classify_terms(term_mapping) do
     %{

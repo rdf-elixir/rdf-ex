@@ -967,11 +967,11 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   @compile {:no_warn_undefined,
-            RDF.Vocabulary.NamespaceTest.NSTermRestrictionTest.RestrictionByTermList}
+            RDF.Vocabulary.NamespaceTest.NSRestrictionByTermListTest.RestrictionByTermList}
 
   describe "defvocab term restrictions" do
     test "restricting terms from data with a list of filtered and aliased terms" do
-      defmodule NSTermRestrictionTest do
+      defmodule NSRestrictionByTermListTest do
         use RDF.Vocabulary.Namespace
 
         defvocab RestrictionByTermList,
@@ -992,7 +992,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
           ]
       end
 
-      alias NSTermRestrictionTest.RestrictionByTermList
+      alias NSRestrictionByTermListTest.RestrictionByTermList
       assert RestrictionByTermList.__terms__() == [:Bar, :Baz, :Foo, :foo]
       assert RestrictionByTermList.foo() == ~I<http://example.com/ex#Foo>
       assert RDF.iri(RestrictionByTermList.Foo) == ~I<http://example.com/ex#Foo>
@@ -1002,15 +1002,156 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(RestrictionByTermList.Baaz) end
     end
 
+    @compile {:no_warn_undefined,
+              RDF.Vocabulary.NamespaceTest.NSRestrictionByFunctionTest.RestrictionByFunction}
+
+    test "restricting terms from data with an anonymous function" do
+      defmodule NSRestrictionByFunctionTest do
+        use RDF.Vocabulary.Namespace
+
+        defvocab RestrictionByFunction,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#Foo>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#Bar-Bar>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baaz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#qux>, RDF.type(), RDF.Property}
+            ]),
+          terms: fn
+            :property, "Foo" -> {:ok, :foo}
+            :resource, "Bar-Bar" -> {:ok, :Bar}
+            :resource, "Baz" -> {:ok, "Baz"}
+            _, _ -> :ignore
+          end
+      end
+
+      alias NSRestrictionByFunctionTest.RestrictionByFunction
+      assert RestrictionByFunction.__terms__() == [:Bar, :Baz, :Foo, :foo]
+      assert RestrictionByFunction.foo() == ~I<http://example.com/ex#Foo>
+      assert RDF.iri(RestrictionByFunction.Foo) == ~I<http://example.com/ex#Foo>
+      assert RDF.iri(RestrictionByFunction.Bar) == ~I<http://example.com/ex#Bar-Bar>
+      assert RDF.iri(RestrictionByFunction.Baz) == ~I<http://example.com/ex#Baz>
+      assert_raise UndefinedFunctionError, fn -> RestrictionByFunction.qux() end
+      assert_raise RDF.Namespace.UndefinedTermError, fn -> RDF.iri(RestrictionByFunction.Baaz) end
+    end
+
+    @compile {:no_warn_undefined,
+              RDF.Vocabulary.NamespaceTest.NSRestrictionByExternalFunctionTest.RestrictionByExternalFunction}
+
+    test "restricting terms from data with an external function" do
+      defmodule NSRestrictionByExternalFunctionTest do
+        use RDF.Vocabulary.Namespace
+
+        defmodule TermHandler do
+          def handle_term(type, term)
+          def handle_term(_, "q" <> _), do: :ignore
+          def handle_term(_, "Bar-Bar"), do: {:ok, :Bar}
+          def handle_term(:resource, term), do: {:ok, Macro.camelize(term)}
+          def handle_term(:property, term), do: {:ok, Macro.underscore(term)}
+        end
+
+        defvocab RestrictionByExternalFunction,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#FooBar>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#Bar-Bar>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#quux>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#qux>, RDF.type(), RDF.Property}
+            ]),
+          terms: {TermHandler, :handle_term}
+      end
+
+      alias NSRestrictionByExternalFunctionTest.RestrictionByExternalFunction
+      assert RestrictionByExternalFunction.__terms__() == [:Bar, :Baz, :FooBar, :foo_bar]
+      assert RestrictionByExternalFunction.foo_bar() == ~I<http://example.com/ex#FooBar>
+      assert RDF.iri(RestrictionByExternalFunction.Bar) == ~I<http://example.com/ex#Bar-Bar>
+      assert RDF.iri(RestrictionByExternalFunction.Baz) == ~I<http://example.com/ex#Baz>
+      assert_raise UndefinedFunctionError, fn -> RestrictionByExternalFunction.qux() end
+
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.iri(RestrictionByExternalFunction.Quux)
+      end
+    end
+
+    @compile {:no_warn_undefined,
+              RDF.Vocabulary.NamespaceTest.NSRestrictionByExternalFunctionWithArgsTest.RestrictionByExternalFunctionWithArgs}
+
+    test "restricting terms from data with an external function with args" do
+      defmodule NSRestrictionByExternalFunctionWithArgsTest do
+        use RDF.Vocabulary.Namespace
+
+        defmodule TermHandler do
+          def handle_term(type, term, variant \\ :variant1)
+          def handle_term(_, "q" <> _, :variant2), do: :ignore
+          def handle_term(_, "Bar-Bar", _), do: {:ok, :Bar}
+          def handle_term(:resource, term, _), do: {:ok, Macro.camelize(term)}
+          def handle_term(:property, term, :variant1), do: {:ok, Macro.underscore(term)}
+          def handle_term(:property, term, :variant2), do: {:ok, String.downcase(term)}
+        end
+
+        defvocab RestrictionByExternalFunctionWithArgs,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#FooBar>, RDF.type(), RDF.Property},
+              {~I<http://example.com/ex#Bar-Bar>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#Baz>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#quux>, RDF.type(), RDFS.Resource},
+              {~I<http://example.com/ex#qux>, RDF.type(), RDF.Property}
+            ]),
+          terms: {TermHandler, :handle_term, [:variant2]}
+      end
+
+      alias NSRestrictionByExternalFunctionWithArgsTest.RestrictionByExternalFunctionWithArgs
+      assert RestrictionByExternalFunctionWithArgs.__terms__() == [:Bar, :Baz, :FooBar, :foobar]
+      assert RestrictionByExternalFunctionWithArgs.foobar() == ~I<http://example.com/ex#FooBar>
+
+      assert RDF.iri(RestrictionByExternalFunctionWithArgs.Bar) ==
+               ~I<http://example.com/ex#Bar-Bar>
+
+      assert RDF.iri(RestrictionByExternalFunctionWithArgs.Baz) == ~I<http://example.com/ex#Baz>
+      assert_raise UndefinedFunctionError, fn -> RestrictionByExternalFunctionWithArgs.qux() end
+
+      assert_raise RDF.Namespace.UndefinedTermError, fn ->
+        RDF.iri(RestrictionByExternalFunctionWithArgs.Quux)
+      end
+    end
+
+    test "error handling of restricting terms with a function" do
+      assert_raise RDF.Vocabulary.Namespace.CompileError,
+                   ~r/Errors during custom term handler.*reason2.*reason1/s,
+                   fn ->
+                     defmodule NSRestrictionByFunctionErrorsTest do
+                       use RDF.Vocabulary.Namespace
+
+                       defvocab RestrictionByFunctionErrors,
+                         base_iri: "http://example.com/from_turtle/",
+                         case_violations: :fail,
+                         file: "test/data/vocab_ns_example.ttl",
+                         terms: fn
+                           :property, "foo" -> {:error, "reason1"}
+                           :resource, "Bar" -> {:error, "reason2"}
+                         end
+                     end
+                   end
+    end
+
     test "when terms are specified which are not in the vocabulary" do
       assert_raise RDF.Vocabulary.Namespace.CompileError,
                    ~r/Unknown terms.*'Baz' is not a term in this vocabulary/s,
                    fn ->
-                     defmodule NSTermRestrictionTest do
+                     defmodule NSRestrictionOfUnknownTermsTest do
                        use RDF.Vocabulary.Namespace
 
                        defvocab RestrictionOfUnknownTerms,
-                         base_iri: "http://example.com/ex#",
+                         base_iri: "http://example.com/from_turtle/",
                          case_violations: :fail,
                          file: "test/data/vocab_ns_example.ttl",
                          terms: ~w[Baz]

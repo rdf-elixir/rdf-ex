@@ -27,7 +27,8 @@ Elixir versions < 1.11 are no longer supported
 - Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the
   `:terms` list.
 - The `:terms` option can now also be used in conjunction with the `:file` and
-  `:data` options to restrict the terms loaded from the vocabulary data.
+  `:data` options to restrict the terms loaded from the vocabulary data with a
+  list of the terms or a restriction function. 
 - The `case_violations` option of `defvocab` now supports an `:auto_fix` option 
   which adapts the first letter of violating term accordingly. It also supports
   custom handler functions, either as an inline function or as a function on a 
