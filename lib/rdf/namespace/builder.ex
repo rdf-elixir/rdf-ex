@@ -80,12 +80,13 @@ defmodule RDF.Namespace.Builder do
       @doc "<#{unquote(to_string(iri))}>"
       def unquote(term)(), do: unquote(Macro.escape(iri))
 
-      @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
-      def unquote(term)(subject, object)
-
+      @doc "`RDF.Description` property accessor for `#{unquote(term)}/0`"
       def unquote(term)(%Description{} = subject) do
         Description.get(subject, unquote(Macro.escape(iri)))
       end
+
+      @doc "`RDF.Description` builder for `#{unquote(term)}/0`"
+      def unquote(term)(subject, object)
 
       def unquote(term)(%Description{} = subject, object) do
         Description.add(subject, {unquote(Macro.escape(iri)), object})
