@@ -7,14 +7,18 @@ defmodule RDF.Vocabulary.Namespace do
 
   RDF.ex comes with predefined modules for some fundamental vocabularies in
   the `RDF.NS` module.
+
+  For an introduction into `RDF.Vocabulary.Namespace`s see [this guide](https://rdf-elixir.dev/rdf-ex/namespaces.html).
   """
 
-  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace}
+  alias RDF.{Description, Graph, Dataset, Vocabulary, Namespace, IRI}
   alias RDF.Vocabulary.Namespace.TermMapping
 
   import RDF.Vocabulary, only: [term_to_iri: 2]
 
   @type t :: module
+
+  @type base_uri :: IRI.t() | String.t()
 
   defmacro __using__(_opts) do
     quote do
@@ -24,6 +28,66 @@ defmodule RDF.Vocabulary.Namespace do
 
   @doc """
   Defines a `RDF.Vocabulary.Namespace` module for a RDF vocabulary.
+
+  ## Options
+
+  - `:base_iri` (required): the base IRI of the vocabulary namespace
+  - `:file`: a path to a file in the `priv/vocabs` directory from which terms starting
+    with the specified `base_iri` should be loaded
+  - `:data`: a `RDF.Graph` or `RDF.Dataset` from which terms starting with the specified
+     `base_iri` should be loaded
+  - `:terms`: the list of terms of the vocabulary namespace, which can also contain
+     aliases directly as keywords
+  - `:alias`: a keyword list of aliases for terms with the aliases as keys and aliased
+     terms as values
+  - `:ignore`: a list of terms to be ignored
+  - `:strict`: when set to `false` terms not specified are nevertheless resolved by
+    simple concatenation of the specified base IRI with the term (default: `true`)
+  - `:invalid_characters`: allows to specify what should happen when a term contains
+    invalid characters
+    - `:fail`: raises an error  (default)
+    - `:ignore`: ignores terms with invalid characters
+    - `:warn`: raises a warning and ignores terms with invalid characters
+  - `:case_violations`: allows to specify what should happen with case violations of
+     the term, the following values are allowed
+    - `:warn`: raises a warning (default)
+    - `:fail`: raises an error
+    - `:ignore`: ignores terms with case violations
+    - `:auto_fix`: fixes a case violation by automatically defining an alias with
+      the proper casing of the first letter
+    - an anonymous function or `{module, fun_name}` tuple to an external function,
+      which receives a `:resource` or `:property` atom and a case violated term and
+      returns a properly cased alias in an ok tuple
+  - `:allow_lowercase_resource_terms`: allows to specify that lower-cased non-property
+     terms are not considered a case violation by setting this option to `true`
+     (default: `false`)
+
+  Besides `:base_iri` one of the `:terms`, `:file` or `:data` options must be provided.
+  The `:file` and `:data` options are not allowed to be provided together.
+  When the `:terms` option is given in conjunction with one of the `:file` and `:data`
+  options, it has a different semantics as given alone: it restricts the terms loaded
+  from the vocabulary data to the specified terms.
+
+  ## Example
+
+      defmodule YourApp.NS do
+        use RDF.Vocabulary.Namespace
+
+        defvocab EX1,
+          base_iri: "http://www.example.com/ns1/",
+          terms: [:Foo, :bar]
+
+        defvocab EX2,
+          base_iri: "http://www.example.com/ns2/",
+          file: "your_vocabulary.ttl",
+          case_violations: :fail,
+          terms: fn
+            _, "_" <> _     -> :ignore
+            _, "erroneous"  -> {:error, "erroneous term"}
+            :resource, term -> {:ok, Recase.to_pascal(term)}
+            :property, term -> {:ok, Recase.to_snake(term)}
+      end
+
   """
   defmacro defvocab({:__aliases__, _, [module]}, spec) do
     env = __CALLER__
@@ -96,6 +160,33 @@ defmodule RDF.Vocabulary.Namespace do
     end
   end
 
+  @doc """
+  Creates a `RDF.Vocabulary.Namespace` module with the given name.
+
+  Except for the `:base_uri` and the value of one of the `:terms`, `:file` or `:data`
+  options of `defvocab/2`, which are given as second and third argument respectively,
+  all options of `defvocab/2` can be given as `opts`. One notable difference is the
+  overloaded use of the `:terms` option as a restriction of the terms loaded from a
+  `:file` or `:data`. The term restriction in this case has to be provided with the
+  `:term_restriction` keyword option.
+
+  The line where the module is defined and its file must be passed as `location`.
+
+  It returns a tuple of shape `{:module, module, binary, term}` where `module` is
+  the module name, `binary` is the module bytecode.
+
+  Similar to `Module.create/3`, the binary will only be written to disk as a
+  `.beam` file if `RDF.Namespace.Vocabulary.create/3` is invoked in a file
+  that is currently being compiled.
+  """
+  @spec create(
+          module,
+          base_uri,
+          binary | Graph.t() | Dataset.t() | keyword,
+          Macro.Env.t(),
+          keyword
+        ) ::
+          {:ok, {:module, module(), binary(), term()}} | {:error, any}
   def create(module, base_uri, vocab, location, opts)
 
   def create(module, base_uri, file, location, opts) when is_binary(file) do
@@ -146,6 +237,14 @@ defmodule RDF.Vocabulary.Namespace do
     )
   end
 
+  @spec create!(
+          module,
+          base_uri,
+          binary | Graph.t() | Dataset.t() | keyword,
+          Macro.Env.t(),
+          keyword
+        ) ::
+          {:module, module(), binary(), term()}
   def create!(module, base_uri, vocab, env, opts) do
     case create(module, base_uri, vocab, env, opts) do
       {:ok, result} -> result

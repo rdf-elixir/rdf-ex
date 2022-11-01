@@ -1,10 +1,16 @@
 defmodule RDF.Namespace do
   @moduledoc """
-  A behaviour for resolvers of atoms to `RDF.IRI`s.
+  A behaviour and generator for modules of terms resolving to `RDF.IRI`s.
 
-  Currently, there's only one type of such namespaces: `RDF.Vocabulary.Namespace`,
-  but other types are thinkable and might be implemented in the future, e.g.
-  namespaces for JSON-LD contexts.
+  Note: A `RDF.Namespace` is NOT a IRI namespace! The terms of a `RDF.Namespace` don't
+  have to necessarily refer to IRIs from the same IRI namespace. "Namespace" here is
+  just meant in the sense that an Elixir module is a namespace. Most of the
+
+  Most of the time you'll want to use a `RDF.Vocabulary.Namespace`, a special type of
+  `RDF.Namespace` where all terms indeed resolve to IRIs of a shared base URI namespace.
+
+  For an introduction into `RDF.Namespace`s and `RDF.Vocabulary.Namespace`s see
+  [this guide](https://rdf-elixir.dev/rdf-ex/namespaces.html).
   """
 
   alias RDF.IRI
@@ -29,6 +35,21 @@ defmodule RDF.Namespace do
   """
   @callback __iris__ :: [IRI.t()]
 
+  @doc """
+  A macro to define a `RDF.Namespace`.
+
+  ## Example
+
+      defmodule YourApp.NS do
+        import RDF.Namespace
+
+        defnamespace EX, [
+                       foo: ~I<http://example1.com/foo>,
+                       Bar: "http://example2.com/Bar",
+                     ]
+      end
+
+  """
   defmacro defnamespace({:__aliases__, _, [module]}, term_mapping, opts \\ []) do
     env = __CALLER__
     module = module(env, module)
