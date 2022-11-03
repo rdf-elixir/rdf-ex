@@ -92,6 +92,21 @@ defmodule RDF.InspectTest do
     end
   end
 
+  test "RDF.IRI" do
+    %{
+      ~I<http://example.com/> => "~I<http://example.com/>"
+    }
+    |> assert_valid_literal_inspections()
+  end
+
+  test "RDF.BlankNode" do
+    %{
+      ~B<foo> => "~B<foo>",
+      BlankNode.new(42) => "~B<b42>"
+    }
+    |> assert_valid_literal_inspections()
+  end
+
   test "RDF.Literal" do
     alias RDF.TestDatatypes.UsZipcode
 

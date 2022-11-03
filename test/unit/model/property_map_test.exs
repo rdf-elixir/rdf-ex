@@ -343,4 +343,9 @@ defmodule RDF.PropertyMapTest do
       assert Enum.at(@example_property_map, 0) == {:Baz, RDF.iri(EX.Baz)}
     end
   end
+
+  test "inspect/1" do
+    assert inspect(@example_property_map) ==
+             "RDF.PropertyMap.new(%{:Baz => ~I<http://example.com/Baz>, :bar => ~I<http://example.com/test/bar>, :foo => ~I<http://example.com/test/foo>})"
+  end
 end
