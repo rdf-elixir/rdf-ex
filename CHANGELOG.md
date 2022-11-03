@@ -5,19 +5,22 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 1.0.0 - 2022-11-03
 
 In this version `RDF.Namespace` and `RDF.Vocabulary.Namespace` were completely rewritten.
 The generated namespaces are much more flexible now and compile faster.
 
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-1.0).
+
 Elixir versions < 1.11 are no longer supported
+
 
 ### Added
 
 - `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
 - `RDF.Namespace` builders `defnamespace/3` and `create/4`
   inside of pattern matches
-- `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns  
+- `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns
   the path to the vocabulary file they were generated from
 - `RDF.Vocabulary.path/1` returning the path to the vocabulary directory of an
   application and `RDF.Vocabulary.path/2` returning the path to the files within it
@@ -73,8 +76,8 @@ Elixir versions < 1.11 are no longer supported
   import no longer affect the caller context. `alias`es in the caller context are
   still available in the build block, but `import`s not and must be reimported in
   the build block. Variables in the caller context are also no longer available
-  build block, but must be passed explicitly with the new optional `bindings`
-  argument of `RDF.Graph.build/3`.
+  in a `build` block but must be passed explicitly as bindings in a keyword list
+  on the new optional first argument of `RDF.Graph.build/3`.
 - `RDF.BlankNode.Increment` was renamed to `RDF.BlankNode.Generator.Increment`
 - `RDF.XSD.Datatype.Mismatch` exception was renamed to
   `RDF.XSD.Datatype.MismatchError` for consistency reasons
@@ -108,7 +111,7 @@ Elixir versions < 1.11 are no longer supported
   previously even when parts of the module were available as an alias.
 - No warning on lowercased non-property resources in vocabularies
 
-[Compare v0.12.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...HEAD)
+[Compare v0.12.0...v1.0.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...v1.0.0)
 
 
 
