@@ -411,4 +411,9 @@ defmodule RDF.PrefixMapTest do
       assert Enum.at(@example2, 0) == {:ex1, @ex_ns1}
     end
   end
+
+  test "inspect/1" do
+    assert inspect(@example2) ==
+             "RDF.PrefixMap.new(%{:ex1 => ~I<http://example.com/foo/>, :ex2 => ~I<http://example.com/bar#>})"
+  end
 end
