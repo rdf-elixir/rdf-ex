@@ -92,6 +92,41 @@ defmodule RDF.InspectTest do
     end
   end
 
+  test "RDF.Literal" do
+    alias RDF.TestDatatypes.UsZipcode
+
+    %{
+      ~L"foo" => ~s[~L"foo"],
+      ~L"foo"en => ~s[~L"foo"en],
+      RDF.LangString.new("foo", language: "en-US") =>
+        ~s[RDF.LangString.new("foo", language: "en-us")],
+      XSD.boolean(true) => "RDF.XSD.Boolean.new(true)",
+      XSD.boolean(false) => "RDF.XSD.Boolean.new(false)",
+      XSD.boolean("0") => ~s[RDF.XSD.Boolean.new("0")],
+      XSD.boolean("1") => ~s[RDF.XSD.Boolean.new("1")],
+      XSD.boolean("2") => ~s[RDF.XSD.Boolean.new("2")],
+      XSD.integer(42) => "RDF.XSD.Integer.new(42)",
+      XSD.integer("042") => ~s[RDF.XSD.Integer.new("042")],
+      XSD.integer("foo") => ~s[RDF.XSD.Integer.new("foo")],
+      XSD.decimal(3.14) => ~s[RDF.XSD.Decimal.new(Decimal.new("3.14"))],
+      XSD.decimal("foo") => ~s[RDF.XSD.Decimal.new("foo")],
+      UsZipcode.new("20521") => ~s[RDF.TestDatatypes.UsZipcode.new("20521")],
+      Literal.new("foo", datatype: "http://example.com/dt") =>
+        ~s[RDF.Literal.new("foo", datatype: "http://example.com/dt")]
+    }
+    |> assert_valid_literal_inspections()
+  end
+
+  defp assert_valid_literal_inspections(inspection) do
+    Enum.each(inspection, &assert_valid_literal_inspection/1)
+  end
+
+  defp assert_valid_literal_inspection({literal, inspection}) do
+    assert inspect(literal) == inspection
+    {evaluated, _} = Code.eval_string(inspection, [], __ENV__)
+    assert evaluated === literal
+  end
+
   def inspect_parts(graph, opts \\ []) do
     inspect_form = inspect(graph, opts)
     [header, body] = String.split(inspect_form, "\n", parts: 2)

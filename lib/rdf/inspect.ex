@@ -11,15 +11,42 @@ defimpl Inspect, for: RDF.BlankNode do
 end
 
 defimpl Inspect, for: RDF.Literal do
-  def inspect(literal, _opts) do
-    string = "%RDF.Literal{literal: #{inspect(literal.literal)}}"
+  alias RDF.{Literal, XSD}
 
-    if RDF.Literal.valid?(literal) do
-      string
+  def inspect(%Literal{literal: %XSD.String{value: value}}, _opts) do
+    ~s[~L"#{value}"]
+  end
+
+  def inspect(%Literal{literal: %RDF.LangString{value: value, language: language}}, _opts) do
+    if valid_sigil_modifier?(language) do
+      ~s[~L"#{value}"#{language}]
     else
-      "#invalid #{string}"
+      "RDF.LangString.new(#{inspect(value)}, language: #{inspect(language)})"
     end
   end
+
+  def inspect(%Literal{literal: %RDF.Literal.Generic{value: value, datatype: datatype}}, _opts) do
+    "RDF.Literal.new(#{inspect(value)}, datatype: #{inspect(datatype)})"
+  end
+
+  def inspect(%Literal{literal: %XSD.Decimal{value: %Decimal{} = value}}, _opts) do
+    ~s[RDF.XSD.Decimal.new(Decimal.new("#{Decimal.to_string(value)}"))]
+  end
+
+  def inspect(literal, _opts) do
+    if Literal.valid?(literal) and Literal.canonical?(literal) do
+      "#{inspect(literal.literal.__struct__)}.new(#{inspect(Literal.value(literal))})"
+    else
+      "#{inspect(literal.literal.__struct__)}.new(#{inspect(Literal.lexical(literal))})"
+    end
+  end
+
+  defp valid_sigil_modifier?(<<char>> <> rest)
+       when char in ?0..?9 or char in ?a..?z or char in ?A..?Z,
+       do: valid_sigil_modifier?(rest)
+
+  defp valid_sigil_modifier?(""), do: true
+  defp valid_sigil_modifier?(_), do: false
 end
 
 defimpl Inspect, for: RDF.Description do
