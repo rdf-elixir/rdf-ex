@@ -23,7 +23,7 @@ defmodule RDF.Namespace.IRITest do
     end
 
     test "constant function calls from non-vocabulary namespace module results in a compile error" do
-      assert_raise ArgumentError, ~r[forbidden expression in RDF.Guard.term_to_iri/1], fn ->
+      assert_raise ArgumentError, "Mix is not a RDF.Namespace", fn ->
         ast =
           quote do
             import RDF.Guards
@@ -36,19 +36,37 @@ defmodule RDF.Namespace.IRITest do
     end
 
     test "other forms result in a compile error" do
-      assert_raise ArgumentError, ~r[forbidden expression in RDF.Guard.term_to_iri/1], fn ->
-        ast =
-          quote do
-            import RDF.Guards
-            var = ~I<http://example.com>
-            term_to_iri(var)
-          end
+      assert_raise ArgumentError,
+                   "forbidden expression in RDF.Namespace.IRI.term_to_iri/1 call: var",
+                   fn ->
+                     ast =
+                       quote do
+                         import RDF.Guards
+                         var = ~I<http://example.com>
+                         term_to_iri(var)
+                       end
 
-        Code.eval_quoted(ast, [], __ENV__)
-      end
+                     Code.eval_quoted(ast, [], __ENV__)
+                   end
     end
 
     test "in pattern matches" do
+      assert term_to_iri(EX.Foo) = RDF.iri(EX.Foo)
+      assert term_to_iri(EX.foo()) = RDF.iri(EX.foo())
+    end
+
+    test "in function clause pattern matches" do
+      fun = fn
+        term_to_iri(EX.Foo) -> :Foo
+        term_to_iri(EX.bar()) -> :bar
+        _ -> :unexpected
+      end
+
+      assert fun.(RDF.iri(EX.Foo)) == :Foo
+      assert fun.(EX.bar()) == :bar
+    end
+
+    test "in case pattern matches" do
       assert (case EX.foo() do
                 term_to_iri(EX.foo()) -> "match"
                 _ -> {:mismatch, term_to_iri(EX.foo())}

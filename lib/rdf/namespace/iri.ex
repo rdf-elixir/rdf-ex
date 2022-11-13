@@ -25,31 +25,64 @@ defmodule RDF.Namespace.IRI do
       end
 
   """
-  defmacro term_to_iri({{:., _, [{:__aliases__, _, _} = module_alias, _fun_name]}, _, []} = expr) do
+  defmacro term_to_iri({{:., _, [{:__aliases__, _, _} = module_alias, fun_name]}, _, []}) do
     {module, _} = Code.eval_quoted(module_alias, [], __CALLER__)
 
+    resolve_fun_call(module, fun_name, Macro.Env.stacktrace(__CALLER__))
+  end
+
+  defmacro term_to_iri({{:., _, [module, fun_name]}, _, _}) do
+    resolve_fun_call(module, fun_name, Macro.Env.stacktrace(__CALLER__))
+  end
+
+  defmacro term_to_iri({:__aliases__, _, _} = expr) do
+    {value, _} = Code.eval_quoted(expr, [], __CALLER__)
+    resolve_module(value, Macro.Env.stacktrace(__CALLER__))
+  end
+
+  defmacro term_to_iri(atom) when is_atom(atom) do
+    resolve_module(atom, Macro.Env.stacktrace(__CALLER__))
+  end
+
+  defmacro term_to_iri(expr) do
+    raise_error(
+      ArgumentError,
+      "forbidden expression in #{inspect(__MODULE__)}.term_to_iri/1 call: #{Macro.to_string(expr)}",
+      Macro.Env.stacktrace(__CALLER__)
+    )
+  end
+
+  defp resolve_fun_call(module, fun_name, stacktrace) do
     if RDF.Namespace.namespace?(module) do
-      resolve_to_iri(expr, __CALLER__)
+      do_resolve_fun_call(module, fun_name, stacktrace)
     else
-      forbidden_iri_expr(expr)
+      raise_error(ArgumentError, "#{inspect(module)} is not a RDF.Namespace", stacktrace)
     end
   end
 
-  defmacro term_to_iri({:__aliases__, _, _} = expr), do: resolve_to_iri(expr, __CALLER__)
+  defp do_resolve_fun_call(module, fun_name, stacktrace) do
+    module
+    |> apply(fun_name, [])
+    |> quote_result_iri()
+  rescue
+    error -> reraise error, stacktrace
+  end
 
-  defmacro term_to_iri(expr), do: forbidden_iri_expr(expr)
+  defp resolve_module(module, stacktrace) do
+    module
+    |> RDF.IRI.new()
+    |> quote_result_iri()
+  rescue
+    error -> reraise error, stacktrace
+  end
 
-  defp resolve_to_iri(expr, env) do
-    {value, _} = Code.eval_quoted(expr, [], env)
-    iri = RDF.IRI.new(value)
-
+  defp quote_result_iri(iri) do
     quote do
       unquote(Macro.escape(iri))
     end
   end
 
-  defp forbidden_iri_expr(expr) do
-    raise ArgumentError,
-          "forbidden expression in RDF.Guard.term_to_iri/1 call: #{Macro.to_string(expr)}"
+  defp raise_error(exception, message, stacktrace) do
+    reraise exception, [message: message], stacktrace
   end
 end

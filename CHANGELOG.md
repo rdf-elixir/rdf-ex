@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- the `term_to_iri/1` macro didn't work properly in all types of pattern matches
+
+
+[Compare v1.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.0.0...HEAD)
+
+
+
 ## 1.0.0 - 2022-11-03
 
 In this version `RDF.Namespace` and `RDF.Vocabulary.Namespace` were completely rewritten.
