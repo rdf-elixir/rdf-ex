@@ -24,7 +24,6 @@ defmodule RDF.Literal.Datatype.RegistryTest do
       ENTITY
       yearMonthDuration
       IDREFS
-      base64Binary
       token
       NCName
       NMTOKEN

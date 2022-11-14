@@ -13,12 +13,12 @@ defmodule RDF.Normalization.W3C.Test do
   alias RDF.{TestSuite, NQuads, Normalization}
   alias TestSuite.NS.RDFN
 
+  @path RDF.TestData.path("NORMALIZATION-TESTS")
   @base "http://json-ld.github.io/normalization/tests/"
+  @manifest TestSuite.manifest_path(@path, "manifest-urdna2015.ttl")
+            |> TestSuite.manifest_graph(base: @base)
 
-  TestSuite.test_cases("normalization", RDFN.Urdna2015EvalTest,
-    base: @base,
-    manifest: "manifest-urdna2015.ttl"
-  )
+  TestSuite.test_cases(@manifest, RDFN.Urdna2015EvalTest)
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     unless test_case.subject ==
@@ -28,10 +28,10 @@ defmodule RDF.Normalization.W3C.Test do
 
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       with base = to_string(TestSuite.test_input_file(test_case)) do
-        assert TestSuite.test_input_file_path(test_case, "normalization")
+        assert TestSuite.test_input_file_path(test_case, @path)
                |> NQuads.read_file!(base: base)
                |> Normalization.normalize() ==
-                 TestSuite.test_result_file_path(test_case, "normalization")
+                 TestSuite.test_result_file_path(test_case, @path)
                  |> NQuads.read_file!()
       end
     end

@@ -32,9 +32,7 @@ defmodule RDF.XSD.Utils.RegexTest do
         result = Regex.matches?(literal, pattern)
 
         assert result == expected_result,
-               "expected XSD.Regex.matches?(#{inspect(literal)}, #{inspect(pattern)}) to return #{
-                 inspect(expected_result)
-               }, but got #{result}"
+               "expected XSD.Regex.matches?(#{inspect(literal)}, #{inspect(pattern)}) to return #{inspect(expected_result)}, but got #{result}"
       end)
     end
 

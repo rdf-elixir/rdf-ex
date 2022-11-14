@@ -39,6 +39,7 @@ defmodule RDF.Serialization.Writer do
 
     :ok
   rescue
+    error in FunctionClauseError -> reraise error, __STACKTRACE__
     error in RuntimeError -> {:error, error.message}
     error -> {:error, error}
   end
@@ -68,6 +69,7 @@ defmodule RDF.Serialization.Writer do
   end
 
   defp do_write_file!(stream_mode, encoder, data, path, opts) do
+    # credo:disable-for-lines:5 Credo.Check.Warning.UnusedEnumOperation
     data
     |> encoder.stream(set_stream_mode(opts, stream_mode))
     |> Enum.into(File.stream!(path, file_mode(encoder, opts)))

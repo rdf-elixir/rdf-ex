@@ -9,22 +9,22 @@ defmodule RDF.Serialization.ParseHelper do
   def to_iri_string({:iriref, _line, value}), do: value |> iri_unescape
 
   def to_iri({:iriref, line, value}) do
-    with iri = RDF.iri(iri_unescape(value)) do
-      if IRI.valid?(iri) do
-        {:ok, iri}
-      else
-        {:error, line, "#{value} is not a valid IRI"}
-      end
+    iri = RDF.iri(iri_unescape(value))
+
+    if IRI.valid?(iri) do
+      {:ok, iri}
+    else
+      {:error, line, "#{value} is not a valid IRI"}
     end
   end
 
   def to_absolute_or_relative_iri({:iriref, _line, value}) do
-    with iri = RDF.iri(iri_unescape(value)) do
-      if IRI.absolute?(iri) do
-        iri
-      else
-        {:relative_iri, value}
-      end
+    iri = RDF.iri(iri_unescape(value))
+
+    if IRI.absolute?(iri) do
+      iri
+    else
+      {:relative_iri, value}
     end
   end
 
@@ -92,9 +92,7 @@ defmodule RDF.Serialization.ParseHelper do
   end
 
   def error_description(error_descriptor) when is_list(error_descriptor) do
-    error_descriptor
-    |> Stream.map(&to_string/1)
-    |> Enum.join("")
+    Enum.map_join(error_descriptor, &to_string/1)
   end
 
   def error_description(error_descriptor), do: inspect(error_descriptor)

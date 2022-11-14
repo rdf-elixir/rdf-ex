@@ -1,4 +1,15 @@
 defmodule RDF.XSD.Facets.Pattern do
+  @moduledoc """
+  `RDF.XSD.Facet` for `pattern`.
+
+  `pattern` is a constraint on the value space of a datatype which is achieved
+  by constraining the lexical space to literals which match each member of a
+  set of regular expressions.
+  The value of pattern  must be a set of regular expressions.
+
+  see <https://www.w3.org/TR/xmlschema11-2/datatypes.html#rf-pattern>
+  """
+
   use RDF.XSD.Facet, name: :pattern, type: String.t() | [String.t()]
 
   @doc !"""

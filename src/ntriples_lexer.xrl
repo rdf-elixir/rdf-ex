@@ -24,6 +24,8 @@ Rules.
 {EOL}	                  :	{token, {eol, TokenLine}}.
 \.	                    :	{token, {'.', TokenLine}}.
 \^\^	                  :	{token, {'^^', TokenLine}}.
+\<\<	                  :	{token, {'<<', TokenLine}}.
+\>\>	                  :	{token, {'>>', TokenLine}}.
 {WHITESPACE}+           : skip_token.
 {COMMENT}               : skip_token.
 

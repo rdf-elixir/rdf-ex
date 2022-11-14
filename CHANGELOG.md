@@ -5,6 +5,320 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- the `term_to_iri/1` macro didn't work properly in all types of pattern matches
+
+
+[Compare v1.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.0.0...HEAD)
+
+
+
+## 1.0.0 - 2022-11-03
+
+In this version `RDF.Namespace` and `RDF.Vocabulary.Namespace` were completely rewritten.
+The generated namespaces are much more flexible now and compile faster.
+
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-1.0).
+
+Elixir versions < 1.11 are no longer supported
+
+
+### Added
+
+- `RDF.Vocabulary.Namespace.create/5` for dynamic creation of `RDF.Vocabulary.Namespace`s
+- `RDF.Namespace` builders `defnamespace/3` and `create/4`
+  inside of pattern matches
+- `RDF.Vocabulary.Namespace` modules now have a `__file__/0` function which returns
+  the path to the vocabulary file they were generated from
+- `RDF.Vocabulary.path/1` returning the path to the vocabulary directory of an
+  application and `RDF.Vocabulary.path/2` returning the path to the files within it
+- The property functions on the `RDF.Namespace` and `RDF.Vocabulary.Namespace` modules
+  now also have a single argument variant, which allows to query the objects for the
+  respective property from a `RDF.Description`
+- Aliases on a `RDF.Vocabulary.Namespace` can now be specified directly in the
+  `:terms` list.
+- The `:terms` option can now also be used in conjunction with the `:file` and
+  `:data` options to restrict the terms loaded from the vocabulary data with a
+  list of the terms or a restriction function. 
+- The `case_violations` option of `defvocab` now supports an `:auto_fix` option 
+  which adapts the first letter of violating term accordingly. It also supports
+  custom handler functions, either as an inline function or as a function on a 
+  separate module.
+- New option `allow_lowercase_resource_terms` option which can be set to `true`
+  to no longer complain about lowercased terms for non-property resources.
+- `RDF.Graph.build/2` now supports the creation of ad-hoc vocabulary namespaces
+  with a `@prefix` declaration providing the URI of the namespace as a string
+- `RDF.Namespace.IRI.term_to_iri/1` macro which allows to resolve `RDF.Namespace` terms
+- a lot of new `RDF.Guards`: `is_rdf_iri/1`, `is_rdf_bnode/1`, `is_rdf_literal/1`,
+  `is_rdf_literal/2`, `is_plain_rdf_literal/1`, `is_typed_rdf_literal/1`,
+  `is_rdf_resource/1`, `is_rdf_term/1`, `is_rdf_triple/1`, `is_rdf_quad/1` and
+  `is_rdf_statement/1`
+- an implementation of `__using__` on the top-level `RDF` module, which allows to
+  add basic imports and aliases with a simple `use RDF` 
+- `RDF.IRI.starts_with?/2` and `RDF.IRI.ends_with?/2`
+- `RDF.Graph.quads/2` and `RDF.Dataset.quads/2` to get all statements of a 
+  `RDF.Graph` and `RDF.Dataset` as quads
+- `RDF.Dataset.triples/2` to get all statements of a `RDF.Dataset` as triples
+- `RDF.PrefixMap.to_list/1`
+- `RDF.PropertyMap.to_list/1`
+- support for Elixir 1.14
+- support for Decimal v2
+
+
+### Changed
+
+#### Breaking
+
+- Support for passing multiple objects as separate arguments to the property
+  functions of the description DSL on the vocabulary namespaces was removed
+  to create space for further arguments for other purposes in the future.
+  Multiple objects must be given now in a list instead.
+- All errors found during the compilation of `RDF.Vocabulary.Namespace` are 
+  now collectively reported under a single `RDF.Vocabulary.Namespace.CompileError`.
+- An `ignore` term in a `defvocab` definition which actually is not a term of
+  the vocabulary namespace is now considered an error.
+- When defining an alias for a term of vocabulary which would be invalid as an
+  Elixir term, the original term is now implicitly ignored and won't any longer
+  be returned by the `__terms__/0` function of a `RDF.Vocabulary.Namespace`.
+- `RDF.Graph.build/2` blocks are now wrapped in a function, so the aliases and
+  import no longer affect the caller context. `alias`es in the caller context are
+  still available in the build block, but `import`s not and must be reimported in
+  the build block. Variables in the caller context are also no longer available
+  in a `build` block but must be passed explicitly as bindings in a keyword list
+  on the new optional first argument of `RDF.Graph.build/3`.
+- `RDF.BlankNode.Increment` was renamed to `RDF.BlankNode.Generator.Increment`
+- `RDF.XSD.Datatype.Mismatch` exception was renamed to
+  `RDF.XSD.Datatype.MismatchError` for consistency reasons
+
+#### Non-breaking
+
+- The `defvocab` macro can now be safely used in any module and guarantees cleanliness
+  of the base module. So, a surrounding namespace (like `NS`) is no longer necessary.
+  Although still useful for foreign vocabularies, this can be useful eg. to define a
+  `MyApplication.Vocab` module directly under the root module of the application.
+- The `:base_iri` specified in `defvocab` can now be given in any form supported
+  by `RDF.IRI.new/1`. There are also no longer restrictions on the expression 
+  of this value. While previously the value had to be provided as a literal value,
+  now any expression returning a value accepted by `RDF.IRI.new/1` can be given 
+  (e.g. function calls, module attributes etc.).
+  The `:base_iri` also no longer has to end with a `/` or `#`.
+- `RDF.Data.merge/2` and `RDF.Data.equal?/2` are now commutative, i.e. structs
+  which implement the `RDF.Data` protocol can be given also as the second argument
+  (previously custom structs with `RDF.Data` protocol implementations always
+  had to be given as the first argument).
+- the `Inspect` implementation for the `RDF.Literal`, `RDF.PrefixMap` and  
+  `RDF.PropertyMap` structs now return a string with a valid Elixir expression
+  that recreates the struct when evaluated
+- several performance improvements
+
+
+### Fixed
+
+- The RDF vocabulary namespaces used in `@prefix` and `@base` declarations in a
+  `RDF.Graph.build` block no longer have to be written out, which had to be done
+  previously even when parts of the module were available as an alias.
+- No warning on lowercased non-property resources in vocabularies
+
+[Compare v0.12.0...v1.0.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...v1.0.0)
+
+
+
+## 0.12.0 - 2022-04-11
+
+This version introduces a new graph builder DSL. See the [new guide](https://rdf-elixir.dev/rdf-ex/description-and-graph-dsl.html)
+for an introduction.
+
+### Added
+
+- a `RDF.Graph` builder DSL available under the `RDF.Graph.build/2` function
+- new `RDF.Sigils` `~i`, `~b` and `~l` as variants of the `~I`, `~B` and `~L`
+  sigils, which support string interpolation   
+- `RDF.Graph.new/2` and `RDF.Graph.add/2` support the addition of `RDF.Dataset`s
+- `RDF.Description.empty?/1`, `RDF.Graph.empty?/1`, `RDF.Dataset.empty?/1` and
+  `RDF.Data.empty?/1` which are significantly faster than `Enum.empty?/1`
+  - By replacing all `Enum.empty?/1` uses over the RDF data structures with these
+    new `empty?/1` functions throughout the code base, several functions benefit
+    from this performance improvement.
+- `RDF.Description.first/2` now has a `RDF.Description.first/3` variant which
+  supports a default value
+- new guards in `RDF.Guards`: `is_statement/1` and `is_quad/1`
+- `RDF.PropertyMap.terms/1` and `RDF.PropertyMap.iris/1`
+
+### Changed
+
+- `RDF.Graph.description/2` is no longer an alias for `RDF.Graph.get/2`, but
+  has a different behaviour now: it will return an empty description when no
+  description for the requested subject exists in the graph
+- The inspect string of `RDF.Description` now includes the subject separately, so 
+  it can be seen also when the description is empty.
+
+### Fixed
+
+- When triples with an empty object list where added to an `RDF.Graph`, it 
+  included empty descriptions, which lead to inconsistent behaviour 
+  (for example it would be counted in `RDF.Graph.subject_count/1`).
+- When an `RDF.Graph` contained empty descriptions these were rendered by 
+  the `RDF.Turtle.Encoder` to a subject without predicates and objects, i.e.
+  invalid Turtle. This actually shouldn't happen and is either caused by 
+  misuse or a bug. So instead, a `RDF.Graph.EmptyDescriptionError` with a 
+  detailed message will be raised now when this case is detected.
+
+
+[Compare v0.11.0...v0.12.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.11.0...v0.12.0)
+
+
+
+## 0.11.0 - 2022-03-22
+
+The main feature of this version are the `RDF.Resource.Generator`s.
+For an introduction see [this guide](https://rdf-elixir.dev/rdf-ex/resource-generators.html).
+
+### Added
+
+- `RDF.Resource.Generator`s which can be used to generate configurable ids
+- `:implicit_base` option on the `RDF.Turtle.Encoder`
+- `:base_description` option on the `RDF.Turtle.Encoder`
+- several new types: 
+  - `RDF.Resource.t` for all node identifiers, i.e. `RDF.IRI`s and `RDF.BlankNode`s 
+  - `RDF.Triple.coercible`, `RDF.Quad.coercible`, `RDF.Star.Triple.coercible`
+    and `RDF.Star.Quad.coercible` for tuples which can be coerced to the
+    respective statements
+
+### Changed
+
+- some types were renamed for consistency reasons; the old types were deprecated
+  and will be removed in v0.11
+  - `RDF.Statement.coercible_t` -> `RDF.Statement.coercible`
+  - `RDF.Star.Statement.coercible_t` -> `RDF.Star.Statement.coercible`
+  - `RDF.Triple.t_values` -> `RDF.Triple.mapping_value`
+  - `RDF.Quad.t_values` -> `RDF.Quad.mapping_value`
+
+### Fixed
+
+- the interface of `RDF.BlankNode.Generator.start_link/1` was fixed, so that
+  generators can be started supervised
+
+
+[Compare v0.10.0...v0.11.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.10.0...v0.11.0)
+
+
+
+## 0.10.0 - 2021-12-13
+
+This release adds RDF-star support on the RDF data structures, the N-Triples, N-Quads, 
+Turtle encoders and decoders and the BGP query engine. 
+For an introduction read the new [page on the RDF.ex guide](https://rdf-elixir.dev/rdf-ex/rdf-star.html).
+For more details on how to migrate from an earlier version read [this wiki page](https://github.com/rdf-elixir/rdf-ex/wiki/Upgrading-to-RDF.ex-0.10).
+
+Elixir versions < 1.10 are no longer supported
+
+### Added
+
+- Support for `RDF.PropertyMap` on `RDF.Statement.new/2` and `RDF.Statement.coerce/2`.
+- `RDF.Dataset.graph_count/1`
+- The `RDF.NQuads.Encoder` now supports a `:default_graph_name` option, which
+  allows to specify the graph name to be used as the default for triples
+  from a `RDF.Graph` or `RDF.Description`.
+
+### Changed
+
+- The `RDF.Turtle.Encoder` no longer supports the encoding of `RDF.Dataset`s.   
+  You'll have to aggregate a `RDF.Dataset` to a `RDF.Graph` on your own now.
+- The `RDF.NQuads.Encoder` now uses the `RDF.Graph.name/1` as the graph name for  
+  the triples of a `RDF.Graph`.
+  Previously the triples of an `RDF.Graph` were always encoded as part of default 
+  graph. You can use the new `:default_graph_name` option and set it to `nil` to get
+  the old behaviour.
+
+  
+[Compare v0.9.4...v0.10.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.4...v0.10.0)
+
+
+
+## 0.9.4 - 2021-05-26
+
+### Added
+
+- `RDF.statement/1`, `RDF.statement/3` and `RDF.statement/4` constructor functions
+- the `:default_prefixes` configuration option now allows to set a `{mod, fun}`
+  tuple, with a function which should be called to determine the default prefixes
+- the `:default_base_iri` configuration option now allows to set a `{mod, fun}`
+  tuple, with a function which should be called to determine the default base IRI
+- support for Elixir 1.12 and OTP 24
+
+### Fixed
+
+- the Turtle encoder was encoding IRIs as prefixed names even when they were
+  resulting in non-conform prefixed names
+- the Turtle encoder didn't properly escape special characters in language-tagged 
+  literals
+- the N-Triples and N-Quads encoders didn't properly escape special characters in 
+  both language-tagged and plain literals
+- the `Inspect` protocol implementation for `RDF.Diff` was causing an error when
+  both graphs had prefixes defined
+  
+Note: In the canonical form of -0.0 in XSD doubles and floats the sign is removed
+in OTP versions < 24 although this is not standard conform. This has the
+consequence that the sign of -0.0 is also removed when casting these doubles and
+floats to decimals. These bugs won't be fixed. If you rely on the correct behavior
+in these cases, you'll have to upgrade to OTP 24 and a respective Elixir version.
+
+
+[Compare v0.9.3...v0.9.4](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.3...v0.9.4)
+
+
+
+## 0.9.3 - 2021-03-09
+
+### Added
+
+- `:indent` option on `RDF.Turtle.Encoder`, which allows to specify the number
+  of spaces the output should be indented
+
+### Changed
+
+- the performance of the `Enumerable` protocol implementations of the RDF data 
+  structures was significantly improved (for graphs almost 10x), which in turn
+  increases the performance of all functions built on top of that, eg. 
+  the N-Triples and N-Quads encoders
+- improvement of the Inspect forms of the RDF data structures: the content is
+  now enclosed in angle brackets and indented 
+
+### Fixed
+
+- strings of the form `".0"` and `"0."` weren't recognized as valid XSD float  
+  and double literals
+- the Turtle encoder handles base URIs without a trailing slash or hash properly  
+  (no longer raising a warning and ignoring them) 
+ 
+
+[Compare v0.9.2...v0.9.3](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.2...v0.9.3)
+
+
+
+## 0.9.2 - 2021-01-06
+
+### Added
+
+- `RDF.XSD.Base64Binary` datatype ([@pukkamustard](https://github.com/pukkamustard))
+
+### Changed
+
+- a new option `:as_value` to enforce interpretation of an input string as a value
+  instead of a lexical, which is needed on datatypes where the lexical space and
+  the value space both consist of strings
+- `RDF.XSD.Date` and `RDF.XSD.Time` both can now be initialized with tuples of an
+  Elixir `Date` resp. `Time` value and a timezone string (previously XSD date and 
+  time values with time zones could only be created from strings)
+
+
+[Compare v0.9.1...v0.9.2](https://github.com/rdf-elixir/rdf-ex/compare/v0.9.1...v0.9.2)
+
+
+
 ## 0.9.1 - 2020-11-16
 
 Elixir versions < 1.9 are no longer supported
@@ -58,7 +372,7 @@ of one field in order to open the possibility of introducing options on these
 functions. The supported ways with which RDF statements can be passed to the 
 RDF data structures were extended and unified to be supported across all functions 
 accepting input data. This includes also the way in which patterns for BGP queries
-are specified. Also the performance for adding data has been improved.
+are specified. Also, the performance for adding data has been improved.
 
 For an introduction on the new data structure API and the commonly supported input formats
 read the updated [page on the RDF data structures in the guide](https://rdf-elixir.dev/rdf-ex/data-structures.html). 

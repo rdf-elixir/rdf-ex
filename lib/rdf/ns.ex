@@ -20,6 +20,11 @@ defmodule RDF.NS do
   @vocabdoc """
   The RDF vocabulary.
 
+  Since this module has the same basename as the top-level module, you can't
+  alias it. Therefore, the top-level `RDF` module has delegators for all of the
+  property functions in this module, so you can use them directly on the
+  top-level module without an alias.
+
   See <https://www.w3.org/TR/rdf11-concepts/>
   """
   defvocab RDF,

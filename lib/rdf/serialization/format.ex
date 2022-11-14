@@ -62,6 +62,7 @@ defmodule RDF.Serialization.Format do
   @callback encoder :: module
 
   defmacro __using__(_) do
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote bind_quoted: [], unquote: true do
       @behaviour unquote(__MODULE__)
 

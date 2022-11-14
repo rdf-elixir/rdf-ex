@@ -4,6 +4,10 @@ defmodule RDF.Utils do
   def downcase?(term) when is_atom(term), do: term |> Atom.to_string() |> downcase?()
   def downcase?(term), do: term =~ ~r/^(_|\p{Ll})/u
 
+  def lazy_map_update(map, key, fun) do
+    lazy_map_update(map, key, fn -> fun.(nil) end, fun)
+  end
+
   def lazy_map_update(map, key, init_fun, fun) do
     case map do
       %{^key => value} ->
@@ -20,9 +24,8 @@ defmodule RDF.Utils do
   def map_while_ok(enum, fun) do
     with {:ok, mapped} <-
            Enum.reduce_while(enum, {:ok, []}, fn e, {:ok, acc} ->
-             with {:ok, value} <- fun.(e) do
-               {:cont, {:ok, [value | acc]}}
-             else
+             case fun.(e) do
+               {:ok, value} -> {:cont, {:ok, [value | acc]}}
                error -> {:halt, error}
              end
            end) do

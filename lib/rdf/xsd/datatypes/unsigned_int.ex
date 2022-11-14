@@ -1,4 +1,10 @@
 defmodule RDF.XSD.UnsignedInt do
+  @moduledoc """
+  `RDF.XSD.Datatype` for `xsd:unsignedInt`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#unsignedInt>
+  """
+
   use RDF.XSD.Datatype.Restriction,
     name: "unsignedInt",
     id: RDF.Utils.Bootstrapping.xsd_iri("unsignedInt"),

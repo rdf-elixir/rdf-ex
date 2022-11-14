@@ -4,19 +4,23 @@ defmodule RDF do
 
   RDF.ex consists of:
 
-  - modules for the nodes of an RDF graph
-    - `RDF.Term`
+  - structs for the nodes of an RDF graph
     - `RDF.IRI`
     - `RDF.BlankNode`
     - `RDF.Literal`
+  - various modules making working with the nodes of an RDF graph easier
+    - `RDF.Term`
+    - `RDF.Sigils`
+    - `RDF.Guards`
   - the `RDF.Literal.Datatype` system
   - a facility for the mapping of URIs of a vocabulary to Elixir modules and
     functions: `RDF.Vocabulary.Namespace`
+  - a facility for the automatic generation of resource identifiers: `RDF.Resource.Generator`
   - modules for the construction of statements
     - `RDF.Triple`
     - `RDF.Quad`
     - `RDF.Statement`
-  - modules for collections of statements
+  - structs for collections of statements
     - `RDF.Description`
     - `RDF.Graph`
     - `RDF.Dataset`
@@ -37,26 +41,34 @@ defmodule RDF do
   This top-level module provides shortcut functions for the construction of the
   basic elements and structures of RDF and some general helper functions.
 
+  It also can be `use`'ed to add basic imports and aliases for working with RDF.ex
+  on any module. See `__using__/1` for details.
+
   For a general introduction you may refer to the guides on the [homepage](https://rdf-elixir.dev).
   """
 
   alias RDF.{
     IRI,
-    Namespace,
-    Literal,
     BlankNode,
-    Triple,
-    Quad,
+    Literal,
+    Namespace,
     Description,
     Graph,
     Dataset,
+    Serialization,
     PrefixMap
   }
 
   import RDF.Guards
   import RDF.Utils.Bootstrapping
 
-  defdelegate default_base_iri(), to: RDF.IRI, as: :default_base
+  @star? Application.compile_env(:rdf, :star, true)
+  @doc """
+  Returns whether RDF-star support is enabled.
+  """
+  def star?(), do: @star?
+
+  defdelegate default_base_iri(), to: IRI, as: :default_base
 
   @standard_prefixes PrefixMap.new(
                        xsd: xsd_iri_base(),
@@ -94,6 +106,9 @@ defmodule RDF do
           ex: "http://example.com/"
         }
 
+  You can also set `:default_prefixes` to a module-function tuple `{mod, fun}`
+  with a function which should be called to determine the default prefixes.
+
   If you don't want the `standard_prefixes/0` to be part of the default prefixes,
   or you want to map the standard prefixes to different namespaces (strongly discouraged!),
   you can set the `use_standard_prefixes` compile-time configuration flag to `false`.
@@ -102,15 +117,25 @@ defmodule RDF do
         use_standard_prefixes: false
 
   """
-  @default_prefixes Application.get_env(:rdf, :default_prefixes, %{}) |> PrefixMap.new()
-  if Application.get_env(:rdf, :use_standard_prefixes, true) do
-    def default_prefixes() do
-      PrefixMap.merge!(@standard_prefixes, @default_prefixes)
-    end
-  else
-    def default_prefixes() do
-      @default_prefixes
-    end
+  case Application.compile_env(:rdf, :default_prefixes, %{}) do
+    {mod, fun} ->
+      if Application.compile_env(:rdf, :use_standard_prefixes, true) do
+        def default_prefixes() do
+          PrefixMap.merge!(@standard_prefixes, apply(unquote(mod), unquote(fun), []))
+        end
+      else
+        def default_prefixes(), do: apply(unquote(mod), unquote(fun), [])
+      end
+
+    default_prefixes ->
+      @default_prefixes PrefixMap.new(default_prefixes)
+      if Application.compile_env(:rdf, :use_standard_prefixes, true) do
+        def default_prefixes() do
+          PrefixMap.merge!(@standard_prefixes, @default_prefixes)
+        end
+      else
+        def default_prefixes(), do: @default_prefixes
+      end
   end
 
   @doc """
@@ -122,20 +147,20 @@ defmodule RDF do
     default_prefixes() |> PrefixMap.merge!(prefix_mappings)
   end
 
-  defdelegate read_string(string, opts), to: RDF.Serialization
-  defdelegate read_string!(string, opts), to: RDF.Serialization
-  defdelegate read_stream(stream, opts \\ []), to: RDF.Serialization
-  defdelegate read_stream!(stream, opts \\ []), to: RDF.Serialization
-  defdelegate read_file(filename, opts \\ []), to: RDF.Serialization
-  defdelegate read_file!(filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_string(data, opts), to: RDF.Serialization
-  defdelegate write_string!(data, opts), to: RDF.Serialization
-  defdelegate write_stream(data, opts), to: RDF.Serialization
-  defdelegate write_file(data, filename, opts \\ []), to: RDF.Serialization
-  defdelegate write_file!(data, filename, opts \\ []), to: RDF.Serialization
+  defdelegate read_string(string, opts), to: Serialization
+  defdelegate read_string!(string, opts), to: Serialization
+  defdelegate read_stream(stream, opts \\ []), to: Serialization
+  defdelegate read_stream!(stream, opts \\ []), to: Serialization
+  defdelegate read_file(filename, opts \\ []), to: Serialization
+  defdelegate read_file!(filename, opts \\ []), to: Serialization
+  defdelegate write_string(data, opts), to: Serialization
+  defdelegate write_string!(data, opts), to: Serialization
+  defdelegate write_stream(data, opts), to: Serialization
+  defdelegate write_file(data, filename, opts \\ []), to: Serialization
+  defdelegate write_file!(data, filename, opts \\ []), to: Serialization
 
   @doc """
-  Checks if the given value is a RDF resource.
+  Checks if the given value is a `RDF.Resource`, i.e. a `RDF.IRI` or `RDF.BlankNode`.
 
   ## Examples
 
@@ -167,10 +192,14 @@ defmodule RDF do
     end
   end
 
+  if @star? do
+    def resource?({_, _, _} = triple), do: RDF.Triple.valid?(triple)
+  end
+
   def resource?(_), do: false
 
   @doc """
-  Checks if the given value is a RDF term.
+  Checks if the given value is a `RDF.Term`, i.e. a `RDF.IRI`, `RDF.BlankNode` or `RDF.Literal`.
 
   ## Examples
 
@@ -229,11 +258,43 @@ defmodule RDF do
   defdelegate literal(value), to: Literal, as: :new
   defdelegate literal(value, opts), to: Literal, as: :new
 
-  defdelegate triple(s, p, o), to: Triple, as: :new
-  defdelegate triple(tuple), to: Triple, as: :new
+  if @star? do
+    alias RDF.Star.{Triple, Quad, Statement}
 
-  defdelegate quad(s, p, o, g), to: Quad, as: :new
-  defdelegate quad(tuple), to: Quad, as: :new
+    defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
+    defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
+
+    defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
+    defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
+
+    defdelegate statement(s, p, o), to: Statement, as: :new
+    defdelegate statement(s, p, o, g), to: Statement, as: :new
+    defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
+
+    defdelegate coerce_subject(subject, property_map \\ nil), to: Statement
+    defdelegate coerce_predicate(predicate), to: Statement
+    defdelegate coerce_predicate(predicate, property_map), to: Statement
+    defdelegate coerce_object(object, property_map \\ nil), to: Statement
+    defdelegate coerce_graph_name(graph_name), to: Statement
+  else
+    alias RDF.{Triple, Quad, Statement}
+
+    defdelegate triple(s, p, o, property_map \\ nil), to: Triple, as: :new
+    defdelegate triple(tuple, property_map \\ nil), to: Triple, as: :new
+
+    defdelegate quad(s, p, o, g, property_map \\ nil), to: Quad, as: :new
+    defdelegate quad(tuple, property_map \\ nil), to: Quad, as: :new
+
+    defdelegate statement(s, p, o), to: Statement, as: :new
+    defdelegate statement(s, p, o, g), to: Statement, as: :new
+    defdelegate statement(tuple, property_map \\ nil), to: Statement, as: :new
+
+    defdelegate coerce_subject(subject), to: Statement
+    defdelegate coerce_predicate(predicate), to: Statement
+    defdelegate coerce_predicate(predicate, property_map), to: Statement
+    defdelegate coerce_object(object), to: Statement
+    defdelegate coerce_graph_name(graph_name), to: Statement
+  end
 
   defdelegate description(subject, opts \\ []), to: Description, as: :new
 
@@ -257,21 +318,21 @@ defmodule RDF do
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
   defdelegate property_map(property_map), to: RDF.PropertyMap, as: :new
 
+  ############################################################################
+  # These alias functions for the RDF.NS.RDF namespace are mandatory.
+  # Without them the property functions are inaccessible, since the namespace
+  # can't be aliased, because it gets in conflict with the root namespace
+  # of the project.
+
   defdelegate langString(value, opts), to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
 
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(), to: RDF.NS.RDF
     @doc false
+    defdelegate unquote(term)(s), to: RDF.NS.RDF
+    @doc false
     defdelegate unquote(term)(s, o), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3, o4), to: RDF.NS.RDF
-    @doc false
-    defdelegate unquote(term)(s, o1, o2, o3, o4, o5), to: RDF.NS.RDF
   end
 
   defdelegate langString(), to: RDF.NS.RDF
@@ -279,4 +340,38 @@ defmodule RDF do
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
   defdelegate __base_iri__(), to: RDF.NS.RDF
+  defdelegate __terms__(), to: RDF.NS.RDF
+  defdelegate __iris__(), to: RDF.NS.RDF
+  defdelegate __strict__(), to: RDF.NS.RDF
+  defdelegate __resolve_term__(term), to: RDF.NS.RDF
+
+  @doc """
+  Adds basic imports and aliases for working with RDF.ex.
+
+  This allows to write
+
+      use RDF
+
+  instead of the following
+
+      import RDF.Sigils
+      import RDF.Guards
+      import RDF.Namespace.IRI
+    
+      require RDF.Graph
+
+      alias RDF.{XSD, NTriples, NQuads, Turtle}
+
+  """
+  defmacro __using__(_opts) do
+    quote do
+      import RDF.Sigils
+      import RDF.Guards
+      import RDF.Namespace.IRI
+
+      require RDF.Graph
+
+      alias RDF.{XSD, NTriples, NQuads, Turtle}
+    end
+  end
 end

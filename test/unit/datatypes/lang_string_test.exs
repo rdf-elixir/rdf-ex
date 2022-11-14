@@ -186,7 +186,7 @@ defmodule RDF.LangStringTest do
 
     test "when given a literal with a datatype which is not castable" do
       assert RDF.XSD.String.new("foo") |> LangString.cast() == nil
-      assert RDF.XSD.Integer.new(12345) |> LangString.cast() == nil
+      assert RDF.XSD.Integer.new(12_345) |> LangString.cast() == nil
     end
 
     test "with invalid literals" do
@@ -265,18 +265,14 @@ defmodule RDF.LangStringTest do
     test "with a language tag and a matching non-'*' language range" do
       Enum.each(@positive_examples, fn {language_tag, language_range} ->
         assert LangString.match_language?(language_tag, language_range),
-               "expected language range #{inspect(language_range)} to match language tag #{
-                 inspect(language_tag)
-               }, but it didn't"
+               "expected language range #{inspect(language_range)} to match language tag #{inspect(language_tag)}, but it didn't"
       end)
     end
 
     test "with a language tag and a non-matching non-'*' language range" do
       Enum.each(@negative_examples, fn {language_tag, language_range} ->
         refute LangString.match_language?(language_tag, language_range),
-               "expected language range #{inspect(language_range)} to not match language tag #{
-                 inspect(language_tag)
-               }, but it did"
+               "expected language range #{inspect(language_range)} to not match language tag #{inspect(language_tag)}, but it did"
       end)
     end
 
@@ -308,9 +304,7 @@ defmodule RDF.LangStringTest do
         literal = LangString.new("foo", language: language_tag)
 
         refute LangString.match_language?(literal, language_range),
-               "expected language range #{inspect(language_range)} to not match #{
-                 inspect(literal)
-               }, but it did"
+               "expected language range #{inspect(language_range)} to not match #{inspect(literal)}, but it did"
       end)
 
       refute LangString.match_language?(LangString.new("foo", language: ""), "de")

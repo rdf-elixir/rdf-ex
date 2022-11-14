@@ -6,24 +6,36 @@ defmodule RDF.NQuads.W3C.TestSuite do
   """
 
   use ExUnit.Case, async: false
+  use EarlFormatter, test_suite: :nquads
 
-  @w3c_nquads_test_suite Path.join(RDF.TestData.dir(), "N-QUADS-TESTS")
+  alias RDF.{TestSuite, NQuads}
+  alias TestSuite.NS.RDFT
 
-  ExUnit.Case.register_attribute(__ENV__, :nq_test)
+  @path RDF.TestData.path("N-QUADS-TESTS")
+  @base "https://www.w3.org/2013/N-QuadsTests/"
+  @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
-  @w3c_nquads_test_suite
-  |> File.ls!()
-  |> Enum.filter(fn file -> Path.extname(file) == ".nq" end)
-  |> Enum.each(fn file ->
-    @nq_test file: Path.join(@w3c_nquads_test_suite, file)
-    if file |> String.contains?("-bad-") do
-      test "Negative syntax test: #{file}", context do
-        assert {:error, _} = RDF.NQuads.read_file(context.registered.nq_test[:file])
-      end
-    else
-      test "Positive syntax test: #{file}", context do
-        assert {:ok, %RDF.Dataset{}} = RDF.NQuads.read_file(context.registered.nq_test[:file])
-      end
+  @manifest
+  |> TestSuite.test_cases(RDFT.TestNQuadsPositiveSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      assert {:ok, %RDF.Dataset{}} =
+               test_case
+               |> TestSuite.test_input_file_path(@path)
+               |> NQuads.read_file()
+    end
+  end)
+
+  @manifest
+  |> TestSuite.test_cases(RDFT.TestNQuadsNegativeSyntax)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      assert {:error, _} =
+               test_case
+               |> TestSuite.test_input_file_path(@path)
+               |> NQuads.read_file()
     end
   end)
 end

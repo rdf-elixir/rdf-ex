@@ -1,4 +1,10 @@
 defmodule RDF.XSD.Long do
+  @moduledoc """
+  `RDF.XSD.Datatype` for `xsd:long`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#long>
+  """
+
   use RDF.XSD.Datatype.Restriction,
     name: "long",
     id: RDF.Utils.Bootstrapping.xsd_iri("long"),

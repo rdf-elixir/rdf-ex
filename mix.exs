@@ -9,12 +9,13 @@ defmodule RDF.Mixfile do
     [
       app: :rdf,
       version: @version,
-      elixir: "~> 1.9",
+      elixir: "~> 1.11",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers() ++ [:protocol_ex],
+      aliases: aliases(),
 
       # Dialyzer
       dialyzer: dialyzer(),
@@ -35,10 +36,12 @@ defmodule RDF.Mixfile do
       # ExCoveralls
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
+        check: :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        earl_reports: :test
       ]
     ]
   end
@@ -68,13 +71,14 @@ defmodule RDF.Mixfile do
 
   defp deps do
     [
-      {:decimal, "~> 1.5"},
-      {:protocol_ex, "~> 0.4"},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.13", only: :test},
-      {:benchee, "~> 1.0", only: :bench}
+      {:decimal, "~> 1.5 or ~> 2.0"},
+      {:protocol_ex, "~> 0.4.4"},
+      {:elixir_uuid, "~> 1.2", optional: true},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.15", only: :test},
+      {:benchee, "~> 1.1", only: :bench}
     ]
   end
 
@@ -82,8 +86,36 @@ defmodule RDF.Mixfile do
     [
       plt_add_apps: [:mix],
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-      ignore_warnings: ".dialyzer_ignore"
+      ignore_warnings: ".dialyzer_ignore.exs"
     ]
+  end
+
+  defp aliases do
+    [
+      earl_reports: &earl_reports/1,
+      check: [
+        "clean",
+        "deps.unlock --check-unused",
+        "compile --warnings-as-errors",
+        "format --check-formatted",
+        "deps.unlock --check-unused",
+        "test --warnings-as-errors",
+        "credo"
+      ]
+    ]
+  end
+
+  defp earl_reports(_) do
+    files = [
+      "test/acceptance/ntriples_w3c_test.exs",
+      "test/acceptance/ntriples_star_w3c_test.exs",
+      "test/acceptance/nquads_w3c_test.exs",
+      "test/acceptance/turtle_w3c_test.exs",
+      "test/acceptance/turtle_star_w3c_syntax_test.exs",
+      "test/acceptance/turtle_star_w3c_eval_test.exs"
+    ]
+
+    Mix.Task.run("test", ["--formatter", "EarlFormatter", "--seed", "0"] ++ files)
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

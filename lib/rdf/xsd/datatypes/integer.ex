@@ -1,9 +1,11 @@
 defmodule RDF.XSD.Integer do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD integers.
+  `RDF.XSD.Datatype` for `xsd:integer`.
 
   Although the XSD spec defines integers as derived from `xsd:decimal` we implement
   it here as a primitive datatype for simplicity and performance reasons.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#integer>
   """
 
   @type valid_value :: integer

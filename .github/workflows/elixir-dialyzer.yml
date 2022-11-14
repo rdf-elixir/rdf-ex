@@ -1,0 +1,56 @@
+name: Dialyzer
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    name: Run Dialyzer
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: dev
+    strategy:
+      matrix:
+        elixir: ["1.14.2"]
+        otp: ["25.1.1"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Elixir Project
+        uses: ./.github/actions/elixir-setup
+        id: beam
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+          build-app: false
+
+      # Don't cache PLTs based on mix.lock hash, as Dialyzer can incrementally update even old ones
+      # Cache key based on Elixir & Erlang version (also useful when running in matrix)
+      - name: Restore PLT cache
+        uses: actions/cache@v3
+        id: plt_cache
+        with:
+          key: plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex') }}
+          restore-keys: |
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex') }}
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}-
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-
+          path: priv/plts
+
+      # Create PLTs if no cache was found.
+      # Always rebuild PLT when a job is retried
+      # (If they were cached at all, they'll be updated when we run mix dialyzer with no flags.)
+      - name: Create PLTs
+        if: steps.plt_cache.outputs.cache-hit != 'true' || github.run_attempt != '1'
+        run: mix dialyzer --plt
+
+      - name: Run Dialyzer
+        run: mix dialyzer --format github

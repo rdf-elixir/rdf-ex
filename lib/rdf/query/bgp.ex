@@ -9,11 +9,13 @@ defmodule RDF.Query.BGP do
   @enforce_keys [:triple_patterns]
   defstruct [:triple_patterns]
 
+  alias RDF.Star.Statement
+
   @type variable :: String.t()
   @type triple_pattern :: {
-          subject :: variable | RDF.Term.t(),
-          predicate :: variable | RDF.Term.t(),
-          object :: variable | RDF.Term.t()
+          subject :: variable | Statement.subject(),
+          predicate :: variable | Statement.predicate(),
+          object :: variable | Statement.object()
         }
   @type triple_patterns :: list(triple_pattern)
 
@@ -32,6 +34,12 @@ defmodule RDF.Query.BGP do
     |> Enum.flat_map(&variables/1)
     |> Enum.uniq()
   end
+
+  def variables({quoted, p, o}) when is_tuple(quoted),
+    do: variables(quoted) ++ variables({"", p, o})
+
+  def variables({s, p, quoted}) when is_tuple(quoted),
+    do: variables(quoted) ++ variables({s, p, ""})
 
   def variables({s, p, o}) when is_atom(s) and is_atom(p) and is_atom(o), do: [s, p, o]
   def variables({s, p, _}) when is_atom(s) and is_atom(p), do: [s, p]

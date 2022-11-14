@@ -1,6 +1,6 @@
 defmodule RDF.Turtle.Decoder do
   @moduledoc """
-  A decoder for N-Triples serializations to `RDF.Graph`s.
+  A decoder for Turtle serializations to `RDF.Graph`s.
 
   As for all decoders of `RDF.Serialization.Format`s, you normally won't use these
   functions directly, but via one of the `read_` functions on the `RDF.Turtle` format
@@ -21,6 +21,8 @@ defmodule RDF.Turtle.Decoder do
   alias RDF.{Graph, IRI}
 
   defmodule State do
+    @moduledoc !"The internal state of the `RDF.Turtle.Encoder`."
+
     defstruct base_iri: nil, namespaces: %{}, bnode_counter: 0
 
     def add_namespace(%State{namespaces: namespaces} = state, ns, iri) do
@@ -39,9 +41,15 @@ defmodule RDF.Turtle.Decoder do
   @impl RDF.Serialization.Decoder
   @spec decode(String.t(), keyword) :: {:ok, Graph.t()} | {:error, any}
   def decode(content, opts \\ []) do
+    base_iri =
+      Keyword.get_lazy(
+        opts,
+        :base_iri,
+        fn -> Keyword.get_lazy(opts, :base, fn -> RDF.default_base_iri() end) end
+      )
+
     with {:ok, tokens, _} <- tokenize(content),
-         {:ok, ast} <- parse(tokens),
-         base_iri = Keyword.get(opts, :base, Keyword.get(opts, :base_iri, RDF.default_base_iri())) do
+         {:ok, ast} <- parse(tokens) do
       build_graph(ast, base_iri && RDF.iri(base_iri))
     else
       {:error, {error_line, :turtle_lexer, error_descriptor}, _error_line_again} ->
@@ -63,9 +71,8 @@ defmodule RDF.Turtle.Decoder do
     {graph, %State{namespaces: namespaces, base_iri: base_iri}} =
       Enum.reduce(ast, {RDF.Graph.new(), %State{base_iri: base_iri}}, fn
         {:triples, triples_ast}, {graph, state} ->
-          with {statements, state} = triples(triples_ast, state) do
-            {RDF.Graph.add(graph, statements), state}
-          end
+          {statements, state} = triples(triples_ast, state)
+          {RDF.Graph.add(graph, statements), state}
 
         {:directive, directive_ast}, {graph, state} ->
           {graph, directive(directive_ast, state)}
@@ -83,49 +90,49 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp directive({:prefix, {:prefix_ns, _, ns}, iri}, state) do
-    if IRI.absolute?(iri) do
-      State.add_namespace(state, ns, iri)
-    else
-      with absolute_iri = IRI.absolute(iri, state.base_iri) do
-        State.add_namespace(state, ns, to_string(absolute_iri))
+    absolute_iri =
+      if IRI.absolute?(iri) do
+        iri
+      else
+        iri |> IRI.absolute(state.base_iri) |> to_string()
       end
-    end
+
+    State.add_namespace(state, ns, absolute_iri)
   end
 
   defp directive({:base, iri}, %State{base_iri: base_iri} = state) do
     cond do
-      IRI.absolute?(iri) ->
-        %State{state | base_iri: RDF.iri(iri)}
-
-      base_iri != nil ->
-        with absolute_iri = IRI.absolute(iri, base_iri) do
-          %State{state | base_iri: absolute_iri}
-        end
-
-      true ->
-        raise "Could not resolve relative IRI '#{iri}', no base iri provided"
+      IRI.absolute?(iri) -> %State{state | base_iri: RDF.iri(iri)}
+      not is_nil(base_iri) -> %State{state | base_iri: IRI.absolute(iri, base_iri)}
+      true -> raise "Could not resolve relative IRI '#{iri}', no base iri provided"
     end
   end
 
   defp triples({:blankNodePropertyList, _} = ast, state) do
-    with {_, statements, state} = resolve_node(ast, [], state) do
-      {statements, state}
-    end
+    {_, statements, state} = resolve_node(ast, [], state)
+    {statements, state}
   end
 
   defp triples({subject, predications}, state) do
-    with {subject, statements, state} = resolve_node(subject, [], state) do
-      Enum.reduce(predications, {statements, state}, fn {predicate, objects},
-                                                        {statements, state} ->
-        with {predicate, statements, state} = resolve_node(predicate, statements, state) do
-          Enum.reduce(objects, {statements, state}, fn object, {statements, state} ->
-            with {object, statements, state} = resolve_node(object, statements, state) do
-              {[{subject, predicate, object} | statements], state}
-            end
-          end)
-        end
-      end)
-    end
+    {subject, statements, state} = resolve_node(subject, [], state)
+
+    predications(subject, predications, statements, state)
+  end
+
+  defp predications(subject, predications, statements, state) do
+    Enum.reduce(predications, {statements, state}, fn
+      {predicate, objects}, {statements, state} ->
+        {predicate, statements, state} = resolve_node(predicate, statements, state)
+
+        Enum.reduce(objects, {statements, state}, fn
+          {:annotation, annotation}, {[last_statement | _] = statements, state} ->
+            predications(last_statement, annotation, statements, state)
+
+          object, {statements, state} ->
+            {object, statements, state} = resolve_node(object, statements, state)
+            {[{subject, predicate, object} | statements], state}
+        end)
+    end)
   end
 
   defp resolve_node({:prefix_ln, line_number, {prefix, name}}, statements, state) do
@@ -153,16 +160,14 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp resolve_node({:anon}, statements, state) do
-    with {node, state} = State.next_bnode(state) do
-      {node, statements, state}
-    end
+    {node, state} = State.next_bnode(state)
+    {node, statements, state}
   end
 
   defp resolve_node({:blankNodePropertyList, property_list}, statements, state) do
-    with {subject, state} = State.next_bnode(state),
-         {new_statements, state} = triples({subject, property_list}, state) do
-      {subject, statements ++ new_statements, state}
-    end
+    {subject, state} = State.next_bnode(state)
+    {new_statements, state} = triples({subject, property_list}, state)
+    {subject, statements ++ new_statements, state}
   end
 
   defp resolve_node(
@@ -170,9 +175,8 @@ defmodule RDF.Turtle.Decoder do
          statements,
          state
        ) do
-    with {datatype, statements, state} = resolve_node(datatype, statements, state) do
-      {RDF.literal(value, datatype: datatype), statements, state}
-    end
+    {datatype, statements, state} = resolve_node(datatype, statements, state)
+    {RDF.literal(value, datatype: datatype), statements, state}
   end
 
   defp resolve_node({:collection, []}, statements, state) do
@@ -180,29 +184,36 @@ defmodule RDF.Turtle.Decoder do
   end
 
   defp resolve_node({:collection, elements}, statements, state) do
-    with {first_list_node, state} = State.next_bnode(state),
-         [first_element | rest_elements] = elements,
-         {first_element_node, statements, state} = resolve_node(first_element, statements, state),
-         first_statement = [{first_list_node, RDF.first(), first_element_node}] do
-      {last_list_node, statements, state} =
-        Enum.reduce(
-          rest_elements,
-          {first_list_node, statements ++ first_statement, state},
-          fn element, {list_node, statements, state} ->
-            with {element_node, statements, state} = resolve_node(element, statements, state),
-                 {next_list_node, state} = State.next_bnode(state) do
-              {next_list_node,
-               statements ++
-                 [
-                   {list_node, RDF.rest(), next_list_node},
-                   {next_list_node, RDF.first(), element_node}
-                 ], state}
-            end
-          end
-        )
+    {first_list_node, state} = State.next_bnode(state)
+    [first_element | rest_elements] = elements
+    {first_element_node, statements, state} = resolve_node(first_element, statements, state)
+    first_statement = [{first_list_node, RDF.first(), first_element_node}]
 
-      {first_list_node, statements ++ [{last_list_node, RDF.rest(), RDF.nil()}], state}
-    end
+    {last_list_node, statements, state} =
+      Enum.reduce(
+        rest_elements,
+        {first_list_node, statements ++ first_statement, state},
+        fn element, {list_node, statements, state} ->
+          {element_node, statements, state} = resolve_node(element, statements, state)
+          {next_list_node, state} = State.next_bnode(state)
+
+          {next_list_node,
+           statements ++
+             [
+               {list_node, RDF.rest(), next_list_node},
+               {next_list_node, RDF.first(), element_node}
+             ], state}
+        end
+      )
+
+    {first_list_node, statements ++ [{last_list_node, RDF.rest(), RDF.nil()}], state}
+  end
+
+  defp resolve_node({:quoted_triple, s_node, p_node, o_node}, statements, state) do
+    {subject, statements, state} = resolve_node(s_node, statements, state)
+    {predicate, statements, state} = resolve_node(p_node, statements, state)
+    {object, statements, state} = resolve_node(o_node, statements, state)
+    {{subject, predicate, object}, statements, state}
   end
 
   defp resolve_node(node, statements, state), do: {node, statements, state}

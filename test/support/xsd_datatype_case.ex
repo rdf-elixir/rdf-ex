@@ -1,4 +1,8 @@
 defmodule RDF.XSD.Datatype.Test.Case do
+  @moduledoc """
+  `ExUnit.CaseTemplate` for test of `RDF.XSD.Datatype`s.
+  """
+
   use ExUnit.CaseTemplate
 
   alias RDF.XSD
@@ -17,6 +21,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
     applicable_facets = Keyword.get(opts, :applicable_facets, [])
     facets = Keyword.get(opts, :facets)
 
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote do
       alias RDF.XSD
       alias RDF.XSD.Datatype
@@ -275,9 +280,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
 
           Enum.each(@valid, fn {input, {_, _, canonicalized}} ->
             @tag example: %{input: input, canonicalized: canonicalized}
-            test "lexical of canonicalized #{unquote(datatype)} #{inspect(input, limit: 4)} is #{
-                   inspect(canonicalized, limit: 4)
-                 }",
+            test "lexical of canonicalized #{unquote(datatype)} #{inspect(input, limit: 4)} is #{inspect(canonicalized, limit: 4)}",
                  %{example: example} do
               assert unquote(datatype).new(example.input)
                      |> unquote(datatype).canonical()

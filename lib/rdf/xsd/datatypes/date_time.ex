@@ -1,6 +1,8 @@
 defmodule RDF.XSD.DateTime do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD dateTimes.
+  `RDF.XSD.Datatype` for `xsd:dateTime`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#dateTime>
   """
 
   @type valid_value :: DateTime.t() | NaiveDateTime.t()
@@ -27,6 +29,10 @@ defmodule RDF.XSD.DateTime do
   end
 
   @impl XSD.Datatype
+  def lexical_mapping(lexical, opts)
+
+  def lexical_mapping("+" <> _, _), do: @invalid_value
+
   def lexical_mapping(lexical, opts) do
     case DateTime.from_iso8601(lexical) do
       {:ok, datetime, _} ->
@@ -87,19 +93,17 @@ defmodule RDF.XSD.DateTime do
   def do_cast(%XSD.String{} = xsd_string), do: new(xsd_string.value)
 
   def do_cast(literal) do
-    cond do
-      XSD.Date.datatype?(literal) ->
-        case literal.value do
-          {value, zone} ->
-            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
+    if XSD.Date.datatype?(literal) do
+      case literal.value do
+        {value, zone} ->
+          (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00" <> zone
 
-          value ->
-            (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00"
-        end
-        |> new()
-
-      true ->
-        super(literal)
+        value ->
+          (value |> XSD.Date.new() |> XSD.Date.canonical_lexical()) <> "T00:00:00"
+      end
+      |> new()
+    else
+      super(literal)
     end
   end
 

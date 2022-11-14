@@ -1,4 +1,10 @@
 defmodule RDF.XSD.Int do
+  @moduledoc """
+  `RDF.XSD.Datatype` for `xsd:int`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#int>
+  """
+
   use RDF.XSD.Datatype.Restriction,
     name: "int",
     id: RDF.Utils.Bootstrapping.xsd_iri("int"),

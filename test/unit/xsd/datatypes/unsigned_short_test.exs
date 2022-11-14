@@ -15,7 +15,7 @@ defmodule RDF.XSD.UnsignedShortTest do
     ],
     facets: %{
       min_inclusive: 0,
-      max_inclusive: 65535,
+      max_inclusive: 65_535,
       min_exclusive: nil,
       max_exclusive: nil,
       total_digits: nil,

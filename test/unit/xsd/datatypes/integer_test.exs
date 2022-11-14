@@ -32,7 +32,7 @@ defmodule RDF.XSD.IntegerTest do
     end
 
     test "with another datatype" do
-      assert_raise RDF.XSD.Datatype.Mismatch,
+      assert_raise RDF.XSD.Datatype.MismatchError,
                    "'#{inspect(XSD.decimal(42).literal)}' is not a #{XSD.Integer}",
                    fn ->
                      XSD.decimal(42) |> XSD.Integer.value()
@@ -40,7 +40,7 @@ defmodule RDF.XSD.IntegerTest do
     end
 
     test "with a non-literal" do
-      assert_raise RDF.XSD.Datatype.Mismatch, "'42' is not a #{XSD.Integer}", fn ->
+      assert_raise RDF.XSD.Datatype.MismatchError, "'42' is not a #{XSD.Integer}", fn ->
         XSD.Integer.value(42)
       end
     end

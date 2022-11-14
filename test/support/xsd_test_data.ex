@@ -1,4 +1,9 @@
+# credo:disable-for-this-file Credo.Check.Readability.LargeNumbers
 defmodule RDF.XSD.TestData do
+  @moduledoc """
+  Shared definitions for the `RDF.XSD.Datatype` tests.
+  """
+
   @zero %{
     0 => {0, nil, "0"},
     "0" => {0, nil, "0"},
@@ -141,6 +146,16 @@ defmodule RDF.XSD.TestData do
     "-1" => {-1.0e0, "-1", "-1.0E0"},
     "+01.000" => {1.0e0, "+01.000", "1.0E0"},
     "1.0" => {1.0e0, "1.0", "1.0E0"},
+    "-0" =>
+      if String.to_integer(System.otp_release()) >= 24 do
+        {0.0e0, "-0", "-0.0E0"}
+      else
+        # This is actual wrong, but we won't fix this wrong behaviour in older Elixir versions
+        {0.0e0, "-0", "0.0E0"}
+      end,
+    "0." => {0.0e0, "0.", "0.0E0"},
+    ".0" => {0.0e0, ".0", "0.0E0"},
+    ".0E0" => {0.0e0, ".0E0", "0.0E0"},
     "123.456" => {1.23456e2, "123.456", "1.23456E2"},
     "1.0e+1" => {1.0e1, "1.0e+1", "1.0E1"},
     "1.0e-10" => {1.0e-10, "1.0e-10", "1.0E-10"},

@@ -1,4 +1,8 @@
 defmodule RDF.TestLiterals do
+  @moduledoc """
+  Functions for generating values and literals.
+  """
+
   alias RDF.Literal
   alias RDF.NS.XSD
 

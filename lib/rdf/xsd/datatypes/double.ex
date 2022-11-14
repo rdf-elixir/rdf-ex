@@ -1,6 +1,8 @@
 defmodule RDF.XSD.Double do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD doubles.
+  `RDF.XSD.Datatype` for `xsd:double`.
+
+  See: <https://www.w3.org/TR/xmlschema11-2/#double>
   """
 
   @type special_values :: :positive_infinity | :negative_infinity | :nan
@@ -46,9 +48,15 @@ defmodule RDF.XSD.Double do
   end
 
   @impl XSD.Datatype
+  def lexical_mapping(lexical, opts)
+  def lexical_mapping("." <> lexical, opts), do: lexical_mapping("0." <> lexical, opts)
+
   def lexical_mapping(lexical, opts) do
     case Float.parse(lexical) do
       {float, ""} ->
+        float
+
+      {float, "."} ->
         float
 
       {float, remainder} ->
@@ -73,7 +81,7 @@ defmodule RDF.XSD.Double do
   @spec elixir_mapping(valid_value | integer | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
   def elixir_mapping(value, _) when is_float(value), do: value
-  def elixir_mapping(value, _) when is_integer(value), do: value / 1
+  def elixir_mapping(value, _) when is_integer(value), do: :erlang.float(value)
   def elixir_mapping(value, _) when value in @special_values, do: value
   def elixir_mapping(_, _), do: @invalid_value
 

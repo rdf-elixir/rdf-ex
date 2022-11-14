@@ -1,6 +1,6 @@
 defmodule RDF.XSD.AnyURI do
   @moduledoc """
-  `RDF.XSD.Datatype` for XSD anyURIs.
+  `RDF.XSD.Datatype` for `xsd:anyURI`.
 
   See: <http://www.w3.org/TR/xmlschema11-2/#anyURI>
   """

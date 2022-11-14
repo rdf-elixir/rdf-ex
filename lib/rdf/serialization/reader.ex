@@ -10,6 +10,7 @@ defmodule RDF.Serialization.Reader do
   alias RDF.{Serialization, Dataset, Graph}
 
   @default_file_mode ~w[read utf8]a
+  @io_read_mode if Version.match?(System.version(), ">= 1.13.0"), do: :eof, else: :all
 
   @spec read_string(module, String.t(), keyword) :: {:ok, Graph.t() | Dataset.t()} | {:error, any}
   def read_string(decoder, content, opts \\ []) do
@@ -49,9 +50,10 @@ defmodule RDF.Serialization.Reader do
 
   defp do_read_file(false, decoder, file, opts) do
     file
-    |> File.open(file_mode(decoder, opts), &IO.read(&1, :all))
+    |> File.open(file_mode(decoder, opts), &IO.read(&1, @io_read_mode))
     |> case do
       {:ok, {:error, error}} -> {:error, error}
+      {:ok, :eof} -> decoder.decode("", opts)
       {:ok, content} -> decoder.decode(content, opts)
       {:error, error} -> {:error, error}
     end
@@ -62,6 +64,7 @@ defmodule RDF.Serialization.Reader do
     |> File.stream!(file_mode(decoder, opts))
     |> decoder.decode_from_stream(opts)
   rescue
+    error in FunctionClauseError -> reraise error, __STACKTRACE__
     error in RuntimeError -> {:error, error.message}
     error -> {:error, error}
   end
@@ -75,10 +78,11 @@ defmodule RDF.Serialization.Reader do
 
   defp do_read_file!(false, decoder, file, opts) do
     file
-    |> File.open!(file_mode(decoder, opts), &IO.read(&1, :all))
+    |> File.open!(file_mode(decoder, opts), &IO.read(&1, @io_read_mode))
     |> case do
       {:error, error} when is_tuple(error) -> error |> inspect() |> raise()
       {:error, error} -> raise(error)
+      :eof -> decoder.decode!("", opts)
       content -> decoder.decode!(content, opts)
     end
   end

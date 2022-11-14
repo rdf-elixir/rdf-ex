@@ -1,7 +1,7 @@
 %% Grammar for N-Quads as specified in http://www.w3.org/TR/2014/REC-n-quads-20140225/
 
-Nonterminals nquadsDoc nonEmptyNquadsDoc statement subject predicate object graphLabel literal eols.
-Terminals iriref blank_node_label string_literal_quote langtag '^^' '.' eol.
+Nonterminals nquadsDoc nonEmptyNquadsDoc statement subject predicate object graphLabel literal quoted_triple eols.
+Terminals iriref blank_node_label string_literal_quote langtag '^^' '.' '<<' '>>' eol.
 Rootsymbol nquadsDoc.
 
 eols -> eols eol.
@@ -25,10 +25,12 @@ statement -> subject predicate object '.' : { '$1', '$2', '$3' }.
 
 subject    -> iriref            : to_iri('$1').
 subject    -> blank_node_label  : to_bnode('$1').
+subject    -> quoted_triple     : '$1'.
 predicate  -> iriref            : to_iri('$1').
 object     -> iriref            : to_iri('$1').
 object     -> blank_node_label  : to_bnode('$1').
 object     -> literal           : '$1'.
+object     -> quoted_triple     : '$1'.
 graphLabel -> iriref            : to_iri('$1').
 graphLabel -> blank_node_label  : to_bnode('$1').
 
@@ -36,6 +38,7 @@ literal -> string_literal_quote '^^' iriref : to_literal('$1', {datatype, to_iri
 literal -> string_literal_quote langtag     : to_literal('$1', {language, to_langtag('$2')}).
 literal -> string_literal_quote             : to_literal('$1').
 
+quoted_triple -> '<<' subject predicate object '>>' : { '$2', '$3', '$4' }.
 
 Erlang code.
 
