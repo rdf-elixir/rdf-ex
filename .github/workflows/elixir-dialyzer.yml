@@ -16,12 +16,12 @@ jobs:
       MIX_ENV: dev
     strategy:
       matrix:
-        elixir: ["1.14.0"]
+        elixir: ["1.14.2"]
         otp: ["25.1.1"]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Elixir Project
         uses: ./.github/actions/elixir-setup
