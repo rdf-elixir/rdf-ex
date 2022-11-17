@@ -1,17 +1,10 @@
-import RDF.Sigils
-import RDF.Guards
-
-require RDF.Graph
-
-alias RDF.NS
-alias RDF.NS.{RDFS, OWL, SKOS}
+use RDF
 
 alias RDF.{
   Term,
   IRI,
   BlankNode,
   Literal,
-  XSD,
 
   Triple,
   Quad,
@@ -26,8 +19,8 @@ alias RDF.{
 }
 
 alias RDF.BlankNode, as: BNode
-
-alias RDF.{NTriples, NQuads, Turtle}
+alias RDF.NS
+alias RDF.NS.{RDFS, OWL, SKOS}
 
 alias Decimal, as: D
 
