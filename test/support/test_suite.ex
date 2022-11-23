@@ -25,7 +25,7 @@ defmodule RDF.TestSuite do
       strict: false
 
     defvocab RDFN,
-      base_iri: "http://json-ld.github.io/normalization/test-vocab#",
+      base_iri: "http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab#",
       terms: ~w[
         Urgna2012EvalTest
         Urdna2015EvalTest

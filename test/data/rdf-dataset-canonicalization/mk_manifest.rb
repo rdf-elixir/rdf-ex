@@ -18,11 +18,11 @@ class Manifest
 
   TITLE = {
     urgna2012: "RDF Graph Normalization (URGNA2012)",
-    urdna2015: "RDF Dataset Normalization (URDNA2015)",
+    urdna2015: "RDF Dataset Canonicalization (URDNA2015)",
   }
   DESCRIPTION = {
     urgna2012: "Tests the 2012 version of RDF Graph Normalization.",
-    urdna2015: "Tests the 2015 version of RDF Dataset Normalization."
+    urdna2015: "Tests the 2015 version of RDF Dataset Canonicalization."
   }
 
   Test = Struct.new(:id, :name, :comment, :approval, :action, :urgna2012, :urdna2015)
@@ -70,7 +70,7 @@ class Manifest
       "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
       "mf": "http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#",
       "mq": "http://www.w3.org/2001/sw/DataAccess/tests/test-query#",
-      "rdfn": "http://json-ld.github.io/normalization/test-vocab#",
+      "rdfn": "http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab#",
       "rdft": "http://www.w3.org/ns/rdftest#",
       "id": "@id",
       "type": "@type",
@@ -125,7 +125,7 @@ class Manifest
 
   def to_ttl(variant)
     output = []
-    output << %(## RDF Dataset Normalization tests
+    output << %(## RDF Dataset Canonicalization tests
 ## Distributed under both the W3C Test Suite License[1] and the W3C 3-
 ## clause BSD License[2]. To contribute to a W3C Test Suite, see the
 ## policies and contribution forms [3]
@@ -136,14 +136,14 @@ class Manifest
 ##
 ## Test types
 ## * rdfn:Urgna2012EvalTest  - Normalization using URGNA2012
-## * rdfn:Urdna2015EvalTest  - Normalization using URDNA2015
+## * rdfn:Urdna2015EvalTest  - Canonicalization using URDNA2015
 
 @prefix : <manifest-#{variant}#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix mf:   <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
 @prefix rdft: <http://www.w3.org/ns/rdftest#> .
-@prefix rdfn: <http://json-ld.github.io/normalization/test-vocab#> .
+@prefix rdfn: <http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab#> .
 
 <manifest-#{variant}>  a mf:Manifest ;
 )

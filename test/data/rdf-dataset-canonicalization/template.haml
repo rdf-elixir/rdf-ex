@@ -1,5 +1,5 @@
 !!! 5
-%html{lang: :en, prefix: "rdfn: http://json-ld.github.io/normalization/test-vocab# mf: http://www.w3.org/2001/sw/DataAccess/tests/test-manifest# rdft: http://www.w3.org/ns/rdftest#"}
+%html{lang: :en, prefix: "rdfn: http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab# mf: http://www.w3.org/2001/sw/DataAccess/tests/test-manifest# rdft: http://www.w3.org/ns/rdftest#"}
   %head
     %meta{"http-equiv" => "Content-Type", content: "text/html;charset=utf-8"}
     %meta{name: "viewport", content: "width=device-width, initial-scale=1.0"}
@@ -49,13 +49,13 @@
     %h1{property: "rdfs:label"}<= man['label']
     %p{property: "rdfs:comment"}<= man['comment']
     :markdown
-      This page describes RDF Dataset Normalization tests for URGNA2012 and URDNA2015 profiles. These tests are also described in [JSON-LD](manifest.jsonld) and [Turtle](manifest.ttl) formats for convenience. The manifest vocabulary is described in the [RDF Dataset Normalization Test Vocabulary](vocab.html) ([JSON-LD](vocab.jsonld), [Turtle](vocab.ttl)) and is based on the [RDF Test Vocabulary](http://www.w3.org/TR/2014/NOTE-rdf11-testcases-20140225/).
+      This page describes RDF Dataset Canonicalization tests for URGNA2012 and URDNA2015 profiles. These tests are also described in [JSON-LD](manifest.jsonld) and [Turtle](manifest.ttl) formats for convenience. The manifest vocabulary is described in the [RDF Dataset Canonicalization Test Vocabulary](vocab.html) ([JSON-LD](vocab.jsonld), [Turtle](vocab.ttl)) and is based on the [RDF Test Vocabulary](http://www.w3.org/TR/2014/NOTE-rdf11-testcases-20140225/).
 
-      ## General instructions for running the RDF Dataset Normalization Test suites
+      ## General instructions for running the RDF Dataset Canonicalization Test suites
       FIXME
 
       ## Contributing Tests
-      The test manifests and entries are built automatically from [manifest.csv](manifest.csv) using [mk_manifest.rb](mk_manifest.rb), where each row defines a combination of RDF, JSON and Validation tests for the same _action_ and implicit files. Tests may be contributed via pull request to [https://github.com/json-ld/normalization](https://github.com/json-ld/normalization) with suitable changes to the [manifest.csv](manifest.csv) and necessary _action_ and _result_ files. Tests will also be considered if a contribution is sent to [public-credentials@w3.org](mailto:public-credentials@w3.org).
+      The test manifests and entries are built automatically from [manifest.csv](manifest.csv) using [mk_manifest.rb](mk_manifest.rb), where each row defines a combination of RDF, JSON and Validation tests for the same _action_ and implicit files. Tests may be contributed via pull request to [https://github.com/w3c-ccg/rdf-dataset-canonicalization](https://github.com/w3c-ccg/rdf-dataset-canonicalization) with suitable changes to the [manifest.csv](manifest.csv) and necessary _action_ and _result_ files. Tests will also be considered if a contribution is sent to [public-credentials@w3.org](mailto:public-credentials@w3.org).
 
       ## Distribution
         Distributed under both the [W3C Test Suite License](http://www.w3.org/Consortium/Legal/2008/04-testsuite-license) and the [W3C 3-clause BSD License](http://www.w3.org/Consortium/Legal/2008/03-bsd-license). To contribute to a W3C Test Suite, see the [policies and contribution forms](http://www.w3.org/2004/10/27-testcases).

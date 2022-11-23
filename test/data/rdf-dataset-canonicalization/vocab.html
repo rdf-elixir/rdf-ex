@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='en' prefix='rdfn: http://json-ld.github.io/normalization/tests/vocab# mf: http://www.w3.org/2001/sw/DataAccess/tests/test-manifest# rdft: http://www.w3.org/ns/rdftest#'>
+<html lang='en' prefix='rdfn: http://w3c-ccg.github.io/rdf-dataset-canonicalization/tests/vocab# mf: http://www.w3.org/2001/sw/DataAccess/tests/test-manifest# rdft: http://www.w3.org/ns/rdftest#'>
   <head>
     <meta content='text/html;charset=utf-8' http-equiv='Content-Type'>
     <meta content='width=device-width, initial-scale=1.0' name='viewport'>
@@ -11,39 +11,39 @@
       footer {text-align: center;}
     </style>
     <title>
-      RDF Dataset Normalization Test Vocabulary
+      RDF Dataset Canonicalization Test Vocabulary
     </title>
   </head>
-  <body resource='http://json-ld.github.io/normalization/tests/vocab#' typeof='owl:Ontology'>
+  <body resource='http://w3c-ccg.github.io/rdf-dataset-canonicalization/tests/vocab#' typeof='owl:Ontology'>
     <meta property='dc:creator' value='Gregg Kellogg'>
-    <link href='http://json-ld.github.io/normalization/tests/vocab#' property='dc:identifier'>
+    <link href='http://w3c-ccg.github.io/rdf-dataset-canonicalization/tests/vocab#' property='dc:identifier'>
     <p>
       <a href='http://www.w3.org/'>
         <img alt='W3C' height='48' src='http://www.w3.org/Icons/w3c_home' width='72'>
       </a>
     </p>
-    <h1 property='dc:title rdfs:label'>RDF Dataset Normalization Test Vocabulary</h1>
+    <h1 property='dc:title rdfs:label'>RDF Dataset Canonicalization Test Vocabulary</h1>
     <span property='dc:description rdfs:comment'>
       <p>This is a vocabulary document used to define classes and properties used in
-      <a href="http://json-ld.github.io/normalization/tests/">RDF Dataset Normalization Test Cases</a> and associated test manifests.</p>
+      <a href="http://w3c-ccg.github.io/rdf-dataset-canonicalization/tests/">RDF Dataset Canonicalization Test Cases</a> and associated test manifests.</p>
       
       <p>This vocabulary extends the <a href="http://www.w3.org/ns/rdftest#">RDF Test Vocabulary</a>
       and <a href="http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#">Test Manifest Vocabulary</a> with Normalization-specific tests.
-      The URI of the vocabulary is <code>http://json-ld.github.io/normalization/tests/vocab#</code>
+      The URI of the vocabulary is <code>http://w3c-ccg.github.io/rdf-dataset-canonicalization/tests/vocab#</code>
       (abbreviated by <code>rdfn</code> in this document).
       <a href="vocab.ttl">Turtle</a> and <a href="vocab.jsonld">JSON-LD</a> versions of the vocabular are also available.
       The vocabulary is published by the <a href="https://www.w3.org/community/credentials/">W3C Credentials Community Group</a>.</p>
     </span>
     <section>
       <h2>Vocabulary Terms</h2>
-      <p>The vocabulary terms below constitute the complete RDF Dataset Normalization Test vocabulary</p>
+      <p>The vocabulary terms below constitute the complete RDF Dataset Canonicalization Test vocabulary</p>
       <section>
         <h3 id='classes'>Classes</h3>
         <dl>
           <dt about='rdfn:Test' property='rdfs:label' typeof='rdfs:Class'>rdfn:Test</dt>
           <dd about='rdfn:Test'>
-            <em property='rdfs:label'>Superclass of all RDF Dataset Normalization tests</em>
-            <span property='rdfs:comment'><p>All RDF Dataset Normalization tests have an input file referenced using <code>mf:action</code> and a result file referenced using <code>mf:result</code>. Results are compared as text where the result of running the test is serialized to canonical N-Quads, lexicographically-sorted.</p></span>
+            <em property='rdfs:label'>Superclass of all RDF Dataset Canonicalization tests</em>
+            <span property='rdfs:comment'><p>All RDF Dataset Canonicalization tests have an input file referenced using <code>mf:action</code> and a result file referenced using <code>mf:result</code>. Results are compared as text where the result of running the test is serialized to canonical N-Quads, lexicographically-sorted.</p></span>
             <div>
               <strong>
                 subClassOf:
@@ -61,7 +61,7 @@
           <dt about='rdfn:Urdna2015EvalTest' property='rdfs:label' typeof='rdfs:Class'>rdfn:Urdna2015EvalTest</dt>
           <dd about='rdfn:Urdna2015EvalTest'>
             <em property='rdfs:label'>URDNA2015 Evaluation Test</em>
-            <span property='rdfs:comment'><p>Normalization performed using the URDNA2015 algorithm.</p></span>
+            <span property='rdfs:comment'><p>Canonicalization performed using the URDNA2015 algorithm.</p></span>
             <div>
               <strong>
                 subClassOf:

@@ -13,8 +13,8 @@ defmodule RDF.Normalization.W3C.Test do
   alias RDF.{TestSuite, NQuads, Normalization}
   alias TestSuite.NS.RDFN
 
-  @path RDF.TestData.path("NORMALIZATION-TESTS")
-  @base "http://json-ld.github.io/normalization/tests/"
+  @path RDF.TestData.path("rdf-dataset-canonicalization")
+  @base "https://w3c.github.io/rch-rdc/tests/"
   @manifest TestSuite.manifest_path(@path, "manifest-urdna2015.ttl")
             |> TestSuite.manifest_graph(base: @base)
 
@@ -22,7 +22,7 @@ defmodule RDF.Normalization.W3C.Test do
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
     unless test_case.subject ==
-             RDF.iri("http://json-ld.github.io/normalization/tests/manifest-urdna2015#test025") do
+             RDF.iri("https://w3c.github.io/rch-rdc/tests/manifest-urdna2015#test025") do
       @tag skip: "TODO"
     end
 
