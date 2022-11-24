@@ -84,9 +84,10 @@ defmodule RDF.Mixfile do
 
   defp dialyzer do
     [
-      plt_add_apps: [:mix],
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-      ignore_warnings: ".dialyzer_ignore.exs"
+      ignore_warnings: ".dialyzer_ignore.exs",
+      # Error out when an ignore rule is no longer useful so we can remove it
+      list_unused_filters: true
     ]
   end
 
