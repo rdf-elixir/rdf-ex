@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
+  of all blank nodes within a statement
+
 ### Fixed
 
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches

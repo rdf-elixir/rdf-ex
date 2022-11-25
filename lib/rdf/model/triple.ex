@@ -98,6 +98,17 @@ defmodule RDF.Triple do
   def has_bnode?({_, _, %BlankNode{}}), do: true
   def has_bnode?({_, _, _}), do: false
 
+  @doc """
+  Returns a list of all `RDF.BlankNode`s within the given `triple`.
+  """
+  @spec bnodes(t) :: list(BlankNode.t())
+  def bnodes(triple)
+  def bnodes({%BlankNode{} = b, _, %BlankNode{} = b}), do: [b]
+  def bnodes({%BlankNode{} = s, _, %BlankNode{} = o}), do: [s, o]
+  def bnodes({%BlankNode{} = s, _, _}), do: [s]
+  def bnodes({_, _, %BlankNode{} = o}), do: [o]
+  def bnodes(_), do: []
+
   def include_value?({value, _, _}, value), do: true
   def include_value?({_, value, _}, value), do: true
   def include_value?({_, _, value}, value), do: true
