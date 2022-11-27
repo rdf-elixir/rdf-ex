@@ -211,6 +211,7 @@ defmodule RDF.Normalization do
 
   defp do_create_canonical_identifiers(_state, _non_normalized_identifiers, false), do: nil
 
+  # 7)
   # TODO: generalize this to RDF.Data
   defp canonicalize(data, canonical_issuer) do
     Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
@@ -266,8 +267,8 @@ defmodule RDF.Normalization do
          position
        ) do
     identifier =
-      IssueIdentifier.issue_identifier(canonical_issuer, related) ||
-        IssueIdentifier.issue_identifier(issuer, related) ||
+      IssueIdentifier.issued_identifier(canonical_issuer, related) ||
+        IssueIdentifier.issued_identifier(issuer, related) ||
         hash_first_degree_quads(bnode_to_statements, related)
 
     input = Integer.to_string(position)
@@ -408,7 +409,6 @@ defmodule RDF.Normalization do
        ) do
     %{
       s: Statement.subject(statement),
-      p: Statement.predicate(statement),
       o: Statement.object(statement),
       g: Statement.graph_name(statement)
     }
@@ -416,7 +416,7 @@ defmodule RDF.Normalization do
       {_, ^identifier}, map ->
         map
 
-      {pos, term}, map ->
+      {pos, %BlankNode{} = term}, map ->
         hash =
           hash_related_bnode(canonical_issuer, bnode_to_statements, term, statement, issuer, pos)
 
@@ -424,6 +424,9 @@ defmodule RDF.Normalization do
           # TODO: Check if order is irrelevant here and we can prepend here
           if term in terms, do: terms, else: terms ++ [term]
         end)
+
+      _, map ->
+        map
     end)
   end
 
