@@ -44,4 +44,10 @@ defmodule RDF.Utils do
       {:ok, Enum.join(mapped, joiner)}
     end
   end
+
+  def permutations([]), do: [[]]
+
+  def permutations(list) do
+    for x <- list, y <- permutations(list -- [x]), do: [x | y]
+  end
 end
