@@ -140,7 +140,7 @@ defmodule RDF.Canonicalization do
         {_, %BlankNode{}} -> ~B<z>
         {_, node} -> node
       end)
-      |> RDF.graph()
+      |> RDF.dataset()
       |> NQuads.write_string!()
     end)
     |> Enum.sort()
@@ -183,7 +183,7 @@ defmodule RDF.Canonicalization do
       hash_to_related_bnodes
       |> Enum.sort()
       |> Enum.reduce({"", nil, issuer}, fn
-        {related_hash, bnode_list}, {data_to_hash, chosen_path, chosen_issuer} ->
+        {related_hash, bnode_list}, {data_to_hash, chosen_path, issuer} ->
           # 5.1)
           data_to_hash = data_to_hash <> related_hash
           chosen_path = ""
