@@ -3,16 +3,21 @@ defmodule RDF.Canonicalization.IdentifierIssuer do
   An identifier issuer is used to issue new blank node identifier.
   """
 
-  defstruct issued_identifiers: %{},
+  defstruct id: nil,
+            issued_identifiers: %{},
             issue_order: [],
             identifier_counter: 0,
             identifier_prefix: nil
 
   def new(prefix) do
-    %__MODULE__{identifier_prefix: prefix}
+    %__MODULE__{id: create_id(), identifier_prefix: prefix}
   end
 
   def canonical, do: new("_:c14n")
+
+  def copy(issuer), do: %__MODULE__{issuer | id: create_id()}
+
+  defp create_id, do: :erlang.unique_integer()
 
   @doc """
   Issues a new blank node identifier for a given existing blank node identifier.

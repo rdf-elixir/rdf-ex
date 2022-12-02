@@ -205,8 +205,10 @@ defmodule RDF.Canonicalization do
             |> Enum.reduce({chosen_path, chosen_issuer}, fn
               permutation, {chosen_path, chosen_issuer} ->
                 # IO.inspect(permutation, label: "ndeg: perm")
-                issuer_copy = issuer
+
+                issuer_copy = IdentifierIssuer.copy(issuer)
                 chosen_path_length = String.length(chosen_path)
+
                 # 5.4.4)
                 {path, recursion_list, issuer_copy} =
                   Enum.reduce_while(permutation, {"", [], issuer_copy}, fn
@@ -246,13 +248,27 @@ defmodule RDF.Canonicalization do
                   recursion_list
                   |> Enum.reverse()
                   |> Enum.reduce_while({issuer_copy, path}, fn related, {issuer_copy, path} ->
+                    # Note: The following steps seem to be the only steps in the whole algorithm
+                    # which really rely on global state.
+
+                    # 5.4.5.1)
                     {result_hash, result_issuer} =
                       hash_n_degree_quads(state, related, issuer_copy)
 
-                    # TODO: This step doesn't work without global state:
-                    # issuing an identifier in the issuer copy which MIGHT be the result_issuer ...
-                    # This causes some tests to fail, eg. test023
-                    {issued_identifier, issuer_copy} =
+                    # This step was added to circumvent the need for global state.
+                    # It's unclear whether it is actually required, since all test
+                    # of the test suite pass without it.
+                    # see https://github.com/w3c-ccg/rdf-dataset-canonicalization/issues/31
+                    result_issuer =
+                      if result_issuer.id == issuer_copy.id do
+                        {_, issuer} = IdentifierIssuer.issue_identifier(result_issuer, related)
+                        issuer
+                      else
+                        result_issuer
+                      end
+
+                    # 5.4.5.2)
+                    {issued_identifier, _issuer_copy} =
                       IdentifierIssuer.issue_identifier(issuer_copy, related)
 
                     path = path <> issued_identifier <> "<#{result_hash}>"
