@@ -118,7 +118,6 @@ defmodule RDF.Canonicalization do
             {_, %BlankNode{} = bnode} ->
               state.canonical_issuer
               |> IdentifierIssuer.identifier(bnode)
-              |> String.slice(2..-1)
               |> BlankNode.new()
 
             {_, node} ->

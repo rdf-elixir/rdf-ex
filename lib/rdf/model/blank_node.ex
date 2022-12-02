@@ -27,14 +27,29 @@ defmodule RDF.BlankNode do
   @doc """
   Creates a `RDF.BlankNode` with a user-defined value for its identity.
 
+  A `"_:"` prefix in a given string `value` will be automatically ignored.
+
+  When given an integer as `value` it will be automatically converted to a
+  string prefixed with `"b"`.
+
   ## Examples
 
-      iex> RDF.bnode(:foo)
+      iex> RDF.BlankNode.new(:foo)
       %RDF.BlankNode{value: "foo"}
+
+      iex> RDF.BlankNode.new("foo")
+      %RDF.BlankNode{value: "foo"}
+
+      iex> RDF.BlankNode.new("_:foo")
+      %RDF.BlankNode{value: "foo"}
+
+      iex> RDF.BlankNode.new(42)
+      %RDF.BlankNode{value: "b42"}
   """
   @spec new(reference | String.t() | atom | integer) :: t
   def new(value)
 
+  def new("_:" <> string) when is_binary(string), do: %__MODULE__{value: string}
   def new(string) when is_binary(string), do: %__MODULE__{value: string}
   def new(atom) when is_atom(atom), do: atom |> to_string() |> new()
   def new(integer) when is_integer(integer), do: new("b#{integer}")

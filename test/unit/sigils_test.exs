@@ -41,6 +41,7 @@ defmodule RDF.SigilsTest do
   describe "~B sigil" do
     test "creates a blank node" do
       assert ~B<foo> == RDF.bnode("foo")
+      assert ~B<foo> == RDF.bnode("foo")
     end
   end
 

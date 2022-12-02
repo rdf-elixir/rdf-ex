@@ -12,6 +12,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
   of all blank nodes within a statement
 
+### Changed
+
+- `RDF.BlankNode.new/1` ignores the prefix `"_:"` in a given blank node name
+
 ### Fixed
 
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
