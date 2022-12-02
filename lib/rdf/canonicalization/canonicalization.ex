@@ -1,4 +1,10 @@
 defmodule RDF.Canonicalization do
+  @moduledoc """
+  An implementation of the standard RDF Dataset Canonicalization Algorithm.
+
+  See <https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/>.
+  """
+
   use RDF
   alias RDF.Canonicalization.{IdentifierIssuer, State}
   alias RDF.{BlankNode, Dataset, Quad, Statement, Utils}
