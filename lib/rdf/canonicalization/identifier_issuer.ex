@@ -3,48 +3,46 @@ defmodule RDF.Canonicalization.IdentifierIssuer do
   An identifier issuer is used to issue new blank node identifier.
   """
 
-  defstruct issued_identifiers: %{},
-            issue_order: [],
-            identifier_counter: 0,
-            identifier_prefix: nil
+  use GenServer
 
-  def new(prefix) do
-    %__MODULE__{identifier_prefix: prefix}
+  alias RDF.Canonicalization.IdentifierIssuer.State
+
+  # API
+
+  def start_link(state_or_prefix, opts \\ []) do
+    GenServer.start_link(__MODULE__, state_or_prefix, opts)
   end
 
-  def canonical, do: new("_:c14n")
-
-  @doc """
-  Issues a new blank node identifier for a given existing blank node identifier.
-
-  See <https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#issue-identifier>
-  """
-  def issue_identifier(issuer, existing_identifier) do
-    if issued_identifier = issuer.issued_identifiers[existing_identifier] do
-      {issued_identifier, issuer}
-    else
-      issued_identifier = issuer.identifier_prefix <> Integer.to_string(issuer.identifier_counter)
-
-      {issued_identifier,
-       %{
-         issuer
-         | issued_identifiers:
-             Map.put(issuer.issued_identifiers, existing_identifier, issued_identifier),
-           issue_order: [existing_identifier | issuer.issue_order],
-           identifier_counter: issuer.identifier_counter + 1
-       }}
-    end
+  def stop(pid, reason \\ :normal, timeout \\ :infinity) do
+    GenServer.stop(pid, reason, timeout)
   end
 
-  def identifier(issuer, identifier) do
-    Map.get(issuer.issued_identifiers, identifier)
+  def state(pid), do: GenServer.call(pid, :state)
+  def issue_identifier(pid, identifier), do: GenServer.call(pid, {:issue_identifier, identifier})
+  def identifier(pid, identifier), do: GenServer.call(pid, {:identifier, identifier})
+  def issued?(pid, identifier), do: GenServer.call(pid, {:issued?, identifier})
+  def issued_identifiers(pid), do: GenServer.call(pid, :issued_identifiers)
+
+  # Callbacks
+
+  @impl true
+  def init(%State{} = state), do: {:ok, state}
+  def init(prefix), do: {:ok, State.new(prefix)}
+
+  @impl true
+  def handle_call(:state, _, state), do: {:reply, state, state}
+
+  def handle_call({:issue_identifier, identifier}, _, state) do
+    {issued_identifier, state} = State.issue_identifier(state, identifier)
+    {:reply, issued_identifier, state}
   end
 
-  def issued?(issuer, identifier) do
-    Map.has_key?(issuer.issued_identifiers, identifier)
-  end
+  def handle_call({:identifier, identifier}, _, state),
+    do: {:reply, State.identifier(state, identifier), state}
 
-  def issued_identifiers(state) do
-    Enum.reverse(state.issue_order)
-  end
+  def handle_call({:issued?, identifier}, _, state),
+    do: {:reply, State.issued?(state, identifier), state}
+
+  def handle_call(:issued_identifiers, _, state),
+    do: {:reply, State.issued_identifiers(state), state}
 end

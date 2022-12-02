@@ -10,7 +10,7 @@ defmodule RDF.Canonicalization.State do
 
   defstruct bnode_to_statements: nil,
             hash_to_bnodes: %{},
-            canonical_issuer: IdentifierIssuer.canonical()
+            canonical_issuer: IdentifierIssuer.State.canonical()
 
   def new(input) do
     %__MODULE__{bnode_to_statements: bnode_to_statements(input)}
@@ -18,7 +18,7 @@ defmodule RDF.Canonicalization.State do
 
   def issue_canonical_identifier(state, identifier) do
     {_issued_identifier, canonical_issuer} =
-      IdentifierIssuer.issue_identifier(state.canonical_issuer, identifier)
+      IdentifierIssuer.State.issue_identifier(state.canonical_issuer, identifier)
 
     %{state | canonical_issuer: canonical_issuer}
   end

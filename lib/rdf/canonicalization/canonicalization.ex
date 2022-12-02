@@ -8,11 +8,17 @@ defmodule RDF.Canonicalization do
   end
 
   defp urdna2015(input) do
-    input
-    |> State.new()
-    |> create_canonical_identifiers_for_single_node_hashes()
-    |> create_canonical_identifiers_for_multiple_node_hashes()
-    |> apply_canonicalization(input)
+    {:ok, issuer_sv} = IdentifierIssuer.Supervisor.start_link()
+
+    try do
+      input
+      |> State.new()
+      |> create_canonical_identifiers_for_single_node_hashes()
+      |> create_canonical_identifiers_for_multiple_node_hashes(issuer_sv)
+      |> apply_canonicalization(input)
+    after
+      DynamicSupervisor.stop(issuer_sv)
+    end
   end
 
   # 3)
@@ -77,23 +83,21 @@ defmodule RDF.Canonicalization do
   defp do_create_canonical_identifiers_for_single_node_hashes(state, _, false), do: state
 
   # 6)
-  defp create_canonical_identifiers_for_multiple_node_hashes(state) do
+  defp create_canonical_identifiers_for_multiple_node_hashes(state, issuer_sv) do
     state.hash_to_bnodes
     |> Enum.sort()
     |> Enum.reduce(state, fn {_hash, identifier_list}, state ->
       # 6.1-2) Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
       identifier_list
       |> Enum.reduce([], fn identifier, hash_path_list ->
-        if IdentifierIssuer.issued?(state.canonical_issuer, identifier) do
+        if IdentifierIssuer.State.issued?(state.canonical_issuer, identifier) do
           hash_path_list
         else
-          {_issued_identifier, temporary_issuer} =
-            "_:b"
-            |> IdentifierIssuer.new()
-            |> IdentifierIssuer.issue_identifier(identifier)
+          temporary_issuer = IdentifierIssuer.Supervisor.new_issuer(issuer_sv, "_:b")
+          IdentifierIssuer.issue_identifier(temporary_issuer, identifier)
 
           [
-            hash_n_degree_quads(state, identifier, temporary_issuer)
+            hash_n_degree_quads(state, identifier, temporary_issuer, issuer_sv)
             | hash_path_list
           ]
         end
@@ -117,7 +121,7 @@ defmodule RDF.Canonicalization do
           Statement.map(statement, fn
             {_, %BlankNode{} = bnode} ->
               state.canonical_issuer
-              |> IdentifierIssuer.identifier(bnode)
+              |> IdentifierIssuer.State.identifier(bnode)
               |> BlankNode.new()
 
             {_, node} ->
@@ -155,7 +159,7 @@ defmodule RDF.Canonicalization do
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-related-blank-node
   defp hash_related_bnode(state, related, statement, issuer, position) do
     identifier =
-      IdentifierIssuer.identifier(state.canonical_issuer, related) ||
+      IdentifierIssuer.State.identifier(state.canonical_issuer, related) ||
         IdentifierIssuer.identifier(issuer, related) ||
         hash_first_degree_quads(state, related)
 
@@ -173,7 +177,7 @@ defmodule RDF.Canonicalization do
   end
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-n-degree-quads
-  def hash_n_degree_quads(state, identifier, issuer) do
+  def hash_n_degree_quads(state, identifier, issuer, issuer_sv) do
     # IO.inspect(identifier, label: "ndeg: identifier")
 
     # 1-3)
@@ -205,27 +209,25 @@ defmodule RDF.Canonicalization do
             |> Enum.reduce({chosen_path, chosen_issuer}, fn
               permutation, {chosen_path, chosen_issuer} ->
                 # IO.inspect(permutation, label: "ndeg: perm")
-                issuer_copy = issuer
+
+                issuer_copy = IdentifierIssuer.Supervisor.copy_issuer(issuer_sv, issuer)
                 chosen_path_length = String.length(chosen_path)
+
                 # 5.4.4)
-                {path, recursion_list, issuer_copy} =
-                  Enum.reduce_while(permutation, {"", [], issuer_copy}, fn
-                    related, {path, recursion_list, issuer_copy} ->
-                      {path, recursion_list, issuer_copy} =
+                {path, recursion_list} =
+                  Enum.reduce_while(permutation, {"", []}, fn
+                    related, {path, recursion_list} ->
+                      {path, recursion_list} =
                         if issued_identifier =
-                             IdentifierIssuer.identifier(state.canonical_issuer, related) do
-                          {path <> issued_identifier, recursion_list, issuer_copy}
+                             IdentifierIssuer.State.identifier(state.canonical_issuer, related) do
+                          {path <> issued_identifier, recursion_list}
                         else
                           if issued_identifier = IdentifierIssuer.identifier(issuer_copy, related) do
-                            {path <> issued_identifier, recursion_list, issuer_copy}
+                            {path <> issued_identifier, recursion_list}
                           else
-                            {issued_identifier, issuer_copy} =
-                              IdentifierIssuer.issue_identifier(issuer_copy, related)
-
                             {
-                              path <> issued_identifier,
-                              [related | recursion_list],
-                              issuer_copy
+                              path <> IdentifierIssuer.issue_identifier(issuer_copy, related),
+                              [related | recursion_list]
                             }
                           end
                         end
@@ -233,9 +235,9 @@ defmodule RDF.Canonicalization do
                       if chosen_path_length != 0 and
                            String.length(path) >= chosen_path_length and
                            path > chosen_path do
-                        {:halt, {path, recursion_list, issuer_copy}}
+                        {:halt, {path, recursion_list}}
                       else
-                        {:cont, {path, recursion_list, issuer_copy}}
+                        {:cont, {path, recursion_list}}
                       end
                   end)
 
@@ -246,16 +248,14 @@ defmodule RDF.Canonicalization do
                   recursion_list
                   |> Enum.reverse()
                   |> Enum.reduce_while({issuer_copy, path}, fn related, {issuer_copy, path} ->
+                    # Note: The following steps are the only steps in the whole algorithm which really seem to rely on global state.
                     {result_hash, result_issuer} =
-                      hash_n_degree_quads(state, related, issuer_copy)
+                      hash_n_degree_quads(state, related, issuer_copy, issuer_sv)
 
-                    # TODO: This step doesn't work without global state:
-                    # issuing an identifier in the issuer copy which MIGHT be the result_issuer ...
-                    # This causes some tests to fail, eg. test023
-                    {issued_identifier, issuer_copy} =
-                      IdentifierIssuer.issue_identifier(issuer_copy, related)
-
-                    path = path <> issued_identifier <> "<#{result_hash}>"
+                    path =
+                      path <>
+                        IdentifierIssuer.issue_identifier(issuer_copy, related) <>
+                        "<#{result_hash}>"
 
                     if chosen_path_length != 0 and
                          String.length(path) >= chosen_path_length and
