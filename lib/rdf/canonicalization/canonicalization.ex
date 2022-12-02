@@ -8,61 +8,32 @@ defmodule RDF.Canonicalization do
   end
 
   defp urdna2015(input) do
-    state =
-      input
-      |> State.new()
-      |> create_simple_canonical_identifiers()
-
-    # 6)
-    canonical_issuer =
-      state.hash_to_bnodes
-      |> Enum.sort()
-      |> Enum.reduce(state.canonical_issuer, fn {hash, identifier_list}, canonical_issuer ->
-        # 6.1-2) Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
-        identifier_list
-        |> Enum.reduce([], fn identifier, hash_path_list ->
-          if IdentifierIssuer.issued?(canonical_issuer, identifier) do
-            hash_path_list
-          else
-            {_issued_identifier, temporary_issuer} =
-              "_:b"
-              |> IdentifierIssuer.new()
-              |> IdentifierIssuer.issue_identifier(identifier)
-
-            [
-              hash_n_degree_quads(state, identifier, canonical_issuer, temporary_issuer)
-              | hash_path_list
-            ]
-          end
-        end)
-        |> Enum.sort()
-        # 6.3) Create canonical replacements for nodes
-        |> Enum.reduce(canonical_issuer, fn {_hash, issuer}, canonical_issuer ->
-          issuer
-          |> IdentifierIssuer.issued_identifiers()
-          |> Enum.reduce(canonical_issuer, fn existing_identifier, canonical_issuer ->
-            {_, canonical_issuer} =
-              IdentifierIssuer.issue_identifier(canonical_issuer, existing_identifier)
-
-            canonical_issuer
-          end)
-        end)
-      end)
-
-    canonicalize(input, canonical_issuer)
+    input
+    |> State.new()
+    |> create_canonical_identifiers_for_single_node_hashes()
+    |> create_canonical_identifiers_for_multiple_node_hashes()
+    |> apply_canonicalization(input)
   end
 
   # 3)
-  defp create_simple_canonical_identifiers(state) do
+  defp create_canonical_identifiers_for_single_node_hashes(state) do
     non_normalized_identifiers = Map.keys(state.bnode_to_statements)
-    do_create_simple_canonical_identifiers(state, non_normalized_identifiers)
+    do_create_canonical_identifiers_for_single_node_hashes(state, non_normalized_identifiers)
   end
 
   # 4)
-  defp do_create_simple_canonical_identifiers(state, non_normalized_identifiers, simple \\ true)
+  defp do_create_canonical_identifiers_for_single_node_hashes(
+         state,
+         non_normalized_identifiers,
+         simple \\ true
+       )
 
   # 5)
-  defp do_create_simple_canonical_identifiers(state, non_normalized_identifiers, true) do
+  defp do_create_canonical_identifiers_for_single_node_hashes(
+         state,
+         non_normalized_identifiers,
+         true
+       ) do
     # 5.2)
     state = State.clear_hash_to_bnodes(state)
 
@@ -80,7 +51,7 @@ defmodule RDF.Canonicalization do
         {hash, identifier_list}, {non_normalized_identifiers, state, simple} ->
           case MapSet.to_list(identifier_list) do
             [identifier] ->
-              {_id, state} = State.issue_canonical_identifier(state, identifier)
+              state = State.issue_canonical_identifier(state, identifier)
 
               {
                 List.delete(non_normalized_identifiers, identifier),
@@ -89,29 +60,63 @@ defmodule RDF.Canonicalization do
               }
 
             [] ->
-              # TODO: handle this case properly
-              raise "empty identifier list"
+              raise "unexpected empty identifier list"
 
             _ ->
               {non_normalized_identifiers, state, simple}
           end
       end)
 
-    do_create_simple_canonical_identifiers(state, non_normalized_identifiers, simple)
+    do_create_canonical_identifiers_for_single_node_hashes(
+      state,
+      non_normalized_identifiers,
+      simple
+    )
   end
 
-  defp do_create_simple_canonical_identifiers(state, _non_normalized_identifiers, false),
-    do: state
+  defp do_create_canonical_identifiers_for_single_node_hashes(state, _, false), do: state
+
+  # 6)
+  defp create_canonical_identifiers_for_multiple_node_hashes(state) do
+    state.hash_to_bnodes
+    |> Enum.sort()
+    |> Enum.reduce(state, fn {_hash, identifier_list}, state ->
+      # 6.1-2) Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
+      identifier_list
+      |> Enum.reduce([], fn identifier, hash_path_list ->
+        if IdentifierIssuer.issued?(state.canonical_issuer, identifier) do
+          hash_path_list
+        else
+          {_issued_identifier, temporary_issuer} =
+            "_:b"
+            |> IdentifierIssuer.new()
+            |> IdentifierIssuer.issue_identifier(identifier)
+
+          [
+            hash_n_degree_quads(state, identifier, temporary_issuer)
+            | hash_path_list
+          ]
+        end
+      end)
+      |> Enum.sort()
+      # 6.3) Create canonical replacements for nodes
+      |> Enum.reduce(state, fn {_hash, issuer}, state ->
+        issuer
+        |> IdentifierIssuer.issued_identifiers()
+        |> Enum.reduce(state, &State.issue_canonical_identifier(&2, &1))
+      end)
+    end)
+  end
 
   # 7)
-  defp canonicalize(data, canonical_issuer) do
+  defp apply_canonicalization(state, data) do
     Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
       Dataset.add(
         canonicalized_data,
         if Statement.has_bnode?(statement) do
           Statement.map(statement, fn
             {_, %BlankNode{} = bnode} ->
-              canonical_issuer
+              state.canonical_issuer
               |> IdentifierIssuer.identifier(bnode)
               |> String.slice(2..-1)
               |> BlankNode.new()
@@ -125,8 +130,6 @@ defmodule RDF.Canonicalization do
       )
     end)
   end
-
-  #################
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-first-degree-quads
   defp hash_first_degree_quads(state, ref_bnode_id) do
@@ -146,12 +149,14 @@ defmodule RDF.Canonicalization do
     |> Enum.sort()
     |> Enum.join()
     |> hash()
+
+    # |> IO.inspect(label: "1deg: node: #{inspect(ref_bnode_id)}, hash_first_degree_quads")
   end
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-related-blank-node
-  defp hash_related_bnode(state, related, statement, canonical_issuer, issuer, position) do
+  defp hash_related_bnode(state, related, statement, issuer, position) do
     identifier =
-      IdentifierIssuer.identifier(canonical_issuer, related) ||
+      IdentifierIssuer.identifier(state.canonical_issuer, related) ||
         IdentifierIssuer.identifier(issuer, related) ||
         hash_first_degree_quads(state, related)
 
@@ -165,25 +170,30 @@ defmodule RDF.Canonicalization do
       end <> identifier
 
     hash(input)
+    # |> IO.inspect(label: "hrel: input: #{inspect(input)}, hash_related_bnode")
   end
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-n-degree-quads
-  def hash_n_degree_quads(state, identifier, canonical_issuer, issuer) do
+  def hash_n_degree_quads(state, identifier, issuer) do
+    # IO.inspect(identifier, label: "ndeg: identifier")
+
     # 1-3)
     hash_to_related_bnodes =
       Enum.reduce(state.bnode_to_statements[identifier], %{}, fn statement, map ->
         Map.merge(
           map,
-          hash_related_statement(state, identifier, statement, canonical_issuer, issuer),
+          hash_related_statement(state, identifier, statement, issuer),
           fn _, terms, new -> terms ++ new end
         )
       end)
 
-    {data_to_hash, _, issuer} =
+    # |> IO.inspect(label: "ndeg: hash_to_related_bnodes")
+
+    {data_to_hash, issuer} =
       hash_to_related_bnodes
       |> Enum.sort()
-      |> Enum.reduce({"", nil, issuer}, fn
-        {related_hash, bnode_list}, {data_to_hash, chosen_path, issuer} ->
+      |> Enum.reduce({"", issuer}, fn
+        {related_hash, bnode_list}, {data_to_hash, issuer} ->
           # 5.1)
           data_to_hash = data_to_hash <> related_hash
           chosen_path = ""
@@ -195,6 +205,7 @@ defmodule RDF.Canonicalization do
             |> Utils.permutations()
             |> Enum.reduce({chosen_path, chosen_issuer}, fn
               permutation, {chosen_path, chosen_issuer} ->
+                # IO.inspect(permutation, label: "ndeg: perm")
                 issuer_copy = issuer
                 chosen_path_length = String.length(chosen_path)
                 # 5.4.4)
@@ -203,7 +214,7 @@ defmodule RDF.Canonicalization do
                     related, {path, recursion_list, issuer_copy} ->
                       {path, recursion_list, issuer_copy} =
                         if issued_identifier =
-                             IdentifierIssuer.identifier(canonical_issuer, related) do
+                             IdentifierIssuer.identifier(state.canonical_issuer, related) do
                           {path <> issued_identifier, recursion_list, issuer_copy}
                         else
                           if issued_identifier = IdentifierIssuer.identifier(issuer_copy, related) do
@@ -220,12 +231,16 @@ defmodule RDF.Canonicalization do
                           end
                         end
 
-                      if chosen_path_length == 0 or String.length(path) < chosen_path_length do
-                        {:cont, {path, recursion_list, issuer_copy}}
-                      else
+                      if chosen_path_length != 0 and
+                           String.length(path) >= chosen_path_length and
+                           path > chosen_path do
                         {:halt, {path, recursion_list, issuer_copy}}
+                      else
+                        {:cont, {path, recursion_list, issuer_copy}}
                       end
                   end)
+
+                # IO.puts("ndeg: related_hash: #{related_hash}, path: #{path}, recursion: #{inspect(recursion_list)}")
 
                 # 5.4.5)
                 {issuer_copy, path} =
@@ -233,7 +248,7 @@ defmodule RDF.Canonicalization do
                   |> Enum.reverse()
                   |> Enum.reduce_while({issuer_copy, path}, fn related, {issuer_copy, path} ->
                     {result_hash, result_issuer} =
-                      hash_n_degree_quads(state, related, canonical_issuer, issuer_copy)
+                      hash_n_degree_quads(state, related, issuer_copy)
 
                     # TODO: This step doesn't work without global state:
                     # issuing an identifier in the issuer copy which MIGHT be the result_issuer ...
@@ -243,12 +258,12 @@ defmodule RDF.Canonicalization do
 
                     path = path <> issued_identifier <> "<#{result_hash}>"
 
-                    if chosen_path_length == 0 or
-                         String.length(path) < chosen_path_length or
-                         path <= chosen_path do
-                      {:cont, {result_issuer, path}}
-                    else
+                    if chosen_path_length != 0 and
+                         String.length(path) >= chosen_path_length and
+                         path > chosen_path do
                       {:halt, {result_issuer, path}}
+                    else
+                      {:cont, {result_issuer, path}}
                     end
                   end)
 
@@ -260,14 +275,16 @@ defmodule RDF.Canonicalization do
             end)
 
           # 5.5)
-          {data_to_hash <> chosen_path, chosen_path, chosen_issuer}
+          {data_to_hash <> chosen_path, chosen_issuer}
       end)
+
+    # IO.puts("ndeg: datatohash: #{data_to_hash}, hash: #{hash(data_to_hash)}")
 
     {hash(data_to_hash), issuer}
   end
 
   # 4.8.2.3.1) Group adjacent bnodes by hash
-  defp hash_related_statement(state, identifier, statement, canonical_issuer, issuer) do
+  defp hash_related_statement(state, identifier, statement, issuer) do
     [
       s: Statement.subject(statement),
       o: Statement.object(statement),
@@ -278,10 +295,10 @@ defmodule RDF.Canonicalization do
         map
 
       {pos, %BlankNode{} = term}, map ->
-        hash = hash_related_bnode(state, term, statement, canonical_issuer, issuer, pos)
+        hash = hash_related_bnode(state, term, statement, issuer, pos)
 
         Map.update(map, hash, [term], fn terms ->
-          if term in terms, do: terms, else: terms ++ [term]
+          if term in terms, do: terms, else: [term | terms]
         end)
 
       _, map ->

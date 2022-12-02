@@ -17,13 +17,12 @@ defmodule RDF.Canonicalization.State do
   end
 
   def issue_canonical_identifier(state, identifier) do
-    {issued_identifier, canonical_issuer} =
+    {_issued_identifier, canonical_issuer} =
       IdentifierIssuer.issue_identifier(state.canonical_issuer, identifier)
 
-    {issued_identifier, %{state | canonical_issuer: canonical_issuer}}
+    %{state | canonical_issuer: canonical_issuer}
   end
 
-  # ISSUE: "It seems that quads must be normalized, so that literals with different syntactic representations but the same semantic representations are merged, and that two graphs differing in the syntactic representation of a literal will produce the same set of blank node identifiers."
   defp bnode_to_statements(data) do
     Enum.reduce(data, %{}, fn statement, bnode_to_statements ->
       statement
