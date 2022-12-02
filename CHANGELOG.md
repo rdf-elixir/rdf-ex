@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/)
 - `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
   of all blank nodes within a statement
 
