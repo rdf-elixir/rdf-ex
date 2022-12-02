@@ -1162,9 +1162,6 @@ defmodule RDF.Graph do
     end
   end
 
-  defdelegate isomorphic?(graph1, graph2), to: RDF.Isomorphic, as: :isomorphic_graphs?
-  defdelegate isomorphic?(graph1, graph2, opts), to: RDF.Isomorphic, as: :isomorphic_graphs?
-
   @doc """
   Returns a nested map of a `RDF.Graph` where each element from its triples is mapped with the given function.
 
