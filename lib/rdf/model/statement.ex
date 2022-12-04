@@ -53,6 +53,53 @@ defmodule RDF.Statement do
   defdelegate new(s, p, o, g), to: Quad, as: :new
 
   @doc """
+  The subject component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.subject {"http://example.com/S", "http://example.com/p", 42}
+      ~I<http://example.com/S>
+  """
+  def subject(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(0) |> coerce_subject()
+
+  @doc """
+  The predicate component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.predicate {"http://example.com/S", "http://example.com/p", 42}
+      ~I<http://example.com/p>
+  """
+  def predicate(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(1) |> coerce_predicate()
+
+  @doc """
+  The object component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.object {"http://example.com/S", "http://example.com/p", 42}
+      RDF.literal(42)
+  """
+  def object(statement) when tuple_size(statement) in [3, 4],
+    do: statement |> elem(2) |> coerce_object()
+
+  @doc """
+  The graph name component of a statement.
+
+  ## Examples
+
+      iex> RDF.Statement.graph_name {"http://example.com/S", "http://example.com/p", 42, "http://example.com/Graph"}
+      ~I<http://example.com/Graph>
+      iex> RDF.Statement.graph_name {"http://example.com/S", "http://example.com/p", 42}
+      nil
+  """
+  def graph_name(statement)
+  def graph_name({_, _, _, graph_name}), do: coerce_graph_name(graph_name)
+  def graph_name({_, _, _}), do: nil
+
+  @doc """
   Creates a `RDF.Statement` tuple with proper RDF values.
 
   An error is raised when the given elements are not coercible to RDF values.
@@ -236,4 +283,26 @@ defmodule RDF.Statement do
   @spec valid_graph_name?(graph_name | any) :: boolean
   def valid_graph_name?(%IRI{}), do: true
   def valid_graph_name?(_), do: false
+
+  @doc """
+  Returns a list of all `RDF.BlankNode`s within the given `statement`.
+  """
+  @spec bnodes(t) :: list(BlankNode.t())
+  def bnodes(statement)
+  def bnodes({_, _, _, _} = quad), do: Quad.bnodes(quad)
+  def bnodes({_, _, _} = triple), do: Triple.bnodes(triple)
+
+  @doc """
+  Returns whether the given `statement` contains a blank node.
+  """
+  @spec has_bnode?(t) :: boolean
+  def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
+  def has_bnode?({_, _, _} = triple), do: Triple.has_bnode?(triple)
+
+  @doc """
+  Returns whether the given `value` is a component of the given `statement`.
+  """
+  @spec include_value?(t, any) :: boolean
+  def include_value?({_, _, _, _} = quad, value), do: Quad.include_value?(quad, value)
+  def include_value?({_, _, _} = triple, value), do: Triple.include_value?(triple, value)
 end

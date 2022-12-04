@@ -10,6 +10,10 @@ defmodule RDF.BlankNodeTest do
       assert BlankNode.new("foo") == %BlankNode{value: "foo"}
     end
 
+    test "with a string having the _: prefix" do
+      assert BlankNode.new("_:foo") == %BlankNode{value: "foo"}
+    end
+
     test "with an atom" do
       assert BlankNode.new(:foo) == %BlankNode{value: "foo"}
     end

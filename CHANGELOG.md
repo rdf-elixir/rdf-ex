@@ -7,6 +7,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/)
+- `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
+  of all blank nodes within a statement
+- `RDF.Statement.include_value?/2`, `RDF.Triple.include_value?/2`, `RDF.Quad.include_value?/2` 
+  to check whether a given value is a component of a statement
+
+### Changed
+
+- `RDF.BlankNode.new/1` ignores the prefix `"_:"` in a given blank node name
+
 ### Fixed
 
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
@@ -875,8 +887,13 @@ Elixir versions < 1.6 are no longer supported
 
 ### Added
 
+- implementation of the standard RDF dataset normalization algorithm
+- `isomorphic?` ...
 - `Collectable` implementations for all `RDF.Data` structures so they can be 
   used as destinations of `Enum.into` and `for` comprehensions
+- `RDF.Quad` can be created from triple and `RDF.Triple` can be created from quad
+- `RDF.Statement.map/2` which creates a statement with mapped nodes from another statement
+- `RDF.Statement` functions to get the coerced components of a statement
 
 ### Fixed
 
