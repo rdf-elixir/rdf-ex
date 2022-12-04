@@ -93,11 +93,6 @@ defmodule RDF.Triple do
   def new({subject, predicate, object, _}, property_map),
     do: new(subject, predicate, object, property_map)
 
-  def has_bnode?({%BlankNode{}, _, _}), do: true
-  def has_bnode?({_, %BlankNode{}, _}), do: true
-  def has_bnode?({_, _, %BlankNode{}}), do: true
-  def has_bnode?({_, _, _}), do: false
-
   @doc """
   Returns a list of all `RDF.BlankNode`s within the given `triple`.
   """
@@ -109,6 +104,19 @@ defmodule RDF.Triple do
   def bnodes({_, _, %BlankNode{} = o}), do: [o]
   def bnodes(_), do: []
 
+  @doc """
+  Returns whether the given `triple` contains a blank node.
+  """
+  @spec has_bnode?(t) :: boolean
+  def has_bnode?({%BlankNode{}, _, _}), do: true
+  def has_bnode?({_, %BlankNode{}, _}), do: true
+  def has_bnode?({_, _, %BlankNode{}}), do: true
+  def has_bnode?({_, _, _}), do: false
+
+  @doc """
+  Returns whether the given `value` is a component of the given `triple`.
+  """
+  @spec include_value?(t, any) :: boolean
   def include_value?({value, _, _}, value), do: true
   def include_value?({_, value, _}, value), do: true
   def include_value?({_, _, value}, value), do: true

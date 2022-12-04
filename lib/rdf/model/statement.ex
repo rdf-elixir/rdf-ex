@@ -284,9 +284,6 @@ defmodule RDF.Statement do
   def valid_graph_name?(%IRI{}), do: true
   def valid_graph_name?(_), do: false
 
-  def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
-  def has_bnode?({_, _, _} = triple), do: Triple.has_bnode?(triple)
-
   @doc """
   Returns a list of all `RDF.BlankNode`s within the given `statement`.
   """
@@ -295,6 +292,17 @@ defmodule RDF.Statement do
   def bnodes({_, _, _, _} = quad), do: Quad.bnodes(quad)
   def bnodes({_, _, _} = triple), do: Triple.bnodes(triple)
 
+  @doc """
+  Returns whether the given `statement` contains a blank node.
+  """
+  @spec has_bnode?(t) :: boolean
+  def has_bnode?({_, _, _, _} = quad), do: Quad.has_bnode?(quad)
+  def has_bnode?({_, _, _} = triple), do: Triple.has_bnode?(triple)
+
+  @doc """
+  Returns whether the given `value` is a component of the given `statement`.
+  """
+  @spec include_value?(t, any) :: boolean
   def include_value?({_, _, _, _} = quad, value), do: Quad.include_value?(quad, value)
   def include_value?({_, _, _} = triple, value), do: Triple.include_value?(triple, value)
 end
