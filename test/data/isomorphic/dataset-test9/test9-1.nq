@@ -1,0 +1,3 @@
+<http://example.org/a> <http://example.org/prop> _:abc .
+_:abc <http://example.org/prop> <http://example.org/a> <http://example.org/graph> .
+<http://example.org/a> <http://example.org/prop> <http://example.org/a> _:abc .

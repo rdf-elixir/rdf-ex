@@ -68,4 +68,13 @@ defmodule RDF.StatementTest do
       end)
     end
   end
+
+  test "bnodes/1" do
+    assert RDF.Statement.bnodes({@iri, @iri, @iri}) == []
+    assert RDF.Statement.bnodes({@iri, @iri, @iri, @iri}) == []
+    assert RDF.Statement.bnodes({@bnode, @iri, @bnode}) == [@bnode]
+    assert RDF.Statement.bnodes({@bnode, @iri, @bnode, @bnode}) == [@bnode]
+    assert RDF.Statement.bnodes({~B<b1>, @iri, ~B<b2>}) == [~B<b1>, ~B<b2>]
+    assert RDF.Statement.bnodes({~B<b1>, @iri, ~B<b2>, ~B<b3>}) == [~B<b1>, ~B<b2>, ~B<b3>]
+  end
 end

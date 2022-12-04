@@ -6,7 +6,7 @@ defmodule RDF.Quad do
   RDF values for subject, predicate, object and a graph name.
   """
 
-  alias RDF.{Statement, PropertyMap}
+  alias RDF.{Statement, BlankNode, PropertyMap}
 
   @type t :: {
           Statement.subject(),
@@ -103,6 +103,46 @@ defmodule RDF.Quad do
   def new({subject, predicate, object}, property_map) do
     new(subject, predicate, object, nil, property_map)
   end
+
+  @doc """
+  Returns a list of all `RDF.BlankNode`s within the given `quad`.
+  """
+  @spec bnodes(t) :: list(BlankNode.t())
+  def bnodes(quad)
+  def bnodes({%BlankNode{} = b, _, %BlankNode{} = b, %BlankNode{} = b}), do: [b]
+  def bnodes({%BlankNode{} = s, _, %BlankNode{} = b, %BlankNode{} = b}), do: [s, b]
+  def bnodes({%BlankNode{} = b, _, %BlankNode{} = o, %BlankNode{} = b}), do: [b, o]
+  def bnodes({%BlankNode{} = b, _, %BlankNode{} = b, %BlankNode{} = g}), do: [b, g]
+  def bnodes({%BlankNode{} = s, _, %BlankNode{} = o, %BlankNode{} = g}), do: [s, o, g]
+  def bnodes({%BlankNode{} = b, _, %BlankNode{} = b, _}), do: [b]
+  def bnodes({%BlankNode{} = s, _, %BlankNode{} = o, _}), do: [s, o]
+  def bnodes({%BlankNode{} = b, _, _, %BlankNode{} = b}), do: [b]
+  def bnodes({%BlankNode{} = s, _, _, %BlankNode{} = g}), do: [s, g]
+  def bnodes({_, _, %BlankNode{} = b, %BlankNode{} = b}), do: [b]
+  def bnodes({_, _, %BlankNode{} = o, %BlankNode{} = g}), do: [o, g]
+  def bnodes({%BlankNode{} = s, _, _, _}), do: [s]
+  def bnodes({_, _, %BlankNode{} = o, _}), do: [o]
+  def bnodes(_), do: []
+
+  @doc """
+  Returns whether the given `quad` contains a blank node.
+  """
+  @spec has_bnode?(t) :: boolean
+  def has_bnode?({%BlankNode{}, _, _, _}), do: true
+  def has_bnode?({_, %BlankNode{}, _, _}), do: true
+  def has_bnode?({_, _, %BlankNode{}, _}), do: true
+  def has_bnode?({_, _, _, %BlankNode{}}), do: true
+  def has_bnode?({_, _, _, _}), do: false
+
+  @doc """
+  Returns whether the given `value` is a component of the given `triple`.
+  """
+  @spec include_value?(t, any) :: boolean
+  def include_value?({value, _, _, _}, value), do: true
+  def include_value?({_, value, _, _}, value), do: true
+  def include_value?({_, _, value, _}, value), do: true
+  def include_value?({_, _, _, value}, value), do: true
+  def include_value?({_, _, _, _}), do: false
 
   @doc """
   Returns a tuple of native Elixir values from a `RDF.Quad` of RDF terms.

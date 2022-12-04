@@ -23,6 +23,14 @@ defmodule RDF.TestSuite do
         TestNQuadsNegativeSyntax
       ],
       strict: false
+
+    defvocab RDFN,
+      base_iri: "http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab#",
+      terms: ~w[
+        Urgna2012EvalTest
+        Urdna2015EvalTest
+      ],
+      strict: false
   end
 
   @compile {:no_warn_undefined, RDF.TestSuite.NS.MF}
@@ -32,7 +40,8 @@ defmodule RDF.TestSuite do
 
   alias RDF.{Turtle, Graph, Description, IRI}
 
-  def manifest_path(root), do: Path.join(root, "manifest.ttl")
+  def manifest_path(root), do: manifest_path(root, "manifest.ttl")
+  def manifest_path(root, file), do: Path.join(root, file)
 
   def manifest_graph(path, opts \\ []) do
     Turtle.read_file!(path, opts)
