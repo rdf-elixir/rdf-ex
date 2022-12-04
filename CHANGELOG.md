@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/)
 - `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
   of all blank nodes within a statement
+- `RDF.Statement.include_value?/2`, `RDF.Triple.include_value?/2`, `RDF.Quad.include_value?/2` 
+  to check whether a given value is a component of a statement
 
 ### Changed
 
