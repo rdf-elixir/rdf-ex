@@ -37,6 +37,7 @@ defmodule RDF.Test.Case do
       import unquote(__MODULE__)
 
       import RDF.Sigils
+      import RDF.Graph
 
       @compile {:no_warn_undefined, RDF.Test.Case.EX}
       @compile {:no_warn_undefined, RDF.Test.Case.FOAF}

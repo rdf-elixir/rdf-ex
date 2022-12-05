@@ -1233,6 +1233,12 @@ defmodule RDF.Graph do
 
   def equal?(_, _), do: false
 
+  def canonicalize(%__MODULE__{} = graph) do
+    graph
+    |> RDF.Canonicalization.canonicalize()
+    |> RDF.Dataset.default_graph()
+  end
+
   @doc """
   Returns the prefixes of the given `graph` as a `RDF.PrefixMap`.
   """

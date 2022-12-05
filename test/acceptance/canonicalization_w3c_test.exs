@@ -24,7 +24,7 @@ defmodule RDF.Canonicalization.W3C.Test do
 
       assert TestSuite.test_input_file_path(test_case, @path)
              |> NQuads.read_file!(base: base)
-             |> Canonicalization.normalize() ==
+             |> Canonicalization.canonicalize() ==
                TestSuite.test_result_file_path(test_case, @path)
                |> NQuads.read_file!()
     end

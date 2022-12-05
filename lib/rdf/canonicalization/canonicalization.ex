@@ -9,7 +9,7 @@ defmodule RDF.Canonicalization do
   alias RDF.Canonicalization.{IdentifierIssuer, State}
   alias RDF.{BlankNode, Dataset, Quad, Statement, Utils}
 
-  def normalize(input) do
+  def canonicalize(input) do
     urdna2015(input)
   end
 
