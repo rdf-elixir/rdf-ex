@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/)
   which can be used with `RDF.Graph.canonicalize/1` and `RDF.Dataset.canonicalize/1` functions
+- `RDF.Graph.isomorphic?/2` and `RDF.Dataset.isomorphic?/2` to compare if two
+  graphs or datasets are the same, regardless of the concrete names of the 
+  blank nodes they contain
 - `RDF.Statement.bnodes/1`, `RDF.Triple.bnodes/1`, `RDF.Quad.bnodes/1` to get a list
   of all blank nodes within a statement
 - `RDF.Statement.include_value?/2`, `RDF.Triple.include_value?/2`, `RDF.Quad.include_value?/2` 

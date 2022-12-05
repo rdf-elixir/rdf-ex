@@ -903,6 +903,8 @@ defmodule RDF.Dataset do
 
   defdelegate canonicalize(input), to: RDF.Canonicalization
 
+  defdelegate isomorphic?(a, b), to: RDF.Canonicalization
+
   @doc """
   Returns the aggregated prefixes of all graphs of `dataset` as a `RDF.PrefixMap`.
   """
@@ -910,9 +912,9 @@ defmodule RDF.Dataset do
   def prefixes(%__MODULE__{} = dataset) do
     dataset
     |> RDF.Dataset.graphs()
-    |> Enum.reduce(RDF.PrefixMap.new(), fn graph, prefixes ->
+    |> Enum.reduce(PrefixMap.new(), fn graph, prefixes ->
       if graph.prefixes do
-        RDF.PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
+        PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
       else
         prefixes
       end

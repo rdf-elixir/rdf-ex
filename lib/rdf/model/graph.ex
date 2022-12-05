@@ -1233,6 +1233,10 @@ defmodule RDF.Graph do
 
   def equal?(_, _), do: false
 
+  def isomorphic?(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
+    graph1 |> canonicalize() |> equal?(canonicalize(graph2))
+  end
+
   def canonicalize(%__MODULE__{} = graph) do
     graph
     |> RDF.Canonicalization.canonicalize()

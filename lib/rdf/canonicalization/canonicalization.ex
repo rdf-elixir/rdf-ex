@@ -13,6 +13,10 @@ defmodule RDF.Canonicalization do
     urdna2015(input)
   end
 
+  def isomorphic?(a, b) do
+    a |> canonicalize() |> Dataset.equal?(canonicalize(b))
+  end
+
   defp urdna2015(input) do
     input
     |> State.new()
