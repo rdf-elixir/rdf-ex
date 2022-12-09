@@ -124,6 +124,7 @@ defmodule RDF.InspectTest do
       XSD.integer("042") => ~s[RDF.XSD.Integer.new("042")],
       XSD.integer("foo") => ~s[RDF.XSD.Integer.new("foo")],
       XSD.decimal(3.14) => ~s[RDF.XSD.Decimal.new(Decimal.new("3.14"))],
+      XSD.decimal(".1") => ~s[RDF.XSD.Decimal.new(".1")],
       XSD.decimal("foo") => ~s[RDF.XSD.Decimal.new("foo")],
       UsZipcode.new("20521") => ~s[RDF.TestDatatypes.UsZipcode.new("20521")],
       Literal.new("foo", datatype: "http://example.com/dt") =>

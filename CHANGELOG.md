@@ -26,6 +26,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Fixed
 
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
+- the `Inspect` protocol implementation for decimal literals wasn't using the lexical
+  in case of an uncanonical lexical form of a decimal literal 
 
 
 [Compare v1.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.0.0...HEAD)

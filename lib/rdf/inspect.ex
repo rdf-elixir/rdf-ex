@@ -29,8 +29,12 @@ defimpl Inspect, for: RDF.Literal do
     "RDF.Literal.new(#{inspect(value)}, datatype: #{inspect(datatype)})"
   end
 
-  def inspect(%Literal{literal: %XSD.Decimal{value: %Decimal{} = value}}, _opts) do
-    ~s[RDF.XSD.Decimal.new(Decimal.new("#{Decimal.to_string(value)}"))]
+  def inspect(%Literal{literal: %XSD.Decimal{value: %Decimal{} = value}} = literal, _opts) do
+    if Literal.valid?(literal) and Literal.canonical?(literal) do
+      ~s[RDF.XSD.Decimal.new(Decimal.new("#{Decimal.to_string(value)}"))]
+    else
+      ~s[RDF.XSD.Decimal.new("#{Literal.lexical(literal)}")]
+    end
   end
 
   def inspect(literal, _opts) do
