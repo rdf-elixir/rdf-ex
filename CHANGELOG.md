@@ -25,6 +25,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Fixed
 
+- the N-Triples, N-Quads and Turtle encoder were creating too many backslashes,
+  when escaping a backslash in a string;  
+  BEWARE: You'll have to fix the generated Turtle files you've produced with earlier versions!
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
 - the `Inspect` protocol implementation for decimal literals wasn't using the lexical
   in case of an uncanonical lexical form of a decimal literal 

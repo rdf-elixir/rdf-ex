@@ -778,6 +778,16 @@ defmodule RDF.Turtle.EncoderTest do
       )
     end
 
+    test "backslash-escaping" do
+      EX.S
+      |> EX.p("\\")
+      |> assert_serialization(matches: [~s["\\\\"]])
+
+      EX.S
+      |> EX.p("\\\\")
+      |> assert_serialization(matches: [~s["\\\\\\\\"]])
+    end
+
     test "language-tagged literals with newlines embedded are encoded with long quotes" do
       Turtle.read_string!(~s[<http://a> <http:/b> """testing string parsing in Turtle.
            """@en .])
