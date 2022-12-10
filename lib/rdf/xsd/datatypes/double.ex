@@ -124,17 +124,8 @@ defmodule RDF.XSD.Double do
   def canonical_mapping(:positive_infinity), do: "INF"
   def canonical_mapping(:negative_infinity), do: "-INF"
 
-  if List.to_integer(:erlang.system_info(:otp_release)) >= 21 do
-    defp float_to_string(float) do
-      :io_lib.format("~.15e", [float])
-      |> to_string()
-    end
-  else
-    defp float_to_string(float) do
-      :io_lib.format("~.15e", [float])
-      |> List.first()
-      |> to_string()
-    end
+  defp float_to_string(float) do
+    :io_lib.format("~.15e", [float]) |> to_string()
   end
 
   @impl RDF.Literal.Datatype
