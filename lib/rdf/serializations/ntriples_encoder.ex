@@ -50,7 +50,7 @@ defmodule RDF.NTriples.Encoder do
   end
 
   def term(%Literal{} = literal) do
-    ~s["#{Literal.lexical(literal)}"^^<#{to_string(Literal.datatype_id(literal))}>]
+    ~s["#{escape_string(Literal.lexical(literal))}"^^<#{to_string(Literal.datatype_id(literal))}>]
   end
 
   def term(%BlankNode{} = bnode) do
@@ -72,15 +72,21 @@ defmodule RDF.NTriples.Encoder do
   end
 
   def iolist_term(%Literal{literal: %LangString{} = lang_string}) do
-    [~s["], escape_string(lang_string.value), ~s["@], lang_string.language]
+    [~S["], escape_string(lang_string.value), ~S["@], lang_string.language]
   end
 
   def iolist_term(%Literal{literal: %XSD.String{} = xsd_string}) do
-    [~s["], escape_string(xsd_string.value), ~s["]]
+    [~S["], escape_string(xsd_string.value), ~S["]]
   end
 
   def iolist_term(%Literal{} = literal) do
-    [~s["], Literal.lexical(literal), ~s["^^<], to_string(Literal.datatype_id(literal)), ">"]
+    [
+      ~S["],
+      escape_string(Literal.lexical(literal)),
+      ~S["^^<],
+      to_string(Literal.datatype_id(literal)),
+      ">"
+    ]
   end
 
   def iolist_term(%BlankNode{} = bnode) do

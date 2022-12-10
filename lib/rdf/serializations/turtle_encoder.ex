@@ -442,7 +442,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp typed_literal_term(%Literal{} = literal, state, nesting) do
-    ~s["#{Literal.lexical(literal)}"^^#{literal |> Literal.datatype_id() |> term(state, :datatype, nesting)}]
+    ~s["#{escape_string(Literal.lexical(literal))}"^^#{literal |> Literal.datatype_id() |> term(state, :datatype, nesting)}]
   end
 
   def prefixed_name(iri, prefixes) do

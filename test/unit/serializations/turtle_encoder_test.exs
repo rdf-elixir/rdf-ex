@@ -819,6 +819,12 @@ defmodule RDF.Turtle.EncoderTest do
       )
     end
 
+    test "escaping in typed literals" do
+      EX.S
+      |> EX.p(RDF.literal("\\ \"", datatype: EX.DT))
+      |> assert_serialization(matches: [~s["\\\\ \\""^^<http://example.org/#DT>]])
+    end
+
     test "typed literals use declared prefixes" do
       Turtle.read_string!(
         ~s[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . <http://a> <http:/b> "http://foo/"^^xsd:anyURI .]
