@@ -104,8 +104,6 @@ defmodule RDF.XSD.Date do
   def init_valid_lexical({value, _}, nil, opts) do
     if tz = Keyword.get(opts, :tz) do
       canonical_mapping(value) <> tz
-    else
-      nil
     end
   end
 
