@@ -20,23 +20,23 @@ jobs:
         include:
           - pair:
               elixir: 1.11.4
-              otp: 21.3
+              otp: 21.3.8
             build-flags:
           - pair:
               elixir: 1.12.3
-              otp: 22.3
+              otp: 22.3.4
             build-flags:
           - pair:
               elixir: 1.13.4
-              otp: 23.3
+              otp: 23.3.4
             build-flags: --warnings-as-errors
           - pair:
               elixir: 1.14.2
-              otp: 24.3
+              otp: 24.3.4
             build-flags: --warnings-as-errors
           - pair:
               elixir: 1.14.2
-              otp: 25.1
+              otp: 25.1.2
             build-flags: --warnings-as-errors
     steps:
       - name: Checkout repository
