@@ -842,10 +842,10 @@ defmodule RDF.Turtle.EncoderTest do
       [
         {true, "true ."},
         {"true", "true ."},
-        {"1", "true ."},
+        {"1", ~s["1"^^<http://www.w3.org/2001/XMLSchema#boolean> .]},
         {false, "false ."},
         {"false", "false ."},
-        {"0", "false ."}
+        {"0", ~s["0"^^<http://www.w3.org/2001/XMLSchema#boolean> .]}
       ]
       |> Enum.each(fn {value, output} ->
         Graph.new({EX.S, EX.p(), RDF.XSD.boolean(value)})
@@ -876,7 +876,7 @@ defmodule RDF.Turtle.EncoderTest do
         {"-1", "-1 ."},
         {10, "10 ."},
         {"10", "10 ."},
-        {"0010", "10 ."}
+        {"0010", ~s{"0010"^^<http://www.w3.org/2001/XMLSchema#integer>}}
       ]
       |> Enum.each(fn {value, output} ->
         Graph.new({EX.S, EX.p(), RDF.XSD.integer(value)})
@@ -902,10 +902,10 @@ defmodule RDF.Turtle.EncoderTest do
         {0.1, "0.1 ."},
         {"0.1", "0.1 ."},
         {-1, "-1.0 ."},
-        {"-1", "-1.0 ."},
+        {"-1", ~s{"-1"^^<http://www.w3.org/2001/XMLSchema#decimal>}},
         {10.02, "10.02 ."},
         {"10.02", "10.02 ."},
-        {"010.020", "10.02 ."}
+        {"010.020", ~s{"010.020"^^<http://www.w3.org/2001/XMLSchema#decimal>}}
       ]
       |> Enum.each(fn {value, output} ->
         Graph.new({EX.S, EX.p(), RDF.XSD.decimal(value)})
@@ -915,8 +915,8 @@ defmodule RDF.Turtle.EncoderTest do
 
     test "invalid decimals" do
       [
-        {"string", ~s{"string"^^<http://www.w3.org/2001/XMLSchema#decimal>}},
-        {"true", ~s{"true"^^<http://www.w3.org/2001/XMLSchema#decimal>}}
+        {"string", ~s{"string"^^<http://www.w3.org/2001/XMLSchema#decimal> .}},
+        {"true", ~s{"true"^^<http://www.w3.org/2001/XMLSchema#decimal> .}}
       ]
       |> Enum.each(fn {value, output} ->
         Graph.new({EX.S, EX.p(), RDF.XSD.decimal(value)})
@@ -927,15 +927,16 @@ defmodule RDF.Turtle.EncoderTest do
     test "valid doubles" do
       [
         {1.0e1, "1.0E1 ."},
-        {"1.0e1", "1.0E1 ."},
         {0.1e1, "1.0E0 ."},
-        {"0.1e1", "1.0E0 ."},
+        {"1.0E1", "1.0E1 ."},
+        {"1.0e1", "1.0e1 ."},
+        {"0.1e1", "0.1e1 ."},
         {10.02e1, "1.002E2 ."},
-        {"10.02e1", "1.002E2 ."},
-        {"010.020", "1.002E1 ."},
+        {"10.02e1", "10.02e1 ."},
+        {"010.020", ~s{"010.020"^^<http://www.w3.org/2001/XMLSchema#double> .}},
         {14, "1.4E1 ."},
         {-1, "-1.0E0 ."},
-        {"-1", "-1.0E0 ."}
+        {"-1", ~s{"-1"^^<http://www.w3.org/2001/XMLSchema#double> .}}
       ]
       |> Enum.each(fn {value, output} ->
         Graph.new({EX.S, EX.p(), RDF.XSD.double(value)})

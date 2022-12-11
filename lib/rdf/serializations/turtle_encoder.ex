@@ -414,10 +414,10 @@ defmodule RDF.Turtle.Encoder do
 
   defp term(%Literal{literal: %datatype{}} = literal, state, _, nesting)
        when datatype in @native_supported_datatypes do
-    if Literal.valid?(literal) do
-      Literal.canonical_lexical(literal)
-    else
-      typed_literal_term(literal, state, nesting)
+    cond do
+      not Literal.valid?(literal) -> typed_literal_term(literal, state, nesting)
+      not Literal.canonical?(literal) -> uncanonical_form(datatype, literal, state, nesting)
+      true -> Literal.canonical_lexical(literal)
     end
   end
 
@@ -431,6 +431,17 @@ defmodule RDF.Turtle.Encoder do
   defp term(list, state, _, nesting) when is_list(list) do
     "(" <> Enum.map_join(list, " ", &term(&1, state, :list, nesting)) <> ")"
   end
+
+  defp uncanonical_form(XSD.Double, literal, state, nesting) do
+    if literal |> Literal.lexical() |> String.contains?(["e", "E"]) do
+      Literal.lexical(literal)
+    else
+      typed_literal_term(literal, state, nesting)
+    end
+  end
+
+  defp uncanonical_form(_, literal, state, nesting),
+    do: typed_literal_term(literal, state, nesting)
 
   defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
   defp based_name(_, nil), do: nil
