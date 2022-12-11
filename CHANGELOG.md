@@ -21,6 +21,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
+- `RDF.XSD.Double` and `RDF.XSD.Float` literals created from Elixir floats and integers
+  are now interpreted to be in the canonical lexical form
 - `RDF.BlankNode.new/1` ignores the prefix `"_:"` in a given blank node name
 
 ### Fixed

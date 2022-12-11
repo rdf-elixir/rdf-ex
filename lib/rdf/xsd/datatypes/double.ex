@@ -90,10 +90,8 @@ defmodule RDF.XSD.Double do
           XSD.Datatype.uncanonical_lexical()
   def init_valid_lexical(value, lexical, opts)
   def init_valid_lexical(value, nil, _) when is_atom(value), do: nil
-  def init_valid_lexical(value, nil, _), do: decimal_form(value)
+  def init_valid_lexical(_, nil, _), do: nil
   def init_valid_lexical(_, lexical, _), do: lexical
-
-  defp decimal_form(float), do: to_string(float)
 
   @impl XSD.Datatype
   @spec canonical_mapping(valid_value) :: String.t()

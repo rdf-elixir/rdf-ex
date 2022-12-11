@@ -401,7 +401,7 @@ defmodule RDF.LiteralTest do
     test "with XSD.Datatype literal" do
       assert Literal.new("foo") |> Literal.canonical?() == true
       assert Literal.new(42) |> Literal.canonical?() == true
-      assert Literal.new(3.14) |> Literal.canonical?() == false
+      assert Literal.new(3.14) |> Literal.canonical?() == true
     end
 
     test "with RDF.LangString literal" do
