@@ -126,7 +126,7 @@ defmodule RDF.XSD.Datatype do
   the XSD datatype an implementation should return `@invalid_value`
   (which is just `nil` at the moment, so `nil` is never a valid value of a value space).
 
-  Otherwise a tuple `{value, lexical}` with `value` being the internal representation
+  Otherwise, a tuple `{value, lexical}` with `value` being the internal representation
   of the mapped value from the value space and `lexical` being the lexical representation
   to be used for the Elixir value or `nil` if `c:init_valid_lexical/3` should be used
   to determine the lexical form in general (i.e. also when initialized with a string
