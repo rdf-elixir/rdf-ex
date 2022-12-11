@@ -17,8 +17,6 @@ defmodule RDF.Star.Turtle.W3C.EvalTest do
 
   TestSuite.test_cases(@manifest, RDFT.TestTurtleEval)
   |> Enum.each(fn test_case ->
-    @tag test_case: test_case
-
     if (test_case |> TestSuite.test_input_file_path(@path) |> Path.basename(".ttl")) in [
          "turtle-star-eval-bnode-1",
          "turtle-star-eval-bnode-2",
@@ -29,10 +27,13 @@ defmodule RDF.Star.Turtle.W3C.EvalTest do
       @tag earl_mode: :semi_auto
       @tag skip: """
            The produced graphs are correct, but have different blank node labels than the result graph.
-           TODO: Implement a graph isomorphism algorithm.
+           TODO: Wait until RDF-star-support for the RDF dataset canonicalization (used for our
+           graph isomorphism algorithm) is specified and implemented.
+           See this issue: https://github.com/w3c/rdf-canon/issues/2
            """
     end
 
+    @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       assert RDF.Graph.equal?(
                TestSuite.test_input_file_path(test_case, @path)
