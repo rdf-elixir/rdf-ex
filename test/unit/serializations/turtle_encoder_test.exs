@@ -986,11 +986,6 @@ defmodule RDF.Turtle.EncoderTest do
              """
   end
 
-  describe "W3C test suite roundtrip" do
-    @tag skip: "TODO: We need a Graph isomorphism comparison to implement this."
-    test "..."
-  end
-
   defp assert_serialization(graph, opts) do
     prefixes = Keyword.get(opts, :prefixes, %{})
     base_iri = Keyword.get(opts, :base_iri)
