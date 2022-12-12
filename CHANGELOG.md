@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the Turtle encoder now uses the uncanonical form of a literal in order to not lose
   the lexical form of a literal
 - `RDF.BlankNode.new/1` ignores the prefix `"_:"` in a given blank node name
+- the performance of the `RDF.Turtle.Encoder` was improved
 
 ### Fixed
 

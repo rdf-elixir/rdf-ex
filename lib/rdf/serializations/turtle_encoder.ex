@@ -22,7 +22,7 @@ defmodule RDF.Turtle.Encoder do
     section 5.1 of [RFC3986](https://www.ietf.org/rfc/rfc3986.txt) (default: `false`).
   - `:base_description`: Allows to provide a description of the resource denoted by
     the base URI. This option is especially useful when the base URI is actually not
-    specified, eg. in the common use case of wanting to describe the Turtle document
+    specified, e.g. in the common use case of wanting to describe the Turtle document
     itself, which should be denoted by the URL where it is hosted as the implicit base
     URI.
   - `:only`: Allows to specify which parts of a Turtle document should be generated.
@@ -69,8 +69,6 @@ defmodule RDF.Turtle.Encoder do
   ]
   @ordered_properties MapSet.new(@predicate_order)
 
-  @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
-
   @impl RDF.Serialization.Encoder
   @spec encode(Graph.t() | Description.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ [])
@@ -78,110 +76,66 @@ defmodule RDF.Turtle.Encoder do
   def encode(%Description{} = description, opts), do: description |> Graph.new() |> encode(opts)
 
   def encode(%Graph{} = graph, opts) do
-    base =
-      Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
-      |> base_iri(graph)
-      |> init_base_iri()
+    state = State.new(graph, opts)
 
-    prefixes =
-      Keyword.get(opts, :prefixes)
-      |> prefixes(graph)
-
-    {graph, base, opts} =
-      add_base_description(graph, base, Keyword.get(opts, :base_description), opts)
-
-    {:ok, state} = State.start_link(graph, base, prefixes)
-
-    try do
-      State.preprocess(state)
-
-      {:ok,
-       (Keyword.get(opts, :only) || @document_structure)
-       |> compile(base, prefixes, state, opts)}
-    after
-      State.stop(state)
-    end
+    {:ok,
+     (Keyword.get(opts, :only) || @document_structure)
+     |> compile(state, opts)}
   end
 
-  defp compile(:base, base, _, _, opts), do: base_directive(base, opts)
-  defp compile(:prefixes, _, prefixes, _, opts), do: prefix_directives(prefixes, opts)
-  defp compile(:triples, _, _, state, opts), do: graph_statements(state, opts)
+  defp compile(:base, %{base: base} = state, opts), do: base_directive(base, state, opts)
 
-  defp compile(:directives, base, prefixes, state, opts),
-    do: [:base, :prefixes] |> compile(base, prefixes, state, opts)
+  defp compile(:prefixes, %{prefixes: prefixes} = state, opts),
+    do: prefix_directives(prefixes, state, opts)
 
-  defp compile(elements, base, prefixes, state, opts) when is_list(elements) do
-    Enum.map_join(elements, &compile(&1, base, prefixes, state, opts))
+  defp compile(:triples, state, _opts), do: graph_statements(state)
+
+  defp compile(:directives, state, opts), do: [:base, :prefixes] |> compile(state, opts)
+
+  defp compile(elements, state, opts) when is_list(elements) do
+    Enum.map_join(elements, &compile(&1, state, opts))
   end
 
-  defp compile(element, _, _, _, _) do
+  defp compile(element, _, _) do
     raise "unknown Turtle document element: #{inspect(element)}"
   end
 
-  defp base_iri(nil, %Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
-  defp base_iri(nil, _), do: RDF.default_base_iri()
-  defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
+  defp base_directive(nil, _, _), do: ""
+  defp base_directive(_, %{implicit_base: true}, _), do: ""
 
-  defp init_base_iri(nil), do: nil
-  defp init_base_iri(base_iri), do: to_string(base_iri)
-
-  defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
-
-  defp prefixes(nil, _), do: RDF.default_prefixes()
-  defp prefixes(prefixes, _), do: PrefixMap.new(prefixes)
-
-  defp base_directive(nil, _), do: ""
-
-  defp base_directive(base, opts) do
-    if Keyword.get(opts, :implicit_base, false) do
-      ""
-    else
-      indent(opts) <>
-        case Keyword.get(opts, :directive_style) do
-          :sparql -> "BASE <#{base}>"
-          _ -> "@base <#{base}> ."
-        end <> "\n\n"
-    end
+  defp base_directive(base, state, opts) do
+    indent(state) <>
+      case Keyword.get(opts, :directive_style) do
+        :sparql -> "BASE <#{base}>"
+        _ -> "@base <#{base}> ."
+      end <> "\n\n"
   end
 
-  defp prefix_directive({prefix, ns}, opts) do
-    indent(opts) <>
+  defp prefix_directive({prefix, ns}, state, opts) do
+    indent(state) <>
       case Keyword.get(opts, :directive_style) do
         :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
         _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
       end
   end
 
-  defp prefix_directives(prefixes, opts) do
-    case Enum.map(prefixes, &prefix_directive(&1, opts)) do
-      [] -> ""
-      prefixes -> Enum.join(prefixes, "") <> "\n"
+  defp prefix_directives(prefixes, state, opts) do
+    if Enum.empty?(prefixes) do
+      ""
+    else
+      Enum.map_join(prefixes, &prefix_directive(&1, state, opts)) <> "\n"
     end
   end
 
-  defp add_base_description(graph, base, nil, opts), do: {graph, base, opts}
+  defp graph_statements(state) do
+    indentation = state.indentation || 0
+    indent = indent(indentation)
 
-  defp add_base_description(graph, nil, base_description, opts) do
-    add_base_description(
-      graph,
-      @implicit_default_base,
-      base_description,
-      Keyword.put(opts, :implicit_base, true)
-    )
-  end
-
-  defp add_base_description(graph, base, base_description, opts) do
-    {Graph.add(graph, Description.new(base, init: base_description)), base, opts}
-  end
-
-  defp graph_statements(state, opts) do
-    indent = indent(opts)
-
-    State.data(state)
+    state.graph
     |> CompactGraph.compact()
-    |> RDF.Data.descriptions()
+    |> Graph.descriptions()
     |> order_descriptions(state)
-    |> Enum.map(&description_statements(&1, state, Keyword.get(opts, :indent, 0)))
+    |> Enum.map(&description_statements(&1, state, indentation))
     |> Enum.reject(&is_nil/1)
     |> Enum.map_join("\n", &(indent <> &1))
   end
@@ -273,7 +227,6 @@ defmodule RDF.Turtle.Encoder do
     |> Enum.map_join(" ;" <> newline_indent(nesting), &predication(&1, state, nesting))
   end
 
-  @dialyzer {:nowarn_function, order_predications: 1}
   defp order_predications(predications) do
     sorted_predications =
       @predicate_order
@@ -316,7 +269,7 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp unrefed_bnode_subject_term(bnode_description, ref_count, state, nesting) do
-    if valid_list_node?(bnode_description.subject, state) do
+    if State.valid_list_node?(state, bnode_description.subject) do
       case ref_count do
         0 ->
           bnode_description.subject
@@ -347,7 +300,6 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  @dialyzer {:nowarn_function, list_subject_description: 1}
   defp list_subject_description(description) do
     description = Description.delete_predicates(description, [RDF.first(), RDF.rest()])
 
@@ -360,21 +312,17 @@ defmodule RDF.Turtle.Encoder do
   end
 
   defp unrefed_bnode_object_term(bnode, ref_count, state, nesting) do
-    if valid_list_node?(bnode, state) do
+    if State.valid_list_node?(state, bnode) do
       list_term(bnode, state, nesting)
     else
       if ref_count == 1 do
-        State.data(state)
-        |> RDF.Data.description(bnode)
+        state.graph
+        |> Graph.description(bnode)
         |> blank_node_property_list(state, nesting)
       else
         raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
       end
     end
-  end
-
-  defp valid_list_node?(bnode, state) do
-    MapSet.member?(State.list_nodes(state), bnode)
   end
 
   defp list_term(head, state, nesting) do
@@ -387,8 +335,8 @@ defmodule RDF.Turtle.Encoder do
   defp term(@rdf_nil, _, _, _), do: "()"
 
   defp term(%IRI{} = iri, state, _, _) do
-    based_name(iri, State.base(state)) ||
-      prefixed_name(iri, State.prefixes(state)) ||
+    based_name(iri, state.base) ||
+      prefixed_name(iri, state.prefixes) ||
       "<#{to_string(iri)}>"
   end
 
@@ -475,10 +423,9 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp newline_indent(nesting),
-    do: "\n" <> String.duplicate(@indentation_char, nesting)
+  defp newline_indent(nesting), do: "\n" <> indent(nesting)
 
-  defp indent(opts) when is_list(opts), do: opts |> Keyword.get(:indent) |> indent()
+  defp indent(%State{indentation: indentation}), do: indent(indentation)
   defp indent(nil), do: ""
-  defp indent(count), do: String.duplicate(" ", count)
+  defp indent(count), do: String.duplicate(@indentation_char, count)
 end

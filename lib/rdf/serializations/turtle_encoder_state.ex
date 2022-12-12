@@ -1,47 +1,93 @@
 defmodule RDF.Turtle.Encoder.State do
   @moduledoc false
 
-  alias RDF.{BlankNode, Description}
+  defstruct [
+    :graph,
+    :base,
+    :prefixes,
+    :implicit_base,
+    :bnode_ref_counter,
+    :list_nodes,
+    :list_values,
+    :indentation
+  ]
 
-  def start_link(data, base, prefixes) do
-    Agent.start_link(fn -> %{data: data, base: base, prefixes: prefixes} end)
+  @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
+
+  alias RDF.{IRI, BlankNode, Description, Graph, PrefixMap}
+
+  def new(graph, opts) do
+    base =
+      Keyword.get(opts, :base, Keyword.get(opts, :base_iri))
+      |> base_iri(graph)
+      |> init_base_iri()
+
+    prefixes = Keyword.get(opts, :prefixes) |> prefixes(graph)
+
+    {graph, base, opts} =
+      add_base_description(graph, base, Keyword.get(opts, :base_description), opts)
+
+    {bnode_ref_counter, list_parents} = bnode_info(graph)
+    {list_nodes, list_values} = valid_lists(list_parents, bnode_ref_counter, graph)
+
+    %__MODULE__{
+      graph: graph,
+      base: base,
+      implicit_base: Keyword.get(opts, :implicit_base),
+      prefixes: prefixes,
+      bnode_ref_counter: bnode_ref_counter,
+      list_nodes: list_nodes,
+      list_values: list_values,
+      indentation: Keyword.get(opts, :indent)
+    }
   end
 
-  def stop(state) do
-    Agent.stop(state)
+  defp base_iri(nil, %Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
+  defp base_iri(nil, _), do: RDF.default_base_iri()
+  defp base_iri(base_iri, _), do: IRI.coerce_base(base_iri)
+
+  defp init_base_iri(nil), do: nil
+  defp init_base_iri(base_iri), do: to_string(base_iri)
+
+  defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+
+  defp prefixes(nil, _), do: RDF.default_prefixes()
+  defp prefixes(prefixes, _), do: PrefixMap.new(prefixes)
+
+  defp add_base_description(graph, base, nil, opts), do: {graph, base, opts}
+
+  defp add_base_description(graph, nil, base_description, opts) do
+    add_base_description(
+      graph,
+      @implicit_default_base,
+      base_description,
+      Keyword.put(opts, :implicit_base, true)
+    )
   end
 
-  def data(state), do: Agent.get(state, & &1.data)
-  def base(state), do: Agent.get(state, & &1.base)
-  def prefixes(state), do: Agent.get(state, & &1.prefixes)
-  def list_nodes(state), do: Agent.get(state, & &1.list_nodes)
-  def bnode_ref_counter(state), do: Agent.get(state, & &1.bnode_ref_counter)
+  defp add_base_description(graph, base, base_description, opts) do
+    {Graph.add(graph, Description.new(base, init: base_description)), base, opts}
+  end
 
   def bnode_ref_counter(state, bnode) do
-    bnode_ref_counter(state) |> Map.get(bnode, 0)
+    Map.get(state.bnode_ref_counter, bnode, 0)
   end
 
   def base_iri(state) do
-    if base = base(state) do
+    if base = state.base do
       RDF.iri(base)
     end
   end
 
-  def list_values(head, state), do: Agent.get(state, & &1.list_values[head])
+  def list_values(head, state), do: state.list_values[head]
 
-  def preprocess(state) do
-    data = data(state)
-    {bnode_ref_counter, list_parents} = bnode_info(data)
-    {list_nodes, list_values} = valid_lists(list_parents, bnode_ref_counter, data)
-
-    Agent.update(state, &Map.put(&1, :bnode_ref_counter, bnode_ref_counter))
-    Agent.update(state, &Map.put(&1, :list_nodes, list_nodes))
-    Agent.update(state, &Map.put(&1, :list_values, list_values))
+  def valid_list_node?(state, bnode) do
+    MapSet.member?(state.list_nodes, bnode)
   end
 
-  defp bnode_info(data) do
-    data
-    |> RDF.Data.descriptions()
+  defp bnode_info(graph) do
+    graph
+    |> Graph.descriptions()
     |> Enum.reduce(
       {%{}, %{}},
       fn %Description{subject: subject} = description, {bnode_ref_counter, list_parents} ->
@@ -109,7 +155,6 @@ defmodule RDF.Turtle.Encoder.State do
                      RDF.Utils.Bootstrapping.rdf_iri("rest")
                    ])
 
-  @dialyzer {:nowarn_function, to_list?: 2}
   defp to_list?(%Description{} = description, 1) do
     Description.count(description) == 2 and
       Description.predicates(description) |> MapSet.equal?(@list_properties)
@@ -118,31 +163,27 @@ defmodule RDF.Turtle.Encoder.State do
   defp to_list?(%Description{} = description, 0), do: RDF.list?(description)
   defp to_list?(_, _), do: false
 
-  defp valid_lists(list_parents, bnode_ref_counter, data) do
+  defp valid_lists(list_parents, bnode_ref_counter, graph) do
     head_nodes = for {list_node, nil} <- list_parents, do: list_node
 
     all_list_nodes =
-      for {list_node, _} <- list_parents, Map.get(bnode_ref_counter, list_node, 0) < 2 do
+      for {list_node, _} <- list_parents,
+          Map.get(bnode_ref_counter, list_node, 0) < 2,
+          into: MapSet.new() do
         list_node
       end
-      |> MapSet.new()
 
     Enum.reduce(head_nodes, {MapSet.new(), %{}}, fn head_node, {valid_list_nodes, list_values} ->
       with list when not is_nil(list) <-
-             RDF.List.new(head_node, data),
+             RDF.List.new(head_node, graph),
            list_nodes = RDF.List.nodes(list),
            true <-
              Enum.all?(list_nodes, fn
-               %BlankNode{} = list_node ->
-                 MapSet.member?(all_list_nodes, list_node)
-
-               _ ->
-                 false
+               %BlankNode{} = list_node -> MapSet.member?(all_list_nodes, list_node)
+               _ -> false
              end) do
         {
-          Enum.reduce(list_nodes, valid_list_nodes, fn list_node, valid_list_nodes ->
-            MapSet.put(valid_list_nodes, list_node)
-          end),
+          Enum.reduce(list_nodes, valid_list_nodes, &MapSet.put(&2, &1)),
           Map.put(list_values, head_node, RDF.List.values(list))
         }
       else
