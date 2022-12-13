@@ -1,0 +1,63 @@
+test,name,comment,approval,urdna2015
+test001,simple id,,,TRUE
+test002,duplicate property iri values,,,TRUE
+test003,bnode,,,TRUE
+test004,bnode plus embed w/subject,,,TRUE
+test005,bnode embed,,,TRUE
+test006,multiple rdf types,,,TRUE
+test007,coerce CURIE value,,,TRUE
+test008,single subject complex,,,TRUE
+test009,multiple subjects - complex,,,TRUE
+test010,type,,,TRUE
+test011,type-coerced type,,,TRUE
+test012,"type-coerced type, remove duplicate reference",,,TRUE
+test013,"type-coerced type, cycle",,,TRUE
+test014,check types,,,TRUE
+test015,top level context,,,TRUE
+test016,blank node - dual link - embed,,,TRUE
+test017,blank node - dual link - non-embed,,,TRUE
+test018,blank node - self link,,,TRUE
+test019,blank node - disjoint self links,,,TRUE
+test020,blank node - diamond,,,TRUE
+test021,blank node - circle of 2,,,TRUE
+test022,blank node - double circle of 2,,,TRUE
+test023,blank node - circle of 3,,,TRUE
+test024,blank node - double circle of 3 (1-2-3),,,TRUE
+test025,blank node - double circle of 3 (1-3-2),,,TRUE
+test026,blank node - double circle of 3 (2-1-3),,,TRUE
+test027,blank node - double circle of 3 (2-3-1),,,TRUE
+test028,blank node - double circle of 3 (3-2-1),,,TRUE
+test029,blank node - double circle of 3 (3-1-2),,,TRUE
+test030,blank node - point at circle of 3,,,TRUE
+test031,bnode (1),,,TRUE
+test032,bnode (2),,,TRUE
+test033,disjoint identical subgraphs (1),,,TRUE
+test034,disjoint identical subgraphs (2),,,TRUE
+test035,reordered w/strings (1),,,TRUE
+test036,reordered w/strings (2),,,TRUE
+test037,reordered w/strings (3),,,TRUE
+test038,"reordered 4 bnodes, reordered 2 properties (1)",,,TRUE
+test039,"reordered 4 bnodes, reordered 2 properties (2)",,,TRUE
+test040,reordered 6 bnodes (1),,,TRUE
+test041,reordered 6 bnodes (2),,,TRUE
+test042,reordered 6 bnodes (3),,,TRUE
+test043,literal with language,,,TRUE
+test044,evil (1),,,TRUE
+test045,evil (2),,,TRUE
+test046,evil (3),,,TRUE
+test047,deep diff (1),,,TRUE
+test048,deep diff (2),,,TRUE
+test049,remove null,,,TRUE
+test050,nulls,,,TRUE
+test051,merging subjects,,,TRUE
+test052,alias keywords,,,TRUE
+test053,@list,,,TRUE
+test054,t-graph,,,TRUE
+test055,simple reorder (1),,,TRUE
+test056,simple reorder (2),,,TRUE
+test057,unnamed graph,,,TRUE
+test058,unnamed graph with blank node objects,,,TRUE
+test059,n-quads parsing,,,TRUE
+test060,n-quads escaping,,,TRUE
+test061,same literal value with multiple languages,,,TRUE
+test062,same literal value with multiple datatypes,,,TRUE

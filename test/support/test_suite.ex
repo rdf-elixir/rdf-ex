@@ -24,13 +24,9 @@ defmodule RDF.TestSuite do
       ],
       strict: false
 
-    defvocab RDFN,
-      base_iri: "http://w3c-ccg.github.io/rdf-dataset-canonicalization/test-vocab#",
-      terms: ~w[
-        Urgna2012EvalTest
-        Urdna2015EvalTest
-      ],
-      strict: false
+    defvocab RDFC,
+      base_iri: "https://w3c.github.io/rdf-canon/tests/vocab#",
+      terms: ~w[Urdna2015EvalTest]
   end
 
   @compile {:no_warn_undefined, RDF.TestSuite.NS.MF}
