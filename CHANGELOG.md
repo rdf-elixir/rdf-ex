@@ -35,6 +35,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   BEWARE: You'll have to fix the generated Turtle files you've produced with earlier versions!
 - the N-Triples, N-Quads and Turtle encoder didn't apply proper escaping in typed literals 
   of unknown type in general
+- a regression in `defvocab` prevented its use with fully qualified vocabulary 
+  namespace module names (i.e. which include a dot)
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
 - the `Inspect` protocol implementation for decimal literals wasn't using the lexical
   in case of an uncanonical lexical form of a decimal literal 

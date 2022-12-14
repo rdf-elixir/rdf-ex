@@ -49,10 +49,16 @@ defmodule RDF.Namespace do
                      ]
       end
 
+  > #### Warning {: .warning}
+  >
+  > This macro is intended to be used at compile-time, i.e. in the body of a
+  > `defmodule` definition. In particular the module name will be evaluated immediately.
+  > If you want to create `RDF.Namespace`s dynamically at runtime, please use `create/4`.
+
   """
-  defmacro defnamespace({:__aliases__, _, [module]}, term_mapping, opts \\ []) do
+  defmacro defnamespace(module, term_mapping, opts \\ []) do
     env = __CALLER__
-    module = module(env, module)
+    module = eval_to_fully_qualified_module(module, env)
 
     quote do
       result =
@@ -75,7 +81,10 @@ defmodule RDF.Namespace do
   defdelegate create!(module, term_mapping, location, opts), to: Builder
 
   @doc false
-  def module(env, module), do: Module.concat(env.module, module)
+  def eval_to_fully_qualified_module(module, env) do
+    {result, _binding} = Code.eval_quoted(module, [], env)
+    Module.concat(env.module, result)
+  end
 
   @doc """
   Resolves a qualified term to a `RDF.IRI`.

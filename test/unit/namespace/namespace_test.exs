@@ -19,6 +19,13 @@ defmodule RDF.NamespaceTest do
 
       assert RDF.NamespaceTest.RelativeNS.foo() == ~I<http://example.com/foo>
     end
+
+    test "with fully qualified module name" do
+      assert {:module, RDF.NamespaceTest.Qualified.NS, _, _} =
+               Namespace.defnamespace(Qualified.NS,
+                 foo: ~I<http://example.com/foo>
+               )
+    end
   end
 
   describe "property functions" do

@@ -33,6 +33,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
             RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.ExampleIgnoredLowercasedAlias}
   @compile {:no_warn_undefined,
             RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.ExampleIgnoredCapitalizedAlias}
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.NSwithQualifiedNamespaces.Qualified.EX}
 
   defmodule ExampleCaseViolationHandler do
     def fix(_, "baazTest"), do: :ignore
@@ -334,6 +336,23 @@ defmodule RDF.Vocabulary.NamespaceTest do
                      end
                    end
     end
+  end
+
+  test "with fully qualified module name" do
+    assert Qualified.EX
+
+    defmodule NSwithQualifiedNamespaces do
+      use RDF.Vocabulary.Namespace
+
+      defvocab Qualified.EX,
+        base_iri: "http://example.com/qualified#",
+        terms: ~w[foo Bar]
+    end
+
+    assert NSwithQualifiedNamespaces.Qualified.EX.foo() == ~I<http://example.com/qualified#foo>
+
+    assert RDF.iri(NSwithQualifiedNamespaces.Qualified.EX.Bar) ==
+             ~I<http://example.com/qualified#Bar>
   end
 
   test "defvocab with special terms" do

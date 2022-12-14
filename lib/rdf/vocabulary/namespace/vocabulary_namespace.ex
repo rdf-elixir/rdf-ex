@@ -88,11 +88,17 @@ defmodule RDF.Vocabulary.Namespace do
             :property, term -> {:ok, Recase.to_snake(term)}
       end
 
+  > #### Warning {: .warning}
+  >
+  > This macro is intended to be used at compile-time, i.e. in the body of a
+  > `defmodule` definition. In particular the module name will be evaluated immediately.
+  > If you want to create `RDF.Vocabulary.Namespace`s dynamically at runtime, please use `create/5`.
+
   """
-  defmacro defvocab({:__aliases__, _, [module]}, spec) do
+  defmacro defvocab(module, spec) do
     env = __CALLER__
     stacktrace = Macro.Env.stacktrace(env)
-    module = Namespace.module(env, module)
+    module = Namespace.eval_to_fully_qualified_module(module, env)
     {base_iri, spec} = Keyword.pop(spec, :base_iri)
     {input, opts} = input(module, stacktrace, spec)
     no_warn_undefined = if Keyword.get(opts, :strict) == false, do: no_warn_undefined(module)
