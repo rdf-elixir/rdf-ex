@@ -52,13 +52,13 @@ defmodule RDF.Namespace do
   > #### Warning {: .warning}
   >
   > This macro is intended to be used at compile-time, i.e. in the body of a
-  > `defmodule` definition. In particular the module name will be evaluated immediately.
-  > If you want to create `RDF.Namespace`s dynamically at runtime, please use `create/4`.
+  > `defmodule` definition. If you want to create `RDF.Namespace`s dynamically
+  > at runtime, please use `create/4`.
 
   """
   defmacro defnamespace(module, term_mapping, opts \\ []) do
     env = __CALLER__
-    module = eval_to_fully_qualified_module(module, env)
+    module = fully_qualified_module(module, env)
 
     quote do
       result =
@@ -81,9 +81,8 @@ defmodule RDF.Namespace do
   defdelegate create!(module, term_mapping, location, opts), to: Builder
 
   @doc false
-  def eval_to_fully_qualified_module(module, env) do
-    {result, _binding} = Code.eval_quoted(module, [], env)
-    Module.concat(env.module, result)
+  def fully_qualified_module({:__aliases__, _, module}, env) do
+    Module.concat([env.module | module])
   end
 
   @doc """

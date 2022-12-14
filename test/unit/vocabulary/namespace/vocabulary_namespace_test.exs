@@ -35,6 +35,8 @@ defmodule RDF.Vocabulary.NamespaceTest do
             RDF.Vocabulary.NamespaceTest.IgnoredAliasTest.ExampleIgnoredCapitalizedAlias}
   @compile {:no_warn_undefined,
             RDF.Vocabulary.NamespaceTest.NSwithQualifiedNamespaces.Qualified.EX}
+  @compile {:no_warn_undefined,
+            RDF.Vocabulary.NamespaceTest.NSwithQualifiedNamespaces.Existing.EX}
 
   defmodule ExampleCaseViolationHandler do
     def fix(_, "baazTest"), do: :ignore
@@ -339,13 +341,19 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   test "with fully qualified module name" do
-    assert Qualified.EX
-
     defmodule NSwithQualifiedNamespaces do
       use RDF.Vocabulary.Namespace
 
       defvocab Qualified.EX,
         base_iri: "http://example.com/qualified#",
+        terms: ~w[foo Bar]
+
+      defmodule Existing do
+        # ...
+      end
+
+      defvocab Existing.EX,
+        base_iri: "http://example.com/existing_parent_module#",
         terms: ~w[foo Bar]
     end
 
@@ -353,6 +361,12 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     assert RDF.iri(NSwithQualifiedNamespaces.Qualified.EX.Bar) ==
              ~I<http://example.com/qualified#Bar>
+
+    assert NSwithQualifiedNamespaces.Existing.EX.foo() ==
+             ~I<http://example.com/existing_parent_module#foo>
+
+    assert RDF.iri(NSwithQualifiedNamespaces.Existing.EX.Bar) ==
+             ~I<http://example.com/existing_parent_module#Bar>
   end
 
   test "defvocab with special terms" do
