@@ -35,6 +35,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   BEWARE: You'll have to fix the generated Turtle files you've produced with earlier versions!
 - the N-Triples, N-Quads and Turtle encoder didn't apply proper escaping in typed literals 
   of unknown type in general
+- the Turtle encoder didn't encode the descriptions of blank nodes which occurred in
+  a blank node cycle, e.g. in `_:b1 :p1 _:b2 . _:b2 :p2 _:b1 .` neither the description 
+  of `_:b1` nor of `_:b2` were rendered
 - a regression in `defvocab` prevented its use with fully qualified vocabulary 
   namespace module names (i.e. which include a dot)
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches

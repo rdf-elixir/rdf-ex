@@ -297,6 +297,108 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
+    test "blank node cycles" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([{~B<foo>, EX.p(), ~B<foo>}]),
+               prefixes: %{}
+             ) ==
+               """
+               _:foo
+                   <http://example.org/#p> _:foo .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}]),
+               prefixes: %{}
+             ) ==
+               """
+               _:bar
+                   <http://example.org/#p> _:foo .
+
+               _:foo
+                   <http://example.org/#p> _:bar .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([
+                 {~B<foo>, EX.p(), ~B<bar>},
+                 {~B<bar>, EX.p(), ~B<baz>},
+                 {~B<baz>, EX.p(), ~B<foo>}
+               ]),
+               prefixes: %{}
+             ) ==
+               """
+               _:bar
+                   <http://example.org/#p> _:baz .
+
+               _:baz
+                   <http://example.org/#p> _:foo .
+
+               _:foo
+                   <http://example.org/#p> _:bar .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([
+                 {~B<foo>, EX.p1(), ~B<bar>},
+                 {~B<bar>, EX.p2(), ~B<baz>},
+                 {~B<baz>, EX.p3(), ~B<bar>}
+               ]),
+               prefixes: %{}
+             ) ==
+               """
+               _:bar
+                   <http://example.org/#p2> _:baz .
+
+               _:baz
+                   <http://example.org/#p3> _:bar .
+
+               [
+                   <http://example.org/#p1> _:bar
+               ] .
+               """
+
+      assert Turtle.Encoder.encode!(
+               Graph.new([
+                 {~B<foo>, EX.p1(), ~B<bar>},
+                 {~B<bar>, EX.p2(), ~B<baz>},
+                 {~B<baz>, EX.p3(), ~B<bar>}
+               ]),
+               prefixes: %{}
+             ) ==
+               """
+               _:bar
+                   <http://example.org/#p2> _:baz .
+
+               _:baz
+                   <http://example.org/#p3> _:bar .
+
+               [
+                   <http://example.org/#p1> _:bar
+               ] .
+               """
+    end
+
+    test "deeply embedded blank node descriptions" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([
+                 {~B<foo>, EX.p1(), ~B<bar>},
+                 {~B<bar>, EX.p2(), ~B<baz>},
+                 {~B<baz>, EX.p3(), 42}
+               ]),
+               prefixes: %{}
+             ) ==
+               """
+               [
+                   <http://example.org/#p1> [
+                       <http://example.org/#p2> [
+                           <http://example.org/#p3> 42
+                       ]
+                   ]
+               ] .
+               """
+    end
+
     test "ordering of descriptions" do
       assert Turtle.Encoder.encode!(
                Graph.new([

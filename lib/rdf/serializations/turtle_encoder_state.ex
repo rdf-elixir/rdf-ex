@@ -27,7 +27,8 @@ defmodule RDF.Turtle.Encoder.State do
     {graph, base, opts} =
       add_base_description(graph, base, Keyword.get(opts, :base_description), opts)
 
-    {bnode_ref_counter, list_parents} = bnode_info(graph)
+    {bnode_ref_counter, nesting_parents, list_parents} = bnode_info(graph)
+    bnode_ref_counter = handle_bnode_cycles(nesting_parents, bnode_ref_counter)
     {list_nodes, list_values} = valid_lists(list_parents, bnode_ref_counter, graph)
 
     %__MODULE__{
@@ -69,10 +70,6 @@ defmodule RDF.Turtle.Encoder.State do
     {Graph.add(graph, Description.new(base, init: base_description)), base, opts}
   end
 
-  def bnode_ref_counter(state, bnode) do
-    Map.get(state.bnode_ref_counter, bnode, 0)
-  end
-
   def base_iri(state) do
     if base = state.base do
       RDF.iri(base)
@@ -85,41 +82,61 @@ defmodule RDF.Turtle.Encoder.State do
     MapSet.member?(state.list_nodes, bnode)
   end
 
+  def bnode_type(state, %BlankNode{} = bnode) do
+    case bnode_ref_counter(state.bnode_ref_counter, bnode) do
+      0 -> :unrefed_bnode_subject_term
+      1 -> :unrefed_bnode_object_term
+      _ -> :normal
+    end
+  end
+
+  def bnode_type(_, _), do: :normal
+
+  defp bnode_ref_counter(bnode_ref_counter, bnode) do
+    Map.get(bnode_ref_counter, bnode, 0)
+  end
+
+  defp incr_bnode_ref_counter(bnode_ref_counter, bnode, count \\ 1) do
+    Map.update(bnode_ref_counter, bnode, 1, &(&1 + count))
+  end
+
   defp bnode_info(graph) do
     graph
     |> Graph.descriptions()
     |> Enum.reduce(
-      {%{}, %{}},
-      fn %Description{subject: subject} = description, {bnode_ref_counter, list_parents} ->
+      {%{}, %{}, %{}},
+      fn %Description{subject: subject} = description,
+         {bnode_ref_counter, nesting_parents, list_parents} ->
         # We don't count blank node subjects, because when a blank node only occurs as a subject in
         # multiple triples, we still can and want to use the square bracket syntax for its encoding.
 
+        blank_node_subject = match?(%BlankNode{}, subject)
+
         list_parents =
-          if match?(%BlankNode{}, subject) and
-               to_list?(description, Map.get(bnode_ref_counter, subject, 0)),
+          if blank_node_subject and
+               to_list?(description, bnode_ref_counter(bnode_ref_counter, subject)),
              do: Map.put_new(list_parents, subject, nil),
              else: list_parents
 
         bnode_ref_counter = handle_quoted_triples(subject, bnode_ref_counter)
 
-        Enum.reduce(description.predications, {bnode_ref_counter, list_parents}, fn
-          {predicate, objects}, {bnode_ref_counter, list_parents} ->
-            Enum.reduce(Map.keys(objects), {bnode_ref_counter, list_parents}, fn
-              {_, _, _} = quoted_triple, {bnode_ref_counter, list_parents} ->
-                {handle_quoted_triples(quoted_triple, bnode_ref_counter), list_parents}
+        Enum.reduce(
+          description.predications,
+          {bnode_ref_counter, nesting_parents, list_parents},
+          fn {predicate, objects}, {bnode_ref_counter, nesting_parents, list_parents} ->
+            Enum.reduce(Map.keys(objects), {bnode_ref_counter, nesting_parents, list_parents}, fn
+              {_, _, _} = quoted_triple, {bnode_ref_counter, nesting_parents, list_parents} ->
+                {handle_quoted_triples(quoted_triple, bnode_ref_counter), nesting_parents,
+                 list_parents}
 
-              %BlankNode{} = object, {bnode_ref_counter, list_parents} ->
+              %BlankNode{} = object, {bnode_ref_counter, nesting_parents, list_parents} ->
                 {
-                  # Note: The following conditional produces imprecise results
-                  # (sometimes the occurrence in the subject counts, sometimes it doesn't),
-                  # but is sufficient for the current purpose of handling the
-                  # case of a statement with the same subject and object bnode.
-                  Map.update(
-                    bnode_ref_counter,
-                    object,
-                    if(subject == object, do: 2, else: 1),
-                    &(&1 + 1)
-                  ),
+                  incr_bnode_ref_counter(bnode_ref_counter, object),
+                  if blank_node_subject do
+                    Map.update(nesting_parents, object, [subject], &[subject | &1])
+                  else
+                    nesting_parents
+                  end,
                   if predicate == RDF.rest() do
                     Map.put_new(list_parents, object, subject)
                   else
@@ -127,10 +144,11 @@ defmodule RDF.Turtle.Encoder.State do
                   end
                 }
 
-              _, {bnode_ref_counter, list_parents} ->
-                {bnode_ref_counter, list_parents}
+              _, acc ->
+                acc
             end)
-        end)
+          end
+        )
       end
     )
   end
@@ -138,17 +156,41 @@ defmodule RDF.Turtle.Encoder.State do
   defp handle_quoted_triples({s, _, o}, bnode_ref_counter) do
     bnode_ref_counter =
       case s do
-        %BlankNode{} -> Map.update(bnode_ref_counter, s, 1, &(&1 + 1))
+        %BlankNode{} -> incr_bnode_ref_counter(bnode_ref_counter, s)
         _ -> bnode_ref_counter
       end
 
     case o do
-      %BlankNode{} -> Map.update(bnode_ref_counter, o, 1, &(&1 + 1))
+      %BlankNode{} -> incr_bnode_ref_counter(bnode_ref_counter, o)
       _ -> bnode_ref_counter
     end
   end
 
   defp handle_quoted_triples(_, bnode_ref_counter), do: bnode_ref_counter
+
+  defp handle_bnode_cycles(nesting_parents, bnode_ref_counter) do
+    Enum.reduce(nesting_parents, bnode_ref_counter, fn {object, subject}, bnode_ref_counter ->
+      if bnode_cycle = bnode_cycle(subject, nesting_parents, bnode_ref_counter, [object]) do
+        Enum.reduce(bnode_cycle, bnode_ref_counter, &incr_bnode_ref_counter(&2, &1, 2))
+      else
+        bnode_ref_counter
+      end
+    end)
+  end
+
+  defp bnode_cycle(nil, _, _, _), do: nil
+
+  defp bnode_cycle(bnodes, nesting_parents, ref_counter, path) when is_list(bnodes) do
+    Enum.find_value(bnodes, &bnode_cycle(&1, nesting_parents, ref_counter, path))
+  end
+
+  defp bnode_cycle(bnode, nesting_parents, ref_counter, path) do
+    cond do
+      bnode in path -> path
+      bnode_ref_counter(ref_counter, bnode) > 1 -> nil
+      true -> bnode_cycle(nesting_parents[bnode], nesting_parents, ref_counter, [bnode | path])
+    end
+  end
 
   @list_properties MapSet.new([
                      RDF.Utils.Bootstrapping.rdf_iri("first"),
@@ -168,14 +210,13 @@ defmodule RDF.Turtle.Encoder.State do
 
     all_list_nodes =
       for {list_node, _} <- list_parents,
-          Map.get(bnode_ref_counter, list_node, 0) < 2,
+          bnode_ref_counter(bnode_ref_counter, list_node) < 2,
           into: MapSet.new() do
         list_node
       end
 
     Enum.reduce(head_nodes, {MapSet.new(), %{}}, fn head_node, {valid_list_nodes, list_values} ->
-      with list when not is_nil(list) <-
-             RDF.List.new(head_node, graph),
+      with list when not is_nil(list) <- RDF.List.new(head_node, graph),
            list_nodes = RDF.List.nodes(list),
            true <-
              Enum.all?(list_nodes, fn

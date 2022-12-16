@@ -189,11 +189,10 @@ defmodule RDF.Turtle.Encoder do
     if Description.empty?(description) do
       raise Graph.EmptyDescriptionError, subject: description.subject
     else
-      with %BlankNode{} <- description.subject,
-           ref_count when ref_count < 2 <- State.bnode_ref_counter(state, description.subject) do
-        unrefed_bnode_subject_term(description, ref_count, state, nesting)
-      else
-        _ -> full_description_statements(description, state, nesting)
+      case State.bnode_type(state, description.subject) do
+        :unrefed_bnode_subject_term -> unrefed_bnode_subject_term(description, state, nesting)
+        :unrefed_bnode_object_term -> nil
+        :normal -> full_description_statements(description, state, nesting)
       end
     end
   end
@@ -268,35 +267,17 @@ defmodule RDF.Turtle.Encoder do
     Enum.join(objects, separator)
   end
 
-  defp unrefed_bnode_subject_term(bnode_description, ref_count, state, nesting) do
+  defp unrefed_bnode_subject_term(bnode_description, state, nesting) do
     if State.valid_list_node?(state, bnode_description.subject) do
-      case ref_count do
-        0 ->
-          bnode_description.subject
-          |> list_term(state, nesting)
-          |> full_description_statements(
-            list_subject_description(bnode_description),
-            state,
-            nesting
-          )
-
-        1 ->
-          nil
-
-        _ ->
-          raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
-      end
+      bnode_description.subject
+      |> list_term(state, nesting)
+      |> full_description_statements(
+        list_subject_description(bnode_description),
+        state,
+        nesting
+      )
     else
-      case ref_count do
-        0 ->
-          blank_node_property_list(bnode_description, state, nesting) <> " .\n"
-
-        1 ->
-          nil
-
-        _ ->
-          raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
-      end
+      blank_node_property_list(bnode_description, state, nesting) <> " .\n"
     end
   end
 
@@ -311,17 +292,13 @@ defmodule RDF.Turtle.Encoder do
     end
   end
 
-  defp unrefed_bnode_object_term(bnode, ref_count, state, nesting) do
+  defp unrefed_bnode_object_term(bnode, state, nesting) do
     if State.valid_list_node?(state, bnode) do
       list_term(bnode, state, nesting)
     else
-      if ref_count == 1 do
-        state.graph
-        |> Graph.description(bnode)
-        |> blank_node_property_list(state, nesting)
-      else
-        raise "Internal error: This shouldn't happen. Please raise an issue in the RDF.ex project with the input document causing this error."
-      end
+      state.graph
+      |> Graph.description(bnode)
+      |> blank_node_property_list(state, nesting)
     end
   end
 
@@ -340,10 +317,9 @@ defmodule RDF.Turtle.Encoder do
       "<#{to_string(iri)}>"
   end
 
-  defp term(%BlankNode{} = bnode, state, position, nesting)
-       when position in ~w[object list]a do
-    if (ref_count = State.bnode_ref_counter(state, bnode)) <= 1 do
-      unrefed_bnode_object_term(bnode, ref_count, state, nesting)
+  defp term(%BlankNode{} = bnode, state, position, nesting) when position in ~w[object list]a do
+    if State.bnode_type(state, bnode) == :unrefed_bnode_object_term do
+      unrefed_bnode_object_term(bnode, state, nesting)
     else
       to_string(bnode)
     end
