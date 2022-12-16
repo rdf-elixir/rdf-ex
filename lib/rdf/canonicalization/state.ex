@@ -8,12 +8,12 @@ defmodule RDF.Canonicalization.State do
   alias RDF.Canonicalization.IdentifierIssuer
   alias RDF.Statement
 
-  defstruct bnode_to_statements: nil,
+  defstruct bnode_to_quads: nil,
             hash_to_bnodes: %{},
             canonical_issuer: IdentifierIssuer.canonical()
 
   def new(input) do
-    %__MODULE__{bnode_to_statements: bnode_to_statements(input)}
+    %__MODULE__{bnode_to_quads: bnode_to_quads(input)}
   end
 
   def issue_canonical_identifier(state, identifier) do
@@ -23,12 +23,12 @@ defmodule RDF.Canonicalization.State do
     %{state | canonical_issuer: canonical_issuer}
   end
 
-  defp bnode_to_statements(data) do
-    Enum.reduce(data, %{}, fn statement, bnode_to_statements ->
-      statement
+  defp bnode_to_quads(data) do
+    Enum.reduce(data, %{}, fn quad, bnode_to_quads ->
+      quad
       |> Statement.bnodes()
-      |> Enum.reduce(bnode_to_statements, fn bnode, bnode_to_statements ->
-        Map.update(bnode_to_statements, bnode, [statement], &[statement | &1])
+      |> Enum.reduce(bnode_to_quads, fn bnode, bnode_to_quads ->
+        Map.update(bnode_to_quads, bnode, [quad], &[quad | &1])
       end)
     end)
   end

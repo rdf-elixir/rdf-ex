@@ -27,7 +27,7 @@ defmodule RDF.Canonicalization do
 
   # 3)
   defp create_canonical_identifiers_for_single_node_hashes(state) do
-    non_normalized_identifiers = Map.keys(state.bnode_to_statements)
+    non_normalized_identifiers = Map.keys(state.bnode_to_quads)
     do_create_canonical_identifiers_for_single_node_hashes(state, non_normalized_identifiers)
   end
 
@@ -142,10 +142,10 @@ defmodule RDF.Canonicalization do
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-first-degree-quads
   defp hash_first_degree_quads(state, ref_bnode_id) do
-    state.bnode_to_statements
+    state.bnode_to_quads
     |> Map.get(ref_bnode_id, [])
-    |> Enum.map(fn statement ->
-      statement
+    |> Enum.map(fn quads ->
+      quads
       |> Quad.new()
       |> Statement.map(fn
         {_, ^ref_bnode_id} -> ~B<a>
@@ -163,7 +163,7 @@ defmodule RDF.Canonicalization do
   end
 
   # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-related-blank-node
-  defp hash_related_bnode(state, related, statement, issuer, position) do
+  defp hash_related_bnode(state, related, quad, issuer, position) do
     identifier =
       IdentifierIssuer.identifier(state.canonical_issuer, related) ||
         IdentifierIssuer.identifier(issuer, related) ||
@@ -173,7 +173,7 @@ defmodule RDF.Canonicalization do
 
     input =
       if position != :g do
-        "#{input}<#{Statement.predicate(statement)}>"
+        "#{input}<#{Statement.predicate(quad)}>"
       else
         input
       end <> identifier
@@ -188,10 +188,10 @@ defmodule RDF.Canonicalization do
 
     # 1-3)
     hash_to_related_bnodes =
-      Enum.reduce(state.bnode_to_statements[identifier], %{}, fn statement, map ->
+      Enum.reduce(state.bnode_to_quads[identifier], %{}, fn quad, map ->
         Map.merge(
           map,
-          hash_related_statement(state, identifier, statement, issuer),
+          hash_related_quad(state, identifier, quad, issuer),
           fn _, terms, new -> terms ++ new end
         )
       end)
@@ -309,18 +309,18 @@ defmodule RDF.Canonicalization do
   end
 
   # 4.8.2.3.1) Group adjacent bnodes by hash
-  defp hash_related_statement(state, identifier, statement, issuer) do
+  defp hash_related_quad(state, identifier, quad, issuer) do
     [
-      s: Statement.subject(statement),
-      o: Statement.object(statement),
-      g: Statement.graph_name(statement)
+      s: Statement.subject(quad),
+      o: Statement.object(quad),
+      g: Statement.graph_name(quad)
     ]
     |> Enum.reduce(%{}, fn
       {_, ^identifier}, map ->
         map
 
       {pos, %BlankNode{} = term}, map ->
-        hash = hash_related_bnode(state, term, statement, issuer, pos)
+        hash = hash_related_bnode(state, term, quad, issuer, pos)
 
         Map.update(map, hash, [term], fn terms ->
           if term in terms, do: terms, else: [term | terms]
