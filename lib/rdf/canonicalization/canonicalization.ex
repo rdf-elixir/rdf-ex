@@ -64,7 +64,7 @@ defmodule RDF.Canonicalization do
           hash_path_list
         else
           {_issued_identifier, temporary_issuer} =
-            "_:b"
+            "b"
             |> IdentifierIssuer.new()
             |> IdentifierIssuer.issue_identifier(identifier)
 
@@ -131,11 +131,6 @@ defmodule RDF.Canonicalization do
 
   # see https://www.w3.org/TR/rdf-canon/#hash-related-blank-node
   defp hash_related_bnode(state, related, quad, issuer, position) do
-    identifier =
-      IdentifierIssuer.identifier(state.canonical_issuer, related) ||
-        IdentifierIssuer.identifier(issuer, related) ||
-        hash_first_degree_quads(state, related)
-
     input = to_string(position)
 
     input =
@@ -143,7 +138,14 @@ defmodule RDF.Canonicalization do
         "#{input}<#{Statement.predicate(quad)}>"
       else
         input
-      end <> identifier
+      end <>
+        if identifier =
+             IdentifierIssuer.identifier(state.canonical_issuer, related) ||
+               IdentifierIssuer.identifier(issuer, related) do
+          "_:" <> identifier
+        else
+          hash_first_degree_quads(state, related)
+        end
 
     hash(input)
     # |> IO.inspect(label: "hrel: input: #{inspect(input)}, hash_related_bnode")
@@ -195,16 +197,16 @@ defmodule RDF.Canonicalization do
                       {path, recursion_list, issuer_copy} =
                         if issued_identifier =
                              IdentifierIssuer.identifier(state.canonical_issuer, related) do
-                          {path <> issued_identifier, recursion_list, issuer_copy}
+                          {path <> "_:" <> issued_identifier, recursion_list, issuer_copy}
                         else
                           if issued_identifier = IdentifierIssuer.identifier(issuer_copy, related) do
-                            {path <> issued_identifier, recursion_list, issuer_copy}
+                            {path <> "_:" <> issued_identifier, recursion_list, issuer_copy}
                           else
                             {issued_identifier, issuer_copy} =
                               IdentifierIssuer.issue_identifier(issuer_copy, related)
 
                             {
-                              path <> issued_identifier,
+                              path <> "_:" <> issued_identifier,
                               [related | recursion_list],
                               issuer_copy
                             }
@@ -251,7 +253,7 @@ defmodule RDF.Canonicalization do
                     {issued_identifier, _issuer_copy} =
                       IdentifierIssuer.issue_identifier(issuer_copy, related)
 
-                    path = path <> issued_identifier <> "<#{result_hash}>"
+                    path = path <> "_:" <> issued_identifier <> "<#{result_hash}>"
 
                     # TODO: considering code point order
                     if chosen_path_length != 0 and

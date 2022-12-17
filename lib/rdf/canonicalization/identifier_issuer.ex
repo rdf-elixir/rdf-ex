@@ -13,7 +13,7 @@ defmodule RDF.Canonicalization.IdentifierIssuer do
     %__MODULE__{id: create_id(), identifier_prefix: prefix}
   end
 
-  def canonical, do: new("_:c14n")
+  def canonical, do: new("c14n")
 
   def copy(issuer), do: %__MODULE__{issuer | id: create_id()}
 
