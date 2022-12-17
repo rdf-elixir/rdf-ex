@@ -2,7 +2,7 @@ defmodule RDF.Canonicalization.State do
   @moduledoc """
   State of the `RDF.Canonicalization` algorithm.
 
-  <https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#canonicalization-state>
+  <https://www.w3.org/TR/rdf-canon/#canon-state>
   """
 
   alias RDF.Canonicalization.IdentifierIssuer

@@ -22,7 +22,7 @@ defmodule RDF.Canonicalization.IdentifierIssuer do
   @doc """
   Issues a new blank node identifier for a given existing blank node identifier.
 
-  See <https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#issue-identifier>
+  See <https://www.w3.org/TR/rdf-canon/#issue-identifier>
   """
   def issue_identifier(issuer, existing_identifier) do
     if issued_identifier = issuer.issued_identifiers[existing_identifier] do

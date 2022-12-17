@@ -2,7 +2,7 @@ defmodule RDF.Canonicalization do
   @moduledoc """
   An implementation of the standard RDF Dataset Canonicalization Algorithm.
 
-  See <https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/>.
+  See <https://www.w3.org/TR/rdf-canon/>.
   """
 
   use RDF
@@ -25,73 +25,39 @@ defmodule RDF.Canonicalization do
     |> apply_canonicalization(input)
   end
 
-  # 3)
   defp create_canonical_identifiers_for_single_node_hashes(state) do
-    non_normalized_identifiers = Map.keys(state.bnode_to_quads)
-    do_create_canonical_identifiers_for_single_node_hashes(state, non_normalized_identifiers)
-  end
+    # 3) Calculate hashes for first degree nodes
+    state =
+      Enum.reduce(state.bnode_to_quads, state, fn {n, _}, state ->
+        State.add_bnode_hash(state, n, hash_first_degree_quads(state, n))
+      end)
 
-  # 4)
-  defp do_create_canonical_identifiers_for_single_node_hashes(
-         state,
-         non_normalized_identifiers,
-         simple \\ true
-       )
+    # 4) Create canonical replacements for hashes mapping to a single node
+    state.hash_to_bnodes
+    # TODO: "Sort in Unicode code point order"
+    |> Enum.sort()
+    |> Enum.reduce(state, fn {hash, identifier_list}, state ->
+      case MapSet.to_list(identifier_list) do
+        [identifier] ->
+          state
+          |> State.issue_canonical_identifier(identifier)
+          |> State.delete_bnode_hash(hash)
+
+        [] ->
+          raise "unexpected empty identifier list"
+
+        _ ->
+          state
+      end
+    end)
+  end
 
   # 5)
-  defp do_create_canonical_identifiers_for_single_node_hashes(
-         state,
-         non_normalized_identifiers,
-         true
-       ) do
-    # 5.2)
-    state = State.clear_hash_to_bnodes(state)
-
-    # 5.3) Calculate hashes for first degree nodes
-    state =
-      Enum.reduce(non_normalized_identifiers, state, fn identifier, state ->
-        State.add_bnode_hash(state, identifier, hash_first_degree_quads(state, identifier))
-      end)
-
-    # 5.4) Create canonical replacements for hashes mapping to a single node
-    {non_normalized_identifiers, state, simple} =
-      state.hash_to_bnodes
-      |> Enum.sort()
-      |> Enum.reduce({non_normalized_identifiers, state, false}, fn
-        {hash, identifier_list}, {non_normalized_identifiers, state, simple} ->
-          case MapSet.to_list(identifier_list) do
-            [identifier] ->
-              state = State.issue_canonical_identifier(state, identifier)
-
-              {
-                List.delete(non_normalized_identifiers, identifier),
-                State.delete_bnode_hash(state, hash),
-                true
-              }
-
-            [] ->
-              raise "unexpected empty identifier list"
-
-            _ ->
-              {non_normalized_identifiers, state, simple}
-          end
-      end)
-
-    do_create_canonical_identifiers_for_single_node_hashes(
-      state,
-      non_normalized_identifiers,
-      simple
-    )
-  end
-
-  defp do_create_canonical_identifiers_for_single_node_hashes(state, _, false), do: state
-
-  # 6)
   defp create_canonical_identifiers_for_multiple_node_hashes(state) do
     state.hash_to_bnodes
     |> Enum.sort()
     |> Enum.reduce(state, fn {_hash, identifier_list}, state ->
-      # 6.1-2) Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
+      # 5.1-2) Create a hash_path_list for all bnodes using a temporary identifier used to create canonical replacements
       identifier_list
       |> Enum.reduce([], fn identifier, hash_path_list ->
         if IdentifierIssuer.issued?(state.canonical_issuer, identifier) do
@@ -109,7 +75,7 @@ defmodule RDF.Canonicalization do
         end
       end)
       |> Enum.sort()
-      # 6.3) Create canonical replacements for nodes
+      # 5.3) Create canonical replacements for nodes
       |> Enum.reduce(state, fn {_hash, issuer}, state ->
         issuer
         |> IdentifierIssuer.issued_identifiers()
@@ -118,7 +84,7 @@ defmodule RDF.Canonicalization do
     end)
   end
 
-  # 7)
+  # 6)
   defp apply_canonicalization(state, data) do
     Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
       Dataset.add(
@@ -140,7 +106,7 @@ defmodule RDF.Canonicalization do
     end)
   end
 
-  # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-first-degree-quads
+  # see https://www.w3.org/TR/rdf-canon/#hash-1d-quads
   defp hash_first_degree_quads(state, ref_bnode_id) do
     state.bnode_to_quads
     |> Map.get(ref_bnode_id, [])
@@ -155,6 +121,7 @@ defmodule RDF.Canonicalization do
       |> RDF.dataset()
       |> NQuads.write_string!()
     end)
+    # TODO: "Sort nquads in Unicode code point order"
     |> Enum.sort()
     |> Enum.join()
     |> hash()
@@ -162,7 +129,7 @@ defmodule RDF.Canonicalization do
     # |> IO.inspect(label: "1deg: node: #{inspect(ref_bnode_id)}, hash_first_degree_quads")
   end
 
-  # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-related-blank-node
+  # see https://www.w3.org/TR/rdf-canon/#hash-related-blank-node
   defp hash_related_bnode(state, related, quad, issuer, position) do
     identifier =
       IdentifierIssuer.identifier(state.canonical_issuer, related) ||
@@ -182,11 +149,12 @@ defmodule RDF.Canonicalization do
     # |> IO.inspect(label: "hrel: input: #{inspect(input)}, hash_related_bnode")
   end
 
-  # see https://www.w3.org/community/reports/credentials/CG-FINAL-rdf-dataset-canonicalization-20221009/#hash-n-degree-quads
+  # see https://www.w3.org/TR/rdf-canon/#hash-nd-quads
   def hash_n_degree_quads(state, identifier, issuer) do
     # IO.inspect(identifier, label: "ndeg: identifier")
 
     # 1-3)
+    # hash_to_related_bnodes is called now H_n in the new spec
     hash_to_related_bnodes =
       Enum.reduce(state.bnode_to_quads[identifier], %{}, fn quad, map ->
         Map.merge(
@@ -200,6 +168,7 @@ defmodule RDF.Canonicalization do
 
     {data_to_hash, issuer} =
       hash_to_related_bnodes
+      # TODO: "Sort in Unicode code point order"
       |> Enum.sort()
       |> Enum.reduce({"", issuer}, fn
         {related_hash, bnode_list}, {data_to_hash, issuer} ->
@@ -242,6 +211,7 @@ defmodule RDF.Canonicalization do
                           end
                         end
 
+                      # TODO: considering code point order
                       if chosen_path_length != 0 and
                            String.length(path) >= chosen_path_length and
                            path > chosen_path do
@@ -283,6 +253,7 @@ defmodule RDF.Canonicalization do
 
                     path = path <> issued_identifier <> "<#{result_hash}>"
 
+                    # TODO: considering code point order
                     if chosen_path_length != 0 and
                          String.length(path) >= chosen_path_length and
                          path > chosen_path do
@@ -292,6 +263,7 @@ defmodule RDF.Canonicalization do
                     end
                   end)
 
+                # TODO: considering code point order
                 if chosen_path_length == 0 or path < chosen_path do
                   {path, issuer_copy}
                 else
