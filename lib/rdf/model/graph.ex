@@ -1233,10 +1233,37 @@ defmodule RDF.Graph do
 
   def equal?(_, _), do: false
 
+  @doc """
+  Checks whether two graphs are equal, regardless of the concrete names of the blank nodes they contain.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), 42}])
+      ...> |> RDF.Graph.isomorphic?(
+      ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b2>, EX.p(), 42}]))
+      true
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), 42}])
+      ...> |> RDF.Graph.isomorphic?(
+      ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b3>, EX.p(), 42}]))
+      false
+  """
+  @spec isomorphic?(RDF.Graph.t(), RDF.Graph.t()) :: boolean
   def isomorphic?(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
     graph1 |> canonicalize() |> equal?(canonicalize(graph2))
   end
 
+  @doc """
+  Canonicalizes the blank nodes of a graph according to the RDF Dataset Canonicalization spec.
+
+  ## Example
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      ...> |> RDF.Graph.canonicalize()
+      RDF.Graph.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
+
+  """
+  @spec canonicalize(RDF.Graph.t()) :: RDF.Graph.t()
   def canonicalize(%__MODULE__{} = graph) do
     graph
     |> RDF.Canonicalization.canonicalize()

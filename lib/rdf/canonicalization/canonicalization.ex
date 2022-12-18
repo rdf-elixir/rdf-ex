@@ -9,10 +9,40 @@ defmodule RDF.Canonicalization do
   alias RDF.Canonicalization.{IdentifierIssuer, State}
   alias RDF.{BlankNode, Dataset, Quad, Statement, Utils}
 
+  @doc """
+  Canonicalizes the blank nodes of a graph or dataset according to the RDF Dataset Canonicalization spec.
+
+  This function always returns a `RDF.Dataset`. If you want to canonicalize a `RDF.Graph` and
+  get a `RDF.Graph` back, use `RDF.Graph.canonicalize/1`.
+
+  ## Example
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      ...> |> RDF.Canonicalization.canonicalize()
+      RDF.Dataset.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
+
+  """
+  @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t()) :: RDF.Dataset.t()
   def canonicalize(input) do
     urdna2015(input)
   end
 
+  @doc """
+  Checks whether two graphs or datasets are equal, regardless of the concrete names of the blank nodes they contain.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), 42}])
+      ...> |> RDF.Canonicalization.isomorphic?(
+      ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b2>, EX.p(), 42}]))
+      true
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), 42}])
+      ...> |> RDF.Canonicalization.isomorphic?(
+      ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b3>, EX.p(), 42}]))
+      false
+  """
+  @spec isomorphic?(RDF.Graph.t() | RDF.Dataset.t(), RDF.Graph.t() | RDF.Dataset.t()) :: boolean
   def isomorphic?(a, b) do
     a |> canonicalize() |> Dataset.equal?(canonicalize(b))
   end

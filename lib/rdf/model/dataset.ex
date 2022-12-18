@@ -901,9 +901,9 @@ defmodule RDF.Dataset do
 
   def equal?(_, _), do: false
 
-  defdelegate canonicalize(input), to: RDF.Canonicalization
-
   defdelegate isomorphic?(a, b), to: RDF.Canonicalization
+
+  defdelegate canonicalize(input), to: RDF.Canonicalization
 
   @doc """
   Returns the aggregated prefixes of all graphs of `dataset` as a `RDF.PrefixMap`.
