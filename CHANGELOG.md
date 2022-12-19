@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-## Unreleased
+## 1.1.0 - 2022-12-19
 
 ### Added
 
@@ -45,7 +45,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   in case of an uncanonical lexical form of a decimal literal 
 
 
-[Compare v1.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.0.0...HEAD)
+[Compare v1.0.0...v1.1.0](https://github.com/rdf-elixir/rdf-ex/compare/v1.0.0...v1.1.0)
 
 
 
@@ -154,6 +154,7 @@ Elixir versions < 1.11 are no longer supported
   `RDF.Graph.build` block no longer have to be written out, which had to be done
   previously even when parts of the module were available as an alias.
 - No warning on lowercased non-property resources in vocabularies
+
 
 [Compare v0.12.0...v1.0.0](https://github.com/rdf-elixir/rdf-ex/compare/v0.12.0...v1.0.0)
 
