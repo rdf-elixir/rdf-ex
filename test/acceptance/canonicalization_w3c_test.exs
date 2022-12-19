@@ -6,7 +6,7 @@ defmodule RDF.Canonicalization.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  ExUnit.Case.register_attribute(__ENV__, :test_case)
+  use EarlFormatter, test_suite: :rdf_canon
 
   alias RDF.{TestSuite, NQuads, Canonicalization}
   alias TestSuite.NS.RDFC
