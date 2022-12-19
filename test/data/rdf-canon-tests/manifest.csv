@@ -61,3 +61,4 @@ test059,n-quads parsing,,,TRUE
 test060,n-quads escaping,,,TRUE
 test061,same literal value with multiple languages,,,TRUE
 test062,same literal value with multiple datatypes,,,TRUE
+test063,blank node - diamond (with _:b),"This duplicates #test020, but uses _:b as a blank node prefix",,TRUE

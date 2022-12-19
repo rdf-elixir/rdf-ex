@@ -591,6 +591,15 @@
       "approval": "rdft:Proposed",
       "action": "urdna2015/test062-in.nq",
       "result": "urdna2015/test062-urdna2015.nq"
+    },
+    {
+      "id": "manifest-urdna2015#test063",
+      "type": "rdfc:Urdna2015EvalTest",
+      "name": "blank node - diamond (with _:b)",
+      "comment": "This duplicates #test020, but uses _:b as a blank node prefix",
+      "approval": "rdft:Proposed",
+      "action": "urdna2015/test063-in.nq",
+      "result": "urdna2015/test063-urdna2015.nq"
     }
   ]
 }

@@ -28,7 +28,7 @@
     :test031 :test032 :test033 :test034 :test035 :test036 :test037 :test038 :test039 :test040
     :test041 :test042 :test043 :test044 :test045 :test046 :test047 :test048 :test049 :test050
     :test051 :test052 :test053 :test054 :test055 :test056 :test057 :test058 :test059 :test060
-    :test061 :test062
+    :test061 :test062 :test063
   ) .
 
 :test001 a rdfc:Urdna2015EvalTest;
@@ -463,4 +463,12 @@
   rdft:approval rdft:Proposed;
   mf:action <urdna2015/test062-in.nq>;
   mf:result <urdna2015/test062-urdna2015.nq>;
+  .
+
+:test063 a rdfc:Urdna2015EvalTest;
+  mf:name "blank node - diamond (with _:b)";
+  rdfs:comment "This duplicates #test020, but uses _:b as a blank node prefix";
+  rdft:approval rdft:Proposed;
+  mf:action <urdna2015/test063-in.nq>;
+  mf:result <urdna2015/test063-urdna2015.nq>;
   .
