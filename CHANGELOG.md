@@ -18,15 +18,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   of all blank nodes within a statement
 - `RDF.Statement.include_value?/2`, `RDF.Triple.include_value?/2`, `RDF.Quad.include_value?/2` 
   to check whether a given value is a component of a statement
+- performance improvements of the `RDF.Turtle.Encoder`
 
 ### Changed
 
 - `RDF.XSD.Double` and `RDF.XSD.Float` literals created from Elixir floats and integers
   are now interpreted to be in the canonical lexical form
-- the Turtle encoder now uses the uncanonical form of a literal in order to not lose
-  the lexical form of a literal
 - `RDF.BlankNode.new/1` ignores the prefix `"_:"` in a given blank node name
-- the performance of the `RDF.Turtle.Encoder` was improved
 
 ### Fixed
 
@@ -38,6 +36,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - the Turtle encoder didn't encode the descriptions of blank nodes which occurred in
   a blank node cycle, e.g. in `_:b1 :p1 _:b2 . _:b2 :p2 _:b1 .` neither the description 
   of `_:b1` nor of `_:b2` were rendered
+- the Turtle encoder now preserves the lexical form of a literal instead of always  
+  encoding the canonical form
 - a regression in `defvocab` prevented its use with fully qualified vocabulary 
   namespace module names (i.e. which include a dot)
 - the `term_to_iri/1` macro didn't work properly in all types of pattern matches
