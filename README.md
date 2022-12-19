@@ -32,8 +32,9 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a DSL resembling Turtle to build RDF descriptions or full RDF graphs in Elixir
 - implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats (including the respective RDF-star extensions); [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
+- implementation of the [RDF Dataset Canonicalization] algorithm  
 - validation of RDF data against [ShEx] schemas with the [ShEx.ex] package
-- mapping of RDF data structures to Elixir structs and back with [Grax] 
+- mapping of RDF data structures to Elixir structs and back with [Grax]
 
 
 ## Contributing
@@ -83,3 +84,4 @@ The development of this project was partly sponsored by [NetzeBW](https://www.ne
 [HDT]:                  http://www.rdfhdt.org/
 [SPARQL]:               https://www.w3.org/TR/sparql11-overview/
 [ShEx]:                 https://shex.io/
+[RDF Dataset Canonicalization]: https://www.w3.org/TR/rdf-canon/
