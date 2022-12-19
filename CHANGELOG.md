@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://w3c-ccg.github.io/rdf-dataset-canonicalization/spec/)
+- implementation of the [Standard RDF Dataset Canonicalization Algorithm](https://www.w3.org/TR/rdf-canon/)
   which can be used with `RDF.Graph.canonicalize/1` and `RDF.Dataset.canonicalize/1` functions
 - `RDF.Graph.isomorphic?/2` and `RDF.Dataset.isomorphic?/2` to compare if two
   graphs or datasets are the same, regardless of the concrete names of the 
