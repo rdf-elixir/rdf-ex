@@ -113,7 +113,8 @@ defmodule RDF.Mixfile do
       "test/acceptance/nquads_w3c_test.exs",
       "test/acceptance/turtle_w3c_test.exs",
       "test/acceptance/turtle_star_w3c_syntax_test.exs",
-      "test/acceptance/turtle_star_w3c_eval_test.exs"
+      "test/acceptance/turtle_star_w3c_eval_test.exs",
+      "test/acceptance/canonicalization_w3c_test.exs"
     ]
 
     Mix.Task.run("test", ["--formatter", "EarlFormatter", "--seed", "0"] ++ files)
