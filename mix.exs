@@ -1,7 +1,7 @@
 defmodule RDF.Mixfile do
   use Mix.Project
 
-  @repo_url "https://github.com/rdf-elixir/rdf-ex"
+  @scm_url "https://github.com/rdf-elixir/rdf-ex"
 
   @version File.read!("VERSION") |> String.trim()
 
@@ -28,7 +28,7 @@ defmodule RDF.Mixfile do
       name: "RDF.ex",
       docs: [
         main: "RDF",
-        source_url: @repo_url,
+        source_url: @scm_url,
         source_ref: "v#{@version}",
         extras: ["CHANGELOG.md"]
       ],
@@ -58,8 +58,8 @@ defmodule RDF.Mixfile do
       licenses: ["MIT"],
       links: %{
         "Homepage" => "https://rdf-elixir.dev",
-        "GitHub" => @repo_url,
-        "Changelog" => @repo_url <> "/blob/master/CHANGELOG.md"
+        "GitHub" => @scm_url,
+        "Changelog" => @scm_url <> "/blob/master/CHANGELOG.md"
       },
       files: ~w[lib src/*.xrl src/*.yrl priv mix.exs .formatter.exs VERSION *.md]
     ]
