@@ -127,7 +127,17 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject, EX.predicate(), EX.Object})
     end
 
-    test "creating an graph from a dataset" do
+    test "creating a graph from another graph with additional initial triples" do
+      g =
+        Graph.new({EX.S, EX.p(), EX.O1})
+        |> Graph.new(name: EX.GraphName, init: [{EX.S, EX.p(), EX.O2}])
+
+      assert named_graph?(g, RDF.iri(EX.GraphName))
+      assert graph_includes_statement?(g, {EX.S, EX.p(), EX.O1})
+      assert graph_includes_statement?(g, {EX.S, EX.p(), EX.O2})
+    end
+
+    test "creating a graph from a dataset" do
       g =
         Dataset.new([
           {EX.Subject1, EX.predicate1(), EX.Object1, nil},

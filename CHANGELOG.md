@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Fixed
+
+- `RDF.Graph.new/2` didn't respect the `:init` opt when the first argument was a `RDF.Graph` 
+
+
+[Compare v1.1.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.0...HEAD)
+
+
+
 ## 1.1.0 - 2022-12-19
 
 ### Added

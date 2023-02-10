@@ -122,9 +122,12 @@ defmodule RDF.Graph do
   def new(data, opts)
 
   def new(%__MODULE__{} = graph, opts) do
+    {data, opts} = Keyword.pop(opts, :init)
+
     %__MODULE__{graph | name: opts |> Keyword.get(:name) |> RDF.coerce_graph_name()}
     |> add_prefixes(Keyword.get(opts, :prefixes))
     |> set_base_iri(Keyword.get(opts, :base_iri))
+    |> init(data, opts)
   end
 
   def new(data, opts) do
