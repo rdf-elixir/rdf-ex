@@ -8,6 +8,7 @@ defmodule RDF.Dataset do
 
   - Elixir's `Access` behaviour
   - Elixir's `Enumerable` protocol
+  - Elixir's `Collectable` protocol
   - Elixir's `Inspect` protocol
   - the `RDF.Data` protocol
 
