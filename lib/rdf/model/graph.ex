@@ -785,14 +785,25 @@ defmodule RDF.Graph do
   @doc """
   Pops the description of the given subject.
 
-  When the subject can not be found the optionally given default value or `nil` is returned.
+  Removes the description of the given `subject` from `graph`.
+
+  Returns a tuple containing the description of the given subject
+  and the updated graph without this description.
+  `nil` is returned instead of the description if `graph` does
+  not contain a description of the given `subject`.
+
 
   ## Examples
 
       iex> RDF.Graph.new([{EX.S1, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
       ...> |> RDF.Graph.pop(EX.S1)
-      {RDF.Description.new(EX.S1, init: {EX.P1, EX.O1}), RDF.Graph.new({EX.S2, EX.P2, EX.O2})}
-      iex> RDF.Graph.new({EX.S, EX.P, EX.O}) |> RDF.Graph.pop(EX.Missing)
+      {
+        RDF.Description.new(EX.S1, init: {EX.P1, EX.O1}),
+        RDF.Graph.new({EX.S2, EX.P2, EX.O2})
+      }
+
+      iex> RDF.Graph.new({EX.S, EX.P, EX.O})
+      ...> |> RDF.Graph.pop(EX.Missing)
       {nil, RDF.Graph.new({EX.S, EX.P, EX.O})}
 
   """

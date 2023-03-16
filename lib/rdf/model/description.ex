@@ -503,18 +503,25 @@ defmodule RDF.Description do
   @doc """
   Pops the objects of the given predicate of a Description.
 
-  When the predicate can not be found the optionally given default value or `nil` is returned.
+  Removes the objects for the given `predicate` from `description`.
+
+  Returns a tuple containing a list the objects for the given predicate
+  and the updated description without the respective statements.
+  `nil` is returned instead of the objects if `description` does
+  not contain any statements with the given `predicate`.
 
   ## Examples
 
       iex> RDF.Description.new(EX.S, init: {EX.P, EX.O})
       ...> |> RDF.Description.pop(EX.P)
       {[RDF.iri(EX.O)], RDF.Description.new(EX.S)}
+
       iex> RDF.Description.new(EX.S, init: {EX.P, EX.O})
       ...> |> RDF.Description.pop(EX.Missing)
       {nil, RDF.Description.new(EX.S, init: {EX.P, EX.O})}
   """
   @impl Access
+  @spec pop(t, Statement.coercible_predicate()) :: {[Statement.object()] | nil, t}
   def pop(%__MODULE__{} = description, predicate) do
     case Access.pop(description.predications, RDF.coerce_predicate(predicate)) do
       {nil, _} ->

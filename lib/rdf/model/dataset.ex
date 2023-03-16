@@ -489,8 +489,12 @@ defmodule RDF.Dataset do
   @doc """
   Pops the graph with the given name.
 
-  When a graph with given name can not be found the optionally given default value
-  or `nil` is returned.
+  Removes the graph of the given `graph_name` from `dataset`.
+
+  Returns a tuple containing the graph of the given name
+  and the updated dataset without this graph.
+  `nil` is returned instead of the graph if `dataset` does
+  not contain a graph_name of the given `graph_name`.
 
   ## Examples
 
@@ -498,12 +502,15 @@ defmodule RDF.Dataset do
       ...>   {EX.S1, EX.P1, EX.O1, EX.Graph},
       ...>   {EX.S2, EX.P2, EX.O2}])
       ...> RDF.Dataset.pop(dataset, EX.Graph)
-      {RDF.Graph.new({EX.S1, EX.P1, EX.O1}, name: EX.Graph), RDF.Dataset.new({EX.S2, EX.P2, EX.O2})}
+      {
+        RDF.Graph.new({EX.S1, EX.P1, EX.O1}, name: EX.Graph),
+        RDF.Dataset.new({EX.S2, EX.P2, EX.O2})
+      }
       iex> RDF.Dataset.pop(dataset, EX.Foo)
       {nil, dataset}
   """
   @impl Access
-  @spec pop(t, Statement.coercible_graph_name()) :: {Statement.t() | nil, t}
+  @spec pop(t, Statement.coercible_graph_name()) :: {Graph.t() | nil, t}
   def pop(%__MODULE__{} = dataset, graph_name) do
     case Access.pop(dataset.graphs, coerce_graph_name(graph_name)) do
       {nil, _} ->
