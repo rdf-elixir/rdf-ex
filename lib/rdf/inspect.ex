@@ -103,17 +103,21 @@ defimpl Inspect, for: RDF.Graph do
   def inspect(graph, opts) do
     if opts.structs do
       try do
+        content_only = Keyword.get(opts.custom_options, :content_only, false)
         no_metadata = Keyword.get(opts.custom_options, :no_metadata, false)
 
         limit = opts.limit < RDF.Graph.statement_count(graph)
 
-        graph =
+        {graph, ellipse} =
           if limit do
-            graph
-            |> RDF.Graph.clear()
-            |> RDF.Graph.add(Enum.take(graph, opts.limit))
+            {
+              graph
+              |> RDF.Graph.clear()
+              |> RDF.Graph.add(Enum.take(graph, opts.limit)),
+              "..\n..."
+            }
           else
-            graph
+            {graph, nil}
           end
 
         header = "#RDF.Graph<name: #{inspect(graph.name)}"
@@ -123,7 +127,11 @@ defimpl Inspect, for: RDF.Graph do
           |> RDF.Turtle.write_string!(only: if(no_metadata, do: :triples), indent: 2)
           |> String.trim_trailing()
 
-        "#{header}\n#{body}#{if limit, do: "..\n..."}\n>"
+        if content_only do
+          "#{body}#{ellipse}"
+        else
+          "#{header}\n#{body}#{ellipse}\n>"
+        end
       rescue
         caught_exception ->
           message =
