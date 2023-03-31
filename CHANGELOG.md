@@ -7,6 +7,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+### Added
+
+- a custom option `:content_only` on the `Inspect` implementation of `RDF.Graph` 
+  which returns only the (possibly abbreviated) Turtle representation of the graph;
+  this can be used in other `Inspect` implementations that want to include 
+  this `RDF.Graph` representation
+
 ### Fixed
 
 - `RDF.Graph.new/2` didn't respect the `:init` opt when the first argument was a `RDF.Graph` 
