@@ -315,6 +315,7 @@ defmodule RDF do
   def list(head, %Graph{} = graph), do: RDF.List.new(head, graph)
   def list(native_list, opts), do: RDF.List.from(native_list, opts)
 
+  defdelegate prefixes(prefixes), to: RDF.PrefixMap, as: :new
   defdelegate prefix_map(prefixes), to: RDF.PrefixMap, as: :new
   defdelegate property_map(property_map), to: RDF.PropertyMap, as: :new
 

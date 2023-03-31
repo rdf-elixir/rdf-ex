@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   which returns only the (possibly abbreviated) Turtle representation of the graph;
   this can be used in other `Inspect` implementations that want to include 
   this `RDF.Graph` representation
+- `RDF.prefixes/1` as another alias for the creation of a `RDF.PrefixMap` 
 
 ### Fixed
 
