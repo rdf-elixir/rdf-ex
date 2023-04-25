@@ -3,6 +3,8 @@ defmodule RDF.Sigils do
   Sigils for the most common types of RDF nodes.
   """
 
+  alias RDF.{IRI, BlankNode}
+
   @doc ~S"""
   Handles the sigil `~I` for IRIs.
 
@@ -18,7 +20,7 @@ defmodule RDF.Sigils do
 
   """
   defmacro sigil_I({:<<>>, _, [iri]}, []) when is_binary(iri) do
-    Macro.escape(RDF.iri!(iri))
+    Macro.escape(IRI.new!(iri))
   end
 
   @doc ~S"""
@@ -35,12 +37,12 @@ defmodule RDF.Sigils do
 
   """
   defmacro sigil_i({:<<>>, _, [iri]}, []) when is_binary(iri) do
-    Macro.escape(RDF.iri!(iri))
+    Macro.escape(IRI.new!(iri))
   end
 
   defmacro sigil_i({:<<>>, line, pieces}, []) do
     quote do
-      RDF.iri!(unquote({:<<>>, line, unescape_tokens(pieces)}))
+      IRI.new!(unquote({:<<>>, line, unescape_tokens(pieces)}))
     end
   end
 
@@ -59,7 +61,7 @@ defmodule RDF.Sigils do
 
   """
   defmacro sigil_B({:<<>>, _, [bnode]}, []) when is_binary(bnode) do
-    Macro.escape(RDF.BlankNode.new(bnode))
+    Macro.escape(BlankNode.new(bnode))
   end
 
   @doc ~S"""
@@ -76,12 +78,12 @@ defmodule RDF.Sigils do
 
   """
   defmacro sigil_b({:<<>>, _, [bnode]}, []) when is_binary(bnode) do
-    Macro.escape(RDF.BlankNode.new(bnode))
+    Macro.escape(BlankNode.new(bnode))
   end
 
   defmacro sigil_b({:<<>>, line, pieces}, []) do
     quote do
-      RDF.BlankNode.new(unquote({:<<>>, line, unescape_tokens(pieces)}))
+      BlankNode.new(unquote({:<<>>, line, unescape_tokens(pieces)}))
     end
   end
 

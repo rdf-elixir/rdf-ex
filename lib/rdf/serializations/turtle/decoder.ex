@@ -18,7 +18,7 @@ defmodule RDF.Turtle.Decoder do
 
   import RDF.Serialization.ParseHelper, only: [error_description: 1]
 
-  alias RDF.{Graph, IRI}
+  alias RDF.{Graph, IRI, BlankNode, Literal}
 
   defmodule State do
     @moduledoc !"The internal state of the `RDF.Turtle.Encoder`."
@@ -34,7 +34,7 @@ defmodule RDF.Turtle.Decoder do
     end
 
     def next_bnode(%State{bnode_counter: bnode_counter} = state) do
-      {RDF.bnode("b#{bnode_counter}"), %State{state | bnode_counter: bnode_counter + 1}}
+      {BlankNode.new("b#{bnode_counter}"), %State{state | bnode_counter: bnode_counter + 1}}
     end
   end
 
@@ -176,7 +176,7 @@ defmodule RDF.Turtle.Decoder do
          state
        ) do
     {datatype, statements, state} = resolve_node(datatype, statements, state)
-    {RDF.literal(value, datatype: datatype), statements, state}
+    {Literal.new(value, datatype: datatype), statements, state}
   end
 
   defp resolve_node({:collection, []}, statements, state) do

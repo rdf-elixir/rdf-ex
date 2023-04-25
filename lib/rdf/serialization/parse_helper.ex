@@ -1,7 +1,7 @@
 defmodule RDF.Serialization.ParseHelper do
   @moduledoc false
 
-  alias RDF.IRI
+  alias RDF.{IRI, BlankNode, Literal}
 
   @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
   def rdf_type, do: @rdf_type
@@ -9,7 +9,7 @@ defmodule RDF.Serialization.ParseHelper do
   def to_iri_string({:iriref, _line, value}), do: value |> iri_unescape
 
   def to_iri({:iriref, line, value}) do
-    iri = RDF.iri(iri_unescape(value))
+    iri = IRI.new(iri_unescape(value))
 
     if IRI.valid?(iri) do
       {:ok, iri}
@@ -19,7 +19,7 @@ defmodule RDF.Serialization.ParseHelper do
   end
 
   def to_absolute_or_relative_iri({:iriref, _line, value}) do
-    iri = RDF.iri(iri_unescape(value))
+    iri = IRI.new(iri_unescape(value))
 
     if IRI.absolute?(iri) do
       iri
@@ -28,22 +28,22 @@ defmodule RDF.Serialization.ParseHelper do
     end
   end
 
-  def to_bnode({:blank_node_label, _line, value}), do: RDF.bnode(value)
-  def to_bnode({:anon, _line}), do: RDF.bnode()
+  def to_bnode({:blank_node_label, _line, value}), do: BlankNode.new(value)
+  def to_bnode({:anon, _line}), do: BlankNode.new()
 
   def to_literal({:string_literal_quote, _line, value}),
-    do: value |> string_unescape |> RDF.literal()
+    do: value |> string_unescape |> Literal.new()
 
-  def to_literal({:integer, _line, value}), do: RDF.literal(value)
-  def to_literal({:decimal, _line, value}), do: RDF.literal(value)
-  def to_literal({:double, _line, value}), do: RDF.literal(value)
-  def to_literal({:boolean, _line, value}), do: RDF.literal(value)
+  def to_literal({:integer, _line, value}), do: Literal.new(value)
+  def to_literal({:decimal, _line, value}), do: Literal.new(value)
+  def to_literal({:double, _line, value}), do: Literal.new(value)
+  def to_literal({:boolean, _line, value}), do: Literal.new(value)
 
   def to_literal({:string_literal_quote, _line, value}, {:language, language}),
-    do: value |> string_unescape |> RDF.literal(language: language)
+    do: value |> string_unescape |> Literal.new(language: language)
 
   def to_literal({:string_literal_quote, _line, value}, {:datatype, %IRI{} = type}),
-    do: value |> string_unescape |> RDF.literal(datatype: type)
+    do: value |> string_unescape |> Literal.new(datatype: type)
 
   def to_literal(string_literal_quote_ast, type),
     do: {string_literal_quote_ast, type}

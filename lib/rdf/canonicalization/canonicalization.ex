@@ -5,9 +5,10 @@ defmodule RDF.Canonicalization do
   See <https://www.w3.org/TR/rdf-canon/>.
   """
 
-  use RDF
   alias RDF.Canonicalization.{IdentifierIssuer, State}
-  alias RDF.{BlankNode, Dataset, Quad, Statement, Utils}
+  alias RDF.{BlankNode, Dataset, Quad, Statement, NQuads, Utils}
+
+  import RDF.Sigils
 
   @doc """
   Canonicalizes the blank nodes of a graph or dataset according to the RDF Dataset Canonicalization spec.
@@ -148,7 +149,7 @@ defmodule RDF.Canonicalization do
         {_, %BlankNode{}} -> ~B<z>
         {_, node} -> node
       end)
-      |> RDF.dataset()
+      |> Dataset.new()
       |> NQuads.write_string!()
     end)
     # TODO: "Sort nquads in Unicode code point order"

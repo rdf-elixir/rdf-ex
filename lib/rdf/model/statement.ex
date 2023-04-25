@@ -121,8 +121,8 @@ defmodule RDF.Statement do
   def coerce_subject(iri)
   def coerce_subject(%IRI{} = iri), do: iri
   def coerce_subject(%BlankNode{} = bnode), do: bnode
-  def coerce_subject("_:" <> identifier), do: RDF.bnode(identifier)
-  def coerce_subject(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
+  def coerce_subject("_:" <> identifier), do: BlankNode.new(identifier)
+  def coerce_subject(iri) when maybe_ns_term(iri) or is_binary(iri), do: IRI.new!(iri)
   def coerce_subject(arg), do: raise(RDF.Triple.InvalidSubjectError, subject: arg)
 
   @doc false
@@ -133,7 +133,7 @@ defmodule RDF.Statement do
   # them, by introducing the notion of "generalized RDF".
   # TODO: Support an option `:strict_rdf` to explicitly disallow them or produce warnings or ...
   def coerce_predicate(%BlankNode{} = bnode), do: bnode
-  def coerce_predicate(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
+  def coerce_predicate(iri) when maybe_ns_term(iri) or is_binary(iri), do: IRI.new!(iri)
   def coerce_predicate(arg), do: raise(RDF.Triple.InvalidPredicateError, predicate: arg)
 
   @doc false
@@ -153,7 +153,7 @@ defmodule RDF.Statement do
   def coerce_object(%Literal{} = literal), do: literal
   def coerce_object(%BlankNode{} = bnode), do: bnode
   def coerce_object(bool) when is_boolean(bool), do: Literal.new(bool)
-  def coerce_object(atom) when maybe_ns_term(atom), do: RDF.iri(atom)
+  def coerce_object(atom) when maybe_ns_term(atom), do: IRI.new(atom)
   def coerce_object(arg), do: Literal.new(arg)
 
   @doc false
@@ -162,8 +162,8 @@ defmodule RDF.Statement do
   def coerce_graph_name(nil), do: nil
   def coerce_graph_name(%IRI{} = iri), do: iri
   def coerce_graph_name(%BlankNode{} = bnode), do: bnode
-  def coerce_graph_name("_:" <> identifier), do: RDF.bnode(identifier)
-  def coerce_graph_name(iri) when maybe_ns_term(iri) or is_binary(iri), do: RDF.iri!(iri)
+  def coerce_graph_name("_:" <> identifier), do: BlankNode.new(identifier)
+  def coerce_graph_name(iri) when maybe_ns_term(iri) or is_binary(iri), do: IRI.new!(iri)
 
   def coerce_graph_name(arg),
     do: raise(RDF.Quad.InvalidGraphContextError, graph_context: arg)

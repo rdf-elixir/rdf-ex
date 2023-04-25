@@ -65,7 +65,7 @@ defmodule RDF.Turtle.Encoder do
   @predicate_order [
     @rdf_type,
     RDF.Utils.Bootstrapping.rdfs_iri("label"),
-    RDF.iri("http://purl.org/dc/terms/title")
+    IRI.new("http://purl.org/dc/terms/title")
   ]
   @ordered_properties MapSet.new(@predicate_order)
 

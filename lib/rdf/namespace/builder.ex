@@ -1,7 +1,7 @@
 defmodule RDF.Namespace.Builder do
   @moduledoc false
 
-  alias RDF.Description
+  alias RDF.{Description, IRI}
 
   import RDF.Utils
 
@@ -128,7 +128,7 @@ defmodule RDF.Namespace.Builder do
   defp normalize_term_mapping(term_mapping, _) do
     Enum.reduce_while(term_mapping, {:ok, %{}}, fn {term, iri}, {:ok, normalized} ->
       if valid_term?(term) do
-        {:cont, {:ok, Map.put(normalized, term, RDF.iri(iri))}}
+        {:cont, {:ok, Map.put(normalized, term, IRI.new(iri))}}
       else
         {:halt,
          {:error, %RDF.Namespace.InvalidTermError{message: "invalid term: #{inspect(term)}"}}}

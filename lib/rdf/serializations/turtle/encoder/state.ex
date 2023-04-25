@@ -14,7 +14,7 @@ defmodule RDF.Turtle.Encoder.State do
 
   @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
 
-  alias RDF.{IRI, BlankNode, Description, Graph, PrefixMap}
+  alias RDF.{IRI, BlankNode, List, Description, Graph, PrefixMap}
 
   def new(graph, opts) do
     base =
@@ -72,7 +72,7 @@ defmodule RDF.Turtle.Encoder.State do
 
   def base_iri(state) do
     if base = state.base do
-      RDF.iri(base)
+      IRI.new(base)
     end
   end
 
@@ -202,7 +202,7 @@ defmodule RDF.Turtle.Encoder.State do
       Description.predicates(description) |> MapSet.equal?(@list_properties)
   end
 
-  defp to_list?(%Description{} = description, 0), do: RDF.list?(description)
+  defp to_list?(%Description{} = description, 0), do: List.node?(description)
   defp to_list?(_, _), do: false
 
   defp valid_lists(list_parents, bnode_ref_counter, graph) do
@@ -216,8 +216,8 @@ defmodule RDF.Turtle.Encoder.State do
       end
 
     Enum.reduce(head_nodes, {MapSet.new(), %{}}, fn head_node, {valid_list_nodes, list_values} ->
-      with list when not is_nil(list) <- RDF.List.new(head_node, graph),
-           list_nodes = RDF.List.nodes(list),
+      with list when not is_nil(list) <- List.new(head_node, graph),
+           list_nodes = List.nodes(list),
            true <-
              Enum.all?(list_nodes, fn
                %BlankNode{} = list_node -> MapSet.member?(all_list_nodes, list_node)
@@ -225,7 +225,7 @@ defmodule RDF.Turtle.Encoder.State do
              end) do
         {
           Enum.reduce(list_nodes, valid_list_nodes, &MapSet.put(&2, &1)),
-          Map.put(list_values, head_node, RDF.List.values(list))
+          Map.put(list_values, head_node, List.values(list))
         }
       else
         _ -> {valid_list_nodes, list_values}

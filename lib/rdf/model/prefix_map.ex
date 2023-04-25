@@ -412,7 +412,7 @@ defmodule RDF.PrefixMap do
     case String.split(prefixed_name, ":", parts: 2) do
       [prefix, name] ->
         if ns = namespace(prefix_map, prefix) do
-          RDF.iri(ns.value <> name)
+          IRI.new(ns.value <> name)
         end
 
       _ ->

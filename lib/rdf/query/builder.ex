@@ -186,7 +186,7 @@ defmodule RDF.Query.Builder do
   end
 
   defp path_pattern(subject, [predicate | rest], triple_patterns, count, with_elements) do
-    object = if with_elements, do: :"el#{count}?", else: RDF.bnode(count)
+    object = if with_elements, do: :"el#{count}?", else: BlankNode.new(count)
 
     path_pattern(
       object,

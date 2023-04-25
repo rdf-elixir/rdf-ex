@@ -71,7 +71,7 @@ defmodule RDF.Graph.Builder do
 
   @doc false
   def do_build(data, opts, prefixes, base) do
-    RDF.graph(graph_opts(opts, prefixes, base))
+    Graph.new(graph_opts(opts, prefixes, base))
     |> Graph.add(Enum.filter(data, &rdf?/1))
   end
 

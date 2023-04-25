@@ -7,7 +7,7 @@ defmodule RDF.List do
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
-  alias RDF.{BlankNode, Description, Graph, IRI}
+  alias RDF.{BlankNode, Description, Graph, IRI, NS}
 
   import RDF.Guards
 
@@ -36,7 +36,7 @@ defmodule RDF.List do
   def new(head, graph)
 
   def new(head, graph) when maybe_ns_term(head),
-    do: new(RDF.iri(head), graph)
+    do: new(IRI.new(head), graph)
 
   def new(head, graph) do
     list = %__MODULE__{head: head, graph: graph}
@@ -73,35 +73,35 @@ defmodule RDF.List do
   """
   @spec from(Enumerable.t(), keyword) :: t
   def from(list, opts \\ []) do
-    head = Keyword.get(opts, :head, RDF.bnode())
+    head = Keyword.get(opts, :head, BlankNode.new())
     graph = Keyword.get(opts, :graph, RDF.graph())
     {head, graph} = do_from(list, head, graph, opts)
     %__MODULE__{head: head, graph: graph}
   end
 
   defp do_from([], _, graph, _) do
-    {RDF.nil(), graph}
+    {NS.RDF.nil(), graph}
   end
 
   defp do_from(list, head, graph, opts) when maybe_ns_term(head) do
-    do_from(list, RDF.iri!(head), graph, opts)
+    do_from(list, IRI.new!(head), graph, opts)
   end
 
   defp do_from([list | rest], head, graph, opts) when is_list(list) do
-    {nested_list_node, graph} = do_from(list, RDF.bnode(), graph, opts)
+    {nested_list_node, graph} = do_from(list, BlankNode.new(), graph, opts)
     do_from([nested_list_node | rest], head, graph, opts)
   end
 
   defp do_from([first | rest], head, graph, opts) do
-    {next, graph} = do_from(rest, RDF.bnode(), graph, opts)
+    {next, graph} = do_from(rest, BlankNode.new(), graph, opts)
 
     {
       head,
       Graph.add(
         graph,
         head
-        |> RDF.first(first)
-        |> RDF.rest(next)
+        |> NS.RDF.first(first)
+        |> NS.RDF.rest(next)
       )
     }
   end
@@ -120,7 +120,7 @@ defmodule RDF.List do
   @spec values(t) :: Enumerable.t()
   def values(%__MODULE__{graph: graph} = list) do
     Enum.map(list, fn node_description ->
-      value = Description.first(node_description, RDF.first())
+      value = Description.first(node_description, NS.RDF.first())
 
       if node?(value, graph) do
         value
@@ -170,7 +170,7 @@ defmodule RDF.List do
   def node?(%IRI{} = list_node, graph), do: do_node?(list_node, graph)
 
   def node?(list_node, graph) when maybe_ns_term(list_node),
-    do: do_node?(RDF.iri(list_node), graph)
+    do: do_node?(IRI.new(list_node), graph)
 
   def node?(_, _), do: false
 
@@ -184,8 +184,8 @@ defmodule RDF.List do
   def node?(nil), do: false
 
   def node?(%Description{predications: predications}) do
-    Map.has_key?(predications, RDF.first()) and
-      Map.has_key?(predications, RDF.rest())
+    Map.has_key?(predications, NS.RDF.first()) and
+      Map.has_key?(predications, NS.RDF.rest())
   end
 
   defimpl Enumerable do
@@ -208,8 +208,8 @@ defmodule RDF.List do
     defp do_reduce(%RDF.List{head: head, graph: graph}, {:cont, acc}, fun) do
       with description when not is_nil(description) <-
              Graph.get(graph, head),
-           [_] <- Description.get(description, RDF.first()),
-           [rest] <- Description.get(description, RDF.rest()) do
+           [_] <- Description.get(description, NS.RDF.first()),
+           [rest] <- Description.get(description, NS.RDF.rest()) do
         acc = fun.(description, acc)
 
         if rest == @rdf_nil do

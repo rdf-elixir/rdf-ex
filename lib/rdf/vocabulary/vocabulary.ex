@@ -64,5 +64,5 @@ defmodule RDF.Vocabulary do
   def term_to_iri(base_iri, term) when is_atom(term),
     do: term_to_iri(base_iri, Atom.to_string(term))
 
-  def term_to_iri(base_iri, term), do: RDF.iri(base_iri <> term)
+  def term_to_iri(base_iri, term), do: IRI.new(base_iri <> term)
 end

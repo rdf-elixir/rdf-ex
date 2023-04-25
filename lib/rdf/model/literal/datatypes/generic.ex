@@ -40,7 +40,7 @@ defmodule RDF.Literal.Generic do
   defp normalize_datatype(%IRI{} = datatype), do: to_string(datatype)
 
   defp normalize_datatype(datatype) when maybe_ns_term(datatype),
-    do: datatype |> RDF.iri() |> to_string()
+    do: datatype |> IRI.new() |> to_string()
 
   defp normalize_datatype(datatype), do: datatype
 
@@ -59,7 +59,7 @@ defmodule RDF.Literal.Generic do
 
   @impl Datatype
   def datatype_id(%Literal{literal: literal}), do: datatype_id(literal)
-  def datatype_id(%__MODULE__{} = literal), do: RDF.iri(literal.datatype)
+  def datatype_id(%__MODULE__{} = literal), do: IRI.new(literal.datatype)
 
   @impl Datatype
   def value(%Literal{literal: literal}), do: value(literal)

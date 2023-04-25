@@ -201,7 +201,7 @@ defmodule RDF.Vocabulary.Namespace do
     create(
       module,
       base_uri,
-      RDF.read_file!(compile_path, base_iri: nil),
+      RDF.Serialization.read_file!(compile_path, base_iri: nil),
       location,
       opts
       |> Keyword.put(:file, file)
