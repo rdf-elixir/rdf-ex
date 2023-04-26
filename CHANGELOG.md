@@ -5,6 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+
+## Unreleased
+
+### Added 
+
+- `RDF.Namespace.act_as_namespace/1` macro which can be used to let a module act 
+  as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
+
+
+[Compare v1.1.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.1...HEAD)
+
+
+
 ## 1.1.1 - 2023-03-31
 
 ### Added

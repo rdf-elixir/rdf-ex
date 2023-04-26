@@ -325,6 +325,10 @@ defmodule RDF do
   # can't be aliased, because it gets in conflict with the root namespace
   # of the project.
 
+  # TODO: use RDF.Namespace.act_as_namespace/1 to delegate to RDF.NS.RDF
+  # Currently, this isn't possible, since there are too many dependencies on
+  # this module, which prohibits that RDF.NS can be compiled before this one.
+
   defdelegate langString(value, opts), to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
 

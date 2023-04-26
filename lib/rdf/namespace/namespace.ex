@@ -149,6 +149,83 @@ defmodule RDF.Namespace do
     end
   end
 
+  @doc """
+  A macro to let a module act as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
+
+  ## Example
+
+      defmodule Example.NS do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://www.example.com/ns/",
+          terms: [:Foo, :bar]
+      end
+
+      defmodule Example do
+        import RDF.Namespace
+
+        act_as_namespace Example.NS.Example
+
+        # your application functions
+      end
+
+      Example.Foo |> Example.bar(42)
+
+  """
+  defmacro act_as_namespace({:__aliases__, _, ns_alias} = ns_expr) do
+    ns_mod = Module.concat(ns_alias)
+    ns_type = type(ns_mod)
+
+    unless ns_type do
+      raise "#{ns_mod} is not a RDF.Namespace"
+    end
+
+    quote do
+      @behaviour RDF.Namespace
+
+      defdelegate __resolve_term__(term), to: unquote(ns_expr)
+      defdelegate __terms__, to: unquote(ns_expr)
+      defdelegate __iris__, to: unquote(ns_expr)
+
+      if unquote(ns_type) == RDF.Vocabulary.Namespace do
+        defdelegate __base_iri__, to: unquote(ns_expr)
+        defdelegate __term_aliases__, to: unquote(ns_expr)
+        defdelegate __file__, to: unquote(ns_expr)
+        defdelegate __strict__, to: unquote(ns_expr)
+      end
+    end
+    |> inject_property_defdelegates(ns_mod)
+  end
+
+  defmacro act_as_namespace(_) do
+    raise "invalid namespace expression"
+  end
+
+  defp inject_property_defdelegates({:__block__, [], block}, ns) do
+    property_function_defdelegates =
+      for property <- ns.__terms__(), RDF.Utils.downcase?(property) do
+        {:__block__, [], property_defdelegates} =
+          quote do
+            defdelegate unquote(property)(), to: unquote(ns)
+            defdelegate unquote(property)(subject), to: unquote(ns)
+            defdelegate unquote(property)(subject, objects), to: unquote(ns)
+          end
+
+        property_defdelegates
+      end
+
+    {:__block__, [], block ++ property_function_defdelegates}
+  end
+
+  defp type(mod) do
+    cond do
+      RDF.Vocabulary.Namespace.vocabulary_namespace?(mod) -> RDF.Vocabulary.Namespace
+      namespace?(mod) -> RDF.Namespace
+      true -> nil
+    end
+  end
+
   @doc false
   @spec namespace?(module) :: boolean
   def namespace?(name) do
