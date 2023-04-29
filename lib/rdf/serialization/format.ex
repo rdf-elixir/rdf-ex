@@ -21,7 +21,7 @@ defmodule RDF.Serialization.Format do
   Then you'll have to do the main work by implementing a
   `RDF.Serialization.Encoder` and a `RDF.Serialization.Decoder` for the format.
 
-  By default it is assumed that these are defined in `Encoder` and `Decoder`
+  By default, it is assumed that these are defined in `Encoder` and `Decoder`
   modules under the `RDF.Serialization.Format` module of the format, i.e. in the
   example above in `SomeFormat.Encoder` and `SomeFormat.Decoder`. If you want
   them in another module, you'll have to override the `encoder/0` and/or

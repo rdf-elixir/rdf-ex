@@ -402,7 +402,7 @@ defmodule RDF.Graph do
   The optional `:delete_annotations` keyword option allows to set which of
   the RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
-  By default no annotations of the deleted statements will be removed.
+  By default, no annotations of the deleted statements will be removed.
   Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
   keyword options can be used to add annotations about the deleted statements
   with the addition semantics similar to the respective `add_annotations/3`,
@@ -461,7 +461,7 @@ defmodule RDF.Graph do
   The optional `:delete_annotations` keyword option allows to set which of
   the RDF-star annotations of the deleted statements should be deleted.
   Any of the possible values of `delete_annotations/3` can be provided here.
-  By default no annotations of the deleted statements will be removed.
+  By default, no annotations of the deleted statements will be removed.
   Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
   keyword options can be used to add annotations about the deleted statements
   with the addition semantics similar to the respective `add_annotations/3`,

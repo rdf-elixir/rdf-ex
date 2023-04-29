@@ -143,7 +143,7 @@ defmodule RDF.XSD.Datatype do
   @doc """
   Produces the lexical representation to be used for a `RDF.XSD.Datatype` literal.
 
-  By default the lexical representation of a `RDF.XSD.Datatype` is either the
+  By default, the lexical representation of a `RDF.XSD.Datatype` is either the
   canonical form in case it is created from a non-string Elixir value or, if it
   is created from a string, just with that string as the lexical form.
 

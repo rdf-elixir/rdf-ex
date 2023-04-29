@@ -250,7 +250,7 @@ defmodule RDF do
   defdelegate bnode(id), to: BlankNode, as: :new
 
   @doc """
-  Checks if the given value is a RDF literal.
+  Checks if the given value is an RDF literal.
   """
   def literal?(%Literal{}), do: true
   def literal?(_), do: false
