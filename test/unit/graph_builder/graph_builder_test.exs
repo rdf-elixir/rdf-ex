@@ -20,7 +20,7 @@ defmodule RDF.Graph.BuilderTest do
 
   @compile {:no_warn_undefined, __MODULE__.TestNS.EX}
   @compile {:no_warn_undefined, __MODULE__.TestNS.Custom}
-  @compile {:no_warn_undefined, RDF.Test.Case.EX}
+  @compile {:no_warn_undefined, RDF.TestVocabularyNamespaces.EX}
 
   alias TestNS.EX
   alias RDF.NS
@@ -343,15 +343,19 @@ defmodule RDF.Graph.BuilderTest do
   test "aliasing an already taken name" do
     graph =
       RDF.Graph.build do
-        alias RDF.Test.Case.EX, as: EX2
+        alias RDF.TestVocabularyNamespaces.EX, as: EX2
         {EX2.S, EX.p(), EX2.foo()}
       end
 
     quote do
-      alias RDF.Test.Case.EX, as: EX2
+      alias RDF.TestVocabularyNamespaces.EX, as: EX2
     end
 
-    assert graph == RDF.graph(RDF.Test.Case.EX.S |> EX.p(RDF.Test.Case.EX.foo()))
+    assert graph ==
+             RDF.graph(
+               RDF.TestVocabularyNamespaces.EX.S
+               |> EX.p(RDF.TestVocabularyNamespaces.EX.foo())
+             )
   end
 
   test "import" do

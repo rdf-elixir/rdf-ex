@@ -1,9 +1,9 @@
 defmodule RDF.Namespace.ActAsNamespaceTest do
   use ExUnit.Case
 
-  alias RDF.Test.Case.EX
+  alias RDF.TestVocabularyNamespaces.EX
 
-  @compile {:no_warn_undefined, RDF.Test.Case.EX}
+  @compile {:no_warn_undefined, RDF.TestVocabularyNamespaces.EX}
 
   {properties, classes} = Enum.split_with(RDF.NS.RDFS.__terms__(), &RDF.Utils.downcase?/1)
 
