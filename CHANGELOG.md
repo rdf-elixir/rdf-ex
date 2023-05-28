@@ -12,6 +12,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.Namespace.act_as_namespace/1` macro which can be used to let a module act 
   as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
+- `RDF.PrefixMap.to_sorted_list/1` which returns the prefix map as keyword list 
+  sorted by prefix (this should become useful with OTP 26 which no longer)
+- `RDF.PropertyMap.to_sorted_list/1` which returns the property map as keyword list
+  sorted by property  
+- The Turtle encoder now sorts the prefixes (based on `RDF.PrefixMap.to_sorted_list/1`), 
+  which has become necessary, since OTP 26 maps are now unordered even in smaller cases 
+  (previously only larger maps were unordered).
 
 
 [Compare v1.1.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.1...HEAD)

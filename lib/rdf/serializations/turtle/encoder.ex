@@ -123,7 +123,9 @@ defmodule RDF.Turtle.Encoder do
     if Enum.empty?(prefixes) do
       ""
     else
-      Enum.map_join(prefixes, &prefix_directive(&1, state, opts)) <> "\n"
+      (prefixes
+       |> PrefixMap.to_sorted_list()
+       |> Enum.map_join(&prefix_directive(&1, state, opts))) <> "\n"
     end
   end
 

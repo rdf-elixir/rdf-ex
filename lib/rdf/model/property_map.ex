@@ -344,6 +344,28 @@ defmodule RDF.PropertyMap do
   @spec to_list(t()) :: [{atom, IRI.t()}]
   def to_list(%__MODULE__{iris: iris}), do: Map.to_list(iris)
 
+  @doc """
+  Converts property map to a list sorted by property.
+
+  Each term-IRI pair in the property map is converted to a two-element tuple
+  `{term, iri}` in the resulting list.
+
+  ## Examples
+
+      iex> RDF.PropertyMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar")
+      ...> |> RDF.PropertyMap.to_sorted_list()
+      [bar: ~I<http://example.com/bar>, foo: ~I<http://example.com/foo>]
+
+  """
+  @spec to_sorted_list(t()) :: [{atom, IRI.t()}]
+  def to_sorted_list(%__MODULE__{iris: iris}) do
+    Enum.sort(iris, fn
+      {property1, _}, {property2, _} -> property1 < property2
+    end)
+  end
+
   defimpl Enumerable do
     alias RDF.PropertyMap
     def reduce(%PropertyMap{iris: iris}, acc, fun), do: Enumerable.reduce(iris, acc, fun)
@@ -365,7 +387,7 @@ defmodule RDF.PropertyMap do
     import Inspect.Algebra
 
     def inspect(property_map, opts) do
-      map = Map.to_list(property_map.iris)
+      map = RDF.PropertyMap.to_sorted_list(property_map)
       open = color("RDF.PropertyMap.new(%{", :map, opts)
       sep = color(",", :map, opts)
       close = color("})", :map, opts)

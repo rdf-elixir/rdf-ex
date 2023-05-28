@@ -435,6 +435,36 @@ defmodule RDF.PrefixMap do
   @spec to_list(t()) :: [{prefix(), namespace()}]
   def to_list(%__MODULE__{map: map}), do: Map.to_list(map)
 
+  @doc """
+  Converts prefix map to a list sorted by prefix.
+
+  Each prefix-namespace pair in the prefix map is converted to a two-element tuple
+  `{prefix, namespace_iri}` in the resulting list.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar")
+      ...> |> RDF.PrefixMap.to_sorted_list()
+      [bar: ~I<http://example.com/bar>, foo: ~I<http://example.com/foo>]
+
+      iex> RDF.PrefixMap.new(
+      ...>   a: "http://example.com/foo",
+      ...>   "": "http://example.com/bar")
+      ...> |> RDF.PrefixMap.to_sorted_list()
+      ["": ~I<http://example.com/bar>, a: ~I<http://example.com/foo>]
+
+  """
+  @spec to_sorted_list(t() | map | keyword) :: [{prefix(), namespace()}]
+  def to_sorted_list(%__MODULE__{map: map}), do: to_sorted_list(map)
+
+  def to_sorted_list(map) do
+    Enum.sort(map, fn
+      {prefix1, _}, {prefix2, _} -> prefix1 < prefix2
+    end)
+  end
+
   defimpl Enumerable do
     def reduce(%RDF.PrefixMap{map: map}, acc, fun), do: Enumerable.reduce(map, acc, fun)
 
@@ -455,7 +485,7 @@ defmodule RDF.PrefixMap do
     import Inspect.Algebra
 
     def inspect(prefix_map, opts) do
-      map = Map.to_list(prefix_map.map)
+      map = RDF.PrefixMap.to_sorted_list(prefix_map)
       open = color("RDF.PrefixMap.new(%{", :map, opts)
       sep = color(",", :map, opts)
       close = color("})", :map, opts)
