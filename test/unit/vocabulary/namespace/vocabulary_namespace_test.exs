@@ -4,6 +4,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
   doctest RDF.Vocabulary.Namespace
 
   import RDF.Sigils
+  import RDF.Test.Case, only: [assert_order_independent: 1, order_independent: 1]
 
   alias RDF.Description
   alias RDF.NS.RDFS
@@ -733,7 +734,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
   describe "defvocab invalid character handling" do
     test "when a term contains disallowed characters and no alias defined, it fails when invalid_characters: :fail" do
       assert_raise RDF.Vocabulary.Namespace.CompileError,
-                   ~r/The following terms contain invalid characters:.*foo-bar.*Foo-bar/s,
+                   ~r/The following terms contain invalid characters:.*Foo-bar.*foo-bar/s,
                    fn ->
                      defmodule NSWithInvalidTerms1 do
                        use RDF.Vocabulary.Namespace
@@ -1026,7 +1027,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
 
       alias NSRestrictionByTermListTest.RestrictionByTermList
-      assert RestrictionByTermList.__terms__() == [:Bar, :Baz, :Foo, :foo]
+      assert_order_independent RestrictionByTermList.__terms__() == [:Bar, :Baz, :Foo, :foo]
       assert RestrictionByTermList.foo() == ~I<http://example.com/ex#Foo>
       assert RDF.iri(RestrictionByTermList.Foo) == ~I<http://example.com/ex#Foo>
       assert RDF.iri(RestrictionByTermList.Bar) == ~I<http://example.com/ex#Bar-Bar>
@@ -1062,7 +1063,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
 
       alias NSRestrictionByFunctionTest.RestrictionByFunction
-      assert RestrictionByFunction.__terms__() == [:Bar, :Baz, :Foo, :foo]
+      assert_order_independent RestrictionByFunction.__terms__() == [:Bar, :Baz, :Foo, :foo]
       assert RestrictionByFunction.foo() == ~I<http://example.com/ex#Foo>
       assert RDF.iri(RestrictionByFunction.Foo) == ~I<http://example.com/ex#Foo>
       assert RDF.iri(RestrictionByFunction.Bar) == ~I<http://example.com/ex#Bar-Bar>
@@ -1101,7 +1102,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
 
       alias NSRestrictionByExternalFunctionTest.RestrictionByExternalFunction
-      assert RestrictionByExternalFunction.__terms__() == [:Bar, :Baz, :FooBar, :foo_bar]
+
+      assert_order_independent RestrictionByExternalFunction.__terms__() == [
+                                 :Bar,
+                                 :Baz,
+                                 :FooBar,
+                                 :foo_bar
+                               ]
+
       assert RestrictionByExternalFunction.foo_bar() == ~I<http://example.com/ex#FooBar>
       assert RDF.iri(RestrictionByExternalFunction.Bar) == ~I<http://example.com/ex#Bar-Bar>
       assert RDF.iri(RestrictionByExternalFunction.Baz) == ~I<http://example.com/ex#Baz>
@@ -1143,7 +1151,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
 
       alias NSRestrictionByExternalFunctionWithArgsTest.RestrictionByExternalFunctionWithArgs
-      assert RestrictionByExternalFunctionWithArgs.__terms__() == [:Bar, :Baz, :FooBar, :foobar]
+
+      assert_order_independent RestrictionByExternalFunctionWithArgs.__terms__() == [
+                                 :Bar,
+                                 :Baz,
+                                 :FooBar,
+                                 :foobar
+                               ]
+
       assert RestrictionByExternalFunctionWithArgs.foobar() == ~I<http://example.com/ex#FooBar>
 
       assert RDF.iri(RestrictionByExternalFunctionWithArgs.Bar) ==
@@ -1158,22 +1173,24 @@ defmodule RDF.Vocabulary.NamespaceTest do
     end
 
     test "error handling of restricting terms with a function" do
-      assert_raise RDF.Vocabulary.Namespace.CompileError,
-                   ~r/Errors during custom term handler.*reason2.*reason1/s,
-                   fn ->
-                     defmodule NSRestrictionByFunctionErrorsTest do
-                       use RDF.Vocabulary.Namespace
+      Enum.each(["reason1", "reason2"], fn reason ->
+        assert_raise RDF.Vocabulary.Namespace.CompileError,
+                     ~r/Errors during custom term handler.*#{reason}/s,
+                     fn ->
+                       defmodule NSRestrictionByFunctionErrorsTest do
+                         use RDF.Vocabulary.Namespace
 
-                       defvocab RestrictionByFunctionErrors,
-                         base_iri: "http://example.com/from_turtle/",
-                         case_violations: :fail,
-                         file: "test/data/vocab_ns_example.ttl",
-                         terms: fn
-                           :property, "foo" -> {:error, "reason1"}
-                           :resource, "Bar" -> {:error, "reason2"}
-                         end
+                         defvocab RestrictionByFunctionErrors,
+                           base_iri: "http://example.com/from_turtle/",
+                           case_violations: :fail,
+                           file: "test/data/vocab_ns_example.ttl",
+                           terms: fn
+                             :property, "foo" -> {:error, "reason1"}
+                             :resource, "Bar" -> {:error, "reason2"}
+                           end
+                       end
                      end
-                   end
+      end)
     end
 
     test "when terms are specified which are not in the vocabulary" do
@@ -1321,14 +1338,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
     test "resolution of ignored lowercased term with alias on a strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredLowercasedTermWithAlias
-      assert ExampleIgnoredLowercasedTermWithAlias.__terms__() == [:Bar, :Foo]
+      assert_order_independent ExampleIgnoredLowercasedTermWithAlias.__terms__() == [:Bar, :Foo]
       assert_raise UndefinedFunctionError, fn -> ExampleIgnoredLowercasedTermWithAlias.foo() end
       assert RDF.iri(ExampleIgnoredLowercasedTermWithAlias.Foo) == ~I<http://example.com/foo>
     end
 
     test "resolution of ignored capitalized term with alias on a strict vocab fails" do
       alias NSWithIgnoredTerms.ExampleIgnoredCapitalizedTermWithAlias
-      assert ExampleIgnoredCapitalizedTermWithAlias.__terms__() == [:bar, :foo]
+      assert_order_independent ExampleIgnoredCapitalizedTermWithAlias.__terms__() == [:bar, :foo]
 
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
         RDF.iri(ExampleIgnoredCapitalizedTermWithAlias.Bar)

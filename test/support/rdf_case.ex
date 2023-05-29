@@ -39,6 +39,18 @@ defmodule RDF.Test.Case do
     end
   end
 
+  def order_independent({:ok, %RDF.Query.BGP{triple_patterns: triple_patterns}}),
+    do: {:ok, %RDF.Query.BGP{triple_patterns: Enum.sort(triple_patterns)}}
+
+  def order_independent({:ok, elements}), do: {:ok, Enum.sort(elements)}
+  def order_independent(elements), do: Enum.sort(elements)
+
+  defmacro assert_order_independent({:==, _, [left, right]}) do
+    quote do
+      assert order_independent(unquote(left)) == order_independent(unquote(right))
+    end
+  end
+
   def string_to_stream(string) do
     {:ok, pid} = StringIO.open(string)
     IO.binstream(pid, :line)

@@ -93,14 +93,14 @@ defmodule RDF.Query.BuilderTest do
     end
 
     test "multiple triple patterns" do
-      assert Builder.bgp([
-               {EX.S, EX.p(), :o?},
-               {:o?, EX.p2(), 42}
-             ]) ==
-               ok_bgp_struct([
-                 {RDF.iri(EX.S), EX.p(), :o},
-                 {:o, EX.p2(), RDF.literal(42)}
-               ])
+      assert_order_independent Builder.bgp([
+                                 {EX.S, EX.p(), :o?},
+                                 {:o?, EX.p2(), 42}
+                               ]) ==
+                                 ok_bgp_struct([
+                                   {RDF.iri(EX.S), EX.p(), :o},
+                                   {:o, EX.p2(), RDF.literal(42)}
+                                 ])
     end
 
     test "multiple objects to the same subject-predicate" do
@@ -110,16 +110,16 @@ defmodule RDF.Query.BuilderTest do
           {EX.s(), EX.p(), EX.o2()}
         ])
 
-      assert Builder.bgp([{EX.s(), EX.p(), [EX.o1(), EX.o2()]}]) == result
-      assert Builder.bgp({EX.s(), EX.p(), [EX.o1(), EX.o2()]}) == result
+      assert_order_independent Builder.bgp([{EX.s(), EX.p(), [EX.o1(), EX.o2()]}]) == result
+      assert_order_independent Builder.bgp({EX.s(), EX.p(), [EX.o1(), EX.o2()]}) == result
 
-      assert Builder.bgp({EX.s(), EX.p(), [:o?, false, 42, "foo"]}) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p(), :o},
-                 {EX.s(), EX.p(), XSD.false()},
-                 {EX.s(), EX.p(), RDF.literal(42)},
-                 {EX.s(), EX.p(), RDF.literal("foo")}
-               ])
+      assert_order_independent Builder.bgp({EX.s(), EX.p(), [:o?, false, 42, "foo"]}) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), EX.p(), :o},
+                                   {EX.s(), EX.p(), XSD.false()},
+                                   {EX.s(), EX.p(), RDF.literal(42)},
+                                   {EX.s(), EX.p(), RDF.literal("foo")}
+                                 ])
     end
 
     test "multiple predicate-object pairs to the same subject" do
@@ -129,112 +129,112 @@ defmodule RDF.Query.BuilderTest do
           {EX.s(), EX.p2(), EX.o2()}
         ])
 
-      assert Builder.bgp([
-               {
-                 EX.s(),
-                 [
-                   {EX.p1(), EX.o1()},
-                   {EX.p2(), EX.o2()}
-                 ]
-               }
-             ]) == result
+      assert_order_independent Builder.bgp([
+                                 {
+                                   EX.s(),
+                                   [
+                                     {EX.p1(), EX.o1()},
+                                     {EX.p2(), EX.o2()}
+                                   ]
+                                 }
+                               ]) == result
 
-      assert Builder.bgp([
-               {
-                 EX.s(),
-                 [
-                   {:a, :o?},
-                   {EX.p1(), [42, 3.14]},
-                   {EX.p2(), ["foo", true]}
-                 ]
-               }
-             ]) ==
-               ok_bgp_struct([
-                 {EX.s(), RDF.type(), :o},
-                 {EX.s(), EX.p1(), RDF.literal(42)},
-                 {EX.s(), EX.p1(), RDF.literal(3.14)},
-                 {EX.s(), EX.p2(), RDF.literal("foo")},
-                 {EX.s(), EX.p2(), XSD.true()}
-               ])
+      assert_order_independent Builder.bgp([
+                                 {
+                                   EX.s(),
+                                   [
+                                     {:a, :o?},
+                                     {EX.p1(), [42, 3.14]},
+                                     {EX.p2(), ["foo", true]}
+                                   ]
+                                 }
+                               ]) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), RDF.type(), :o},
+                                   {EX.s(), EX.p1(), RDF.literal(42)},
+                                   {EX.s(), EX.p1(), RDF.literal(3.14)},
+                                   {EX.s(), EX.p2(), RDF.literal("foo")},
+                                   {EX.s(), EX.p2(), XSD.true()}
+                                 ])
 
       assert Builder.bgp([{EX.s(), {EX.p(), EX.o()}}]) ==
                ok_bgp_struct([{EX.s(), EX.p(), EX.o()}])
     end
 
     test "triple patterns with maps" do
-      assert Builder.bgp(%{
-               EX.S => {EX.p(), :o?},
-               o?: [
-                 {EX.p2(), 42},
-                 {EX.p3(), "foo"}
-               ]
-             }) ==
-               ok_bgp_struct([
-                 {RDF.iri(EX.S), EX.p(), :o},
-                 {:o, EX.p2(), RDF.literal(42)},
-                 {:o, EX.p3(), RDF.literal("foo")}
-               ])
+      assert_order_independent Builder.bgp(%{
+                                 EX.S => {EX.p(), :o?},
+                                 o?: [
+                                   {EX.p2(), 42},
+                                   {EX.p3(), "foo"}
+                                 ]
+                               }) ==
+                                 ok_bgp_struct([
+                                   {RDF.iri(EX.S), EX.p(), :o},
+                                   {:o, EX.p2(), RDF.literal(42)},
+                                   {:o, EX.p3(), RDF.literal("foo")}
+                                 ])
 
-      assert Builder.bgp(%{
-               EX.s() => %{
-                 :a => :o1?,
-                 :p? => :o2?,
-                 EX.p1() => [42, 3.14],
-                 EX.p2() => ["foo", true]
-               }
-             }) ==
-               ok_bgp_struct([
-                 {EX.s(), RDF.type(), :o1},
-                 {EX.s(), :p, :o2},
-                 {EX.s(), EX.p1(), RDF.literal(42)},
-                 {EX.s(), EX.p1(), RDF.literal(3.14)},
-                 {EX.s(), EX.p2(), RDF.literal("foo")},
-                 {EX.s(), EX.p2(), XSD.true()}
-               ])
+      assert_order_independent Builder.bgp(%{
+                                 EX.s() => %{
+                                   :a => :o1?,
+                                   :p? => :o2?,
+                                   EX.p1() => [42, 3.14],
+                                   EX.p2() => ["foo", true]
+                                 }
+                               }) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), RDF.type(), :o1},
+                                   {EX.s(), :p, :o2},
+                                   {EX.s(), EX.p1(), RDF.literal(42)},
+                                   {EX.s(), EX.p1(), RDF.literal(3.14)},
+                                   {EX.s(), EX.p2(), RDF.literal("foo")},
+                                   {EX.s(), EX.p2(), XSD.true()}
+                                 ])
 
-      assert Builder.bgp([
-               %{EX.S => {EX.p(), :o?}},
-               {EX.S2, EX.p(), :o?}
-             ]) ==
-               ok_bgp_struct([
-                 {RDF.iri(EX.S), EX.p(), :o},
-                 {RDF.iri(EX.S2), EX.p(), :o}
-               ])
+      assert_order_independent Builder.bgp([
+                                 %{EX.S => {EX.p(), :o?}},
+                                 {EX.S2, EX.p(), :o?}
+                               ]) ==
+                                 ok_bgp_struct([
+                                   {RDF.iri(EX.S), EX.p(), :o},
+                                   {RDF.iri(EX.S2), EX.p(), :o}
+                                 ])
     end
 
     test "triple patterns with descriptions" do
-      assert Builder.bgp([
-               EX.p(~B"s", EX.O),
-               {:_s, :p?, :o?}
-             ]) ==
-               ok_bgp_struct([
-                 {~B"s", EX.p(), RDF.iri(EX.O)},
-                 {~B"s", :p, :o}
-               ])
+      assert_order_independent Builder.bgp([
+                                 EX.p(~B"s", EX.O),
+                                 {:_s, :p?, :o?}
+                               ]) ==
+                                 ok_bgp_struct([
+                                   {~B"s", EX.p(), RDF.iri(EX.O)},
+                                   {~B"s", :p, :o}
+                                 ])
     end
 
     test "with contexts" do
-      assert Builder.bgp(
-               %{
-                 s?: %{
-                   p1: :o?,
-                   p2: [42, true]
-                 },
-                 o?: [p3: ["foo", "bar"]]
-               },
-               context: %{
-                 p1: EX.p1(),
-                 p2: EX.p2(),
-                 p3: EX.p3()
-               }
-             ) ==
-               ok_bgp_struct([
-                 {:o, EX.p3(), ~L"foo"},
-                 {:o, EX.p3(), ~L"bar"},
-                 {:s, EX.p1(), :o},
-                 {:s, EX.p2(), XSD.integer(42)},
-                 {:s, EX.p2(), XSD.true()}
-               ])
+      assert_order_independent Builder.bgp(
+                                 %{
+                                   s?: %{
+                                     p1: :o?,
+                                     p2: [42, true]
+                                   },
+                                   o?: [p3: ["foo", "bar"]]
+                                 },
+                                 context: %{
+                                   p1: EX.p1(),
+                                   p2: EX.p2(),
+                                   p3: EX.p3()
+                                 }
+                               ) ==
+                                 ok_bgp_struct([
+                                   {:o, EX.p3(), ~L"foo"},
+                                   {:o, EX.p3(), ~L"bar"},
+                                   {:s, EX.p1(), :o},
+                                   {:s, EX.p2(), XSD.integer(42)},
+                                   {:s, EX.p2(), XSD.true()}
+                                 ])
     end
   end
 
@@ -245,17 +245,17 @@ defmodule RDF.Query.BuilderTest do
     end
 
     test "element count > 3" do
-      assert Builder.path([EX.s(), EX.p1(), EX.p2(), EX.o()]) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p1(), RDF.bnode("b0")},
-                 {RDF.bnode("b0"), EX.p2(), EX.o()}
-               ])
+      assert_order_independent Builder.path([EX.s(), EX.p1(), EX.p2(), EX.o()]) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), EX.p1(), RDF.bnode("b0")},
+                                   {RDF.bnode("b0"), EX.p2(), EX.o()}
+                                 ])
 
-      assert Builder.path([:s?, :p1?, :p2?, :o?]) ==
-               ok_bgp_struct([
-                 {:s, :p1, RDF.bnode("b0")},
-                 {RDF.bnode("b0"), :p2, :o}
-               ])
+      assert_order_independent Builder.path([:s?, :p1?, :p2?, :o?]) ==
+                                 ok_bgp_struct([
+                                   {:s, :p1, RDF.bnode("b0")},
+                                   {RDF.bnode("b0"), :p2, :o}
+                                 ])
     end
 
     test "element count < 3" do
@@ -265,11 +265,11 @@ defmodule RDF.Query.BuilderTest do
     end
 
     test "with_elements: true" do
-      assert Builder.path([EX.s(), EX.p1(), EX.p2(), :o?], with_elements: true) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p1(), :el0},
-                 {:el0, EX.p2(), :o}
-               ])
+      assert_order_independent Builder.path([EX.s(), EX.p1(), EX.p2(), :o?], with_elements: true) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), EX.p1(), :el0},
+                                   {:el0, EX.p2(), :o}
+                                 ])
     end
 
     test "with contexts" do
@@ -278,17 +278,20 @@ defmodule RDF.Query.BuilderTest do
         p2: EX.p2()
       }
 
-      assert Builder.path([EX.s(), :p1, :p2, EX.o()], context: property_map) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p1(), RDF.bnode("b0")},
-                 {RDF.bnode("b0"), EX.p2(), EX.o()}
-               ])
+      assert_order_independent Builder.path([EX.s(), :p1, :p2, EX.o()], context: property_map) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), EX.p1(), RDF.bnode("b0")},
+                                   {RDF.bnode("b0"), EX.p2(), EX.o()}
+                                 ])
 
-      assert Builder.path([EX.s(), :p1, :p2, :o?], context: property_map, with_elements: true) ==
-               ok_bgp_struct([
-                 {EX.s(), EX.p1(), :el0},
-                 {:el0, EX.p2(), :o}
-               ])
+      assert_order_independent Builder.path([EX.s(), :p1, :p2, :o?],
+                                 context: property_map,
+                                 with_elements: true
+                               ) ==
+                                 ok_bgp_struct([
+                                   {EX.s(), EX.p1(), :el0},
+                                   {:el0, EX.p2(), :o}
+                                 ])
     end
   end
 end

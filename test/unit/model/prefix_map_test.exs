@@ -332,12 +332,12 @@ defmodule RDF.PrefixMapTest do
   end
 
   test "prefixes/1" do
-    assert PrefixMap.prefixes(@example2) == ~w[ex1 ex2]a
+    assert_order_independent PrefixMap.prefixes(@example2) == ~w[ex1 ex2]a
     assert PrefixMap.prefixes(PrefixMap.new()) == ~w[]a
   end
 
   test "namespaces/1" do
-    assert PrefixMap.namespaces(@example2) == [@ex_ns1, @ex_ns2]
+    assert_order_independent PrefixMap.namespaces(@example2) == [@ex_ns1, @ex_ns2]
     assert PrefixMap.namespaces(PrefixMap.new()) == ~w[]a
   end
 
@@ -403,12 +403,12 @@ defmodule RDF.PrefixMapTest do
     end
 
     test "Enum.reduce" do
-      assert Enum.reduce(@example2, [], fn mapping, acc -> [mapping | acc] end) ==
-               [{:ex2, @ex_ns2}, {:ex1, @ex_ns1}]
+      assert_order_independent Enum.reduce(@example2, [], fn mapping, acc -> [mapping | acc] end) ==
+                                 [{:ex2, @ex_ns2}, {:ex1, @ex_ns1}]
     end
 
     test "Enum.at (for Enumerable.slice/1)" do
-      assert Enum.at(@example2, 0) == {:ex1, @ex_ns1}
+      assert Enum.at(@example2, 0) in @example2
     end
   end
 

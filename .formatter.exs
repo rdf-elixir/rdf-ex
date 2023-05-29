@@ -12,7 +12,7 @@ locals_without_parens = [
 
 [
   inputs: ["{mix,.formatter}.exs", "{bench,config,lib,test}/**/*.{ex,exs}"],
-  locals_without_parens: locals_without_parens,
+  locals_without_parens: [{:assert_order_independent, 1} | locals_without_parens],
   export: [
     locals_without_parens: locals_without_parens
   ]

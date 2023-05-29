@@ -73,22 +73,25 @@ defmodule RDF.NamespaceTest do
   end
 
   test "__terms__" do
-    assert SimpleNS.__terms__() == [:Baaz, :Baz, :bar, :foo]
-    assert NSfromPropertyMap.__terms__() == [:bar, :foo]
+    assert_order_independent SimpleNS.__terms__() ==
+                               [:Baaz, :Baz, :bar, :foo]
+
+    assert_order_independent NSfromPropertyMap.__terms__() ==
+                               [:bar, :foo]
   end
 
   test "__iris__" do
-    assert SimpleNS.__iris__() == [
-             ~I<http://example.com/Baaz>,
-             ~I<http://example.com/Baz>,
-             ~I<http://example.com/bar>,
-             ~I<http://example.com/foo>
-           ]
+    assert_order_independent SimpleNS.__iris__() == [
+                               ~I<http://example.com/Baaz>,
+                               ~I<http://example.com/Baz>,
+                               ~I<http://example.com/bar>,
+                               ~I<http://example.com/foo>
+                             ]
 
-    assert NSfromPropertyMap.__iris__() == [
-             ~I<http://example.com/bar>,
-             ~I<http://example.com/foo>
-           ]
+    assert_order_independent NSfromPropertyMap.__iris__() == [
+                               ~I<http://example.com/bar>,
+                               ~I<http://example.com/foo>
+                             ]
   end
 
   describe "namespace?/1" do

@@ -323,19 +323,21 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
     ================================================================================
 
     """ <>
-      Enum.map_join(grouped_errors, fn {group, errors} ->
-        """
-        #{group}
-        #{String.duplicate("-", String.length(group))}
+      (grouped_errors
+       |> Enum.sort(fn {group1, _}, {group2, _} -> group1 < group2 end)
+       |> Enum.map_join(fn {group, errors} ->
+         """
+         #{group}
+         #{String.duplicate("-", String.length(group))}
 
-        #{Enum.map_join(errors, "\n", fn error -> if String.contains?(message = Exception.message(error), "\n") do
-            message
-          else
-            "- " <> message
-          end end)}
+         #{Enum.map_join(errors, "\n", fn error -> if String.contains?(message = Exception.message(error), "\n") do
+             message
+           else
+             "- " <> message
+           end end)}
 
-        """
-      end)
+         """
+       end))
   end
 
   def term_to_iri(%{base_uri: base_uri}, term) do

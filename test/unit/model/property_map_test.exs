@@ -41,7 +41,7 @@ defmodule RDF.PropertyMapTest do
   end
 
   test "terms/1" do
-    assert PropertyMap.terms(@example_property_map) == [:Baz, :bar, :foo]
+    assert_order_independent PropertyMap.terms(@example_property_map) == [:Baz, :bar, :foo]
   end
 
   test "iris/1" do
@@ -331,16 +331,18 @@ defmodule RDF.PropertyMapTest do
     end
 
     test "Enum.reduce" do
-      assert Enum.reduce(@example_property_map, [], fn mapping, acc -> [mapping | acc] end) ==
-               [
-                 {:foo, ~I<http://example.com/test/foo>},
-                 {:bar, ~I<http://example.com/test/bar>},
-                 {:Baz, RDF.iri(EX.Baz)}
-               ]
+      assert_order_independent Enum.reduce(@example_property_map, [], fn mapping, acc ->
+                                 [mapping | acc]
+                               end) ==
+                                 [
+                                   {:foo, ~I<http://example.com/test/foo>},
+                                   {:bar, ~I<http://example.com/test/bar>},
+                                   {:Baz, RDF.iri(EX.Baz)}
+                                 ]
     end
 
     test "Enum.at (for Enumerable.slice/1)" do
-      assert Enum.at(@example_property_map, 0) == {:Baz, RDF.iri(EX.Baz)}
+      assert Enum.at(@example_property_map, 0) in @example_property_map
     end
   end
 

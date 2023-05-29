@@ -51,7 +51,7 @@ defmodule RDF.Vocabulary.Namespace.TermValidation do
     TermMapping.add_error(term_mapping, InvalidTermError, """
     The following terms contain invalid characters:
 
-    - #{Enum.join(invalid_terms, "\n- ")}
+    - #{invalid_terms |> Enum.sort() |> Enum.join("\n- ")}
 
     You have the following options:
 
