@@ -1754,6 +1754,102 @@ defmodule RDF.DatasetTest do
     end
   end
 
+  describe "update/4" do
+    test "a graph returned from the update function replaces the old graph" do
+      old_graph = Graph.new({EX.S2, EX.p2(), EX.O3})
+      new_graph = Graph.new({EX.S2, EX.p(), EX.O})
+
+      assert Dataset.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+               old_graph
+             ])
+             |> Dataset.update(nil, fn ^old_graph -> new_graph end) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+                 new_graph
+               ])
+
+      old_graph = Graph.new({EX.S2, EX.p2(), EX.O3}, name: EX.Graph)
+      new_graph = Graph.new({EX.S2, EX.p(), EX.O}, name: EX.Graph)
+
+      assert Dataset.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+               old_graph
+             ])
+             |> Dataset.update(EX.Graph, fn ^old_graph -> new_graph end) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+                 new_graph
+               ])
+    end
+
+    test "a graph with another graph name returned from the update function replaces the old graph" do
+      old_graph = Graph.new({EX.S2, EX.p2(), EX.O3}, name: EX.Graph)
+      new_graph = Graph.new({EX.S2, EX.p(), EX.O}, name: EX.Graph)
+
+      assert Dataset.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+               old_graph
+             ])
+             |> Dataset.update(EX.Graph, fn ^old_graph ->
+               Graph.new({EX.S2, EX.p(), EX.O}, name: EX.Ignored)
+             end) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+                 new_graph
+               ])
+
+      assert Dataset.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+               old_graph
+             ])
+             |> Dataset.update(EX.Graph, fn ^old_graph ->
+               Graph.new({EX.S2, EX.p(), EX.O}, name: nil)
+             end) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+                 new_graph
+               ])
+    end
+
+    test "a value returned from the update function becomes new coerced graph" do
+      old_graph = Graph.new({EX.S2, EX.p2(), EX.O3}, name: EX.Graph)
+      new_graph = Graph.new({EX.S2, EX.p(), EX.O}, name: EX.Graph)
+
+      assert Dataset.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+               old_graph
+             ])
+             |> Dataset.update(EX.Graph, fn ^old_graph -> Graph.triples(new_graph) end) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2], EX.AnotherGraph},
+                 new_graph
+               ])
+    end
+
+    test "returning nil from the update function causes a removal of the graph" do
+      assert Dataset.new({EX.S, EX.p(), EX.O, EX.Graph})
+             |> Dataset.update(EX.Graph, fn _ -> nil end) ==
+               Dataset.new()
+    end
+
+    test "when the graph is not present the initial value is added and the update function is not called" do
+      fun = fn _ -> raise "should not be called" end
+
+      assert Dataset.new()
+             |> Dataset.update(EX.Graph, {EX.S, EX.P, EX.O}, fun) ==
+               Dataset.new({EX.S, EX.P, EX.O, EX.Graph})
+
+      assert Dataset.new()
+             |> Dataset.update(nil, {EX.S, EX.P, EX.O}, fun) ==
+               Dataset.new({EX.S, EX.P, EX.O})
+
+      assert Dataset.new()
+             |> Dataset.update(EX.Graph, fun) ==
+               Dataset.new()
+    end
+  end
+
   describe "delete" do
     setup do
       {:ok,

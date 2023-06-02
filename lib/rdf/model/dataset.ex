@@ -31,7 +31,9 @@ defmodule RDF.Dataset do
 
   @type input :: Graph.input() | t
 
-  @type update_graph_fun :: (Graph.t() -> {Graph.t(), input} | :pop)
+  @type update_graph_fun :: (Graph.t() -> {Graph.t()})
+
+  @type get_and_update_graph_fun :: (Graph.t() -> {Graph.t(), input} | :pop)
 
   @doc """
   Creates an empty unnamed `RDF.Dataset`.
@@ -329,6 +331,68 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  Updates a graph in `dataset` with the given function.
+
+  If `graph_name` is present in `dataset`,
+  `fun` is invoked with argument `graph` and its result is used as the new
+  graph with the given `graph_name`. If `graph_name` is not present in `dataset`,
+  `initial` is inserted with the given `graph_name`. If no `initial` value is
+  given, the `dataset` remains unchanged. If `nil` is returned by `fun`, the
+  respective graph will be removed from `dataset`.
+
+  The initial value and the returned values by the update function will be
+  coerced to proper RDF graphs before added. If the initial or returned
+  graph is a `RDF.Graph` with another graph name, it will still be added
+  using the given `graph_name`.
+
+  ## Examples
+
+      iex> RDF.Dataset.new({EX.S, EX.p, EX.O, EX.Graph})
+      ...> |> RDF.Dataset.update(EX.Graph,
+      ...>      fn graph -> RDF.Graph.add(graph, {EX.S, EX.p, EX.O2})
+      ...>    end)
+      RDF.Dataset.new([{EX.S, EX.p, EX.O, EX.Graph}, {EX.S, EX.p, EX.O2, EX.Graph}])
+
+      iex> RDF.Dataset.new()
+      ...> |> RDF.Dataset.update(EX.Graph, RDF.Graph.new({EX.S, EX.p, EX.O}),
+      ...>      fn graph -> RDF.Graph.add(graph, {EX.S, EX.p, EX.O2})
+      ...>    end)
+      RDF.Dataset.new([{EX.S, EX.p, EX.O, EX.Graph}])
+
+  """
+  @spec update(
+          t,
+          Statement.graph_name(),
+          Graph.input() | nil,
+          update_graph_fun
+        ) :: t
+  def update(%__MODULE__{} = dataset, graph_name, initial \\ nil, fun) do
+    graph_name = RDF.coerce_graph_name(graph_name)
+
+    case get(dataset, graph_name) do
+      nil ->
+        if initial do
+          add(dataset, Graph.new(initial, name: graph_name))
+        else
+          dataset
+        end
+
+      graph ->
+        graph
+        |> fun.()
+        |> case do
+          nil ->
+            delete_graph(dataset, graph_name)
+
+          new_graph ->
+            dataset
+            |> delete_graph(graph_name)
+            |> add(Graph.new(new_graph, name: graph_name))
+        end
+    end
+  end
+
+  @doc """
   Deletes statements from a `RDF.Dataset`.
 
   The `graph` option allows to set a different destination graph from which the
@@ -388,7 +452,7 @@ defmodule RDF.Dataset do
   Deletes the given graph.
   """
   @spec delete_graph(t, Statement.graph_name() | [Statement.graph_name()] | nil) :: t
-  def delete_graph(graph, graph_names)
+  def delete_graph(dataset, graph_names)
 
   def delete_graph(%__MODULE__{} = dataset, graph_names) when is_list(graph_names) do
     Enum.reduce(graph_names, dataset, &delete_graph(&2, &1))
@@ -497,7 +561,8 @@ defmodule RDF.Dataset do
       {RDF.Graph.new({EX.S, EX.P, EX.O}, name: EX.Graph), RDF.Dataset.new({EX.S, EX.P, EX.NEW, EX.Graph})}
   """
   @impl Access
-  @spec get_and_update(t, Statement.graph_name() | nil, update_graph_fun) :: {Graph.t(), t}
+  @spec get_and_update(t, Statement.graph_name() | nil, get_and_update_graph_fun) ::
+          {Graph.t(), t}
   def get_and_update(%__MODULE__{} = dataset, graph_name, fun) do
     graph_context = coerce_graph_name(graph_name)
 

@@ -1258,7 +1258,7 @@ defmodule RDF.GraphTest do
                Graph.new()
     end
 
-    test "when the property is not present the initial object value is added for the predicate and the update function not called" do
+    test "when the subject is not present the initial value is added and the update function is not called" do
       fun = fn _ -> raise "should not be called" end
 
       assert Graph.new()
