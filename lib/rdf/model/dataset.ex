@@ -199,11 +199,19 @@ defmodule RDF.Dataset do
       iex> RDF.Dataset.put(dataset, {EX.S2, EX.P2, EX.O2})
       RDF.Dataset.new([{EX.S, EX.P1, EX.O1}, {EX.S2, EX.P2, EX.O2}])
   """
-
   @spec put(t, input, keyword) :: t
   def put(dataset, input, opts \\ [])
 
   def put(%__MODULE__{} = dataset, %__MODULE__{} = input, opts) do
+    input =
+      if destination_graph = Keyword.get(opts, :graph) do
+        input
+        |> Graph.new(name: destination_graph)
+        |> new()
+      else
+        input
+      end
+
     %__MODULE__{
       dataset
       | graphs:
@@ -223,7 +231,7 @@ defmodule RDF.Dataset do
   end
 
   def put(%__MODULE__{} = dataset, input, opts) do
-    put(dataset, new() |> add(input, opts), opts)
+    put(dataset, new() |> add(input, opts), Keyword.delete(opts, :graph))
   end
 
   @doc """
@@ -248,7 +256,6 @@ defmodule RDF.Dataset do
       ...> |> RDF.Dataset.put_properties([{EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
       RDF.Dataset.new([{EX.S1, EX.P1, EX.O1}, {EX.S1, EX.P2, EX.O3}, {EX.S2, EX.P2, EX.O3}])
   """
-
   @spec put_properties(t, input, keyword) :: t
   def put_properties(dataset, input, opts \\ [])
 

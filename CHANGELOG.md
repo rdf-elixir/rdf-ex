@@ -20,6 +20,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   which has become necessary, since OTP 26 maps are now unordered even in smaller cases 
   (previously only larger maps were unordered).
 
+### Fixed
+
+- `RDF.Dataset.put/3` with a `RDF.Dataset` input didn't respect the `:graph` option to 
+  aggregate everything into single target graph
+
 
 [Compare v1.1.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.1...HEAD)
 

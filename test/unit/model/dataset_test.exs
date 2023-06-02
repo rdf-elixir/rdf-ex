@@ -922,6 +922,7 @@ defmodule RDF.DatasetTest do
         Dataset.new([
           {EX.S1, EX.P1, EX.O1},
           {EX.S2, EX.P2, EX.O2},
+          {EX.S4, EX.P4, EX.O4},
           {EX.S3, EX.P3, EX.O3, EX.Graph}
         ])
         |> Dataset.put(
@@ -935,12 +936,13 @@ defmodule RDF.DatasetTest do
           graph: nil
         )
 
-      assert Dataset.statement_count(ds) == 6
+      assert Dataset.statement_count(ds) == 7
       assert dataset_includes_statement?(ds, {EX.S1, EX.P2, bnode(:foo)})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P3, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S3, EX.P4, EX.O4})
+      assert dataset_includes_statement?(ds, {EX.S4, EX.P4, EX.O4})
       assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3, EX.Graph})
 
       ds =
@@ -1043,7 +1045,8 @@ defmodule RDF.DatasetTest do
         Dataset.new([
           {EX.S1, EX.P1, EX.O1},
           {EX.S1, EX.P2, EX.O2},
-          {EX.S2, EX.P2, EX.O2}
+          {EX.S2, EX.P2, EX.O2},
+          {EX.S3, EX.P3, EX.O3}
         ])
         |> Dataset.put(
           Graph.new([
@@ -1053,14 +1056,16 @@ defmodule RDF.DatasetTest do
           graph: nil
         )
 
-      assert Dataset.statement_count(ds) == 2
+      assert Dataset.statement_count(ds) == 3
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, bnode(:foo)})
 
       ds =
         Dataset.new([
           {EX.S1, EX.P1, EX.O1},
-          {EX.S2, EX.P2, EX.O2, EX.Graph}
+          {EX.S2, EX.P2, EX.O2, EX.Graph},
+          {EX.S3, EX.P3, EX.O3, EX.Graph}
         ])
         |> Dataset.put(
           Graph.new([
@@ -1070,8 +1075,9 @@ defmodule RDF.DatasetTest do
           graph: EX.Graph
         )
 
-      assert Dataset.statement_count(ds) == 3
+      assert Dataset.statement_count(ds) == 4
       assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O3, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P2, bnode(:foo), EX.Graph})
     end
@@ -1105,7 +1111,8 @@ defmodule RDF.DatasetTest do
         Dataset.new([
           {EX.S1, EX.P1, EX.O1},
           {EX.S1, EX.P2, EX.O2, EX.Graph},
-          {EX.S2, EX.P2, EX.O2}
+          {EX.S2, EX.P2, EX.O2},
+          {EX.S3, EX.P3, EX.O3}
         ])
         |> Dataset.put(
           Graph.new(
@@ -1118,10 +1125,11 @@ defmodule RDF.DatasetTest do
           graph: nil
         )
 
-      assert Dataset.statement_count(ds) == 3
+      assert Dataset.statement_count(ds) == 4
       assert dataset_includes_statement?(ds, {EX.S1, EX.P2, EX.O2, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O3})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P3, bnode(:foo)})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3})
 
       ds =
         Dataset.new([
@@ -1143,6 +1151,57 @@ defmodule RDF.DatasetTest do
       assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
       assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O3, EX.Graph})
       assert dataset_includes_statement?(ds, {EX.S2, EX.P3, bnode(:foo), EX.Graph})
+    end
+
+    test "a dataset without an overwriting graph context" do
+      ds =
+        Dataset.new([
+          {EX.S1, EX.P1, EX.O1},
+          {EX.S1, EX.P2, EX.O2, EX.Graph},
+          {EX.S2, EX.P2, EX.O2, EX.Graph},
+          {EX.S3, EX.P3, EX.O3, EX.Graph2}
+        ])
+        |> Dataset.put(
+          Dataset.new([
+            {EX.S1, EX.P3, EX.O4},
+            {EX.S2, EX.P3, EX.O4},
+            {EX.S1, EX.P1, EX.O1, EX.Graph}
+          ])
+        )
+
+      assert Dataset.statement_count(ds) == 5
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O4})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.P3, EX.O4})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.P2, EX.O2, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3, EX.Graph2})
+    end
+
+    test "a dataset with an overwriting graph context" do
+      ds =
+        Dataset.new([
+          {EX.S1, EX.P1, EX.O1},
+          {EX.S1, EX.P2, EX.O2, EX.Graph},
+          {EX.S2, EX.P2, EX.O2, EX.Graph},
+          {EX.S3, EX.P3, EX.O3, EX.Graph},
+          {EX.S3, EX.P3, EX.O3, EX.Graph2}
+        ])
+        |> Dataset.put(
+          Dataset.new([
+            {EX.S1, EX.P3, EX.O4},
+            {EX.S2, EX.P3, EX.O4},
+            {EX.S1, EX.P1, EX.O1, EX.Graph}
+          ]),
+          graph: EX.Graph
+        )
+
+      assert Dataset.statement_count(ds) == 6
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P1, EX.O1, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S1, EX.P3, EX.O4, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S2, EX.P3, EX.O4, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3, EX.Graph})
+      assert dataset_includes_statement?(ds, {EX.S3, EX.P3, EX.O3, EX.Graph2})
     end
 
     test "lists of descriptions, graphs and datasets" do
