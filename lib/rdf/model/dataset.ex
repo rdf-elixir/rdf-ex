@@ -183,6 +183,10 @@ defmodule RDF.Dataset do
   @doc """
   Adds statements to a `RDF.Dataset` overwriting existing statements with the subjects given in the `input` data.
 
+  By overwriting statements with the same subject, this function has a similar
+  semantics as `RDF.Graph.put/3`, if you want to replace whole graphs use
+  `put_graph/3` instead.
+
   The `graph` option allows to set a different destination graph to which the
   statements should be added, ignoring the graph context of given quads or the
   name of given graphs in `input`.
@@ -280,6 +284,48 @@ defmodule RDF.Dataset do
 
   def put_properties(%__MODULE__{} = dataset, input, opts) do
     put_properties(dataset, new() |> add(input, opts), opts)
+  end
+
+  @doc """
+  Adds new graphs to a `RDF.Dataset` overwriting any existing graphs with the same name.
+
+  The `graph` option allows to set a different destination graph to which the
+  statements should be added, ignoring the graph context of given quads or the
+  name of given graphs in `input`.
+
+  Note: When the statements to be added are given as another `RDF.Dataset` and
+  a destination graph is set with the `graph` option, the descriptions of the
+  subjects in the different graphs are aggregated.
+
+  """
+  @spec put_graph(t, input, keyword) :: t
+  def put_graph(dataset, input, opts \\ [])
+
+  def put_graph(%__MODULE__{} = dataset, %__MODULE__{} = input, opts) do
+    input =
+      if destination_graph = Keyword.get(opts, :graph) do
+        input
+        |> Graph.new(name: destination_graph)
+        |> new()
+      else
+        input
+      end
+
+    %__MODULE__{
+      dataset
+      | graphs:
+          Enum.reduce(
+            input.graphs,
+            dataset.graphs,
+            fn {graph_name, graph}, graphs ->
+              Map.put(graphs, graph_name, graph)
+            end
+          )
+    }
+  end
+
+  def put_graph(%__MODULE__{} = dataset, input, opts) do
+    put_graph(dataset, new() |> add(input, opts), Keyword.delete(opts, :graph))
   end
 
   @doc """

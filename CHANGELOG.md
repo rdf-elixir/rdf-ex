@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.Namespace.act_as_namespace/1` macro which can be used to let a module act 
   as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
+- `RDF.Dataset.put_graph/3` adds new graphs overwriting any existing graphs
 - `RDF.PrefixMap.to_sorted_list/1` which returns the prefix map as keyword list 
   sorted by prefix (this should become useful with OTP 26 which no longer)
 - `RDF.PropertyMap.to_sorted_list/1` which returns the property map as keyword list
