@@ -187,6 +187,7 @@ defmodule RDF.Graph do
   - a nested subject-predicate-object map
   - a `RDF.Description`
   - a `RDF.Graph`
+  - a `RDF.Dataset`
   - or a list with any combination of the former
 
   When the statements to be added are given as another `RDF.Graph`,
@@ -194,11 +195,11 @@ defmodule RDF.Graph do
   are added. As opposed to that, `RDF.Data.merge/2` will produce a `RDF.Dataset`
   containing both graphs.
 
-  Also when the statements to be added are given as another `RDF.Graph`, the
+  Also, when the statements to be added are given as another `RDF.Graph`, the
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
 
-  RDF-star annotations to be added to all of the given statements can be specified with
+  RDF-star annotations to be added to all the given statements can be specified with
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
@@ -554,8 +555,8 @@ defmodule RDF.Graph do
   given, the `graph` remains unchanged. If `nil` is returned by `fun`, the
   respective description will be removed from `graph`.
 
-  The initial value and the returned objects by the update function will be tried
-  te coerced to proper RDF descriptions before added. If the initial or returned
+  The initial value and the returned objects by the update function will be
+  coerced to proper RDF descriptions before added. If the initial or returned
   description is a `RDF.Description` with another subject, the respective
   statements are added with `subject` as subject.
 
