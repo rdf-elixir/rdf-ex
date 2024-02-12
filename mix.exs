@@ -75,10 +75,10 @@ defmodule RDF.Mixfile do
       {:protocol_ex, "~> 0.4.4"},
       {:elixir_uuid, "~> 1.2", optional: true},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.16", only: :test},
-      {:benchee, "~> 1.1", only: :bench}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:benchee, "~> 1.3", only: :bench}
     ]
   end
 
