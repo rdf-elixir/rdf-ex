@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.12 are no longer supported
+
 ### Added 
 
 - `RDF.Namespace.act_as_namespace/1` macro which can be used to let a module act 
