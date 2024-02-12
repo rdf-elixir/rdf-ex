@@ -1156,7 +1156,10 @@ defmodule RDF.GraphTest do
 
     test "preserves the name and prefixes" do
       graph =
-        Graph.new({EX.Subject, EX.predicate(), EX.Object}, name: EX.GraphName, prefixes: %{ex: EX})
+        Graph.new({EX.Subject, EX.predicate(), EX.Object},
+          name: EX.GraphName,
+          prefixes: %{ex: EX}
+        )
         |> Graph.delete({EX.Subject, EX.predicate(), EX.Object})
 
       assert graph.name == RDF.iri(EX.GraphName)

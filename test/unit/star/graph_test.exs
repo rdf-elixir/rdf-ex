@@ -100,7 +100,9 @@ defmodule RDF.Star.GraphTest do
     end
 
     test "annotations as a list of predicate-object pairs" do
-      assert Graph.add(graph(), statement(), add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]) ==
+      assert Graph.add(graph(), statement(),
+               add_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             ) ==
                graph()
                |> Graph.add(statement())
                |> Graph.add({statement(), EX.AP1, EX.AO1})
@@ -462,7 +464,9 @@ defmodule RDF.Star.GraphTest do
     end
 
     test "with multiple annotations" do
-      assert Graph.put(graph(), statement(), put_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]) ==
+      assert Graph.put(graph(), statement(),
+               put_annotations: [{EX.AP1, EX.AO1}, {EX.AP2, EX.AO2}]
+             ) ==
                graph()
                |> Graph.add(statement())
                |> Graph.add({statement(), EX.AP1, EX.AO1})
@@ -1190,7 +1194,9 @@ defmodule RDF.Star.GraphTest do
         |> Graph.add({{EX.S2, EX.P3, EX.O3}, EX.AP1, EX.AO})
         |> Graph.add({{EX.S3, EX.P3, EX.O3}, EX.AP1, EX.AO})
 
-      assert Graph.delete_descriptions(graph, [EX.S1, EX.S3], delete_annotations: [EX.AP1, EX.AP2]) ==
+      assert Graph.delete_descriptions(graph, [EX.S1, EX.S3],
+               delete_annotations: [EX.AP1, EX.AP2]
+             ) ==
                graph()
                |> Graph.add({EX.S2, EX.P2, EX.O2})
                |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP3, EX.AO})
