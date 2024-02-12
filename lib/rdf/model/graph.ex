@@ -16,7 +16,7 @@ defmodule RDF.Graph do
 
   @behaviour Access
 
-  alias RDF.{Description, IRI, PrefixMap, PropertyMap}
+  alias RDF.{Description, Dataset, IRI, PrefixMap, PropertyMap}
   alias RDF.Graph.Builder
   alias RDF.Star.{Statement, Triple, Quad}
 
@@ -30,13 +30,14 @@ defmodule RDF.Graph do
         }
 
   @type input ::
-          Statement.coercible()
+          t
+          | Statement.coercible()
           | {
               Statement.coercible_subject(),
               Description.input()
             }
           | Description.t()
-          | t
+          | Dataset.t()
           | %{
               Statement.coercible_subject() => %{
                 Statement.coercible_predicate() =>
@@ -241,12 +242,12 @@ defmodule RDF.Graph do
     end
   end
 
-  def add(graph, %RDF.Dataset{} = dataset, opts) do
+  def add(graph, %Dataset{} = dataset, opts) do
     # normalize the annotations here, so we don't have to do this repeatedly
     opts = RDF.Star.Graph.normalize_annotation_opts(opts)
 
     dataset
-    |> RDF.Dataset.graphs()
+    |> Dataset.graphs()
     |> Enum.reduce(graph, &add(&2, &1, opts))
   end
 
@@ -317,7 +318,7 @@ defmodule RDF.Graph do
     |> RDF.Star.Graph.handle_addition_annotations(input, opts)
   end
 
-  def put(%__MODULE__{}, %RDF.Dataset{}, _opts) do
+  def put(%__MODULE__{}, %Dataset{}, _opts) do
     raise ArgumentError, "RDF.Graph.put/3 does not support RDF.Datasets"
   end
 
@@ -384,7 +385,7 @@ defmodule RDF.Graph do
     |> RDF.Star.Graph.handle_addition_annotations(input, opts)
   end
 
-  def put_properties(%__MODULE__{}, %RDF.Dataset{}, _opts) do
+  def put_properties(%__MODULE__{}, %Dataset{}, _opts) do
     raise ArgumentError, "RDF.Graph.put_properties/3 does not support RDF.Datasets"
   end
 
@@ -1283,7 +1284,7 @@ defmodule RDF.Graph do
   def canonicalize(%__MODULE__{} = graph) do
     graph
     |> RDF.Canonicalization.canonicalize()
-    |> RDF.Dataset.default_graph()
+    |> Dataset.default_graph()
   end
 
   @doc """
