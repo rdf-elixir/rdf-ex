@@ -194,12 +194,14 @@ defmodule RDF.Literal.Datatype.Registry do
   # (Properly checking for the behaviour attribute with module_info[:attributes]
   # is more than 200 times slower.)
 
+  # credo:disable-for-lines:1 Credo.Check.Readability.PredicateFunctionNames
   defp is_rdf_literal_datatype?(module) do
     module.__rdf_literal_datatype_indicator__()
   rescue
     UndefinedFunctionError -> false
   end
 
+  # credo:disable-for-lines:1 Credo.Check.Readability.PredicateFunctionNames
   defp is_xsd_datatype?(module) do
     module.__xsd_datatype_indicator__()
   rescue

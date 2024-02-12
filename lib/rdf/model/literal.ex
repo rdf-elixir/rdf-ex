@@ -183,6 +183,7 @@ defmodule RDF.Literal do
   - `RDF.XSD.Datatype` which checks if the literal is a XSD datatype or derived of one of them
 
   """
+  # credo:disable-for-lines:5 Credo.Check.Readability.PredicateFunctionNames
   def is_a?(literal, RDF.XSD.Numeric), do: RDF.XSD.Numeric.datatype?(literal)
   def is_a?(literal, RDF.XSD.Datatype), do: RDF.XSD.datatype?(literal)
   def is_a?(literal, RDF.Literal.Datatype), do: datatype?(literal)
