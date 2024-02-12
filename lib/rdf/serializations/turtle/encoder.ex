@@ -374,7 +374,7 @@ defmodule RDF.Turtle.Encoder do
 
   defp based_name(iri, base) do
     if String.starts_with?(iri, base) do
-      "<#{String.slice(iri, String.length(base)..-1)}>"
+      "<#{String.slice(iri, String.length(base)..-1//1)}>"
     end
   end
 

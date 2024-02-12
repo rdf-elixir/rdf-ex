@@ -110,7 +110,7 @@ defmodule RDF.Query.Builder do
 
     if String.ends_with?(var_string, "?") do
       var_string
-      |> String.slice(0..-2)
+      |> String.slice(0..-2//1)
       |> String.to_atom()
     end
   end

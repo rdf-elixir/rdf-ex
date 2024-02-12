@@ -60,10 +60,10 @@ defmodule RDF.Serialization.ParseHelper do
 
   def bnode_str(~c"_:" ++ value), do: List.to_string(value)
   def langtag_str(~c"@" ++ value), do: List.to_string(value)
-  def quoted_content_str(value), do: value |> List.to_string() |> String.slice(1..-2)
-  def long_quoted_content_str(value), do: value |> List.to_string() |> String.slice(3..-4)
+  def quoted_content_str(value), do: value |> List.to_string() |> String.slice(1..-2//1)
+  def long_quoted_content_str(value), do: value |> List.to_string() |> String.slice(3..-4//1)
 
-  def prefix_ns(value), do: value |> List.to_string() |> String.slice(0..-2)
+  def prefix_ns(value), do: value |> List.to_string() |> String.slice(0..-2//1)
 
   def prefix_ln(value),
     do: value |> List.to_string() |> String.split(":", parts: 2) |> List.to_tuple()
