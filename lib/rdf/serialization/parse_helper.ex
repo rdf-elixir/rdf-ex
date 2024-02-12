@@ -51,15 +51,15 @@ defmodule RDF.Serialization.ParseHelper do
   def integer(value), do: RDF.XSD.Integer.new(List.to_string(value))
   def decimal(value), do: RDF.XSD.Decimal.new(List.to_string(value))
   def double(value), do: RDF.XSD.Double.new(List.to_string(value))
-  def boolean('true'), do: true
-  def boolean('false'), do: false
+  def boolean(~c"true"), do: true
+  def boolean(~c"false"), do: false
 
   def to_langtag({:langtag, _line, value}), do: value
   def to_langtag({:"@prefix", 1}), do: "prefix"
   def to_langtag({:"@base", 1}), do: "base"
 
-  def bnode_str('_:' ++ value), do: List.to_string(value)
-  def langtag_str('@' ++ value), do: List.to_string(value)
+  def bnode_str(~c"_:" ++ value), do: List.to_string(value)
+  def langtag_str(~c"@" ++ value), do: List.to_string(value)
   def quoted_content_str(value), do: value |> List.to_string() |> String.slice(1..-2)
   def long_quoted_content_str(value), do: value |> List.to_string() |> String.slice(3..-4)
 
