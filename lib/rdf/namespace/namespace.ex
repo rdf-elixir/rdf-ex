@@ -57,7 +57,13 @@ defmodule RDF.Namespace do
 
   """
   defmacro defnamespace(module, term_mapping, opts \\ []) do
-    env = __CALLER__
+    env =
+      if Version.match?(System.version(), ">= 1.14.0") do
+        Macro.Env.prune_compile_info(__CALLER__)
+      else
+        __CALLER__
+      end
+
     module = fully_qualified_module(module, env)
 
     quote do
