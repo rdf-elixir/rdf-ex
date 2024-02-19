@@ -495,6 +495,69 @@ defmodule RDF.Graph do
   defdelegate delete_subjects(graph, subjects, opts), to: __MODULE__, as: :delete_descriptions
 
   @doc """
+  Deletes all statements with the given subject-predicate pairs.
+
+  If `predications` contains subject-predicate pairs that are not in `graph`, they're simply ignored.
+
+  The optional `:delete_annotations` keyword option allows to set which of
+  the RDF-star annotations of the deleted statements should be deleted.
+  Any of the possible values of `delete_annotations/3` can be provided here.
+  By default, no annotations of the deleted statements will be removed.
+  Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
+  keyword options can be used to add annotations about the deleted statements
+  with the addition semantics similar to the respective `add_annotations/3`,
+  `put_annotations/3` and `put_annotation_properties/3` counterparts.
+  """
+  @spec delete_predications(
+          t,
+          {Statement.coercible_subject(), Statement.coercible_predicate()}
+          | Triple.coercible()
+          | [
+              {Statement.coercible_subject(), Statement.coercible_predicate()}
+              | Triple.coercible()
+            ],
+          keyword
+        ) :: t
+  def delete_predications(graph, predications, opts \\ [])
+
+  def delete_predications(%__MODULE__{} = graph, predications, opts) when is_list(predications) do
+    Enum.reduce(predications, graph, &delete_predications(&2, &1, opts))
+  end
+
+  def delete_predications(graph, {subject, predicate, _}, opts) do
+    delete_predications(graph, {subject, predicate}, opts)
+  end
+
+  def delete_predications(graph, {subject, predicate}, opts) do
+    subject = RDF.coerce_subject(subject)
+    predicate = RDF.coerce_predicate(predicate)
+
+    if description = get(graph, subject) do
+      case Description.pop(description, predicate) do
+        {nil, _} ->
+          graph
+
+        {deleted_objects, new_description} ->
+          %__MODULE__{
+            graph
+            | descriptions:
+                if Description.empty?(new_description) do
+                  Map.delete(graph.descriptions, subject)
+                else
+                  Map.put(graph.descriptions, subject, new_description)
+                end
+          }
+          |> RDF.Star.Graph.handle_deletion_annotations(
+            {subject, predicate, deleted_objects},
+            opts
+          )
+      end
+    else
+      graph
+    end
+  end
+
+  @doc """
   Adds RDF-star annotations to the given set of statements.
 
   The set of `statements` can be given in any input form (see `add/3`).

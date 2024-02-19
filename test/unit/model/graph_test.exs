@@ -1200,6 +1200,38 @@ defmodule RDF.GraphTest do
     end
   end
 
+  describe "delete_predications/2" do
+    setup do
+      {:ok,
+       graph1: Graph.new({EX.S, EX.p(), [EX.O1, EX.O2]}, name: EX.Graph),
+       graph2:
+         Graph.new([
+           {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+           {EX.S2, EX.p2(), EX.O3},
+           {EX.S3, EX.p3(), [~B<foo>, ~L"bar"]}
+         ])}
+    end
+
+    test "a single subject-predicate tuple", %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete_predications(graph1, {EX.S, EX.other()}) == graph1
+      assert Graph.delete_predications(graph1, {EX.S, EX.p()}) == Graph.new(name: EX.Graph)
+
+      assert Graph.delete_predications(graph2, {EX.S2, EX.p2()}) ==
+               Graph.delete(graph2, {EX.S2, EX.p2(), EX.O3})
+    end
+
+    test "a list of subject-predicate tuples", %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete_predications(graph1, [{EX.S, EX.p()}, {EX.S, EX.other()}]) ==
+               Graph.new(name: EX.Graph)
+
+      assert Graph.delete_predications(graph2, [
+               {EX.S1, EX.p1()},
+               {EX.S2, EX.p2()},
+               {EX.S3, EX.p3()}
+             ]) == Graph.new()
+    end
+  end
+
   describe "update/4" do
     test "a description returned from the update function becomes new description of the subject" do
       old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
