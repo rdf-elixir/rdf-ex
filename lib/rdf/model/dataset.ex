@@ -1037,7 +1037,7 @@ defmodule RDF.Dataset do
   @spec prefixes(t) :: PrefixMap.t() | nil
   def prefixes(%__MODULE__{} = dataset) do
     dataset
-    |> RDF.Dataset.graphs()
+    |> graphs()
     |> Enum.reduce(PrefixMap.new(), fn graph, prefixes ->
       if graph.prefixes do
         PrefixMap.merge!(prefixes, graph.prefixes, :ignore)
