@@ -1,86 +1,152 @@
 <!DOCTYPE html>
 <html lang='en' prefix='rdfc: https://w3c.github.io/rdf-canon/tests/vocab# mf: http://www.w3.org/2001/sw/DataAccess/tests/test-manifest# rdft: http://www.w3.org/ns/rdftest#'>
-<head>
-<meta content='text/html;charset=utf-8' http-equiv='Content-Type'>
-<meta content='width=device-width, initial-scale=1.0' name='viewport'>
-<link href='https://www.w3.org/StyleSheets/TR/base' rel='stylesheet' type='text/css'>
-<style>
-  body: {bacground-image: none;}
-  dt {margin-top: 2em;}
-  dd code {display: inline;}
-  footer {text-align: center;}
-</style>
-<title>
-RDF Dataset Canonicalization Test Vocabulary
-</title>
-</head>
-<body resource='https://w3c.github.io/rdf-canon/tests/vocab#' typeof='owl:Ontology'>
-<meta property='dc:creator' value='Gregg Kellogg'>
-<link href='https://w3c.github.io/rdf-canon/tests/vocab#' property='dc:identifier'>
-<p>
-<a href='http://www.w3.org/'>
-<img alt='W3C' height='48' src='http://www.w3.org/Icons/w3c_home' width='72'>
-</a>
-</p>
-<h1 property='dc:title rdfs:label'>RDF Dataset Canonicalization Test Vocabulary</h1>
-<span property='dc:description rdfs:comment'>
-<p>This is a vocabulary document used to define classes and properties used in
-<a href="http://w3c.github.io/rdf-canon/tests/">RDF Dataset Canonicalization Test Cases</a> and associated test manifests.</p>
-<p>This vocabulary extends the <a href="http://www.w3.org/ns/rdftest#">RDF Test Vocabulary</a>
-and <a href="http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#">Test Manifest Vocabulary</a> with Normalization-specific tests.
-The URI of the vocabulary is <code>https://w3c.github.io/rdf-canon/tests/vocab#</code>
-(abbreviated by <code>rdfc</code> in this document).
-<a href="vocab.ttl">Turtle</a> and <a href="vocab.jsonld">JSON-LD</a> versions of the vocabular are also available.
-The vocabulary is published by the <a href="https://www.w3.org/community/credentials/">W3C Credentials Community Group</a>.</p>
-
-</span>
-<section>
-<h2>Vocabulary Terms</h2>
-<p>The vocabulary terms below constitute the complete RDF Dataset Canonicalization Test vocabulary</p>
-<section>
-<h3 id='classes'>Classes</h3>
-<dl>
-<dt about='rdfc:Test' property='rdfs:label' typeof='rdfs:Class'>rdfc:Test</dt>
-<dd about='rdfc:Test'>
-<em property='rdfs:label'>Superclass of all RDF Dataset Canonicalization tests</em>
-<span property='rdfs:comment'><p>All RDF Dataset Canonicalization tests have an input file referenced using <code>mf:action</code> and a result file referenced using <code>mf:result</code>. Results are compared as text where the result of running the test is serialized to canonical N-Quads, lexicographically-sorted.</p>
-</span>
-<div>
-<strong>
-subClassOf:
-</strong>
-<ul>
-<li>
-<code property='rdfs:subClassOf' resource='mf:ManifestEntry'>mf:ManifestEntry</code>
-</li>
-<li>
-<code property='rdfs:subClassOf' resource='rdft:Test'>rdft:Test</code>
-</li>
-</ul>
-</div>
-</dd>
-<dt about='rdfc:Urdna2015EvalTest' property='rdfs:label' typeof='rdfs:Class'>rdfc:Urdna2015EvalTest</dt>
-<dd about='rdfc:Urdna2015EvalTest'>
-<em property='rdfs:label'>URDNA2015 Evaluation Test</em>
-<span property='rdfs:comment'><p>Canonicalization performed using the URDNA2015 algorithm.</p>
-</span>
-<div>
-<strong>
-subClassOf:
-</strong>
-<code property='rdfs:subClassOf' resource='rdfc:Test'>rdfc:Test</code>
-</div>
-</dd>
-</dl>
-</section>
-<section>
-<h3 id='properties'>Properties</h3>
-<dl>
-</dl>
-</section>
-</section>
-<footer>
-<span property='dc:publisher'>W3C Credentials Community Group</span>
-</footer>
-</body>
+  <!-- This file is generated automatciallly from vocab.ttl, and should not be edited directly. -->
+  <head>
+    <meta content='text/html;charset=utf-8' http-equiv='Content-Type'>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'>
+    <link href='https://www.w3.org/StyleSheets/TR/base' rel='stylesheet' type='text/css'>
+    <style>
+      body: {bacground-image: none;}
+      dt {margin-top: 2em;}
+      dd code {display: inline;}
+      footer {text-align: center;}
+    </style>
+    <title>
+      RDF Dataset Canonicalization Test Vocabulary
+    </title>
+  </head>
+  <body resource='https://w3c.github.io/rdf-canon/tests/vocab#' typeof='owl:Ontology'>
+    <meta property='dc:creator' value='Gregg Kellogg'>
+    <link href='https://w3c.github.io/rdf-canon/tests/vocab#' property='dc:identifier'>
+    <p>
+      <a href='http://www.w3.org/'>
+        <img alt='W3C' height='48' src='http://www.w3.org/Icons/w3c_home' width='72'>
+      </a>
+    </p>
+    <h1 property='dc:title rdfs:label'>RDF Dataset Canonicalization Test Vocabulary</h1>
+    <span property='dc:description rdfs:comment'>
+      <p>This is a vocabulary document used to define classes and properties used in
+        <a href="http://w3c.github.io/rdf-canon/tests/">RDF Dataset Canonicalization Test Cases</a> and associated test manifests.</p>
+      <p>This vocabulary extends the <a href="http://www.w3.org/ns/rdftest#">RDF Test Vocabulary</a>
+        and <a href="http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#">Test Manifest Vocabulary</a> with Normalization-specific tests.
+        The URI of the vocabulary is <code>https://w3c.github.io/rdf-canon/tests/vocab#</code>
+        (abbreviated by <code>rdfc</code> in this document).
+        <a href="vocab.ttl">Turtle</a> and <a href="vocab.jsonld">JSON-LD</a> versions of the vocabulary are also available.
+        The vocabulary is published by the <a href="https://www.w3.org/groups/wg/rch">W3C RDF Dataset Canonicalization Working Group</a>.</p>
+    </span>
+    <section>
+      <h2>Vocabulary Terms</h2>
+      <p>The vocabulary terms below constitute the complete RDF Dataset Canonicalization Test vocabulary</p>
+      <section>
+        <h3 id='classes'>Classes</h3>
+        <dl>
+          <dt about='rdfc:RDFC10EvalTest' property='rdfs:label' typeof='rdfs:Class'>rdfc:RDFC10EvalTest</dt>
+          <dd about='rdfc:RDFC10EvalTest'>
+            <em property='rdfs:label'>RDFC-1.0 Evaluation Test</em>
+            <span property='rdfs:comment'>
+              <p>Canonicalization performed using the RDFC-1.0 algorithm. Results are compared as text where the result of running the test is serialized to canonical N-Quads, sorted in code point order.</p>
+            </span>
+            <div>
+              <strong>
+                subClassOf:
+              </strong>
+              <code property='rdfs:subClassOf' resource='rdfc:Test'>rdfc:Test</code>
+            </div>
+          </dd>
+          <dt about='rdfc:RDFC10MapTest' property='rdfs:label' typeof='rdfs:Class'>rdfc:RDFC10MapTest</dt>
+          <dd about='rdfc:RDFC10MapTest'>
+            <em property='rdfs:label'>RDFC-1.0 Issued Identifiers Test</em>
+            <span property='rdfs:comment'>
+              <p>The result is a map of input blank node identifiers to their associated canonical identifiers.</p>
+            </span>
+            <div>
+              <strong>
+                subClassOf:
+              </strong>
+              <code property='rdfs:subClassOf' resource='rdfc:Test'>rdfc:Test</code>
+            </div>
+          </dd>
+          <dt about='rdfc:RDFC10NegativeEvalTest' property='rdfs:label' typeof='rdfs:Class'>rdfc:RDFC10NegativeEvalTest</dt>
+          <dd about='rdfc:RDFC10NegativeEvalTest'>
+            <em property='rdfs:label'>RDFC-1.0 Negative Evaluation Test</em>
+            <span property='rdfs:comment'>
+              <p>An attempt to canonicalize a poison dataset should result in an error.</p>
+            </span>
+            <div>
+              <strong>
+                subClassOf:
+              </strong>
+              <code property='rdfs:subClassOf' resource='rdfc:Test'>rdfc:Test</code>
+            </div>
+          </dd>
+          <dt about='rdfc:Test' property='rdfs:label' typeof='rdfs:Class'>rdfc:Test</dt>
+          <dd about='rdfc:Test'>
+            <em property='rdfs:label'>Superclass of all RDF Dataset Canonicalization tests</em>
+            <span property='rdfs:comment'>
+              <p>All RDF Dataset Canonicalization tests have an input file referenced using <code>mf:action</code> and a result file referenced using <code>mf:result</code>.</p>
+            </span>
+            <div>
+              <strong>
+                subClassOf:
+              </strong>
+              <ul>
+                <li>
+                  <code property='rdfs:subClassOf' resource='mf:ManifestEntry'>mf:ManifestEntry</code>
+                </li>
+                <li>
+                  <code property='rdfs:subClassOf' resource='rdft:Test'>rdft:Test</code>
+                </li>
+              </ul>
+            </div>
+          </dd>
+        </dl>
+      </section>
+      <section>
+        <h3 id='properties'>Properties</h3>
+        <dl>
+          <dt about='rdfc:computationalComplexity' property='rdfs:label' typeof='rdf:Property'>rdfc:computationalComplexity</dt>
+          <dd about='rdfc:computationalComplexity'>
+            <em property='rdfs:label'>Computational complexity.</em>
+            <span property='rdfs:comment'>
+              <p>The input can be canonicalized with representation of relative computational complexity: &quot;low&quot;, &quot;medium&quot;, or &quot;high&quot;. Inputs with high computational complexity are likely poison datasets.</p>
+            </span>
+            <div>
+              <strong>
+                domain:
+              </strong>
+              <code property='rdfs:domain' resource='rdfc:Test'>rdfc:Test</code>
+            </div>
+            <div>
+              <strong>
+                range:
+              </strong>
+              <code property='rdfs:range' resource='xsd:string'>xsd:string</code>
+            </div>
+          </dd>
+          <dt about='rdfc:hashAlgorithm' property='rdfs:label' typeof='rdf:Property'>rdfc:hashAlgorithm</dt>
+          <dd about='rdfc:hashAlgorithm'>
+            <em property='rdfs:label'>Hash algorithm to use</em>
+            <span property='rdfs:comment'>
+              <p>Used to specify an alternative hash algorithm. If unspecified, the default is &quot;SHA256&quot;. Alternative values include &quot;SHA384&quot; and &quot;SHA512&quot;.</p>
+            </span>
+            <div>
+              <strong>
+                domain:
+              </strong>
+              <code property='rdfs:domain' resource='rdfc:Test'>rdfc:Test</code>
+            </div>
+            <div>
+              <strong>
+                range:
+              </strong>
+              <code property='rdfs:range' resource='xsd:string'>xsd:string</code>
+            </div>
+          </dd>
+        </dl>
+      </section>
+    </section>
+    <footer>
+      <span property='dc:publisher'>W3C RDF Dataset Canonicalization and Hash Working Group</span>
+    </footer>
+  </body>
 </html>

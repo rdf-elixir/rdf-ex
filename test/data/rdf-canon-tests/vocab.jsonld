@@ -25,10 +25,10 @@
       "@id": "https://w3c.github.io/rdf-canon/tests/vocab#",
       "dc:title": "RDF Dataset Canonicalization Test Vocabulary",
       "dc:creator": "Gregg Kellogg",
-      "dc:publisher": "W3C Credentials Community Group",
+      "dc:publisher": "W3C RDF Dataset Canonicalization and Hash Working Group",
       "dc:description": "\n    This is a vocabulary document used to define classes and properties used in\n    [RDF Dataset Canonicalization Test Cases](http://w3c.github.io/rdf-canon/tests/) and associated test manifests.\n  ",
       "rdfs:comment": "This is a vocabulary document used to define classes and properties used in [RDF Dataset Canonicalization Test Cases](http://w3c.github.io/rdf-canon/tests/) and associated test manifests.",
-      "dc:date": "2015-05-19",
+      "dc:date": "2023-07-03",
       "dc:identifier": "https://w3c.github.io/rdf-canon/tests/vocab#"
     },
     {
@@ -39,14 +39,44 @@
         "rdft:Test"
       ],
       "rdfs:label": "Superclass of all RDF Dataset Canonicalization tests",
-      "rdfs:comment": "All RDF Dataset Canonicalization tests have an input file referenced using `mf:action` and a result file referenced using `mf:result`. Results are compared as text where the result of running the test is serialized to canonical N-Quads, lexicographically-sorted."
+      "rdfs:comment": "All RDF Dataset Canonicalization tests have an input file referenced using `mf:action` and a result file referenced using `mf:result`."
     },
     {
-      "@id": "rdfc:Urdna2015EvalTest",
+      "@id": "rdfc:RDFC10EvalTest",
       "@type": "rdfs:Class",
-      "rdfs:label": "URDNA2015 Evaluation Test",
+      "rdfs:label": "RDFC-1.0 Evaluation Test",
       "rdfs:subClassOf": "rdfc:Test",
-      "rdfs:comment": "Canonicalization performed using the URDNA2015 algorithm."
+      "rdfs:comment": "Canonicalization performed using the RDFC-1.0 algorithm. Results are compared as text where the result of running the test is serialized to canonical N-Quads, sorted in code point order."
+    },
+    {
+      "@id": "rdfc:RDFC10MapTest",
+      "@type": "rdfs:Class",
+      "rdfs:label": "RDFC-1.0 Issued Identifiers Test",
+      "rdfs:subClassOf": "rdfc:Test",
+      "rdfs:comment": "The result is a map of input blank node identifiers to their associated canonical identifiers."
+    },
+    {
+      "@id": "rdfc:RDFC10NegativeEvalTest",
+      "@type": "rdfs:Class",
+      "rdfs:label": "RDFC-1.0 Negative Evaluation Test",
+      "rdfs:subClassOf": "rdfc:Test",
+      "rdfs:comment": "An attempt to canonicalize a poison dataset should result in an error."
+    },
+    {
+      "@id": "rdfc:computationalComplexity",
+      "@type": "rdf:Property",
+      "rdfs:label": "Computational complexity.",
+      "rdfs:comment": "The input can be canonicalized with representation of relative computational complexity: \"low\", \"medium\", or \"high\". Inputs with high computational complexity are likely poison datasets.",
+      "rdfs:domain": "rdfc:Test",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@id": "rdfc:hashAlgorithm",
+      "@type": "rdf:Property",
+      "rdfs:label": "Hash algorithm to use",
+      "rdfs:comment": "Used to specify an alternative hash algorithm. If unspecified, the default is \"SHA256\". Alternative values include \"SHA384\" and \"SHA512\".",
+      "rdfs:domain": "rdfc:Test",
+      "rdfs:range": "xsd:string"
     }
   ]
 }

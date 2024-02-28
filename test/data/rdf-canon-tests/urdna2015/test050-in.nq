@@ -1,3 +1,0 @@
-_:e0 <http://example.org/vocab#array> "value" .
-_:e0 <http://example.org/vocab#doc> "Test 'null' in various locations" .
-_:e0 <http://example.org/vocab#object> _:e1 .

@@ -13,11 +13,15 @@ defmodule RDF.Canonicalization.W3C.Test do
 
   @path RDF.TestData.path("rdf-canon-tests")
   @base "https://github.com/w3c/rdf-canon/tests/"
-  @manifest TestSuite.manifest_path(@path, "manifest-urdna2015.ttl")
+  @manifest TestSuite.manifest_path(@path, "manifest.ttl")
             |> TestSuite.manifest_graph(base: @base)
 
-  TestSuite.test_cases(@manifest, RDFC.Urdna2015EvalTest)
+  TestSuite.test_cases(@manifest, RDFC.RDFC10EvalTest)
   |> Enum.each(fn test_case ->
+    if RDFC.hashAlgorithm() in RDF.Description.predicates(test_case) do
+      @tag skip: "missing ability to change hash algorithm"
+    end
+
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       file_url = to_string(TestSuite.test_input_file(test_case))

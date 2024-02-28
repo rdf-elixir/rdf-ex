@@ -6,6 +6,7 @@ require 'csv'
 require 'json'
 require 'haml'
 require 'fileutils'
+require 'htmlbeautifier'
 
 class Manifest
   JSON_STATE = JSON::State.new(
@@ -16,16 +17,47 @@ class Manifest
     :array_nl     => "\n"
   )
 
-  TITLE = {
-    #urgna2012: "RDF Graph Normalization (URGNA2012)",
-    urdna2015: "RDF Dataset Canonicalization (URDNA2015)",
-  }
-  DESCRIPTION = {
-    #urgna2012: "Tests the 2012 version of RDF Graph Normalization.",
-    urdna2015: "Tests the 2015 version of RDF Dataset Canonicalization."
-  }
+  TITLE = "RDF Dataset Canonicalization (RDFC-1.0) Test Suite"
+  DESCRIPTION = "Tests the 1.0 version of RDF Dataset Canonicalization and the generation of canonical maps."
 
-  Test = Struct.new(:id, :name, :comment, :approval, :action, :urgna2012, :urdna2015)
+  Test = Struct.new(:id, :name, :comment, :complexity, :approval, :hashAlgorithm, :action, :rdfc10, :rdfc10map) do
+    def anchor(variant)
+      %(#{self.id}#{variant == :rdfc10 ? "c" : "m"})
+    end
+
+    def type(variant)
+      case variant
+      when :rdfc10
+        case self.rdfc10
+        when 'FALSE' then nil
+        when 'TRUE' then 'rdfc:RDFC10EvalTest'
+        else "rdfc:#{self.rdfc10}"
+        end
+      when :rdfc10map
+        case self.rdfc10map
+        when 'FALSE' then nil
+        when 'TRUE' then 'rdfc:RDFC10MapTest'
+        else "rdfc:#{self.rdfc10}"
+        end
+      end
+    end
+
+    def result(variant)
+      return nil if self.send(variant) == 'FALSE'
+      case variant
+      when :rdfc10    then "rdfc10/#{self.id}-rdfc10.nq" unless self.send(variant).to_s.match?(/negative/i)
+      when :rdfc10map then "rdfc10/#{self.id}-rdfc10map.json"
+      end
+    end
+
+    def computational_complexity
+      case self.complexity.to_i
+      when 0 then 'low'
+      when 1..10 then 'medium'
+      else 'high'
+      end
+    end
+  end
 
   attr_accessor :tests
 
@@ -40,32 +72,26 @@ class Manifest
       # Create entry as object indexed by symbolized column name
       line.each_with_index {|v, i| entry[columns[i]] = v ? v.gsub("\r", "\n").gsub("\\", "\\\\") : nil}
 
-      urgna2012 = "urgna2012/#{entry[:test]}-urgna2012.nq" if entry[:urgna2012] == "TRUE"
-      urdna2015 = "urdna2015/#{entry[:test]}-urdna2015.nq" if entry[:urdna2015] == "TRUE"
-      Test.new(entry[:test], entry[:name], entry[:comment], entry[:approval],
-               "urdna2015/#{entry[:test]}-in.nq", urgna2012, urdna2015)
+      Test.new(entry[:test], entry[:name], entry[:comment], entry[:complexity], entry[:approval], entry[:hashAlgorithm],
+               "rdfc10/#{entry[:test]}-in.nq",
+               entry[:rdfc10],
+               entry[:rdfc10map])
     end
   end
 
   # Create files referenced in the manifest
   def create_files
     tests.each do |test|
-      files = [test.action, test.urgna2012, test.urdna2015].compact
+      files = [test.action, test.rdfc10, test.rdfc10map].compact
       files.compact.select {|f| !File.exist?(f)}.each do |f|
         File.open(f, "w") {|io| io.puts( f.end_with?('.json') ? "{}" : "")}
       end
     end
   end
 
-  def test_class(test, variant)
-    case variant.to_sym
-    when :urgna2012 then "rdfc:Urgna2012EvalTest"
-    when :urdna2015 then "rdfc:Urdna2015EvalTest"
-    end
-  end
-
-  def to_jsonld(variant)
+  def to_jsonld
     context = ::JSON.parse %({
+      "@base": "manifest",
       "xsd": "http://www.w3.org/2001/XMLSchema#",
       "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
       "mf": "http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#",
@@ -78,32 +104,49 @@ class Manifest
       "approval": {"@id": "rdft:approval", "@type": "@id"},
       "comment": "rdfs:comment",
       "entries": {"@id": "mf:entries", "@type": "@id", "@container": "@list"},
+      "hashAlgorithm": "rdfc:hashAlgorithm",
       "label": "rdfs:label",
       "name": "mf:name",
+      "computationalComplexity": "rdfc:computationalComplexity",
       "result": {"@id": "mf:result", "@type": "@id"}
     })
 
     manifest = {
       "@context" => context,
-      "id" => "manifest-#{variant}",
+      "id" => "manifest",
       "type" => "mf:Manifest",
-      "label" => TITLE[variant],
-      "comment" => DESCRIPTION[variant],
+      "label" => TITLE,
+      "comment" => DESCRIPTION,
       "entries" => []
     }
 
     tests.each do |test|
-      next unless test.send(variant)
+      %i{rdfc10 rdfc10map}.each do |variant|
+        next if test.send(variant) == 'FALSE'
+        name = test.name +
+        if variant == :rdfc10map
+          ' (map test)'
+        elsif test.type(variant).to_s.match?(/negative/i)
+          ' (negative test)'
+        else
+          ''
+        end
 
-      manifest["entries"] << {
-        "id" => "manifest-#{variant}##{test.id}",
-        "type" => test_class(test, variant),
-        "name" => test.name,
-        "comment" => test.comment,
-        "approval" => (test.approval ? "rdft:#{test.approval}" : "rdft:Proposed"),
-        "action" => test.action,
-        "result" => test.send(variant)
-      }
+        entry = {
+          "id" => "##{test.anchor(variant)}",
+          "type" => test.type(variant),
+          "name" => name,
+          "comment" => test.comment,
+          "computationalComplexity" => test.computational_complexity,
+          "hashAlgorithm" => test.hashAlgorithm,
+          "approval" => (test.approval ? "rdft:#{test.approval}" : "rdft:Proposed"),
+          "action" => test.action,
+          "result" => test.result(variant)
+        }
+        entry.delete('result') unless entry['result']
+        entry.delete('hashAlgorithm') unless entry['hashAlgorithm']
+        manifest["entries"] << entry
+      end
     end
 
     manifest.to_json(JSON_STATE)
@@ -111,19 +154,17 @@ class Manifest
 
   def to_html
     # Create vocab.html using vocab_template.haml and compacted vocabulary
-    template = File.read("template.haml")
-    manifests = TITLE.keys.inject({}) do |memo, v|
-      memo["manifest-#{v}"] = ::JSON.load(File.read("manifest-#{v}.jsonld"))
-      memo
-    end
+    template = File.read(File.expand_path("../template.haml", __FILE__))
+    json_man = File.expand_path("../manifest.jsonld", __FILE__)
+    manifest = ::JSON.load(File.read(json_man))
 
-    Haml::Engine.new(template, :format => :html5).render(self,
-      man: ::JSON.load(File.read("manifest.jsonld")),
-      manifests: manifests
+    rendered = Haml::Template.new(format: :html5) {template}.render(self,
+      man: manifest
     )
+    HtmlBeautifier.beautify(rendered)
   end
 
-  def to_ttl(variant)
+  def to_ttl
     output = []
     output << %(## RDF Dataset Canonicalization tests
 ## Distributed under both the W3C Test Suite License[1] and the W3C 3-
@@ -134,36 +175,60 @@ class Manifest
 ## 2. http://www.w3.org/Consortium/Legal/2008/03-bsd-license
 ## 3. http://www.w3.org/2004/10/27-testcases
 ##
+## This file is generated automatciallly from manifest.csv, and should not be edited directly.
+##
 ## Test types
-## * rdfc:Urdna2015EvalTest  - Canonicalization using URDNA2015
+## * rdfc:RDFC10EvalTest – Canonicalization using RDFC-1.0
+## * rdfc:RDFC10MapTest  – RDFC-1.0 Issued Identifiers Test
 
-@prefix : <manifest-#{variant}#> .
+@prefix : <manifest#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix mf:   <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
 @prefix rdfc: <https://w3c.github.io/rdf-canon/tests/vocab#> .
 @prefix rdft: <http://www.w3.org/ns/rdftest#> .
 
-<manifest-#{variant}>  a mf:Manifest ;
+<manifest>  a mf:Manifest ;
 )
-    output << %(  rdfs:label "#{TITLE[variant]}";)
-    output << %(  rdfs:comment "#{DESCRIPTION[variant]}";)
+    output << %(  rdfs:label "#{TITLE}";)
+    output << %(  rdfs:comment "#{DESCRIPTION}";)
     output << %(  mf:entries \()
 
-    tests.select {|t| t.send(variant)}.map {|t| ":#{t.id}"}.each_slice(10) do |entries|
+    # Entries for each test and variant
+    tests.map do |test|
+      %I(rdfc10 rdfc10map).map do |variant|
+        ":#{test.anchor(variant)}" unless test.send(variant) == 'FALSE'
+      end
+    end.flatten.compact.each_slice(8) do |entries|
       output << %(    #{entries.join(' ')})
     end
     output << %(  \) .)
 
-    tests.select {|t| t.send(variant)}.each do |test|
-      output << "" # separator
-      output << ":#{test.id} a #{test_class(test, variant)};"
-      output << %(  mf:name "#{test.name}";)
-      output << %(  rdfs:comment "#{test.comment}";) if test.comment
-      output << %(  rdft:approval #{(test.approval ? "rdft:#{test.approval}" : "rdft:Proposed")};)
-      output << %(  mf:action <#{test.action}>;)
-      output << %(  mf:result <#{test.send(variant)}>;)
-      output << %(  .)
+    tests.each do |test|
+      %I(rdfc10 rdfc10map).
+        select {|v| test.send(v) != 'FALSE'}.
+        map do |variant|
+        
+        name = test.name + 
+        if variant == :rdfc10map
+          ' (map test)'
+        elsif test.type(variant).to_s.match?(/negative/i)
+          ' (negative test)'
+        else
+          ''
+        end
+
+        output << "" # separator
+        output << ":#{test.anchor(variant)} a #{test.type(variant)};"
+        output << %(  mf:name "#{name}";)
+        output << %(  rdfs:comment "#{test.comment}";) if test.comment
+        output << %(  rdfc:hashAlgorithm "#{test.hashAlgorithm}";) if test.hashAlgorithm
+        output << %(  rdfc:computationalComplexity "#{test.computational_complexity}";)
+        output << %(  rdft:approval #{(test.approval ? "rdft:#{test.approval}" : "rdft:Proposed")};)
+        output << %(  mf:action <#{test.action}>;)
+        output << %(  mf:result <#{test.result(variant)}>;) if test.result(variant)
+        output << %(  .)
+      end
     end
     output.join("\n")
   end
@@ -178,7 +243,6 @@ OPT_ARGS = [
   ["--output", "-o",  GetoptLong::REQUIRED_ARGUMENT,"Output to the specified file path"],
   ["--quiet",         GetoptLong::NO_ARGUMENT,      "Supress most output other than progress indicators"],
   ["--touch",         GetoptLong::NO_ARGUMENT,      "Create referenced files and directories if missing"],
-  ["--variant",       GetoptLong::REQUIRED_ARGUMENT,"Test variant, 'rdf' or 'json'"],
   ["--help", "-?",    GetoptLong::NO_ARGUMENT,      "This message"]
 ]
 def usage
@@ -204,29 +268,29 @@ opts.each do |opt, arg|
   when '--output'       then options[:output] = File.open(arg, "w")
   when '--quiet'        then options[:quiet] = true
   when '--touch'        then options[:touch] = true
-  when '--variant'      then options[:variant] = arg.to_sym
   when '--help'         then usage
   end
 end
 
-vocab = Manifest.new
-vocab.create_files if options[:touch]
+man = Manifest.new
+man.create_files if options[:touch]
 if options[:format] || options[:variant]
   case options[:format]
-  when :jsonld  then options[:output].puts(vocab.to_jsonld(options[:variant]))
-  when :ttl     then options[:output].puts(vocab.to_ttl(options[:variant]))
-  when :html    then options[:output].puts(vocab.to_html)
+  when :jsonld  then options[:output].puts(man.to_jsonld)
+  when :ttl     then options[:output].puts(man.to_ttl)
+  when :html    then options[:output].puts(man.to_html)
   else  STDERR.puts "Unknown format #{options[:format].inspect}"
   end
 else
-  Manifest::TITLE.keys.each do |variant|
-    %w(jsonld ttl).each do |format|
-      File.open("manifest-#{variant}.#{format}", "w") do |output|
-        output.puts(vocab.send("to_#{format}".to_sym, variant))
-      end
+  %I(jsonld ttl).each do |format|
+    path = File.expand_path("../manifest.#{format}", __FILE__)
+    File.open(path, "w") do |output|
+      output.puts(man.send("to_#{format}".to_sym))
     end
   end
-  File.open("index.html", "w") do |output|
-    output.puts(vocab.to_html)
+  
+  index  = File.expand_path("../index.html", __FILE__)
+  File.open(index, "w") do |output|
+    output.puts(man.to_html)
   end
 end

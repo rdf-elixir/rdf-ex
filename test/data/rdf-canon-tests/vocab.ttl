@@ -13,7 +13,7 @@
 
 : dc:title         "RDF Dataset Canonicalization Test Vocabulary";
   dc:creator       "Gregg Kellogg";
-  dc:publisher     "W3C Credentials Community Group";
+  dc:publisher     "W3C RDF Dataset Canonicalization and Hash Working Group";
   dc:description   """
     This is a vocabulary document used to define classes and properties used in
     [RDF Dataset Canonicalization Test Cases](http://w3c.github.io/rdf-canon/tests/) and associated test manifests.
@@ -22,7 +22,7 @@
     This is a vocabulary document used to define classes and properties used in
     [RDF Dataset Canonicalization Test Cases](http://w3c.github.io/rdf-canon/tests/) and associated test manifests.
   """;
-  dc:date          "2015-05-19";
+  dc:date          "2023-07-03";
   dc:identifier    rdfc: .
 
 ## ---- Test Case Classes ---
@@ -33,13 +33,48 @@
   rdfs:subClassOf rdft:Test;
   rdfs:comment """
     All RDF Dataset Canonicalization tests have an input file referenced using `mf:action`
-    and a result file referenced using `mf:result`. Results are compared as text
-    where the result of running the test is serialized to canonical N-Quads, lexicographically-sorted.
+    and a result file referenced using `mf:result`.
   """ .
 
-:Urdna2015EvalTest a rdfs:Class;
-  rdfs:label "URDNA2015 Evaluation Test";
+:RDFC10EvalTest a rdfs:Class;
+  rdfs:label "RDFC-1.0 Evaluation Test";
   rdfs:subClassOf :Test;
   rdfs:comment """
-    Canonicalization performed using the URDNA2015 algorithm.
+    Canonicalization performed using the RDFC-1.0 algorithm.
+    Results are compared as text where the result of running the test is serialized to canonical N-Quads, sorted in code point order.
   """ .
+
+:RDFC10MapTest a rdfs:Class;
+  rdfs:label "RDFC-1.0 Issued Identifiers Test";
+  rdfs:subClassOf :Test;
+  rdfs:comment """
+    The result is a map of input blank node identifiers to their associated canonical identifiers.
+  """ .
+
+:RDFC10NegativeEvalTest a rdfs:Class;
+  rdfs:label "RDFC-1.0 Negative Evaluation Test";
+  rdfs:subClassOf :Test;
+  rdfs:comment """
+    An attempt to canonicalize a poison dataset should result in an error.
+  """ .
+
+:computationalComplexity a rdf:Property;
+  rdfs:label "Computational complexity.";
+  rdfs:comment """
+    The input can be canonicalized with representation of relative
+    computational complexity: "low", "medium", or "high".
+    Inputs with high computational complexity are likely
+    poison datasets.
+  """;
+  rdfs:domain :Test;
+  rdfs:range  xsd:string .
+
+:hashAlgorithm a rdf:Property;
+  rdfs:label "Hash algorithm to use";
+  rdfs:comment """
+    Used to specify an alternative hash algorithm.
+    If unspecified, the default is "SHA256".
+    Alternative values include "SHA384" and "SHA512".
+  """;
+  rdfs:domain :Test;
+  rdfs:range xsd:string .

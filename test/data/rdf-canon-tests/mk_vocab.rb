@@ -3,10 +3,11 @@
 #
 # Generating vocab.jsonld is equivalent to running the following:
 #
-#    jsonld --compact --context vocab_context.jsonld --input-format ttl vocab.ttl  -o vocab.jsonld
+#    rdf serialize -o vocab.jsonld --output-format jsonld --context vocab_context.jsonld vocab.ttl
 require 'linkeddata'
 require 'haml'
 require 'active_support'
+require 'htmlbeautifier'
 
 File.open("vocab.jsonld", "w") do |f|
   r = RDF::Repository.load("vocab.ttl")
@@ -23,12 +24,12 @@ File.open("vocab.jsonld", "w") do |f|
       # Create vocab.html using vocab_template.haml and compacted vocabulary
       template = File.read("vocab_template.haml")
       
-      html = Haml::Engine.new(template, :format => :html5).render(self,
+      html = Haml::Template.new(format: :html5) {template}.render(self,
         ontology:   compacted['@graph'].detect {|o| o['@id'] == "https://w3c.github.io/rdf-canon/tests/vocab#"},
-        classes:    compacted['@graph'].select {|o| o['@type'] == "rdfs:Class"}.sort_by {|o| o['rdfs:label']},
+        classes:    compacted['@graph'].select {|o| %w(rdfs:Class rdfc:Test).include?(o['@type'])}.sort_by {|o| o['rdfs:label']},
         properties: compacted['@graph'].select {|o| o['@type'] == "rdf:Property"}.sort_by {|o| o['rdfs:label']}
       )
-      File.open("vocab.html", "w") {|fh| fh.write html}
+      File.open("vocab.html", "w") {|fh| fh.write HtmlBeautifier.beautify(html)}
     end
   end
 end

@@ -26,7 +26,7 @@ defmodule RDF.TestSuite do
 
     defvocab RDFC,
       base_iri: "https://w3c.github.io/rdf-canon/tests/vocab#",
-      terms: ~w[Urdna2015EvalTest]
+      terms: ~w[RDFC10EvalTest hashAlgorithm]
   end
 
   @compile {:no_warn_undefined, RDF.TestSuite.NS.MF}
