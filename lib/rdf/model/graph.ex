@@ -1328,9 +1328,9 @@ defmodule RDF.Graph do
       ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b3>, EX.p(), 42}]))
       false
   """
-  @spec isomorphic?(RDF.Graph.t(), RDF.Graph.t()) :: boolean
-  def isomorphic?(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
-    graph1 |> canonicalize() |> equal?(canonicalize(graph2))
+  @spec isomorphic?(RDF.Graph.t(), RDF.Graph.t(), keyword) :: boolean
+  def isomorphic?(%__MODULE__{} = graph1, %__MODULE__{} = graph2, opts \\ []) do
+    graph1 |> canonicalize(opts) |> equal?(canonicalize(graph2, opts))
   end
 
   @doc """
@@ -1343,10 +1343,10 @@ defmodule RDF.Graph do
       RDF.Graph.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
 
   """
-  @spec canonicalize(RDF.Graph.t()) :: RDF.Graph.t()
-  def canonicalize(%__MODULE__{} = graph) do
+  @spec canonicalize(RDF.Graph.t(), keyword) :: RDF.Graph.t()
+  def canonicalize(%__MODULE__{} = graph, opts \\ []) do
     graph
-    |> RDF.Canonicalization.canonicalize()
+    |> RDF.Canonicalization.canonicalize(opts)
     |> Dataset.default_graph()
   end
 

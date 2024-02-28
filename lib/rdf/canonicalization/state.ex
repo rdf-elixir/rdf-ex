@@ -10,10 +10,20 @@ defmodule RDF.Canonicalization.State do
 
   defstruct bnode_to_quads: nil,
             hash_to_bnodes: %{},
-            canonical_issuer: IdentifierIssuer.canonical()
+            canonical_issuer: IdentifierIssuer.canonical(),
+            hash_algorithm: nil
 
-  def new(input) do
-    %__MODULE__{bnode_to_quads: bnode_to_quads(input)}
+  def new(input, opts) do
+    hash_algorithm = Keyword.get_lazy(opts, :hash_algorithm, &default_hash_algorithm/0)
+
+    %__MODULE__{
+      bnode_to_quads: bnode_to_quads(input),
+      hash_algorithm: hash_algorithm
+    }
+  end
+
+  def default_hash_algorithm do
+    Application.get_env(:rdf, :canon_hash_algorithm, :sha256)
   end
 
   def issue_canonical_identifier(state, identifier) do

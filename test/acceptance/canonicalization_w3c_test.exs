@@ -18,10 +18,6 @@ defmodule RDF.Canonicalization.W3C.Test do
 
   TestSuite.test_cases(@manifest, RDFC.RDFC10EvalTest)
   |> Enum.each(fn test_case ->
-    if RDFC.hashAlgorithm() in RDF.Description.predicates(test_case) do
-      @tag skip: "missing ability to change hash algorithm"
-    end
-
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       file_url = to_string(TestSuite.test_input_file(test_case))
@@ -29,7 +25,7 @@ defmodule RDF.Canonicalization.W3C.Test do
       result = test_case_file(test_case, &TestSuite.test_output_file/1)
 
       assert NQuads.read_file!(input, base: file_url)
-             |> Canonicalization.canonicalize() ==
+             |> Canonicalization.canonicalize(hash_algorithm_opts(test_case)) ==
                NQuads.read_file!(result)
     end
   end)
@@ -42,5 +38,21 @@ defmodule RDF.Canonicalization.W3C.Test do
       |> to_string()
       |> String.trim_leading(@base)
     )
+  end
+
+  defp hash_algorithm_opts(test_case) do
+    case RDFC.hashAlgorithm(test_case) do
+      nil ->
+        []
+
+      [hash_algorithm] ->
+        [
+          hash_algorithm:
+            hash_algorithm
+            |> to_string()
+            |> String.downcase()
+            |> String.to_atom()
+        ]
+    end
   end
 end

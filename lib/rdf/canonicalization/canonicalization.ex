@@ -10,11 +10,25 @@ defmodule RDF.Canonicalization do
 
   import RDF.Sigils
 
+  @hash_algorithm_config_doc """
+  - `:hash_algorithm`: Allows to set the hash algorithm to be used. Any of the `:crypto.hash_algorithm()`
+    values is allowed. Defaults to the runtime configured `:canon_hash_algorithm` of the `:rdf`
+    application or `:sha256` of not configured otherwise.
+
+        config :rdf,
+          canon_hash_algorithm: :sha512
+
+  """
+
   @doc """
   Canonicalizes the blank nodes of a graph or dataset according to the RDF Dataset Canonicalization spec.
 
   This function always returns a `RDF.Dataset`. If you want to canonicalize a `RDF.Graph` and
-  get a `RDF.Graph` back, use `RDF.Graph.canonicalize/1`.
+  get a `RDF.Graph` back, use `RDF.Graph.canonicalize/2`.
+
+  ## Options
+
+  #{@hash_algorithm_config_doc}
 
   ## Example
 
@@ -23,13 +37,17 @@ defmodule RDF.Canonicalization do
       RDF.Dataset.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
 
   """
-  @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t()) :: RDF.Dataset.t()
-  def canonicalize(input) do
-    urdna2015(input)
+  @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t(), keyword) :: RDF.Dataset.t()
+  def canonicalize(input, opts \\ []) do
+    urdna2015(input, opts)
   end
 
   @doc """
   Checks whether two graphs or datasets are equal, regardless of the concrete names of the blank nodes they contain.
+
+  ## Options
+
+  #{@hash_algorithm_config_doc}
 
   ## Examples
 
@@ -43,14 +61,15 @@ defmodule RDF.Canonicalization do
       ...>      RDF.Graph.new([{~B<b1>, EX.p(), ~B<b2>}, {~B<b3>, EX.p(), 42}]))
       false
   """
-  @spec isomorphic?(RDF.Graph.t() | RDF.Dataset.t(), RDF.Graph.t() | RDF.Dataset.t()) :: boolean
-  def isomorphic?(a, b) do
-    a |> canonicalize() |> Dataset.equal?(canonicalize(b))
+  @spec isomorphic?(RDF.Graph.t() | RDF.Dataset.t(), RDF.Graph.t() | RDF.Dataset.t(), keyword) ::
+          boolean
+  def isomorphic?(a, b, opts \\ []) do
+    a |> canonicalize(opts) |> Dataset.equal?(canonicalize(b, opts))
   end
 
-  defp urdna2015(input) do
+  defp urdna2015(input, opts) do
     input
-    |> State.new()
+    |> State.new(opts)
     |> create_canonical_identifiers_for_single_node_hashes()
     |> create_canonical_identifiers_for_multiple_node_hashes()
     |> apply_canonicalization(input)
@@ -155,7 +174,7 @@ defmodule RDF.Canonicalization do
     # TODO: "Sort nquads in Unicode code point order"
     |> Enum.sort()
     |> Enum.join()
-    |> hash()
+    |> hash(state)
 
     # |> IO.inspect(label: "1deg: node: #{inspect(ref_bnode_id)}, hash_first_degree_quads")
   end
@@ -178,7 +197,7 @@ defmodule RDF.Canonicalization do
           hash_first_degree_quads(state, related)
         end
 
-    hash(input)
+    hash(input, state)
     # |> IO.inspect(label: "hrel: input: #{inspect(input)}, hash_related_bnode")
   end
 
@@ -310,7 +329,7 @@ defmodule RDF.Canonicalization do
 
     # IO.puts("ndeg: datatohash: #{data_to_hash}, hash: #{hash(data_to_hash)}")
 
-    {hash(data_to_hash), issuer}
+    {hash(data_to_hash, state), issuer}
   end
 
   # 4.8.2.3.1) Group adjacent bnodes by hash
@@ -336,7 +355,7 @@ defmodule RDF.Canonicalization do
     end)
   end
 
-  defp hash(data) do
-    :crypto.hash(:sha256, data) |> Base.encode16(case: :lower)
+  defp hash(data, state) do
+    :crypto.hash(state.hash_algorithm, data) |> Base.encode16(case: :lower)
   end
 end
