@@ -12,7 +12,7 @@ defmodule RDF.Canonicalization.W3C.Test do
   alias TestSuite.NS.RDFC
 
   @path RDF.TestData.path("rdf-canon-tests")
-  @base "https://github.com/w3c/rdf-canon/tests/"
+  @base "https://w3c.github.io/rdf-canon/tests/"
   @manifest TestSuite.manifest_path(@path, "manifest.ttl")
             |> TestSuite.manifest_graph(base: @base)
 

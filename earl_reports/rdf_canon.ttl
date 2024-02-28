@@ -9,7 +9,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <>
-    dc:issued "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+    dc:issued "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
     foaf:maker <http://marcelotto.net/#me> ;
     foaf:primaryTopic <https://hex.pm/packages/rdf> .
 
@@ -49,11 +49,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test045c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test045c>
 ] .
 
 [
@@ -62,11 +62,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test021c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test001c>
 ] .
 
 [
@@ -75,11 +75,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test061c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test059c>
 ] .
 
 [
@@ -88,11 +88,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test077c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test011c>
 ] .
 
 [
@@ -101,11 +101,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test003c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test067c>
 ] .
 
 [
@@ -114,11 +114,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test059c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test075c>
 ] .
 
 [
@@ -127,11 +127,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test017c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test034c>
 ] .
 
 [
@@ -140,11 +140,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test010c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test027c>
 ] .
 
 [
@@ -153,11 +153,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test023c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test023c>
 ] .
 
 [
@@ -166,11 +166,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test070c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test035c>
 ] .
 
 [
@@ -179,11 +179,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test019c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test020c>
 ] .
 
 [
@@ -192,11 +192,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test026c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test072c>
 ] .
 
 [
@@ -205,11 +205,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test006c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test021c>
 ] .
 
 [
@@ -218,11 +218,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test039c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test022c>
 ] .
 
 [
@@ -231,11 +231,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test036c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test010c>
 ] .
 
 [
@@ -244,11 +244,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test005c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test043c>
 ] .
 
 [
@@ -257,11 +257,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test065c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test013c>
 ] .
 
 [
@@ -270,11 +270,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test076c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test057c>
 ] .
 
 [
@@ -283,11 +283,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test034c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test065c>
 ] .
 
 [
@@ -296,11 +296,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test060c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test053c>
 ] .
 
 [
@@ -309,11 +309,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test053c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test003c>
 ] .
 
 [
@@ -322,11 +322,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test066c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test040c>
 ] .
 
 [
@@ -335,11 +335,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test022c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test044c>
 ] .
 
 [
@@ -348,11 +348,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test040c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test063c>
 ] .
 
 [
@@ -361,11 +361,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test046c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test060c>
 ] .
 
 [
@@ -374,11 +374,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test048c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test077c>
 ] .
 
 [
@@ -387,11 +387,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test062c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test016c>
 ] .
 
 [
@@ -400,11 +400,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test011c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test018c>
 ] .
 
 [
@@ -413,11 +413,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test001c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test029c>
 ] .
 
 [
@@ -426,11 +426,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test056c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test024c>
 ] .
 
 [
@@ -439,11 +439,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test054c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test076c>
 ] .
 
 [
@@ -452,11 +452,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test025c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test064c>
 ] .
 
 [
@@ -465,11 +465,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test028c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test025c>
 ] .
 
 [
@@ -478,11 +478,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test027c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test019c>
 ] .
 
 [
@@ -491,11 +491,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test057c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test047c>
 ] .
 
 [
@@ -504,11 +504,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test004c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test036c>
 ] .
 
 [
@@ -517,11 +517,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test035c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test054c>
 ] .
 
 [
@@ -530,11 +530,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test063c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test061c>
 ] .
 
 [
@@ -543,11 +543,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test029c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test062c>
 ] .
 
 [
@@ -556,11 +556,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test038c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test046c>
 ] .
 
 [
@@ -569,11 +569,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test047c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test030c>
 ] .
 
 [
@@ -582,11 +582,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test068c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test038c>
 ] .
 
 [
@@ -595,11 +595,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test071c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test048c>
 ] .
 
 [
@@ -608,11 +608,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test018c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test002c>
 ] .
 
 [
@@ -621,11 +621,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test055c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test066c>
 ] .
 
 [
@@ -634,11 +634,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test069c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test073c>
 ] .
 
 [
@@ -647,11 +647,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test008c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test039c>
 ] .
 
 [
@@ -660,11 +660,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test073c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test006c>
 ] .
 
 [
@@ -673,11 +673,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test024c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test008c>
 ] .
 
 [
@@ -686,11 +686,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test064c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test014c>
 ] .
 
 [
@@ -699,11 +699,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test016c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test068c>
 ] .
 
 [
@@ -712,11 +712,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test033c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test056c>
 ] .
 
 [
@@ -725,11 +725,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test067c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test028c>
 ] .
 
 [
@@ -738,11 +738,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test058c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test004c>
 ] .
 
 [
@@ -751,11 +751,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test013c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test017c>
 ] .
 
 [
@@ -764,11 +764,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test020c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test055c>
 ] .
 
 [
@@ -777,11 +777,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test009c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test009c>
 ] .
 
 [
@@ -790,11 +790,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test030c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test071c>
 ] .
 
 [
@@ -803,11 +803,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test014c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test069c>
 ] .
 
 [
@@ -816,11 +816,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test044c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test058c>
 ] .
 
 [
@@ -829,11 +829,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test072c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test005c>
 ] .
 
 [
@@ -842,11 +842,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test043c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test070c>
 ] .
 
 [
@@ -855,11 +855,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test002c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test033c>
 ] .
 
 [
@@ -868,9 +868,9 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2024-02-28T16:06:51.795056Z"^^xsd:dateTime ;
+        dc:date "2024-02-28T17:56:45.371458Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://github.com/w3c/rdf-canon/tests/manifest#test075c>
+    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test026c>
 ] .
