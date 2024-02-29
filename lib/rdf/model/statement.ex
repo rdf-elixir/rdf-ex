@@ -163,7 +163,7 @@ defmodule RDF.Statement do
   def coerce_graph_name(%IRI{} = iri), do: iri
   def coerce_graph_name(%BlankNode{} = bnode), do: bnode
   def coerce_graph_name("_:" <> identifier), do: BlankNode.new(identifier)
-  def coerce_graph_name(iri) when maybe_ns_term(iri) or is_binary(iri), do: IRI.new!(iri)
+  def coerce_graph_name(iri) when is_binary(iri) or maybe_ns_term(iri), do: IRI.new!(iri)
 
   def coerce_graph_name(arg),
     do: raise(RDF.Quad.InvalidGraphContextError, graph_context: arg)
