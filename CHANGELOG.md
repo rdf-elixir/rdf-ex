@@ -29,6 +29,13 @@ Elixir versions < 1.12 are no longer supported
   with the `:hash_algorithm` keyword option or the `:canon_hash_algorithm` application 
   runtime configuration.
 
+### Changed
+
+- `RDF.Canonicalization.canonicalize/2` now returns the canonicalized dataset in a 
+  tuple along with final state containing the _input blank node identifier map_ and
+  the _issued identifiers map_ as required by the RDF dataset canonicalization 
+  specification
+
 ### Fixed
 
 - `RDF.Dataset.put/3` with a `RDF.Dataset` input didn't respect the `:graph` option to 

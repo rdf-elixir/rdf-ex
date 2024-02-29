@@ -30,14 +30,9 @@ defmodule RDF.Canonicalization do
 
   #{@hash_algorithm_config_doc}
 
-  ## Example
-
-      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
-      ...> |> RDF.Canonicalization.canonicalize()
-      RDF.Dataset.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
 
   """
-  @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t(), keyword) :: RDF.Dataset.t()
+  @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t(), keyword) :: {RDF.Dataset.t(), State.t()}
   def canonicalize(input, opts \\ []) do
     rdfc10(input, opts)
   end
@@ -64,7 +59,9 @@ defmodule RDF.Canonicalization do
   @spec isomorphic?(RDF.Graph.t() | RDF.Dataset.t(), RDF.Graph.t() | RDF.Dataset.t(), keyword) ::
           boolean
   def isomorphic?(a, b, opts \\ []) do
-    a |> canonicalize(opts) |> Dataset.equal?(canonicalize(b, opts))
+    {canon_a, _} = canonicalize(a, opts)
+    {canon_b, _} = canonicalize(b, opts)
+    Dataset.equal?(canon_a, canon_b)
   end
 
   defp rdfc10(input, opts) do
@@ -136,24 +133,27 @@ defmodule RDF.Canonicalization do
 
   # 6)
   defp apply_canonicalization(state, data) do
-    Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
-      Dataset.add(
-        canonicalized_data,
-        if Statement.has_bnode?(statement) do
-          Statement.map(statement, fn
-            {_, %BlankNode{} = bnode} ->
-              state.canonical_issuer
-              |> IdentifierIssuer.identifier(bnode)
-              |> BlankNode.new()
+    dataset =
+      Enum.reduce(data, Dataset.new(), fn statement, canonicalized_data ->
+        Dataset.add(
+          canonicalized_data,
+          if Statement.has_bnode?(statement) do
+            Statement.map(statement, fn
+              {_, %BlankNode{} = bnode} ->
+                state.canonical_issuer
+                |> IdentifierIssuer.identifier(bnode)
+                |> BlankNode.new()
 
-            {_, node} ->
-              node
-          end)
-        else
-          statement
-        end
-      )
-    end)
+              {_, node} ->
+                node
+            end)
+          else
+            statement
+          end
+        )
+      end)
+
+    {dataset, state}
   end
 
   # see https://www.w3.org/TR/rdf-canon/#hash-1d-quads

@@ -1029,7 +1029,22 @@ defmodule RDF.Dataset do
 
   defdelegate isomorphic?(a, b), to: RDF.Canonicalization
 
-  defdelegate canonicalize(input), to: RDF.Canonicalization
+  @doc """
+  Canonicalizes the blank nodes of a dataset according to the RDF Dataset Canonicalization spec.
+
+  ## Example
+
+      iex> RDF.Dataset.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      ...> |> RDF.Dataset.canonicalize()
+      RDF.Dataset.new([{~B<c14n0>, EX.p(), ~B<c14n1>}, {~B<c14n1>, EX.p(), ~B<c14n0>}])
+
+  """
+  @spec canonicalize(RDF.Dataset.t() | RDF.Graph.t(), keyword) :: RDF.Dataset.t()
+  def canonicalize(%graph_or_dataset{} = dataset, opts \\ [])
+      when graph_or_dataset in [__MODULE__, Graph] do
+    {canonicalized_dataset, _} = RDF.Canonicalization.canonicalize(dataset, opts)
+    canonicalized_dataset
+  end
 
   @doc """
   Returns the aggregated prefixes of all graphs of `dataset` as a `RDF.PrefixMap`.

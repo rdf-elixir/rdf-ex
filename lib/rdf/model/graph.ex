@@ -1345,9 +1345,8 @@ defmodule RDF.Graph do
   """
   @spec canonicalize(RDF.Graph.t(), keyword) :: RDF.Graph.t()
   def canonicalize(%__MODULE__{} = graph, opts \\ []) do
-    graph
-    |> RDF.Canonicalization.canonicalize(opts)
-    |> Dataset.default_graph()
+    {canonicalized_dataset, _} = RDF.Canonicalization.canonicalize(graph, opts)
+    Dataset.default_graph(canonicalized_dataset)
   end
 
   @doc """

@@ -13,6 +13,8 @@ defmodule RDF.Canonicalization.State do
             canonical_issuer: IdentifierIssuer.canonical(),
             hash_algorithm: nil
 
+  @type t :: %__MODULE__{}
+
   def new(input, opts) do
     hash_algorithm = Keyword.get_lazy(opts, :hash_algorithm, &default_hash_algorithm/0)
 
