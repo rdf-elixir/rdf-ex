@@ -70,7 +70,7 @@ defmodule RDF.IRI do
   """
   @spec new!(coercible) :: t
   def new!(iri)
-  def new!(iri) when is_binary(iri), do: iri |> valid!() |> new()
+  def new!(iri) when is_binary(iri), do: iri |> valid_binary!() |> new()
   # since terms of a namespace are already validated
   def new!(term) when maybe_ns_term(term), do: new(term)
   def new!(%URI{} = uri), do: uri |> valid!() |> new()
@@ -139,6 +139,11 @@ defmodule RDF.IRI do
     iri
   end
 
+  defp valid_binary!(iri) do
+    if not valid_binary?(iri), do: raise(RDF.IRI.InvalidError, "Invalid IRI: #{inspect(iri)}")
+    iri
+  end
+
   @doc """
   Checks if the given IRI is valid.
 
@@ -155,6 +160,9 @@ defmodule RDF.IRI do
   # TODO: Provide a more elaborate validation
   def valid?(iri), do: absolute?(iri)
 
+  @spec valid_binary?(binary()) :: boolean
+  defp valid_binary?(iri), do: not is_nil(scheme_from_binary(iri))
+
   @doc """
   Checks if the given value is an absolute IRI.
 
@@ -164,7 +172,7 @@ defmodule RDF.IRI do
   @spec absolute?(any) :: boolean
   def absolute?(iri)
 
-  def absolute?(value) when is_binary(value), do: not is_nil(scheme(value))
+  def absolute?(value) when is_binary(value), do: not is_nil(scheme_from_binary(value))
   def absolute?(%__MODULE__{value: value}), do: absolute?(value)
   def absolute?(%URI{scheme: nil}), do: false
   def absolute?(%URI{scheme: _}), do: true
@@ -231,8 +239,10 @@ defmodule RDF.IRI do
   def scheme(%URI{scheme: scheme}), do: scheme
   def scheme(term) when maybe_ns_term(term), do: Namespace.resolve_term!(term) |> scheme()
 
-  def scheme(iri) when is_binary(iri) do
-    with [_, scheme] <- Regex.run(@scheme_regex, iri) do
+  def scheme(iri) when is_binary(iri), do: scheme_from_binary(iri)
+
+  defp scheme_from_binary(iri) do
+    with [_, scheme] <- RDF.Util.Regex.run(@scheme_regex, iri) do
       scheme
     end
   end
