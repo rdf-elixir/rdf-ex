@@ -39,7 +39,7 @@ defmodule RDF.Canonicalization do
   """
   @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t(), keyword) :: RDF.Dataset.t()
   def canonicalize(input, opts \\ []) do
-    urdna2015(input, opts)
+    rdfc10(input, opts)
   end
 
   @doc """
@@ -67,7 +67,7 @@ defmodule RDF.Canonicalization do
     a |> canonicalize(opts) |> Dataset.equal?(canonicalize(b, opts))
   end
 
-  defp urdna2015(input, opts) do
+  defp rdfc10(input, opts) do
     input
     |> State.new(opts)
     |> create_canonical_identifiers_for_single_node_hashes()
