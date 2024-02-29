@@ -2,7 +2,7 @@ defmodule RDF.Util.Regex do
   @moduledoc """
   Some of the regular expressions in the code base get executed in quote tight
   loops, sometimes millions of times. The elixir code base does a check on every
-  run of a comppiled regex, to check if the pcre version of the regex matches the
+  run of a compiled regex, to check if the pcre version of the regex matches the
   version that the local OTP version got compiled against. This check seems to
   be unexpectedly costly (there is acall though to :erlang.system_info/1). It
   seems worth it performance wise to circumvent elixir here, and call through to 
