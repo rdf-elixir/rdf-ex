@@ -202,7 +202,7 @@ defmodule RDF.Canonicalization do
   end
 
   # see https://www.w3.org/TR/rdf-canon/#hash-nd-quads
-  def hash_n_degree_quads(state, identifier, issuer) do
+  defp hash_n_degree_quads(state, identifier, issuer) do
     # IO.inspect(identifier, label: "ndeg: identifier")
 
     # 1-3)
