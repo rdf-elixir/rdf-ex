@@ -5,7 +5,7 @@ defmodule RDF.Util.Regex do
   run of a comppiled regex, to check if the pcre version of the regex matches the
   version that the local OTP version got compiled against. This check seems to
   be unexpectedly costly (there is acall though to :erlang.system_info/1). It
-  seems worth it performance wise to curcumvent elixir here, and call trough to 
+  seems worth it performance wise to circumvent elixir here, and call through to 
   erlang 're' in this case.
   """
 
