@@ -14,11 +14,17 @@ defmodule RDF.Util.Regex do
   and always returns the matched binaries
   """
   @spec run(Regex.t(), binary()) :: nil | [binary]
-  def run(%Regex{re_pattern: pattern}, string) do
-    case :re.run(string, pattern, [{:capture, :all, :binary}]) do
-      {:match, matches} -> matches
-      :nomatch -> nil
-      :match -> []
+  if Application.compile_env(:rdf, :optizations, false) do
+    def run(%Regex{re_pattern: pattern}, string) do
+      case :re.run(string, pattern, [{:capture, :all, :binary}]) do
+        {:match, matches} -> matches
+        :nomatch -> nil
+        :match -> []
+      end
+    end
+  else
+    def run(%Regex{} = re, string) do
+      Regex.run(re, string)
     end
   end
 end
