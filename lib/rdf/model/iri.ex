@@ -241,8 +241,6 @@ defmodule RDF.IRI do
 
   def scheme(iri) when is_binary(iri), do: scheme_from_binary(iri)
 
-  # specialized internal version if we already know the type of the iri. this avoids
-  # having to thread through multiple stages of pattern matching
   defp scheme_from_binary(iri) do
     with [_, scheme] <- RDF.Util.Regex.run(@scheme_regex, iri) do
       scheme
