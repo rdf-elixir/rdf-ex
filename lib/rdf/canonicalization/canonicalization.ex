@@ -3,6 +3,31 @@ defmodule RDF.Canonicalization do
   An implementation of the standard RDF Dataset Canonicalization Algorithm.
 
   See <https://www.w3.org/TR/rdf-canon/>.
+
+  ## Options
+
+  All functions in this module support the following options:
+
+  - `:hash_algorithm`: Allows to set the hash algorithm to be used. Any of the `:crypto.hash_algorithm()`
+    values of Erlangs `:crypto` module are allowed.
+    Defaults to the runtime configured `:canon_hash_algorithm` of the `:rdf` application
+    or `:sha256` if not configured otherwise.
+
+        config :rdf,
+          canon_hash_algorithm: :sha512
+
+  - `:hndq_call_limit`: This algorithm has to go through complex cycles that may in extreme situations
+    result in an unreasonably long canonicalization process. Although this never occurs in practice,
+    attackers may use some "poison graphs" to create such situations
+    (see the [security consideration section](https://www.w3.org/TR/rdf-canon/#security-considerations) in the specification).
+    This implementation sets a maximum call limit for the Hash N-Degree Quads algorithm
+    which can be configured with this value. Note, that actual limit is the product
+    of the multiplication of the given value with the number blank nodes in the input graph.
+    Defaults to the runtime configured `:hndq_call_limit` of the `:rdf` application
+    or `50` if not configured otherwise.
+
+        config :rdf,
+          hndq_call_limit: 10
   """
 
   alias RDF.Canonicalization.{IdentifierIssuer, State}
@@ -10,27 +35,16 @@ defmodule RDF.Canonicalization do
 
   import RDF.Sigils
 
-  @hash_algorithm_config_doc """
-  - `:hash_algorithm`: Allows to set the hash algorithm to be used. Any of the `:crypto.hash_algorithm()`
-    values is allowed. Defaults to the runtime configured `:canon_hash_algorithm` of the `:rdf`
-    application or `:sha256` of not configured otherwise.
-
-        config :rdf,
-          canon_hash_algorithm: :sha512
-
-  """
-
   @doc """
   Canonicalizes the blank nodes of a graph or dataset according to the RDF Dataset Canonicalization spec.
 
-  This function always returns a `RDF.Dataset`. If you want to canonicalize a `RDF.Graph` and
-  get a `RDF.Graph` back, use `RDF.Graph.canonicalize/2`.
+  This function always returns a `RDF.Dataset` and wraps it in a tuple with the
+  resulting internal state from which the blank node mapping can be retrieved.
+  If you want to get just a `RDF.Dataset` back, use `RDF.Dataset.canonicalize/2`.
+  If you want to canonicalize just a `RDF.Graph` and get a `RDF.Graph` back,
+  use `RDF.Graph.canonicalize/2`.
 
-  ## Options
-
-  #{@hash_algorithm_config_doc}
-
-
+  See module documentation on the available options.
   """
   @spec canonicalize(RDF.Graph.t() | RDF.Dataset.t(), keyword) :: {RDF.Dataset.t(), State.t()}
   def canonicalize(input, opts \\ []) do
@@ -40,9 +54,7 @@ defmodule RDF.Canonicalization do
   @doc """
   Checks whether two graphs or datasets are equal, regardless of the concrete names of the blank nodes they contain.
 
-  ## Options
-
-  #{@hash_algorithm_config_doc}
+  See module documentation on the available options.
 
   ## Examples
 
@@ -203,6 +215,14 @@ defmodule RDF.Canonicalization do
 
   # see https://www.w3.org/TR/rdf-canon/#hash-nd-quads
   defp hash_n_degree_quads(state, identifier, issuer) do
+    hash_n_degree_quads(state, identifier, issuer, 0, State.max_calls(state))
+  end
+
+  defp hash_n_degree_quads(_, _, _, max_calls, max_calls) do
+    raise "Exceeded maximum number of calls (#{max_calls}) allowed to hash_n_degree_quads"
+  end
+
+  defp hash_n_degree_quads(state, identifier, issuer, call_count, max_calls) do
     # IO.inspect(identifier, label: "ndeg: identifier")
 
     # 1-3)
@@ -218,23 +238,23 @@ defmodule RDF.Canonicalization do
 
     # |> IO.inspect(label: "ndeg: hash_to_related_bnodes")
 
-    {data_to_hash, issuer} =
+    {data_to_hash, issuer, _} =
       hash_to_related_bnodes
       # TODO: "Sort in Unicode code point order"
       |> Enum.sort()
-      |> Enum.reduce({"", issuer}, fn
-        {related_hash, bnode_list}, {data_to_hash, issuer} ->
+      |> Enum.reduce({"", issuer, call_count}, fn
+        {related_hash, bnode_list}, {data_to_hash, issuer, call_count} ->
           # 5.1)
           data_to_hash = data_to_hash <> related_hash
           chosen_path = ""
           chosen_issuer = nil
 
           # 5.2-4)
-          {chosen_path, chosen_issuer} =
+          {chosen_path, chosen_issuer, call_count} =
             bnode_list
             |> Utils.permutations()
-            |> Enum.reduce({chosen_path, chosen_issuer}, fn
-              permutation, {chosen_path, chosen_issuer} ->
+            |> Enum.reduce({chosen_path, chosen_issuer, call_count}, fn
+              permutation, {chosen_path, chosen_issuer, call_count} ->
                 # IO.inspect(permutation, label: "ndeg: perm")
 
                 issuer_copy = IdentifierIssuer.copy(issuer)
@@ -276,55 +296,58 @@ defmodule RDF.Canonicalization do
                 # IO.puts("ndeg: related_hash: #{related_hash}, path: #{path}, recursion: #{inspect(recursion_list)}")
 
                 # 5.4.5)
-                {issuer_copy, path} =
+                {issuer_copy, path, call_count} =
                   recursion_list
                   |> Enum.reverse()
-                  |> Enum.reduce_while({issuer_copy, path}, fn related, {issuer_copy, path} ->
-                    # Note: The following steps seem to be the only steps in the whole algorithm
-                    # which really rely on global state.
+                  |> Enum.reduce_while({issuer_copy, path, call_count}, fn
+                    related, {issuer_copy, path, call_count} ->
+                      # Note: The following steps seem to be the only steps in the whole algorithm
+                      # which really rely on global state.
 
-                    # 5.4.5.1)
-                    {result_hash, result_issuer} =
-                      hash_n_degree_quads(state, related, issuer_copy)
+                      call_count = call_count + 1
 
-                    # This step was added to circumvent the need for global state.
-                    # It's unclear whether it is actually required, since all test
-                    # of the test suite pass without it.
-                    # see https://github.com/w3c-ccg/rdf-dataset-canonicalization/issues/31
-                    result_issuer =
-                      if result_issuer.id == issuer_copy.id do
-                        {_, issuer} = IdentifierIssuer.issue_identifier(result_issuer, related)
-                        issuer
+                      # 5.4.5.1)
+                      {result_hash, result_issuer} =
+                        hash_n_degree_quads(state, related, issuer_copy, call_count, max_calls)
+
+                      # This step was added to circumvent the need for global state.
+                      # It's unclear whether it is actually required, since all test
+                      # of the test suite pass without it.
+                      # see https://github.com/w3c-ccg/rdf-dataset-canonicalization/issues/31
+                      result_issuer =
+                        if result_issuer.id == issuer_copy.id do
+                          {_, issuer} = IdentifierIssuer.issue_identifier(result_issuer, related)
+                          issuer
+                        else
+                          result_issuer
+                        end
+
+                      # 5.4.5.2)
+                      {issued_identifier, _issuer_copy} =
+                        IdentifierIssuer.issue_identifier(issuer_copy, related)
+
+                      path = path <> "_:" <> issued_identifier <> "<#{result_hash}>"
+
+                      # TODO: considering code point order
+                      if chosen_path_length != 0 and
+                           String.length(path) >= chosen_path_length and
+                           path > chosen_path do
+                        {:halt, {result_issuer, path, call_count}}
                       else
-                        result_issuer
+                        {:cont, {result_issuer, path, call_count}}
                       end
-
-                    # 5.4.5.2)
-                    {issued_identifier, _issuer_copy} =
-                      IdentifierIssuer.issue_identifier(issuer_copy, related)
-
-                    path = path <> "_:" <> issued_identifier <> "<#{result_hash}>"
-
-                    # TODO: considering code point order
-                    if chosen_path_length != 0 and
-                         String.length(path) >= chosen_path_length and
-                         path > chosen_path do
-                      {:halt, {result_issuer, path}}
-                    else
-                      {:cont, {result_issuer, path}}
-                    end
                   end)
 
                 # TODO: considering code point order
                 if chosen_path_length == 0 or path < chosen_path do
-                  {path, issuer_copy}
+                  {path, issuer_copy, call_count}
                 else
-                  {chosen_path, chosen_issuer}
+                  {chosen_path, chosen_issuer, call_count}
                 end
             end)
 
           # 5.5)
-          {data_to_hash <> chosen_path, chosen_issuer}
+          {data_to_hash <> chosen_path, chosen_issuer, call_count}
       end)
 
     # IO.puts("ndeg: datatohash: #{data_to_hash}, hash: #{hash(data_to_hash)}")

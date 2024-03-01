@@ -11,21 +11,35 @@ defmodule RDF.Canonicalization.State do
   defstruct bnode_to_quads: nil,
             hash_to_bnodes: %{},
             canonical_issuer: IdentifierIssuer.canonical(),
-            hash_algorithm: nil
+            hash_algorithm: nil,
+            hndq_call_limit: nil
 
   @type t :: %__MODULE__{}
 
+  @default_hash_algorithm :sha256
+  @default_hndq_call_limit 50
+
   def new(input, opts) do
     hash_algorithm = Keyword.get_lazy(opts, :hash_algorithm, &default_hash_algorithm/0)
+    hndq_call_limit = Keyword.get_lazy(opts, :hndq_call_limit, &default_hndq_call_limit/0)
 
     %__MODULE__{
       bnode_to_quads: bnode_to_quads(input),
-      hash_algorithm: hash_algorithm
+      hash_algorithm: hash_algorithm,
+      hndq_call_limit: hndq_call_limit
     }
   end
 
+  def max_calls(%RDF.Canonicalization.State{} = state) do
+    state.hndq_call_limit * map_size(state.bnode_to_quads)
+  end
+
   def default_hash_algorithm do
-    Application.get_env(:rdf, :canon_hash_algorithm, :sha256)
+    Application.get_env(:rdf, :canon_hash_algorithm, @default_hash_algorithm)
+  end
+
+  def default_hndq_call_limit do
+    Application.get_env(:rdf, :hndq_call_limit, @default_hndq_call_limit)
   end
 
   def issue_canonical_identifier(state, identifier) do

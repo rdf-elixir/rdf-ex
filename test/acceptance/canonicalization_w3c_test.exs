@@ -55,6 +55,20 @@ defmodule RDF.Canonicalization.W3C.Test do
     end
   end)
 
+  TestSuite.test_cases(@manifest, RDFC.RDFC10NegativeEvalTest)
+  |> Enum.each(fn test_case ->
+    @tag test_case: test_case
+    test TestSuite.test_title(test_case), %{test_case: test_case} do
+      file_url = to_string(TestSuite.test_input_file(test_case))
+      input = test_case_file(test_case, &TestSuite.test_input_file/1)
+
+      assert_raise RuntimeError, fn ->
+        NQuads.read_file!(input, base: file_url)
+        |> Canonicalization.canonicalize(hash_algorithm_opts(test_case))
+      end
+    end
+  end)
+
   defp test_case_file(test_case, file_type) do
     Path.join(
       @path,
