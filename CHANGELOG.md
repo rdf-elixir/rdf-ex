@@ -28,8 +28,9 @@ Elixir versions < 1.12 are no longer supported
 - The hash algorithm to be used for RDF canonicalization can be configured either
   with the `:hash_algorithm` keyword option or the `:canon_hash_algorithm` application 
   runtime configuration.
-- Add Hash N-Degree Quads algorithm call limit to canonicalization as a countermeasure  
+- Add Hash N-Degree Quads algorithm call limit to canonicalization as a countermeasure
   against poison dataset attacks 
+- Some optimizations on `RDF.IRI` ([@jkrueger](https://github.com/jkrueger))
 
 ### Changed
 
