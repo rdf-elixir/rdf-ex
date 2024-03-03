@@ -11,14 +11,26 @@ defmodule RDF.NTriples.Encoder do
 
   alias RDF.{Triple, Term, IRI, BlankNode, Literal, LangString, XSD}
 
+  @doc """
+  Encodes the given RDF data in N-Triples format.
+
+  ## Options
+
+  - `:sort`: Boolean flag which specifies if the encoded triples should
+    be sorted into Unicode code point order (Default: `false`)
+  """
   @impl RDF.Serialization.Encoder
   @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
-  def encode(data, _opts \\ []) do
-    {:ok,
-     data
-     |> Enum.reduce([], &[statement(&1) | &2])
-     |> Enum.reverse()
-     |> Enum.join()}
+  def encode(data, opts \\ []) do
+    if Keyword.get(opts, :sort, false) do
+      {:ok,
+       data
+       |> Enum.map(&statement/1)
+       |> Enum.sort()
+       |> Enum.join()}
+    else
+      {:ok, Enum.map_join(data, &statement/1)}
+    end
   end
 
   @impl RDF.Serialization.Encoder

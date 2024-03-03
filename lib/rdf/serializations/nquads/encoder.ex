@@ -19,11 +19,28 @@ defmodule RDF.NQuads.Encoder do
 
   alias RDF.{Statement, Graph}
 
+  @doc """
+  Encodes the given RDF data in N-Quads format.
+
+  ## Options
+
+  - `:sort`: Boolean flag which specifies if the encoded statements should
+    be sorted into Unicode code point order (Default: `false`)
+  """
   @impl RDF.Serialization.Encoder
   @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     default_graph_name = default_graph_name(data, Keyword.get(opts, :default_graph_name, false))
-    {:ok, Enum.map_join(data, &statement(&1, default_graph_name))}
+
+    if Keyword.get(opts, :sort, false) do
+      {:ok,
+       data
+       |> Enum.map(&statement(&1, default_graph_name))
+       |> Enum.sort()
+       |> Enum.join()}
+    else
+      {:ok, Enum.map_join(data, &statement(&1, default_graph_name))}
+    end
   end
 
   @impl RDF.Serialization.Encoder

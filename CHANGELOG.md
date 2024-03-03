@@ -25,6 +25,8 @@ Elixir versions < 1.12 are no longer supported
 - The Turtle encoder now sorts the prefixes (based on `RDF.PrefixMap.to_sorted_list/1`), 
   which has become necessary, since OTP 26 maps are now unordered even in smaller cases 
   (previously only larger maps were unordered).
+- The N-Triples and N-Quads encoders now support a flag option `:sort` which, when  
+  activated, encodes the statements sorted in Unicode code point order.
 - The hash algorithm to be used for RDF canonicalization can be configured either
   with the `:hash_algorithm` keyword option or the `:canon_hash_algorithm` application 
   runtime configuration.

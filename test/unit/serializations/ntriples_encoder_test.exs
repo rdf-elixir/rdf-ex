@@ -19,7 +19,7 @@ defmodule RDF.NTriples.EncoderTest do
     assert NTriples.Encoder.stream_support?()
   end
 
-  describe "serializing a graph" do
+  describe "encode/2" do
     test "an empty graph is serialized to an empty string" do
       assert NTriples.Encoder.encode!(Graph.new()) == ""
     end
@@ -83,6 +83,26 @@ defmodule RDF.NTriples.EncoderTest do
                """
                <http://example.org/#S> <http://example.org/#p> "\\"foo\\"\\n\\r\\"bar\\""@en .
                <http://example.org/#S> <http://example.org/#p> "\\"foo\\"\\n\\r\\"bar\\"" .
+               """
+    end
+
+    test ":sort option" do
+      assert NTriples.Encoder.encode!(
+               Graph.new([
+                 {EX.S, EX.p(), EX.O},
+                 {EX.S, EX.p(), RDF.bnode(1)},
+                 {EX.S, EX.p(), ~L"foo"},
+                 {EX.S, EX.p(), ~L"foo"en},
+                 {EX.S, EX.p(), RDF.literal("strange things", datatype: EX.custom())}
+               ]),
+               sort: true
+             ) ==
+               """
+               <http://example.org/#S> <http://example.org/#p> "foo" .
+               <http://example.org/#S> <http://example.org/#p> "foo"@en .
+               <http://example.org/#S> <http://example.org/#p> "strange things"^^<http://example.org/#custom> .
+               <http://example.org/#S> <http://example.org/#p> <http://example.org/#O> .
+               <http://example.org/#S> <http://example.org/#p> _:b1 .
                """
     end
   end

@@ -182,6 +182,46 @@ defmodule RDF.NQuads.EncoderTest do
     end
   end
 
+  test ":sort option" do
+    assert NQuads.Encoder.encode!(
+             Dataset.new([
+               {EX.S, EX.p(), EX.O},
+               {EX.S, EX.p(), EX.O, EX.G},
+               {EX.S, EX.p(), EX.O},
+               {EX.S, EX.p(), RDF.bnode(1)},
+               {EX.S, EX.p(), ~L"foo"},
+               {EX.S, EX.p(), ~L"foo"en},
+               {EX.S, EX.p(), RDF.literal("strange things", datatype: EX.custom())}
+             ]),
+             sort: true
+           ) ==
+             """
+             <http://example.org/#S> <http://example.org/#p> "foo" .
+             <http://example.org/#S> <http://example.org/#p> "foo"@en .
+             <http://example.org/#S> <http://example.org/#p> "strange things"^^<http://example.org/#custom> .
+             <http://example.org/#S> <http://example.org/#p> <http://example.org/#O> .
+             <http://example.org/#S> <http://example.org/#p> <http://example.org/#O> <http://example.org/#G> .
+             <http://example.org/#S> <http://example.org/#p> _:b1 .
+             """
+
+    # example from the spec RDF Dataset Canonicalization spec: https://w3c.github.io/rdf-canon/spec/#serialization
+    assert NQuads.Encoder.encode!(
+             Graph.new([
+               {~I<http://example.com/p>, ~I<http://example.com/q>, ~B<c14n0>},
+               {~I<http://example.com/p>, ~I<http://example.com/r>, ~B<c14n1>},
+               {~B<c14n0>, ~I<http://example.com/s>, ~I<http://example.com/u>},
+               {~B<c14n1>, ~I<http://example.com/t>, ~I<http://example.com/u>}
+             ]),
+             sort: true
+           ) ==
+             """
+             <http://example.com/p> <http://example.com/q> _:c14n0 .
+             <http://example.com/p> <http://example.com/r> _:c14n1 .
+             _:c14n0 <http://example.com/s> <http://example.com/u> .
+             _:c14n1 <http://example.com/t> <http://example.com/u> .
+             """
+  end
+
   describe "stream/2" do
     test "a dataset" do
       dataset =
