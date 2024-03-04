@@ -14,6 +14,8 @@ Elixir versions < 1.12 are no longer supported
 
 - `RDF.Namespace.act_as_namespace/1` macro which can be used to let a module act 
   as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
+- `canonical_hash/2` function on `RDF.Dataset`, `RDF.Graph` and `RDF.Description` which computes
+  a canonical hash value for the RDF data based on the `RDF.Canonicalization` algorithm
 - `RDF.Dataset.put_graph/3` adds new graphs overwriting any existing graphs
 - `RDF.Dataset.update/4` to update graphs in a `RDF.Dataset`
 - `RDF.Graph.delete_predications/3` to delete all statements in a `RDF.Graph` with 

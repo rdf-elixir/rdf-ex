@@ -1047,6 +1047,51 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  Returns a hash of the canonical form of the given dataset.
+
+  This hash is computed as follows:
+
+  1. Compute the canonical form of the dataset according to the RDF Dataset Canonicalization spec
+     using `canonicalize/1`.
+  2. Serialize this canonical dataset to N-Quads sorted by Unicode code point order.
+  3. Compute the SHA-256 of this N-Quads serialization.
+
+  Note that the data structure is not relevant for the canonical hash, i.e.
+  the same hash is generated for the same data regardless of whether it is
+  passed in an `RDF.Graph`, `RDF.Dataset` or `RDF.Description`.
+
+  ## Options
+
+  - `:hash_algorithm` (default: `:sha256`): Allows to set the hash algorithm to be used in step 3.
+    Any of the `:crypto.hash_algorithm()` values of Erlangs `:crypto` module are allowed.
+    Note that this does NOT affect the hash function used during the
+
+
+  ## Example
+
+      iex> RDF.Dataset.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      ...> |> RDF.Dataset.canonical_hash()
+      "053688e09a20a49acc3e1a5e6403c827b817eef9e4c90bfd71f2360e2a6446aa"
+
+      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      ...> |> RDF.Graph.canonical_hash()
+      "053688e09a20a49acc3e1a5e6403c827b817eef9e4c90bfd71f2360e2a6446aa"
+  """
+  @spec canonical_hash(RDF.Dataset.t() | RDF.Graph.t(), keyword) :: binary
+  def canonical_hash(%graph_or_dataset{} = dataset, opts \\ [])
+      when graph_or_dataset in [__MODULE__, Graph] do
+    canonical_nquads =
+      dataset
+      |> canonicalize()
+      |> RDF.NQuads.write_string!(sort: true)
+
+    opts
+    |> Keyword.get(:hash_algorithm, :sha256)
+    |> :crypto.hash(canonical_nquads)
+    |> Base.encode16(case: :lower)
+  end
+
+  @doc """
   Returns the aggregated prefixes of all graphs of `dataset` as a `RDF.PrefixMap`.
   """
   @spec prefixes(t) :: PrefixMap.t() | nil

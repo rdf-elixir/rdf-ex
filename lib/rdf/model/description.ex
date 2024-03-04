@@ -888,6 +888,24 @@ defmodule RDF.Description do
 
   def equal?(_, _), do: false
 
+  @doc """
+  Returns a hash of the canonical form of the given description.
+
+  See `RDF.Dataset.hash/2` for more information.
+
+  ## Example
+
+      iex> RDF.Description.new(EX.S, init: {EX.p(), EX.O})
+      ...> |> RDF.Description.canonical_hash()
+      "4a883e60f7b38b89b72492f16114ea62cf9a21d0e232d066b1f59ef61c69ea12"
+  """
+  @spec canonical_hash(t(), keyword) :: binary
+  def canonical_hash(%__MODULE__{} = description, opts \\ []) do
+    description
+    |> RDF.Dataset.new()
+    |> RDF.Dataset.canonical_hash(opts)
+  end
+
   defimpl Enumerable do
     alias RDF.Description
 

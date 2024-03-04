@@ -1349,6 +1349,8 @@ defmodule RDF.Graph do
     Dataset.default_graph(canonicalized_dataset)
   end
 
+  defdelegate canonical_hash(graph, opts \\ []), to: Dataset
+
   @doc """
   Returns the prefixes of the given `graph` as a `RDF.PrefixMap`.
   """
