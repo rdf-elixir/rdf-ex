@@ -116,18 +116,26 @@ defmodule RDF.Statement do
   def coerce({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce({_, _, _, _} = quad, property_map), do: Quad.new(quad, property_map)
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid subject of an RDF statement.
+
+  Raises an `RDF.Triple.InvalidSubjectError` when the value can not be coerced.
+  """
   @spec coerce_subject(coercible_subject) :: subject
-  def coerce_subject(iri)
+  def coerce_subject(value)
   def coerce_subject(%IRI{} = iri), do: iri
   def coerce_subject(%BlankNode{} = bnode), do: bnode
   def coerce_subject("_:" <> identifier), do: BlankNode.new(identifier)
   def coerce_subject(iri) when is_binary(iri) or maybe_ns_term(iri), do: IRI.new!(iri)
   def coerce_subject(arg), do: raise(RDF.Triple.InvalidSubjectError, subject: arg)
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid predicate of an RDF statement.
+
+  Raises an `RDF.Triple.InvalidPredicateError` when the value can not be coerced.
+  """
   @spec coerce_predicate(coercible_predicate) :: predicate
-  def coerce_predicate(iri)
+  def coerce_predicate(value)
   def coerce_predicate(%IRI{} = iri), do: iri
   # Note: Although, RDF does not allow blank nodes for properties, JSON-LD allows
   # them, by introducing the notion of "generalized RDF".
@@ -136,7 +144,11 @@ defmodule RDF.Statement do
   def coerce_predicate(iri) when is_binary(iri) or maybe_ns_term(iri), do: IRI.new!(iri)
   def coerce_predicate(arg), do: raise(RDF.Triple.InvalidPredicateError, predicate: arg)
 
-  @doc false
+  @doc """
+  Coerces the given `term` to a valid predicate of an RDF statement using a `RDF.PropertyMap`.
+
+  Raises an `RDF.Triple.InvalidPredicateError` when the value can not be coerced.
+  """
   @spec coerce_predicate(coercible_predicate, PropertyMap.t()) :: predicate
   def coerce_predicate(term, context)
 
@@ -146,9 +158,11 @@ defmodule RDF.Statement do
 
   def coerce_predicate(term, _), do: coerce_predicate(term)
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid object of an RDF statement.
+  """
   @spec coerce_object(coercible_object) :: object
-  def coerce_object(iri)
+  def coerce_object(value)
   def coerce_object(%IRI{} = iri), do: iri
   def coerce_object(%Literal{} = literal), do: literal
   def coerce_object(%BlankNode{} = bnode), do: bnode
@@ -156,9 +170,13 @@ defmodule RDF.Statement do
   def coerce_object(atom) when maybe_ns_term(atom), do: IRI.new(atom)
   def coerce_object(arg), do: Literal.new(arg)
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid graph context of an RDF statement.
+
+  Raises an `RDF.Quad.InvalidGraphContextError` when the value can not be coerced.
+  """
   @spec coerce_graph_name(coercible_graph_name) :: graph_name
-  def coerce_graph_name(iri)
+  def coerce_graph_name(value)
   def coerce_graph_name(nil), do: nil
   def coerce_graph_name(%IRI{} = iri), do: iri
   def coerce_graph_name(%BlankNode{} = bnode), do: bnode

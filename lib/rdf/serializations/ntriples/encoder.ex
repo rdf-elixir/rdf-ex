@@ -20,7 +20,7 @@ defmodule RDF.NTriples.Encoder do
     be sorted into Unicode code point order (Default: `false`)
   """
   @impl RDF.Serialization.Encoder
-  @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     if Keyword.get(opts, :sort, false) do
       {:ok,
@@ -33,6 +33,15 @@ defmodule RDF.NTriples.Encoder do
     end
   end
 
+  @doc """
+  Encodes the given RDF data into a stream of N-Triples.
+
+  ## Options
+
+  - `:mode`: Allows to specify if the encoded statements should be emitted as
+    strings or IO lists using the value `:string` or `:iodata` respectively
+    (Default: `:string`)
+  """
   @impl RDF.Serialization.Encoder
   @spec stream(RDF.Data.t(), keyword) :: Enumerable.t()
   def stream(data, opts \\ []) do

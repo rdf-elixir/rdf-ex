@@ -891,7 +891,7 @@ defmodule RDF.Description do
   @doc """
   Returns a hash of the canonical form of the given description.
 
-  See `RDF.Dataset.hash/2` for more information.
+  See `RDF.Dataset.canonical_hash/2` for more information.
 
   ## Example
 

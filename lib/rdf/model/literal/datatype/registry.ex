@@ -1,5 +1,7 @@
 defmodule RDF.Literal.Datatype.Registry do
-  @moduledoc false
+  @moduledoc """
+  Registry of literal datatypes.
+  """
 
   alias RDF.{Literal, IRI, XSD, Namespace}
   alias RDF.Literal.Datatype.Registry.Registration

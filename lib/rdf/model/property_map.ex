@@ -1,8 +1,8 @@
 defmodule RDF.PropertyMap do
   @moduledoc """
-  A bidirectional mappings from atom names to `RDF.IRI`s of properties.
+  A bidirectional mapping from atom names to `RDF.IRI`s of properties.
 
-  These mapping can be used in all functions of the RDF data structures
+  These mappings can be used in all functions of the RDF data structures
   to provide the meaning of the predicate terms in input statements or
   define how the IRIs of predicates should be mapped with the value mapping
   functions like `RDF.Description.values/2` etc.
@@ -12,7 +12,7 @@ defmodule RDF.PropertyMap do
   Because the mapping is bidirectional each term and IRI can be used only in
   one mapping of a `RDF.PropertyMap`.
 
-  `RDF.PropertyMap` implements the `Enumerable` protocol and the `Access` behaviour.
+  This module implements the `Enumerable` protocol and the `Access` behaviour.
   """
 
   defstruct iris: %{}, terms: %{}

@@ -9,7 +9,9 @@ defmodule RDF.NTriples do
 
   An example of an RDF statement in N-Triples format:
 
-      <https://hex.pm/> <http://purl.org/dc/terms/title> "Hex" .
+  ```ntriples
+  <https://hex.pm/> <http://purl.org/dc/terms/title> "Hex" .
+  ```
 
   see <https://www.w3.org/TR/n-triples/>
   """

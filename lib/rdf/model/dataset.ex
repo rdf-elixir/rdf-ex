@@ -1032,6 +1032,8 @@ defmodule RDF.Dataset do
   @doc """
   Canonicalizes the blank nodes of a dataset according to the RDF Dataset Canonicalization spec.
 
+  See the `RDF.Canonicalization` module documentation on available options.
+
   ## Example
 
       iex> RDF.Dataset.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
@@ -1073,7 +1075,7 @@ defmodule RDF.Dataset do
       ...> |> RDF.Dataset.canonical_hash()
       "053688e09a20a49acc3e1a5e6403c827b817eef9e4c90bfd71f2360e2a6446aa"
 
-      iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<foo>}])
+      iex> RDF.Graph.new([{~B<other>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), ~B<other>}])
       ...> |> RDF.Graph.canonical_hash()
       "053688e09a20a49acc3e1a5e6403c827b817eef9e4c90bfd71f2360e2a6446aa"
   """

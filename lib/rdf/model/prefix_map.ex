@@ -1,10 +1,10 @@
 defmodule RDF.PrefixMap do
   @moduledoc """
-  A mapping a prefix atoms to IRI namespaces.
+  A mapping of prefix atoms to IRI namespaces.
 
   The empty prefix is represented as the `:""` atom.
 
-  `RDF.PrefixMap` implements the `Enumerable` protocol.
+  This module implements the `Enumerable` protocol.
   """
 
   alias RDF.IRI

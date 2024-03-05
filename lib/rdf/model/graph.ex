@@ -59,7 +59,7 @@ defmodule RDF.Graph do
   Creates an `RDF.Graph`.
 
   If a keyword list with options is given an empty graph is created.
-  Otherwise an unnamed graph initialized with the given data is created.
+  Otherwise, an unnamed graph initialized with the given data is created.
 
   See `new/2` for available arguments and the different ways to provide data.
 
@@ -180,7 +180,7 @@ defmodule RDF.Graph do
   end
 
   @doc """
-  Adds triples to a `RDF.Graph`.
+  Add triples to a `RDF.Graph`.
 
   The `input` can be provided
 
@@ -271,12 +271,12 @@ defmodule RDF.Graph do
   of this graph will be added. In case of conflicting prefix mappings the
   original prefix from `graph` will be kept.
 
-  RDF-star annotations to be added to all of the given statements can be specified with
+  RDF-star annotations to be added to all the given statements can be specified with
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
 
-  What should happen with the annotations of statements which got deleted during the
+  What should happen with the annotations of statements which got deleted during
   overwrite, can be controlled with these keyword options:
 
   - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
@@ -333,12 +333,12 @@ defmodule RDF.Graph do
   of this graph will be added. In case of conflicting prefix mappings the
   original prefix from `graph` will be kept.
 
-  RDF-star annotations to be added to all of the given statements can be specified with
+  RDF-star annotations to be added to all the given statements can be specified with
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword
   options. They have different addition semantics similar to the `add_annotations/3`,
   `put_annotations/3` and `put_annotation_properties/3` counterparts.
 
-  What should happen with the annotations of statements which got deleted during the
+  What should happen with the annotations of statements which got deleted during
   overwrite, can be controlled with these keyword options:
 
   - `:delete_annotations_on_deleted`: deletes all or some annotations of the deleted
@@ -606,8 +606,7 @@ defmodule RDF.Graph do
           input,
           boolean | Statement.coercible_predicate() | [Statement.coercible_predicate()]
         ) :: t
-  defdelegate delete_annotations(graph, statements), to: RDF.Star.Graph
-  defdelegate delete_annotations(graph, statements, delete), to: RDF.Star.Graph
+  defdelegate delete_annotations(graph, statements, delete \\ true), to: RDF.Star.Graph
 
   @doc """
   Updates the description of the `subject` in `graph` with the given function.
@@ -1184,7 +1183,7 @@ defmodule RDF.Graph do
   Execute the given `query` against the given `graph`.
 
   This is just a convenience delegator function to `RDF.Query.execute!/3` with
-  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+  the first two arguments swapped, so it can be used in a pipeline on a `RDF.Graph`.
 
   See `RDF.Query.execute/3` and `RDF.Query.execute!/3` for more information and examples.
   """
@@ -1196,7 +1195,7 @@ defmodule RDF.Graph do
   Returns a `Stream` for the execution of the given `query` against the given `graph`.
 
   This is just a convenience delegator function to `RDF.Query.stream!/3` with
-  the first two arguments swapped so it can be used in a pipeline on a `RDF.Graph`.
+  the first two arguments swapped, so it can be used in a pipeline on a `RDF.Graph`.
 
   See `RDF.Query.stream/3` and `RDF.Query.stream!/3` for more information and examples.
   """
@@ -1316,6 +1315,8 @@ defmodule RDF.Graph do
   @doc """
   Checks whether two graphs are equal, regardless of the concrete names of the blank nodes they contain.
 
+  See the `RDF.Canonicalization` module documentation on available options.
+
   ## Examples
 
       iex> RDF.Graph.new([{~B<foo>, EX.p(), ~B<bar>}, {~B<bar>, EX.p(), 42}])
@@ -1335,6 +1336,8 @@ defmodule RDF.Graph do
 
   @doc """
   Canonicalizes the blank nodes of a graph according to the RDF Dataset Canonicalization spec.
+
+  See the `RDF.Canonicalization` module documentation on available options.
 
   ## Example
 

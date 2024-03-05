@@ -1,6 +1,8 @@
 defmodule RDF.Canonicalization.IdentifierIssuer do
   @moduledoc """
   An identifier issuer is used to issue new blank node identifier.
+
+  See <https://www.w3.org/TR/rdf-canon/#bn-issuer-state>
   """
 
   defstruct id: nil,

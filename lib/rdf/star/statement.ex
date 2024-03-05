@@ -67,18 +67,24 @@ defmodule RDF.Star.Statement do
   def coerce({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce({_, _, _, _} = quad, property_map), do: Quad.new(quad, property_map)
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid subject of an RDF-star statement.
+
+  Raises an `RDF.Triple.InvalidSubjectError` when the value can not be coerced.
+  """
   @spec coerce_subject(coercible_subject, PropertyMap.t() | nil) :: subject
-  def coerce_subject(subject, property_map \\ nil)
+  def coerce_subject(value, property_map \\ nil)
   def coerce_subject({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce_subject(subject, _), do: RDF.Statement.coerce_subject(subject)
 
   defdelegate coerce_predicate(predicate), to: RDF.Statement
   defdelegate coerce_predicate(predicate, property_map), to: RDF.Statement
 
-  @doc false
+  @doc """
+  Coerces the given `value` to a valid object of an RDF-star statement.
+  """
   @spec coerce_object(coercible_object, PropertyMap.t() | nil) :: object
-  def coerce_object(object, property_map \\ nil)
+  def coerce_object(value, property_map \\ nil)
   def coerce_object({_, _, _} = triple, property_map), do: Triple.new(triple, property_map)
   def coerce_object(object, _), do: RDF.Statement.coerce_object(object)
 

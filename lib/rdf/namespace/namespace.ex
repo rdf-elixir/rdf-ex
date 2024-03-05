@@ -81,10 +81,19 @@ defmodule RDF.Namespace do
     end
   end
 
-  defdelegate create(module, term_mapping, location), to: Builder
-  defdelegate create(module, term_mapping, location, opts), to: Builder
-  defdelegate create!(module, term_mapping, location), to: Builder
-  defdelegate create!(module, term_mapping, location, opts), to: Builder
+  @doc """
+  Creates a `RDF.Namespace` module with the given name and term mapping dynamically.
+
+  The line where the module is defined and its file must be passed as options.
+  """
+  defdelegate create(module, term_mapping, location, opts \\ []), to: Builder
+
+  @doc """
+  Creates a `RDF.Namespace` module with the given name and term mapping dynamically.
+
+  The line where the module is defined and its file must be passed as options.
+  """
+  defdelegate create!(module, term_mapping, location, opts \\ []), to: Builder
 
   @doc false
   def fully_qualified_module({:__aliases__, _, module}, env) do

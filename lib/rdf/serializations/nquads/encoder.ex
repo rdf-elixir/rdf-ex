@@ -10,9 +10,16 @@ defmodule RDF.NQuads.Encoder do
 
   - `:default_graph_name`: The graph name to be used as the default for triples
     from a `RDF.Graph` or `RDF.Description`. When the input to be encoded is a
-   `RDF.Description` the default is `nil` for the default graph. In case of a
-   `RDF.Graph` the default is the `RDF.Graph.name/1`. The option doesn't
+    `RDF.Description` the default is `nil` for the default graph. In case of a
+    `RDF.Graph` the default is the `RDF.Graph.name/1`. The option doesn't
     have any effect at all when the input to be encoded is a `RDF.Dataset`.
+  - `:sort`: Boolean flag which specifies if the encoded statements should
+    be sorted into Unicode code point order (default: `false`).
+    This option is available only on `encode/2`.
+  - `:mode`: Allows to specify if the encoded statements should be emitted as
+    strings or IO lists using the value `:string` or `:iodata` respectively
+    (default: `:string`). This option is available only on `stream/2`.
+
   """
 
   use RDF.Serialization.Encoder
@@ -22,13 +29,10 @@ defmodule RDF.NQuads.Encoder do
   @doc """
   Encodes the given RDF data in N-Quads format.
 
-  ## Options
-
-  - `:sort`: Boolean flag which specifies if the encoded statements should
-    be sorted into Unicode code point order (Default: `false`)
+  See module documentation for available options.
   """
   @impl RDF.Serialization.Encoder
-  @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     default_graph_name = default_graph_name(data, Keyword.get(opts, :default_graph_name, false))
 
@@ -43,6 +47,11 @@ defmodule RDF.NQuads.Encoder do
     end
   end
 
+  @doc """
+  Encodes the given RDF data into a stream of N-Quads.
+
+  See module documentation for available options.
+  """
   @impl RDF.Serialization.Encoder
   @spec stream(RDF.Data.t(), keyword) :: Enumerable.t()
   def stream(data, opts \\ []) do
