@@ -34,6 +34,9 @@ Elixir versions < 1.12 are no longer supported
   runtime configuration.
 - Add Hash N-Degree Quads algorithm call limit to canonicalization as a countermeasure
   against poison dataset attacks 
+- Compile-time application configuration `:optimize_regexes` that allows to switch 
+  internal usage to the faster Erlang `:re.run/2` function for regex pattern matching
+  ([@jkrueger](https://github.com/jkrueger))
 - Some optimizations on `RDF.IRI` ([@jkrueger](https://github.com/jkrueger))
 
 ### Changed

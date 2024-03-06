@@ -20,7 +20,7 @@ defmodule RDF.XSD.Utils.Regex do
 
     case xpath_pattern(pattern, flags) do
       {:regex, regex} ->
-        Regex.match?(regex, string)
+        RDF.Utils.Regex.match?(regex, string)
 
       {:q, pattern} ->
         String.contains?(string, pattern)
@@ -68,7 +68,8 @@ defmodule RDF.XSD.Utils.Regex do
     [
       first
       | Enum.map_every(possible_matches, 2, fn possible_xpath_unicode ->
-          [_, escapes, _, codepoint, _] = Regex.run(xpath_unicode_regex, possible_xpath_unicode)
+          [_, escapes, _, codepoint, _] =
+            RDF.Utils.Regex.run(xpath_unicode_regex, possible_xpath_unicode)
 
           if escapes |> String.length() |> Integer.is_odd() do
             "#{escapes}\\u{#{codepoint}}"

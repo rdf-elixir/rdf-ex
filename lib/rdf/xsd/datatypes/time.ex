@@ -39,7 +39,7 @@ defmodule RDF.XSD.Time do
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
-    case Regex.run(@grammar, lexical) do
+    case RDF.Utils.Regex.run(@grammar, lexical) do
       [_, time] -> do_lexical_mapping(time, nil, opts)
       [_, time, tz] -> do_lexical_mapping(time, tz, opts)
       _ -> @invalid_value
@@ -95,7 +95,7 @@ defmodule RDF.XSD.Time do
   defp with_offset(time, zone) when zone in ~W[Z UTC GMT], do: time
 
   defp with_offset(time, offset) do
-    case Regex.run(@tz_number_grammar, offset) do
+    case RDF.Utils.Regex.run(@tz_number_grammar, offset) do
       [_, "-", hour, minute] ->
         {hour, minute} = {String.to_integer(hour), String.to_integer(minute)}
         minute = time.minute + minute
@@ -141,7 +141,7 @@ defmodule RDF.XSD.Time do
   def init_valid_lexical(_, lexical, opts) do
     if tz = Keyword.get(opts, :tz) do
       # When using the :tz option, we'll have to strip off the original timezone
-      case Regex.run(@grammar, lexical) do
+      case RDF.Utils.Regex.run(@grammar, lexical) do
         [_, time] -> time
         [_, time, _] -> time
       end <> tz

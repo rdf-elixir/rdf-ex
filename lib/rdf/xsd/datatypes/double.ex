@@ -61,7 +61,7 @@ defmodule RDF.XSD.Double do
 
       {float, remainder} ->
         # 1.E-8 is not a valid Elixir float literal and consequently not fully parsed with Float.parse
-        if Regex.match?(~r/^\.e?[\+\-]?\d+$/i, remainder) do
+        if RDF.Utils.Regex.match?(~r/^\.e?[\+\-]?\d+$/i, remainder) do
           lexical_mapping(to_string(float) <> String.trim_leading(remainder, "."), opts)
         else
           @invalid_value

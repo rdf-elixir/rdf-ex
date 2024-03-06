@@ -39,7 +39,7 @@ defmodule RDF.XSD.Date do
 
   @impl XSD.Datatype
   def lexical_mapping(lexical, opts) do
-    case Regex.run(@grammar, lexical) do
+    case RDF.Utils.Regex.run(@grammar, lexical) do
       [_, date] -> do_lexical_mapping(date, opts)
       [_, date, tz] -> do_lexical_mapping(date, Keyword.put_new(opts, :tz, tz))
       _ -> @invalid_value
@@ -84,7 +84,7 @@ defmodule RDF.XSD.Date do
 
   def elixir_mapping(_, _), do: @invalid_value
 
-  defp valid_timezone?(string), do: Regex.match?(@tz_grammar, string)
+  defp valid_timezone?(string), do: RDF.Utils.Regex.match?(@tz_grammar, string)
 
   defp timezone_mapping("+00:00"), do: "Z"
   defp timezone_mapping(tz), do: tz
@@ -112,7 +112,7 @@ defmodule RDF.XSD.Date do
   def init_valid_lexical(_, lexical, opts) do
     if tz = Keyword.get(opts, :tz) do
       # When using the :tz option, we'll have to strip off the original timezone
-      case Regex.run(@grammar, lexical) do
+      case RDF.Utils.Regex.run(@grammar, lexical) do
         [_, date] -> date
         [_, date, _] -> date
       end <> tz

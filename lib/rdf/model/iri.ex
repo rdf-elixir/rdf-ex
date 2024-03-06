@@ -242,7 +242,7 @@ defmodule RDF.IRI do
   def scheme(iri) when is_binary(iri), do: scheme_from_binary(iri)
 
   defp scheme_from_binary(iri) do
-    with [_, scheme] <- RDF.Util.Regex.run(@scheme_regex, iri) do
+    with [_, scheme] <- RDF.Utils.Regex.run(@scheme_regex, iri) do
       scheme
     end
   end

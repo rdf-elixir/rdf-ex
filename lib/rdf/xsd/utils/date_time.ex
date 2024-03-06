@@ -3,7 +3,7 @@ defmodule RDF.XSD.Utils.DateTime do
 
   @spec tz(String.t()) :: String.t()
   def tz(string) do
-    case Regex.run(~r/([+-])(\d\d:\d\d)/, string) do
+    case RDF.Utils.Regex.run(~r/([+-])(\d\d:\d\d)/, string) do
       [_, sign, zone] ->
         sign <> zone
 
