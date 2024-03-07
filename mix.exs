@@ -26,12 +26,7 @@ defmodule RDF.Mixfile do
 
       # Docs
       name: "RDF.ex",
-      docs: [
-        main: "RDF",
-        source_url: @scm_url,
-        source_ref: "v#{@version}",
-        extras: ["CHANGELOG.md"]
-      ],
+      docs: docs(),
 
       # ExCoveralls
       test_coverage: [tool: ExCoveralls],
@@ -120,6 +115,137 @@ defmodule RDF.Mixfile do
     ]
 
     Mix.Task.run("test", ["--formatter", "EarlFormatter", "--seed", "0"] ++ files)
+  end
+
+  defp docs do
+    [
+      main: "RDF",
+      source_url: @scm_url,
+      source_ref: "v#{@version}",
+      extras: ["CHANGELOG.md"],
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
+      groups_for_modules: [
+        Terms: [
+          RDF.Term,
+          RDF.Resource,
+          RDF.Literal,
+          RDF.IRI,
+          RDF.BlankNode,
+          RDF.Sigils
+        ],
+        Structures: [
+          RDF.Statement,
+          RDF.Triple,
+          RDF.Quad,
+          RDF.Description,
+          RDF.Graph,
+          RDF.Dataset,
+          RDF.Data,
+          RDF.List,
+          RDF.Diff,
+          RDF.PrefixMap,
+          RDF.PropertyMap
+        ],
+        Namespace: [
+          RDF.Namespace,
+          RDF.Namespace.IRI,
+          RDF.Vocabulary,
+          RDF.Vocabulary.Namespace
+        ],
+        "Predefined namespaces": [
+          RDF.NS,
+          RDF.NS.RDF,
+          RDF.NS.RDFS,
+          RDF.NS.OWL,
+          RDF.NS.SKOS,
+          RDF.NS.XSD
+        ],
+        "Predefined datatypes": [
+          RDF.LangString,
+          RDF.Literal.Generic,
+          RDF.XSD.String,
+          RDF.XSD.Boolean,
+          RDF.XSD.Numeric,
+          RDF.XSD.Float,
+          RDF.XSD.Double,
+          RDF.XSD.Decimal,
+          RDF.XSD.Integer,
+          RDF.XSD.Long,
+          RDF.XSD.Int,
+          RDF.XSD.Short,
+          RDF.XSD.Byte,
+          RDF.XSD.NonPositiveInteger,
+          RDF.XSD.NegativeInteger,
+          RDF.XSD.NonNegativeInteger,
+          RDF.XSD.PositiveInteger,
+          RDF.XSD.UnsignedLong,
+          RDF.XSD.UnsignedInt,
+          RDF.XSD.UnsignedShort,
+          RDF.XSD.UnsignedByte,
+          RDF.XSD.DateTime,
+          RDF.XSD.Date,
+          RDF.XSD.Time,
+          RDF.XSD.Base64Binary,
+          RDF.XSD.AnyURI
+        ],
+        "Datatype system": [
+          RDF.Literal.Datatype,
+          RDF.Literal.Datatype.Registry,
+          RDF.XSD,
+          RDF.XSD.Datatype,
+          RDF.XSD.Datatype.Primitive,
+          RDF.XSD.Datatype.Restriction,
+          RDF.XSD.Facet,
+          RDF.XSD.Facets.ExplicitTimezone,
+          RDF.XSD.Facets.FractionDigits,
+          RDF.XSD.Facets.Length,
+          RDF.XSD.Facets.MaxExclusive,
+          RDF.XSD.Facets.MaxInclusive,
+          RDF.XSD.Facets.MaxLength,
+          RDF.XSD.Facets.MinExclusive,
+          RDF.XSD.Facets.MinInclusive,
+          RDF.XSD.Facets.MinLength,
+          RDF.XSD.Facets.Pattern,
+          RDF.XSD.Facets.TotalDigits
+        ],
+        "Resource generators": [
+          RDF.Resource.Generator,
+          RDF.IRI.UUID.Generator,
+          RDF.BlankNode.Generator,
+          RDF.BlankNode.Generator.Algorithm,
+          RDF.BlankNode.Generator.Increment
+        ],
+        Serialization: [
+          RDF.Serialization,
+          RDF.Serialization.Decoder,
+          RDF.Serialization.Encoder,
+          RDF.Serialization.Format,
+          RDF.NTriples,
+          RDF.NTriples.Decoder,
+          RDF.NTriples.Encoder,
+          RDF.NQuads,
+          RDF.NQuads.Decoder,
+          RDF.NQuads.Encoder,
+          RDF.Turtle,
+          RDF.Turtle.Decoder,
+          RDF.Turtle.Encoder
+        ],
+        "Query engine": [
+          RDF.Query,
+          RDF.Query.BGP
+        ],
+        Canonicalization: [
+          RDF.Canonicalization,
+          RDF.Canonicalization.State,
+          RDF.Canonicalization.IdentifierIssuer
+        ],
+        "RDF-star": [
+          RDF.Star.Triple,
+          RDF.Star.Quad,
+          RDF.Star.Statement
+        ]
+      ]
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
