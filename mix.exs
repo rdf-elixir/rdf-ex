@@ -122,7 +122,7 @@ defmodule RDF.Mixfile do
       main: "RDF",
       source_url: @scm_url,
       source_ref: "v#{@version}",
-      extras: ["CHANGELOG.md"],
+      extras: ["README.md", "CHANGELOG.md", "CONTRIBUTING.md", "LICENSE.md"],
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
       groups_for_modules: [
         Terms: [
