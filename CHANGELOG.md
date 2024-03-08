@@ -45,6 +45,12 @@ Elixir versions < 1.12 are no longer supported
   tuple along with final state containing the _input blank node identifier map_ and
   the _issued identifiers map_ as required by the RDF dataset canonicalization 
   specification
+- The following deprecated types were removed:
+  - `RDF.Statement.coercible_t` (new type: `RDF.Statement.coercible`)
+  - `RDF.Star.Statement.coercible_t` (new type: `RDF.Star.Statement.coercible`)
+  - `RDF.Triple.t_values` (new type: `RDF.Triple.mapping_value`)
+  - `RDF.Quad.t_values` (new type: `RDF.Quad.mapping_value`)
+
 
 ### Fixed
 
@@ -294,7 +300,7 @@ For an introduction see [this guide](https://rdf-elixir.dev/rdf-ex/resource-gene
 ### Changed
 
 - some types were renamed for consistency reasons; the old types were deprecated
-  and will be removed in v0.11
+  and will be removed
   - `RDF.Statement.coercible_t` -> `RDF.Statement.coercible`
   - `RDF.Star.Statement.coercible_t` -> `RDF.Star.Statement.coercible`
   - `RDF.Triple.t_values` -> `RDF.Triple.mapping_value`

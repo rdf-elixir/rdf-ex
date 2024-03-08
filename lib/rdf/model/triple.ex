@@ -18,8 +18,6 @@ defmodule RDF.Triple do
           }
 
   @type mapping_value :: {String.t(), String.t(), any}
-  # deprecated: This will be removed in v0.11.
-  @type t_values :: mapping_value
 
   @doc """
   Creates a `RDF.Triple` with proper RDF values.

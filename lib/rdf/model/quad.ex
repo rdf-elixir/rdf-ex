@@ -24,8 +24,6 @@ defmodule RDF.Quad do
           }
 
   @type mapping_value :: {String.t(), String.t(), any, String.t()}
-  # deprecated: This will be removed in v0.11.
-  @type t_values :: mapping_value
 
   @doc """
   Creates a `RDF.Quad` with proper RDF values.

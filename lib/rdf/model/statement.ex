@@ -24,8 +24,6 @@ defmodule RDF.Statement do
 
   @type t :: Triple.t() | Quad.t()
   @type coercible :: Triple.coercible() | Quad.coercible()
-  # deprecated: This will be removed in v0.11.
-  @type coercible_t :: coercible
 
   @doc """
   Creates a `RDF.Triple` or `RDF.Quad` with proper RDF values.
