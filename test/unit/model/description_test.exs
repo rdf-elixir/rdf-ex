@@ -1021,16 +1021,6 @@ defmodule RDF.DescriptionTest do
       assert Enum.into(pairs, Description.new(EX.Subject)) ==
                Description.new(EX.Subject, init: pairs)
     end
-
-    test "with a list of lists" do
-      lists = [
-        [EX.Subject, EX.predicate1(), EX.Object1],
-        [EX.Subject, EX.predicate2(), EX.Object2]
-      ]
-
-      assert Enum.into(lists, Description.new(EX.Subject)) ==
-               Description.new(EX.Subject, init: Enum.map(lists, &List.to_tuple/1))
-    end
   end
 
   describe "Access behaviour" do

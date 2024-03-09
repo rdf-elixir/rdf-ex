@@ -1667,16 +1667,6 @@ defmodule RDF.GraphTest do
 
       assert Enum.into(triples, Graph.new()) == Graph.new(triples)
     end
-
-    test "with a list of lists" do
-      lists = [
-        [EX.Subject, EX.predicate1(), EX.Object1],
-        [EX.Subject, EX.predicate2(), EX.Object2]
-      ]
-
-      assert Enum.into(lists, Graph.new()) ==
-               Graph.new(Enum.map(lists, &List.to_tuple/1))
-    end
   end
 
   describe "Access behaviour" do

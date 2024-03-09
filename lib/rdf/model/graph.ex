@@ -1485,6 +1485,10 @@ defmodule RDF.Graph do
     def into(original) do
       collector_fun = fn
         graph, {:cont, list} when is_list(list) ->
+          IO.warn(
+            "triples as lists in `Collectable` implementation of `RDF.Graph` are deprecated and will be removed in RDF.ex v2.0; use triples as tuples instead"
+          )
+
           Graph.add(graph, List.to_tuple(list))
 
         graph, {:cont, elem} ->

@@ -938,6 +938,10 @@ defmodule RDF.Description do
     def into(original) do
       collector_fun = fn
         description, {:cont, list} when is_list(list) ->
+          IO.warn(
+            "triples as lists in `Collectable` implementation of `RDF.Description` are deprecated and will be removed in RDF.ex v2.0; use triples as tuples instead"
+          )
+
           Description.add(description, List.to_tuple(list))
 
         description, {:cont, elem} ->

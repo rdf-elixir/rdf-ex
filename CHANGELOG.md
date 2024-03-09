@@ -45,6 +45,9 @@ Elixir versions < 1.12 are no longer supported
   tuple along with final state containing the _input blank node identifier map_ and
   the _issued identifiers map_ as required by the RDF dataset canonicalization 
   specification
+- Statements as lists (instead of tuples) in the `Collectable` implementations of
+  `RDF.Description`, `RDF.Graph` and `RDF.Dataset` were deprecated.
+  Support of those will be removed in RDF.ex v2.0. 
 - The following deprecated types were removed:
   - `RDF.Statement.coercible_t` (new type: `RDF.Statement.coercible`)
   - `RDF.Star.Statement.coercible_t` (new type: `RDF.Star.Statement.coercible`)

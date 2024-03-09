@@ -1150,6 +1150,10 @@ defmodule RDF.Dataset do
     def into(original) do
       collector_fun = fn
         dataset, {:cont, list} when is_list(list) ->
+          IO.warn(
+            "statements as lists in `Collectable` implementation of `RDF.Dataset` are deprecated and will be removed in RDF.ex v2.0; use statements as tuples instead"
+          )
+
           Dataset.add(dataset, List.to_tuple(list))
 
         dataset, {:cont, elem} ->
