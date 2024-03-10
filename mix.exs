@@ -114,7 +114,7 @@ defmodule RDF.Mixfile do
       "test/acceptance/canonicalization_w3c_test.exs"
     ]
 
-    Mix.Task.run("test", ["--formatter", "EarlFormatter", "--seed", "0"] ++ files)
+    Mix.Task.run("test", ["--formatter", "RDF.EarlFormatter", "--seed", "0"] ++ files)
   end
 
   defp docs do

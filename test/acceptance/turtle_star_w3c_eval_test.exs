@@ -6,7 +6,7 @@ defmodule RDF.Star.Turtle.W3C.EvalTest do
   """
 
   use ExUnit.Case, async: false
-  use EarlFormatter, test_suite: :turtle_star
+  use RDF.EarlFormatter, test_suite: :turtle_star
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT

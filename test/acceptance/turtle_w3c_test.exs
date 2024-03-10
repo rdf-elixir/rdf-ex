@@ -8,7 +8,7 @@ defmodule RDF.Turtle.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  use EarlFormatter, test_suite: :turtle
+  use RDF.EarlFormatter, test_suite: :turtle
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
