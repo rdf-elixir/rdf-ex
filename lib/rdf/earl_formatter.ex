@@ -25,28 +25,45 @@ defmodule RDF.EarlFormatter do
   alias RDF.EarlFormatter.NS.{EARL, DC, FOAF, DOAP}
   alias RDF.{Graph, Turtle}
 
-  import RDF.Sigils
-
-  @output_path "earl_reports"
-  @doap_file "doap.ttl"
-
-  @marcel ~I<http://marcelotto.net/#me>
-  @rdf_ex ~I<https://hex.pm/packages/rdf>
-
   @prefixes RDF.prefix_map(
               xsd: RDF.NS.XSD,
               rdf: RDF,
               rdfs: RDF.NS.RDFS,
-              mf: RDF.TestSuite.NS.MF,
               earl: EARL,
               dc: DC,
               foaf: FOAF,
               doap: DOAP
             )
 
+  def config do
+    mix_config = Mix.Project.config()
+    app = mix_config[:app]
+    version = mix_config[:version]
+    hex_url = "https://hex.pm/packages/#{app}"
+    version_url = hex_url <> "/" <> version
+
+    config =
+      %{
+        doap_path: "doap.ttl",
+        project_iri: RDF.iri(hex_url),
+        version_iri: RDF.iri(version_url),
+        version: version,
+        name: mix_config[:name],
+        output_path: "earl_reports"
+      }
+      |> Map.merge(Map.new(Application.get_env(app, :earl_formatter, %{})))
+
+    unless config[:author_iri], do: print_failed("author_iri missing in EarlFormatter config")
+
+    Map.update!(config, :author_iri, &RDF.iri/1)
+  end
+
   @impl true
   def init(_opts) do
-    {:ok, {%{}, %{time: RDF.XSD.DateTime.now()}}}
+    results = %{}
+    config = Map.put(config(), :time, RDF.XSD.DateTime.now())
+
+    {:ok, {results, config}}
   end
 
   @impl true
@@ -115,13 +132,13 @@ defmodule RDF.EarlFormatter do
   end
 
   defp finish(results, config) do
-    project_metadata = project_metadata()
+    project_metadata = project_metadata(config)
 
     IO.puts("---------------------------------")
 
     Enum.each(results, fn {test_suite, results} ->
       IO.puts("Writing report for #{test_suite}")
-      path = Path.join(@output_path, "#{test_suite}.ttl")
+      path = Path.join(config.output_path, "#{test_suite}.ttl")
 
       results
       |> Graph.add(project_metadata)
@@ -129,44 +146,46 @@ defmodule RDF.EarlFormatter do
     end)
   end
 
-  defp project_metadata do
-    version = Mix.Project.config()[:version]
-    version_url = RDF.iri("https://hex.pm/packages/rdf/#{version}")
+  defp project_metadata(config) do
+    project_iri = config.project_iri
+    version = config.version
+    version_iri = config.version_iri
+    author_iri = config.author_iri
 
     version_description =
-      version_url
-      |> DOAP.name("RDF.ex #{version}")
+      version_iri
+      |> DOAP.name("#{config.name} #{version}")
       |> DOAP.revision(version)
 
-    doap = Turtle.read_file!(@doap_file)
+    doap = Turtle.read_file!(config.doap_path)
 
     # ensure the URIs we use here are consistent we the ones in the DOAP file
-    %RDF.Description{} = doap[@rdf_ex]
-    %RDF.Description{} = doap[@marcel]
+    %RDF.Description{} = doap[project_iri]
+    %RDF.Description{} = doap[author_iri]
 
     doap
     |> Graph.add(
-      @rdf_ex
+      project_iri
       |> RDF.type([EARL.TestSubject, EARL.Software])
-      |> DOAP.release(version_url)
+      |> DOAP.release(version_iri)
     )
-    |> Graph.add(@marcel |> RDF.type(EARL.Assertor))
+    |> Graph.add(author_iri |> RDF.type(EARL.Assertor))
     |> Graph.add(version_description)
   end
 
   defp document_description(config) do
     %{
-      FOAF.primaryTopic() => @rdf_ex,
-      FOAF.maker() => @marcel,
+      FOAF.primaryTopic() => config.project_iri,
+      FOAF.maker() => config.author_iri,
       DC.issued() => config.time
     }
   end
 
-  defp base_assertion(test_case) do
+  defp base_assertion(test_case, config) do
     RDF.bnode()
     |> RDF.type(EARL.Assertion)
-    |> EARL.assertedBy(@marcel)
-    |> EARL.subject(@rdf_ex)
+    |> EARL.assertedBy(config.author_iri)
+    |> EARL.subject(config.project_iri)
     |> EARL.test(test_case.subject)
   end
 
@@ -180,7 +199,7 @@ defmodule RDF.EarlFormatter do
 
     assertion =
       test_case
-      |> base_assertion()
+      |> base_assertion(config)
       |> EARL.result(result.subject)
       |> EARL.mode(mode(mode))
 
@@ -228,7 +247,7 @@ defmodule RDF.EarlFormatter do
     earl_test_suite = Keyword.fetch!(opts, :test_suite)
 
     quote do
-      def earl_test_suite(), do: unquote(earl_test_suite)
+      def earl_test_suite, do: unquote(earl_test_suite)
     end
   end
 
