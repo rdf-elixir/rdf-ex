@@ -2095,6 +2095,102 @@ defmodule RDF.DatasetTest do
     assert Enum.count(dataset.graphs) == 1
   end
 
+  describe "intersection/2" do
+    test "with dataset" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2], EX.Graph}
+        ])
+
+      assert Dataset.intersection(dataset, dataset) == dataset
+
+      assert Dataset.intersection(
+               dataset,
+               Dataset.new([
+                 {EX.S1, EX.p(), [EX.O2, EX.O3]},
+                 {EX.S2, EX.p(), [EX.O2, EX.O3], EX.Graph}
+               ])
+             ) ==
+               Dataset.new([
+                 {EX.S1, EX.p(), [EX.O2]},
+                 {EX.S2, EX.p(), [EX.O2], EX.Graph}
+               ])
+
+      assert Dataset.intersection(
+               dataset,
+               Dataset.new([
+                 {EX.Other, EX.p(), EX.O1},
+                 {EX.S1, EX.p(), [EX.O2], EX.Graph}
+               ])
+             ) ==
+               Dataset.new()
+    end
+
+    test "with graph" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2], EX.Graph}
+        ])
+
+      assert Dataset.intersection(dataset, Dataset.default_graph(dataset)) ==
+               dataset |> Dataset.default_graph() |> Dataset.new()
+
+      assert Dataset.intersection(dataset, Dataset.graph(dataset, EX.Graph)) ==
+               dataset |> Dataset.graph(EX.Graph) |> Dataset.new()
+
+      assert Dataset.intersection(
+               dataset,
+               Graph.new({EX.S1, EX.p(), [EX.O2, EX.O3]})
+             ) ==
+               Dataset.new({EX.S1, EX.p(), EX.O2})
+
+      assert Dataset.intersection(
+               dataset,
+               Graph.new({EX.S2, EX.p(), [EX.O2, EX.O3]}, name: EX.Graph)
+             ) ==
+               Dataset.new({EX.S2, EX.p(), EX.O2, EX.Graph})
+
+      assert Dataset.intersection(dataset, Graph.new({EX.S2, EX.p(), EX.O1})) ==
+               Dataset.new()
+    end
+
+    test "with description" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2], EX.Graph}
+        ])
+
+      assert Dataset.intersection(dataset, EX.S1 |> EX.p([EX.O2, EX.O3])) ==
+               Dataset.new(EX.S1 |> EX.p(EX.O2))
+
+      assert Dataset.intersection(dataset, EX.S2 |> EX.p([EX.O2, EX.O3])) ==
+               Dataset.new()
+    end
+
+    test "with coercible data" do
+      dataset =
+        Dataset.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2], EX.Graph}
+        ])
+
+      assert Dataset.intersection(dataset, Dataset.statements(dataset)) ==
+               dataset
+
+      assert Dataset.intersection(dataset, {EX.S1, EX.p(), [EX.O2, EX.O3]}) ==
+               Dataset.new(EX.S1 |> EX.p(EX.O2))
+
+      assert Dataset.intersection(dataset, {EX.S2, EX.p(), [EX.O2, EX.O3], EX.Graph}) ==
+               Dataset.new({EX.S2, EX.p(), EX.O2, EX.Graph})
+
+      assert Dataset.intersection(dataset, {EX.S2, EX.p(), [EX.O2, EX.O3]}) ==
+               Dataset.new()
+    end
+  end
+
   test "statement_count/1" do
     assert Dataset.statement_count(dataset()) == 0
     assert Dataset.statement_count(Dataset.new(statement())) == 1

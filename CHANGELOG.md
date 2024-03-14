@@ -16,6 +16,8 @@ Elixir versions < 1.12 are no longer supported
   as a specified `RDF.Namespace` or `RDF.Vocabulary.Namespace`.
 - `canonical_hash/2` function on `RDF.Dataset`, `RDF.Graph` and `RDF.Description` which
   computes a hash value for the data based on the `RDF.Canonicalization` algorithm
+- `intersection/2` function on `RDF.Dataset`, `RDF.Graph` and `RDF.Description` which
+  create respective graph data intersections
 - `RDF.Dataset.put_graph/3` adds new graphs overwriting any existing graphs
 - `RDF.Dataset.update/4` to update graphs in a `RDF.Dataset`
 - `RDF.Graph.delete_predications/3` to delete all statements in a `RDF.Graph` with 

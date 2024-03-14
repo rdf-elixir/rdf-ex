@@ -45,6 +45,13 @@ defmodule RDF.Utils do
     end
   end
 
+  def reject_empty_map_values(map) do
+    Map.filter(map, fn
+      {_, nil} -> false
+      {_, _} -> true
+    end)
+  end
+
   def permutations([]), do: [[]]
 
   def permutations(list) do

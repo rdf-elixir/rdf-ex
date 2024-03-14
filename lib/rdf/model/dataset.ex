@@ -933,6 +933,43 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  Returns a new dataset that is the intersection of the given `dataset` with the given `data`.
+
+  The `data` can be given in any form an `RDF.Dataset` can be created from.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([
+      ...>   {EX.S1, EX.p(), [EX.O1, EX.O2]},
+      ...>   {EX.S2, EX.p(), EX.O3, EX.Graph}
+      ...> ])
+      ...> |> RDF.Dataset.intersection([
+      ...>     {EX.S1, EX.p(), EX.O2},
+      ...>     {EX.S2, EX.p(), EX.O3}
+      ...>   ])
+      RDF.Dataset.new({EX.S1, EX.p(), EX.O2})
+
+  """
+  @spec intersection(t(), t() | Graph.t() | Description.t() | input()) :: t()
+  def intersection(dataset, data)
+
+  def intersection(%__MODULE__{} = dataset1, %__MODULE__{} = dataset2) do
+    intersection =
+      dataset1.graphs
+      |> Map.intersect(dataset2.graphs, fn _, g1, g2 ->
+        graph_intersection = Graph.intersection(g1, g2)
+        unless Graph.empty?(graph_intersection), do: graph_intersection
+      end)
+      |> RDF.Utils.reject_empty_map_values()
+
+    %__MODULE__{dataset1 | graphs: intersection}
+  end
+
+  def intersection(%__MODULE__{} = dataset, data) do
+    intersection(dataset, new(data))
+  end
+
+  @doc """
   Returns a nested map of the native Elixir values of a `RDF.Dataset`.
 
   When a `:context` option is given with a `RDF.PropertyMap`, predicates will

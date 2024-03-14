@@ -916,6 +916,69 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "intersection/2" do
+    test "with description" do
+      description = description({EX.p(), [EX.O1, EX.O2]})
+
+      assert Description.intersection(description, description) == description
+
+      assert Description.intersection(description, description({EX.p(), [EX.O2, EX.O3]})) ==
+               description({EX.p(), [EX.O2]})
+
+      assert Description.intersection(description, description({EX.p(), [EX.Other]})) ==
+               description()
+
+      assert Description.intersection(description, description({EX.other(), [EX.O1, EX.O2]})) ==
+               description()
+
+      assert Description.intersection(
+               description,
+               EX.Other |> EX.p(EX.O1, EX.O2)
+             ) ==
+               description()
+    end
+
+    test "with graph" do
+      description = description({EX.p(), [EX.O1, EX.O2]})
+
+      assert Description.intersection(description, Graph.new(description)) == description
+
+      assert Description.intersection(
+               description,
+               Graph.new(description({EX.p(), [EX.O2, EX.O3]}))
+             ) == description({EX.p(), [EX.O2]})
+
+      assert Description.intersection(description, Graph.new({EX.Other, EX.p(), EX.O1})) ==
+               description()
+    end
+
+    test "with dataset" do
+      description = description({EX.p(), [EX.O1, EX.O2]})
+
+      assert Description.intersection(description, Dataset.new(description)) == description
+
+      assert Description.intersection(
+               description,
+               Dataset.new(description({EX.p(), [EX.O2, EX.O3]}))
+             ) == description({EX.p(), [EX.O2]})
+
+      assert Description.intersection(description, Dataset.new({EX.Other, EX.p(), EX.O1})) ==
+               description()
+    end
+
+    test "with coercible data" do
+      description = description({EX.p(), [EX.O1, EX.O2]})
+
+      assert Description.intersection(description, Description.triples(description)) ==
+               description
+
+      assert Description.intersection(
+               description,
+               {description.subject, EX.p(), [EX.O2, EX.O3]}
+             ) == description({EX.p(), [EX.O2]})
+    end
+  end
+
   test "equal/2" do
     assert Description.new(EX.S, init: {EX.S, EX.p(), EX.O})
            |> Description.equal?(Description.new(EX.S, init: {EX.S, EX.p(), EX.O}))

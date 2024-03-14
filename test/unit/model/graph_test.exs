@@ -1484,6 +1484,86 @@ defmodule RDF.GraphTest do
     end
   end
 
+  describe "intersection/2" do
+    test "with graph" do
+      graph =
+        Graph.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2]}
+        ])
+
+      assert Graph.intersection(graph, graph) == graph
+
+      assert Graph.intersection(
+               graph,
+               Graph.new([
+                 {EX.S1, EX.p(), [EX.O2, EX.O3]},
+                 {EX.S3, EX.p(), [EX.O1, EX.O2]}
+               ])
+             ) ==
+               Graph.new([{EX.S1, EX.p(), [EX.O2]}])
+
+      assert Graph.intersection(graph, Graph.new({EX.Other, EX.p(), EX.O1})) ==
+               Graph.new()
+    end
+
+    test "with description" do
+      graph = Graph.new({EX.S, EX.p(), [EX.O1, EX.O2]})
+
+      assert Graph.intersection(graph, Graph.get(graph, EX.S)) == graph
+
+      assert Graph.intersection(graph, EX.S |> EX.p([EX.O2, EX.O3])) ==
+               Graph.new({EX.S, EX.p(), EX.O2})
+
+      assert Graph.intersection(
+               graph,
+               EX.Other |> EX.p(EX.O1, EX.O2)
+             ) ==
+               Graph.new()
+    end
+
+    test "with dataset" do
+      graph =
+        Graph.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2]}
+        ])
+
+      assert Graph.intersection(graph, Dataset.new(graph)) == graph
+
+      assert Graph.intersection(
+               graph,
+               Dataset.new([
+                 {EX.S1, EX.p(), [EX.O2, EX.O3]},
+                 {EX.S2, EX.p(), [EX.O2, EX.O3], EX.Graph}
+               ])
+             ) ==
+               Graph.new([
+                 {EX.S1, EX.p(), [EX.O2]},
+                 {EX.S2, EX.p(), [EX.O2]}
+               ])
+
+      assert Graph.intersection(graph, Dataset.new({EX.Other, EX.p(), EX.O1})) ==
+               Graph.new()
+    end
+
+    test "with coercible data" do
+      graph =
+        Graph.new([
+          {EX.S1, EX.p(), [EX.O1, EX.O2]},
+          {EX.S2, EX.p(), [EX.O1, EX.O2]}
+        ])
+
+      assert Graph.intersection(graph, Graph.triples(graph)) ==
+               graph
+
+      assert Graph.intersection(
+               graph,
+               {EX.S1, EX.p(), [EX.O2, EX.O3]}
+             ) == Graph.new({EX.S1, EX.p(), [EX.O2]})
+    end
+  end
+
   test "equal/2" do
     assert Graph.new({EX.S, EX.p(), EX.O})
            |> Graph.equal?(Graph.new({EX.S, EX.p(), EX.O}))
