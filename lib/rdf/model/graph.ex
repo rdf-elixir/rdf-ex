@@ -1142,47 +1142,50 @@ defmodule RDF.Graph do
     Map.has_key?(graph.descriptions, RDF.coerce_subject(subject))
   end
 
-  @doc """
-  Returns a new graph that is the intersection of the given `graph` with the given `data`.
+  # This function relies on Map.intersect/3 that was added in Elixir v1.15
+  if Version.match?(System.version(), ">= 1.15.0") do
+    @doc """
+    Returns a new graph that is the intersection of the given `graph` with the given `data`.
 
-  The `data` can be given in any form an `RDF.Graph` can be created from.
-  When a `RDF.Dataset` is given, the aggregation of all of its graphs is used
-  for the intersection.
+    The `data` can be given in any form an `RDF.Graph` can be created from.
+    When a `RDF.Dataset` is given, the aggregation of all of its graphs is used
+    for the intersection.
 
-  ## Examples
+    ## Examples
 
-      iex> RDF.Graph.new({EX.S1, EX.p(), [EX.O1, EX.O2]})
-      ...> |> RDF.Graph.intersection({EX.S1, EX.p(), [EX.O2, EX.O3]})
-      RDF.Graph.new({EX.S1, EX.p(), EX.O2})
+        iex> RDF.Graph.new({EX.S1, EX.p(), [EX.O1, EX.O2]})
+        ...> |> RDF.Graph.intersection({EX.S1, EX.p(), [EX.O2, EX.O3]})
+        RDF.Graph.new({EX.S1, EX.p(), EX.O2})
 
-  """
-  @spec intersection(t(), t() | Dataset.t() | Description.t() | input()) :: t()
-  def intersection(graph, data)
+    """
+    @spec intersection(t(), t() | Dataset.t() | Description.t() | input()) :: t()
+    def intersection(graph, data)
 
-  def intersection(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
-    intersection =
-      graph1.descriptions
-      |> Map.intersect(graph2.descriptions, fn _, p1, p2 ->
-        description_intersection = Description.intersection(p1, p2)
-        unless Description.empty?(description_intersection), do: description_intersection
-      end)
-      |> RDF.Utils.reject_empty_map_values()
+    def intersection(%__MODULE__{} = graph1, %__MODULE__{} = graph2) do
+      intersection =
+        graph1.descriptions
+        |> Map.intersect(graph2.descriptions, fn _, p1, p2 ->
+          description_intersection = Description.intersection(p1, p2)
+          unless Description.empty?(description_intersection), do: description_intersection
+        end)
+        |> RDF.Utils.reject_empty_map_values()
 
-    %__MODULE__{graph1 | descriptions: intersection}
-  end
-
-  def intersection(%__MODULE__{} = graph, %Description{subject: subject} = description) do
-    if description2 = get(graph, subject) do
-      description
-      |> Description.intersection(description2)
-      |> new()
-    else
-      new()
+      %__MODULE__{graph1 | descriptions: intersection}
     end
-  end
 
-  def intersection(%__MODULE__{} = graph, data) do
-    intersection(graph, new(data))
+    def intersection(%__MODULE__{} = graph, %Description{subject: subject} = description) do
+      if description2 = get(graph, subject) do
+        description
+        |> Description.intersection(description2)
+        |> new()
+      else
+        new()
+      end
+    end
+
+    def intersection(%__MODULE__{} = graph, data) do
+      intersection(graph, new(data))
+    end
   end
 
   @doc """

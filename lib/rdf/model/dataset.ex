@@ -932,41 +932,44 @@ defmodule RDF.Dataset do
     |> Enum.map(& &1.name)
   end
 
-  @doc """
-  Returns a new dataset that is the intersection of the given `dataset` with the given `data`.
+  # This function relies on Map.intersect/3 that was added in Elixir v1.15
+  if Version.match?(System.version(), ">= 1.15.0") do
+    @doc """
+    Returns a new dataset that is the intersection of the given `dataset` with the given `data`.
 
-  The `data` can be given in any form an `RDF.Dataset` can be created from.
+    The `data` can be given in any form an `RDF.Dataset` can be created from.
 
-  ## Examples
+    ## Examples
 
-      iex> RDF.Dataset.new([
-      ...>   {EX.S1, EX.p(), [EX.O1, EX.O2]},
-      ...>   {EX.S2, EX.p(), EX.O3, EX.Graph}
-      ...> ])
-      ...> |> RDF.Dataset.intersection([
-      ...>     {EX.S1, EX.p(), EX.O2},
-      ...>     {EX.S2, EX.p(), EX.O3}
-      ...>   ])
-      RDF.Dataset.new({EX.S1, EX.p(), EX.O2})
+        iex> RDF.Dataset.new([
+        ...>   {EX.S1, EX.p(), [EX.O1, EX.O2]},
+        ...>   {EX.S2, EX.p(), EX.O3, EX.Graph}
+        ...> ])
+        ...> |> RDF.Dataset.intersection([
+        ...>     {EX.S1, EX.p(), EX.O2},
+        ...>     {EX.S2, EX.p(), EX.O3}
+        ...>   ])
+        RDF.Dataset.new({EX.S1, EX.p(), EX.O2})
 
-  """
-  @spec intersection(t(), t() | Graph.t() | Description.t() | input()) :: t()
-  def intersection(dataset, data)
+    """
+    @spec intersection(t(), t() | Graph.t() | Description.t() | input()) :: t()
+    def intersection(dataset, data)
 
-  def intersection(%__MODULE__{} = dataset1, %__MODULE__{} = dataset2) do
-    intersection =
-      dataset1.graphs
-      |> Map.intersect(dataset2.graphs, fn _, g1, g2 ->
-        graph_intersection = Graph.intersection(g1, g2)
-        unless Graph.empty?(graph_intersection), do: graph_intersection
-      end)
-      |> RDF.Utils.reject_empty_map_values()
+    def intersection(%__MODULE__{} = dataset1, %__MODULE__{} = dataset2) do
+      intersection =
+        dataset1.graphs
+        |> Map.intersect(dataset2.graphs, fn _, g1, g2 ->
+          graph_intersection = Graph.intersection(g1, g2)
+          unless Graph.empty?(graph_intersection), do: graph_intersection
+        end)
+        |> RDF.Utils.reject_empty_map_values()
 
-    %__MODULE__{dataset1 | graphs: intersection}
-  end
+      %__MODULE__{dataset1 | graphs: intersection}
+    end
 
-  def intersection(%__MODULE__{} = dataset, data) do
-    intersection(dataset, new(data))
+    def intersection(%__MODULE__{} = dataset, data) do
+      intersection(dataset, new(data))
+    end
   end
 
   @doc """
