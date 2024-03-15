@@ -465,6 +465,99 @@ defmodule RDF.PrefixMap do
     end)
   end
 
+  @doc """
+  Converts the given `prefix_map` to a Turtle or SPARQL header string.
+
+  The `style` argument can be either `:sparql` or `:turtle`.
+
+  ## Options
+
+  - `:indent`: allows to specify an integer by how many spaces the header
+    should be indented (default: `0`)
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar"
+      ...> ) |> RDF.PrefixMap.to_header(:sparql)
+      \"""
+      PREFIX bar: <http://example.com/bar>
+      PREFIX foo: <http://example.com/foo>
+      \"""
+
+      iex> RDF.PrefixMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar"
+      ...> ) |> RDF.PrefixMap.to_header(:turtle)
+      \"""
+      @prefix bar: <http://example.com/bar> .
+      @prefix foo: <http://example.com/foo> .
+      \"""
+
+      iex> RDF.PrefixMap.new() |> RDF.PrefixMap.to_header(:sparql)
+      ""
+
+  """
+  @spec to_header(t(), :sparql | :turtle, keyword) :: String.t()
+  def to_header(%__MODULE__{} = prefix_map, style, opts \\ []) do
+    indentation =
+      case Keyword.get(opts, :indent, 0) do
+        0 -> ""
+        nil -> ""
+        count when is_integer(count) -> String.duplicate(" ", count)
+      end
+
+    prefix_map
+    |> to_sorted_list()
+    |> Enum.map_join(&(indentation <> prefix_directive(&1, style)))
+  end
+
+  defp prefix_directive({prefix, ns}, :sparql),
+    do: """
+    PREFIX #{prefix}: <#{to_string(ns)}>
+    """
+
+  defp prefix_directive({prefix, ns}, :turtle),
+    do: """
+    @prefix #{prefix}: <#{to_string(ns)}> .
+    """
+
+  @doc """
+  Converts the given `prefix_map` to a SPARQL header string.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar"
+      ...> ) |> RDF.PrefixMap.to_sparql()
+      \"""
+      PREFIX bar: <http://example.com/bar>
+      PREFIX foo: <http://example.com/foo>
+      \"""
+  """
+  @spec to_sparql(t()) :: String.t()
+  def to_sparql(prefix_map), do: to_header(prefix_map, :sparql)
+
+  @doc """
+  Converts the given `prefix_map` to a Turtle header string.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(
+      ...>   foo: "http://example.com/foo",
+      ...>   bar: "http://example.com/bar"
+      ...> ) |> RDF.PrefixMap.to_turtle()
+      \"""
+      @prefix bar: <http://example.com/bar> .
+      @prefix foo: <http://example.com/foo> .
+      \"""
+
+  """
+  @spec to_turtle(t()) :: String.t()
+  def to_turtle(prefix_map), do: to_header(prefix_map, :turtle)
+
   defimpl Enumerable do
     def reduce(%RDF.PrefixMap{map: map}, acc, fun), do: Enumerable.reduce(map, acc, fun)
 

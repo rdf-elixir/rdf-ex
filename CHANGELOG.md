@@ -23,6 +23,8 @@ Elixir versions < 1.12 are no longer supported
 - `RDF.Dataset.update/4` to update graphs in a `RDF.Dataset`
 - `RDF.Graph.delete_predications/3` to delete all statements in a `RDF.Graph` with 
   the given subjects and predicates 
+- `RDF.PrefixMap.to_header/3`, `RDF.PrefixMap.to_turtle/1` and `RDF.PrefixMap.to_sparql/1`
+  to get header string representations of a `RDF.PrefixMap` in the respective style
 - `RDF.PrefixMap.to_sorted_list/1` which returns the prefix map as keyword list 
   sorted by prefix (this should become useful with OTP 26)
 - `RDF.PropertyMap.to_sorted_list/1` which returns the property map as keyword list

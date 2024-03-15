@@ -46,7 +46,6 @@ defmodule RDF.Turtle.Encoder do
     :triples
   ]
 
-  @indentation_char " "
   @indentation 4
 
   @native_supported_datatypes [
@@ -111,21 +110,13 @@ defmodule RDF.Turtle.Encoder do
       end <> "\n\n"
   end
 
-  defp prefix_directive({prefix, ns}, state, opts) do
-    indent(state) <>
-      case Keyword.get(opts, :directive_style) do
-        :sparql -> "PREFIX #{prefix}: <#{to_string(ns)}>\n"
-        _ -> "@prefix #{prefix}: <#{to_string(ns)}> .\n"
-      end
-  end
-
   defp prefix_directives(prefixes, state, opts) do
-    if Enum.empty?(prefixes) do
+    if Enum.empty?(prefixes.map) do
       ""
     else
-      (prefixes
-       |> PrefixMap.to_sorted_list()
-       |> Enum.map_join(&prefix_directive(&1, state, opts))) <> "\n"
+      PrefixMap.to_header(prefixes, Keyword.get(opts, :directive_style, :turtle),
+        indent: state.indentation
+      ) <> "\n"
     end
   end
 
@@ -405,5 +396,5 @@ defmodule RDF.Turtle.Encoder do
 
   defp indent(%State{indentation: indentation}), do: indent(indentation)
   defp indent(nil), do: ""
-  defp indent(count), do: String.duplicate(@indentation_char, count)
+  defp indent(count), do: String.duplicate(" ", count)
 end
