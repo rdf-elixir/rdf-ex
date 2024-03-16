@@ -51,6 +51,8 @@ Elixir versions < 1.12 are no longer supported
   tuple along with final state containing the _input blank node identifier map_ and
   the _issued identifiers map_ as required by the RDF dataset canonicalization 
   specification
+- `RDF.Diff.merge/2` was deprecated and will be replaced in future versions with a 
+  different merge algorithm. Use `RDF.Diff.union/2` now for the current algorithm.
 - Statements as lists (instead of tuples) in the `Collectable` implementations of
   `RDF.Description`, `RDF.Graph` and `RDF.Dataset` were deprecated.
   Support of those will be removed in RDF.ex v2.0. 

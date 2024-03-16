@@ -218,8 +218,8 @@ defmodule RDF.DiffTest do
              )
   end
 
-  test "merge/2" do
-    assert Diff.merge(
+  test "union/2" do
+    assert Diff.union(
              Diff.new(
                additions: Graph.new({EX.S, EX.p(), EX.O1}),
                deletions: Graph.new({EX.S1, EX.p(), EX.O})

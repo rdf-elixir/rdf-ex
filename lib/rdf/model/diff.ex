@@ -154,18 +154,21 @@ defmodule RDF.Diff do
   end
 
   @doc """
-  Merges two diffs.
+  Returns the union of two diffs.
 
   The diffs are merged by adding up the `additions` and `deletions` of both
   diffs respectively.
   """
-  @spec merge(t, t) :: t
-  def merge(%__MODULE__{} = diff1, %__MODULE__{} = diff2) do
+  @spec union(t, t) :: t
+  def union(%__MODULE__{} = diff1, %__MODULE__{} = diff2) do
     new(
       additions: Graph.add(diff1.additions, diff2.additions),
       deletions: Graph.add(diff1.deletions, diff2.deletions)
     )
   end
+
+  @deprecated "Use union/2 instead. merge/2 will have a different semantics in future versions."
+  defdelegate merge(diff1, diff2), to: __MODULE__, as: :union
 
   @doc """
   Determines if a diff is empty.
