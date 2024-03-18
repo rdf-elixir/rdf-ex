@@ -120,7 +120,7 @@ defmodule RDF.PrefixMap do
 
   If the prefix maps can be merged without conflicts, that is there are no
   prefixes mapped to different namespaces an `:ok` tuple is returned.
-  Otherwise an `:error` tuple with the list of prefixes with conflicting
+  Otherwise, an `:error` tuple with the list of prefixes with conflicting
   namespaces is returned.
 
   See also `merge/3` which allows you to resolve conflicts with a function.

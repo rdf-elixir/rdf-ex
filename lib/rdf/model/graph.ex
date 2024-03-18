@@ -63,6 +63,9 @@ defmodule RDF.Graph do
 
   See `new/2` for available arguments and the different ways to provide data.
 
+  When a `RDF.Dataset` is given, the created graph is the aggregation of all
+  the graphs of this dataset.
+
   ## Examples
 
       RDF.Graph.new(name: EX.GraphName)
@@ -199,6 +202,9 @@ defmodule RDF.Graph do
   Also, when the statements to be added are given as another `RDF.Graph`, the
   prefixes of this graph will be added. In case of conflicting prefix mappings
   the original prefix from `graph` will be kept.
+
+  When the statements to be added are given as a `RDF.Dataset` the data from
+  all of its graphs are added.
 
   RDF-star annotations to be added to all the given statements can be specified with
   the `:add_annotations`, `:put_annotations` or `:put_annotation_properties` keyword

@@ -4,7 +4,7 @@ defmodule RDF.Serialization.Encoder do
   """
 
   @doc """
-  Serializes a RDF data structure into a string.
+  Serializes an RDF data structure into a string.
 
   It should return an `{:ok, string}` tuple, with `string` being the serialized
   RDF data structure, or `{:error, reason}` if an error occurs.
@@ -12,7 +12,7 @@ defmodule RDF.Serialization.Encoder do
   @callback encode(RDF.Data.t()) :: {:ok, String.t()} | {:error, any}
 
   @doc """
-  Serializes a RDF data structure into a string.
+  Serializes an RDF data structure into a string.
 
   It should return an `{:ok, string}` tuple, with `string` being the serialized
   RDF data structure, or `{:error, reason}` if an error occurs.
@@ -20,7 +20,7 @@ defmodule RDF.Serialization.Encoder do
   @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
 
   @doc """
-  Serializes a RDF data structure into a string.
+  Serializes an RDF data structure into a string.
 
   As opposed to `encode`, it raises an exception if an error occurs.
 
@@ -30,7 +30,7 @@ defmodule RDF.Serialization.Encoder do
   @callback encode!(RDF.Data.t()) :: String.t()
 
   @doc """
-  Serializes a RDF data structure into a string.
+  Serializes an RDF data structure into a string.
 
   As opposed to `encode`, it raises an exception if an error occurs.
 
@@ -40,7 +40,7 @@ defmodule RDF.Serialization.Encoder do
   @callback encode!(RDF.Data.t(), keyword) :: String.t()
 
   @doc """
-  Serializes a RDF data structure into a stream.
+  Serializes an RDF data structure into a stream.
 
   It should return a stream emitting either strings or iodata of the
   serialized RDF data structure. If both forms are supported the form

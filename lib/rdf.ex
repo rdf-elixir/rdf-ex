@@ -95,7 +95,7 @@ defmodule RDF do
   not provided. For example, when you don't pass a prefix map to the Turtle serializer,
   this prefix map will be used.
 
-  By default the `standard_prefixes/0` are part of this prefix map, but you can
+  By default, the `standard_prefixes/0` are part of this prefix map, but you can
   define additional default prefixes via the `default_prefixes` compile-time
   configuration.
 

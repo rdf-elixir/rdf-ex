@@ -113,7 +113,7 @@ defmodule RDF.XSD.Boolean do
   @doc """
   Returns `RDF.XSD.true` if the effective boolean value of the given argument is `RDF.XSD.false`, or `RDF.XSD.false` if it is `RDF.XSD.true`.
 
-  Otherwise it returns `nil`.
+  Otherwise, it returns `nil`.
 
   ## Examples
 

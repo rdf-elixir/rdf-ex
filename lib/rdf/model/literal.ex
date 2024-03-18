@@ -1,6 +1,6 @@
 defmodule RDF.Literal do
   @moduledoc """
-  RDF literals are leaf nodes of a RDF graph containing raw data, like strings, numbers etc.
+  RDF literals are leaf nodes of an RDF graph containing raw data, like strings, numbers etc.
 
   A literal is a struct consisting of a `literal` field holding either a `RDF.Literal.Datatype` struct
   for the respective known datatype of the literal or a `RDF.Literal.Generic` struct if the datatype
@@ -282,7 +282,7 @@ defmodule RDF.Literal do
     do: datatype.canonical_lexical(literal)
 
   @doc """
-  Returns if the lexical of the given `literal` has the canonical form.
+  Returns if the lexical form of the given `literal` has the canonical form.
   """
   @spec canonical?(t) :: boolean
   def canonical?(%__MODULE__{literal: %datatype{} = literal}), do: datatype.canonical?(literal)
@@ -320,7 +320,7 @@ defmodule RDF.Literal do
   end
 
   @doc """
-  Checks if the first of two `RDF.Literal`s is smaller then the other.
+  Checks if the first of two `RDF.Literal`s is smaller than the other.
   """
   @spec less_than?(t, t) :: boolean
   def less_than?(left, right) do
@@ -328,7 +328,7 @@ defmodule RDF.Literal do
   end
 
   @doc """
-  Checks if the first of two `RDF.Literal`s is greater then the other.
+  Checks if the first of two `RDF.Literal`s is greater than the other.
   """
   @spec greater_than?(t, t) :: boolean
   def greater_than?(left, right) do
@@ -362,7 +362,7 @@ defmodule RDF.Literal do
   Updates the value of a `RDF.Literal` without changing everything else.
 
   The optional second argument allows to specify what will be passed to `fun` with the `:as` option,
-  eg. with `as: :lexical` the lexical is passed to the function.
+  e.g. with `as: :lexical` the lexical is passed to the function.
 
   ## Example
 

@@ -5,7 +5,7 @@ defmodule RDF.XSD.Datatype.Restriction do
   ### Example
 
   A new custom datatype can be derived by defining a new datatype module and `use` this module,
-  specifying a `name`, `id` and `base` datatype and restricting it by specifying some of the
+  specifying a `name`, `id` and `base` datatype and restricting it by specifying some
   applicable facets of the base datatype:
 
       defmodule MyApp.PersonAge do

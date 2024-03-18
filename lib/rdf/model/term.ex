@@ -2,7 +2,7 @@ defprotocol RDF.Term do
   @moduledoc """
   Shared behaviour for all RDF terms.
 
-  A `RDF.Term` is anything which can be an element of RDF statements of a RDF graph:
+  A `RDF.Term` is anything which can be an element of RDF statements of an RDF graph:
 
   - `RDF.IRI`s
   - `RDF.BlankNode`s
@@ -14,7 +14,7 @@ defprotocol RDF.Term do
   @type t :: RDF.Resource.t() | RDF.Literal.t()
 
   @doc """
-  Checks if the given value is a RDF term.
+  Checks if the given value is an RDF term.
 
   Note: As opposed to `RDF.term?` this function returns `false` on atoms and does
   not try to resolve them to IRIs.
@@ -57,7 +57,7 @@ defprotocol RDF.Term do
   def equal_value?(term1, term2)
 
   @doc """
-  Converts a given value into a RDF term.
+  Converts a given value into an RDF term.
 
   Returns `nil` if the given value is not convertible into any valid RDF.Term.
 
@@ -72,9 +72,9 @@ defprotocol RDF.Term do
   def coerce(value)
 
   @doc """
-  Returns the native Elixir value of a RDF term.
+  Returns the native Elixir value of an RDF term.
 
-  Returns `nil` if the given value is not a a valid RDF term or a value convertible to a RDF term.
+  Returns `nil` if the given value is not a valid RDF term or a value convertible to an RDF term.
 
   ## Examples
 

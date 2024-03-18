@@ -190,7 +190,7 @@ defmodule RDF.Literal.Datatype.Registry do
   # the fastest way to reflect a module type on average over the positive and negative
   # case (being roughly comparable to a map access), we would still have to rescue
   # from an UndefinedFunctionError since its raised by trying to access __info__
-  # on plain (non-module) atoms, so we can do the check by rescueing in the first place.
+  # on plain (non-module) atoms, so we can do the check by rescuing in the first place.
   # Although the positive is actually faster than the __info__(:functions) check,
   # the negative is more than 7 times slower.
   # (Properly checking for the behaviour attribute with module_info[:attributes]

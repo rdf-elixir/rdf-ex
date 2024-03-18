@@ -51,7 +51,7 @@ defmodule RDF.Description do
   Creates an `RDF.Description` about the given subject.
 
   The created `RDF.Description` can be initialized with any form of data which
-  `add/2` understands with the `:init` option. Additionally a function returning
+  `add/2` understands with the `:init` option. Additionally, a function returning
   the initialization data in any of these forms can be as the `:init` value.
 
   ## Examples
@@ -175,7 +175,7 @@ defmodule RDF.Description do
   @doc """
   Adds statements to a `RDF.Description` and overwrites all existing statements with already used predicates.
 
-  Note: As it is a destructive function this function is more strict in its handling of
+  Note: As it is a destructive function this function is stricter in its handling of
   `RDF.Description`s than `add/3`. The subject of a `RDF.Description` to be put must
   match. If you want to overwrite existing statements with those from the description of
   another subject, you'll have to explicitly change the subject with `change_subject/2`
@@ -391,7 +391,7 @@ defmodule RDF.Description do
   `initial` is inserted as the objects of `predicate`. The initial value will
   not be passed through the update function.
 
-  The initial value and the returned objects by the update function will automatically
+  The initial value and the returned objects by the update function will be automatically
   coerced to proper RDF object values before added.
 
   ## Examples
@@ -751,7 +751,7 @@ defmodule RDF.Description do
 
   The subject is not part of the result. It can be converted separately with
   `RDF.Term.value/1`, or, if you want the subject in an outer map, just put the
-  the description in a graph and use `RDF.Graph.values/2`.
+  description in a graph and use `RDF.Graph.values/2`.
 
   When a `:context` option is given with a `RDF.PropertyMap`, predicates will
   be mapped to the terms defined in the `RDF.PropertyMap`, if present.
@@ -782,7 +782,7 @@ defmodule RDF.Description do
   Returns a map of a `RDF.Description` where each element from its triples is mapped with the given function.
 
   The subject is not part of the result. If you want the subject in an outer map,
-  just put the the description in a graph and use `RDF.Graph.map/2`.
+  just put the description in a graph and use `RDF.Graph.map/2`.
 
   The function `fun` will receive a tuple `{statement_position, rdf_term}` where
   `statement_position` is one of the atoms `:predicate` or `:object`, while

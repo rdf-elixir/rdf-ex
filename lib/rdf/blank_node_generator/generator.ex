@@ -42,7 +42,7 @@ defmodule RDF.BlankNode.Generator do
   def start_link(init_opts), do: start_link({init_opts, []})
 
   @doc """
-  Starts a blank node generator process without links (outside of a supervision tree).
+  Starts a blank node generator process without links (outside a supervision tree).
 
   The options are handled the same as `start_link/1`.
   """

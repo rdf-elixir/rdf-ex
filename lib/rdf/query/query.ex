@@ -81,8 +81,8 @@ defmodule RDF.Query do
   @doc """
   Execute the given `query` against the given `graph`.
 
-  As opposed to `execute/3` this returns the results directly or fails with an
-  exception.
+  As opposed to `execute/3` this function returns the results directly or fails
+  with an exception.
   """
   def execute!(query, graph, opts \\ []) do
     case execute(query, graph, opts) do
@@ -149,8 +149,8 @@ defmodule RDF.Query do
   @doc """
   Returns a `Stream` for the execution of the given `query` against the given `graph`.
 
-  As opposed to `stream/3` this returns the stream directly or fails with an
-  exception.
+  As opposed to `stream/3` this function returns the stream directly or fails
+  with an exception.
   """
   def stream!(query, graph, opts \\ []) do
     case stream(query, graph, opts) do
@@ -164,7 +164,7 @@ defmodule RDF.Query do
 
   A basic graph pattern consist of single or list of triple patterns.
   A triple pattern is a tuple which consists of RDF terms or variables for
-  the subject, predicate and object of a RDF triple.
+  the subject, predicate and object of an RDF triple.
 
   As RDF terms `RDF.IRI`s, `RDF.BlankNode`s, `RDF.Literal`s or all Elixir
   values which can be coerced to any of those are allowed, i.e.
@@ -190,7 +190,7 @@ defmodule RDF.Query do
   Multiple triple patterns sharing the same subject and/or predicate can be grouped:
 
   - Multiple objects to the same subject-predicate pair can be written by just
-    writing them one by one in the same triple pattern.
+    writing them one by one on the same triple pattern.
   - Multiple predicate-objects pair on the same subject can be written by
     grouping them with square brackets.
 

@@ -31,9 +31,9 @@ if Code.ensure_loaded?(UUID) do
     - `:uuid_namespace` (only with `:uuid_version` 3 and 5, where it is a required parameter)
 
     When your generator configuration is just for a function producing one of
-    the two kinds of identifiers, you can use these options directly. Otherwise you
-    must provide the identifier-specific configuration under one of the keys
-    `:random_based` and `:value_based`.
+    the two kinds of identifiers, you can use these options directly.
+    Otherwise, you must provide the identifier-specific configuration under one
+    of the keys `:random_based` and `:value_based`.
 
       
     ## Example configuration

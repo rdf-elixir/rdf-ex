@@ -4,11 +4,11 @@ defprotocol RDF.Data do
   """
 
   @doc """
-  Adds statements to a RDF data structure.
+  Adds statements to an RDF data structure.
 
   As opposed to the specific `add` functions on the RDF data structures, which
   always return the same structure type than the first argument, `merge` might
-  result in another RDF data structure, eg. merging two `RDF.Description` with
+  result in another RDF data structure, e.g. merging two `RDF.Description` with
   different subjects results in a `RDF.Graph` or adding a quad to a `RDF.Graph`
   with a different name than the graph context of the quad results in a
   `RDF.Dataset`. But it is always guaranteed that the resulting structure has
@@ -17,7 +17,7 @@ defprotocol RDF.Data do
   def merge(data, input, opts \\ [])
 
   @doc """
-  Deletes statements from a RDF data structure.
+  Deletes statements from an RDF data structure.
 
   As opposed to the `delete` functions on RDF data structures directly, this
   function only deletes exactly matching structures.
@@ -25,7 +25,7 @@ defprotocol RDF.Data do
   def delete(data, input, opts \\ [])
 
   @doc """
-  Deletes one statement from a RDF data structure and returns a tuple with deleted statement and the changed data structure.
+  Deletes one statement from an RDF data structure and returns a tuple with deleted statement and the changed data structure.
   """
   def pop(data)
 
@@ -35,12 +35,12 @@ defprotocol RDF.Data do
   def empty?(data)
 
   @doc """
-  Checks if the given statement exists within a RDF data structure.
+  Checks if the given statement exists within an RDF data structure.
   """
   def include?(data, input, opts \\ [])
 
   @doc """
-  Checks if a RDF data structure contains statements about the given resource.
+  Checks if an RDF data structure contains statements about the given resource.
   """
   def describes?(data, subject)
 
@@ -53,7 +53,7 @@ defprotocol RDF.Data do
   def description(data, subject)
 
   @doc """
-  Returns all `RDF.Description`s within a RDF data structure.
+  Returns all `RDF.Description`s within an RDF data structure.
 
   Note: On a `RDF.Dataset` this will return aggregated `RDF.Description`s about
   the same subject from all graphs.
@@ -61,42 +61,42 @@ defprotocol RDF.Data do
   def descriptions(data)
 
   @doc """
-  Returns the list of all statements of a RDF data structure.
+  Returns the list of all statements of an RDF data structure.
   """
   def statements(data)
 
   @doc """
-  Returns the set of all resources which are subject of the statements of a RDF data structure.
+  Returns the set of all resources which are subject of the statements of an RDF data structure.
   """
   def subjects(data)
 
   @doc """
-  Returns the set of all properties used within the statements of RDF data structure.
+  Returns the set of all properties used within the statements of an RDF data structure.
   """
   def predicates(data)
 
   @doc """
-  Returns the set of all resources used in the objects within the statements of a RDF data structure.
+  Returns the set of all resources used in the objects within the statements of an RDF data structure.
   """
   def objects(data)
 
   @doc """
-  Returns the set of all resources used within the statements of a RDF data structure
+  Returns the set of all resources used within the statements of an RDF data structure
   """
   def resources(data)
 
   @doc """
-  Returns the count of all resources which are subject of the statements of a RDF data structure.
+  Returns the count of all resources which are subject of the statements of an RDF data structure.
   """
   def subject_count(data)
 
   @doc """
-  Returns the count of all statements of a RDF data structure.
+  Returns the count of all statements of an RDF data structure.
   """
   def statement_count(data)
 
   @doc """
-  Returns a nested map of the native Elixir values of a RDF data structure.
+  Returns a nested map of the native Elixir values of an RDF data structure.
 
   When a `:context` option is given with a `RDF.PropertyMap`, predicates will
   be mapped to the terms defined in the `RDF.PropertyMap`, if present.
@@ -104,7 +104,7 @@ defprotocol RDF.Data do
   def values(data, opts \\ [])
 
   @doc """
-  Returns a map representation of a RDF data structure where each element from its statements is mapped with the given function.
+  Returns a map representation of an RDF data structure where each element from its statements is mapped with the given function.
   """
   def map(data, fun)
 

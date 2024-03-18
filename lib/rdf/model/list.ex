@@ -155,7 +155,7 @@ defmodule RDF.List do
   def valid?(%__MODULE__{} = list), do: Enum.all?(list, &RDF.bnode?(&1.subject))
 
   @doc """
-  Checks if a given resource is a RDF list node in a given `RDF.Graph`.
+  Checks if a given resource is an RDF list node in a given `RDF.Graph`.
 
   Although, technically a resource is a list, if it uses at least one `rdf:first`
   or `rdf:rest`, we pragmatically require the usage of both.
@@ -177,7 +177,7 @@ defmodule RDF.List do
   defp do_node?(list_node, graph), do: graph |> Graph.description(list_node) |> node?()
 
   @doc """
-  Checks if the given `RDF.Description` describes a RDF list node.
+  Checks if the given `RDF.Description` describes an RDF list node.
   """
   def node?(description)
 

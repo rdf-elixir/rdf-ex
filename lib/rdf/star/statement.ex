@@ -124,7 +124,7 @@ defmodule RDF.Star.Statement do
   def valid_graph_name?(any), do: RDF.Statement.valid_graph_name?(any)
 
   @doc """
-  Checks if the given tuple is a RDF-star statement with a quoted triple on subject or object position.
+  Checks if the given tuple is an RDF-star statement with a quoted triple on subject or object position.
 
   Note: This function won't check if the given tuple or the quoted triple is valid.
   Use `valid?/1` for this purpose.

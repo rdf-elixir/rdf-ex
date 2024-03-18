@@ -184,7 +184,7 @@ defmodule RDF.Literal.Datatype do
   Updates the value of a `RDF.Literal` without changing anything else.
 
   This variant of `c:update/2` allows with the `:as` option to specify what will
-  be passed to `fun`, eg. with `as: :lexical` the lexical is passed to the function.
+  be passed to `fun`, e.g. with `as: :lexical` the lexical is passed to the function.
 
   ## Example
 

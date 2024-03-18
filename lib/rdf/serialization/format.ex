@@ -37,7 +37,7 @@ defmodule RDF.Serialization.Format do
   @callback id :: RDF.IRI.t()
 
   @doc """
-  An name atom of the serialization format.
+  The name atom of the serialization format.
   """
   @callback name :: atom
 
@@ -166,7 +166,7 @@ defmodule RDF.Serialization.Format do
       """
 
       @doc """
-      Serializes a RDF data structure to a string.
+      Serializes an RDF data structure to a string.
 
       It returns an `{:ok, string}` tuple, with `string` being the serialized graph or
       dataset, or `{:error, reason}` if an error occurs.
@@ -177,7 +177,7 @@ defmodule RDF.Serialization.Format do
       def write_string(data, opts \\ []), do: Writer.write_string(encoder(), data, opts)
 
       @doc """
-      Serializes a RDF data structure to a string.
+      Serializes an RDF data structure to a string.
 
       As opposed to `write_string/2`, it raises an exception if an error occurs.
 
@@ -188,7 +188,7 @@ defmodule RDF.Serialization.Format do
 
       if @encoder.stream_support?() do
         @doc """
-        Serializes a RDF data structure to a stream.
+        Serializes an RDF data structure to a stream.
 
         #{@encoder_doc_ref}
         """
@@ -197,7 +197,7 @@ defmodule RDF.Serialization.Format do
       end
 
       @doc """
-      Serializes a RDF data structure to a file.
+      Serializes an RDF data structure to a file.
 
       It returns `:ok` if successful or `{:error, reason}` if an error occurs.
 
@@ -222,7 +222,7 @@ defmodule RDF.Serialization.Format do
       def write_file(data, path, opts \\ []), do: Writer.write_file(encoder(), data, path, opts)
 
       @doc """
-      Serializes a RDF data structure to a file.
+      Serializes an RDF data structure to a file.
 
       As opposed to `write_file/3`, it raises an exception if an error occurs.
 

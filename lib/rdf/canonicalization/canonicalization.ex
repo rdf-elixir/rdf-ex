@@ -9,7 +9,7 @@ defmodule RDF.Canonicalization do
   All functions in this module support the following options:
 
   - `:hash_algorithm`: Allows to set the hash algorithm to be used. Any of the `:crypto.hash_algorithm()`
-    values of Erlangs `:crypto` module are allowed.
+    values of Erlang's `:crypto` module are allowed.
     Defaults to the runtime configured `:canon_hash_algorithm` of the `:rdf` application
     or `:sha256` if not configured otherwise.
 

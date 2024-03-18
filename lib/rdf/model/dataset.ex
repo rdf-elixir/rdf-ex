@@ -45,7 +45,7 @@ defmodule RDF.Dataset do
   Creates an `RDF.Dataset`.
 
   If a keyword list is given an empty dataset is created.
-  Otherwise an unnamed dataset initialized with the given data is created.
+  Otherwise, an unnamed dataset initialized with the given data is created.
 
   See `new/2` for available arguments and the different ways to provide data.
 
@@ -333,12 +333,11 @@ defmodule RDF.Dataset do
   @doc """
   Updates a graph in `dataset` with the given function.
 
-  If `graph_name` is present in `dataset`,
-  `fun` is invoked with argument `graph` and its result is used as the new
-  graph with the given `graph_name`. If `graph_name` is not present in `dataset`,
-  `initial` is inserted with the given `graph_name`. If no `initial` value is
-  given, the `dataset` remains unchanged. If `nil` is returned by `fun`, the
-  respective graph will be removed from `dataset`.
+  If `graph_name` is present in `dataset`, `fun` is invoked with argument `graph`
+  and its result is used as the new graph with the given `graph_name`.
+  If `graph_name` is not present in `dataset`, `initial` is inserted with the
+  given `graph_name`. If no `initial` value is given, the `dataset` remains unchanged.
+  If `nil` is returned by `fun`, the respective graph will be removed from `dataset`.
 
   The initial value and the returned values by the update function will be
   coerced to proper RDF graphs before added. If the initial or returned
@@ -1105,7 +1104,7 @@ defmodule RDF.Dataset do
   ## Options
 
   - `:hash_algorithm` (default: `:sha256`): Allows to set the hash algorithm to be used in step 3.
-    Any of the `:crypto.hash_algorithm()` values of Erlangs `:crypto` module are allowed.
+    Any of the `:crypto.hash_algorithm()` values of Erlang's `:crypto` module are allowed.
     Note that this does NOT affect the hash function used during the
 
 

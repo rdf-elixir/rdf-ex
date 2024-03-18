@@ -61,12 +61,12 @@ defmodule RDF.XSD.Facet do
       @callback unquote(name)() :: unquote(type_ast) | nil
 
       @doc """
-      Validates if a `value` and `lexical` conforms with a concrete `facet_constaint_value` for this `RDF.XSD.Facet`.
+      Validates if a `value` and `lexical` conforms with a concrete `facet_constraint_value` for this `RDF.XSD.Facet`.
 
       This function must be implemented on a `RDF.XSD.Datatype` using this `RDF.XSD.Facet`.
       """
       @callback unquote(conform_fun_name(name))(
-                  facet_constaint_value :: any,
+                  facet_constraint_value :: any,
                   value :: any,
                   RDF.XSD.Datatype.uncanonical_lexical()
                 ) :: boolean

@@ -26,7 +26,7 @@ defmodule RDF.Sigils do
   @doc ~S"""
   Handles the sigil `~i` for IRIs.
 
-  It returns an `RDF.IRI` from the given string as if it was a double quoted
+  It returns an `RDF.IRI` from the given string as if it was a double-quoted
   string, unescaping characters and replacing interpolations.
 
   ## Examples
@@ -67,7 +67,7 @@ defmodule RDF.Sigils do
   @doc ~S"""
   Handles the sigil `~b` for blank nodes.
 
-  It returns an `RDF.BlankNode` from the given string as if it was a double quoted
+  It returns an `RDF.BlankNode` from the given string as if it was a double-quoted
   string, unescaping characters and replacing interpolations.
 
   ## Examples
@@ -118,7 +118,7 @@ defmodule RDF.Sigils do
   @doc ~S"""
   Handles the sigil `~l` for blank nodes.
 
-  It returns an `RDF.Literal` from the given string as if it was a double quoted
+  It returns an `RDF.Literal` from the given string as if it was a double-quoted
   string, unescaping characters and replacing interpolations.
 
   ## Examples
