@@ -2,14 +2,18 @@ defmodule RDF.Utils.Regex do
   @moduledoc """
   Drop-in replacements for Elixir `Regex` functions.
 
-  Elixir does a check on every run of a compiled regex, to check if the PCRE
-  version of the regex matches the version that the local OTP version got
-  compiled against. This check seems to be unexpectedly costly (there is a call
-  though to `:erlang.system_info/1`). Since regular expression evaluation is
-  critical performance-wise in RDF.ex, especially during deserialization, all
-  regular expressions are evaluated through the functions in this module which
-  can be configured with the `optimize_regexes` key in the compile-time application
-  environment to circumvent Elixir and call through to Erlang `re` directly:
+  In Elixir, each execution of a compiled regex includes a verification step to
+  ensure the PCRE version of the regex is compatible with the version compiled
+  with the local OTP. While this verification introduces a slight overhead, the
+  cumulative effect can be significant, particularly since evaluating regular
+  expressions is crucial for performance in RDF.ex. This is especially notable
+  during deserialization, where regular expression are evaluated in quite tight
+  loops.
+
+  All regular expressions are evaluated in RDF.ex through the functions in this
+  module which can be configured with the `optimize_regexes` key in the
+  compile-time application environment to circumvent Elixir and call through to
+  Erlang `re` directly:
 
       config :rdf,
         optimize_regexes: true
