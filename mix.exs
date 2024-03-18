@@ -76,7 +76,7 @@ defmodule RDF.Mixfile do
       {:excoveralls, "~> 0.18", only: :test},
       # This dependency is needed for ExCoveralls when OTP < 25
       {:castore, "~> 1.0", only: :test},
-      {:benchee, "~> 1.3", only: :bench}
+      {:benchee, "~> 1.3", only: :dev}
     ]
   end
 
