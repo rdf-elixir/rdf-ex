@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## Unreleased
+## 1.2.0 - 2024-03-18
 
 Elixir versions < 1.12 are no longer supported
 
@@ -69,7 +69,7 @@ Elixir versions < 1.12 are no longer supported
   aggregate everything into single target graph
 
 
-[Compare v1.1.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.1...HEAD)
+[Compare v1.1.1...v1.2.0](https://github.com/rdf-elixir/rdf-ex/compare/v1.1.1...v1.2.0)
 
 
 
