@@ -11,9 +11,13 @@ defmodule RDF.EarlFormatter do
 
     use RDF.Vocabulary.Namespace
 
+    @vocabdoc false
     defvocab EARL, base_iri: "http://www.w3.org/ns/earl#", terms: [], strict: false
+    @vocabdoc false
     defvocab DC, base_iri: "http://purl.org/dc/terms/", terms: [], strict: false
+    @vocabdoc false
     defvocab FOAF, base_iri: "http://xmlns.com/foaf/0.1/", terms: [], strict: false
+    @vocabdoc false
     defvocab DOAP, base_iri: "http://usefulinc.com/ns/doap#", terms: [], strict: false
   end
 

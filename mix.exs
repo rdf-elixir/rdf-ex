@@ -243,6 +243,9 @@ defmodule RDF.Mixfile do
           RDF.Star.Triple,
           RDF.Star.Quad,
           RDF.Star.Statement
+        ],
+        "EARL formatter": [
+          RDF.EarlFormatter
         ]
       ]
     ]
