@@ -55,11 +55,11 @@ If you need help with your Elixir and Linked Data projects, just contact [NinjaC
 
 ## Acknowledgements
 
-<table border="0">
+<table style="border: 0;">
 <tr>
-    <td><img src="https://iconape.com/wp-content/png_logo_vector/netze-bw-logo.png" alt="NetzeBW Logo" style="height:150px; margin: 0px 10px;"></td>
-    <td><img src="https://nlnet.nl/logo/banner.svg" alt="NLnet Foundation Logo" style="width:150px; margin: 0px 10px;"></td>
-    <td><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo" style="height:140px; margin: 0px 10px;"></td>
+<td><a href="https://www.netze-bw.de/"><img src="https://iconape.com/wp-content/png_logo_vector/netze-bw-logo.png" alt="NetzeBW Logo" height="150"></a></td>
+<td><a href="https://nlnet.nl/"><img src="https://nlnet.nl/logo/banner.svg" alt="NLnet Foundation Logo" width="150"></a></td>
+<td><a href="https://www.jetbrains.com/?from=RDF.ex"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo" height="150"></a></td>
 </tr>
 </table>
 
