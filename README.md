@@ -55,11 +55,13 @@ If you need help with your Elixir and Linked Data projects, just contact [NinjaC
 
 ## Acknowledgements
 
-<div style="display: flex; align-items: center;">
-    <img src="https://iconape.com/wp-content/png_logo_vector/netze-bw-logo.png" alt="NetzeBW Logo" style="height:150px; margin: 0px 10px;">
-    <img src="https://nlnet.nl/logo/banner.svg" alt="NLnet Foundation Logo" style="width:150px; margin: 0px 10px;">
-    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo" style="height:140px; margin: 0px 10px;">
-</div>
+<table border="0">
+<tr>
+    <td><img src="https://iconape.com/wp-content/png_logo_vector/netze-bw-logo.png" alt="NetzeBW Logo" style="height:150px; margin: 0px 10px;"></td>
+    <td><img src="https://nlnet.nl/logo/banner.svg" alt="NLnet Foundation Logo" style="width:150px; margin: 0px 10px;"></td>
+    <td><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo" style="height:140px; margin: 0px 10px;"></td>
+</tr>
+</table>
 
 The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive) and the [NLnet foundation](https://nlnet.nl/) as part of the funding of [K-Gen](https://nlnet.nl/project/K-Gen/).
 
