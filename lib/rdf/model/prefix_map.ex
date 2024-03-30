@@ -344,6 +344,23 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
+  Returns a new prefix map limited to the given prefixes.
+
+  ## Examples
+
+      iex> RDF.PrefixMap.new(ex1: "http://example.com/ns1", ex2: "http://example.com/ns2")
+      ...> |> RDF.PrefixMap.limit([:ex1])
+      RDF.PrefixMap.new(ex1: "http://example.com/ns1")
+      iex> RDF.PrefixMap.new(ex: "http://example.com/")
+      ...> |> RDF.PrefixMap.limit([:foo])
+      RDF.PrefixMap.new()
+  """
+  @spec limit(t, [prefix]) :: t
+  def limit(%__MODULE__{map: map}, prefixes) do
+    %__MODULE__{map: Map.take(map, prefixes)}
+  end
+
+  @doc """
   Converts an IRI into a prefixed name.
 
   Returns `nil` when no prefix for the namespace of `iri` is defined in `prefix_map`.

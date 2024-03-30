@@ -6,6 +6,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
+## Unreleased
+
+### Added
+
+- `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes
+
+[Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)
+
+
+
 ## 1.2.0 - 2024-03-18
 
 Elixir versions < 1.12 are no longer supported
