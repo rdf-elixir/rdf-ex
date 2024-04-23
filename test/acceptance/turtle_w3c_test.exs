@@ -1,10 +1,8 @@
 defmodule RDF.Turtle.W3C.Test do
   @moduledoc """
-  The official W3C RDF 1.1 Turtles Test Suite.
+  The official W3C RDF 1.1 Turtle Test Suite.
 
-  from <https://www.w3.org/2013/TurtleTests/>
-
-  see also <https://www.w3.org/2011/rdf-wg/wiki/RDF_Test_Suites#Turtle_Tests>
+  See <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/>.
   """
 
   use ExUnit.Case, async: false
@@ -13,8 +11,8 @@ defmodule RDF.Turtle.W3C.Test do
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
 
-  @path RDF.TestData.path("TURTLE-TESTS")
-  @base "http://www.w3.org/2013/TurtleTests/"
+  @path RDF.TestData.path("rdf-tests/rdf11/rdf-turtle")
+  @base "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   TestSuite.test_cases(@manifest, RDFT.TestTurtleEval)

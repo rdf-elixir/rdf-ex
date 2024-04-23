@@ -16,7 +16,8 @@
 @prefix rdft:   <http://www.w3.org/ns/rdftest#> .
 
 <>  rdf:type mf:Manifest ;
-    rdfs:comment "Turtle tests" ;
+    rdfs:label "Turtle tests" ;
+    mf:assumedTestBase <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/> ;
     mf:entries
     (
 
@@ -59,6 +60,8 @@
     <#sole_blankNodePropertyList>
     <#blankNodePropertyList_as_subject>
     <#blankNodePropertyList_as_object>
+    <#blankNodePropertyList_as_object_containing_objectList>
+    <#blankNodePropertyList_as_object_containing_objectList_of_two_objects>
     <#blankNodePropertyList_with_multiple_triples>
     <#nested_blankNodePropertyLists>
     <#blankNodePropertyList_containing_collection>
@@ -115,6 +118,7 @@
     <#lantag_with_subtag>
     <#objectList_with_two_objects>
     <#predicateObjectList_with_two_objectLists>
+    <#predicateObjectList_with_blankNodePropertyList_as_object>
     <#repeated_semis_at_end>
     <#repeated_semis_not_at_end>
 
@@ -201,11 +205,12 @@
     <#turtle-syntax-struct-03>
     <#turtle-syntax-struct-04>
     <#turtle-syntax-struct-05>
-    <#turtle-syntax-lists-01>
-    <#turtle-syntax-lists-02>
-    <#turtle-syntax-lists-03>
-    <#turtle-syntax-lists-04>
-    <#turtle-syntax-lists-05>
+    <#turtle-eval-lists-01>
+    <#turtle-eval-lists-02>
+    <#turtle-eval-lists-03>
+    <#turtle-eval-lists-04>
+    <#turtle-eval-lists-05>
+    <#turtle-eval-lists-06>
     <#turtle-syntax-bad-uri-01>
     <#turtle-syntax-bad-uri-02>
     <#turtle-syntax-bad-uri-03>
@@ -219,6 +224,8 @@
     <#turtle-syntax-bad-base-01>
     <#turtle-syntax-bad-base-02>
     <#turtle-syntax-bad-base-03>
+    <#turtle-syntax-bad-bnode-01>
+    <#turtle-syntax-bad-bnode-02>
     <#turtle-syntax-bad-struct-01>
     <#turtle-syntax-bad-struct-02>
     <#turtle-syntax-bad-struct-03>
@@ -323,6 +330,12 @@
     <#turtle-syntax-ln-colons>
     <#turtle-syntax-ln-dots>
     <#turtle-syntax-ns-dots>
+
+    # IRI resolution tests
+    <#IRI-resolution-01>
+    <#IRI-resolution-02>
+    <#IRI-resolution-07>
+    <#IRI-resolution-08>
     ) .
 
 # atomic tests
@@ -628,6 +641,22 @@
    rdft:approval rdft:Approved ;
    mf:action    <blankNodePropertyList_as_object.ttl> ;
    mf:result    <blankNodePropertyList_as_object.nt> ;
+   .
+
+<#blankNodePropertyList_as_object_containing_objectList> rdf:type rdft:TestTurtleEval ;
+   mf:name      "blankNodePropertyList_as_object_containing_objectList" ;
+   rdfs:comment "blankNodePropertyList as object containing objectList <s> <p> [ <p2> <o>,<o2> ] ." ;
+   rdft:approval rdft:Approved ;
+   mf:action    <blankNodePropertyList_as_object_containing_objectList.ttl> ;
+   mf:result    <blankNodePropertyList_as_object_containing_objectList.nt> ;
+   .
+
+<#blankNodePropertyList_as_object_containing_objectList_of_two_objects> rdf:type rdft:TestTurtleEval ;
+   mf:name      "blankNodePropertyList_as_object_containing_objectList_of_two_objects" ;
+   rdfs:comment "blankNodePropertyList as object containing objectList of two objects <s> <p> [ <p2 <o> ] , <o2> ." ;
+   rdft:approval rdft:Approved ;
+   mf:action    <blankNodePropertyList_as_object_containing_objectList_of_two_objects.ttl> ;
+   mf:result    <blankNodePropertyList_as_object_containing_objectList_of_two_objects.nt> ;
    .
 
 <#blankNodePropertyList_with_multiple_triples> rdf:type rdft:TestTurtleEval ;
@@ -1076,6 +1105,14 @@
    rdft:approval rdft:Approved ;
    mf:action    <predicateObjectList_with_two_objectLists.ttl> ;
    mf:result    <predicateObjectList_with_two_objectLists.nt> ;
+   .
+
+<#predicateObjectList_with_blankNodePropertyList_as_object> rdf:type rdft:TestTurtleEval ;
+   mf:name      "predicateObjectList_with_blankNodePropertyList_as_object" ;
+   rdfs:comment "predicateObjectList_with_blankNodePropertyList_as_object <s> <p> [ <p2> <o> ] ; <p3> [ <p4> <o2> , <o3> ] " ;
+   rdft:approval rdft:Approved ;
+   mf:action    <predicateObjectList_with_blankNodePropertyList_as_object.ttl> ;
+   mf:result    <predicateObjectList_with_blankNodePropertyList_as_object.nt> ;
    .
 
 <#repeated_semis_at_end> rdf:type rdft:TestTurtleEval ;
@@ -1571,39 +1608,52 @@
    mf:action    <turtle-syntax-struct-05.ttl> ;
    .
 
-<#turtle-syntax-lists-01> rdf:type rdft:TestTurtlePositiveSyntax ;
-   mf:name    "turtle-syntax-lists-01" ;
+<#turtle-eval-lists-01> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-01" ;
    rdfs:comment "empty list" ;
    rdft:approval rdft:Approved ;
-   mf:action    <turtle-syntax-lists-01.ttl> ;
+   mf:action    <turtle-eval-lists-01.ttl> ;
+   mf:result    <turtle-eval-lists-01.nt> ;
    .
 
-<#turtle-syntax-lists-02> rdf:type rdft:TestTurtlePositiveSyntax ;
-   mf:name    "turtle-syntax-lists-02" ;
+<#turtle-eval-lists-02> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-02" ;
    rdfs:comment "mixed list" ;
    rdft:approval rdft:Approved ;
-   mf:action    <turtle-syntax-lists-02.ttl> ;
+   mf:action    <turtle-eval-lists-02.ttl> ;
+   mf:result    <turtle-eval-lists-02.nt> ;
    .
 
-<#turtle-syntax-lists-03> rdf:type rdft:TestTurtlePositiveSyntax ;
-   mf:name    "turtle-syntax-lists-03" ;
+<#turtle-eval-lists-03> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-03" ;
    rdfs:comment "isomorphic list as subject and object" ;
    rdft:approval rdft:Approved ;
-   mf:action    <turtle-syntax-lists-03.ttl> ;
+   mf:action    <turtle-eval-lists-03.ttl> ;
+   mf:result    <turtle-eval-lists-03.nt> ;
    .
 
-<#turtle-syntax-lists-04> rdf:type rdft:TestTurtlePositiveSyntax ;
-   mf:name    "turtle-syntax-lists-04" ;
+<#turtle-eval-lists-04> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-04" ;
    rdfs:comment "lists of lists" ;
    rdft:approval rdft:Approved ;
-   mf:action    <turtle-syntax-lists-04.ttl> ;
+   mf:action    <turtle-eval-lists-04.ttl> ;
+   mf:result    <turtle-eval-lists-04.nt> ;
    .
 
-<#turtle-syntax-lists-05> rdf:type rdft:TestTurtlePositiveSyntax ;
-   mf:name    "turtle-syntax-lists-05" ;
+<#turtle-eval-lists-05> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-05" ;
    rdfs:comment "mixed lists with embedded lists" ;
    rdft:approval rdft:Approved ;
-   mf:action    <turtle-syntax-lists-05.ttl> ;
+   mf:action    <turtle-eval-lists-05.ttl> ;
+   mf:result    <turtle-eval-lists-05.nt> ;
+   .
+
+<#turtle-eval-lists-06> rdf:type rdft:TestTurtleEval ;
+   mf:name    "turtle-eval-lists-06" ;
+   rdfs:comment "list containing blank node with abbreviated term" ;
+   rdft:approval rdft:Approved ;
+   mf:action    <turtle-eval-lists-06.ttl> ;
+   mf:result    <turtle-eval-lists-06.nt> ;
    .
 
 <#turtle-syntax-bad-uri-01> rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -1695,6 +1745,18 @@
    rdfs:comment "BASE without URI (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <turtle-syntax-bad-base-03.ttl> ;
+   .
+
+<#turtle-syntax-bad-bnode-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "turtle-syntax-bad-bnode-01" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <turtle-syntax-bad-bnode-01.ttl> ;
+   .
+
+<#turtle-syntax-bad-bnode-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "turtle-syntax-bad-bnode-02" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <turtle-syntax-bad-bnode-02.ttl> ;
    .
 
 <#turtle-syntax-bad-struct-01> rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -2387,7 +2449,7 @@
    .
 
 <#turtle-syntax-bad-LITERAL2_with_langtag_and_datatype> rdf:type rdft:TestTurtleNegativeSyntax ;
-   mf:name    "turtle-syntax-bad-LITERAL2_with_langtag_and_datatype" ;
+   mf:name    "turtle-syntax-bad-num-05" ;
    rdfs:comment "Bad number format (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <turtle-syntax-bad-LITERAL2_with_langtag_and_datatype.ttl> ;
@@ -2501,3 +2563,36 @@
 	mf:name "turtle-syntax-blank-label" ;
         rdft:approval rdft:Approved ;
 	mf:action <turtle-syntax-blank-label.ttl> .
+
+# IRI resolution tests
+<#IRI-resolution-01>
+	rdf:type rdft:TestTurtleEval ;
+	rdfs:comment "IRI resolution (RFC3986 original cases)" ;
+	mf:name "IRI-resolution-01" ;
+	rdft:approval rdft:Proposed ;
+	mf:action <IRI-resolution-01.ttl> ;
+	mf:result <IRI-resolution-01.nt> .
+
+<#IRI-resolution-02>
+	rdf:type rdft:TestTurtleEval ;
+	rdfs:comment "IRI resolution (RFC3986 using base IRI with trailing slash)" ;
+	mf:name "IRI-resolution-02" ;
+	rdft:approval rdft:Proposed ;
+	mf:action <IRI-resolution-02.ttl> ;
+	mf:result <IRI-resolution-02.nt> .
+
+<#IRI-resolution-07>
+	rdf:type rdft:TestTurtleEval ;
+	rdfs:comment "IRI resolution (RFC3986 using base IRI with file path)" ;
+	mf:name "IRI-resolution-07" ;
+	rdft:approval rdft:Proposed ;
+	mf:action <IRI-resolution-07.ttl> ;
+	mf:result <IRI-resolution-07.nt> .
+
+<#IRI-resolution-08>
+	rdf:type rdft:TestTurtleEval ;
+	rdfs:comment "IRI resolution (miscellaneous cases)" ;
+	mf:name "IRI-resolution-08" ;
+	rdft:approval rdft:Proposed ;
+	mf:action <IRI-resolution-08.ttl> ;
+	mf:result <IRI-resolution-08.nt> .
