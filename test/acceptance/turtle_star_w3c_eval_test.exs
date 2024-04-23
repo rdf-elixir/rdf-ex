@@ -1,8 +1,8 @@
 defmodule RDF.Star.Turtle.W3C.EvalTest do
   @moduledoc """
-  The official RDF-star Turtle eval test suite.
+  The official W3C RDF 1.2 Turtle Eval Test Suite.
 
-  from <https://w3c.github.io/rdf-star/tests/turtle/eval/>
+  See <https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-turtle/>.
   """
 
   use ExUnit.Case, async: false
@@ -11,8 +11,8 @@ defmodule RDF.Star.Turtle.W3C.EvalTest do
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
 
-  @path RDF.TestData.path("rdf-star/turtle/eval")
-  @base "http://example/base/"
+  @path RDF.TestData.path("rdf-tests/rdf12/rdf-turtle/eval")
+  @base "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-turtle/eval/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   TestSuite.test_cases(@manifest, RDFT.TestTurtleEval)
