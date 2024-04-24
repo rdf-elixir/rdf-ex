@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Dataset.graph_names/1` to get a list of all graph names.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes
 
 [Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)

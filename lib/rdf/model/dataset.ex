@@ -532,10 +532,28 @@ defmodule RDF.Dataset do
   end
 
   @doc """
-  The set of all graphs.
+  A list of all graphs within the dataset.
   """
   @spec graphs(t) :: [Graph.t()]
   def graphs(%__MODULE__{} = dataset), do: Map.values(dataset.graphs)
+
+  @doc """
+  A list of all graph names within the dataset.
+
+  Note, that this includes `nil` when the dataset has a default graph.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2, EX.Graph1},
+      ...>   {EX.S1, EX.p2, EX.O3, EX.Graph2}])
+      ...> |> RDF.Dataset.graph_names()
+      [nil, RDF.iri(EX.Graph1), RDF.iri(EX.Graph2)]
+
+  """
+  @spec graph_names(t) :: [IRI.t() | nil]
+  def graph_names(%__MODULE__{} = dataset), do: Map.keys(dataset.graphs)
 
   @doc """
   Gets and updates the graph with the given name, in a single pass.
