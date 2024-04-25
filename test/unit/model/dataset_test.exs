@@ -1850,6 +1850,67 @@ defmodule RDF.DatasetTest do
     end
   end
 
+  describe "update_all_graphs/2" do
+    test "a graph returned from the update function replaces the old graph" do
+      assert Dataset.new([
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S2, EX.p2(), EX.O2, EX.Graph}
+             ])
+             |> Dataset.update_all_graphs(&Graph.add(&1, {EX.S1, EX.p1(), EX.O3})) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), EX.O1},
+                 {EX.S1, EX.p1(), EX.O3},
+                 {EX.S2, EX.p2(), EX.O2, EX.Graph},
+                 {EX.S1, EX.p1(), EX.O3, EX.Graph}
+               ])
+    end
+
+    test "a graph with another graph name returned from the update function replaces the old graph" do
+      assert Dataset.new([
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S2, EX.p2(), EX.O2, EX.Graph}
+             ])
+             |> Dataset.update_all_graphs(
+               &(&1
+                 |> Graph.add({EX.S1, EX.p1(), EX.O3})
+                 |> Graph.change_name(EX.Foo))
+             ) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), EX.O1},
+                 {EX.S1, EX.p1(), EX.O3},
+                 {EX.S2, EX.p2(), EX.O2, EX.Graph},
+                 {EX.S1, EX.p1(), EX.O3, EX.Graph}
+               ])
+    end
+
+    test "a value returned from the update function becomes new coerced graph" do
+      assert Dataset.new([
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S2, EX.p2(), EX.O2, EX.Graph}
+             ])
+             |> Dataset.update_all_graphs(
+               &(&1
+                 |> Graph.add({EX.S1, EX.p1(), EX.O3})
+                 |> Graph.statements())
+             ) ==
+               Dataset.new([
+                 {EX.S1, EX.p1(), EX.O1},
+                 {EX.S1, EX.p1(), EX.O3},
+                 {EX.S2, EX.p2(), EX.O2, EX.Graph},
+                 {EX.S1, EX.p1(), EX.O3, EX.Graph}
+               ])
+    end
+
+    test "returning nil from the update function causes a removal of the graph" do
+      assert Dataset.new([
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S2, EX.p2(), EX.O2, EX.Graph}
+             ])
+             |> Dataset.update_all_graphs(fn _ -> nil end) ==
+               Dataset.new()
+    end
+  end
+
   describe "delete" do
     setup do
       {:ok,

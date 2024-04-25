@@ -392,6 +392,30 @@ defmodule RDF.Dataset do
   end
 
   @doc """
+  Updates all graphs in `dataset` with the given function.
+
+  The same behaviour as described in `RDF.Dataset.update/4` apply.
+  If `nil` is returned by `fun`, the respective graph will be removed from `dataset`.
+  The returned values by the update function will be coerced to proper RDF graphs before added.
+  If the returned graph is a `RDF.Graph` with another graph name, it will still be added
+  using the old graph name.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([{EX.S1, EX.p1, EX.O1}, {EX.S2, EX.p2, EX.O2, EX.Graph}])
+      ...> |> RDF.Dataset.update_all_graphs(&(RDF.Graph.add_prefixes(&1, ex: EX )))
+      [
+        RDF.Graph.new({EX.S1, EX.p1, EX.O1}, prefixes: [ex: EX]),
+        RDF.Graph.new({EX.S2, EX.p2, EX.O2}, prefixes: [ex: EX], name: EX.Graph)
+      ] |> RDF.Dataset.new()
+  """
+  def update_all_graphs(%__MODULE__{} = dataset, fun) do
+    dataset
+    |> graph_names()
+    |> Enum.reduce(dataset, &update(&2, &1, fun))
+  end
+
+  @doc """
   Deletes statements from a `RDF.Dataset`.
 
   The `graph` option allows to set a different destination graph from which the
