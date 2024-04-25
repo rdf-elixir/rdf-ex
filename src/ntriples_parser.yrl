@@ -7,18 +7,14 @@ Rootsymbol ntriplesDoc.
 eols -> eols eol.
 eols -> eol.
 
-ntriplesDoc -> nonEmptyNtriplesDoc : [ '$1'].
-ntriplesDoc -> eols nonEmptyNtriplesDoc : [ '$2'].
-ntriplesDoc -> eols                 : [].
-ntriplesDoc -> '$empty'            : [].
+ntriplesDoc -> nonEmptyNtriplesDoc      : ['$1'].
+ntriplesDoc -> eols nonEmptyNtriplesDoc : ['$2'].
+ntriplesDoc -> eols                     : [].
+ntriplesDoc -> '$empty'                 : [].
 
-%nonEmptyNtriplesDoc -> triple eol nonEmptyNtriplesDoc : [ '$1' | '$3' ].
-%nonEmptyNtriplesDoc -> triple eol            : [ '$1' ].
-%nonEmptyNtriplesDoc -> triple                : [ '$1' ].
-
-nonEmptyNtriplesDoc -> triple eols nonEmptyNtriplesDoc : [ '$1' | '$3' ].
-nonEmptyNtriplesDoc -> triple eols            : [ '$1' ].
-nonEmptyNtriplesDoc -> triple                : [ '$1' ].
+nonEmptyNtriplesDoc -> triple eols nonEmptyNtriplesDoc : ['$1' | '$3'].
+nonEmptyNtriplesDoc -> triple eols                     : ['$1'].
+nonEmptyNtriplesDoc -> triple                          : ['$1'].
 
 triple -> subject predicate object '.' : { '$1', '$2', '$3' }.
 

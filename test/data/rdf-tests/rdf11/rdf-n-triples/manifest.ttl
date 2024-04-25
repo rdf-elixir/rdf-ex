@@ -1,14 +1,14 @@
 # N-Triples Syntax tests
 
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
 @prefix qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#> .
 
 @prefix rdft:   <http://www.w3.org/ns/rdftest#> .
 
 <>  rdf:type mf:Manifest ;
-    mf:name "N-Triples tests" ;
+    rdfs:label "N-Triples tests" ;
     mf:entries
     (
     <#nt-syntax-file-01>
@@ -40,6 +40,8 @@
     <#nt-syntax-bad-uri-09>
     <#nt-syntax-bad-prefix-01>
     <#nt-syntax-bad-base-01>
+    <#nt-syntax-bad-bnode-01>
+    <#nt-syntax-bad-bnode-02>
     <#nt-syntax-bad-struct-01>
     <#nt-syntax-bad-struct-02>
     <#nt-syntax-bad-lang-01>
@@ -253,6 +255,18 @@
    mf:name    "nt-syntax-bad-base-01" ;
    rdfs:comment "@base not allowed in N-Triples (negative test)" ;
    mf:action    <nt-syntax-bad-base-01.nt> ;
+   .
+
+<#nt-syntax-bad-bnode-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "nt-syntax-bad-bnode-01" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <nt-syntax-bad-bnode-01.nt> ;
+   .
+
+<#nt-syntax-bad-bnode-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "nt-syntax-bad-bnode-02" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <nt-syntax-bad-bnode-02.nt> ;
    .
 
 <#nt-syntax-bad-struct-01> rdf:type rdft:TestNTriplesNegativeSyntax ;

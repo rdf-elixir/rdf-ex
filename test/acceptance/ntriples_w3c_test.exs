@@ -2,7 +2,7 @@ defmodule RDF.NTriples.W3C.TestSuite do
   @moduledoc """
   The official W3C RDF 1.1 N-Triples Test Suite.
 
-  from <https://www.w3.org/2013/N-TriplesTests/>
+  See <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/>.
   """
 
   use ExUnit.Case, async: false
@@ -11,8 +11,8 @@ defmodule RDF.NTriples.W3C.TestSuite do
   alias RDF.{TestSuite, NTriples}
   alias TestSuite.NS.RDFT
 
-  @path RDF.TestData.path("N-TRIPLES-TESTS")
-  @base "https://www.w3.org/2013/N-TriplesTests/"
+  @path RDF.TestData.path("rdf-tests/rdf11/rdf-n-triples")
+  @base "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   @manifest
