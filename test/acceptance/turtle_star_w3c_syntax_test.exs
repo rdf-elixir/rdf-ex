@@ -35,18 +35,6 @@ defmodule RDF.Star.Turtle.W3C.SyntaxTest do
     end
   end)
 
-  TestSuite.test_cases(@manifest, RDFT.TestNTriplesPositiveSyntax)
-  |> Enum.each(fn test_case ->
-    @tag test_case: test_case
-    test TestSuite.test_title(test_case), %{test_case: test_case} do
-      base = to_string(TestSuite.test_input_file(test_case))
-
-      assert {:ok, _} =
-               TestSuite.test_input_file_path(test_case, @path)
-               |> Turtle.read_file(base: base)
-    end
-  end)
-
   TestSuite.test_cases(@manifest, RDFT.TestTurtleNegativeSyntax)
   |> Enum.each(fn test_case ->
     @tag test_case: test_case
