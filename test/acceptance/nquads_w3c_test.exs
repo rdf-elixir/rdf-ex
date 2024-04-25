@@ -2,7 +2,7 @@ defmodule RDF.NQuads.W3C.TestSuite do
   @moduledoc """
   The official W3C RDF 1.1 N-Quads Test Suite.
 
-  from <https://www.w3.org/2013/N-QuadsTests/>
+  See <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/>.
   """
 
   use ExUnit.Case, async: false
@@ -11,8 +11,8 @@ defmodule RDF.NQuads.W3C.TestSuite do
   alias RDF.{TestSuite, NQuads}
   alias TestSuite.NS.RDFT
 
-  @path RDF.TestData.path("N-QUADS-TESTS")
-  @base "https://www.w3.org/2013/N-QuadsTests/"
+  @path RDF.TestData.path("rdf-tests/rdf11/rdf-n-quads")
+  @base "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/"
   @manifest TestSuite.manifest_path(@path) |> TestSuite.manifest_graph(base: @base)
 
   @manifest

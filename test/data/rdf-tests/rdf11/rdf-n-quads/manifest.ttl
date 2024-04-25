@@ -7,7 +7,7 @@
 @prefix rdft:   <http://www.w3.org/ns/rdftest#> .
 
 <>  a mf:Manifest ;
-    mf:name "N-Quads tests" ;
+    rdfs:label "N-Quads tests" ;
     mf:entries
     (
     <#nq-syntax-uri-01>
@@ -56,6 +56,8 @@
     <#nt-syntax-bad-uri-09>
     <#nt-syntax-bad-prefix-01>
     <#nt-syntax-bad-base-01>
+    <#nt-syntax-bad-bnode-01>
+    <#nt-syntax-bad-bnode-02>
     <#nt-syntax-bad-struct-01>
     <#nt-syntax-bad-struct-02>
     <#nt-syntax-bad-lang-01>
@@ -407,28 +409,40 @@
 
 <#nt-syntax-bad-prefix-01> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-prefix-01" ;
-   rdfs:comment "@prefix not allowed in n-triples (negative test)" ;
+   rdfs:comment "@prefix not allowed in N-Quads (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-prefix-01.nq> ;
    .
 
 <#nt-syntax-bad-base-01> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-base-01" ;
-   rdfs:comment "@base not allowed in N-Triples (negative test)" ;
+   rdfs:comment "@base not allowed in N-Quads (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-base-01.nq> ;
    .
 
+<#nt-syntax-bad-bnode-01> a rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "nt-syntax-bad-bnode-01" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <nt-syntax-bad-bnode-01.nq> ;
+   .
+
+<#nt-syntax-bad-bnode-02> a rdft:TestNTriplesNegativeSyntax ;
+   mf:name      "nt-syntax-bad-bnode-02" ;
+   rdfs:comment "Colon in bnode label not allowed (negative test)" ;
+   mf:action    <nt-syntax-bad-bnode-02.nq> ;
+   .
+
 <#nt-syntax-bad-struct-01> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-struct-01" ;
-   rdfs:comment "N-Triples does not have objectList (negative test)" ;
+   rdfs:comment "N-Quads does not have objectList (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-struct-01.nq> ;
    .
 
 <#nt-syntax-bad-struct-02> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-struct-02" ;
-   rdfs:comment "N-Triples does not have predicateObjectList (negative test)" ;
+   rdfs:comment "N-Quads does not have predicateObjectList (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-struct-02.nq> ;
    .
@@ -512,21 +526,21 @@
 
 <#nt-syntax-bad-num-01> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-num-01" ;
-   rdfs:comment "no numbers in N-Triples (integer) (negative test)" ;
+   rdfs:comment "no numbers in N-Quads (integer) (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-num-01.nq> ;
    .
 
 <#nt-syntax-bad-num-02> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-num-02" ;
-   rdfs:comment "no numbers in N-Triples (decimal) (negative test)" ;
+   rdfs:comment "no numbers in N-Quads (decimal) (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-num-02.nq> ;
    .
 
 <#nt-syntax-bad-num-03> a rdft:TestNQuadsNegativeSyntax ;
    mf:name    "nt-syntax-bad-num-03" ;
-   rdfs:comment "no numbers in N-Triples (float) (negative test)" ;
+   rdfs:comment "no numbers in N-Quads (float) (negative test)" ;
    rdft:approval rdft:Approved ;
    mf:action    <nt-syntax-bad-num-03.nq> ;
    .

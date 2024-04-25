@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Changed
 
-- Update to change in N-Triples spec disallowing colons in bnode labels
+- Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels
 
 
 [Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)

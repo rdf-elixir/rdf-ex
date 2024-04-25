@@ -7,21 +7,17 @@ Rootsymbol nquadsDoc.
 eols -> eols eol.
 eols -> eol.
 
-nquadsDoc -> nonEmptyNquadsDoc : [ '$1'].
-nquadsDoc -> eols nonEmptyNquadsDoc : [ '$2'].
-nquadsDoc -> eols                 : [].
-nquadsDoc -> '$empty'            : [].
+nquadsDoc -> nonEmptyNquadsDoc      : ['$1'].
+nquadsDoc -> eols nonEmptyNquadsDoc : ['$2'].
+nquadsDoc -> eols                   : [].
+nquadsDoc -> '$empty'               : [].
 
-%nonEmptyNquadsDoc -> statement eol nonEmptyNquadsDoc : [ '$1' | '$3' ].
-%nonEmptyNquadsDoc -> statement eol            : [ '$1' ].
-%nonEmptyNquadsDoc -> statement                : [ '$1' ].
-
-nonEmptyNquadsDoc -> statement eols nonEmptyNquadsDoc : [ '$1' | '$3' ].
-nonEmptyNquadsDoc -> statement eols            : [ '$1' ].
-nonEmptyNquadsDoc -> statement                : [ '$1' ].
+nonEmptyNquadsDoc -> statement eols nonEmptyNquadsDoc : ['$1' | '$3'].
+nonEmptyNquadsDoc -> statement eols                   : ['$1'].
+nonEmptyNquadsDoc -> statement                        : ['$1'].
 
 statement -> subject predicate object graphLabel '.' : { '$1', '$2', '$3', '$4'}.
-statement -> subject predicate object '.' : { '$1', '$2', '$3' }.
+statement -> subject predicate object '.'            : { '$1', '$2', '$3' }.
 
 subject    -> iriref            : to_iri('$1').
 subject    -> blank_node_label  : to_bnode('$1').

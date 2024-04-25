@@ -1,2 +1,2 @@
-# No relative IRIs in N-Triples
+# No relative IRIs in N-Quads
 <s> <http://example/p> <http://example/o> .
