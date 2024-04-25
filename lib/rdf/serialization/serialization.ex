@@ -18,6 +18,7 @@ defmodule RDF.Serialization do
 
   @formats [
     RDF.Turtle,
+    RDF.TriG,
     JSON.LD,
     RDF.NTriples,
     RDF.NQuads,
@@ -48,7 +49,7 @@ defmodule RDF.Serialization do
   ## Examples
 
       iex> RDF.Serialization.available_formats
-      [RDF.Turtle, RDF.NTriples, RDF.NQuads]
+      [RDF.Turtle, RDF.TriG, RDF.NTriples, RDF.NQuads]
 
   """
   @spec available_formats :: [format]

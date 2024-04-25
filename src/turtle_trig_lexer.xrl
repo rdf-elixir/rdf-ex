@@ -40,6 +40,7 @@ LANGTAG	=	@[a-zA-Z]+(-[a-zA-Z0-9]+)*
 BASE    = [Bb][Aa][Ss][Ee]
 PREFIX  = [Pp][Rr][Ee][Ff][Ii][Xx]
 
+GRAPH    = [Gg][Rr][Aa][Pp][Hh]
 
 Rules.
 
@@ -47,6 +48,7 @@ Rules.
 @base                              : {token, {'@base', TokenLine}}.
 {BASE}                             : {token, {'BASE', TokenLine}}.
 {PREFIX}                           : {token, {'PREFIX', TokenLine}}.
+{GRAPH}                            : {token, {'GRAPH', TokenLine}}.
 {LANGTAG}                          : {token, {langtag, TokenLine, langtag_str(TokenChars)}}.
 {IRIREF}                           : {token, {iriref,  TokenLine, quoted_content_str(TokenChars)}}.
 {DOUBLE}                           : {token, {double, TokenLine, double(TokenChars)}}.
@@ -69,6 +71,8 @@ a                                  : {token, {'a', TokenLine}}.
 \]	                               : {token, {']', TokenLine}}.
 \(	                               : {token, {'(', TokenLine}}.
 \)	                               : {token, {')', TokenLine}}.
+\{            	                   : {token, {'{', TokenLine}}.
+\}            	                   : {token, {'}', TokenLine}}.
 \^\^	                             : {token, {'^^', TokenLine}}.
 \<\<           	                   : {token, {'<<', TokenLine}}.
 \>\>           	                   : {token, {'>>', TokenLine}}.

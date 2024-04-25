@@ -17,6 +17,10 @@ defmodule RDF.TestSuite do
         TestTurtlePositiveSyntax
         TestTurtleNegativeSyntax
         TestTurtleNegativeEval
+        TestTrigEval
+        TestTrigPositiveSyntax
+        TestTrigNegativeSyntax
+        TestTrigNegativeEval
         TestNTriplesPositiveSyntax
         TestNTriplesNegativeSyntax
         TestNQuadsPositiveSyntax

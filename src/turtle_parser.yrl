@@ -1,4 +1,4 @@
-%% Grammar for Turtle as specified in https://www.w3.org/TR/2014/REC-n-triples-20140225/
+%% Grammar for Turtle as specified in https://www.w3.org/TR/rdf12-turtle/
 
 Nonterminals turtleDoc statement directive prefixID base sparqlPrefix sparqlBase
   triples predicateObjectList objectList blankNodePropertyList semicolonSequence
