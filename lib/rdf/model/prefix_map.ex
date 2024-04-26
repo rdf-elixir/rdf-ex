@@ -282,6 +282,14 @@ defmodule RDF.PrefixMap do
   end
 
   @doc """
+  Returns if the given `prefix_map` is empty.
+  """
+  @spec empty?(t) :: boolean
+  def empty?(%__MODULE__{} = prefix_map) do
+    Enum.empty?(prefix_map.map)
+  end
+
+  @doc """
   Returns the namespace for the given `prefix` in `prefix_map`.
 
   Returns `nil`, when the given `prefix` is not present in `prefix_map`.

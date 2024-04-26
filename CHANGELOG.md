@@ -14,7 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
-- `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes
+- `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
+- `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
 
 ### Changed
 
