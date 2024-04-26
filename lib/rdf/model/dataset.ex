@@ -549,10 +549,40 @@ defmodule RDF.Dataset do
 
   @doc """
   The default graph of a `RDF.Dataset`.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2, EX.Graph1},
+      ...>   {EX.S1, EX.p2, EX.O3, EX.Graph2}])
+      ...> |> RDF.Dataset.default_graph()
+      Graph.new({EX.S1, EX.p1, EX.O1})
+
   """
   @spec default_graph(t) :: Graph.t()
   def default_graph(%__MODULE__{} = dataset) do
     Map.get(dataset.graphs, nil, Graph.new())
+  end
+
+  @doc """
+  The named graphs of a `RDF.Dataset`.
+
+  ## Examples
+
+      iex> RDF.Dataset.new([
+      ...>   {EX.S1, EX.p1, EX.O1},
+      ...>   {EX.S2, EX.p2, EX.O2, EX.Graph1},
+      ...>   {EX.S1, EX.p2, EX.O3, EX.Graph2}])
+      ...> |> RDF.Dataset.named_graphs()
+      [
+        Graph.new({EX.S2, EX.p2, EX.O2}, name: EX.Graph1),
+        Graph.new({EX.S1, EX.p2, EX.O3}, name: EX.Graph2)
+      ]
+  """
+  @spec named_graphs(t) :: [Graph.t()]
+  def named_graphs(%__MODULE__{} = dataset) do
+    dataset.graphs |> Map.delete(nil) |> Map.values()
   end
 
   @doc """
