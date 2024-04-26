@@ -1,4 +1,4 @@
-defmodule RDF.Turtle.Encoder.State do
+defmodule RDF.TurtleTriG.Encoder.State do
   @moduledoc false
 
   defstruct [

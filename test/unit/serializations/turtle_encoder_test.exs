@@ -560,45 +560,6 @@ defmodule RDF.Turtle.EncoderTest do
     end
   end
 
-  describe "prefixed_name/2" do
-    setup do
-      {:ok,
-       prefixes:
-         PrefixMap.new(
-           ex: EX,
-           ex2: ~I<http://example.org/>
-         )}
-    end
-
-    test "hash iri with existing prefix", %{prefixes: prefixes} do
-      assert Turtle.Encoder.prefixed_name(EX.foo(), prefixes) ==
-               "ex:foo"
-    end
-
-    test "hash iri namespace without name", %{prefixes: prefixes} do
-      assert Turtle.Encoder.prefixed_name(RDF.iri(EX.__base_iri__()), prefixes) ==
-               "ex:"
-    end
-
-    test "hash iri with non-existing prefix" do
-      refute Turtle.Encoder.prefixed_name(EX.foo(), PrefixMap.new())
-    end
-
-    test "slash iri with existing prefix", %{prefixes: prefixes} do
-      assert Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, prefixes) ==
-               "ex2:foo"
-    end
-
-    test "slash iri namespace without name", %{prefixes: prefixes} do
-      assert Turtle.Encoder.prefixed_name(~I<http://example.org/>, prefixes) ==
-               "ex2:"
-    end
-
-    test "slash iri with non-existing prefix" do
-      refute Turtle.Encoder.prefixed_name(~I<http://example.org/foo>, PrefixMap.new())
-    end
-  end
-
   %{
     "full IRIs without base" => %{
       input: "<http://a/b> <http://a/c> <http://a/d> .",

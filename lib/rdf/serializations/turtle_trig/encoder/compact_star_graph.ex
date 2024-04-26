@@ -1,9 +1,9 @@
-defmodule RDF.Turtle.Star.CompactGraph do
+defmodule RDF.TurtleTriG.Encoder.CompactStarGraph do
   @moduledoc !"""
              A compact graph representation in which annotations are directly stored under
              the objects of the annotated triples.
 
-             This representation is not meant for direct use, but just for the `RDF.Turtle.Encoder`.
+             This representation is not meant for direct use, but just for the Turtle and TriG encoders.
              """
 
   alias RDF.{Graph, Description}
