@@ -36,6 +36,8 @@ defmodule RDF.TurtleTriG.Encoder do
 
   def options_doc do
     """
+    - `:directive_style`: Specifies the style of directives to be used in the document.
+      Possible values are `:turtle` and `:sparql` (default: `:turtle`).
     - `:implicit_base`: This boolean flag allows to use a base URI to get relative IRIs
       without embedding it explicitly in the content with a `@base` directive, so that
       the URIs will be resolved according to the remaining strategy specified in
