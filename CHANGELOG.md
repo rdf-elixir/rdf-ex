@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
+- Performance improvements of N-Triples and N-Quads encoders.
 
 ### Changed
 

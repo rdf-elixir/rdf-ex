@@ -43,7 +43,10 @@ defmodule RDF.NQuads.Encoder do
        |> Enum.sort()
        |> Enum.join()}
     else
-      {:ok, Enum.map_join(data, &statement(&1, default_graph_name))}
+      {:ok,
+       data
+       |> Enum.map(&iolist_statement(&1, default_graph_name))
+       |> IO.iodata_to_binary()}
     end
   end
 

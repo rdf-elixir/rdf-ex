@@ -29,7 +29,10 @@ defmodule RDF.NTriples.Encoder do
        |> Enum.sort()
        |> Enum.join()}
     else
-      {:ok, Enum.map_join(data, &statement/1)}
+      {:ok,
+       data
+       |> Enum.map(&iolist_statement/1)
+       |> IO.iodata_to_binary()}
     end
   end
 
