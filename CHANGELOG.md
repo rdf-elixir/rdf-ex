@@ -25,6 +25,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - The `RDF.Turtle.Encoder` was not falling back to using `RDF.default_prefixes/0` when
   the encoded graph had prefixes which were removed afterwards
+- `RDF.NTriples.Encoder` and `RDF.NQuads.Encoder` could not stream quoted RDF-star 
+  triples could as iodata  
 
 
 [Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)

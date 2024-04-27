@@ -16,6 +16,24 @@ defmodule RDF.Star.NQuads.EncoderTest do
              """
              << <http://example.com/S> <http://example.com/P> "Foo" >> <http://example.com/ap> <http://example.com/ao> <http://example.com/Graph> .
              """
+
+    assert graph_with_annotation()
+           |> NQuads.Encoder.stream(mode: :iodata)
+           |> Enum.to_list()
+           |> IO.iodata_to_binary() ==
+             """
+             << <http://example.com/S> <http://example.com/P> "Foo" >> <http://example.com/ap> <http://example.com/ao> .
+             """
+
+    assert graph_with_annotation()
+           |> Graph.change_name(EX.Graph)
+           |> Dataset.new()
+           |> NQuads.Encoder.stream(mode: :iodata)
+           |> Enum.to_list()
+           |> IO.iodata_to_binary() ==
+             """
+             << <http://example.com/S> <http://example.com/P> "Foo" >> <http://example.com/ap> <http://example.com/ao> <http://example.com/Graph> .
+             """
   end
 
   test "quoted triples on object position" do

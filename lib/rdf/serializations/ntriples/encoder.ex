@@ -114,6 +114,10 @@ defmodule RDF.NTriples.Encoder do
     to_string(bnode)
   end
 
+  def iolist_term({s, p, o}) do
+    ["<< ", iolist_term(s), " ", iolist_term(p), " ", iolist_term(o), " >>"]
+  end
+
   @doc false
   def escape_string(string) do
     string
