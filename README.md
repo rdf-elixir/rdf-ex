@@ -31,7 +31,7 @@ Migration guides for the various versions can be found in the [Wiki](https://git
 - support for custom datatypes for RDF literals, incl. as derivations of XSD datatypes via facets 
 - sigils for the most common types of nodes, i.e. IRIs, literals, blank nodes and lists
 - a DSL resembling Turtle to build RDF descriptions or full RDF graphs in Elixir
-- implementations for the [N-Triples], [N-Quads] and [Turtle] serialization formats (including the respective RDF-star extensions); [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
+- implementations for the [N-Triples], [N-Quads], [Turtle] and [TriG] serialization formats (including the respective RDF-star extensions); [JSON-LD] and [RDF-XML] are available with the separate [JSON-LD.ex] and [RDF-XML.ex] packages
 - implementation of the [RDF Dataset Canonicalization] algorithm  
 - validation of RDF data against [ShEx] schemas with the [ShEx.ex] package
 - mapping of RDF data structures to Elixir structs and back with [Grax]
@@ -84,6 +84,7 @@ The development of this project was partly sponsored by [NetzeBW](https://www.ne
 [N-Triples]:            https://www.w3.org/TR/n-triples/
 [N-Quads]:              https://www.w3.org/TR/n-quads/
 [Turtle]:               https://www.w3.org/TR/turtle/
+[TriG]:                 https://www.w3.org/TR/trig/
 [N3]:                   https://www.w3.org/TeamSubmission/n3/
 [JSON-LD]:              https://www.w3.org/TR/json-ld/
 [RDFa]:                 https://www.w3.org/TR/rdfa-syntax/

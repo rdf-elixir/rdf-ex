@@ -1,8 +1,8 @@
 defmodule RDF.TurtleTriG.Encoder do
-  @moduledoc !"Shared functions for Turtle and TriG encoders."
+  @moduledoc !"Shared functions for the Turtle and TriG encoders."
 
   alias RDF.TurtleTriG.Encoder.{State, CompactStarGraph}
-  alias RDF.{BlankNode, Description, Graph, IRI, XSD, Literal, LangString, PrefixMap}
+  alias RDF.{BlankNode, Description, Graph, Dataset, IRI, XSD, Literal, LangString, PrefixMap}
 
   import RDF.NTriples.Encoder, only: [escape_string: 1]
 
@@ -34,34 +34,79 @@ defmodule RDF.TurtleTriG.Encoder do
   ]
   @ordered_properties MapSet.new(@predicate_order)
 
-  @spec encode(Graph.t() | Description.t(), keyword) :: {:ok, String.t()} | {:error, any}
-  def encode(data, opts \\ [])
-
-  def encode(%Description{} = description, opts), do: description |> Graph.new() |> encode(opts)
-
-  def encode(%Graph{} = graph, opts) do
-    state = State.new(graph, opts)
-
-    {:ok,
-     (Keyword.get(opts, :only) || @document_structure)
-     |> compile(state, opts)}
+  def options_doc do
+    """
+    - `:implicit_base`: This boolean flag allows to use a base URI to get relative IRIs
+      without embedding it explicitly in the content with a `@base` directive, so that
+      the URIs will be resolved according to the remaining strategy specified in
+      section 5.1 of [RFC3986](https://www.ietf.org/rfc/rfc3986.txt) (default: `false`).
+    - `:base_description`: Allows to provide a description of the resource denoted by
+      the base URI. This option is especially useful when the base URI is actually not
+      specified, e.g. in the common use case of wanting to describe the document
+      itself, which should be denoted by the URL where it is hosted as the implicit base
+      URI.
+    - `:indent`: Allows to specify the number of spaces the output should be indented.
+    """
   end
 
-  defp compile(:base, %{base: base} = state, opts), do: base_directive(base, state, opts)
+  def format_label(:turtle), do: "Turtle"
+  def format_label(:trig), do: "TriG"
 
-  defp compile(:prefixes, %{prefixes: prefixes} = state, opts),
+  @type format :: :turtle | :trig
+
+  @spec encode(Dataset.t() | Graph.t() | Description.t(), format, keyword) ::
+          {:ok, String.t()} | {:error, any}
+  def encode(data, format, opts \\ [])
+
+  def encode(%Description{} = description, format, opts),
+    do: description |> Graph.new() |> encode(format, opts)
+
+  def encode(%Graph{} = graph, :trig, opts),
+    do: graph |> Dataset.new() |> encode(:trig, opts)
+
+  def encode(data, format, opts) do
+    state = State.new(format, data, opts)
+    document_structure = Keyword.get(opts, :only) || @document_structure
+    {:ok, compile(document_structure, format, state, opts)}
+  end
+
+  defp compile(:directives, format, state, opts),
+    do: [:base, :prefixes] |> compile(format, state, opts)
+
+  defp compile(:base, _, %{base: base} = state, opts), do: base_directive(base, state, opts)
+
+  defp compile(:prefixes, _, %{prefixes: prefixes} = state, opts),
     do: prefix_directives(prefixes, state, opts)
 
-  defp compile(:triples, state, _opts), do: graph_statements(state)
+  defp compile(:triples, :turtle, state, _opts), do: graph_statements(state)
+  defp compile(:triples, :trig, state, opts), do: compile(:graphs, :trig, state, opts)
 
-  defp compile(:directives, state, opts), do: [:base, :prefixes] |> compile(state, opts)
-
-  defp compile(elements, state, opts) when is_list(elements) do
-    Enum.map_join(elements, &compile(&1, state, opts))
+  defp compile(:graphs, :trig, state, opts) do
+    [:default_graph, "\n", :named_graphs]
+    |> compile(:trig, state, opts)
+    |> String.trim_leading("\n")
   end
 
-  defp compile(element, _, _) do
-    raise "unknown Turtle document element: #{inspect(element)}"
+  defp compile(:default_graph, :trig, state, _opts) do
+    state
+    |> State.set_current_graph(Dataset.default_graph(state.data))
+    |> graph()
+  end
+
+  defp compile(:named_graphs, :trig, state, _opts) do
+    state.data
+    |> Dataset.named_graphs()
+    |> Enum.map_join("\n", &(state |> State.set_current_graph(&1) |> graph()))
+  end
+
+  defp compile(elements, format, state, opts) when is_list(elements) do
+    Enum.map_join(elements, &compile(&1, format, state, opts))
+  end
+
+  defp compile(string, _, _, _) when is_binary(string), do: string
+
+  defp compile(element, format, _, _) do
+    raise "unknown #{format_label(format)} document element: #{inspect(element)}"
   end
 
   defp base_directive(nil, _, _), do: ""
@@ -83,6 +128,17 @@ defmodule RDF.TurtleTriG.Encoder do
         indent: state.indentation
       ) <> "\n"
     end
+  end
+
+  defp graph(%State{graph: %Graph{name: nil}} = state), do: graph_statements(state)
+
+  defp graph(%State{graph: %Graph{name: name}} = state) do
+    indent(state) <>
+      "GRAPH " <>
+      term(name, state, :subject, state.indentation) <>
+      " {\n" <>
+      graph_statements(State.indent(state, @indentation)) <>
+      indent(state) <> "}\n"
   end
 
   defp graph_statements(state) do
@@ -216,7 +272,6 @@ defmodule RDF.TurtleTriG.Encoder do
         end
       end)
 
-    # TODO: split if the line gets too long
     separator =
       if with_annotations,
         do: "," <> newline_indent(nesting + @indentation),

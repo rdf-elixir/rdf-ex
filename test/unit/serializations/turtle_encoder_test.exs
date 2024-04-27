@@ -357,26 +357,6 @@ defmodule RDF.Turtle.EncoderTest do
                    <http://example.org/#p1> _:bar
                ] .
                """
-
-      assert Turtle.Encoder.encode!(
-               Graph.new([
-                 {~B<foo>, EX.p1(), ~B<bar>},
-                 {~B<bar>, EX.p2(), ~B<baz>},
-                 {~B<baz>, EX.p3(), ~B<bar>}
-               ]),
-               prefixes: %{}
-             ) ==
-               """
-               _:bar
-                   <http://example.org/#p2> _:baz .
-
-               _:baz
-                   <http://example.org/#p3> _:bar .
-
-               [
-                   <http://example.org/#p1> _:bar
-               ] .
-               """
     end
 
     test "deeply embedded blank node descriptions" do
@@ -558,6 +538,18 @@ defmodule RDF.Turtle.EncoderTest do
                """
                |> String.trim()
     end
+  end
+
+  test "a named graph is not encoded as TriG graph" do
+    assert Turtle.Encoder.encode!(
+             Graph.new([{EX.S1, EX.p1(), EX.O1}]),
+             prefixes: %{},
+             name: EX.Graph
+           ) ==
+             """
+             <http://example.org/#S1>
+                 <http://example.org/#p1> <http://example.org/#O1> .
+             """
   end
 
   %{
