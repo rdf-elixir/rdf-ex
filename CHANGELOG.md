@@ -21,6 +21,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels
 
+### Fixed
+
+- The `RDF.Turtle.Encoder` was not falling back to using `RDF.default_prefixes/0` when
+  the encoded graph had prefixes which were removed afterwards
+
 
 [Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)
 

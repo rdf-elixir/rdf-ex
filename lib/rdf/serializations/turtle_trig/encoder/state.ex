@@ -51,7 +51,7 @@ defmodule RDF.TurtleTriG.Encoder.State do
     if PrefixMap.empty?(prefix_map), do: RDF.default_prefixes(), else: prefix_map
   end
 
-  defp prefixes(nil, %Graph{prefixes: prefixes}) when not is_nil(prefixes), do: prefixes
+  defp prefixes(nil, %Graph{prefixes: prefixes}), do: prefixes(nil, prefixes)
   defp prefixes(nil, %Dataset{} = dataset), do: prefixes(nil, Dataset.prefixes(dataset))
   defp prefixes(nil, _), do: RDF.default_prefixes()
   defp prefixes(prefixes, _), do: PrefixMap.new(prefixes)
