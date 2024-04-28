@@ -24,12 +24,13 @@ defmodule RDF.TurtleTriG.EncoderTest do
     end
 
     test "hash iri with existing prefix", %{prefixes: prefixes} do
-      assert TurtleTriG.Encoder.prefixed_name(EX.foo(), prefixes) ==
+      assert TurtleTriG.Encoder.prefixed_name(EX.foo(), prefixes) |> IO.iodata_to_binary() ==
                "ex:foo"
     end
 
     test "hash iri namespace without name", %{prefixes: prefixes} do
-      assert TurtleTriG.Encoder.prefixed_name(RDF.iri(EX.__base_iri__()), prefixes) ==
+      assert TurtleTriG.Encoder.prefixed_name(RDF.iri(EX.__base_iri__()), prefixes)
+             |> IO.iodata_to_binary() ==
                "ex:"
     end
 
@@ -38,12 +39,14 @@ defmodule RDF.TurtleTriG.EncoderTest do
     end
 
     test "slash iri with existing prefix", %{prefixes: prefixes} do
-      assert TurtleTriG.Encoder.prefixed_name(~I<http://example.org/foo>, prefixes) ==
+      assert TurtleTriG.Encoder.prefixed_name(~I<http://example.org/foo>, prefixes)
+             |> IO.iodata_to_binary() ==
                "ex2:foo"
     end
 
     test "slash iri namespace without name", %{prefixes: prefixes} do
-      assert TurtleTriG.Encoder.prefixed_name(~I<http://example.org/>, prefixes) ==
+      assert TurtleTriG.Encoder.prefixed_name(~I<http://example.org/>, prefixes)
+             |> IO.iodata_to_binary() ==
                "ex2:"
     end
 

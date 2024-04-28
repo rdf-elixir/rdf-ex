@@ -460,13 +460,11 @@ defmodule RDF.Turtle.EncoderTest do
       assert Turtle.Encoder.encode!(graph, content: :prefixes) ==
                """
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
-
                """
 
       assert Turtle.Encoder.encode!(graph, content: :base) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
-
                """
 
       assert Turtle.Encoder.encode!(graph, content: :directives, directive_style: :sparql) ==
@@ -474,7 +472,6 @@ defmodule RDF.Turtle.EncoderTest do
                BASE <#{to_string(EX.__base_iri__())}>
 
                PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
-
                """
 
       assert Turtle.Encoder.encode!(graph,
@@ -492,7 +489,6 @@ defmodule RDF.Turtle.EncoderTest do
                BASE <#{to_string(EX.__base_iri__())}>
 
                PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
-
 
                # === TRIPLES ===
 

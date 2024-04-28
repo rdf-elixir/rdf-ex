@@ -45,7 +45,6 @@ defmodule RDF.TriG.EncoderTest do
 
                <http://example.org/#S2>
                    <http://example.org/#p3> <http://example.org/#O4> .
-
                """
     end
 
@@ -318,7 +317,6 @@ defmodule RDF.TriG.EncoderTest do
                """
                _:foo
                    <http://example.org/#p> _:foo .
-
                """
 
       assert TriG.Encoder.encode!(
@@ -512,7 +510,6 @@ defmodule RDF.TriG.EncoderTest do
 
                <S>
                    rdfs:subClassOf <O> .
-
                """
     end
 
@@ -581,13 +578,11 @@ defmodule RDF.TriG.EncoderTest do
       assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :prefixes)) ==
                """
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
-
                """
 
       assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :base)) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
-
                """
 
       assert TriG.Encoder.encode!(
@@ -598,7 +593,6 @@ defmodule RDF.TriG.EncoderTest do
                BASE <#{to_string(EX.__base_iri__())}>
 
                PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
-
                """
 
       assert TriG.Encoder.encode!(
@@ -621,7 +615,6 @@ defmodule RDF.TriG.EncoderTest do
                BASE <#{to_string(EX.__base_iri__())}>
 
                PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
-
 
                # === NAMED GRAPHS ===
 

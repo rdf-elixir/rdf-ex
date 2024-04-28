@@ -6,11 +6,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   import RDF.NTriples.Encoder, only: [escape_string: 1]
 
-  @document_structure [
-    :base,
-    :prefixes,
-    :triples
-  ]
+  @document_structure {:separated, [:directives, :triples]}
 
   @indentation 4
 
@@ -58,25 +54,27 @@ defmodule RDF.TurtleTriG.Encoder do
   def encode(data, format, opts) do
     state = State.new(format, data, opts)
     document_structure = Keyword.get(opts, :content) || @document_structure
-    {:ok, compile(document_structure, format, state, opts)}
+    compiled = compile(document_structure, format, state, opts)
+    {:ok, IO.iodata_to_binary(compiled)}
   end
 
   defp compile(:directives, format, state, opts),
-    do: [:base, :prefixes] |> compile(format, state, opts)
+    do: compile({:separated, [:base, :prefixes]}, format, state, opts)
 
-  defp compile(:base, _, %{base: base} = state, opts), do: base_directive(base, state, opts)
+  defp compile(:base, _, %{base: base} = state, opts),
+    do: base_directive(base, state, opts)
 
   defp compile(:prefixes, _, %{prefixes: prefixes} = state, opts),
     do: prefix_directives(prefixes, state, opts)
 
-  defp compile(:triples, :turtle, state, _opts), do: graph_statements(state)
-  defp compile(:triples, :trig, state, opts), do: compile(:graphs, :trig, state, opts)
+  defp compile(:triples, :turtle, state, _opts),
+    do: graph_statements(state)
 
-  defp compile(:graphs, :trig, state, opts) do
-    [:default_graph, "\n", :named_graphs]
-    |> compile(:trig, state, opts)
-    |> String.trim_leading("\n")
-  end
+  defp compile(:triples, :trig, state, opts),
+    do: compile(:graphs, :trig, state, opts)
+
+  defp compile(:graphs, :trig, state, opts),
+    do: compile({:separated, [:default_graph, :named_graphs]}, :trig, state, opts)
 
   defp compile(:default_graph, :trig, state, _opts) do
     state
@@ -87,11 +85,23 @@ defmodule RDF.TurtleTriG.Encoder do
   defp compile(:named_graphs, :trig, state, _opts) do
     state.data
     |> Dataset.named_graphs()
-    |> Enum.map_join("\n", &(state |> State.set_current_graph(&1) |> graph()))
+    |> Enum.map(&(state |> State.set_current_graph(&1) |> graph()))
+    |> Enum.intersperse("\n")
+  end
+
+  defp compile({:separated, elements}, format, state, opts) do
+    compile({:separated, "\n", elements}, format, state, opts)
+  end
+
+  defp compile({:separated, separator, elements}, format, state, opts) do
+    elements
+    |> Enum.map(&compile(&1, format, state, opts))
+    |> Enum.reject(&Enum.empty?/1)
+    |> Enum.intersperse(separator)
   end
 
   defp compile(elements, format, state, opts) when is_list(elements) do
-    Enum.map_join(elements, &compile(&1, format, state, opts))
+    Enum.map(elements, &compile(&1, format, state, opts))
   end
 
   defp compile(string, _, _, _) when is_binary(string), do: string
@@ -100,48 +110,54 @@ defmodule RDF.TurtleTriG.Encoder do
     raise "unknown #{format_label(format)} document element: #{inspect(element)}"
   end
 
-  defp base_directive(nil, _, _), do: ""
-  defp base_directive(_, %{implicit_base: true}, _), do: ""
+  defp base_directive(nil, _, _), do: []
+  defp base_directive(_, %{implicit_base: true}, _), do: []
 
   defp base_directive(base, state, opts) do
-    indent(state) <>
+    [
+      indent(state),
       case Keyword.get(opts, :directive_style) do
-        :sparql -> "BASE <#{base}>"
-        _ -> "@base <#{base}> ."
-      end <> "\n\n"
+        :sparql -> ["BASE <", base, ">"]
+        _ -> ["@base <", base, "> ."]
+      end,
+      "\n"
+    ]
   end
 
   defp prefix_directives(prefixes, state, opts) do
     if Enum.empty?(prefixes.map) do
-      ""
+      []
     else
       PrefixMap.to_header(prefixes, Keyword.get(opts, :directive_style, :turtle),
-        indent: state.indentation
-      ) <> "\n"
+        indent: state.indentation,
+        iodata: true
+      )
     end
   end
 
   defp graph(%State{graph: %Graph{name: nil}} = state), do: graph_statements(state)
 
   defp graph(%State{graph: %Graph{name: name}} = state) do
-    indent(state) <>
-      "GRAPH " <>
-      term(name, state, :subject, state.indentation) <>
-      " {\n" <>
-      graph_statements(State.indent(state, @indentation)) <>
-      indent(state) <> "}\n"
+    [
+      indent(state),
+      "GRAPH ",
+      term(name, state, :subject, state.indentation),
+      " {\n",
+      graph_statements(State.indent(state, @indentation)),
+      indent(state),
+      "}\n"
+    ]
   end
 
   defp graph_statements(state) do
     indentation = state.indentation || 0
-    indent = indent(indentation)
 
     state.graph
     |> CompactStarGraph.compact()
     |> Sequencer.descriptions(State.base_iri(state))
-    |> Enum.map(&description_statements(&1, state, indentation))
-    |> Enum.reject(&is_nil/1)
-    |> Enum.map_join("\n", &(indent <> &1))
+    |> Enum.map(&(&1 |> description_statements(state, indentation) |> indent(indentation)))
+    |> Enum.reject(&Enum.empty?/1)
+    |> Enum.intersperse("\n")
   end
 
   defp description_statements(description, state, nesting) do
@@ -150,20 +166,20 @@ defmodule RDF.TurtleTriG.Encoder do
     else
       case State.bnode_type(state, description.subject) do
         :unrefed_bnode_subject_term -> unrefed_bnode_subject_term(description, state, nesting)
-        :unrefed_bnode_object_term -> nil
+        :unrefed_bnode_object_term -> []
         :normal -> full_description_statements(description, state, nesting)
       end
     end
   end
 
-  defp full_description_statements(subject, description, state, nesting) do
-    nesting = nesting + @indentation
-    subject <> newline_indent(nesting) <> predications(description, state, nesting) <> " .\n"
-  end
-
   defp full_description_statements(description, state, nesting) do
     term(description.subject, state, :subject, nesting)
     |> full_description_statements(description, state, nesting)
+  end
+
+  defp full_description_statements(subject, description, state, nesting) do
+    nesting = nesting + @indentation
+    [subject, newline_indent(nesting), predications(description, state, nesting), " .\n"]
   end
 
   defp blank_node_property_list(description, state, nesting) do
@@ -172,43 +188,51 @@ defmodule RDF.TurtleTriG.Encoder do
     if Description.empty?(description) do
       "[]"
     else
-      "[" <>
-        newline_indent(indented) <>
-        predications(description, state, indented) <>
-        newline_indent(nesting) <> "]"
+      [
+        "[",
+        newline_indent(indented),
+        predications(description, state, indented),
+        newline_indent(nesting),
+        "]"
+      ]
     end
   end
 
   defp predications(description, state, nesting) do
     description
     |> Sequencer.predications()
-    |> Enum.map_join(" ;" <> newline_indent(nesting), &predication(&1, state, nesting))
+    |> Enum.map(&predication(&1, state, nesting))
+    |> Enum.intersperse([" ;", newline_indent(nesting)])
   end
 
   defp predication({predicate, objects}, state, nesting) do
-    term(predicate, state, :predicate, nesting) <> " " <> objects(objects, state, nesting)
+    [term(predicate, state, :predicate, nesting), " " | objects(objects, state, nesting)]
   end
 
   defp objects(objects, state, nesting) do
-    {objects, with_annotations} =
-      Enum.map_reduce(objects, false, fn {object, annotation}, with_annotations ->
+    {objects, with_annotations?} =
+      Enum.map_reduce(objects, false, fn {object, annotation}, with_annotations? ->
         if annotation do
           {
-            term(object, state, :object, nesting) <>
-              " {| #{predications(annotation, state, nesting + 2 * @indentation)} |}",
+            [
+              term(object, state, :object, nesting),
+              " {| ",
+              predications(annotation, state, nesting + 2 * @indentation),
+              " |}"
+            ],
             true
           }
         else
-          {term(object, state, :object, nesting), with_annotations}
+          {term(object, state, :object, nesting), with_annotations?}
         end
       end)
 
     separator =
-      if with_annotations,
-        do: "," <> newline_indent(nesting + @indentation),
+      if with_annotations?,
+        do: [",", newline_indent(nesting + @indentation)],
         else: ", "
 
-    Enum.join(objects, separator)
+    Enum.intersperse(objects, separator)
   end
 
   defp unrefed_bnode_subject_term(bnode_description, state, nesting) do
@@ -221,7 +245,7 @@ defmodule RDF.TurtleTriG.Encoder do
         nesting
       )
     else
-      blank_node_property_list(bnode_description, state, nesting) <> " .\n"
+      [blank_node_property_list(bnode_description, state, nesting), " .\n"]
     end
   end
 
@@ -258,7 +282,7 @@ defmodule RDF.TurtleTriG.Encoder do
   defp term(%IRI{} = iri, state, _, _) do
     based_name(iri, state.base) ||
       prefixed_name(iri, state.prefixes) ||
-      "<#{to_string(iri)}>"
+      ["<", to_string(iri), ">"]
   end
 
   defp term(%BlankNode{} = bnode, state, position, nesting) when position in ~w[object list]a do
@@ -273,7 +297,7 @@ defmodule RDF.TurtleTriG.Encoder do
     do: to_string(bnode)
 
   defp term(%Literal{literal: %LangString{} = lang_string}, _, _, _) do
-    quoted(lang_string.value) <> "@" <> lang_string.language
+    [quoted(lang_string.value), "@", lang_string.language]
   end
 
   defp term(%Literal{literal: %XSD.String{}} = literal, _, _, _) do
@@ -293,11 +317,25 @@ defmodule RDF.TurtleTriG.Encoder do
     do: typed_literal_term(literal, state, nesting)
 
   defp term({s, p, o}, state, _, nesting) do
-    "<< #{term(s, state, :subject, nesting)} #{term(p, state, :predicate, nesting)} #{term(o, state, :object, nesting)} >>"
+    [
+      "<< ",
+      term(s, state, :subject, nesting),
+      " ",
+      term(p, state, :predicate, nesting),
+      " ",
+      term(o, state, :object, nesting),
+      " >>"
+    ]
   end
 
   defp term(list, state, _, nesting) when is_list(list) do
-    "(" <> Enum.map_join(list, " ", &term(&1, state, :list, nesting)) <> ")"
+    [
+      "(",
+      list
+      |> Enum.map(&term(&1, state, :list, nesting))
+      |> Enum.intersperse(" "),
+      ")"
+    ]
   end
 
   defp uncanonical_form(XSD.Double, literal, state, nesting) do
@@ -311,22 +349,29 @@ defmodule RDF.TurtleTriG.Encoder do
   defp uncanonical_form(_, literal, state, nesting),
     do: typed_literal_term(literal, state, nesting)
 
-  defp based_name(%IRI{} = iri, base), do: based_name(to_string(iri), base)
+  defp based_name(%IRI{} = iri, base), do: iri |> to_string() |> based_name(base)
   defp based_name(_, nil), do: nil
 
   defp based_name(iri, base) do
     if String.starts_with?(iri, base) do
-      "<#{String.slice(iri, String.length(base)..-1//1)}>"
+      ["<", String.slice(iri, String.length(base)..-1//1), ">"]
     end
   end
 
   defp typed_literal_term(%Literal{} = literal, state, nesting) do
-    ~s["#{escape_string(Literal.lexical(literal))}"^^#{literal |> Literal.datatype_id() |> term(state, :datatype, nesting)}]
+    [
+      ~s["],
+      escape_string(Literal.lexical(literal)),
+      ~s["^^],
+      literal
+      |> Literal.datatype_id()
+      |> term(state, :datatype, nesting)
+    ]
   end
 
   def prefixed_name(iri, prefixes) do
     case PrefixMap.prefix_name_pair(prefixes, iri) do
-      {prefix, name} -> if valid_pn_local?(name), do: prefix <> ":" <> name
+      {prefix, name} -> if valid_pn_local?(name), do: [prefix, ":", name]
       _ -> nil
     end
   end
@@ -337,15 +382,21 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp quoted(string) do
     if String.contains?(string, ["\n", "\r"]) do
-      ~s["""#{string}"""]
+      [~s["""], string, ~s["""]]
     else
-      ~s["#{escape_string(string)}"]
+      [~s["], escape_string(string), ~s["]]
     end
   end
 
-  defp newline_indent(nesting), do: "\n" <> indent(nesting)
+  defp newline_indent(nesting), do: ["\n", indent(nesting)]
 
   defp indent(%State{indentation: indentation}), do: indent(indentation)
   defp indent(nil), do: ""
+  defp indent(0), do: ""
   defp indent(count), do: String.duplicate(" ", count)
+
+  defp indent([], _), do: []
+  defp indent(iolist, nil), do: iolist
+  defp indent(iolist, 0), do: iolist
+  defp indent(iolist, count), do: [indent(count) | iolist]
 end
