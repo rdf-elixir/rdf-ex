@@ -1,7 +1,7 @@
 defmodule RDF.TurtleTriG.Encoder do
   @moduledoc !"Shared functions for the Turtle and TriG encoders."
 
-  alias RDF.TurtleTriG.Encoder.{State, CompactStarGraph}
+  alias RDF.TurtleTriG.Encoder.{State, Sequencer, CompactStarGraph}
   alias RDF.{BlankNode, Description, Graph, Dataset, IRI, XSD, Literal, LangString, PrefixMap}
 
   import RDF.NTriples.Encoder, only: [escape_string: 1]
@@ -22,17 +22,6 @@ defmodule RDF.TurtleTriG.Encoder do
   ]
   @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
   @rdf_nil RDF.Utils.Bootstrapping.rdf_iri("nil")
-
-  # Defines rdf:type of subjects to be serialized at the beginning of the encoded graph
-  @top_classes [RDF.Utils.Bootstrapping.rdfs_iri("Class")]
-
-  # Defines order of predicates at the beginning of a resource description
-  @predicate_order [
-    @rdf_type,
-    RDF.Utils.Bootstrapping.rdfs_iri("label"),
-    IRI.new("http://purl.org/dc/terms/title")
-  ]
-  @ordered_properties MapSet.new(@predicate_order)
 
   def options_doc do
     """
@@ -149,57 +138,11 @@ defmodule RDF.TurtleTriG.Encoder do
 
     state.graph
     |> CompactStarGraph.compact()
-    |> Graph.descriptions()
-    |> order_descriptions(state)
+    |> Sequencer.descriptions(State.base_iri(state))
     |> Enum.map(&description_statements(&1, state, indentation))
     |> Enum.reject(&is_nil/1)
     |> Enum.map_join("\n", &(indent <> &1))
   end
-
-  defp order_descriptions(descriptions, state) do
-    base_iri = State.base_iri(state)
-    group = Enum.group_by(descriptions, &description_group(&1, base_iri))
-
-    ordered_descriptions =
-      (@top_classes
-       |> Stream.map(&group[&1])
-       |> Stream.reject(&is_nil/1)
-       |> Enum.flat_map(&sort_descriptions/1)) ++
-        (group |> Map.get(:other, []) |> sort_descriptions())
-
-    case group[:base] do
-      [base] -> [base | ordered_descriptions]
-      _ -> ordered_descriptions
-    end
-  end
-
-  defp description_group(%{subject: base_iri}, base_iri), do: :base
-
-  defp description_group(description, _) do
-    if types = description.predications[@rdf_type] do
-      Enum.find(@top_classes, :other, &Map.has_key?(types, &1))
-    else
-      :other
-    end
-  end
-
-  defp sort_descriptions(descriptions), do: Enum.sort(descriptions, &description_order/2)
-
-  defp description_order(%{subject: %IRI{}}, %{subject: %BlankNode{}}), do: true
-  defp description_order(%{subject: %BlankNode{}}, %{subject: %IRI{}}), do: false
-
-  defp description_order(%{subject: {s, p, o1}}, %{subject: {s, p, o2}}),
-    do: to_string(o1) < to_string(o2)
-
-  defp description_order(%{subject: {s, p1, _}}, %{subject: {s, p2, _}}),
-    do: to_string(p1) < to_string(p2)
-
-  defp description_order(%{subject: {s1, _, _}}, %{subject: {s2, _, _}}),
-    do: to_string(s1) < to_string(s2)
-
-  defp description_order(%{subject: {_, _, _}}, %{subject: _}), do: false
-  defp description_order(%{subject: _}, %{subject: {_, _, _}}), do: true
-  defp description_order(%{subject: s1}, %{subject: s2}), do: to_string(s1) < to_string(s2)
 
   defp description_statements(description, state, nesting) do
     if Description.empty?(description) do
@@ -237,23 +180,9 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp predications(description, state, nesting) do
-    description.predications
-    |> order_predications()
+    description
+    |> Sequencer.predications()
     |> Enum.map_join(" ;" <> newline_indent(nesting), &predication(&1, state, nesting))
-  end
-
-  defp order_predications(predications) do
-    sorted_predications =
-      @predicate_order
-      |> Enum.map(fn predicate -> {predicate, predications[predicate]} end)
-      |> Enum.reject(fn {_, objects} -> is_nil(objects) end)
-
-    unsorted_predications =
-      Enum.reject(predications, fn {predicate, _} ->
-        MapSet.member?(@ordered_properties, predicate)
-      end)
-
-    sorted_predications ++ unsorted_predications
   end
 
   defp predication({predicate, objects}, state, nesting) do
