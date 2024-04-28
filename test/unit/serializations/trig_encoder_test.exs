@@ -483,7 +483,7 @@ defmodule RDF.TriG.EncoderTest do
                """
     end
 
-    test "directive_style option" do
+    test ":directive_style option" do
       assert TriG.Encoder.encode!(Dataset.new({EX.S, RDFS.subClassOf(), EX.O, EX.Graph}),
                prefixes: %{rdfs: RDFS.__base_iri__()},
                base_iri: EX,
@@ -516,7 +516,7 @@ defmodule RDF.TriG.EncoderTest do
                """
     end
 
-    test "partial document" do
+    test ":content option" do
       opts = [
         prefixes: %{rdfs: RDFS},
         base_iri: EX
@@ -528,7 +528,7 @@ defmodule RDF.TriG.EncoderTest do
           {EX.S1, EX.p1(), EX.O1, EX.Graph}
         ])
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :triples)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :triples)) ==
                """
                <S>
                    rdfs:subClassOf <O> .
@@ -539,7 +539,7 @@ defmodule RDF.TriG.EncoderTest do
                }
                """
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :graphs)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :graphs)) ==
                """
                <S>
                    rdfs:subClassOf <O> .
@@ -550,13 +550,13 @@ defmodule RDF.TriG.EncoderTest do
                }
                """
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :default_graph)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :default_graph)) ==
                """
                <S>
                    rdfs:subClassOf <O> .
                """
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :named_graphs)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :named_graphs)) ==
                """
                GRAPH <Graph> {
                    <S1>
@@ -566,7 +566,7 @@ defmodule RDF.TriG.EncoderTest do
 
       assert TriG.Encoder.encode!(
                dataset,
-               Keyword.merge(opts, only: [:named_graphs, "\n", :default_graph])
+               Keyword.merge(opts, content: [:named_graphs, "\n", :default_graph])
              ) ==
                """
                GRAPH <Graph> {
@@ -578,13 +578,13 @@ defmodule RDF.TriG.EncoderTest do
                    rdfs:subClassOf <O> .
                """
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :prefixes)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :prefixes)) ==
                """
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
 
                """
 
-      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, only: :base)) ==
+      assert TriG.Encoder.encode!(dataset, Keyword.merge(opts, content: :base)) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
 
@@ -592,7 +592,7 @@ defmodule RDF.TriG.EncoderTest do
 
       assert TriG.Encoder.encode!(
                dataset,
-               Keyword.merge(opts, only: :directives, directive_style: :sparql)
+               Keyword.merge(opts, content: :directives, directive_style: :sparql)
              ) ==
                """
                BASE <#{to_string(EX.__base_iri__())}>
@@ -601,12 +601,47 @@ defmodule RDF.TriG.EncoderTest do
 
                """
 
+      assert TriG.Encoder.encode!(
+               dataset,
+               Keyword.merge(opts,
+                 content: [
+                   "# === HEADER ===\n\n",
+                   :directives,
+                   "\n# === NAMED GRAPHS ===\n\n",
+                   :named_graphs,
+                   "\n# === DEFAULT GRAPH ===\n\n",
+                   :default_graph
+                 ],
+                 directive_style: :sparql
+               )
+             ) ==
+               """
+               # === HEADER ===
+
+               BASE <#{to_string(EX.__base_iri__())}>
+
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+
+               # === NAMED GRAPHS ===
+
+               GRAPH <Graph> {
+                   <S1>
+                       <p1> <O1> .
+               }
+
+               # === DEFAULT GRAPH ===
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
       assert_raise RuntimeError, "unknown TriG document element: :undefined", fn ->
-        TriG.Encoder.encode!(dataset, only: :undefined)
+        TriG.Encoder.encode!(dataset, content: :undefined)
       end
     end
 
-    test "indent option" do
+    test ":indent option" do
       graph =
         Dataset.new([
           {EX.S, RDFS.subClassOf(), EX.O},

@@ -74,7 +74,7 @@ defimpl Inspect, for: RDF.Description do
         else
           body =
             description
-            |> RDF.Turtle.write_string!(only: :triples, indent: 2)
+            |> RDF.Turtle.write_string!(content: :triples, indent: 2)
             |> String.trim_trailing()
 
           "#{header}\n#{body}#{if limit, do: "..\n..."}\n>"
@@ -124,7 +124,7 @@ defimpl Inspect, for: RDF.Graph do
 
         body =
           graph
-          |> RDF.Turtle.write_string!(only: if(no_metadata, do: :triples), indent: 2)
+          |> RDF.Turtle.write_string!(content: if(no_metadata, do: :triples), indent: 2)
           |> String.trim_trailing()
 
         if content_only do

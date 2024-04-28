@@ -414,7 +414,7 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
-    test "directive_style option" do
+    test ":directive_style option" do
       assert Turtle.Encoder.encode!(Graph.new({EX.S, RDFS.subClassOf(), EX.O}),
                prefixes: %{rdfs: RDFS.__base_iri__()},
                base_iri: EX.__base_iri__(),
@@ -444,32 +444,32 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
-    test "partial document" do
+    test ":content option" do
       graph =
         Graph.new({EX.S, RDFS.subClassOf(), EX.O},
           prefixes: %{rdfs: RDFS.__base_iri__()},
           base_iri: EX.__base_iri__()
         )
 
-      assert Turtle.Encoder.encode!(graph, only: :triples) ==
+      assert Turtle.Encoder.encode!(graph, content: :triples) ==
                """
                <S>
                    rdfs:subClassOf <O> .
                """
 
-      assert Turtle.Encoder.encode!(graph, only: :prefixes) ==
+      assert Turtle.Encoder.encode!(graph, content: :prefixes) ==
                """
                @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
 
                """
 
-      assert Turtle.Encoder.encode!(graph, only: :base) ==
+      assert Turtle.Encoder.encode!(graph, content: :base) ==
                """
                @base <#{to_string(EX.__base_iri__())}> .
 
                """
 
-      assert Turtle.Encoder.encode!(graph, only: :directives, directive_style: :sparql) ==
+      assert Turtle.Encoder.encode!(graph, content: :directives, directive_style: :sparql) ==
                """
                BASE <#{to_string(EX.__base_iri__())}>
 
@@ -477,12 +477,35 @@ defmodule RDF.Turtle.EncoderTest do
 
                """
 
+      assert Turtle.Encoder.encode!(graph,
+               content: [
+                 "# === HEADER ===\n\n",
+                 :directives,
+                 "\n# === TRIPLES ===\n\n",
+                 :triples
+               ],
+               directive_style: :sparql
+             ) ==
+               """
+               # === HEADER ===
+
+               BASE <#{to_string(EX.__base_iri__())}>
+
+               PREFIX rdfs: <#{to_string(RDFS.__base_iri__())}>
+
+
+               # === TRIPLES ===
+
+               <S>
+                   rdfs:subClassOf <O> .
+               """
+
       assert_raise RuntimeError, "unknown Turtle document element: :undefined", fn ->
-        Turtle.Encoder.encode!(graph, only: :undefined)
+        Turtle.Encoder.encode!(graph, content: :undefined)
       end
     end
 
-    test "indent option" do
+    test ":indent option" do
       graph =
         Graph.new(
           [

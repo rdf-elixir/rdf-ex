@@ -30,7 +30,7 @@ defmodule RDF.InspectTest do
 
       assert body ==
                "  " <>
-                 (Turtle.write_string!(@test_description, only: :triples, indent: 2)
+                 (Turtle.write_string!(@test_description, content: :triples, indent: 2)
                   |> String.trim()) <> "\n>"
     end
 
@@ -51,7 +51,7 @@ defmodule RDF.InspectTest do
                "  " <>
                  (EX.S
                   |> EX.p("foo", 42)
-                  |> Turtle.write_string!(only: :triples, indent: 2)
+                  |> Turtle.write_string!(content: :triples, indent: 2)
                   |> String.trim()) <>
                  "..\n...\n>"
     end

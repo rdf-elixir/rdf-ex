@@ -68,7 +68,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   def encode(data, format, opts) do
     state = State.new(format, data, opts)
-    document_structure = Keyword.get(opts, :only) || @document_structure
+    document_structure = Keyword.get(opts, :content) || @document_structure
     {:ok, compile(document_structure, format, state, opts)}
   end
 

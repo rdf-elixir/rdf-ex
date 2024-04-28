@@ -11,9 +11,20 @@ defmodule RDF.Turtle.Encoder do
 
   ## Options
 
-  - `:only`: Allows to specify which parts of a Turtle document should be generated.
-    Possible values: `:base`, `:prefixes`, `:directives` (means the same as `[:base, :prefixes]`),
-    `:triples` or a list with any combination of these values.
+  - `:content`: Allows specifying the content and structure of the Turtle document
+    to be rendered and defining which parts should be generated in which order.
+    This option accepts lists of the values `:base`, `:prefixes`, and `:triples`.
+    You can also use `:directives` to specify `[:base, :prefixes]` as a group.
+    Additionally, arbitrary strings can be included at desired positions to customize
+    the document.
+
+        RDF.Turtle.write_string(graph, content: [
+          "# === HEADER ===",
+          :directives,
+          "\\n# === TRIPLES ===",
+          :triples
+        ])
+
   - `:prefixes`: Allows to specify the prefixes to be used as a `RDF.PrefixMap` or
     anything from which a `RDF.PrefixMap` can be created with `RDF.PrefixMap.new/1`.
     If not specified the ones from the given graph are used or if these are also not
