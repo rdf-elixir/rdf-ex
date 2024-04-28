@@ -499,6 +499,7 @@ defmodule RDF.PrefixMap do
 
   - `:indent`: allows to specify an integer by how many spaces the header
     should be indented (default: `0`)
+  - `:iodata`: return the header as an IO list
 
   ## Examples
 
@@ -524,7 +525,7 @@ defmodule RDF.PrefixMap do
       ""
 
   """
-  @spec to_header(t(), :sparql | :turtle, keyword) :: String.t()
+  @spec to_header(t(), :sparql | :turtle, keyword) :: String.t() | iolist()
   def to_header(%__MODULE__{} = prefix_map, style, opts \\ []) do
     indentation =
       case Keyword.get(opts, :indent, 0) do
@@ -533,20 +534,23 @@ defmodule RDF.PrefixMap do
         count when is_integer(count) -> String.duplicate(" ", count)
       end
 
-    prefix_map
-    |> to_sorted_list()
-    |> Enum.map_join(&(indentation <> prefix_directive(&1, style)))
+    iolist =
+      prefix_map
+      |> to_sorted_list()
+      |> Enum.map(&[indentation | prefix_directive(&1, style)])
+
+    if Keyword.get(opts, :iodata, false) do
+      iolist
+    else
+      IO.iodata_to_binary(iolist)
+    end
   end
 
   defp prefix_directive({prefix, ns}, :sparql),
-    do: """
-    PREFIX #{prefix}: <#{to_string(ns)}>
-    """
+    do: ["PREFIX ", to_string(prefix), ": <", to_string(ns), ">\n"]
 
   defp prefix_directive({prefix, ns}, :turtle),
-    do: """
-    @prefix #{prefix}: <#{to_string(ns)}> .
-    """
+    do: ["@prefix ", to_string(prefix), ": <", to_string(ns), "> .\n"]
 
   @doc """
   Converts the given `prefix_map` to a SPARQL header string.
