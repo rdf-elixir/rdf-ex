@@ -9,9 +9,13 @@ defmodule RDF.TurtleTriG.Encoder.State do
     :prefixes,
     :implicit_base,
     :no_object_lists,
+    :base_indent,
     :indentation,
+    :indent_step,
     :bnode_info
   ]
+
+  @default_indent_width 4
 
   @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
 
@@ -36,10 +40,12 @@ defmodule RDF.TurtleTriG.Encoder.State do
       base: base,
       implicit_base: Keyword.get(opts, :implicit_base),
       prefixes: prefixes,
-      indentation: Keyword.get(opts, :indent),
+      base_indent: Keyword.get(opts, :indent),
+      indent_step: opts |> Keyword.get(:indent_width, @default_indent_width) |> indent_string(),
       no_object_lists: Keyword.get(opts, :no_object_lists, false),
       bnode_info: BnodeInfo.new(data)
     }
+    |> init_indentation()
   end
 
   defp base_iri(nil, %Graph{base_iri: base_iri}) when not is_nil(base_iri), do: base_iri
@@ -81,9 +87,25 @@ defmodule RDF.TurtleTriG.Encoder.State do
 
   def set_current_graph(%__MODULE__{} = state, graph), do: %__MODULE__{state | graph: graph}
 
-  def indent(%__MODULE__{} = state, count) do
-    %__MODULE__{state | indentation: (state.indentation || 0) + count}
-  end
+  def init_indentation(%__MODULE__{} = state),
+    do: %__MODULE__{state | indentation: []} |> indent(state.base_indent)
+
+  def indent(%__MODULE__{} = state),
+    do: %__MODULE__{state | indentation: [state.indent_step | state.indentation]}
+
+  def indent(%__MODULE__{} = state, nil), do: state
+  def indent(%__MODULE__{} = state, 0), do: state
+
+  def indent(%__MODULE__{} = state, count),
+    do: %__MODULE__{state | indentation: [indent_string(count) | state.indentation]}
+
+  defp indent_string(count), do: String.duplicate(" ", count)
+
+  def indented([], _), do: []
+  def indented(iolist, %{indentation: []}), do: iolist
+  def indented(iolist, state), do: [state.indentation | iolist]
+
+  def newline_indent(state), do: ["\n" | state.indentation]
 
   def bnode_type(state, bnode), do: BnodeInfo.bnode_type(state.bnode_info, bnode)
 

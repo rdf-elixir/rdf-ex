@@ -8,8 +8,6 @@ defmodule RDF.TurtleTriG.Encoder do
 
   @document_structure {:separated, [:directives, :triples]}
 
-  @indentation 4
-
   @native_supported_datatypes [
     XSD.Boolean,
     XSD.Integer,
@@ -33,6 +31,8 @@ defmodule RDF.TurtleTriG.Encoder do
       itself, which should be denoted by the URL where it is hosted as the implicit base
       URI.
     - `:indent`: Allows to specify the number of spaces the output should be indented.
+    - `:indent_width`: Allows to specify the number of spaces that should be used for
+      indentations (default: 4).
     """
   end
 
@@ -115,7 +115,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp base_directive(base, state, opts) do
     [
-      indent(state),
+      state.indentation,
       case Keyword.get(opts, :directive_style) do
         :sparql -> ["BASE <", base, ">"]
         _ -> ["@base <", base, "> ."]
@@ -129,7 +129,7 @@ defmodule RDF.TurtleTriG.Encoder do
       []
     else
       PrefixMap.to_header(prefixes, Keyword.get(opts, :directive_style, :turtle),
-        indent: state.indentation,
+        indent: state.base_indent,
         iodata: true
       )
     end
@@ -139,130 +139,122 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp graph(%State{graph: %Graph{name: name}} = state) do
     [
-      indent(state),
+      state.indentation,
       "GRAPH ",
-      term(name, state, :subject, state.indentation),
+      term(name, state, :subject),
       " {\n",
-      graph_statements(State.indent(state, @indentation)),
-      indent(state),
+      graph_statements(State.indent(state)),
+      state.indentation,
       "}\n"
     ]
   end
 
   defp graph_statements(state) do
-    indentation = state.indentation || 0
-
     state.graph
     |> CompactStarGraph.compact()
     |> Sequencer.descriptions(State.base_iri(state))
-    |> Enum.map(&(&1 |> description_statements(state, indentation) |> indent(indentation)))
+    |> Enum.map(&(&1 |> description_statements(state) |> State.indented(state)))
     |> Enum.reject(&Enum.empty?/1)
     |> Enum.intersperse("\n")
   end
 
-  defp description_statements(description, state, nesting) do
+  defp description_statements(description, state) do
     if Description.empty?(description) do
       raise Graph.EmptyDescriptionError, subject: description.subject
     else
       case State.bnode_type(state, description.subject) do
-        :unrefed_bnode_subject_term -> unrefed_bnode_subject_term(description, state, nesting)
+        :unrefed_bnode_subject_term -> unrefed_bnode_subject_term(description, state)
         :unrefed_bnode_object_term -> []
-        :normal -> full_description_statements(description, state, nesting)
+        :normal -> full_description_statements(description, state)
       end
     end
   end
 
-  defp full_description_statements(description, state, nesting) do
-    term(description.subject, state, :subject, nesting)
-    |> full_description_statements(description, state, nesting)
+  defp full_description_statements(description, state) do
+    description.subject
+    |> term(state, :subject)
+    |> full_description_statements(description, state)
   end
 
-  defp full_description_statements(subject, description, state, nesting) do
-    nesting = nesting + @indentation
-    [subject, newline_indent(nesting), predications(description, state, nesting), " .\n"]
+  defp full_description_statements(subject, description, state) do
+    state = State.indent(state)
+    [subject, State.newline_indent(state), predications(description, state), " .\n"]
   end
 
-  defp blank_node_property_list(description, state, nesting) do
-    indented = nesting + @indentation
-
+  defp blank_node_property_list(description, state) do
     if Description.empty?(description) do
       "[]"
     else
+      indented = State.indent(state)
+
       [
         "[",
-        newline_indent(indented),
-        predications(description, state, indented),
-        newline_indent(nesting),
+        State.newline_indent(indented),
+        predications(description, indented),
+        State.newline_indent(state),
         "]"
       ]
     end
   end
 
-  defp predications(description, state, nesting) do
+  defp predications(description, state) do
     description
     |> Sequencer.predications()
-    |> Enum.map(&predication(&1, state, nesting))
-    |> Enum.intersperse([" ;", newline_indent(nesting)])
+    |> Enum.map(&predication(&1, state))
+    |> Enum.intersperse([" ;", State.newline_indent(state)])
   end
 
-  defp predication({predicate, objects}, %{no_object_lists: true} = state, nesting) do
+  defp predication({predicate, objects}, %{no_object_lists: true} = state) do
     objects
-    |> Enum.map(&[term(predicate, state, :predicate, nesting), " ", object(&1, state, nesting)])
-    |> Enum.intersperse([" ;", newline_indent(nesting)])
+    |> Enum.map(&[term(predicate, state, :predicate), " ", object(&1, state)])
+    |> Enum.intersperse([" ;", State.newline_indent(state)])
   end
 
-  defp predication({predicate, objects}, state, nesting) do
-    [term(predicate, state, :predicate, nesting), " " | objects(objects, state, nesting)]
+  defp predication({predicate, objects}, state) do
+    [term(predicate, state, :predicate), " " | objects(objects, state)]
   end
 
-  defp objects(objects, state, nesting) do
+  defp objects(objects, state) do
     {objects, with_annotations?} =
       Enum.map_reduce(objects, false, fn {object, annotation}, with_annotations? ->
         if annotation do
-          {object_with_annotation(object, annotation, state, nesting), true}
+          {object_with_annotation(object, annotation, state), true}
         else
-          {object_without_annotation(object, state, nesting), with_annotations?}
+          {object_without_annotation(object, state), with_annotations?}
         end
       end)
 
     separator =
       if with_annotations?,
-        do: [",", newline_indent(nesting + @indentation)],
+        do: ["," | state |> State.indent() |> State.newline_indent()],
         else: ", "
 
     Enum.intersperse(objects, separator)
   end
 
-  defp object({object, nil}, state, nesting),
-    do: object_without_annotation(object, state, nesting)
+  defp object({object, nil}, state), do: object_without_annotation(object, state)
+  defp object({object, annotation}, state), do: object_with_annotation(object, annotation, state)
 
-  defp object({object, annotation}, state, nesting),
-    do: object_with_annotation(object, annotation, state, nesting)
-
-  defp object_without_annotation(object, state, nesting) do
-    term(object, state, :object, nesting)
+  defp object_without_annotation(object, state) do
+    term(object, state, :object)
   end
 
-  defp object_with_annotation(object, annotation, state, nesting) do
+  defp object_with_annotation(object, annotation, state) do
     [
-      object_without_annotation(object, state, nesting),
+      object_without_annotation(object, state),
       " {| ",
-      predications(annotation, state, nesting + 2 * @indentation),
+      predications(annotation, state |> State.indent() |> State.indent()),
       " |}"
     ]
   end
 
-  defp unrefed_bnode_subject_term(bnode_description, state, nesting) do
+  defp unrefed_bnode_subject_term(bnode_description, state) do
     if State.valid_list_node?(state, bnode_description.subject) do
       bnode_description.subject
-      |> list_term(state, nesting)
-      |> full_description_statements(
-        list_subject_description(bnode_description),
-        state,
-        nesting
-      )
+      |> list_term(state)
+      |> full_description_statements(list_subject_description(bnode_description), state)
     else
-      [blank_node_property_list(bnode_description, state, nesting), " .\n"]
+      [blank_node_property_list(bnode_description, state), " .\n"]
     end
   end
 
@@ -277,108 +269,105 @@ defmodule RDF.TurtleTriG.Encoder do
     end
   end
 
-  defp unrefed_bnode_object_term(bnode, state, nesting) do
+  defp unrefed_bnode_object_term(bnode, state) do
     if State.valid_list_node?(state, bnode) do
-      list_term(bnode, state, nesting)
+      list_term(bnode, state)
     else
       state.graph
       |> Graph.description(bnode)
-      |> blank_node_property_list(state, nesting)
+      |> blank_node_property_list(state)
     end
   end
 
-  defp list_term(head, state, nesting) do
+  defp list_term(head, state) do
     head
     |> State.list_values(state)
-    |> term(state, :list, nesting)
+    |> term(state, :list)
   end
 
-  defp term(@rdf_type, _, :predicate, _), do: "a"
-  defp term(@rdf_nil, _, _, _), do: "()"
+  defp term(@rdf_type, _, :predicate), do: "a"
+  defp term(@rdf_nil, _, _), do: "()"
 
-  defp term(%IRI{} = iri, state, _, _) do
+  defp term(%IRI{} = iri, state, _) do
     based_name(iri, state.base) ||
       prefixed_name(iri, state.prefixes) ||
       ["<", to_string(iri), ">"]
   end
 
-  defp term(%BlankNode{} = bnode, state, position, nesting) when position in ~w[object list]a do
+  defp term(%BlankNode{} = bnode, state, position) when position in ~w[object list]a do
     if State.bnode_type(state, bnode) == :unrefed_bnode_object_term do
-      unrefed_bnode_object_term(bnode, state, nesting)
+      unrefed_bnode_object_term(bnode, state)
     else
       to_string(bnode)
     end
   end
 
-  defp term(%BlankNode{} = bnode, _, _, _),
-    do: to_string(bnode)
+  defp term(%BlankNode{} = bnode, _, _), do: to_string(bnode)
 
-  defp term(%Literal{literal: %LangString{} = lang_string}, _, _, _) do
+  defp term(%Literal{literal: %LangString{} = lang_string}, _, _) do
     [quoted(lang_string.value), "@", lang_string.language]
   end
 
-  defp term(%Literal{literal: %XSD.String{}} = literal, _, _, _) do
+  defp term(%Literal{literal: %XSD.String{}} = literal, _, _) do
     literal |> Literal.lexical() |> quoted()
   end
 
-  defp term(%Literal{literal: %datatype{}} = literal, state, _, nesting)
+  defp term(%Literal{literal: %datatype{}} = literal, state, _)
        when datatype in @native_supported_datatypes do
     cond do
-      not Literal.valid?(literal) -> typed_literal_term(literal, state, nesting)
-      not Literal.canonical?(literal) -> uncanonical_form(datatype, literal, state, nesting)
+      not Literal.valid?(literal) -> typed_literal_term(literal, state)
+      not Literal.canonical?(literal) -> uncanonical_form(datatype, literal, state)
       true -> Literal.canonical_lexical(literal)
     end
   end
 
-  defp term(%Literal{} = literal, state, _, nesting),
-    do: typed_literal_term(literal, state, nesting)
+  defp term(%Literal{} = literal, state, _), do: typed_literal_term(literal, state)
 
-  defp term({s, p, o}, state, _, nesting) do
+  defp term({s, p, o}, state, _) do
     [
       "<< ",
-      term(s, state, :subject, nesting),
+      term(s, state, :subject),
       " ",
-      term(p, state, :predicate, nesting),
+      term(p, state, :predicate),
       " ",
-      term(o, state, :object, nesting),
+      term(o, state, :object),
       " >>"
     ]
   end
 
-  defp term(list, %{no_object_lists: true} = state, _, nesting) when is_list(list) do
-    indentation = nesting + @indentation
+  defp term(list, %{no_object_lists: true} = state, _) when is_list(list) do
+    indented = State.indent(state)
 
     [
       "(",
-      newline_indent(indentation),
+      State.newline_indent(indented),
       list
-      |> Enum.map(&term(&1, state, :list, indentation))
-      |> Enum.intersperse(newline_indent(indentation)),
-      newline_indent(nesting),
+      |> Enum.map(&term(&1, indented, :list))
+      |> Enum.intersperse(State.newline_indent(indented)),
+      State.newline_indent(state),
       ")"
     ]
   end
 
-  defp term(list, state, _, nesting) when is_list(list) do
+  defp term(list, state, _) when is_list(list) do
     [
       "(",
       list
-      |> Enum.map(&term(&1, state, :list, nesting))
+      |> Enum.map(&term(&1, state, :list))
       |> Enum.intersperse(" "),
       ")"
     ]
   end
 
-  defp uncanonical_form(XSD.Double, literal, state, nesting) do
+  defp uncanonical_form(XSD.Double, literal, state) do
     if literal |> Literal.lexical() |> String.contains?(["e", "E"]) do
       Literal.lexical(literal)
     else
-      typed_literal_term(literal, state, nesting)
+      typed_literal_term(literal, state)
     end
   end
 
-  defp uncanonical_form(_, literal, state, nesting),
-    do: typed_literal_term(literal, state, nesting)
+  defp uncanonical_form(_, literal, state), do: typed_literal_term(literal, state)
 
   defp based_name(%IRI{} = iri, base), do: iri |> to_string() |> based_name(base)
   defp based_name(_, nil), do: nil
@@ -389,14 +378,14 @@ defmodule RDF.TurtleTriG.Encoder do
     end
   end
 
-  defp typed_literal_term(%Literal{} = literal, state, nesting) do
+  defp typed_literal_term(%Literal{} = literal, state) do
     [
       ~s["],
       escape_string(Literal.lexical(literal)),
       ~s["^^],
       literal
       |> Literal.datatype_id()
-      |> term(state, :datatype, nesting)
+      |> term(state, :datatype)
     ]
   end
 
@@ -418,16 +407,4 @@ defmodule RDF.TurtleTriG.Encoder do
       [~s["], escape_string(string), ~s["]]
     end
   end
-
-  defp newline_indent(nesting), do: ["\n", indent(nesting)]
-
-  defp indent(%State{indentation: indentation}), do: indent(indentation)
-  defp indent(nil), do: ""
-  defp indent(0), do: ""
-  defp indent(count), do: String.duplicate(" ", count)
-
-  defp indent([], _), do: []
-  defp indent(iolist, nil), do: iolist
-  defp indent(iolist, 0), do: iolist
-  defp indent(iolist, count), do: [indent(count) | iolist]
 end

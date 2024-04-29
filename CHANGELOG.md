@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - Decoder and encoder of the TriG serialization language. 
 - Capability to add custom content in the `RDF.Turtle.Encoder` (and new `RDF.TriG.Encoder`)
   with the `:content` option.
+- Option `:indent_width` on `RDF.Turtle.Encoder` customize the indentation width.
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.

@@ -529,6 +529,32 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
+    test ":indent_width option" do
+      graph =
+        Graph.new(
+          [
+            {EX.S, RDFS.subClassOf(), EX.O},
+            {RDF.bnode("foo"), EX.p(), EX.O2}
+          ],
+          prefixes: %{rdfs: RDFS.__base_iri__()},
+          base_iri: EX.__base_iri__()
+        )
+
+      assert Turtle.Encoder.encode!(graph, indent_width: 2) ==
+               """
+               @base <#{to_string(EX.__base_iri__())}> .
+
+               @prefix rdfs: <#{to_string(RDFS.__base_iri__())}> .
+
+               <S>
+                 rdfs:subClassOf <O> .
+
+               [
+                 <p> <O2>
+               ] .
+               """
+    end
+
     test ":no_object_lists option" do
       assert Turtle.Encoder.encode!(
                Graph.new([
