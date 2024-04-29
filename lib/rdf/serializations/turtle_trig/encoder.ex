@@ -205,6 +205,12 @@ defmodule RDF.TurtleTriG.Encoder do
     |> Enum.intersperse([" ;", newline_indent(nesting)])
   end
 
+  defp predication({predicate, objects}, %{no_object_lists: true} = state, nesting) do
+    objects
+    |> Enum.map(&[term(predicate, state, :predicate, nesting), " ", object(&1, state, nesting)])
+    |> Enum.intersperse([" ;", newline_indent(nesting)])
+  end
+
   defp predication({predicate, objects}, state, nesting) do
     [term(predicate, state, :predicate, nesting), " " | objects(objects, state, nesting)]
   end
@@ -213,17 +219,9 @@ defmodule RDF.TurtleTriG.Encoder do
     {objects, with_annotations?} =
       Enum.map_reduce(objects, false, fn {object, annotation}, with_annotations? ->
         if annotation do
-          {
-            [
-              term(object, state, :object, nesting),
-              " {| ",
-              predications(annotation, state, nesting + 2 * @indentation),
-              " |}"
-            ],
-            true
-          }
+          {object_with_annotation(object, annotation, state, nesting), true}
         else
-          {term(object, state, :object, nesting), with_annotations?}
+          {object_without_annotation(object, state, nesting), with_annotations?}
         end
       end)
 
@@ -233,6 +231,25 @@ defmodule RDF.TurtleTriG.Encoder do
         else: ", "
 
     Enum.intersperse(objects, separator)
+  end
+
+  defp object({object, nil}, state, nesting),
+    do: object_without_annotation(object, state, nesting)
+
+  defp object({object, annotation}, state, nesting),
+    do: object_with_annotation(object, annotation, state, nesting)
+
+  defp object_without_annotation(object, state, nesting) do
+    term(object, state, :object, nesting)
+  end
+
+  defp object_with_annotation(object, annotation, state, nesting) do
+    [
+      object_without_annotation(object, state, nesting),
+      " {| ",
+      predications(annotation, state, nesting + 2 * @indentation),
+      " |}"
+    ]
   end
 
   defp unrefed_bnode_subject_term(bnode_description, state, nesting) do
@@ -325,6 +342,20 @@ defmodule RDF.TurtleTriG.Encoder do
       " ",
       term(o, state, :object, nesting),
       " >>"
+    ]
+  end
+
+  defp term(list, %{no_object_lists: true} = state, _, nesting) when is_list(list) do
+    indentation = nesting + @indentation
+
+    [
+      "(",
+      newline_indent(indentation),
+      list
+      |> Enum.map(&term(&1, state, :list, indentation))
+      |> Enum.intersperse(newline_indent(indentation)),
+      newline_indent(nesting),
+      ")"
     ]
   end
 

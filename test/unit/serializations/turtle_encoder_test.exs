@@ -363,7 +363,8 @@ defmodule RDF.Turtle.EncoderTest do
                Graph.new([
                  {~B<foo>, EX.p1(), ~B<bar>},
                  {~B<bar>, EX.p2(), ~B<baz>},
-                 {~B<baz>, EX.p3(), 42}
+                 {~B<baz>, EX.p2(), EX.O},
+                 {~B<baz>, EX.p3(), [42, 23, 3.14]}
                ]),
                prefixes: %{}
              ) ==
@@ -371,7 +372,8 @@ defmodule RDF.Turtle.EncoderTest do
                [
                    <http://example.org/#p1> [
                        <http://example.org/#p2> [
-                           <http://example.org/#p3> 42
+                           <http://example.org/#p2> <http://example.org/#O> ;
+                           <http://example.org/#p3> 23, 42, 3.14E0
                        ]
                    ]
                ] .
@@ -525,6 +527,95 @@ defmodule RDF.Turtle.EncoderTest do
                      <p> <O2>
                  ] .
                """
+    end
+
+    test ":no_object_lists option" do
+      assert Turtle.Encoder.encode!(
+               Graph.new([
+                 {EX.S1, EX.p1(), EX.O1},
+                 {EX.S1, EX.p1(), EX.O2},
+                 {EX.S1, EX.p2(), "foo"}
+               ]),
+               prefixes: %{
+                 ex: EX.__base_iri__(),
+                 xsd: NS.XSD.__base_iri__()
+               },
+               no_object_lists: true
+             ) ==
+               """
+               @prefix ex: <#{to_string(EX.__base_iri__())}> .
+               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+               ex:S1
+                   ex:p1 ex:O1 ;
+                   ex:p1 ex:O2 ;
+                   ex:p2 "foo" .
+               """
+
+      assert Graph.new([
+               {~B<foo>, EX.p1(), ~B<bar>},
+               {~B<bar>, EX.p2(), ~B<baz>},
+               {~B<baz>, EX.p2(), EX.O},
+               {~B<baz>, EX.p3(), [42, 23, 3.14]}
+             ])
+             |> Turtle.Encoder.encode!(
+               prefixes: %{},
+               no_object_lists: true
+             ) ==
+               """
+               [
+                   <http://example.org/#p1> [
+                       <http://example.org/#p2> [
+                           <http://example.org/#p2> <http://example.org/#O> ;
+                           <http://example.org/#p3> 23 ;
+                           <http://example.org/#p3> 42 ;
+                           <http://example.org/#p3> 3.14E0
+                       ]
+                   ]
+               ] .
+               """
+
+      assert Graph.new(
+               ~B<Foo>
+               |> RDF.first(EX.Foo)
+               |> RDF.rest(~B<Bar>)
+             )
+             |> Graph.add(
+               ~B<Bar>
+               |> RDF.first(EX.Bar)
+               |> RDF.rest(~B<Baz>)
+             )
+             |> Graph.add(
+               ~B<Baz>
+               |> RDF.first(~B<BazEmbedded>)
+               |> RDF.rest(RDF.nil())
+             )
+             |> Graph.add([
+               {EX.Foo, EX.p1(), [1, 2, 3]},
+               {~B<BazEmbedded>, EX.p2(), [EX.Foo, EX.Bar]}
+             ])
+             |> Turtle.Encoder.encode!(
+               prefixes: %{},
+               no_object_lists: true
+             ) ==
+               """
+               <http://example.org/#Foo>
+                   <http://example.org/#p1> 1 ;
+                   <http://example.org/#p1> 2 ;
+                   <http://example.org/#p1> 3 .
+
+               (
+                   <http://example.org/#Foo>
+                   <http://example.org/#Bar>
+                   [
+                       <http://example.org/#p2> <http://example.org/#Bar> ;
+                       <http://example.org/#p2> <http://example.org/#Foo>
+                   ]
+               )
+                   a <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+               """
+
+      # a case with RDF-star annotations in tested also in turtle_star_encoder_test.exs
     end
 
     test "serializing a pathological graph with an empty description" do
@@ -817,6 +908,42 @@ defmodule RDF.Turtle.EncoderTest do
           {~r[\(\s*ex:Foo\s+ex:Bar\s*\)], "does include the list as a Turtle list"}
         ]
       )
+    end
+
+    test "list with embedded blank node description" do
+      assert Graph.new(
+               ~B<Foo>
+               |> RDF.first(EX.Foo)
+               |> RDF.rest(~B<Bar>)
+             )
+             |> Graph.add(
+               ~B<Bar>
+               |> RDF.first(EX.Bar)
+               |> RDF.rest(~B<Baz>)
+             )
+             |> Graph.add(
+               ~B<Baz>
+               |> RDF.first(~B<BazEmbedded>)
+               |> RDF.rest(RDF.nil())
+             )
+             |> Graph.add([
+               {EX.Foo, EX.p1(), 42},
+               {~B<BazEmbedded>, EX.p2(), [EX.Foo, EX.Bar]}
+             ])
+             |> Turtle.Encoder.encode!() ==
+               """
+               @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+               @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+               @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+               <http://example.org/#Foo>
+                   <http://example.org/#p1> 42 .
+
+               (<http://example.org/#Foo> <http://example.org/#Bar> [
+                   <http://example.org/#p2> <http://example.org/#Bar>, <http://example.org/#Foo>
+               ])
+                   a rdf:List .
+               """
     end
 
     test "when given an invalid list" do

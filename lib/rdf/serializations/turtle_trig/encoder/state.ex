@@ -8,8 +8,9 @@ defmodule RDF.TurtleTriG.Encoder.State do
     :base,
     :prefixes,
     :implicit_base,
-    :bnode_info,
-    :indentation
+    :no_object_lists,
+    :indentation,
+    :bnode_info
   ]
 
   @implicit_default_base "http://this-implicit-default-base-iri-should-never-appear-in-a-document"
@@ -36,6 +37,7 @@ defmodule RDF.TurtleTriG.Encoder.State do
       implicit_base: Keyword.get(opts, :implicit_base),
       prefixes: prefixes,
       indentation: Keyword.get(opts, :indent),
+      no_object_lists: Keyword.get(opts, :no_object_lists, false),
       bnode_info: BnodeInfo.new(data)
     }
   end

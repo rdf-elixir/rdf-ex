@@ -272,4 +272,42 @@ defmodule RDF.Star.Turtle.EncoderTest do
                  :p << :s2 :p2 :o2 >> {| :r :z |} .
              """
   end
+
+  test ":no_object_lists option" do
+    assert RDF.graph(
+             [
+               {EX.s(), EX.p(), EX.o()},
+               {~B"foo", EX.graph(), ~I<http://host1/>},
+               {~B"foo", EX.date(), XSD.date("2020-01-20")},
+               {~B"bar", EX.graph(), ~I<http://host2/>},
+               {~B"bar", EX.date(), XSD.date("2020-12-31")},
+               {{EX.s(), EX.p(), EX.o()}, EX.source(), ~B"foo"},
+               {{EX.s(), EX.p(), EX.o()}, EX.source(), ~B"bar"},
+               {EX.s2(), EX.p2(), EX.o1()},
+               {EX.s2(), EX.p2(), EX.o2()},
+               {{EX.s2(), EX.p2(), EX.o1()}, EX.q(), EX.z()},
+               {{EX.s2(), EX.p2(), EX.o2()}, EX.q(), EX.z()}
+             ],
+             prefixes: [nil: EX, xsd: NS.XSD]
+           )
+           |> Turtle.Encoder.encode!(no_object_lists: true) ==
+             """
+             @prefix : <http://example.com/> .
+             @prefix xsd: <#{NS.XSD.__base_iri__()}> .
+
+             :s
+                 :p :o {| :source [
+                             :date "2020-12-31"^^xsd:date ;
+                             :graph <http://host2/>
+                         ] ;
+                         :source [
+                             :date "2020-01-20"^^xsd:date ;
+                             :graph <http://host1/>
+                         ] |} .
+
+             :s2
+                 :p2 :o1 {| :q :z |} ;
+                 :p2 :o2 {| :q :z |} .
+             """
+  end
 end
