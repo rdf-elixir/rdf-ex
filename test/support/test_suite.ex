@@ -59,8 +59,7 @@ defmodule RDF.TestSuite do
 
   def test_title(test_case) do
     [test_id(test_case), test_name(test_case) || value(test_case, RDFS.comment())]
-    |> Enum.reject(&is_nil/1)
-    |> Enum.reject(&(&1 == ""))
+    |> Enum.reject(&(&1 in [nil, ""]))
     |> Enum.join(" - ")
     |> String.slice(0..100)
   end
