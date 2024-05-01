@@ -10,6 +10,7 @@ defmodule RDF.Turtle.EncoderTest do
   alias RDF.NS.{RDFS, OWL}
 
   import RDF.Sigils
+  import RDF.Namespace.IRI
 
   use RDF.Vocabulary.Namespace
 
@@ -684,6 +685,63 @@ defmodule RDF.Turtle.EncoderTest do
              """
              <http://example.org/#S1>
                  <http://example.org/#p1> <http://example.org/#O1> .
+             """
+  end
+
+  test ":line_prefix option" do
+    assert Turtle.Encoder.encode!(
+             Graph.new([
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S1, EX.p1(), EX.O2},
+               {EX.S1, EX.p2(), EX.O3},
+               {EX.S2, EX.p3(), EX.O4}
+             ]),
+             prefixes: %{},
+             line_prefix: fn
+               :triple, {_, term_to_iri(EX.p2()), _}, nil -> "D "
+               :triple, {term_to_iri(EX.S2), _, _}, nil -> "A "
+               :triple, {_, term_to_iri(EX.p1()), term_to_iri(EX.O1)}, nil -> "U "
+               :description, term_to_iri(EX.S2), nil -> "A "
+               _, _, _ -> "  "
+             end
+           ) ==
+             """
+               <http://example.org/#S1>
+             U     <http://example.org/#p1> <http://example.org/#O1> ;
+                   <http://example.org/#p1> <http://example.org/#O2> ;
+             D     <http://example.org/#p2> <http://example.org/#O3> .
+
+             A <http://example.org/#S2>
+             A     <http://example.org/#p3> <http://example.org/#O4> .
+             """
+
+    assert Turtle.Encoder.encode!(
+             Graph.new([
+               {~B<foo>, EX.p1(), ~B<bar>},
+               {~B<bar>, EX.p2(), ~B<baz>},
+               {~B<baz>, EX.p2(), EX.O},
+               {~B<baz>, EX.p3(), [42, 23, 3.14]}
+             ]),
+             prefixes: %{ex: EX},
+             line_prefix: fn
+               :triple, {s, _p, o}, nil -> String.pad_trailing("T-<#{s} #{o}> ", 32)
+               :description, subject, nil -> String.pad_trailing("D-<#{subject}> ", 32)
+               :closing, _, nil -> String.duplicate(" ", 32)
+             end
+           ) ==
+             """
+             @prefix ex: <http://example.org/#> .
+
+             D-<_:foo>                       [
+             T-<_:foo _:bar>                     ex:p1 [
+             T-<_:bar _:baz>                         ex:p2 [
+             T-<_:baz http://example.org/#O>             ex:p2 ex:O ;
+             T-<_:baz 23>                                ex:p3 23 ;
+             T-<_:baz 42>                                ex:p3 42 ;
+             T-<_:baz 3.14E0>                            ex:p3 3.14E0
+                                                     ]
+                                                 ]
+                                             ] .
              """
   end
 

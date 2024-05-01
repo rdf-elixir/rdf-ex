@@ -6,6 +6,15 @@ defmodule RDF.TurtleTriG.Encoder do
 
   import RDF.NTriples.Encoder, only: [escape_string: 1]
 
+  import State,
+    only: [
+      line_prefixed: 4,
+      newline_indentation: 1,
+      indentation: 1,
+      indented: 2,
+      indent: 1
+    ]
+
   @document_structure {:separated, [:directives, :triples]}
 
   @native_supported_datatypes [
@@ -14,6 +23,7 @@ defmodule RDF.TurtleTriG.Encoder do
     XSD.Double,
     XSD.Decimal
   ]
+
   @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
   @rdf_nil RDF.Utils.Bootstrapping.rdf_iri("nil")
 
@@ -30,6 +40,22 @@ defmodule RDF.TurtleTriG.Encoder do
       specified, e.g. in the common use case of wanting to describe the document
       itself, which should be denoted by the URL where it is hosted as the implicit base
       URI.
+    - `:line_prefix`: Allows to specify a function returning prefixes for the encoded lines.
+      When this function is defined, the `:no_object_lists` option is implicitly set, so
+      that each line encodes at most one triple.
+      The function receives three arguments:
+      1. `type` - one of the following values specifying the content of the line: `:triple`,
+        `:description`, `:graph` (for named graphs in TriG only), `:closing`
+      2. `value` - a `type` specific value for the content in this line
+          - for `:triple`: the `RDF.Triple` encoded in this line
+          - for `:description`: the subject whose description is started in this line
+          - for `:graph`: the name of the graph, opened in this line
+          - for `:closing`: a value specifying which element is closed in this line
+      3. `graph_name` - the name of graph (in Turtle this is always `nil`)
+    - `:no_object_lists`: When set to `true` each line encodes at most one triple, i.e.
+       no object lists with multiple objects are used. This option in of itself is not very
+       useful. It is set implicitly when defining a `:line_prefix` function which depends
+       on this mode to produce useful results.
     - `:indent`: Allows to specify the number of spaces the output should be indented.
     - `:indent_width`: Allows to specify the number of spaces that should be used for
       indentations (default: 4).
@@ -104,6 +130,7 @@ defmodule RDF.TurtleTriG.Encoder do
     Enum.map(elements, &compile(&1, format, state, opts))
   end
 
+  defp compile(nil, _, _, _), do: []
   defp compile(string, _, _, _) when is_binary(string), do: string
 
   defp compile(element, format, _, _) do
@@ -115,7 +142,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp base_directive(base, state, opts) do
     [
-      state.indentation,
+      indentation(state),
       case Keyword.get(opts, :directive_style) do
         :sparql -> ["BASE <", base, ">"]
         _ -> ["@base <", base, "> ."]
@@ -139,21 +166,34 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp graph(%State{graph: %Graph{name: name}} = state) do
     [
-      state.indentation,
       "GRAPH ",
       term(name, state, :subject),
       " {\n",
       graph_statements(State.indent(state)),
-      state.indentation,
-      "}\n"
+      line_prefixed("}", state, :closing, {:graph, name}),
+      "\n"
     ]
+    |> line_prefixed(state, :graph, name)
+  end
+
+  defp graph_statements(%{no_object_lists: true} = state) do
+    state.graph
+    |> CompactStarGraph.compact()
+    |> Sequencer.descriptions(State.base_iri(state))
+    |> Enum.map(
+      &(&1
+        |> description_statements(state)
+        |> line_prefixed(state, :description, &1.subject))
+    )
+    |> Enum.reject(&Enum.empty?/1)
+    |> Enum.intersperse("\n")
   end
 
   defp graph_statements(state) do
     state.graph
     |> CompactStarGraph.compact()
     |> Sequencer.descriptions(State.base_iri(state))
-    |> Enum.map(&(&1 |> description_statements(state) |> State.indented(state)))
+    |> Enum.map(&(&1 |> description_statements(state) |> indented(state)))
     |> Enum.reject(&Enum.empty?/1)
     |> Enum.intersperse("\n")
   end
@@ -170,47 +210,82 @@ defmodule RDF.TurtleTriG.Encoder do
     end
   end
 
-  defp full_description_statements(description, state) do
-    description.subject
-    |> term(state, :subject)
-    |> full_description_statements(description, state)
+  defp unrefed_bnode_subject_term(bnode_description, state) do
+    if State.valid_list_node?(state, bnode_description.subject) do
+      bnode_description.subject
+      |> list_term(state)
+      |> full_description_statements(list_subject_description(bnode_description), state)
+    else
+      [blank_node_property_list(bnode_description, state), " .\n"]
+    end
   end
 
-  defp full_description_statements(subject, description, state) do
-    state = State.indent(state)
-    [subject, State.newline_indent(state), predications(description, state), " .\n"]
+  defp blank_node_property_list(description, %{no_object_lists: true} = state) do
+    if Description.empty?(description) do
+      "[]"
+    else
+      [
+        "[\n",
+        predications(description, indent(state)),
+        "\n",
+        line_prefixed("]", state, :closing, {:blank_node_property_list, description.subject})
+      ]
+    end
   end
 
   defp blank_node_property_list(description, state) do
     if Description.empty?(description) do
       "[]"
     else
-      indented = State.indent(state)
+      indented = indent(state)
 
       [
         "[",
-        State.newline_indent(indented),
+        newline_indentation(indented),
         predications(description, indented),
-        State.newline_indent(state),
+        newline_indentation(state),
         "]"
       ]
     end
   end
 
+  defp full_description_statements(description, state) do
+    description.subject
+    |> term(state, :subject)
+    |> full_description_statements(description, state)
+  end
+
+  defp full_description_statements(subject, description, %{no_object_lists: true} = state) do
+    [subject, "\n", predications(description, indent(state)), " .\n"]
+  end
+
+  defp full_description_statements(subject, description, state) do
+    state = indent(state)
+    [subject, newline_indentation(state), predications(description, state), " .\n"]
+  end
+
   defp predications(description, state) do
+    separator = if state.no_object_lists, do: " ;\n", else: [" ;", newline_indentation(state)]
+    subject = description.subject
+
     description
     |> Sequencer.predications()
-    |> Enum.map(&predication(&1, state))
-    |> Enum.intersperse([" ;", State.newline_indent(state)])
+    |> Enum.map(&predication(&1, subject, state))
+    |> Enum.intersperse(separator)
   end
 
-  defp predication({predicate, objects}, %{no_object_lists: true} = state) do
+  defp predication({predicate, objects}, subject, %{no_object_lists: true} = state) do
     objects
-    |> Enum.map(&[term(predicate, state, :predicate), " ", object(&1, state)])
-    |> Enum.intersperse([" ;", State.newline_indent(state)])
+    |> Enum.map(fn {object, _} = object_tuple ->
+      triple = {subject, predicate, object}
+
+      [term(predicate, state, :predicate), " ", object(object_tuple, triple, state)]
+      |> line_prefixed(state, :triple, triple)
+    end)
+    |> Enum.intersperse(" ;\n")
   end
 
-  defp predication({predicate, objects}, state) do
+  defp predication({predicate, objects}, _subject, state) do
     [term(predicate, state, :predicate), " " | objects(objects, state)]
   end
 
@@ -226,14 +301,17 @@ defmodule RDF.TurtleTriG.Encoder do
 
     separator =
       if with_annotations?,
-        do: ["," | state |> State.indent() |> State.newline_indent()],
+        do: ["," | state |> State.indent() |> State.newline_indentation()],
         else: ", "
 
     Enum.intersperse(objects, separator)
   end
 
-  defp object({object, nil}, state), do: object_without_annotation(object, state)
-  defp object({object, annotation}, state), do: object_with_annotation(object, annotation, state)
+  defp object({object, nil}, _, state), do: object_without_annotation(object, state)
+
+  defp object({object, annotation}, triple, state) do
+    object_with_annotation(object, Description.change_subject(annotation, triple), state)
+  end
 
   defp object_without_annotation(object, state) do
     term(object, state, :object)
@@ -242,20 +320,11 @@ defmodule RDF.TurtleTriG.Encoder do
   defp object_with_annotation(object, annotation, state) do
     [
       object_without_annotation(object, state),
-      " {| ",
+      " {|",
+      if(state.no_object_lists, do: "\n", else: " "),
       predications(annotation, state |> State.indent() |> State.indent()),
       " |}"
     ]
-  end
-
-  defp unrefed_bnode_subject_term(bnode_description, state) do
-    if State.valid_list_node?(state, bnode_description.subject) do
-      bnode_description.subject
-      |> list_term(state)
-      |> full_description_statements(list_subject_description(bnode_description), state)
-    else
-      [blank_node_property_list(bnode_description, state), " .\n"]
-    end
   end
 
   defp list_subject_description(description) do
@@ -335,21 +404,23 @@ defmodule RDF.TurtleTriG.Encoder do
     ]
   end
 
-  defp term(list, %{no_object_lists: true} = state, _) when is_list(list) do
+  defp term(list, %{no_object_lists: true} = state, :list) do
     indented = State.indent(state)
 
     [
-      "(",
-      State.newline_indent(indented),
+      "(\n",
       list
-      |> Enum.map(&term(&1, indented, :list))
-      |> Enum.intersperse(State.newline_indent(indented)),
-      State.newline_indent(state),
-      ")"
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        [term(value, indented, :list), "\n"]
+        # TODO: This is not sufficient context information; to which list does this element belong ...
+        |> line_prefixed(indented, :list_element, {value, index})
+      end),
+      line_prefixed(")", state, :closing, :list)
     ]
   end
 
-  defp term(list, state, _) when is_list(list) do
+  defp term(list, state, :list) do
     [
       "(",
       list

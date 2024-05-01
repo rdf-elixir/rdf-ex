@@ -296,7 +296,8 @@ defmodule RDF.Star.Turtle.EncoderTest do
              @prefix xsd: <#{NS.XSD.__base_iri__()}> .
 
              :s
-                 :p :o {| :source [
+                 :p :o {|
+                         :source [
                              :date "2020-12-31"^^xsd:date ;
                              :graph <http://host2/>
                          ] ;
@@ -306,8 +307,54 @@ defmodule RDF.Star.Turtle.EncoderTest do
                          ] |} .
 
              :s2
-                 :p2 :o1 {| :q :z |} ;
-                 :p2 :o2 {| :q :z |} .
+                 :p2 :o1 {|
+                         :q :z |} ;
+                 :p2 :o2 {|
+                         :q :z |} .
+             """
+  end
+
+  test ":line_prefix option" do
+    assert RDF.graph(
+             [
+               {EX.s1(), EX.p(), EX.o()},
+               {~B"foo", EX.graph(), ~I<http://host1/>},
+               {~B"foo", EX.date(), XSD.date("2020-01-20")},
+               {{EX.s1(), EX.p(), EX.o()}, EX.source(), ~B"foo"},
+               {{EX.s1(), EX.p(), EX.o()}, EX.source(), 42},
+               {EX.s2(), EX.p2(), EX.o1()},
+               {EX.s2(), EX.p2(), EX.o2()},
+               {{EX.s2(), EX.p2(), EX.o1()}, EX.q(), EX.z()},
+               {{EX.s2(), EX.p2(), EX.o2()}, EX.q(), EX.z()}
+             ],
+             prefixes: [nil: EX, xsd: NS.XSD]
+           )
+           |> Turtle.Encoder.encode!(
+             line_prefix: fn
+               :triple, {{as, _, _}, _, _}, nil -> "AT#{as |> to_string() |> String.at(-1)} "
+               :triple, {_s, _p, _o}, nil -> "T   "
+               :description, {_, _, _}, nil -> "THIS SHOULD NOT HAPPEN"
+               :description, subject, nil -> "D#{subject |> to_string() |> String.at(-1)}  "
+               :closing, _, nil -> "C   "
+             end
+           ) ==
+             """
+             @prefix : <http://example.com/> .
+             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+             D1  :s1
+             T       :p :o {|
+             AT1             :source 42 ;
+             AT1             :source [
+             T                   :date "2020-01-20"^^xsd:date ;
+             T                   :graph <http://host1/>
+             C               ] |} .
+
+             D2  :s2
+             T       :p2 :o1 {|
+             AT2             :q :z |} ;
+             T       :p2 :o2 {|
+             AT2             :q :z |} .
              """
   end
 end

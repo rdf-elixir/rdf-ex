@@ -10,6 +10,7 @@ defmodule RDF.TriG.EncoderTest do
   alias RDF.NS.{RDFS, OWL}
 
   import RDF.Sigils
+  import RDF.Namespace.IRI
 
   use RDF.Vocabulary.Namespace
 
@@ -800,6 +801,76 @@ defmodule RDF.TriG.EncoderTest do
         ]
       )
     end
+  end
+
+  test ":line_prefix option" do
+    assert TriG.Encoder.encode!(
+             Dataset.new([
+               {EX.S1, EX.p1(), EX.O1, EX.Graph},
+               {EX.S1, EX.p1(), EX.O2, EX.Graph},
+               {EX.S1, EX.p2(), EX.O3},
+               {EX.S2, EX.p3(), EX.O4}
+             ]),
+             prefixes: %{},
+             line_prefix: fn
+               :triple, {_, term_to_iri(EX.p2()), _}, nil -> "T1 "
+               :triple, {term_to_iri(EX.S2), _, _}, nil -> "T2 "
+               :triple, {_, _, term_to_iri(EX.O1)}, term_to_iri(EX.Graph) -> "T3 "
+               :graph, term_to_iri(EX.Graph), _ -> "NG "
+               :description, term_to_iri(EX.S1), nil -> "D1 "
+               :description, term_to_iri(EX.S2), nil -> "D2 "
+               :description, term_to_iri(EX.S1), term_to_iri(EX.Graph) -> "D3 "
+               _, _, _ -> "   "
+             end
+           ) ==
+             """
+             D1 <http://example.org/#S1>
+             T1     <http://example.org/#p2> <http://example.org/#O3> .
+
+             D2 <http://example.org/#S2>
+             T2     <http://example.org/#p3> <http://example.org/#O4> .
+
+             NG GRAPH <http://example.org/#Graph> {
+             D3     <http://example.org/#S1>
+             T3         <http://example.org/#p1> <http://example.org/#O1> ;
+                        <http://example.org/#p1> <http://example.org/#O2> .
+                }
+             """
+
+    assert TriG.Encoder.encode!(
+             Dataset.new(
+               [
+                 {~B<foo>, EX.p1(), ~B<bar>},
+                 {~B<bar>, EX.p2(), ~B<baz>},
+                 {~B<baz>, EX.p2(), EX.O},
+                 {~B<baz>, EX.p3(), [42, 23, 3.14]}
+               ],
+               graph: EX.Graph
+             ),
+             prefixes: %{ex: EX},
+             line_prefix: fn
+               :graph, term_to_iri(EX.Graph), _ -> "NG        "
+               :triple, {s, _p, _o}, term_to_iri(EX.Graph) -> "T-<#{s}> "
+               :description, subject, term_to_iri(EX.Graph) -> "D-<#{subject}> "
+               :closing, _, _ -> String.duplicate(" ", 10)
+             end
+           ) ==
+             """
+             @prefix ex: <http://example.org/#> .
+
+             NG        GRAPH ex:Graph {
+             D-<_:foo>     [
+             T-<_:foo>         ex:p1 [
+             T-<_:bar>             ex:p2 [
+             T-<_:baz>                 ex:p2 ex:O ;
+             T-<_:baz>                 ex:p3 23 ;
+             T-<_:baz>                 ex:p3 42 ;
+             T-<_:baz>                 ex:p3 3.14E0
+                                   ]
+                               ]
+                           ] .
+                       }
+             """
   end
 
   defp assert_serialization(dataset, opts) do

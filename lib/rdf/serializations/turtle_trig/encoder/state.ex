@@ -9,6 +9,7 @@ defmodule RDF.TurtleTriG.Encoder.State do
     :prefixes,
     :implicit_base,
     :no_object_lists,
+    :line_prefix,
     :base_indent,
     :indentation,
     :indent_step,
@@ -33,6 +34,8 @@ defmodule RDF.TurtleTriG.Encoder.State do
     {data, base, opts} =
       add_base_description(data, base, Keyword.get(opts, :base_description), opts)
 
+    line_prefix = Keyword.get(opts, :line_prefix)
+
     %__MODULE__{
       format: format,
       data: data,
@@ -42,7 +45,8 @@ defmodule RDF.TurtleTriG.Encoder.State do
       prefixes: prefixes,
       base_indent: Keyword.get(opts, :indent),
       indent_step: opts |> Keyword.get(:indent_width, @default_indent_width) |> indent_string(),
-      no_object_lists: Keyword.get(opts, :no_object_lists, false),
+      line_prefix: line_prefix,
+      no_object_lists: !!line_prefix || Keyword.get(opts, :no_object_lists),
       bnode_info: BnodeInfo.new(data)
     }
     |> init_indentation()
@@ -85,6 +89,9 @@ defmodule RDF.TurtleTriG.Encoder.State do
     end
   end
 
+  def graph_name(%__MODULE__{format: :turtle}), do: nil
+  def graph_name(%__MODULE__{graph: graph}), do: graph.name
+
   def set_current_graph(%__MODULE__{} = state, graph), do: %__MODULE__{state | graph: graph}
 
   def init_indentation(%__MODULE__{} = state),
@@ -105,7 +112,16 @@ defmodule RDF.TurtleTriG.Encoder.State do
   def indented(iolist, %{indentation: []}), do: iolist
   def indented(iolist, state), do: [state.indentation | iolist]
 
-  def newline_indent(state), do: ["\n" | state.indentation]
+  def line_prefixed([], _, _, _), do: []
+  def line_prefixed(iolist, %{line_prefix: nil} = state, _, _), do: indented(iolist, state)
+
+  def line_prefixed(iolist, %{line_prefix: line_prefix} = state, type, value)
+      when is_function(line_prefix) do
+    [line_prefix.(type, value, graph_name(state)) | indented(iolist, state)]
+  end
+
+  def indentation(%{indentation: indentation}), do: indentation
+  def newline_indentation(%{indentation: indentation}), do: ["\n" | indentation]
 
   def bnode_type(state, bnode), do: BnodeInfo.bnode_type(state.bnode_info, bnode)
 
