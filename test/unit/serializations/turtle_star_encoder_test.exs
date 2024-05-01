@@ -273,7 +273,7 @@ defmodule RDF.Star.Turtle.EncoderTest do
              """
   end
 
-  test ":no_object_lists option" do
+  test ":single_triple_lines option" do
     assert RDF.graph(
              [
                {EX.s(), EX.p(), EX.o()},
@@ -290,7 +290,7 @@ defmodule RDF.Star.Turtle.EncoderTest do
              ],
              prefixes: [nil: EX, xsd: NS.XSD]
            )
-           |> Turtle.Encoder.encode!(no_object_lists: true) ==
+           |> Turtle.Encoder.encode!(single_triple_lines: true) ==
              """
              @prefix : <http://example.com/> .
              @prefix xsd: <#{NS.XSD.__base_iri__()}> .

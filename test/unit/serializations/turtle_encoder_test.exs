@@ -556,7 +556,7 @@ defmodule RDF.Turtle.EncoderTest do
                """
     end
 
-    test ":no_object_lists option" do
+    test ":single_triple_lines option" do
       assert Turtle.Encoder.encode!(
                Graph.new([
                  {EX.S1, EX.p1(), EX.O1},
@@ -567,7 +567,7 @@ defmodule RDF.Turtle.EncoderTest do
                  ex: EX.__base_iri__(),
                  xsd: NS.XSD.__base_iri__()
                },
-               no_object_lists: true
+               single_triple_lines: true
              ) ==
                """
                @prefix ex: <#{to_string(EX.__base_iri__())}> .
@@ -587,7 +587,7 @@ defmodule RDF.Turtle.EncoderTest do
              ])
              |> Turtle.Encoder.encode!(
                prefixes: %{},
-               no_object_lists: true
+               single_triple_lines: true
              ) ==
                """
                [
@@ -621,7 +621,7 @@ defmodule RDF.Turtle.EncoderTest do
                {EX.Foo, EX.p1(), [1, 2, 3]},
                {~B<BazEmbedded>, EX.p2(), [EX.Foo, EX.Bar]}
              ])
-             |> Turtle.Encoder.encode!(no_object_lists: true, prefixes: [rdf: RDF]) ==
+             |> Turtle.Encoder.encode!(single_triple_lines: true, prefixes: [rdf: RDF]) ==
                """
                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 

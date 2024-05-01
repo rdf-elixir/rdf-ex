@@ -8,7 +8,7 @@ defmodule RDF.TurtleTriG.Encoder.State do
     :base,
     :prefixes,
     :implicit_base,
-    :no_object_lists,
+    :single_triple_lines,
     :line_prefix,
     :base_indent,
     :indentation,
@@ -46,7 +46,7 @@ defmodule RDF.TurtleTriG.Encoder.State do
       base_indent: Keyword.get(opts, :indent),
       indent_step: opts |> Keyword.get(:indent_width, @default_indent_width) |> indent_string(),
       line_prefix: line_prefix,
-      no_object_lists: !!line_prefix || Keyword.get(opts, :no_object_lists),
+      single_triple_lines: !!line_prefix || Keyword.get(opts, :single_triple_lines),
       bnode_info: BnodeInfo.new(data)
     }
     |> init_indentation()

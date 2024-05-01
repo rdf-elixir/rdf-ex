@@ -41,7 +41,7 @@ defmodule RDF.TurtleTriG.Encoder do
       itself, which should be denoted by the URL where it is hosted as the implicit base
       URI.
     - `:line_prefix`: Allows to specify a function returning prefixes for the encoded lines.
-      When this function is defined, the `:no_object_lists` option is implicitly set, so
+      When this function is defined, the `:single_triple_lines` option is implicitly set, so
       that each line encodes at most one triple.
       The function receives three arguments:
       1. `type` - one of the following values specifying the content of the line: `:triple`,
@@ -52,7 +52,7 @@ defmodule RDF.TurtleTriG.Encoder do
           - for `:graph`: the name of the graph, opened in this line
           - for `:closing`: a value specifying which element is closed in this line
       3. `graph_name` - the name of graph (in Turtle this is always `nil`)
-    - `:no_object_lists`: When set to `true` each line encodes at most one triple, i.e.
+    - `:single_triple_lines`: When set to `true` each line encodes at most one triple, i.e.
        no object lists with multiple objects are used and no Turtle list encodings are used.
        This option is in of itself is not very useful. It is set implicitly when defining
        a `:line_prefix` function which depends on this mode to produce useful results.
@@ -176,7 +176,7 @@ defmodule RDF.TurtleTriG.Encoder do
     |> line_prefixed(state, :graph, name)
   end
 
-  defp graph_statements(%{no_object_lists: true} = state) do
+  defp graph_statements(%{single_triple_lines: true} = state) do
     state.graph
     |> CompactStarGraph.compact()
     |> Sequencer.descriptions(State.base_iri(state))
@@ -211,7 +211,7 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp unrefed_bnode_subject_term(bnode_description, state) do
-    if !state.no_object_lists && State.valid_list_node?(state, bnode_description.subject) do
+    if !state.single_triple_lines && State.valid_list_node?(state, bnode_description.subject) do
       bnode_description.subject
       |> list_term(state)
       |> full_description_statements(list_subject_description(bnode_description), state)
@@ -220,7 +220,7 @@ defmodule RDF.TurtleTriG.Encoder do
     end
   end
 
-  defp blank_node_property_list(description, %{no_object_lists: true} = state) do
+  defp blank_node_property_list(description, %{single_triple_lines: true} = state) do
     if Description.empty?(description) do
       "[]"
     else
@@ -255,7 +255,7 @@ defmodule RDF.TurtleTriG.Encoder do
     |> full_description_statements(description, state)
   end
 
-  defp full_description_statements(subject, description, %{no_object_lists: true} = state) do
+  defp full_description_statements(subject, description, %{single_triple_lines: true} = state) do
     [subject, "\n", predications(description, indent(state)), " .\n"]
   end
 
@@ -265,7 +265,7 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp predications(description, state) do
-    separator = if state.no_object_lists, do: " ;\n", else: [" ;", newline_indentation(state)]
+    separator = if state.single_triple_lines, do: " ;\n", else: [" ;", newline_indentation(state)]
     subject = description.subject
 
     description
@@ -274,7 +274,7 @@ defmodule RDF.TurtleTriG.Encoder do
     |> Enum.intersperse(separator)
   end
 
-  defp predication({predicate, objects}, subject, %{no_object_lists: true} = state) do
+  defp predication({predicate, objects}, subject, %{single_triple_lines: true} = state) do
     objects
     |> Enum.map(fn {object, _} = object_tuple ->
       triple = {subject, predicate, object}
@@ -321,7 +321,7 @@ defmodule RDF.TurtleTriG.Encoder do
     [
       object_without_annotation(object, state),
       " {|",
-      if(state.no_object_lists, do: "\n", else: " "),
+      if(state.single_triple_lines, do: "\n", else: " "),
       predications(annotation, state |> State.indent() |> State.indent()),
       " |}"
     ]
@@ -339,7 +339,7 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp unrefed_bnode_object_term(bnode, state) do
-    if !state.no_object_lists && State.valid_list_node?(state, bnode) do
+    if !state.single_triple_lines && State.valid_list_node?(state, bnode) do
       list_term(bnode, state)
     else
       state.graph
