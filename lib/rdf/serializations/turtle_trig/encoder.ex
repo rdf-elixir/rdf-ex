@@ -53,9 +53,9 @@ defmodule RDF.TurtleTriG.Encoder do
           - for `:closing`: a value specifying which element is closed in this line
       3. `graph_name` - the name of graph (in Turtle this is always `nil`)
     - `:no_object_lists`: When set to `true` each line encodes at most one triple, i.e.
-       no object lists with multiple objects are used. This option in of itself is not very
-       useful. It is set implicitly when defining a `:line_prefix` function which depends
-       on this mode to produce useful results.
+       no object lists with multiple objects are used and no Turtle list encodings are used.
+       This option is in of itself is not very useful. It is set implicitly when defining
+       a `:line_prefix` function which depends on this mode to produce useful results.
     - `:indent`: Allows to specify the number of spaces the output should be indented.
     - `:indent_width`: Allows to specify the number of spaces that should be used for
       indentations (default: 4).
@@ -211,7 +211,7 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp unrefed_bnode_subject_term(bnode_description, state) do
-    if State.valid_list_node?(state, bnode_description.subject) do
+    if !state.no_object_lists && State.valid_list_node?(state, bnode_description.subject) do
       bnode_description.subject
       |> list_term(state)
       |> full_description_statements(list_subject_description(bnode_description), state)
@@ -339,7 +339,7 @@ defmodule RDF.TurtleTriG.Encoder do
   end
 
   defp unrefed_bnode_object_term(bnode, state) do
-    if State.valid_list_node?(state, bnode) do
+    if !state.no_object_lists && State.valid_list_node?(state, bnode) do
       list_term(bnode, state)
     else
       state.graph
@@ -401,22 +401,6 @@ defmodule RDF.TurtleTriG.Encoder do
       " ",
       term(o, state, :object),
       " >>"
-    ]
-  end
-
-  defp term(list, %{no_object_lists: true} = state, :list) do
-    indented = State.indent(state)
-
-    [
-      "(\n",
-      list
-      |> Enum.with_index()
-      |> Enum.map(fn {value, index} ->
-        [term(value, indented, :list), "\n"]
-        # TODO: This is not sufficient context information; to which list does this element belong ...
-        |> line_prefixed(indented, :list_element, {value, index})
-      end),
-      line_prefixed(")", state, :closing, :list)
     ]
   end
 

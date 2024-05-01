@@ -621,25 +621,28 @@ defmodule RDF.Turtle.EncoderTest do
                {EX.Foo, EX.p1(), [1, 2, 3]},
                {~B<BazEmbedded>, EX.p2(), [EX.Foo, EX.Bar]}
              ])
-             |> Turtle.Encoder.encode!(
-               prefixes: %{},
-               no_object_lists: true
-             ) ==
+             |> Turtle.Encoder.encode!(no_object_lists: true, prefixes: [rdf: RDF]) ==
                """
+               @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
                <http://example.org/#Foo>
                    <http://example.org/#p1> 1 ;
                    <http://example.org/#p1> 2 ;
                    <http://example.org/#p1> 3 .
 
-               (
-                   <http://example.org/#Foo>
-                   <http://example.org/#Bar>
-                   [
-                       <http://example.org/#p2> <http://example.org/#Bar> ;
-                       <http://example.org/#p2> <http://example.org/#Foo>
+               [
+                   rdf:first <http://example.org/#Foo> ;
+                   rdf:rest [
+                       rdf:first <http://example.org/#Bar> ;
+                       rdf:rest [
+                           rdf:first [
+                               <http://example.org/#p2> <http://example.org/#Bar> ;
+                               <http://example.org/#p2> <http://example.org/#Foo>
+                           ] ;
+                           rdf:rest ()
+                       ]
                    ]
-               )
-                   a <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+               ] .
                """
 
       # a case with RDF-star annotations in tested also in turtle_star_encoder_test.exs
@@ -743,6 +746,67 @@ defmodule RDF.Turtle.EncoderTest do
                                                  ]
                                              ] .
              """
+
+    assert Graph.new(
+             ~B<Foo>
+             |> RDF.first(EX.Foo)
+             |> RDF.rest(~B<Bar>)
+           )
+           |> Graph.add(
+             ~B<Bar>
+             |> RDF.first(EX.Bar)
+             |> RDF.rest(~B<Baz>)
+           )
+           |> Graph.add(
+             ~B<Baz>
+             |> RDF.first(~B<BazEmbedded>)
+             |> RDF.rest(RDF.nil())
+           )
+           |> Graph.add([
+             {EX.Foo, EX.p1(), [1, 2, 3]},
+             {~B<BazEmbedded>, EX.p2(), [EX.Foo, EX.Bar]}
+           ])
+           |> Turtle.Encoder.encode!(
+             prefixes: %{ex: EX, rdf: RDF},
+             line_prefix: fn
+               :triple, {s, term_to_iri(RDF.first()), _o}, nil ->
+                 "L#{s |> to_string() |> String.at(-1)} "
+
+               :triple, {_s, _p, _o}, nil ->
+                 "T  "
+
+               :description, _, nil ->
+                 "D  "
+
+               :closing, _, nil ->
+                 "C  "
+             end
+           ) ==
+             """
+             @prefix ex: <http://example.org/#> .
+             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+             D  ex:Foo
+             T      ex:p1 1 ;
+             T      ex:p1 2 ;
+             T      ex:p1 3 .
+
+             D  [
+             Lo     rdf:first ex:Foo ;
+             T      rdf:rest [
+             Lr         rdf:first ex:Bar ;
+             T          rdf:rest [
+             Lz             rdf:first [
+             T                  ex:p2 ex:Bar ;
+             T                  ex:p2 ex:Foo
+             C              ] ;
+             T              rdf:rest ()
+             C          ]
+             C      ]
+             C  ] .
+             """
+
+    # a case with RDF-star annotations in tested also in turtle_star_encoder_test.exs
   end
 
   %{
