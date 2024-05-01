@@ -21,9 +21,21 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
 - Performance improvements of N-Triples and N-Quads encoders.
+- `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
+  are empty.
 
 ### Changed
 
+- The `prefixes` of an `RDF.Graph` are now always a `RDF.PrefixMap` and no longer `nil`
+  initially, since this had the confusing consequence that an `RDF.Graph` where all 
+  prefixes were deleted was not equal to same graph where the deleted were never set,
+  e.g. `RDF.graph() |> Graph.add_prefixes(ex: EX) |> Graph.delete_prefixes(:ex) == RDF.graph`
+  did not hold previously. This behaviour was used before to differentiate graphs which
+  should use the `RDF.default_prefixes/0` (in case `prefixes` was `nil`) from those which
+  should not use any prefixes (empty `PrefixMap`) when serialized to Turtle. 
+  You'll now to explicitly add the `prefixes: []` on Turtle serialization explicitly. 
+  The old behaviour of getting `nil` on empty prefixes can be achieved with the new 
+  `RDF.Graph.prefixes/2` function.
 - Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels
 - Rename `:only` option of `RDF.Turtle.Encoder` to `:content` to reflect the enhanced 
   capabilities.

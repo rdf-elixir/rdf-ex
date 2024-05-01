@@ -12,20 +12,20 @@ defmodule RDF.Graph do
 
   """
 
-  defstruct name: nil, descriptions: %{}, prefixes: nil, base_iri: nil
-
   @behaviour Access
 
   alias RDF.{Description, Dataset, IRI, PrefixMap, PropertyMap}
   alias RDF.Graph.Builder
   alias RDF.Star.{Statement, Triple, Quad}
 
+  defstruct name: nil, descriptions: %{}, prefixes: PrefixMap.new(), base_iri: nil
+
   @type graph_description :: %{Statement.subject() => Description.t()}
 
   @type t :: %__MODULE__{
           name: IRI.t() | nil,
           descriptions: graph_description,
-          prefixes: PrefixMap.t() | nil,
+          prefixes: PrefixMap.t(),
           base_iri: IRI.t() | nil
         }
 
@@ -236,16 +236,9 @@ defmodule RDF.Graph do
     # normalize the annotations here, so we don't have to do this repeatedly in do_add/4
     opts = RDF.Star.Graph.normalize_annotation_opts(opts)
 
-    graph =
-      Enum.reduce(descriptions, graph, fn {_, description}, graph ->
-        add(graph, description, opts)
-      end)
-
-    if prefixes do
-      add_prefixes(graph, prefixes, :ignore)
-    else
-      graph
-    end
+    descriptions
+    |> Enum.reduce(graph, fn {_, description}, graph -> add(graph, description, opts) end)
+    |> add_prefixes(prefixes, :ignore)
   end
 
   def add(graph, %Dataset{} = dataset, opts) do
@@ -1409,8 +1402,20 @@ defmodule RDF.Graph do
   @doc """
   Returns the prefixes of the given `graph` as a `RDF.PrefixMap`.
   """
-  @spec prefixes(t) :: PrefixMap.t() | nil
+  @spec prefixes(t) :: PrefixMap.t()
   def prefixes(%__MODULE__{} = graph), do: graph.prefixes
+
+  @doc """
+  Returns the prefixes of the given `graph` as a `RDF.PrefixMap` or returns the given default when empty.
+  """
+  @spec prefixes(t, any) :: PrefixMap.t() | any
+  def prefixes(%__MODULE__{} = graph, default) do
+    if PrefixMap.empty?(graph.prefixes) do
+      default
+    else
+      graph.prefixes
+    end
+  end
 
   @doc """
   Adds `prefixes` to the given `graph`.
@@ -1431,10 +1436,6 @@ defmodule RDF.Graph do
 
   def add_prefixes(%__MODULE__{} = graph, nil, _), do: graph
 
-  def add_prefixes(%__MODULE__{prefixes: nil} = graph, prefixes, _) do
-    %__MODULE__{graph | prefixes: PrefixMap.new(prefixes)}
-  end
-
   def add_prefixes(%__MODULE__{} = graph, additions, nil) do
     add_prefixes(graph, additions, :overwrite)
   end
@@ -1450,10 +1451,6 @@ defmodule RDF.Graph do
   Prefixes not in prefixes of the graph are simply ignored.
   """
   @spec delete_prefixes(t, PrefixMap.t()) :: t
-  def delete_prefixes(graph, prefixes)
-
-  def delete_prefixes(%__MODULE__{prefixes: nil} = graph, _), do: graph
-
   def delete_prefixes(%__MODULE__{} = graph, deletions) do
     %__MODULE__{graph | prefixes: PrefixMap.drop(graph.prefixes, List.wrap(deletions))}
   end
@@ -1463,7 +1460,7 @@ defmodule RDF.Graph do
   """
   @spec clear_prefixes(t) :: t
   def clear_prefixes(%__MODULE__{} = graph) do
-    %__MODULE__{graph | prefixes: nil}
+    %__MODULE__{graph | prefixes: PrefixMap.new()}
   end
 
   @doc """

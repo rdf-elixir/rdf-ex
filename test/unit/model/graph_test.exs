@@ -1588,8 +1588,19 @@ defmodule RDF.GraphTest do
   end
 
   test "prefixes/1" do
-    assert Graph.prefixes(graph()) == nil
-    assert %Graph{prefixes: PrefixMap.new()} |> Graph.prefixes() == PrefixMap.new()
+    assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
+    assert Graph.new(prefixes: [ex: EX]) |> Graph.prefixes() == PrefixMap.new(ex: EX)
+  end
+
+  describe "prefixes/2" do
+    test "when empty" do
+      assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
+      assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
+    end
+
+    test "when not empty" do
+      assert Graph.new(prefixes: [ex: EX]) |> Graph.prefixes() == PrefixMap.new(ex: EX)
+    end
   end
 
   describe "add_prefixes/2" do
@@ -1627,11 +1638,6 @@ defmodule RDF.GraphTest do
         Graph.new(prefixes: %{ex1: EX, ex2: EX}) |> Graph.delete_prefixes([:ex1, :ex2, :ex3])
 
       assert graph.prefixes == PrefixMap.new()
-    end
-
-    test "when prefixes are not defined yet" do
-      graph = Graph.new() |> Graph.delete_prefixes(:ex)
-      assert graph.prefixes == nil
     end
   end
 
