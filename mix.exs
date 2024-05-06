@@ -71,7 +71,7 @@ defmodule RDF.Mixfile do
       {:elixir_uuid, "~> 1.2", optional: true},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.32", only: :dev, runtime: false},
       {:jason, "~> 1.4", only: [:dev, :test]},
       {:excoveralls, "~> 0.18", only: :test},
       # This dependency is needed for ExCoveralls when OTP < 25
