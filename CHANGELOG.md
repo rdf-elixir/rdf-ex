@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.13 are no longer supported
+
 An update to the recent more extensive Turtle test suite revealed that a bug in  
 Elixir's `URI.merge/2` function affects the relative URI handling in the Turtle decoder. 
 It is therefore strongly recommended to use the Turtle decoder with 
