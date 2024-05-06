@@ -17,6 +17,18 @@ defmodule RDF.TriG.W3C.Test do
 
   TestSuite.test_cases(@manifest, RDFT.TestTrigEval)
   |> Enum.each(fn test_case ->
+    unless Version.match?(System.version(), ">= 1.15.0") do
+      if TestSuite.test_name(test_case) in ~w[
+        IRI-resolution-01
+        IRI-resolution-02
+        IRI-resolution-07
+        IRI-resolution-08
+      ] do
+        @tag earl_result: :failed
+        @tag skip: "Elixir's URI.merge/2 function has a bug which was fixed in Elixir v1.15"
+      end
+    end
+
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       base = to_string(TestSuite.test_input_file(test_case))

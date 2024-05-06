@@ -8,6 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+An update to the recent more extensive Turtle test suite revealed that a bug in  
+Elixir's `URI.merge/2` function affects the relative URI handling in the Turtle decoder. 
+It is therefore strongly recommended to use the Turtle decoder with 
+Elixir v1.15 or later, where this issue has been resolved.
+
 ### Added
 
 - `RDF.TriG` with an implementation of the TriG serialization language. 
