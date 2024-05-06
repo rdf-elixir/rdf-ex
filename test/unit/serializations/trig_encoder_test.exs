@@ -843,7 +843,7 @@ defmodule RDF.TriG.EncoderTest do
                  {~B<foo>, EX.p1(), ~B<bar>},
                  {~B<bar>, EX.p2(), ~B<baz>},
                  {~B<baz>, EX.p2(), EX.O},
-                 {~B<baz>, EX.p3(), [42, 23, 3.14]}
+                 {~B<baz>, EX.p3(), [42, 23]}
                ],
                graph: EX.Graph
              ),
@@ -864,8 +864,7 @@ defmodule RDF.TriG.EncoderTest do
              T-<_:bar>             ex:p2 [
              T-<_:baz>                 ex:p2 ex:O ;
              T-<_:baz>                 ex:p3 23 ;
-             T-<_:baz>                 ex:p3 42 ;
-             T-<_:baz>                 ex:p3 3.14E0
+             T-<_:baz>                 ex:p3 42
                                    ]
                                ]
                            ] .

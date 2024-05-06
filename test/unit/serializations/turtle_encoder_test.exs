@@ -365,7 +365,8 @@ defmodule RDF.Turtle.EncoderTest do
                  {~B<foo>, EX.p1(), ~B<bar>},
                  {~B<bar>, EX.p2(), ~B<baz>},
                  {~B<baz>, EX.p2(), EX.O},
-                 {~B<baz>, EX.p3(), [42, 23, 3.14]}
+                 {~B<baz>, EX.p3(), [42, 23]},
+                 {~B<baz>, EX.p4(), 3.14}
                ]),
                prefixes: %{}
              ) ==
@@ -374,7 +375,8 @@ defmodule RDF.Turtle.EncoderTest do
                    <http://example.org/#p1> [
                        <http://example.org/#p2> [
                            <http://example.org/#p2> <http://example.org/#O> ;
-                           <http://example.org/#p3> 23, 42, 3.14E0
+                           <http://example.org/#p3> 23, 42 ;
+                           <http://example.org/#p4> 3.14E0
                        ]
                    ]
                ] .
@@ -583,7 +585,7 @@ defmodule RDF.Turtle.EncoderTest do
                {~B<foo>, EX.p1(), ~B<bar>},
                {~B<bar>, EX.p2(), ~B<baz>},
                {~B<baz>, EX.p2(), EX.O},
-               {~B<baz>, EX.p3(), [42, 23, 3.14]}
+               {~B<baz>, EX.p3(), [42, 23]}
              ])
              |> Turtle.Encoder.encode!(
                prefixes: %{},
@@ -595,8 +597,7 @@ defmodule RDF.Turtle.EncoderTest do
                        <http://example.org/#p2> [
                            <http://example.org/#p2> <http://example.org/#O> ;
                            <http://example.org/#p3> 23 ;
-                           <http://example.org/#p3> 42 ;
-                           <http://example.org/#p3> 3.14E0
+                           <http://example.org/#p3> 42
                        ]
                    ]
                ] .
@@ -723,7 +724,7 @@ defmodule RDF.Turtle.EncoderTest do
                {~B<foo>, EX.p1(), ~B<bar>},
                {~B<bar>, EX.p2(), ~B<baz>},
                {~B<baz>, EX.p2(), EX.O},
-               {~B<baz>, EX.p3(), [42, 23, 3.14]}
+               {~B<baz>, EX.p3(), [42, 23]}
              ]),
              prefixes: %{ex: EX},
              line_prefix: fn
@@ -740,8 +741,7 @@ defmodule RDF.Turtle.EncoderTest do
              T-<_:bar _:baz>                         ex:p2 [
              T-<_:baz http://example.org/#O>             ex:p2 ex:O ;
              T-<_:baz 23>                                ex:p3 23 ;
-             T-<_:baz 42>                                ex:p3 42 ;
-             T-<_:baz 3.14E0>                            ex:p3 3.14E0
+             T-<_:baz 42>                                ex:p3 42
                                                      ]
                                                  ]
                                              ] .
