@@ -10,9 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
-- Decoder and encoder of the TriG serialization language. 
-- Capability to add custom content in the `RDF.Turtle.Encoder` (and new `RDF.TriG.Encoder`)
-  with the `:content` option.
+- `RDF.TriG` with an implementation of the TriG serialization language. 
+- Capability to add custom content on the Turtle/TriG encoders with the `:content` option.
 - Option `:line_prefix` on Turtle/TriG encoder for a function defining custom line prefixes.
 - Option `:indent_width` on Turtle/TriG encoder to customize the indentation width.
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
@@ -36,16 +35,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   You'll now to explicitly add the `prefixes: []` on Turtle serialization explicitly. 
   The old behaviour of getting `nil` on empty prefixes can be achieved with the new 
   `RDF.Graph.prefixes/2` function.
-- Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels
+- Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels.
 - Rename `:only` option of `RDF.Turtle.Encoder` to `:content` to reflect the enhanced 
   capabilities.
 
 ### Fixed
 
 - The `RDF.Turtle.Encoder` was not falling back to using `RDF.default_prefixes/0` when
-  the encoded graph had prefixes which were removed afterwards
+  the encoded graph had prefixes which were removed afterwards.
 - `RDF.NTriples.Encoder` and `RDF.NQuads.Encoder` could not stream quoted RDF-star 
-  triples could as iodata  
+  triples could as iodata.
 
 
 [Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)
@@ -68,7 +67,7 @@ Elixir versions < 1.12 are no longer supported
 - `RDF.Dataset.put_graph/3` adds new graphs overwriting any existing graphs
 - `RDF.Dataset.update/4` to update graphs in a `RDF.Dataset`
 - `RDF.Graph.delete_predications/3` to delete all statements in a `RDF.Graph` with 
-  the given subjects and predicates 
+  the given subjects and predicates
 - `RDF.PrefixMap.to_header/3`, `RDF.PrefixMap.to_turtle/1` and `RDF.PrefixMap.to_sparql/1`
   to get header string representations of a `RDF.PrefixMap` in the respective style
 - `RDF.PrefixMap.to_sorted_list/1` which returns the prefix map as keyword list 
@@ -597,7 +596,7 @@ For more details on how to migrate from an earlier version read [this wiki page]
 - for consistency reasons the internal `:id` struct field of `RDF.BlankNode` was renamed
   to `:value`
 - allow the `base_iri` of `RDF.Vocabulary.Namespace`s to end with a `.` to support
-  vocabularies which use dots in the IRIs for further structuring (eg. CIM-based formats like CGMES)
+  vocabularies which use dots in the IRIs for further structuring (e.g. CIM-based formats like CGMES)
 - `RDF.Triple.new/1` now also accepts four-element tuples and simple ignores fourth element   
 - `RDF.Quad.new/1` now also accepts three-element tuples and simple assumes the fourth 
   element to be `nil`    
@@ -938,7 +937,7 @@ Elixir versions < 1.6 are no longer supported
 - New `RDF.Decimal` datatype for `xsd:decimal` literals and support for decimal 
 	literals in Turtle encoder
 - `RDF.Numeric` module with a list of all numeric datatypes and shared functions
-	for all numeric literals, eg. arithmetic functions
+	for all numeric literals, e.g. arithmetic functions
 - Various new `RDF.Datatype` function 
 	- `RDF.Datatype.cast/1` for casting between `RDF.Literal`s  as specified in the 
 		XSD spec on all `RDF.Datatype`s 
@@ -947,7 +946,7 @@ Elixir versions < 1.6 are no longer supported
 	- various functions on the `RDF.DateTime` and `RDF.Time` datatypes
 	- `RDF.LangString.match_language?/2`
 - Many new convenience functions on the top-level `RDF` module 
-	- constructors for all of the supported `RDF.Datatype`s
+	- constructors for all the supported `RDF.Datatype`s
 	- constant functions `RDF.true` and `RDF.false` for the two boolean `RDF.Literal` values
 - `RDF.Literal.Guards` which allow pattern matching of common literal datatypes
 - `RDF.BlankNode.Generator`
@@ -959,7 +958,7 @@ Elixir versions < 1.6 are no longer supported
 
 - `RDF.String.new/2` and `RDF.String.new!/2` produce a `rdf:langString` when 
   given a language tag
-- Some of the defined structs now enforce keys on compile-time (via Elixirs 
+- Some of the defined structs now enforce keys at compile-time (via Elixirs 
   `@enforce_keys` feature) when not setting the corresponding fields would lead 
   to invalid structs, namely the following fields: 
   - `RDF.IRI.value`
@@ -1042,9 +1041,7 @@ Elixir versions < 1.6 are no longer supported
 
 ### Added
 
-- implementation of the standard RDF dataset normalization algorithm
-- `isomorphic?` ...
-- `Collectable` implementations for all `RDF.Data` structures so they can be 
+- `Collectable` implementations for all `RDF.Data` structures, so they can be 
   used as destinations of `Enum.into` and `for` comprehensions
 - `RDF.Quad` can be created from triple and `RDF.Triple` can be created from quad
 - `RDF.Statement.map/2` which creates a statement with mapped nodes from another statement
@@ -1101,7 +1098,7 @@ Elixir versions < 1.4 are no longer supported
 - `RDF.List` structure for the representation of RDF lists
 - `describes?/1` on `RDF.Data` protocol and all RDF data structures which checks  
   if statements about a given resource exist
-- `RDF.Data.descriptions/1` which returns all descriptions within a RDF data structure 
+- `RDF.Data.descriptions/1` which returns all descriptions within an RDF data structure 
 - `RDF.Description.first/2` which returns a single object to a predicate of a `RDF.Description`
 - `RDF.Description.objects/2` now supports a custom filter function
 - `RDF.bnode?/1` which checks if the given value is a blank node
