@@ -8,7 +8,9 @@ defmodule RDF.TurtleTriG.Encoder.CompactStarGraph do
 
   alias RDF.{Graph, Description}
 
-  def compact(graph) do
+  def compact(graph, false), do: graph
+
+  def compact(graph, true) do
     Enum.reduce(graph.descriptions, graph, fn
       {{_, _, _} = quoted_triple, _}, compact_graph ->
         # First check the original graph to see if the quoted triple is asserted.

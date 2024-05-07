@@ -18,19 +18,21 @@ Elixir v1.15 or later, where this issue has been resolved.
 ### Added
 
 - `RDF.TriG` with an implementation of the TriG serialization language. 
-- Capability to add custom content on the Turtle/TriG encoders with the `:content` option.
-- Option `:line_prefix` on Turtle/TriG encoder for a function defining custom line prefixes.
-- Option `:indent_width` on Turtle/TriG encoder to customize the indentation width.
-- Option `:pn_local_validation` on Turtle/TriG encoder for controlling IRI validation 
-  when encoding as a prefixed name.
+- Several new options on the Turtle/TriG encoder for more customizations and 
+  performance optimizations:
+  - Capability to add custom content on the Turtle/TriG encoders with the `:content` option.
+  - `:line_prefix` for a function defining custom line prefixes
+  - `:indent_width` to customize the indentation width
+  - `:pn_local_validation` for controlling IRI validation when encoding prefixed names
+  - `:rdf_star` allowing to skip an RDF-star related preprocessing step
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
+- `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
+  are empty.
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
 - Performance improvements of N-Triples and N-Quads encoders.
-- `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
-  are empty.
 
 ### Changed
 

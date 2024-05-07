@@ -809,6 +809,18 @@ defmodule RDF.Turtle.EncoderTest do
     # a case with RDF-star annotations in tested also in turtle_star_encoder_test.exs
   end
 
+  test ":rdf_star option" do
+    graph =
+      Graph.new([
+        {EX.S1, EX.p1(), EX.O1},
+        {EX.S1, EX.p2(), 42},
+        {EX.S2, EX.p3(), ~B<foo>}
+      ])
+
+    assert Turtle.Encoder.encode!(graph, rdf_star: false) ==
+             Turtle.Encoder.encode!(graph, rdf_star: true)
+  end
+
   %{
     "full IRIs without base" => %{
       input: "<http://a/b> <http://a/c> <http://a/d> .",

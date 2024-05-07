@@ -14,7 +14,8 @@ defmodule RDF.TurtleTriG.Encoder.State do
     :base_indent,
     :indentation,
     :indent_step,
-    :bnode_info
+    :bnode_info,
+    :rdf_star
   ]
 
   @default_indent_width 4
@@ -49,7 +50,8 @@ defmodule RDF.TurtleTriG.Encoder.State do
       indent_step: opts |> Keyword.get(:indent_width, @default_indent_width) |> indent_string(),
       line_prefix: line_prefix,
       single_triple_lines: !!line_prefix || Keyword.get(opts, :single_triple_lines),
-      bnode_info: BnodeInfo.new(data)
+      bnode_info: BnodeInfo.new(data),
+      rdf_star: Keyword.get(opts, :rdf_star, RDF.star?())
     }
     |> init_indentation()
   end

@@ -70,6 +70,9 @@ defmodule RDF.TurtleTriG.Encoder do
       - Note: Currently, a `:strict` mode, which would provide comprehensive validation
         conforming strictly to the Turtle specification, is not implemented.
         Contributions for implementing this mode are welcome.
+    - `:rdf_star`: Allows to skip a RDF-star related preprocessing step. This can be
+       used to improve performance a little bit when you know the encoded data doesn't
+       include any RDF-star statements. Defaults to the returned value of `RDF.star?/0`.
     """
   end
 
@@ -189,7 +192,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp graph_statements(%{single_triple_lines: true} = state) do
     state.graph
-    |> CompactStarGraph.compact()
+    |> CompactStarGraph.compact(state.rdf_star)
     |> Sequencer.descriptions(State.base_iri(state))
     |> Enum.map(
       &(&1
@@ -202,7 +205,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp graph_statements(state) do
     state.graph
-    |> CompactStarGraph.compact()
+    |> CompactStarGraph.compact(state.rdf_star)
     |> Sequencer.descriptions(State.base_iri(state))
     |> Enum.map(&(&1 |> description_statements(state) |> indented(state)))
     |> Enum.reject(&Enum.empty?/1)
