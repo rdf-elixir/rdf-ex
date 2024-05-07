@@ -13,7 +13,7 @@ defmodule RDF.TurtleTriG.EncoderTest do
 
   defvocab EX, base_iri: "http://example.org/#", terms: [], strict: false
 
-  describe "prefixed_name/2" do
+  describe "prefixed_name/3 (fast)" do
     setup do
       {:ok,
        prefixes:
@@ -26,6 +26,10 @@ defmodule RDF.TurtleTriG.EncoderTest do
     test "hash iri with existing prefix", %{prefixes: prefixes} do
       assert TurtleTriG.Encoder.prefixed_name(EX.foo(), prefixes) |> IO.iodata_to_binary() ==
                "ex:foo"
+
+      assert TurtleTriG.Encoder.prefixed_name(~I<http://example.org/#foo-bar>, prefixes)
+             |> IO.iodata_to_binary() ==
+               "ex:foo-bar"
     end
 
     test "hash iri namespace without name", %{prefixes: prefixes} do

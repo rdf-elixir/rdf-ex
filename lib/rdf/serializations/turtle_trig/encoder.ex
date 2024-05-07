@@ -59,6 +59,17 @@ defmodule RDF.TurtleTriG.Encoder do
     - `:indent`: Allows to specify the number of spaces the output should be indented.
     - `:indent_width`: Allows to specify the number of spaces that should be used for
       indentations (default: 4).
+    - `:pn_local_validation`: This option controls how IRIs are validated the check
+       whether they can encoded as a prefixed name. Available settings are:
+      - `:fast` (default): Provides a quick and efficient validation that covers most
+        common cases. It does not handle every possible valid scenario, focusing instead
+        on typical structures encountered in prefixed names.
+      - `:none`: Disables validation entirely. Use this mode if you are confident that
+        all your IRIs are already compliant with prefixed name requirements, allowing you
+        to bypass validation checks for increased performance.
+      - Note: Currently, a `:strict` mode, which would provide comprehensive validation
+        conforming strictly to the Turtle specification, is not implemented.
+        Contributions for implementing this mode are welcome.
     """
   end
 
@@ -359,7 +370,7 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp term(%IRI{} = iri, state, _) do
     based_name(iri, state.base) ||
-      prefixed_name(iri, state.prefixes) ||
+      prefixed_name(iri, state.prefixes, state.pn_local_validation) ||
       ["<", to_string(iri), ">"]
   end
 
@@ -444,16 +455,28 @@ defmodule RDF.TurtleTriG.Encoder do
     ]
   end
 
-  def prefixed_name(iri, prefixes) do
+  def prefixed_name(iri, prefixes, pn_local_validation \\ :fast) do
     case PrefixMap.prefix_name_pair(prefixes, iri) do
-      {prefix, name} -> if valid_pn_local?(name), do: [prefix, ":", name]
+      {prefix, name} -> if valid_pn_local?(name, pn_local_validation), do: [prefix, ":", name]
       _ -> nil
     end
   end
 
-  defp valid_pn_local?(name) do
-    String.match?(name, ~r/^([[:alpha:]]|[[:digit:]]|_|:)*$/u)
-  end
+  @doc """
+  Validates if the local part of a prefixed name is valid according to the Turtle grammar for a `PN_LOCAL`.
+  """
+  def valid_pn_local?(pn_local, pn_local_validation \\ :fast)
+
+  def valid_pn_local?(_pn_local, :none), do: true
+  def valid_pn_local?("", _), do: true
+
+  @fast_pn_local_regex ~r/
+     ^[\p{L}\p{Nd}_:%]
+      [\p{L}\p{Nd}\p{M}\p{Pc}_.:~\-%]*
+      [\p{L}\p{Nd}_:]?$
+    /ux
+
+  def valid_pn_local?(pn_local, :fast), do: String.match?(pn_local, @fast_pn_local_regex)
 
   defp quoted(string) do
     if String.contains?(string, ["\n", "\r"]) do

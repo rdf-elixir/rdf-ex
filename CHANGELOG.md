@@ -21,6 +21,8 @@ Elixir v1.15 or later, where this issue has been resolved.
 - Capability to add custom content on the Turtle/TriG encoders with the `:content` option.
 - Option `:line_prefix` on Turtle/TriG encoder for a function defining custom line prefixes.
 - Option `:indent_width` on Turtle/TriG encoder to customize the indentation width.
+- Option `:pn_local_validation` on Turtle/TriG encoder for controlling IRI validation 
+  when encoding as a prefixed name.
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
@@ -50,6 +52,9 @@ Elixir v1.15 or later, where this issue has been resolved.
 
 - The `RDF.Turtle.Encoder` was not falling back to using `RDF.default_prefixes/0` when
   the encoded graph had prefixes which were removed afterwards.
+- Fixed the `RDF.Turtle.Encoder` validation to ensure IRIs with permissible characters, 
+  such as hyphens, can be correctly encoded as prefixed names. Previously, the validation 
+  was overly strict, preventing some valid IRIs from being encoded as prefixed names.
 - `RDF.NTriples.Encoder` and `RDF.NQuads.Encoder` could not stream quoted RDF-star 
   triples could as iodata.
 
