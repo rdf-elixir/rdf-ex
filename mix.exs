@@ -228,7 +228,10 @@ defmodule RDF.Mixfile do
           RDF.NQuads.Encoder,
           RDF.Turtle,
           RDF.Turtle.Decoder,
-          RDF.Turtle.Encoder
+          RDF.Turtle.Encoder,
+          RDF.TriG,
+          RDF.TriG.Decoder,
+          RDF.TriG.Encoder
         ],
         "Query engine": [
           RDF.Query,

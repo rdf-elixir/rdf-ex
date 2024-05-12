@@ -37,6 +37,7 @@ defmodule RDF do
     - `RDF.NTriples`
     - `RDF.NQuads`
     - `RDF.Turtle`
+    - `RDF.TriG`
 
   This top-level module provides shortcut functions for the construction of the
   basic elements and structures of RDF and some general helper functions.
