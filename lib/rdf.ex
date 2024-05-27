@@ -148,6 +148,58 @@ defmodule RDF do
     default_prefixes() |> PrefixMap.merge!(prefix_mappings)
   end
 
+  @doc """
+  Returns a Turtle encoded list of prefixes.
+
+  The `prefix_mappings` can be given in any format accepted by `RDF.PrefixMap.new/1`.
+
+  ### Examples
+
+      iex> RDF.turtle_prefixes(
+      ...>  rdf: RDF,
+      ...>  rdfs: RDF.NS.RDFS,
+      ...>  xsd: RDF.NS.XSD,
+      ...>  ex1: EX,
+      ...>  ex2: "http://example.com/ns2/")
+      \"""
+      @prefix ex1: <http://example.com/> .
+      @prefix ex2: <http://example.com/ns2/> .
+      @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+      @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+      @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+      \"""
+
+  """
+  def turtle_prefixes(prefixes) when is_list(prefixes) do
+    prefixes |> PrefixMap.new() |> PrefixMap.to_turtle()
+  end
+
+  @doc """
+  Returns a SPARQL encoded list of prefixes.
+
+  The `prefix_mappings` can be given in any format accepted by `RDF.PrefixMap.new/1`.
+
+  ### Examples
+
+      iex> RDF.sparql_prefixes(
+      ...>  rdf: RDF,
+      ...>  rdfs: RDF.NS.RDFS,
+      ...>  xsd: RDF.NS.XSD,
+      ...>  ex1: EX,
+      ...>  ex2: "http://example.com/ns2/")
+      \"""
+      PREFIX ex1: <http://example.com/>
+      PREFIX ex2: <http://example.com/ns2/>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+      \"""
+
+  """
+  def sparql_prefixes(prefixes) when is_list(prefixes) do
+    prefixes |> PrefixMap.new() |> PrefixMap.to_sparql()
+  end
+
   defdelegate read_string(string, opts), to: Serialization
   defdelegate read_string!(string, opts), to: Serialization
   defdelegate read_stream(stream, opts \\ []), to: Serialization

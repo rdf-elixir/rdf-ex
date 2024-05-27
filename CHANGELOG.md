@@ -28,6 +28,7 @@ Elixir v1.15 or later, where this issue has been resolved.
 - `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
+- `RDF.turtle_prefixes/1` and `RDF.sparql_prefixes/1` for creating respective prefix headers
 - `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
   are empty.
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
