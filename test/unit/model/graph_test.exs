@@ -1270,7 +1270,7 @@ defmodule RDF.GraphTest do
 
     test "a value returned from the update function becomes new coerced description of the subject" do
       old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
-      new_description = {EX.p(), [EX.O1, EX.O2]}
+      new_description_value = {EX.p(), [EX.O1, EX.O2]}
 
       assert Graph.new([
                {EX.S1, EX.p1(), [EX.O1, EX.O2]},
@@ -1278,12 +1278,12 @@ defmodule RDF.GraphTest do
              ])
              |> Graph.update(
                EX.S2,
-               fn ^old_description -> new_description end
+               fn ^old_description -> new_description_value end
              ) ==
                Graph.new([
                  {EX.S1, EX.p1(), [EX.O1, EX.O2]},
                  Description.new(EX.S2)
-                 |> Description.add(new_description)
+                 |> Description.add(new_description_value)
                ])
     end
 
@@ -1302,6 +1302,69 @@ defmodule RDF.GraphTest do
 
       assert Graph.new()
              |> Graph.update(EX.S, fun) ==
+               Graph.new()
+    end
+  end
+
+  describe "update_all_descriptions/4" do
+    test "a description returned from the update function becomes new description of the subject" do
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
+      new_description = Description.new(EX.S2, init: {EX.p(), EX.O})
+
+      assert Graph.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+               old_description
+             ])
+             |> Graph.update_all_descriptions(fn
+               ^old_description -> new_description
+               other -> other
+             end) ==
+               Graph.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+                 new_description
+               ])
+    end
+
+    test "a description with another subject returned from the update function becomes new description of the subject" do
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
+      new_description = Description.new(EX.S2, init: {EX.p(), EX.O})
+
+      assert Graph.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+               old_description
+             ])
+             |> Graph.update_all_descriptions(fn
+               ^old_description -> Description.new(EX.S3, init: new_description)
+               other -> other
+             end) ==
+               Graph.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+                 new_description
+               ])
+    end
+
+    test "a value returned from the update function becomes new coerced description of the subject" do
+      old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})
+      new_description_value = {EX.p(), [EX.O1, EX.O2]}
+
+      assert Graph.new([
+               {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+               old_description
+             ])
+             |> Graph.update_all_descriptions(fn
+               ^old_description -> new_description_value
+               other -> other
+             end) ==
+               Graph.new([
+                 {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+                 Description.new(EX.S2)
+                 |> Description.add(new_description_value)
+               ])
+    end
+
+    test "returning nil from the update function causes a removal of the description" do
+      assert Graph.new({EX.S, EX.p(), EX.O})
+             |> Graph.update_all_descriptions(fn _ -> nil end) ==
                Graph.new()
     end
   end

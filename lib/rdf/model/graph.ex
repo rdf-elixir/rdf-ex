@@ -674,6 +674,31 @@ defmodule RDF.Graph do
   end
 
   @doc """
+  Updates all descriptions in `graph` with the given function.
+
+  The same behaviour as described in `RDF.Graph.update/4` apply.
+  If `nil` is returned by `fun`, the respective description will be removed from `graph`.
+  The returned values by the update function will be coerced to proper RDF descriptions before added.
+  If the returned description is a `RDF.Description` with another subject, it will still be added
+  using the old subject.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.p1, EX.O1}, {EX.S2, EX.p2, EX.O2}])
+      ...> |> RDF.Graph.update_all_descriptions(&(&1 |> EX.foo(42)))
+      [
+        EX.S1 |> EX.p1(EX.O1) |> EX.foo(42),
+        EX.S2 |> EX.p2(EX.O2) |> EX.foo(42)
+      ] |> RDF.Graph.new()
+  """
+  @spec update_all_descriptions(t, update_description_fun) :: t
+  def update_all_descriptions(%__MODULE__{} = graph, fun) do
+    graph
+    |> descriptions()
+    |> Enum.reduce(graph, &update(&2, &1.subject, fun))
+  end
+
+  @doc """
   Fetches the description of the given subject.
 
   When the subject can not be found `:error` is returned.

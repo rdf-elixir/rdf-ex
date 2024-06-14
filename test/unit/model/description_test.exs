@@ -772,6 +772,75 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "update_all_predicates/4" do
+    test "list values returned from the update function become new coerced objects of the predicate" do
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
+             |> Description.update_all_predicates(fn
+               {term_to_iri(EX.P), [term_to_iri(EX.O1), term_to_iri(EX.O2)]} ->
+                 [EX.O3, EX.O4]
+             end) ==
+               Description.new(EX.S, init: {EX.S, EX.P, [EX.O3, EX.O4]})
+    end
+
+    test "single values returned from the update function becomes new object of the predicate" do
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
+             |> Description.update_all_predicates(fn
+               {term_to_iri(EX.P), [term_to_iri(EX.O1), term_to_iri(EX.O2)]} ->
+                 EX.O3
+             end) ==
+               Description.new(EX.S, init: {EX.S, EX.P, [EX.O3]})
+    end
+
+    test "returning an empty list or nil from the update function causes a removal of the predications" do
+      description = EX.S |> EX.p(EX.O)
+
+      assert description
+             |> Description.update_all_predicates(fn {term_to_iri(EX.p()), [term_to_iri(EX.O)]} ->
+               []
+             end) ==
+               Description.new(EX.S)
+
+      assert description
+             |> Description.update_all_predicates(fn _ -> nil end) ==
+               Description.new(EX.S)
+    end
+  end
+
+  describe "update_all_objects/4" do
+    test "list values returned from the update function become new coerced objects of the predicate" do
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
+             |> Description.update_all_objects(fn
+               term_to_iri(EX.P), term_to_iri(EX.O1) -> [EX.O3, EX.O4]
+               term_to_iri(EX.P), term_to_iri(EX.O2) -> [EX.O5]
+             end) ==
+               Description.new(EX.S, init: {EX.S, EX.P, [EX.O3, EX.O4, EX.O5]})
+    end
+
+    test "single values returned from the update function becomes new object of the predicate" do
+      assert Description.new(EX.S, init: {EX.S, EX.P, [EX.O1, EX.O2]})
+             |> Description.update_all_objects(fn
+               term_to_iri(EX.P), term_to_iri(EX.O1) -> EX.O3
+               term_to_iri(EX.P), term_to_iri(EX.O2) -> EX.O4
+             end) ==
+               Description.new(EX.S, init: {EX.S, EX.P, [EX.O3, EX.O4]})
+    end
+
+    test "returning an empty list or nil from the update function causes a removal of the predications" do
+      description = EX.S |> EX.p([EX.O1, EX.O2])
+
+      assert description
+             |> Description.update_all_objects(fn
+               term_to_iri(EX.p()), term_to_iri(EX.O1) -> [EX.O]
+               term_to_iri(EX.p()), term_to_iri(EX.O2) -> []
+             end) ==
+               EX.S |> EX.p(EX.O)
+
+      assert description
+             |> Description.update_all_objects(fn _, _ -> nil end) ==
+               Description.new(EX.S)
+    end
+  end
+
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 

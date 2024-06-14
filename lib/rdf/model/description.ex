@@ -433,6 +433,63 @@ defmodule RDF.Description do
   end
 
   @doc """
+  Updates all predications in `description` with the given function.
+
+  `fun` is invoked with a tuple `{predicate, objects}` for each predicate in `description`.
+  If `nil` is returned by `fun`, the respective predications will be removed from `description`.
+  The returned values by the update function will be coerced to proper RDF object values before added.
+
+  ## Examples
+
+      iex> EX.S |> EX.p1(1) |> EX.p2([2, 3])
+      ...> |> RDF.Description.update_all_predicates(fn {_predicate, objects} -> ["foo" | objects] end)
+      EX.S
+      |> EX.p1([1, "foo"])
+      |> EX.p2([2, 3, "foo"])
+
+  """
+  @spec update_all_predicates(
+          t,
+          ({Statement.predicate(), [Statement.object()]} ->
+             [Statement.coercible_object()] | Statement.coercible_object() | nil)
+        ) :: t
+  def update_all_predicates(%__MODULE__{} = description, fun) do
+    description
+    |> predicates()
+    |> Enum.reduce(description, fn predicate, description ->
+      update(description, predicate, fn objects -> fun.({predicate, objects}) end)
+    end)
+  end
+
+  @doc """
+  Updates all objects in `description` with the given function.
+
+  `fun` is invoked for each object in `description` with the predicate and the object as two arguments.
+  If `nil` is returned by `fun`, the respective object will be removed from `description`.
+  The returned values by the update function will be coerced to proper RDF object values before added.
+
+  ## Examples
+
+      iex> EX.S |> EX.p1(1) |> EX.p2([2, 3])
+      ...> |> RDF.Description.update_all_objects(fn _predicate, object ->
+      ...>      RDF.XSD.Numeric.add(object, 1)
+      ...>    end)
+      EX.S
+      |> EX.p1(2)
+      |> EX.p2([3, 4])
+  """
+  @spec update_all_objects(
+          t,
+          (Statement.predicate(), Statement.object() ->
+             [Statement.coercible_object()] | Statement.coercible_object() | nil)
+        ) :: t
+  def update_all_objects(%__MODULE__{} = description, fun) do
+    update_all_predicates(description, fn {predicate, objects} ->
+      Enum.flat_map(objects, &List.wrap(fun.(predicate, &1)))
+    end)
+  end
+
+  @doc """
   Gets and updates the objects of the given predicate of a Description, in a single pass.
 
   Invokes the passed function on the objects of the given predicate; this

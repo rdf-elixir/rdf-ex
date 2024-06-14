@@ -25,9 +25,12 @@ Elixir v1.15 or later, where this issue has been resolved.
   - `:indent_width` to customize the indentation width
   - `:pn_local_validation` for controlling IRI validation when encoding prefixed names
   - `:rdf_star` allowing to skip an RDF-star related preprocessing step
-- `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
 - `RDF.Dataset.named_graphs/1` to get a list of all named graphs of a dataset.
 - `RDF.Dataset.graph_names/1` to get a list of all graph names of a dataset.
+- `RDF.Dataset.update_all_graphs/2` to apply a function on all graphs of a dataset.
+- `RDF.Graph.update_all_descriptions/2` to apply a function on all descriptions of a graph.
+- `RDF.Description.update_all_predicates/2` and `RDF.Description.update_all_objects/2`
+  to apply a function on all predications resp. objects of a description.
 - `RDF.turtle_prefixes/1` and `RDF.sparql_prefixes/1` for creating respective prefix headers
 - `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
   are empty.
