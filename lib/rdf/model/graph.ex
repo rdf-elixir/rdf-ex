@@ -18,6 +18,8 @@ defmodule RDF.Graph do
   alias RDF.Graph.Builder
   alias RDF.Star.{Statement, Triple, Quad}
 
+  import RDF.Guards
+
   defstruct name: nil, descriptions: %{}, prefixes: PrefixMap.new(), base_iri: nil
 
   @type graph_description :: %{Statement.subject() => Description.t()}
@@ -696,6 +698,43 @@ defmodule RDF.Graph do
     graph
     |> descriptions()
     |> Enum.reduce(graph, &update(&2, &1.subject, fun))
+  end
+
+  @doc """
+  Replaces all occurrences of `old_id` in `graph` with `new_id`.
+
+  ## Examples
+
+      iex> RDF.Graph.new([
+      ...>  {EX.S, EX.p, ~B<bnode>},
+      ...>  {~B<bnode>, EX.p, [EX.O, EX.S]}])
+      ...> |> RDF.Graph.rename_resource(EX.S, EX.New)
+      ...> |> RDF.Graph.rename_resource(~B<bnode>, EX.Skolemized)
+      [
+        EX.New |> EX.p(EX.Skolemized),
+        EX.Skolemized |> EX.p([EX.O, EX.New])
+      ] |> RDF.Graph.new()
+  """
+  @spec rename_resource(t(), RDF.Resource.coercible(), RDF.Resource.coercible()) :: t()
+  def rename_resource(graph, old_id, old_id)
+
+  def rename_resource(%__MODULE__{} = graph, id, id), do: graph
+
+  def rename_resource(%__MODULE__{} = graph, old_id, new_id)
+      when is_rdf_resource(old_id) and is_rdf_resource(new_id) do
+    graph
+    |> descriptions()
+    |> Enum.reduce(clear(graph), fn description, graph ->
+      add(graph, Description.rename_resource(description, old_id, new_id))
+    end)
+  end
+
+  def rename_resource(%__MODULE__{} = graph, old_id, new_id) when not is_rdf_resource(old_id) do
+    rename_resource(graph, RDF.iri(old_id), new_id)
+  end
+
+  def rename_resource(%__MODULE__{} = graph, old_id, new_id) when not is_rdf_resource(new_id) do
+    rename_resource(graph, old_id, RDF.iri(new_id))
   end
 
   @doc """

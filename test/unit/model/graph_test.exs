@@ -1369,6 +1369,46 @@ defmodule RDF.GraphTest do
     end
   end
 
+  describe "rename_resource/3" do
+    test "renaming" do
+      assert EX.s()
+             |> EX.p1([EX.o1()])
+             |> EX.p2([EX.s(), EX.o2()])
+             |> EX.s([EX.s(), EX.o3()])
+             |> Graph.new(prefixes: [ex: EX])
+             |> Graph.add({EX.S, EX.p(), EX.O})
+             |> Graph.rename_resource(EX.s(), EX.new()) ==
+               EX.new()
+               |> EX.p1([EX.o1()])
+               |> EX.p2([EX.new(), EX.o2()])
+               |> EX.new([EX.new(), EX.o3()])
+               |> Graph.new(prefixes: [ex: EX])
+               |> Graph.add({EX.S, EX.p(), EX.O})
+    end
+
+    test "coercion" do
+      assert EX.S
+             |> EX.p1([EX.o1()])
+             |> EX.p2([EX.S, EX.o2()])
+             |> Description.add({EX.S, [EX.S, EX.o3()]})
+             |> Graph.new()
+             |> Graph.add({EX.S2, EX.p(), EX.O})
+             |> Graph.rename_resource(EX.S, EX.New) ==
+               EX.New
+               |> EX.p1([EX.o1()])
+               |> EX.p2([EX.New, EX.o2()])
+               |> Description.add({EX.New, [EX.New, EX.o3()]})
+               |> Graph.new()
+               |> Graph.add({EX.S2, EX.p(), EX.O})
+    end
+
+    test "old and new id are equal" do
+      graph = EX.S |> EX.p(EX.O) |> Graph.new()
+      assert graph |> Graph.rename_resource(EX.S, EX.S) == graph
+      assert graph |> Graph.rename_resource(RDF.iri(EX.S), EX.S) == graph
+    end
+  end
+
   test "pop" do
     assert Graph.pop(Graph.new()) == {nil, Graph.new()}
 

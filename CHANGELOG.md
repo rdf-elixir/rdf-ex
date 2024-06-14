@@ -31,6 +31,8 @@ Elixir v1.15 or later, where this issue has been resolved.
 - `RDF.Graph.update_all_descriptions/2` to apply a function on all descriptions of a graph.
 - `RDF.Description.update_all_predicates/2` and `RDF.Description.update_all_objects/2`
   to apply a function on all predications resp. objects of a description.
+- `RDF.Graph.rename_resource/2` and `RDF.Description.rename_resource/2` to replace all 
+  occurrences of an id.
 - `RDF.turtle_prefixes/1` and `RDF.sparql_prefixes/1` for creating respective prefix headers
 - `RDF.Graph.prefixes/2` which allows to specify a custom return value when the prefixes 
   are empty.

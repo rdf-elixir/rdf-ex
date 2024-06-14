@@ -841,6 +841,70 @@ defmodule RDF.DescriptionTest do
     end
   end
 
+  describe "rename_resource/3" do
+    test "renaming" do
+      assert EX.s()
+             |> EX.p1([EX.o1()])
+             |> EX.p2([EX.s(), EX.o2()])
+             |> EX.s([EX.s(), EX.o3()])
+             |> Description.rename_resource(EX.s(), EX.new()) ==
+               EX.new()
+               |> EX.p1([EX.o1()])
+               |> EX.p2([EX.new(), EX.o2()])
+               |> EX.new([EX.new(), EX.o3()])
+    end
+
+    test "coercion" do
+      assert EX.S
+             |> EX.p1([EX.o1()])
+             |> EX.p2([EX.S, EX.o2()])
+             |> Description.add({EX.S, [EX.S, EX.o3()]})
+             |> Description.rename_resource(EX.S, EX.New) ==
+               EX.New
+               |> EX.p1([EX.o1()])
+               |> EX.p2([EX.New, EX.o2()])
+               |> Description.add({EX.New, [EX.New, EX.o3()]})
+    end
+
+    test "blank node renames" do
+      assert EX.S
+             |> EX.p1([EX.o1()])
+             |> EX.p2([EX.S, EX.o2()])
+             |> Description.add({EX.S, [EX.S, EX.o3()]})
+             |> Description.rename_resource(EX.S, RDF.bnode("new")) ==
+               RDF.bnode("new")
+               |> EX.p1([EX.o1()])
+               |> EX.p2([RDF.bnode("new"), EX.o2()])
+               |> Description.add({RDF.bnode("new"), [RDF.bnode("new"), EX.o3()]})
+
+      assert RDF.bnode("old")
+             |> EX.p1([EX.o1()])
+             |> EX.p2([RDF.bnode("old"), EX.o2()])
+             |> Description.add({RDF.bnode("old"), [RDF.bnode("old"), EX.o3()]})
+             |> Description.rename_resource(RDF.bnode("old"), EX.S) ==
+               EX.S
+               |> EX.p1([EX.o1()])
+               |> EX.p2([EX.S, EX.o2()])
+               |> Description.add({EX.S, [EX.S, EX.o3()]})
+
+      assert RDF.bnode("old")
+             |> EX.p1([EX.o1()])
+             |> EX.p2([RDF.bnode("old"), EX.o2()])
+             |> Description.add({RDF.bnode("old"), [RDF.bnode("old"), EX.o3()]})
+             |> Description.rename_resource(RDF.bnode("old"), RDF.bnode("new")) ==
+               RDF.bnode("new")
+               |> EX.p1([EX.o1()])
+               |> EX.p2([RDF.bnode("new"), EX.o2()])
+               |> Description.add({RDF.bnode("new"), [RDF.bnode("new"), EX.o3()]})
+    end
+
+    test "old and new id are equal" do
+      description = EX.S |> EX.p(EX.O)
+      assert description |> Description.rename_resource(EX.S, EX.S) == description
+      assert description |> Description.rename_resource(RDF.iri(EX.S), EX.S) == description
+    end
+  end
+
   test "pop" do
     assert Description.pop(Description.new(EX.S)) == {nil, Description.new(EX.S)}
 

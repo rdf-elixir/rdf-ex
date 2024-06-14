@@ -20,6 +20,8 @@ defmodule RDF.Description do
   alias RDF.{Graph, Dataset, PropertyMap}
   alias RDF.Star.{Statement, Triple}
 
+  import RDF.Guards
+
   @type t :: %__MODULE__{
           subject: Statement.subject(),
           predications: predications
@@ -487,6 +489,43 @@ defmodule RDF.Description do
     update_all_predicates(description, fn {predicate, objects} ->
       Enum.flat_map(objects, &List.wrap(fun.(predicate, &1)))
     end)
+  end
+
+  @doc """
+  Replaces all occurrences of `old_id` in `description` with `new_id`.
+  """
+  @spec rename_resource(t(), RDF.Resource.coercible(), RDF.Resource.coercible()) :: t()
+  def rename_resource(description, old_id, old_id)
+
+  def rename_resource(%__MODULE__{} = description, id, id), do: description
+
+  def rename_resource(%__MODULE__{subject: old_id} = description, old_id, new_id)
+      when is_rdf_resource(old_id) and is_rdf_resource(new_id) do
+    description
+    |> change_subject(new_id)
+    |> rename_resource(old_id, new_id)
+  end
+
+  def rename_resource(%__MODULE__{} = description, old_id, new_id)
+      when is_rdf_resource(old_id) and is_rdf_resource(new_id) do
+    case pop(description, old_id) do
+      {nil, description} -> description
+      {objects, description} -> description |> add({new_id, objects})
+    end
+    |> update_all_objects(fn
+      _, ^old_id -> new_id
+      _, other -> other
+    end)
+  end
+
+  def rename_resource(%__MODULE__{} = description, old_id, new_id)
+      when not is_rdf_resource(old_id) do
+    rename_resource(description, RDF.iri(old_id), new_id)
+  end
+
+  def rename_resource(%__MODULE__{} = description, old_id, new_id)
+      when not is_rdf_resource(new_id) do
+    rename_resource(description, old_id, RDF.iri(new_id))
   end
 
   @doc """
