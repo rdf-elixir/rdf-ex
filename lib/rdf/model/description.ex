@@ -408,7 +408,8 @@ defmodule RDF.Description do
           t,
           Statement.coercible_predicate(),
           Statement.coercible_object() | nil,
-          ([Statement.Object] -> [Statement.Object])
+          ([Statement.object()] ->
+             [Statement.coercible_object()] | Statement.coercible_object() | nil)
         ) :: t
   def update(%__MODULE__{} = description, predicate, initial \\ nil, fun) do
     predicate = RDF.coerce_predicate(predicate)
