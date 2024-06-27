@@ -38,6 +38,7 @@ Elixir v1.15 or later, where this issue has been resolved.
   are empty.
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
+- `RDF.BlankNode.Generator.Random` implementation of `RDF.BlankNode.Generator.Algorithm`
 - Performance improvements of N-Triples and N-Quads encoders.
 
 ### Changed

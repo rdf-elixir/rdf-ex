@@ -64,8 +64,8 @@ defmodule RDF.BlankNode.Generator do
   @doc """
   Synchronously stops the blank node generator with the given `reason`.
 
-  It returns `:ok` if the agent terminates with the given reason. If the agent
-  terminates with another reason, the call will exit.
+  It returns `:ok` if the GenServer terminates with the given reason.
+  If the GenServer terminates with another reason, the call will exit.
 
   This function keeps OTP semantics regarding error reporting.
   If the reason is any other than `:normal`, `:shutdown` or `{:shutdown, _}`, an

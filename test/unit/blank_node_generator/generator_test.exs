@@ -4,7 +4,7 @@ defmodule RDF.BlankNode.GeneratorTest do
   import RDF, only: [bnode: 1]
 
   alias RDF.BlankNode.Generator
-  alias RDF.BlankNode.Generator.Increment
+  alias RDF.BlankNode.Generator.{Increment, Random}
 
   describe "Increment generator" do
     test "generator without prefix" do
@@ -57,6 +57,39 @@ defmodule RDF.BlankNode.GeneratorTest do
 
       assert Generator.generate(Bar) == bnode("b0")
       assert Generator.generate(Bar) == bnode("b1")
+    end
+  end
+
+  describe "Random generator" do
+    test "generator without prefix" do
+      {:ok, generator} = start_supervised({Generator, Random})
+
+      assert %RDF.BlankNode{} = bnode1 = Generator.generate(generator)
+      assert %RDF.BlankNode{} = bnode2 = Generator.generate(generator)
+
+      assert bnode1 != bnode2
+
+      assert %RDF.BlankNode{} = bnode1 = Generator.generate_for(generator, "foo")
+      assert Generator.generate_for(generator, "foo") == bnode1
+      assert %RDF.BlankNode{} = bnode2 = Generator.generate_for(generator, "bar")
+
+      assert bnode1 != bnode2
+    end
+
+    test "generator with prefix" do
+      {:ok, generator} = start_supervised({Generator, [algorithm: Random, prefix: "b"]})
+
+      assert %RDF.BlankNode{value: "b" <> _} = bnode1 = Generator.generate(generator)
+      assert %RDF.BlankNode{value: "b" <> _} = bnode2 = Generator.generate(generator)
+
+      assert bnode1 != bnode2
+    end
+
+    test "generator with non-string values" do
+      {:ok, generator} = start_supervised({Generator, [algorithm: Random, prefix: "b"]})
+
+      assert %RDF.BlankNode{} = bnode = Generator.generate_for(generator, {:foo, 42})
+      assert Generator.generate_for(generator, {:foo, 42}) == bnode
     end
   end
 end
