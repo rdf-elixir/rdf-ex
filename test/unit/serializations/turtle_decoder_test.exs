@@ -5,7 +5,7 @@ defmodule RDF.Turtle.DecoderTest do
 
   import RDF.Sigils
 
-  alias RDF.{Turtle, Graph, NS, XSD}
+  alias RDF.{Turtle, Graph, BlankNode, NS, XSD}
 
   use RDF.Vocabulary.Namespace
 
@@ -133,6 +133,34 @@ defmodule RDF.Turtle.DecoderTest do
   end
 
   describe "blank node property lists" do
+    test "identity of blank identifiers" do
+      assert Turtle.Decoder.decode!(
+               """
+               [ <http://example.org/#foo> 42 ] .
+               """,
+               bnode_gen: BlankNode.Generator.Increment
+             ) ==
+               Turtle.Decoder.decode!(
+                 """
+                 [ <http://example.org/#foo> 42 ] .
+                 """,
+                 bnode_gen: BlankNode.Generator.Increment
+               )
+
+      assert Turtle.Decoder.decode!(
+               """
+               [ <http://example.org/#foo> 42 ] .
+               """,
+               bnode_gen: BlankNode.Generator.Random
+             ) !=
+               Turtle.Decoder.decode!(
+                 """
+                 [ <http://example.org/#foo> 42 ] .
+                 """,
+                 bnode_gen: BlankNode.Generator.Random
+               )
+    end
+
     test "blank node property list on object position" do
       assert Turtle.Decoder.decode!("""
                <http://example.org/#Foo> <http://example.org/#bar> [ <http://example.org/#baz> 42 ] .

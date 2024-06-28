@@ -4,16 +4,16 @@ defmodule RDF.TurtleTriG.Decoder.AST do
   alias RDF.{Graph, Dataset, IRI, Literal}
   alias RDF.TurtleTriG.Decoder.State
 
-  def build_dataset(ast, base_iri) do
+  def build_dataset(ast, base_iri, opts \\ []) do
     {dataset, %State{namespaces: namespaces, base_iri: base_iri}} =
-      Enum.reduce(ast, {Dataset.new(), %State{base_iri: base_iri}}, fn
+      Enum.reduce(ast, {Dataset.new(), State.new(base_iri, opts)}, fn
         {:triples, triples_ast}, {dataset, state} ->
           {statements, state} = triples(triples_ast, state)
           {Dataset.add(dataset, statements), state}
 
         {:graph, graph_name_ast, graph_ast}, {dataset, state} ->
           {graph_name, state} = resolve_node(graph_name_ast, state)
-          {graph, state} = build_graph(graph_ast, Graph.new(name: graph_name), state)
+          {graph, state} = do_build_graph(graph_ast, Graph.new(name: graph_name), state)
           {Dataset.add(dataset, graph), state}
 
         {:directive, directive_ast}, {dataset, state} ->
@@ -25,16 +25,16 @@ defmodule RDF.TurtleTriG.Decoder.AST do
     error -> {:error, Exception.message(error)}
   end
 
-  def build_graph(ast, base_iri) do
+  def build_graph(ast, base_iri, opts \\ []) do
     {graph, %State{namespaces: namespaces, base_iri: base_iri}} =
-      build_graph(ast, Graph.new(), %State{base_iri: base_iri})
+      do_build_graph(ast, Graph.new(), State.new(base_iri, opts))
 
     {:ok, set_graph_directives(graph, base_iri, namespaces)}
   rescue
     error -> {:error, Exception.message(error)}
   end
 
-  defp build_graph(ast, graph, state) do
+  defp do_build_graph(ast, graph, state) do
     Enum.reduce(ast, {graph, state}, fn
       {:triples, triples_ast}, {graph, state} ->
         {statements, state} = triples(triples_ast, state)

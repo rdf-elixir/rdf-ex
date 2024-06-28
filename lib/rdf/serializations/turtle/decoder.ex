@@ -6,12 +6,7 @@ defmodule RDF.Turtle.Decoder do
   functions directly, but via one of the `read_` functions on the `RDF.Turtle` format
   module or the generic `RDF.Serialization` module.
 
-
-  ## Options
-
-  - `:base`: allows to specify the base URI to be used against relative URIs
-    when no base URI is defined with a `@base` directive within the document
-
+  #{RDF.TurtleTriG.Decoder.shared_doc()}
   """
 
   use RDF.Serialization.Decoder
@@ -33,7 +28,7 @@ defmodule RDF.Turtle.Decoder do
 
     with {:ok, tokens, _} <- tokenize(content),
          {:ok, ast} <- parse(tokens) do
-      AST.build_graph(ast, base_iri && RDF.iri(base_iri))
+      AST.build_graph(ast, base_iri && RDF.iri(base_iri), opts)
     else
       {:error, {error_line, :turtle_trig_lexer, error_descriptor}, _error_line_again} ->
         {:error,
