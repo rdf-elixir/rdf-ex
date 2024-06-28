@@ -1,63 +1,54 @@
 defmodule RDF.BlankNode.Generator.Increment do
   @moduledoc """
   An implementation of a `RDF.BlankNode.Generator.Algorithm` which returns `RDF.BlankNode`s with incremented identifiers.
-
-  The following options are supported when starting a `RDF.BlankNode.Generator`
-  with this algorithm:
-
-  - `prefix`: a string prepended to the generated blank node identifier
-  - `start_value`: the number from which the incremented counter starts
-
   """
 
   @behaviour RDF.BlankNode.Generator.Algorithm
 
-  alias RDF.BlankNode
+  defstruct prefix: "b", map: %{}, counter: 0
 
-  @type state :: %{
-          optional(:prefix) => String.t(),
+  @type t :: %__MODULE__{
+          prefix: String.t(),
           map: map,
           counter: pos_integer
         }
 
-  @impl BlankNode.Generator.Algorithm
-  def init(%{prefix: prefix} = opts) do
-    opts
-    |> Map.delete(:prefix)
-    |> init()
-    |> Map.put(:prefix, prefix)
+  alias RDF.BlankNode
+
+  @doc """
+  Creates a struct with the state of the algorithm.
+
+  ## Options
+
+  - `prefix`: a string prepended to the generated blank node identifier
+  - `counter`: the number from which the incremented counter starts
+  """
+  def new(opts \\ []) do
+    struct(__MODULE__, opts)
   end
 
   @impl BlankNode.Generator.Algorithm
-  def init(opts) do
-    %{
-      map: %{},
-      counter: Map.get(opts, :start_value, 0)
-    }
+  def generate(%__MODULE__{counter: counter} = state) do
+    {bnode(state, counter), %{state | counter: counter + 1}}
   end
 
   @impl BlankNode.Generator.Algorithm
-  def generate(%{counter: counter} = state) do
-    {bnode(counter, state), %{state | counter: counter + 1}}
-  end
-
-  @impl BlankNode.Generator.Algorithm
-  def generate_for(value, %{map: map, counter: counter} = state) do
+  def generate_for(%__MODULE__{map: map, counter: counter} = state, value) do
     case Map.get(map, value) do
       nil ->
-        {bnode(counter, state),
+        {bnode(state, counter),
          %{state | map: Map.put(map, value, counter), counter: counter + 1}}
 
       previous ->
-        {bnode(previous, state), state}
+        {bnode(state, previous), state}
     end
   end
 
-  defp bnode(counter, %{prefix: prefix}) do
-    BlankNode.new(prefix <> Integer.to_string(counter))
+  defp bnode(%__MODULE__{prefix: nil}, counter) do
+    BlankNode.new(counter)
   end
 
-  defp bnode(counter, _) do
-    BlankNode.new(counter)
+  defp bnode(%__MODULE__{} = state, counter) do
+    BlankNode.new(state.prefix <> Integer.to_string(counter))
   end
 end

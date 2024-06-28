@@ -213,7 +213,8 @@ defmodule RDF.Mixfile do
           RDF.IRI.UUID.Generator,
           RDF.BlankNode.Generator,
           RDF.BlankNode.Generator.Algorithm,
-          RDF.BlankNode.Generator.Increment
+          RDF.BlankNode.Generator.Increment,
+          RDF.BlankNode.Generator.Random
         ],
         Serialization: [
           RDF.Serialization,

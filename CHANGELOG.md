@@ -56,6 +56,8 @@ Elixir v1.15 or later, where this issue has been resolved.
 - Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels.
 - Rename `:only` option of `RDF.Turtle.Encoder` to `:content` to reflect the enhanced 
   capabilities.
+- The `RDF.BlankNode.Generator` and `RDF.BlankNode.Generator.Algorithm` behaviour 
+  used internally at various places was redesigned.
 
 ### Fixed
 

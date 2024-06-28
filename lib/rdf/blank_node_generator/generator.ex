@@ -5,7 +5,7 @@ defmodule RDF.BlankNode.Generator do
   This module implements the `RDF.Resource.Generator` behaviour.
   The only `RDF.Resource.Generator` configuration it requires is the process
   identifier. The actual configuration of the behaviour of this generator
-  is done on the GenServer itself via `start_link/1` and `start/1`.
+  is done on the GenServer itself via `start_link/2` or `start/2`.
   """
 
   use GenServer
@@ -16,50 +16,38 @@ defmodule RDF.BlankNode.Generator do
   @doc """
   Starts a blank node generator linked to the current process.
 
-  The `RDF.BlankNode.Generator.Algorithm` implementation is the only required
-  keyword option, which must be given with the `:algorithm` key or, if no other
-  options are required, can be given directly (instead of a keyword list).
-  The remaining options are used as the configuration for `init/1` of the
-  respective `RDF.BlankNode.Generator.Algorithm` implementation.
-
-  If you want to pass `GenServer.start_link/3` options, you'll can provide
-  two separate keyword lists as a tuple with the first being the `RDF.BlankNode.Generator`
-  configuration and the second the `GenServer.start_link/3` options.
+  The `RDF.BlankNode.Generator.Algorithm` can be given either as a respective
+  struct or just the module, in which case a struct is created implicitly
+  with the default values of its fields.
   """
-  def start_link(algorithm) when is_atom(algorithm) do
-    start_link({[algorithm: algorithm], []})
+  def start_link(algorithm, opts \\ [])
+
+  def start_link(algorithm, opts) when is_atom(algorithm) do
+    start_link(struct(algorithm), opts)
   end
 
-  def start_link({algorithm, gen_server_opts}) when is_atom(algorithm) do
-    start_link({[algorithm: algorithm], gen_server_opts})
+  def start_link({algorithm, opts}, []) do
+    start_link(algorithm, opts)
   end
 
-  def start_link({init_opts, gen_server_opts}) do
-    {algorithm, init_opts} = Keyword.pop!(init_opts, :algorithm)
-    GenServer.start_link(__MODULE__, {algorithm, Map.new(init_opts)}, gen_server_opts)
+  def start_link(%_algorithm{} = algorithm_struct, opts) do
+    GenServer.start_link(__MODULE__, algorithm_struct, opts)
   end
-
-  def start_link(init_opts), do: start_link({init_opts, []})
 
   @doc """
   Starts a blank node generator process without links (outside a supervision tree).
 
   The options are handled the same as `start_link/1`.
   """
-  def start(algorithm) when is_atom(algorithm) do
-    start({[algorithm: algorithm], []})
+  def start(algorithm, opts \\ [])
+
+  def start(algorithm, opts) when is_atom(algorithm) do
+    start(struct(algorithm), opts)
   end
 
-  def start({algorithm, gen_server_opts}) when is_atom(algorithm) do
-    start({[algorithm: algorithm], gen_server_opts})
+  def start(%_algorithm{} = algorithm_struct, opts) do
+    GenServer.start(__MODULE__, algorithm_struct, opts)
   end
-
-  def start({init_opts, gen_server_opts}) do
-    {algorithm, init_opts} = Keyword.pop!(init_opts, :algorithm)
-    GenServer.start(__MODULE__, {algorithm, Map.new(init_opts)}, gen_server_opts)
-  end
-
-  def start(init_opts), do: start({init_opts, []})
 
   @doc """
   Synchronously stops the blank node generator with the given `reason`.
@@ -104,19 +92,19 @@ defmodule RDF.BlankNode.Generator do
   # Server Callbacks #########################################################
 
   @impl GenServer
-  def init({generation_mod, init_opts}) do
-    {:ok, {generation_mod, generation_mod.init(init_opts)}}
+  def init(algorithm_struct) do
+    {:ok, algorithm_struct}
   end
 
   @impl GenServer
-  def handle_call(:generate, _from, {generation_mod, state}) do
-    {bnode, new_state} = generation_mod.generate(state)
-    {:reply, bnode, {generation_mod, new_state}}
+  def handle_call(:generate, _from, %algorithm{} = state) do
+    {bnode, new_state} = algorithm.generate(state)
+    {:reply, bnode, new_state}
   end
 
   @impl GenServer
-  def handle_call({:generate_for, string}, _from, {generation_mod, state}) do
-    {bnode, new_state} = generation_mod.generate_for(string, state)
-    {:reply, bnode, {generation_mod, new_state}}
+  def handle_call({:generate_for, string}, _from, %algorithm{} = state) do
+    {bnode, new_state} = algorithm.generate_for(state, string)
+    {:reply, bnode, new_state}
   end
 end

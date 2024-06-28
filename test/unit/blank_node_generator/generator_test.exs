@@ -21,7 +21,7 @@ defmodule RDF.BlankNode.GeneratorTest do
     end
 
     test "generator with prefix" do
-      {:ok, generator} = start_supervised({Generator, [algorithm: Increment, prefix: "b"]})
+      {:ok, generator} = start_supervised({Generator, Increment.new(prefix: "b")})
 
       assert Generator.generate(generator) == bnode("b0")
       assert Generator.generate(generator) == bnode("b1")
@@ -34,7 +34,7 @@ defmodule RDF.BlankNode.GeneratorTest do
     end
 
     test "generator with non-string values" do
-      {:ok, generator} = start_supervised({Generator, [algorithm: Increment, prefix: "b"]})
+      {:ok, generator} = start_supervised({Generator, %Increment{prefix: "b"}})
 
       assert Generator.generate(generator) == bnode("b0")
       assert Generator.generate(generator) == bnode("b1")
@@ -53,7 +53,7 @@ defmodule RDF.BlankNode.GeneratorTest do
       assert Generator.generate(Foo) == bnode(1)
 
       {:ok, _} =
-        start_supervised({Generator, {[algorithm: Increment, prefix: "b"], [name: Bar]}}, id: :g2)
+        start_supervised({Generator, {Increment.new(prefix: "b"), [name: Bar]}}, id: :g2)
 
       assert Generator.generate(Bar) == bnode("b0")
       assert Generator.generate(Bar) == bnode("b1")
@@ -77,7 +77,7 @@ defmodule RDF.BlankNode.GeneratorTest do
     end
 
     test "generator with prefix" do
-      {:ok, generator} = start_supervised({Generator, [algorithm: Random, prefix: "b"]})
+      {:ok, generator} = start_supervised({Generator, Random.new(prefix: "b")})
 
       assert %RDF.BlankNode{value: "b" <> _} = bnode1 = Generator.generate(generator)
       assert %RDF.BlankNode{value: "b" <> _} = bnode2 = Generator.generate(generator)
@@ -86,7 +86,7 @@ defmodule RDF.BlankNode.GeneratorTest do
     end
 
     test "generator with non-string values" do
-      {:ok, generator} = start_supervised({Generator, [algorithm: Random, prefix: "b"]})
+      {:ok, generator} = start_supervised({Generator, Random.new(prefix: "b")})
 
       assert %RDF.BlankNode{} = bnode = Generator.generate_for(generator, {:foo, 42})
       assert Generator.generate_for(generator, {:foo, 42}) == bnode
