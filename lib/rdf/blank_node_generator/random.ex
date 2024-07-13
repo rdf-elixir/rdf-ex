@@ -1,6 +1,11 @@
 defmodule RDF.BlankNode.Generator.Random do
   @moduledoc """
   An implementation of a `RDF.BlankNode.Generator.Algorithm` which returns `RDF.BlankNode`s with random identifiers.
+
+  Note, although this generator is faster than the `RDF.BlankNode.Generator.UUID` generator,
+  which also produces random identifiers, the random identifiers produced by
+  `RDF.BlankNode.Generator.Random` are not unique across multiple application runs,
+  since they are based on numbers returned by `:erlang.unique_integer/1`.
   """
 
   @behaviour RDF.BlankNode.Generator.Algorithm

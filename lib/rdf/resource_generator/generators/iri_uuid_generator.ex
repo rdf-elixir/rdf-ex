@@ -1,7 +1,3 @@
-# Since optional dependencies don't get started, dialyzer can't find these functions.
-# We're ignoring these warnings (via .dialyzer_ignore).
-# See https://elixirforum.com/t/confusing-behavior-of-optional-deps-in-mix-exs/17719/4
-
 if Code.ensure_loaded?(UUID) do
   defmodule RDF.IRI.UUID.Generator do
     @moduledoc """

@@ -159,6 +159,19 @@ defmodule RDF.Turtle.DecoderTest do
                  """,
                  bnode_gen: BlankNode.Generator.Random
                )
+
+      assert Turtle.Decoder.decode!(
+               """
+               [ <http://example.org/#foo> 42 ] .
+               """,
+               bnode_gen: :uuid
+             ) !=
+               Turtle.Decoder.decode!(
+                 """
+                 [ <http://example.org/#foo> 42 ] .
+                 """,
+                 bnode_gen: :uuid
+               )
     end
 
     test "blank node property list on object position" do
