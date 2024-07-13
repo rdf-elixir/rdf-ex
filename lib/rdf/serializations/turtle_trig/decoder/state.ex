@@ -5,7 +5,7 @@ defmodule RDF.TurtleTriG.Decoder.State do
 
   alias RDF.BlankNode
 
-  @default_turtle_trig_decoder_bnode_gen :random
+  @default_turtle_trig_decoder_bnode_gen if Code.ensure_loaded?(UUID), do: :uuid, else: :random
 
   def default_bnode_gen do
     Application.get_env(
