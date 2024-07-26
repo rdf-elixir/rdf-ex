@@ -38,7 +38,8 @@ Elixir v1.15 or later, where this issue has been resolved.
   are empty.
 - `RDF.PrefixMap.empty?/1` to check of a `RDF.PrefixMap` is empty.
 - `RDF.PrefixMap.limit/2` to limit a `RDF.PrefixMap` to a subset of some given prefixes.
-- `RDF.BlankNode.Generator.Random` implementation of `RDF.BlankNode.Generator.Algorithm`
+- `RDF.BlankNode.Generator.UUID` and `RDF.BlankNode.Generator.Random` implementations
+  of `RDF.BlankNode.Generator.Algorithm`
 - `:bnode_gen` option on the Turtle/TriG decoders, allowing customization of blank node 
   generation and a `turtle_trig_decoder_bnode_gen` application config for setting the 
   default blank node generator globally.
@@ -46,7 +47,7 @@ Elixir v1.15 or later, where this issue has been resolved.
 
 ### Changed
 
-- Default blank node generation in Turtle decoder now generates random blank node 
+- Default blank node generation in Turtle decoder now generates UUID blank node 
   identifiers instead of the previous deterministic incremented identifiers. 
   This change ensures unique blank nodes across multiple parsing operations.
   You can opt back to the previous behaviour with the new `turtle_trig_decoder_bnode_gen` 
