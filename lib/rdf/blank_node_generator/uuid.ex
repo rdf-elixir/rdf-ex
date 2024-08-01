@@ -40,7 +40,6 @@ defmodule RDF.BlankNode.Generator.UUID do
 
   # 74fdf771-1a01-5e8f-a491-1c9e61f1adc6
   @uuid_namespace UUID.uuid5(:url, "https://rdf-elixir.dev/blank-node-generator/uuid")
-                  |> String.downcase()
 
   defp uuid_for(value) when is_binary(value),
     do: UUID.uuid5(@uuid_namespace, value, :hex) |> String.downcase()
