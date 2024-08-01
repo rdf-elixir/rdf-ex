@@ -67,8 +67,8 @@ defmodule RDF.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.5 or ~> 2.0"},
+      {:uniq, "~> 0.6"},
       {:protocol_ex, "~> 0.4.4"},
-      {:uniq, "~> 0.6", optional: true},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false},

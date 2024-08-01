@@ -5,9 +5,7 @@ defmodule RDF.TurtleTriG.Decoder.State do
 
   alias RDF.BlankNode
 
-  @default_turtle_trig_decoder_bnode_gen if Code.ensure_loaded?(Uniq.UUID),
-                                           do: :uuid,
-                                           else: :random
+  @default_turtle_trig_decoder_bnode_gen :uuid
 
   def default_bnode_gen do
     Application.get_env(
@@ -28,12 +26,7 @@ defmodule RDF.TurtleTriG.Decoder.State do
     if bnode_gen = default_bnode_gen(), do: bnode_generator(bnode_gen)
   end
 
-  if Code.ensure_loaded?(Uniq.UUID) do
-    defp bnode_generator(:uuid), do: bnode_generator(BlankNode.Generator.UUID)
-  else
-    raise "uniq dependency not available"
-  end
-
+  defp bnode_generator(:uuid), do: bnode_generator(BlankNode.Generator.UUID)
   defp bnode_generator(:random), do: bnode_generator(BlankNode.Generator.Random)
   defp bnode_generator(:increment), do: bnode_generator(BlankNode.Generator.Increment)
   defp bnode_generator(algorithm) when is_atom(algorithm), do: struct(algorithm)
