@@ -6,6 +6,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
   alias RDF.Resource.Generator
   alias RDF.Resource.Generator.ConfigError
 
+  alias Uniq.UUID
+
   describe "generate/0" do
     test "valid general config" do
       for version <- [1, 4], format <- [:default, :hex] do
@@ -18,8 +20,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                  |> Generator.generate()
 
         uuid_info = UUID.info!(uuid)
-        assert Keyword.get(uuid_info, :version) == version
-        assert Keyword.get(uuid_info, :type) == format
+        assert uuid_info.version == version
+        assert uuid_info.format == format
       end
     end
 
@@ -31,8 +33,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 4
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :urn
+      assert UUID.info!(uuid).version == 4
+      assert UUID.info!(uuid).format == :urn
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(
@@ -44,8 +46,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 1
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :hex
+      assert UUID.info!(uuid).version == 1
+      assert UUID.info!(uuid).format == :hex
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(
@@ -56,8 +58,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 1
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :default
+      assert UUID.info!(uuid).version == 1
+      assert UUID.info!(uuid).format == :default
     end
 
     test "setting the prefix as a vocabulary namespace" do
@@ -72,15 +74,15 @@ defmodule RDF.IRI.UUID.GeneratorTest do
 
       assert %IRI{value: uuid} = generator_config(uuid_version: 1) |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 1
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :urn
+      assert UUID.info!(uuid).version == 1
+      assert UUID.info!(uuid).format == :urn
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(prefix: "http://example.com/ns/")
                |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 4
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :default
+      assert UUID.info!(uuid).version == 4
+      assert UUID.info!(uuid).format == :default
     end
 
     test "uuid_namespace is ignored" do
@@ -92,7 +94,7 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate()
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 1
+      assert UUID.info!(uuid).version == 1
     end
 
     test "invalid config" do
@@ -131,8 +133,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                  |> Generator.generate("test")
 
         uuid_info = UUID.info!(uuid)
-        assert Keyword.get(uuid_info, :version) == version
-        assert Keyword.get(uuid_info, :type) == format
+        assert uuid_info.version == version
+        assert uuid_info.format == format
       end
     end
 
@@ -145,8 +147,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate("test")
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 3
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :urn
+      assert UUID.info!(uuid).version == 3
+      assert UUID.info!(uuid).format == :urn
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(
@@ -159,8 +161,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate("test")
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 5
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :hex
+      assert UUID.info!(uuid).version == 5
+      assert UUID.info!(uuid).format == :hex
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(
@@ -172,8 +174,8 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                )
                |> Generator.generate("test")
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 5
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :default
+      assert UUID.info!(uuid).version == 5
+      assert UUID.info!(uuid).format == :default
     end
 
     test "setting the prefix as a vocabulary namespace" do
@@ -192,15 +194,15 @@ defmodule RDF.IRI.UUID.GeneratorTest do
                generator_config(uuid_version: 3, uuid_namespace: :dns)
                |> Generator.generate("test")
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 3
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :urn
+      assert UUID.info!(uuid).version == 3
+      assert UUID.info!(uuid).format == :urn
 
       assert %IRI{value: "http://example.com/ns/" <> uuid} =
                generator_config(prefix: "http://example.com/ns/", uuid_namespace: :dns)
                |> Generator.generate("test")
 
-      assert uuid |> UUID.info!() |> Keyword.get(:version) == 5
-      assert uuid |> UUID.info!() |> Keyword.get(:type) == :default
+      assert UUID.info!(uuid).version == 5
+      assert UUID.info!(uuid).format == :default
     end
 
     test "invalid config" do

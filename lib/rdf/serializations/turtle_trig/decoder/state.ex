@@ -5,7 +5,9 @@ defmodule RDF.TurtleTriG.Decoder.State do
 
   alias RDF.BlankNode
 
-  @default_turtle_trig_decoder_bnode_gen if Code.ensure_loaded?(UUID), do: :uuid, else: :random
+  @default_turtle_trig_decoder_bnode_gen if Code.ensure_loaded?(Uniq.UUID),
+                                           do: :uuid,
+                                           else: :random
 
   def default_bnode_gen do
     Application.get_env(
@@ -26,10 +28,10 @@ defmodule RDF.TurtleTriG.Decoder.State do
     if bnode_gen = default_bnode_gen(), do: bnode_generator(bnode_gen)
   end
 
-  if Code.ensure_loaded?(UUID) do
+  if Code.ensure_loaded?(Uniq.UUID) do
     defp bnode_generator(:uuid), do: bnode_generator(BlankNode.Generator.UUID)
   else
-    raise "elixir_uuid dependency not available"
+    raise "uniq dependency not available"
   end
 
   defp bnode_generator(:random), do: bnode_generator(BlankNode.Generator.Random)

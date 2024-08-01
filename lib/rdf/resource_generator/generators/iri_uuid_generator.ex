@@ -1,9 +1,9 @@
-if Code.ensure_loaded?(UUID) do
+if Code.ensure_loaded?(Uniq.UUID) do
   defmodule RDF.IRI.UUID.Generator do
     @moduledoc """
     A `RDF.Resource.Generator` for various kinds of UUID-based IRI identifiers.
 
-    This generator is only available when you have defined the [elixir_uuid](https://hex.pm/packages/elixir_uuid)
+    This generator is only available when you have defined the [uniq](https://hex.pm/packages/uniq)
     package as dependency in the Mixfile of your application.
 
 
@@ -49,6 +49,8 @@ if Code.ensure_loaded?(UUID) do
     """
 
     use RDF.Resource.Generator
+
+    alias Uniq.UUID
 
     alias RDF.IRI
     alias RDF.Resource.Generator.ConfigError
