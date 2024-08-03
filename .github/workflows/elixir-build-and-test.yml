@@ -33,6 +33,9 @@ jobs:
           - pair:
               elixir: 1.16.2
               otp: 26.2
+          - pair:
+              elixir: 1.17.2
+              otp: 27.0
             build-flags: --warnings-as-errors
     steps:
       - name: Checkout repository
