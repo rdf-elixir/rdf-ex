@@ -305,7 +305,7 @@ defmodule RDF.SerializationTest do
       if Version.match?(System.version(), ">= 1.17.0") do
         IO.StreamError
       else
-        RuntimeError
+        UndefinedFunctionError
       end
 
     assert_raise expected_error, fn ->
