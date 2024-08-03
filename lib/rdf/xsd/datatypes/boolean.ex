@@ -51,7 +51,7 @@ defmodule RDF.XSD.Boolean do
         !Decimal.equal?(literal.value, 0) |> new()
 
       XSD.Numeric.datatype?(literal) ->
-        new(literal.value not in [0, 0.0, :nan])
+        new(literal.value not in [0, 0.0, -0.0, :nan])
 
       true ->
         super(literal)
