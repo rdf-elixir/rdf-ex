@@ -301,8 +301,14 @@ defmodule RDF.SerializationTest do
       force: true
     )
 
-    # Why do we get an UndefinedFunctionError (function :unicode.format_error/1 is undefined or private)
-    assert_raise UndefinedFunctionError, fn ->
+    expected_error =
+      if Version.match?(System.version(), ">= 1.17.0") do
+        IO.StreamError
+      else
+        RuntimeError
+      end
+
+    assert_raise expected_error, fn ->
       Serialization.read_file!(file, format: :ntriples, stream: true)
     end
 
