@@ -127,7 +127,7 @@ defmodule RDF.XSD.Datatype.Restriction do
 
     restriction_impl(
       Module.get_attribute(env.module, :facets),
-      Module.get_attribute(env.module, :base).applicable_facets
+      Module.get_attribute(env.module, :base).applicable_facets()
     )
   end
 end

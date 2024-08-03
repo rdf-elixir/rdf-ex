@@ -45,12 +45,12 @@ defmodule RDF.XSD do
   defdelegate datatype?(value), to: RDF.Literal.Datatype.Registry, as: :xsd_datatype?
 
   for datatype <- RDF.Literal.Datatype.Registry.builtin_xsd_datatypes() do
-    defdelegate unquote(String.to_atom(datatype.name))(value), to: datatype, as: :new
-    defdelegate unquote(String.to_atom(datatype.name))(value, opts), to: datatype, as: :new
+    defdelegate unquote(String.to_atom(datatype.name()))(value), to: datatype, as: :new
+    defdelegate unquote(String.to_atom(datatype.name()))(value, opts), to: datatype, as: :new
 
-    elixir_name = Macro.underscore(datatype.name)
+    elixir_name = Macro.underscore(datatype.name())
 
-    unless datatype.name == elixir_name do
+    unless datatype.name() == elixir_name do
       defdelegate unquote(String.to_atom(elixir_name))(value), to: datatype, as: :new
       defdelegate unquote(String.to_atom(elixir_name))(value, opts), to: datatype, as: :new
     end

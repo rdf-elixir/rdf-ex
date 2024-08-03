@@ -100,10 +100,10 @@ defmodule RDF.XSD.Facet do
   """
   defmacro def_facet_constraint(facet, value) do
     facet_mod = Macro.expand_once(facet, __CALLER__)
-    facet_name = String.to_atom(facet_mod.name)
+    facet_name = String.to_atom(facet_mod.name())
 
     quote do
-      unless unquote(facet) in @base.applicable_facets,
+      unless unquote(facet) in @base.applicable_facets(),
         do: raise("#{unquote(facet_name)} is not an applicable facet of #{@base}")
 
       @facets unquote(facet_name)
@@ -130,7 +130,7 @@ defmodule RDF.XSD.Facet do
 
   def restriction_impl(facets, applicable_facets) do
     Enum.map(applicable_facets, fn applicable_facet ->
-      applicable_facet_name = String.to_atom(applicable_facet.name)
+      applicable_facet_name = String.to_atom(applicable_facet.name())
 
       quote do
         @behaviour unquote(applicable_facet)

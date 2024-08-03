@@ -7,30 +7,30 @@ defmodule RDF.Literal.Datatype.RegistryTest do
   alias RDF.TestDatatypes
 
   @unsupported_xsd_datatypes ~w[
-      ENTITIES
-      IDREF
-      language
-      Name
-      normalizedString
-      dayTimeDuration
-      QName
-      gYear
-      NMTOKENS
-      gDay
-      NOTATION
-      ID
-      duration
-      hexBinary
-      ENTITY
-      yearMonthDuration
-      IDREFS
-      token
-      NCName
-      NMTOKEN
-      gYearMonth
-      gMonth
-      gMonthDay
-    ]
+                               ENTITIES
+                               IDREF
+                               language
+                               Name
+                               normalizedString
+                               dayTimeDuration
+                               QName
+                               gYear
+                               NMTOKENS
+                               gDay
+                               NOTATION
+                               ID
+                               duration
+                               hexBinary
+                               ENTITY
+                               yearMonthDuration
+                               IDREFS
+                               token
+                               NCName
+                               NMTOKEN
+                               gYearMonth
+                               gMonth
+                               gMonthDay
+                             ]
                              |> Enum.map(fn xsd_datatype_name ->
                                RDF.iri(NS.XSD.__base_iri__() <> xsd_datatype_name)
                              end)
@@ -40,15 +40,15 @@ defmodule RDF.Literal.Datatype.RegistryTest do
   describe "datatype/1" do
     test "builtin datatypes" do
       Enum.each(Datatype.Registry.builtin_datatypes(), fn datatype ->
-        assert datatype == Datatype.Registry.datatype(datatype.id)
-        assert datatype == Datatype.Registry.datatype(to_string(datatype.id))
+        assert datatype == Datatype.Registry.datatype(datatype.id())
+        assert datatype == Datatype.Registry.datatype(to_string(datatype.id()))
       end)
     end
 
     test "supported datatypes from the XSD namespace" do
       Enum.each(@supported_xsd_datatypes, fn xsd_datatype_iri ->
         assert xsd_datatype = Datatype.Registry.datatype(xsd_datatype_iri)
-        assert xsd_datatype.id == xsd_datatype_iri
+        assert xsd_datatype.id() == xsd_datatype_iri
       end)
     end
 

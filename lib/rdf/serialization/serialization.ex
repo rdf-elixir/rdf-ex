@@ -81,7 +81,7 @@ defmodule RDF.Serialization do
   end
 
   def format(name) do
-    format_where(fn format -> format.name == name end)
+    format_where(fn format -> format.name() == name end)
   end
 
   @doc """
@@ -96,7 +96,7 @@ defmodule RDF.Serialization do
   """
   @spec format_by_media_type(String.t()) :: format | nil
   def format_by_media_type(media_type) do
-    format_where(fn format -> format.media_type == media_type end)
+    format_where(fn format -> format.media_type() == media_type end)
   end
 
   @doc """
@@ -117,7 +117,7 @@ defmodule RDF.Serialization do
   def format_by_extension("." <> extension), do: format_by_extension(extension)
 
   def format_by_extension(extension) do
-    format_where(fn format -> format.extension == extension end)
+    format_where(fn format -> format.extension() == extension end)
   end
 
   defp format_where(fun) do
