@@ -330,34 +330,6 @@ defmodule RDF.Graph.BuilderTest do
     assert graph == RDF.graph(NS.OWL.Class |> NS.RDFS.subClassOf(NS.RDFS.Class))
   end
 
-  test "alias" do
-    graph =
-      RDF.Graph.build do
-        alias TestNS.Custom
-        Custom.S |> Custom.p(Custom.O)
-      end
-
-    assert graph == RDF.graph(TestNS.Custom.S |> TestNS.Custom.p(TestNS.Custom.O))
-  end
-
-  test "aliasing an already taken name" do
-    graph =
-      RDF.Graph.build do
-        alias RDF.TestVocabularyNamespaces.EX, as: EX2
-        {EX2.S, EX.p(), EX2.foo()}
-      end
-
-    quote do
-      alias RDF.TestVocabularyNamespaces.EX, as: EX2
-    end
-
-    assert graph ==
-             RDF.graph(
-               RDF.TestVocabularyNamespaces.EX.S
-               |> EX.p(RDF.TestVocabularyNamespaces.EX.foo())
-             )
-  end
-
   test "import" do
     graph =
       RDF.Graph.build do

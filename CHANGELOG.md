@@ -52,6 +52,11 @@ Elixir v1.15 or later, where this issue has been resolved.
   This change ensures unique blank nodes across multiple parsing operations.
   You can opt back to the previous behaviour with the new `turtle_trig_decoder_bnode_gen` 
   application config using the `:increment` value.
+- Aliases defined within `RDF.Graph.build` blocks are no longer supported due to changes  
+  in Elixir 1.17. Aliases from the caller context are still available and automatically  
+  re-aliased in the build block. However, instead of using aliases for vocabulary namespaces, 
+  use `@prefix` declarations inside the build block, as it provides additional benefits. 
+  Please refer to the [user guide](https://rdf-elixir.dev/rdf-ex/description-and-graph-dsl.html#graph-builder) for more information.
 - The `prefixes` of an `RDF.Graph` are now always a `RDF.PrefixMap` and no longer `nil`
   initially, since this had the confusing consequence that an `RDF.Graph` where all 
   prefixes were deleted was not equal to same graph where the deleted were never set,
