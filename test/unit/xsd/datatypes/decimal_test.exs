@@ -183,6 +183,8 @@ defmodule RDF.XSD.DecimalTest do
     assert XSD.Decimal.fraction_digit_count(XSD.integer("023")) == 0
   end
 
+  # TODO: remove this workaround for regression in latest Credo version; see https://github.com/rrrene/credo/issues/1146
+  # credo:disable-for-next-line Credo.Check.Readability.FunctionNames
   defmacrop sigil_d(str, _opts) do
     quote do
       Elixir.Decimal.new(unquote(str))
