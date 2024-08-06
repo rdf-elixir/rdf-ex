@@ -72,6 +72,7 @@ Elixir v1.15 or later, where this issue has been resolved.
   capabilities.
 - The `RDF.BlankNode.Generator` and `RDF.BlankNode.Generator.Algorithm` behaviour 
   used internally at various places was redesigned.
+- Deprecated `RDF.Diff.merge/2` was removed. Use `RDF.Diff.union/2` instead.
 - Replacement of `elixir_uuid` with `uniq` dependency for UUID generation and
   make it no longer optional
 

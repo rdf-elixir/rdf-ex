@@ -123,7 +123,7 @@ defmodule RDF.Diff do
         deletions: Graph.take(graph1, deleted_subjects)
       ),
       fn subject, diff ->
-        merge(
+        union(
           diff,
           diff(
             Graph.description(graph1, subject),
@@ -144,7 +144,7 @@ defmodule RDF.Diff do
 
       {new_description, graph} ->
         new(additions: graph)
-        |> merge(diff(description, new_description))
+        |> union(diff(description, new_description))
     end
   end
 
@@ -166,9 +166,6 @@ defmodule RDF.Diff do
       deletions: Graph.add(diff1.deletions, diff2.deletions)
     )
   end
-
-  @deprecated "Use union/2 instead. merge/2 will have a different semantics in future versions."
-  defdelegate merge(diff1, diff2), to: __MODULE__, as: :union
 
   @doc """
   Determines if a diff is empty.
