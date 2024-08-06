@@ -1690,19 +1690,15 @@ defmodule RDF.GraphTest do
            |> Graph.equal?(Graph.new({EX.S, EX.p(), EX.O}, name: EX.Graph2))
   end
 
-  test "prefixes/1" do
-    assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
-    assert Graph.new(prefixes: [ex: EX]) |> Graph.prefixes() == PrefixMap.new(ex: EX)
-  end
-
   describe "prefixes/2" do
     test "when empty" do
       assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
-      assert Graph.new() |> Graph.prefixes() == PrefixMap.new()
+      assert Graph.new() |> Graph.prefixes(nil) == nil
     end
 
     test "when not empty" do
       assert Graph.new(prefixes: [ex: EX]) |> Graph.prefixes() == PrefixMap.new(ex: EX)
+      assert Graph.new(prefixes: [ex: EX]) |> Graph.prefixes(nil) == PrefixMap.new(ex: EX)
     end
   end
 
