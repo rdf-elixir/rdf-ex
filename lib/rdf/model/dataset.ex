@@ -542,7 +542,7 @@ defmodule RDF.Dataset do
   @doc """
   The graph with given name.
   """
-  @spec graph(t, Statement.graph_name() | nil) :: Graph.t()
+  @spec graph(t, Statement.graph_name() | nil) :: Graph.t() | nil
   def graph(%__MODULE__{} = dataset, graph_name) do
     Map.get(dataset.graphs, coerce_graph_name(graph_name))
   end
