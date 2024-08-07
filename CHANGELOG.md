@@ -18,7 +18,7 @@ Elixir v1.15 or later, where this issue has been resolved.
 ### Added
 
 - `RDF.TriG` with an implementation of the TriG serialization language. 
-- Several new options on the Turtle/TriG encoder for more customizations and 
+- Several new options on the Turtle/TriG encoders for more customizations and 
   performance optimizations:
   - Capability to add custom content on the Turtle/TriG encoders with the `:content` option.
   - `:line_prefix` for a function defining custom line prefixes
@@ -60,11 +60,11 @@ Elixir v1.15 or later, where this issue has been resolved.
 - The `prefixes` of an `RDF.Graph` are now always a `RDF.PrefixMap` and no longer `nil`
   initially, since this had the confusing consequence that an `RDF.Graph` where all 
   prefixes were deleted was not equal to same graph where the deleted were never set,
-  e.g. `RDF.graph() |> Graph.add_prefixes(ex: EX) |> Graph.delete_prefixes(:ex) == RDF.graph`
+  e.g. `RDF.graph() |> Graph.add_prefixes(ex: EX) |> Graph.delete_prefixes(:ex) == RDF.graph()`
   did not hold previously. This behaviour was used before to differentiate graphs which
   should use the `RDF.default_prefixes/0` (in case `prefixes` was `nil`) from those which
   should not use any prefixes (empty `PrefixMap`) when serialized to Turtle. 
-  You'll now to explicitly add the `prefixes: []` on Turtle serialization explicitly. 
+  You'll now have to add the `prefixes: []` on Turtle serialization explicitly. 
   The old behaviour of getting `nil` on empty prefixes can be achieved with the new 
   `RDF.Graph.prefixes/2` function.
 - Update to change in N-Triples and N-Quads specs disallowing colons in bnode labels.
