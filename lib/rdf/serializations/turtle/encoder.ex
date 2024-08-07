@@ -28,7 +28,8 @@ defmodule RDF.Turtle.Encoder do
   - `:prefixes`: Allows to specify the prefixes to be used as a `RDF.PrefixMap` or
     anything from which a `RDF.PrefixMap` can be created with `RDF.PrefixMap.new/1`.
     If not specified the ones from the given graph are used or if these are also not
-    present the `RDF.default_prefixes/0`.
+    present the `RDF.default_prefixes/0`. If you explicitly want to omit the prefixes
+    use `[]` as a value.
   - `:base`: : Allows to specify the base URI to be used for a `@base` directive.
     If not specified the one from the given graph is used or if there is also none
     specified for the graph the `RDF.default_base_iri/0`.
