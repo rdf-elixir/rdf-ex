@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## 2.0.0 - 2024-07-08
+## 2.0.0 - 2024-08-07
 
 Elixir versions < 1.13 and OTP version < 23 are no longer supported
 
