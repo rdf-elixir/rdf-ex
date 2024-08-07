@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## Unreleased
+## 2.0.0 - 2024-07-08
 
 Elixir versions < 1.13 and OTP version < 23 are no longer supported
 
@@ -87,7 +87,7 @@ Elixir v1.15 or later, where this issue has been resolved.
   triples could as iodata.
 
 
-[Compare v1.2.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...HEAD)
+[Compare v1.2.0...v2.0.0](https://github.com/rdf-elixir/rdf-ex/compare/v1.2.0...v2.0.0)
 
 
 
