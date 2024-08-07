@@ -122,7 +122,12 @@ defmodule RDF.Mixfile do
       main: "RDF",
       source_url: @scm_url,
       source_ref: "v#{@version}",
-      extras: ["README.md", "CHANGELOG.md", "CONTRIBUTING.md", "LICENSE.md"],
+      extras: [
+        {:"README.md", [title: "About"]},
+        {:"CHANGELOG.md", [title: "CHANGELOG"]},
+        {:"CONTRIBUTING.md", [title: "CONTRIBUTING"]},
+        {:"LICENSE.md", [title: "License"]}
+      ],
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
       groups_for_modules: [
         Terms: [
@@ -213,6 +218,7 @@ defmodule RDF.Mixfile do
           RDF.IRI.UUID.Generator,
           RDF.BlankNode.Generator,
           RDF.BlankNode.Generator.Algorithm,
+          RDF.BlankNode.Generator.UUID,
           RDF.BlankNode.Generator.Increment,
           RDF.BlankNode.Generator.Random
         ],
