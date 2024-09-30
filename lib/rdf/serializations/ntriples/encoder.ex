@@ -125,11 +125,11 @@ defmodule RDF.NTriples.Encoder do
   def escape_string(string) do
     string
     |> String.replace("\\", "\\\\")
-    |> String.replace("\b", "\\b")
-    |> String.replace("\f", "\\f")
     |> String.replace("\t", "\\t")
+    |> String.replace("\b", "\\b")
     |> String.replace("\n", "\\n")
     |> String.replace("\r", "\\r")
+    |> String.replace("\f", "\\f")
     |> String.replace("\"", ~S[\"])
   end
 end

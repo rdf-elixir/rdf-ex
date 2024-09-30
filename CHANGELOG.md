@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
+## Unreleased
+
+### Fixed
+
+- The Turtle/TriG encoder didn't escape strings properly when using the long
+  literal form, i.e. when the encoded string contains newlines, which could 
+  result in invalid output in edge-cases.
+
+
+[Compare v2.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.0...HEAD)
+
+
+
 ## 2.0.0 - 2024-08-07
 
 Elixir versions < 1.13 and OTP version < 23 are no longer supported

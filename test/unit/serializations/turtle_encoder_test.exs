@@ -1138,7 +1138,7 @@ defmodule RDF.Turtle.EncoderTest do
       )
     end
 
-    test "backslash-escaping" do
+    test "backslash escaping" do
       EX.S
       |> EX.p("\\")
       |> assert_serialization(matches: [~s["\\\\"]])
@@ -1146,6 +1146,45 @@ defmodule RDF.Turtle.EncoderTest do
       EX.S
       |> EX.p("\\\\")
       |> assert_serialization(matches: [~s["\\\\\\\\"]])
+    end
+
+    test "double quote escaping" do
+      EX.S
+      |> EX.p(~s["foo"bar"])
+      |> assert_serialization(matches: [~s["\\"foo\\"bar\\""]])
+
+      #      EX.S
+      #      |> EX.p(~s[foo\n"])
+      #      |> assert_serialization(matches: [~s["""foo\n\\""""]])
+      EX.S
+      |> EX.p(
+        """
+        "foo"
+        \"""
+        "bar""
+        """
+        |> String.trim_trailing()
+      )
+      |> assert_serialization(
+        matches: [
+          """
+          \""""foo"
+          \\\"""
+          "bar"\\\""""
+          """
+          |> String.trim_trailing()
+        ]
+      )
+    end
+
+    test "tab escaping" do
+      EX.S
+      |> EX.p(~s[\tbar])
+      |> assert_serialization(matches: [~s["\\tbar"]])
+
+      EX.S
+      |> EX.p(~s[foo\n\tbar])
+      |> assert_serialization(matches: [~s["""foo\n\tbar"""]])
     end
 
     test "language-tagged literals with newlines embedded are encoded with long quotes" do

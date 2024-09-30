@@ -4,8 +4,6 @@ defmodule RDF.TurtleTriG.Encoder do
   alias RDF.TurtleTriG.Encoder.{State, Sequencer, CompactStarGraph}
   alias RDF.{BlankNode, Description, Graph, Dataset, IRI, XSD, Literal, LangString, PrefixMap}
 
-  import RDF.NTriples.Encoder, only: [escape_string: 1]
-
   import State,
     only: [
       line_prefixed: 4,
@@ -483,9 +481,54 @@ defmodule RDF.TurtleTriG.Encoder do
 
   defp quoted(string) do
     if String.contains?(string, ["\n", "\r"]) do
-      [~s["""], string, ~s["""]]
+      [~s["""], escape_string(string, :double, true), ~s["""]]
     else
-      [~s["], escape_string(string), ~s["]]
+      [~s["], escape_string(string, :double), ~s["]]
+    end
+  end
+
+  @doc false
+  def escape_string(string, quotes \\ :double, long \\ false) do
+    string
+    |> String.replace("\\", "\\\\")
+    |> String.replace("\b", "\\b")
+    |> String.replace("\f", "\\f")
+    |> escape_tabs(long)
+    |> escape_newlines(long)
+    |> escape_quotes(quotes, long)
+  end
+
+  defp escape_tabs(string, true), do: string
+  defp escape_tabs(string, false), do: String.replace(string, "\t", "\\t")
+
+  defp escape_newlines(string, true), do: string
+
+  defp escape_newlines(string, false) do
+    string
+    |> String.replace("\n", "\\n")
+    |> String.replace("\r", "\\r")
+  end
+
+  defp escape_quotes(string, :double, false), do: String.replace(string, ~S["], ~S[\"])
+  defp escape_quotes(string, :single, false), do: String.replace(string, ~S['], ~S[\'])
+
+  defp escape_quotes(string, :double, true) do
+    string
+    |> String.replace(~S["""], ~S[\"""])
+    |> escape_ending_quotes(~S["])
+  end
+
+  defp escape_quotes(string, :single, true) do
+    string
+    |> String.replace(~S['''], ~S[\'''])
+    |> escape_ending_quotes(~S['])
+  end
+
+  defp escape_ending_quotes(string, quote) do
+    if String.ends_with?(string, quote) do
+      String.slice(string, 0..-2//1) <> "\\" <> quote
+    else
+      string
     end
   end
 end
