@@ -241,13 +241,25 @@ defmodule RDF.Turtle.DecoderTest do
   end
 
   describe "quoted literals" do
-    test "an untyped string literal" do
+    test "an untyped string literal with double quotes" do
       assert Turtle.Decoder.decode!("""
              <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/realname> "Peter Parker" .
              """) == Graph.new({EX.spiderman(), P.realname(), RDF.literal("Peter Parker")})
     end
 
-    test "an untyped long quoted string literal" do
+    test "an untyped string literal with single quotes" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/realname> 'Peter Parker' .
+             """) == Graph.new({EX.spiderman(), P.realname(), RDF.literal("Peter Parker")})
+    end
+
+    test "an untyped long double quoted string literal" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/realname> \"""Peter Parker\""" .
+             """) == Graph.new({EX.spiderman(), P.realname(), RDF.literal("Peter Parker")})
+    end
+
+    test "an untyped long single quoted string literal" do
       assert Turtle.Decoder.decode!("""
              <http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/realname> '''Peter Parker''' .
              """) == Graph.new({EX.spiderman(), P.realname(), RDF.literal("Peter Parker")})
@@ -281,6 +293,80 @@ defmodule RDF.Turtle.DecoderTest do
       assert Turtle.Decoder.decode!("""
              <http://example.org/#S> <http://example.org/#p> "foo"@base .
              """) == Graph.new({EX.S, EX.p(), RDF.literal("foo", language: "base")})
+    end
+  end
+
+  describe "escaping" do
+    test "STRING_LITERAL_QUOTE" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> "String with \\t tab and \\n newline" .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with \t tab and \n newline")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> "String with Unicode: \\u00A9" .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with Unicode: ©")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> "String with \\"quotes\\"" .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with \"quotes\"")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> "String with \\b backspace and \\f form feed" .
+             """) ==
+               Graph.new({EX.S, EX.p(), RDF.literal("String with \b backspace and \f form feed")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> "String with \\\\\\\\ multiple backslashes" .
+             """) ==
+               Graph.new({EX.S, EX.p(), RDF.literal("String with \\\\ multiple backslashes")})
+    end
+
+    test "STRING_LITERAL_SINGLE_QUOTE" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> 'String with \\t tab and \\n newline' .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with \t tab and \n newline")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> 'String with Unicode: \\u00A9' .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with Unicode: ©")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> 'String with \\'quotes\\'' .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("String with 'quotes'")})
+    end
+
+    test "STRING_LITERAL_LONG_QUOTE" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> \"""Long string with "embedded quotes" and ""escaped quotes"\\\"""" .
+             """) ==
+               Graph.new(
+                 {EX.S, EX.p(),
+                  RDF.literal("Long string with \"embedded quotes\" and \"\"escaped quotes\"\"")}
+               )
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> \"\"\"Long string ending with quote\\\"\"\"\" .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("Long string ending with quote\"")})
+    end
+
+    test "STRING_LITERAL_LONG_SINGLE_QUOTE" do
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> '''Long string
+             with multiple
+             lines''' .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("Long string\nwith multiple\nlines")})
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> '''Long string with 'embedded quotes' and ''escaped quotes'\\'''' .
+             """) ==
+               Graph.new(
+                 {EX.S, EX.p(),
+                  RDF.literal("Long string with 'embedded quotes' and ''escaped quotes''")}
+               )
+
+      assert Turtle.Decoder.decode!("""
+             <http://example.org/#S> <http://example.org/#p> '''Long string ending with quote\\'''' .
+             """) == Graph.new({EX.S, EX.p(), RDF.literal("Long string ending with quote'")})
     end
   end
 
