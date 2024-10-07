@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## Unreleased
+## 2.0.1 - 2024-10-07
 
 ### Fixed
 
@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   result in invalid output in edge-cases.
 
 
-[Compare v2.0.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.0...HEAD)
+[Compare v2.0.0...v2.0.1](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.0...v2.0.1)
 
 
 
