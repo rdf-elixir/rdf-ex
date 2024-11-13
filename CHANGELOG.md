@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
+## Unreleased
+
+### Fixed
+
+- Fixed compilation error when defining `RDF.Vocabulary.Namespace`s for large 
+  vocabularies (like Schema.org) caused by exceeding implementation limits.
+
+
+[Compare v2.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.1...HEAD)
+
+
+
 ## 2.0.1 - 2024-10-07
 
 ### Fixed

@@ -17,14 +17,19 @@ defmodule RDF.Namespace.Builder do
       property_terms = property_terms(term_mapping)
 
       body =
-        List.wrap(define_module_header(moduledoc)) ++
-          Enum.map(property_terms, &define_property_function/1) ++
-          List.wrap(
+        quote do
+          unquote(List.wrap(define_module_header(moduledoc)))
+
+          unquote_splicing(Enum.map(property_terms, &define_property_function/1))
+
+          unquote(
             Keyword.get_lazy(opts, :namespace_functions, fn ->
               define_namespace_functions(term_mapping)
             end)
-          ) ++
-          List.wrap(Keyword.get(opts, :add_after))
+          )
+
+          unquote_splicing(List.wrap(Keyword.get(opts, :add_after)))
+        end
 
       {:ok, Module.create(module, body, location)}
     end
