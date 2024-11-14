@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - Fixed compilation error when defining `RDF.Vocabulary.Namespace`s for large 
   vocabularies (like Schema.org) caused by exceeding implementation limits.
+- The case violation check during `RDF.Vocabulary.Namespace` creation didn't
+  always recognize properties correctly. 
 
 
 [Compare v2.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.1...HEAD)

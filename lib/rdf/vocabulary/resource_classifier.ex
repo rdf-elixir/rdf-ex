@@ -1,7 +1,7 @@
 defmodule RDF.Vocabulary.ResourceClassifier do
   @moduledoc false
 
-  alias RDF.Description
+  alias RDF.{Description, Graph, Dataset}
 
   import RDF.Utils.Bootstrapping
 
@@ -14,9 +14,7 @@ defmodule RDF.Vocabulary.ResourceClassifier do
     with %Description{} = description <- RDF.Data.description(data, resource) do
       property_by_domain?(description) or
         property_by_rdf_type?(Description.get(description, @rdf_type))
-    end
-
-    #    || property_by_predicate_usage?(resource, data)
+    end || property_by_predicate_usage?(resource, data)
   end
 
   @property_properties (Enum.map(
@@ -74,7 +72,19 @@ defmodule RDF.Vocabulary.ResourceClassifier do
          |> MapSet.disjoint?(@property_classes))
   end
 
-  #  defp property_by_predicate_usage?(resource, data) do
-  #    resource in Graph.predicates(data) || nil
-  #  end
+  defp property_by_predicate_usage?(resource, %Description{predications: predications}) do
+    Map.has_key?(predications, resource)
+  end
+
+  defp property_by_predicate_usage?(resource, %Graph{descriptions: descriptions}) do
+    Enum.any?(descriptions, fn {_, description} ->
+      property_by_predicate_usage?(resource, description)
+    end)
+  end
+
+  defp property_by_predicate_usage?(resource, %Dataset{graphs: graphs}) do
+    Enum.any?(graphs, fn {_, graph} ->
+      property_by_predicate_usage?(resource, graph)
+    end)
+  end
 end

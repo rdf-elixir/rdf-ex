@@ -918,6 +918,21 @@ defmodule RDF.Vocabulary.NamespaceTest do
       end
     end
 
+    test "properties are detected as properties just by usage as predicate" do
+      defmodule PropertyDetectionByPredicateUsage do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://example.com/ex#",
+          case_violations: :fail,
+          data:
+            RDF.Graph.new([
+              {~I<http://example.com/ex#S>, ~I<http://example.com/ex#p>,
+               ~I<http://example.com/ex#O>}
+            ])
+      end
+    end
+
     test "terms starting with an underscore are not checked" do
       defmodule NSWithUnderscoreTerms do
         use RDF.Vocabulary.Namespace
