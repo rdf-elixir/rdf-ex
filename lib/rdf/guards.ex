@@ -20,8 +20,10 @@ defmodule RDF.Guards do
   @doc """
   Returns if the given term is a `RDF.IRI`.
 
-  Note: This function does not recognize `RDF.IRI`s given as upper-cased
-  `RDF.Namespace` terms. You'll have to use the `RDF.iri?/1` function for this.
+  Note: This guard does not recognize `RDF.IRI`s given as upper-cased
+  `RDF.Namespace` terms. You'll have to use the `RDF.iri?/1` function in a
+  function body for this, or the `RDF.Namespace.IRI.term_to_iri/1` macro
+  if you want to resolve `RDF.Namespace` terms in pattern matches.
 
   ## Examples
 
