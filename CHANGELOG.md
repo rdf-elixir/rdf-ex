@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   vocabularies (like Schema.org) caused by exceeding implementation limits.
 - The case violation check during `RDF.Vocabulary.Namespace` creation didn't
   always recognize properties correctly. 
+- Namespace delegator modules defined with `RDF.Namespace.act_as_namespace/1`
+  were not properly recompiled on changes of the underlying vocabulary file. 
 
 
 [Compare v2.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.1...HEAD)

@@ -192,12 +192,19 @@ defmodule RDF.Namespace do
     ns_mod = Module.concat(ns_alias)
     ns_type = type(ns_mod)
 
+    external_resources =
+      ns_mod.__info__(:attributes) |> Keyword.get(:external_resource) |> List.wrap()
+
     unless ns_type do
       raise "#{ns_mod} is not a RDF.Namespace"
     end
 
     quote do
       @behaviour RDF.Namespace
+
+      Enum.each(unquote(external_resources), fn external_resource ->
+        @external_resource external_resource
+      end)
 
       defdelegate __resolve_term__(term), to: unquote(ns_expr)
       defdelegate __terms__, to: unquote(ns_expr)
