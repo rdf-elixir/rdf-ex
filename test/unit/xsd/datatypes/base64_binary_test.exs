@@ -38,7 +38,7 @@ defmodule RDF.XSD.Base64BinaryTest do
       assert XSD.base64Binary("foo", as_value: true) == XSD.base64Binary(Base.encode64("foo"))
     end
 
-    test "interpret string as value even if string is correctly encodded Base64" do
+    test "interpret string as value even if string is correctly encoded Base64" do
       assert XSD.base64Binary(Base.encode64("foo"), as_value: true) ==
                XSD.base64Binary(Base.encode64(Base.encode64("foo")))
     end

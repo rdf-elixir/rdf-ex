@@ -180,7 +180,7 @@ defmodule RDF.LangStringTest do
       end)
     end
 
-    test "when given an valid RDF.LangString literal" do
+    test "when given an invalid RDF.LangString literal" do
       assert LangString.new("foo", language: nil) |> LangString.cast() == nil
     end
 

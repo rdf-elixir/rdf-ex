@@ -209,7 +209,7 @@ defmodule RDF.XSD.Datatype do
       def __xsd_datatype_indicator__, do: true
 
       @doc """
-      Checks if the given literal has datatype this or a datatype that is derived of it.
+      Checks if the given literal has this datatype or a datatype that is derived of it.
       """
       @impl RDF.Literal.Datatype
       def datatype?(%RDF.Literal{literal: literal}), do: datatype?(literal)
