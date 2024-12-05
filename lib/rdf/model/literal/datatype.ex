@@ -11,8 +11,10 @@ defmodule RDF.Literal.Datatype do
     builtin implementations of this behaviour for the most important XSD datatypes, but you define
     your own custom datatypes by deriving from these builtin datatypes and constraining them via
     `RDF.XSD.Facet`s.
-  - Non-XSD datatypes which implement the `RDF.Literal.Datatype` directly: There's currently only one
-    builtin datatype of this category - `RDF.LangString` for language tagged RDF literals.
+  - Non-XSD datatypes which implement the `RDF.Literal.Datatype` directly.
+    There's currently only two builtin datatypes of this category
+      - `RDF.LangString` for language tagged RDF literals and
+      - `RDF.JSON` for JSON content
   - `RDF.Literal.Generic`: This is a generic implementation which is used for `RDF.Literal`s with a
     datatype that has no own `RDF.Literal.Datatype` implementation defining its semantics.
   """

@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 Elixir versions < 1.14 and OTP version < 24 are no longer supported
 
+### Added
+
+- `RDF.JSON` datatype
+
 ### Fixed
 
 - Fixed compilation error when defining `RDF.Vocabulary.Namespace`s for large 
