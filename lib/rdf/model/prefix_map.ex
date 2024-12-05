@@ -593,13 +593,9 @@ defmodule RDF.PrefixMap do
     def member?(%RDF.PrefixMap{map: map}, mapping), do: Enumerable.member?(map, mapping)
     def count(%RDF.PrefixMap{map: map}), do: Enumerable.count(map)
 
-    if Version.match?(System.version(), ">= 1.14.0") do
-      def slice(%RDF.PrefixMap{map: map}) do
-        size = map_size(map)
-        {:ok, size, &RDF.PrefixMap.to_list/1}
-      end
-    else
-      def slice(%RDF.PrefixMap{map: map}), do: Enumerable.slice(map)
+    def slice(%RDF.PrefixMap{map: map}) do
+      size = map_size(map)
+      {:ok, size, &RDF.PrefixMap.to_list/1}
     end
   end
 

@@ -106,12 +106,7 @@ defmodule RDF.XSD.DecimalTest do
       assert XSD.double(3.14) |> XSD.Decimal.cast() == XSD.decimal(3.14)
       assert XSD.double(10.1e1) |> XSD.Decimal.cast() == XSD.decimal(101.0)
 
-      if String.to_integer(System.otp_release()) >= 24 do
-        assert XSD.double("-0.0") |> XSD.Decimal.cast() == XSD.decimal("-0.0")
-      else
-        # This is actual wrong, but we won't fix this wrong behaviour in older Elixir versions
-        assert XSD.double("-0.0") |> XSD.Decimal.cast() == XSD.decimal("0.0")
-      end
+      assert XSD.double("-0.0") |> XSD.Decimal.cast() == XSD.decimal("-0.0")
 
       assert XSD.double("NAN") |> XSD.Decimal.cast() == nil
       assert XSD.double("+INF") |> XSD.Decimal.cast() == nil

@@ -373,13 +373,9 @@ defmodule RDF.PropertyMap do
     def member?(%PropertyMap{iris: iris}, mapping), do: Enumerable.member?(iris, mapping)
     def count(%PropertyMap{iris: iris}), do: Enumerable.count(iris)
 
-    if Version.match?(System.version(), ">= 1.14.0") do
-      def slice(%PropertyMap{iris: iris}) do
-        size = map_size(iris)
-        {:ok, size, &PropertyMap.to_list/1}
-      end
-    else
-      def slice(%PropertyMap{iris: iris}), do: Enumerable.slice(iris)
+    def slice(%PropertyMap{iris: iris}) do
+      size = map_size(iris)
+      {:ok, size, &PropertyMap.to_list/1}
     end
   end
 

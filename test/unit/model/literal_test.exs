@@ -7,11 +7,7 @@ defmodule RDF.LiteralTest do
   alias RDF.Literal.{Generic, Datatype}
   alias Decimal, as: D
 
-  # Elixir 1.14 changed the order of inspect strings of structs, so,
-  # the literals in error strings
-  if Version.match?(System.version(), ">= 1.14.0") do
-    doctest RDF.Literal
-  end
+  doctest RDF.Literal
 
   alias RDF.NS
 

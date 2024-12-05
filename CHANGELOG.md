@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.14 and OTP version < 24 are no longer supported
+
 ### Fixed
 
 - Fixed compilation error when defining `RDF.Vocabulary.Namespace`s for large 
