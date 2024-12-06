@@ -97,7 +97,43 @@ if String.to_integer(System.otp_release()) >= 25 do
         end)
       end
 
-      test "with :canonicalize opt" do
+      test ":pretty option" do
+        value = %{"a" => 1, "nested" => %{"b" => 2}}
+        literal = RDF.JSON.new(value, pretty: true)
+        assert RDF.JSON.lexical(literal) == Jason.encode!(value, pretty: true)
+        assert RDF.JSON.value(literal) == value
+
+        literal = value |> Jcs.encode() |> RDF.JSON.new(pretty: true)
+        assert RDF.JSON.lexical(literal) == Jason.encode!(value, pretty: true)
+        assert RDF.JSON.value(literal) == value
+      end
+
+      test ":jason_encode option" do
+        value = %CustomJSON{value: "test"}
+
+        assert RDF.JSON.new(value) |> RDF.JSON.valid?() == false
+
+        literal = RDF.JSON.new(value, jason_encode: true)
+        assert RDF.JSON.valid?(literal)
+        assert RDF.JSON.lexical(literal) == ~s({"custom":"test"})
+      end
+
+      test ":pretty and :jason_encode options combined" do
+        value = %CustomJSON{value: "test"}
+
+        literal = RDF.JSON.new(value, pretty: true, jason_encode: true)
+        assert RDF.JSON.valid?(literal)
+
+        assert RDF.JSON.lexical(literal) ==
+                 """
+                 {
+                   "custom": "test"
+                 }
+                 """
+                 |> String.trim()
+      end
+
+      test ":canonicalize option" do
         Enum.each(@valid_values, fn value ->
           assert RDF.JSON.new(value, canonicalize: true) ==
                    value |> RDF.JSON.new() |> RDF.JSON.canonical()
@@ -110,6 +146,21 @@ if String.to_integer(System.otp_release()) >= 25 do
           assert RDF.JSON.new(value, as_value: true, canonicalize: true) ==
                    value |> RDF.JSON.new(as_value: true) |> RDF.JSON.canonical()
         end)
+      end
+
+      test ":jason_encode and :canonicalize options combined" do
+        value = %CustomJSON{value: 1.0}
+
+        literal = RDF.JSON.new(value, jason_encode: true, canonicalize: true)
+        assert RDF.JSON.valid?(literal)
+
+        assert RDF.JSON.lexical(literal) == ~s({"custom":1})
+      end
+
+      test ":pretty and :canonicalize options combined" do
+        assert_raise ArgumentError, fn ->
+          RDF.JSON.new(1, pretty: true, canonicalize: true)
+        end
       end
     end
 
@@ -138,7 +189,7 @@ if String.to_integer(System.otp_release()) >= 25 do
       end
     end
 
-    describe "value/1" do
+    describe "value/2" do
       test "with valid literals" do
         Enum.each(@valid_values, fn value ->
           assert RDF.JSON.new!(value) |> RDF.JSON.value() == value
@@ -163,6 +214,11 @@ if String.to_integer(System.otp_release()) >= 25 do
         assert RDF.JSON.new(nil) |> RDF.JSON.value() == nil
         assert RDF.JSON.new("null") |> RDF.JSON.value() == nil
         assert RDF.JSON.new("null", as_value: true) |> RDF.JSON.value() == "null"
+      end
+
+      test "with Jason decode options" do
+        assert ~s({"foo": 1}) |> RDF.JSON.new!() |> RDF.JSON.value(keys: :atoms) ==
+                 %{foo: 1}
       end
     end
 

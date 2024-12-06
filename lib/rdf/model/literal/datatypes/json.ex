@@ -19,38 +19,71 @@ defmodule RDF.JSON do
 
   def new(%__MODULE__{} = json, _opts), do: %Literal{literal: json}
 
-  def new(value, _opts)
+  def new(value, opts)
       when is_number(value) or is_boolean(value) or is_nil(value) or is_list(value) or
              is_map(value) do
-    from_value(value)
+    from_value(value, opts)
   end
 
   def new(value_or_lexical, opts) when is_binary(value_or_lexical) do
     if Keyword.get(opts, :as_value, false) do
-      from_value(value_or_lexical)
+      from_value(value_or_lexical, opts)
     else
-      literal = %Literal{literal: %__MODULE__{lexical: value_or_lexical}}
-
-      if Keyword.get(opts, :canonicalize, false) do
-        canonical(literal)
-      else
-        literal
-      end
+      %Literal{literal: %__MODULE__{lexical: value_or_lexical}}
+      |> handle_canonicalize(opts)
+      |> handle_pretty(opts)
     end
   end
 
   def new(value, _opts), do: from_invalid(value)
 
-  defp from_value(value) do
-    %Literal{literal: %__MODULE__{lexical: Jcs.encode(value)}}
-  rescue
-    _ -> from_invalid(value)
+  defp from_value(value, opts \\ []) do
+    {jason_encode, opts} = Keyword.pop(opts, :jason_encode, false)
+    pretty = Keyword.get(opts, :pretty, false)
+
+    cond do
+      pretty && Keyword.get(opts, :canonicalize) ->
+        raise ArgumentError, ":pretty and :canonicalize opts cannot be combined"
+
+      jason_encode || pretty ->
+        case Jason.encode(value, opts) do
+          {:ok, encoded} ->
+            %Literal{literal: %__MODULE__{lexical: encoded}}
+            |> handle_canonicalize(opts)
+
+          _ ->
+            from_invalid(value)
+        end
+
+      true ->
+        try do
+          %Literal{literal: %__MODULE__{lexical: Jcs.encode(value)}}
+        rescue
+          _ -> from_invalid(value)
+        end
+    end
   end
 
   defp from_invalid(value) when is_binary(value),
     do: %Literal{literal: %__MODULE__{lexical: value}}
 
   defp from_invalid(value), do: value |> inspect() |> from_invalid()
+
+  defp handle_canonicalize(literal, opts) do
+    if Keyword.get(opts, :canonicalize, false) do
+      canonical(literal)
+    else
+      literal
+    end
+  end
+
+  defp handle_pretty(literal, opts) do
+    if Keyword.get(opts, :pretty, false) do
+      prettified(literal)
+    else
+      literal
+    end
+  end
 
   @impl RDF.Literal.Datatype
   @spec new!(lexical() | value(), keyword) :: Literal.t()
@@ -65,11 +98,13 @@ defmodule RDF.JSON do
   end
 
   @impl Datatype
-  @spec value(Literal.t() | t()) :: value() | :invalid
-  def value(%Literal{literal: literal}), do: value(literal)
+  @spec value(Literal.t() | t(), keyword) :: value() | :invalid
+  def value(literal, opts \\ [])
 
-  def value(%__MODULE__{} = json) do
-    case Jason.decode(json.lexical) do
+  def value(%Literal{literal: literal}, opts), do: value(literal, opts)
+
+  def value(%__MODULE__{} = json, opts) do
+    case Jason.decode(json.lexical, opts) do
       {:ok, value} -> value
       _ -> :invalid
     end
@@ -86,6 +121,15 @@ defmodule RDF.JSON do
     case value(json) do
       :invalid -> new(json)
       value -> from_value(value)
+    end
+  end
+
+  def prettified(%Literal{literal: literal}), do: prettified(literal)
+
+  def prettified(%__MODULE__{} = json) do
+    case value(json) do
+      :invalid -> new(json)
+      value -> new(value, pretty: true)
     end
   end
 
