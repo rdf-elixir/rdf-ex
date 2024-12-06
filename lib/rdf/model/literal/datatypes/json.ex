@@ -1,4 +1,23 @@
 defmodule RDF.JSON do
+  @moduledoc """
+  `RDF.Literal.Datatype` for `rdf:JSON`.
+
+  As specified in RDF 1.2, this datatype allows JSON content as literal values.
+  The lexical forms must conform to [RFC 7493 (I-JSON)](https://www.rfc-editor.org/rfc/rfc7493).
+
+  ## Examples
+
+      iex> RDF.JSON.new(%{foo: 42})
+
+      iex> RDF.JSON.new(~s({"foo": 42}))
+
+      iex> RDF.JSON.new("not JSON") |> RDF.JSON.valid?()
+      false
+
+
+  See: <https://www.w3.org/TR/rdf12-concepts/#section-json>
+  """
+
   defstruct [:lexical]
 
   use RDF.Literal.Datatype,
@@ -13,6 +32,38 @@ defmodule RDF.JSON do
 
   @type t :: %__MODULE__{lexical: lexical()}
 
+  @doc """
+  Creates a new `RDF.JSON` literal.
+
+  When given a string it is interpreted as a JSON encoding by default, unless
+  the `as_value` option is set to `true`.
+
+  ## Options
+
+  - `:as_value` - when `true`, strings are encoded as JSON strings instead of
+    being interpreted as JSON
+  - `:jason_encode` - when `true`, uses Jason for encoding (instead of JCS), which enables:
+    - encoding of custom types implementing the `Jason.Encoder` protocol
+    - passing of encoding options to `Jason.encode/2`
+  - `:pretty` - when `true`, values are encoded in a more readable format (not canonical!)
+  - `:canonicalize` - when `true`, the value is canonicalized according to JCS;
+    cannot be combined with the `:pretty` option
+
+  - `:jason_encode` - when `true`, uses `Jason.Encoder` instead of JCS encoding
+
+  ## Examples
+
+      iex> RDF.JSON.new("null") |> RDF.JSON.value()
+      nil
+
+      iex> RDF.JSON.new("null", as_value: true)  |> RDF.JSON.value()
+      "null"
+
+      iex> RDF.JSON.new(%{a: 1}, pretty: true)
+
+      # assuming we have a Jason.Encoder protocol implementation of our CustomJSON struct
+      iex> RDF.JSON.new(%CustomJSON{value: 42}, jason_encode: true, escape: :html_safe)
+  """
   @impl RDF.Literal.Datatype
   @spec new(t() | lexical() | value(), keyword) :: Literal.t()
   def new(value_or_lexical, opts \\ [])
@@ -85,6 +136,17 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Like `new/2` but raises an `ArgumentError` when the value is invalid.
+
+  ## Examples
+
+      iex> RDF.JSON.new!(%{foo: 1})
+      RDF.JSON.new(%{foo: 1})
+
+      iex> RDF.JSON.new!("not JSON")
+      ** (ArgumentError) "not JSON" is not a valid RDF.JSON
+  """
   @impl RDF.Literal.Datatype
   @spec new!(lexical() | value(), keyword) :: Literal.t()
   def new!(value_or_lexical, opts \\ []) do
@@ -97,6 +159,23 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Returns the value of a JSON literal.
+
+  When the given literal is invalid, `:invalid` is returned.
+
+  ## Options
+
+  All options are passed to `Jason.decode/2`.
+
+  ## Examples
+
+      iex> RDF.JSON.new(~s({"foo": 1})) |> RDF.JSON.value()
+      %{"foo" => 1}
+
+      iex> RDF.JSON.new(~s({"foo": 1})) |> RDF.JSON.value(keys: :atoms)
+      %{foo: 1}
+  """
   @impl Datatype
   @spec value(Literal.t() | t(), keyword) :: value() | :invalid
   def value(literal, opts \\ [])
@@ -110,11 +189,21 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Returns the lexical value of a JSON literal.
+  """
   @impl Datatype
+  @spec lexical(Literal.t() | t()) :: String.t()
   def lexical(%Literal{literal: literal}), do: lexical(literal)
   def lexical(%__MODULE__{} = json), do: json.lexical
 
+  @doc """
+  Returns a JCS canonicalized version of a JSON literal.
+
+  When the given literal is invalid, it is returned unchanged.
+  """
   @impl Datatype
+  @spec canonical(Literal.t() | t()) :: Literal.t()
   def canonical(%Literal{literal: literal}), do: canonical(literal)
 
   def canonical(%__MODULE__{} = json) do
@@ -124,6 +213,12 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Returns a prettified version of a JSON literal.
+
+  When the given literal is invalid, it is returned unchanged.
+  """
+  @spec prettified(Literal.t() | t()) :: Literal.t()
   def prettified(%Literal{literal: literal}), do: prettified(literal)
 
   def prettified(%__MODULE__{} = json) do
@@ -133,7 +228,11 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Determines if the lexical form of a JSON literal is in the canonical form.
+  """
   @impl Datatype
+  @spec canonical?(Literal.t() | t()) :: boolean | nil
   def canonical?(%Literal{literal: literal}), do: canonical?(literal)
 
   def canonical?(%__MODULE__{} = json) do
@@ -142,6 +241,10 @@ defmodule RDF.JSON do
     end
   end
 
+  @doc """
+  Determines if a JSON literal is valid with respect to [RFC 7493 (I-JSON)](https://www.rfc-editor.org/rfc/rfc7493).
+  """
+  @spec valid?(Literal.t() | t()) :: boolean | nil
   @impl Datatype
   def valid?(%Literal{literal: %__MODULE__{} = literal}), do: valid?(literal)
   def valid?(%__MODULE__{} = json), do: value(json) != :invalid

@@ -2,6 +2,8 @@ if String.to_integer(System.otp_release()) >= 25 do
   defmodule RDF.JSONTest do
     use ExUnit.Case
 
+    doctest RDF.JSON
+
     alias RDF.{Literal, XSD}
 
     @valid_values [

@@ -168,6 +168,7 @@ defmodule RDF.Mixfile do
         ],
         "Predefined datatypes": [
           RDF.LangString,
+          RDF.JSON,
           RDF.Literal.Generic,
           RDF.XSD.String,
           RDF.XSD.Boolean,
