@@ -5,16 +5,6 @@ defmodule RDF.JSON do
   As specified in RDF 1.2, this datatype allows JSON content as literal values.
   The lexical forms must conform to [RFC 7493 (I-JSON)](https://www.rfc-editor.org/rfc/rfc7493).
 
-  ## Examples
-
-      iex> RDF.JSON.new(%{foo: 42})
-
-      iex> RDF.JSON.new(~s({"foo": 42}))
-
-      iex> RDF.JSON.new("not JSON") |> RDF.JSON.valid?()
-      false
-
-
   See: <https://www.w3.org/TR/rdf12-concepts/#section-json>
   """
 
@@ -52,6 +42,13 @@ defmodule RDF.JSON do
   - `:jason_encode` - when `true`, uses `Jason.Encoder` instead of JCS encoding
 
   ## Examples
+
+      iex> RDF.JSON.new(%{foo: 42})
+
+      iex> RDF.JSON.new(~s({"foo": 42}))
+
+      iex> RDF.JSON.new("not JSON") |> RDF.JSON.valid?()
+      false
 
       iex> RDF.JSON.new("null") |> RDF.JSON.value()
       nil
