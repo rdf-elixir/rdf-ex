@@ -6,6 +6,11 @@ defmodule RDF.JSON do
   The lexical forms must conform to [RFC 7493 (I-JSON)](https://www.rfc-editor.org/rfc/rfc7493).
 
   See: <https://www.w3.org/TR/rdf12-concepts/#section-json>
+
+  > ### Note {: .warning}
+  >
+  > Most functions in this module require OTP 25 or later, since JSON canonicalization (JCS)
+  > relies on it.
   """
 
   defstruct [:lexical]
