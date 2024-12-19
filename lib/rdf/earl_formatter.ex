@@ -185,24 +185,27 @@ defmodule RDF.EarlFormatter do
     }
   end
 
-  defp base_assertion(test_case, config) do
+  defp base_assertion(test_id, config) do
     RDF.bnode()
     |> RDF.type(EARL.Assertion)
     |> EARL.assertedBy(config.author_iri)
     |> EARL.subject(config.project_iri)
-    |> EARL.test(test_case.subject)
+    |> EARL.test(test_id)
   end
 
-  defp assertion(test_case, outcome, mode \\ nil, config)
+  defp assertion(test_id, outcome, mode \\ nil, config)
 
-  defp assertion(test_case, outcome, nil, config),
-    do: assertion(test_case, outcome, :automatic, config)
+  defp assertion(test_id, outcome, nil, config),
+    do: assertion(test_id, outcome, :automatic, config)
 
-  defp assertion(test_case, outcome, mode, config) do
+  defp assertion(%RDF.Description{subject: id}, outcome, mode, config),
+    do: assertion(id, outcome, mode, config)
+
+  defp assertion(test_id, outcome, mode, config) do
     result = result(outcome, config)
 
     assertion =
-      test_case
+      test_id
       |> base_assertion(config)
       |> EARL.result(result.subject)
       |> EARL.mode(mode(mode))
