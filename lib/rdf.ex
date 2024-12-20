@@ -385,6 +385,8 @@ defmodule RDF do
   defdelegate langString(value, opts), to: RDF.LangString, as: :new
   defdelegate lang_string(value, opts), to: RDF.LangString, as: :new
 
+  defdelegate json(value, opts), to: RDF.JSON, as: :new
+
   for term <- ~w[type subject predicate object first rest value]a do
     defdelegate unquote(term)(), to: RDF.NS.RDF
     @doc false
