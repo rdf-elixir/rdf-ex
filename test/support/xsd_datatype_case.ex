@@ -22,7 +22,7 @@ defmodule RDF.XSD.Datatype.Test.Case do
     facets = Keyword.get(opts, :facets)
 
     # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
-    quote do
+    quote generated: true do
       alias RDF.XSD
       alias RDF.XSD.Datatype
       alias RDF.TestDatatypes.{Age, DecimalUnitInterval, DoubleUnitInterval, FloatUnitInterval}

@@ -185,7 +185,7 @@ defmodule RDF.XSD.Datatype do
 
   defmacro __using__(opts) do
     # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
-    quote do
+    quote generated: true do
       defstruct [:value, :uncanonical_lexical]
 
       @behaviour unquote(__MODULE__)

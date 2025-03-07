@@ -52,7 +52,7 @@ defmodule RDF.Serialization.Encoder do
   @optional_callbacks stream: 2
 
   defmacro __using__(_) do
-    quote bind_quoted: [], unquote: true do
+    quote bind_quoted: [], unquote: true, generated: true do
       @behaviour unquote(__MODULE__)
 
       @impl unquote(__MODULE__)
