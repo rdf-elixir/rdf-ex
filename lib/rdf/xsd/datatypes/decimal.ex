@@ -24,22 +24,22 @@ defmodule RDF.XSD.Decimal do
 
   @doc false
   def min_inclusive_conform?(min_inclusive, value, _lexical) do
-    not (decimal_compare(value, D.new(min_inclusive)) == :lt)
+    not (D.compare(value, D.new(min_inclusive)) == :lt)
   end
 
   @doc false
   def max_inclusive_conform?(max_inclusive, value, _lexical) do
-    not (decimal_compare(value, D.new(max_inclusive)) == :gt)
+    not (D.compare(value, D.new(max_inclusive)) == :gt)
   end
 
   @doc false
   def min_exclusive_conform?(min_exclusive, value, _lexical) do
-    decimal_compare(value, D.new(min_exclusive)) == :gt
+    D.compare(value, D.new(min_exclusive)) == :gt
   end
 
   @doc false
   def max_exclusive_conform?(max_exclusive, value, _lexical) do
-    decimal_compare(value, D.new(max_exclusive)) == :lt
+    D.compare(value, D.new(max_exclusive)) == :lt
   end
 
   @doc false
@@ -58,15 +58,11 @@ defmodule RDF.XSD.Decimal do
   end
 
   @impl XSD.Datatype
-  # TODO: this nowarn_function can be removed when support for decimal 1.0 is dropped
-  @dialyzer {:nowarn_function, lexical_mapping: 2}
   def lexical_mapping(lexical, opts) do
     if String.contains?(lexical, ~w[e E]) do
       @invalid_value
     else
       case D.parse(lexical) do
-        # TODO: this clause can be removed when support for decimal 1.0 is dropped
-        {:ok, decimal} -> elixir_mapping(decimal, opts)
         {decimal, ""} -> elixir_mapping(decimal, opts)
         {_, _} -> @invalid_value
         :error -> @invalid_value
@@ -78,8 +74,7 @@ defmodule RDF.XSD.Decimal do
   @spec elixir_mapping(valid_value | integer | float | any, Keyword.t()) :: value
   def elixir_mapping(value, _)
 
-  # TODO: remove sNaN and qNaN when support for decimal 1.0 is dropped
-  def elixir_mapping(%D{coef: coef}, _) when coef in ~w[NaN qNaN sNaN inf]a,
+  def elixir_mapping(%D{coef: coef}, _) when coef in ~w[NaN inf]a,
     do: @invalid_value
 
   def elixir_mapping(%D{} = decimal, _),
@@ -120,14 +115,6 @@ defmodule RDF.XSD.Decimal do
 
   def canonical_mapping(%D{sign: sign, coef: :NaN}),
     do: if(sign == 1, do: "NaN", else: "-NaN")
-
-  # TODO: this clause can be removed when support for decimal 1.0 is dropped
-  def canonical_mapping(%D{sign: sign, coef: :qNaN}),
-    do: if(sign == 1, do: "NaN", else: "-NaN")
-
-  # TODO: this clause can be removed when support for decimal 1.0 is dropped
-  def canonical_mapping(%D{sign: sign, coef: :sNaN}),
-    do: if(sign == 1, do: "sNaN", else: "-sNaN")
 
   def canonical_mapping(%D{sign: sign, coef: :inf}),
     do: if(sign == 1, do: "Infinity", else: "-Infinity")
@@ -229,18 +216,5 @@ defmodule RDF.XSD.Decimal do
   def do_fraction_digit_count(decimal_string) do
     [_, fraction] = String.split(decimal_string, ".")
     String.length(fraction)
-  end
-
-  @doc !"""
-       Compares two `Decimal`s and works with `decimal` v1 and v2
-
-       TODO: Remove this function when support for decimal 1.0 is dropped
-       """
-  if Code.ensure_loaded?(Decimal) and function_exported?(Decimal, :decimal?, 1) do
-    # Decimal v1
-    defdelegate decimal_compare(d1, d2), to: D, as: :cmp
-  else
-    # Decimal v2
-    defdelegate decimal_compare(d1, d2), to: D, as: :compare
   end
 end

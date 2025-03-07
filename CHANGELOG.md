@@ -8,7 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
-Elixir versions < 1.14 and OTP version < 24 are no longer supported
+Elixir versions < 1.14 and OTP version < 24 are no longer supported.
+
+Also, compatibility with decimal < v2.0 is dropped.
 
 ### Added
 

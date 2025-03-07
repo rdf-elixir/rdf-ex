@@ -66,7 +66,7 @@ defmodule RDF.Mixfile do
 
   defp deps do
     [
-      {:decimal, "~> 1.5 or ~> 2.0"},
+      {:decimal, "~> 2.0"},
       {:uniq, "~> 0.6"},
       {:jason, "~> 1.4"},
       {:jcs, "~> 0.1"},
