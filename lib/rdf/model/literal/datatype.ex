@@ -299,7 +299,6 @@ defmodule RDF.Literal.Datatype do
         if (Literal.datatype?(struct) and Literal.Datatype.valid?(datatype_literal)) or
              struct in [RDF.IRI, RDF.BlankNode] do
           case do_cast(datatype_literal) do
-            %__MODULE__{} = literal -> if valid?(literal), do: literal(literal)
             %Literal{literal: %__MODULE__{}} = literal -> if valid?(literal), do: literal
             _ -> nil
           end
