@@ -58,6 +58,23 @@ defmodule RDF.NTriples.EncoderTest do
                """
     end
 
+    test "statements with rdf:JSON literals" do
+      assert NTriples.Encoder.encode!(
+               Graph.new([
+                 {EX.S1, EX.p1(), RDF.json(42)},
+                 {EX.S1, EX.p1(), RDF.json(3.14)},
+                 {EX.S1, EX.p1(), RDF.json(true)},
+                 {EX.S1, EX.p1(), RDF.json("foo", as_value: true)}
+               ])
+             ) ==
+               """
+               <http://example.org/#S1> <http://example.org/#p1> "\\"foo\\""^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON> .
+               <http://example.org/#S1> <http://example.org/#p1> "3.14"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON> .
+               <http://example.org/#S1> <http://example.org/#p1> "42"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON> .
+               <http://example.org/#S1> <http://example.org/#p1> "true"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON> .
+               """
+    end
+
     test "statements with blank nodes" do
       assert NTriples.Encoder.encode!(
                Graph.new([
