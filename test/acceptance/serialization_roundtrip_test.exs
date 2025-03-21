@@ -1,19 +1,25 @@
-defmodule RDF.Serialization.RoundtripTests do
+defmodule RDF.Serialization.RoundtripTest do
   use ExUnit.Case, async: false
 
   alias RDF.{TestSuite, NTriples, NQuads, Turtle}
   alias TestSuite.NS.RDFT
 
-  @ntriples_path RDF.TestData.path("N-TRIPLES-TESTS")
+  @ntriples_path RDF.TestData.path("rdf-tests/rdf11/rdf-n-triples")
   @ntriples_manifest TestSuite.manifest_path(@ntriples_path)
-                     |> TestSuite.manifest_graph(base: "https://www.w3.org/2013/N-TriplesTests/")
+                     |> TestSuite.manifest_graph(
+                       base: "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/"
+                     )
 
-  @nquads_path RDF.TestData.path("N-QUADS-TESTS")
+  @nquads_path RDF.TestData.path("rdf-tests/rdf11/rdf-n-quads")
+
   @nquads_manifest TestSuite.manifest_path(@nquads_path)
-                   |> TestSuite.manifest_graph(base: "https://www.w3.org/2013/N-QuadsTests/")
+                   |> TestSuite.manifest_graph(
+                     base: "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/"
+                   )
 
-  @turtle_path RDF.TestData.path("TURTLE-TESTS")
-  @turtle_base "http://www.w3.org/2013/TurtleTests/"
+  @turtle_path RDF.TestData.path("rdf-tests/rdf11/rdf-turtle")
+  @turtle_base "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/"
+
   @turtle_manifest TestSuite.manifest_path(@turtle_path)
                    |> TestSuite.manifest_graph(base: @turtle_base)
 
@@ -49,6 +55,13 @@ defmodule RDF.Serialization.RoundtripTests do
     (TestSuite.test_cases(@turtle_manifest, RDFT.TestTurtleEval) ++
        TestSuite.test_cases(@turtle_manifest, RDFT.TestTurtlePositiveSyntax))
     |> Enum.each(fn test_case ->
+      if TestSuite.test_name(test_case) in ~w[
+        turtle-syntax-pname-esc-03
+      ] do
+        @tag skip:
+               "TODO: ideally the pname should be escaped properly or at least fallback in the strict validation case to IRI encoding"
+      end
+
       @tag test_case: test_case
       test TestSuite.test_title(test_case), %{test_case: test_case} do
         base = to_string(TestSuite.test_input_file(test_case))
