@@ -1,5 +1,6 @@
 defmodule RDF.Serialization.RoundtripTest do
   use ExUnit.Case, async: false
+  import RDF.Test.Assertions
 
   alias RDF.{TestSuite, NTriples, NQuads, Turtle}
   alias TestSuite.NS.RDFT
@@ -32,7 +33,7 @@ defmodule RDF.Serialization.RoundtripTest do
 
         assert {:ok, expected_graph} = NTriples.read_file(path)
         assert {:ok, encoding} = NTriples.write_string(expected_graph)
-        assert RDF.Graph.isomorphic?(NTriples.read_string!(encoding), expected_graph)
+        assert_rdf_isomorphic NTriples.read_string!(encoding), expected_graph
       end
     end)
   end
@@ -46,7 +47,7 @@ defmodule RDF.Serialization.RoundtripTest do
 
         assert {:ok, expected_dataset} = NQuads.read_file(path)
         assert {:ok, encoding} = NQuads.write_string(expected_dataset)
-        assert RDF.Dataset.isomorphic?(NQuads.read_string!(encoding), expected_dataset)
+        assert_rdf_isomorphic NQuads.read_string!(encoding), expected_dataset
       end
     end)
   end
@@ -69,7 +70,7 @@ defmodule RDF.Serialization.RoundtripTest do
 
         assert {:ok, expected_graph} = Turtle.read_file(path, base: base)
         assert {:ok, encoding} = Turtle.write_string(expected_graph)
-        assert RDF.Graph.isomorphic?(Turtle.read_string!(encoding), expected_graph)
+        assert_rdf_isomorphic Turtle.read_string!(encoding), expected_graph
       end
     end)
   end

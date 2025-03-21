@@ -7,6 +7,7 @@ defmodule RDF.Turtle.W3C.Test do
 
   use ExUnit.Case, async: false
   use RDF.EarlFormatter, test_suite: :turtle
+  import RDF.Test.Assertions
 
   alias RDF.{Turtle, TestSuite, NTriples}
   alias TestSuite.NS.RDFT
@@ -33,12 +34,10 @@ defmodule RDF.Turtle.W3C.Test do
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       base = to_string(TestSuite.test_input_file(test_case))
 
-      assert RDF.Graph.isomorphic?(
-               TestSuite.test_input_file_path(test_case, @path)
-               |> Turtle.read_file!(base: base),
-               TestSuite.test_result_file_path(test_case, @path)
-               |> NTriples.read_file!()
-             )
+      assert_rdf_isomorphic TestSuite.test_input_file_path(test_case, @path)
+                            |> Turtle.read_file!(base: base),
+                            TestSuite.test_result_file_path(test_case, @path)
+                            |> NTriples.read_file!()
     end
   end)
 

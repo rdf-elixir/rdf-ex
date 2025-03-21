@@ -31,11 +31,12 @@ defmodule RDF.Test.Case do
 
       import RDF, only: [literal: 1, bnode: 1]
       import RDF.Namespace.IRI
-      import RDF.TestFactories
-      import unquote(__MODULE__)
-
       import RDF.Sigils
       import RDF.Graph
+      import RDF.Test.Assertions
+
+      import RDF.TestFactories
+      import unquote(__MODULE__)
     end
   end
 

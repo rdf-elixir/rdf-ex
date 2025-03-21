@@ -7,7 +7,8 @@ locals_without_parens = [
   def_applicable_facet: 1,
   bgp: 1,
   build: 2,
-  exclude: 1
+  exclude: 1,
+  assert_rdf_isomorphic: 2
 ]
 
 [

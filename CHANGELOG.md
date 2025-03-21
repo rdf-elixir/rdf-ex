@@ -15,6 +15,7 @@ Also, compatibility with decimal < v2.0 is dropped.
 ### Added
 
 - `RDF.JSON` datatype
+- `RDF.Test.assert_rdf_isomorphic/2` ExUnit test helper 
 
 ### Fixed
 

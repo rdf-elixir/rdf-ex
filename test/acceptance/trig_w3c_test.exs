@@ -7,6 +7,7 @@ defmodule RDF.TriG.W3C.Test do
 
   use ExUnit.Case, async: false
   use RDF.EarlFormatter, test_suite: :trig
+  import RDF.Test.Assertions
 
   alias RDF.{TriG, TestSuite, NQuads}
   alias TestSuite.NS.RDFT
@@ -33,12 +34,10 @@ defmodule RDF.TriG.W3C.Test do
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       base = to_string(TestSuite.test_input_file(test_case))
 
-      assert RDF.Dataset.isomorphic?(
-               TestSuite.test_input_file_path(test_case, @path)
-               |> TriG.read_file!(base: base),
-               TestSuite.test_result_file_path(test_case, @path)
-               |> NQuads.read_file!()
-             )
+      assert_rdf_isomorphic TestSuite.test_input_file_path(test_case, @path)
+                            |> TriG.read_file!(base: base),
+                            TestSuite.test_result_file_path(test_case, @path)
+                            |> NQuads.read_file!()
     end
   end)
 
