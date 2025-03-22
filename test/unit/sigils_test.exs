@@ -10,10 +10,6 @@ defmodule RDF.SigilsTest do
       assert ~I<http://example.com> == RDF.iri("http://example.com")
     end
 
-    test "escaping" do
-      assert ~I<http://example.com/f\no> == RDF.iri("http://example.com/f\\no")
-    end
-
     test "in pattern matches" do
       assert (case RDF.iri("http://example.com/foo") do
                 ~I<http://example.com/foo> -> "match"
@@ -31,10 +27,6 @@ defmodule RDF.SigilsTest do
       assert ~i<http://example.com/#{1 + 2}> == RDF.iri("http://example.com/3")
       assert ~i<http://example.com/#{:foo}> == RDF.iri("http://example.com/foo")
       assert ~i<http://example.com/#{"foo"}> == RDF.iri("http://example.com/foo")
-    end
-
-    test "escaping" do
-      assert ~i<http://example.com/f\no> == RDF.iri("http://example.com/f\\no")
     end
   end
 

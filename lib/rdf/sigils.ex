@@ -27,7 +27,12 @@ defmodule RDF.Sigils do
   Handles the sigil `~i` for IRIs.
 
   It returns an `RDF.IRI` from the given string as if it was a double-quoted
-  string, unescaping characters and replacing interpolations.
+  string, replacing interpolations.
+
+  Note: Since IRIs don't allow escaped characters that need escaping in Elixir strings
+  (such as control characters), the only practical difference from `~I` is the
+  support for interpolation.
+
 
   ## Examples
 
@@ -42,7 +47,7 @@ defmodule RDF.Sigils do
 
   defmacro sigil_i({:<<>>, line, pieces}, []) do
     quote do
-      IRI.new!(unquote({:<<>>, line, unescape_tokens(pieces)}))
+      IRI.new!(unquote({:<<>>, line, pieces}))
     end
   end
 

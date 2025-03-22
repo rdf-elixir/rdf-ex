@@ -17,6 +17,10 @@ Also, compatibility with decimal < v2.0 is dropped.
 - `RDF.JSON` datatype
 - `RDF.Test.assert_rdf_isomorphic/2` ExUnit test helper 
 
+### Changed
+
+- `RDF.IRI.valid?/1` now performs a proper RFC 3987 conformance validation
+
 ### Fixed
 
 - Fixed compilation error when defining `RDF.Vocabulary.Namespace`s for large 

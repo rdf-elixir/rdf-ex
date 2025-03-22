@@ -17,6 +17,7 @@ defmodule RDF.IRI do
   """
 
   alias RDF.Namespace
+  alias RDF.IRI.Validation
   import RDF.Guards
 
   @type t :: %__MODULE__{value: String.t()}
@@ -145,23 +146,39 @@ defmodule RDF.IRI do
   end
 
   @doc """
-  Checks if the given IRI is valid.
-
-  Note: This currently checks only if the given IRI is absolute.
+  Checks if the given IRI is valid according to RFC 3987.
 
   ## Examples
 
       iex> RDF.IRI.valid?("http://www.example.com/foo")
       true
-      iex> RDF.IRI.valid?("not an iri")
+
+      iex> RDF.IRI.valid?("urn:isbn:0451450523")
+      true
+
+      iex> RDF.IRI.valid?("http://example.com/path with spaces")
+      false
+
+      iex> RDF.IRI.valid?("example.com")
       false
   """
   @spec valid?(coercible) :: boolean
-  # TODO: Provide a more elaborate validation
-  def valid?(iri), do: absolute?(iri)
+  def valid?(iri) when is_binary(iri), do: valid_binary?(iri)
+  def valid?(%__MODULE__{value: value}), do: valid?(value)
+  def valid?(%URI{scheme: nil}), do: false
+  def valid?(%URI{} = uri), do: uri |> URI.to_string() |> valid?()
+
+  def valid?(term) when maybe_ns_term(term) do
+    case Namespace.resolve_term(term) do
+      {:ok, iri} -> valid?(iri)
+      _ -> false
+    end
+  end
+
+  def valid?(_), do: false
 
   @spec valid_binary?(binary()) :: boolean
-  defp valid_binary?(iri), do: not is_nil(scheme_from_binary(iri))
+  defp valid_binary?(iri), do: Validation.valid?(iri)
 
   @doc """
   Checks if the given value is an absolute IRI.
