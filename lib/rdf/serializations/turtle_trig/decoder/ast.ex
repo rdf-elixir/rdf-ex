@@ -191,6 +191,8 @@ defmodule RDF.TurtleTriG.Decoder.AST do
     {{subject, predicate, object}, statements, state}
   end
 
+  defp resolve_node({:ok, %IRI{} = iri}, statements, state), do: {iri, statements, state}
+  defp resolve_node({:error, error}, _statements, _state), do: raise(error)
   defp resolve_node(node, statements, state), do: {node, statements, state}
 
   defp local_name_unescape(string),

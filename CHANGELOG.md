@@ -19,7 +19,9 @@ Also, compatibility with decimal < v2.0 is dropped.
 
 ### Changed
 
-- `RDF.IRI.valid?/1` now performs a proper RFC 3987 conformance validation
+- `RDF.IRI.valid?/1` now performs a proper RFC 3987 conformance validation.
+  Note: This makes various places where the previous very sloppy implementation 
+  was used stricter, e.g. the Turtle decoder or `~I` sigil. 
 
 ### Fixed
 

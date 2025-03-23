@@ -6,7 +6,7 @@ defmodule RDF.Serialization.ParseHelper do
   @rdf_type RDF.Utils.Bootstrapping.rdf_iri("type")
   def rdf_type, do: @rdf_type
 
-  def to_iri_string({:iriref, _line, value}), do: value |> iri_unescape
+  def to_iri_string({:iriref, _line, value}), do: iri_unescape(value)
 
   def to_iri({:iriref, line, value}) do
     iri = IRI.new(iri_unescape(value))
@@ -18,13 +18,13 @@ defmodule RDF.Serialization.ParseHelper do
     end
   end
 
-  def to_absolute_or_relative_iri({:iriref, _line, value}) do
+  def to_absolute_or_relative_iri({:iriref, line, value}) do
     iri = IRI.new(iri_unescape(value))
 
-    if IRI.absolute?(iri) do
-      iri
-    else
-      {:relative_iri, value}
+    cond do
+      not IRI.absolute?(iri) -> {:relative_iri, value}
+      IRI.valid?(iri) -> {:ok, iri}
+      true -> RDF.IRI.InvalidError.exception("Invalid IRI #{inspect(iri)} at line #{line}")
     end
   end
 

@@ -67,15 +67,6 @@ defmodule RDF.TriG.W3C.Test do
 
   TestSuite.test_cases(@manifest, RDFT.TestTrigNegativeEval)
   |> Enum.each(fn test_case ->
-    if TestSuite.test_name(test_case) in ~w[
-              trig-eval-bad-01
-              trig-eval-bad-02
-              trig-eval-bad-03
-            ] do
-      @tag earl_result: :failed
-      @tag skip: "TODO: IRI validation"
-    end
-
     @tag test_case: test_case
     test TestSuite.test_title(test_case), %{test_case: test_case} do
       base = to_string(TestSuite.test_input_file(test_case))
