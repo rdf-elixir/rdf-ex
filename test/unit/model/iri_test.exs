@@ -308,6 +308,39 @@ defmodule RDF.IRITest do
     end
   end
 
+  describe "merge!/2" do
+    test "with valid iris" do
+      for base <- absolute_iris(), iri <- relative_iris() ++ absolute_iris() do
+        assert IRI.merge!(base, iri) == IRI.merge(base, iri)
+      end
+
+      assert IRI.merge!("http://example.com/", "foo#") == IRI.merge("http://example.com/", "foo#")
+      assert IRI.merge!("http://example.com/", "#foo") == IRI.merge("http://example.com/", "#foo")
+    end
+
+    test "with a relative base iri" do
+      for base_iri <- relative_iris(), iri <- absolute_iris() ++ relative_iris() do
+        assert_raise RDF.IRI.InvalidError, fn ->
+          IRI.merge!(base_iri, iri)
+        end
+      end
+    end
+
+    test "with invalid base" do
+      Enum.each(invalid_iris(), fn invalid_iri ->
+        assert_raise RDF.IRI.InvalidError, fn ->
+          IRI.merge!(invalid_iri, "foo")
+        end
+      end)
+    end
+
+    test "when the result is not valid URI" do
+      assert_raise RDF.IRI.InvalidError, fn ->
+        IRI.merge!("http://example.com/", " space")
+      end
+    end
+  end
+
   describe "parse/1" do
     test "with absolute and relative iris" do
       Enum.each(absolute_iris() ++ relative_iris(), fn iri ->

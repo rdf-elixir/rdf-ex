@@ -15,6 +15,8 @@ Also, compatibility with decimal < v2.0 is dropped.
 ### Added
 
 - `RDF.JSON` datatype
+- `RDF.IRI.merge!/2` which validates that the base and the result of the merge
+  is a valid IRI or fails otherwise
 - `RDF.Test.assert_rdf_isomorphic/2` ExUnit test helper 
 
 ### Changed

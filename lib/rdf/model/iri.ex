@@ -239,6 +239,15 @@ defmodule RDF.IRI do
   end
 
   @doc """
+  Merges two IRIs and fails when the given base or the result of the merge is not a valid IRI.
+
+  This function merges two IRIs as per
+  [RFC 3986, section 5.2](https://tools.ietf.org/html/rfc3986#section-5.2).
+  """
+  @spec merge!(coercible, coercible) :: t
+  def merge!(base, rel), do: base |> valid!() |> merge(rel) |> valid!()
+
+  @doc """
   Returns the scheme of the given IRI
 
   If the given string is not a valid absolute IRI, `nil` is returned.
