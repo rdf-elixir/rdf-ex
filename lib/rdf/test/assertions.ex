@@ -23,6 +23,7 @@ defmodule RDF.Test.Assertions do
       raise_non_isomorphic_error(left, right)
   end
 
+  @dialyzer {:nowarn_function, raise_non_isomorphic_error: 2}
   defp raise_non_isomorphic_error(left, right) do
     raise ExUnit.AssertionError,
           [message: "RDF data is not isomorphic"]
@@ -47,6 +48,4 @@ defmodule RDF.Test.Assertions do
       _ -> nil
     end
   end
-
-  defp single_graph(_), do: nil
 end
