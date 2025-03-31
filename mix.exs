@@ -69,7 +69,7 @@ defmodule RDF.Mixfile do
       {:decimal, "~> 2.0"},
       {:uniq, "~> 0.6"},
       {:jason, "~> 1.4"},
-      {:jcs, "~> 0.1"},
+      {:jcs, "~> 0.2"},
       {:protocol_ex, "~> 0.4.4"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
