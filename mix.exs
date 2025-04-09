@@ -115,7 +115,7 @@ defmodule RDF.Mixfile do
       "test/acceptance/canonicalization_w3c_test.exs"
     ]
 
-    Mix.Task.run("test", ["--formatter", "RDF.EarlFormatter", "--seed", "0"] ++ files)
+    Mix.Task.run("test", ["--formatter", "RDF.Test.EarlFormatter", "--seed", "0"] ++ files)
   end
 
   defp docs do
@@ -256,8 +256,9 @@ defmodule RDF.Mixfile do
           RDF.Star.Quad,
           RDF.Star.Statement
         ],
-        "EARL formatter": [
-          RDF.EarlFormatter
+        Test: [
+          RDF.Test.Assertions,
+          RDF.Test.EarlFormatter
         ]
       ]
     ]

@@ -1,4 +1,4 @@
-defmodule RDF.EarlFormatter do
+defmodule RDF.Test.EarlFormatter do
   @moduledoc """
   An `ExUnit.Formatter` implementation that generates EARL reports.
 
@@ -21,12 +21,12 @@ defmodule RDF.EarlFormatter do
     defvocab DOAP, base_iri: "http://usefulinc.com/ns/doap#", terms: [], strict: false
   end
 
-  @compile {:no_warn_undefined, RDF.EarlFormatter.NS.EARL}
-  @compile {:no_warn_undefined, RDF.EarlFormatter.NS.DC}
-  @compile {:no_warn_undefined, RDF.EarlFormatter.NS.FOAF}
-  @compile {:no_warn_undefined, RDF.EarlFormatter.NS.DOAP}
+  @compile {:no_warn_undefined, RDF.Test.EarlFormatter.NS.EARL}
+  @compile {:no_warn_undefined, RDF.Test.EarlFormatter.NS.DC}
+  @compile {:no_warn_undefined, RDF.Test.EarlFormatter.NS.FOAF}
+  @compile {:no_warn_undefined, RDF.Test.EarlFormatter.NS.DOAP}
 
-  alias RDF.EarlFormatter.NS.{EARL, DC, FOAF, DOAP}
+  alias RDF.Test.EarlFormatter.NS.{EARL, DC, FOAF, DOAP}
   alias RDF.{Graph, Turtle}
 
   @prefixes RDF.prefix_map(

@@ -6,7 +6,7 @@ defmodule RDF.Star.TriG.W3C.EvalTest do
   """
 
   use ExUnit.Case, async: false
-  use RDF.EarlFormatter, test_suite: :trig_star
+  use RDF.Test.EarlFormatter, test_suite: :trig_star
 
   alias RDF.{TriG, TestSuite, NQuads}
   alias TestSuite.NS.RDFT

@@ -6,7 +6,7 @@ defmodule RDF.NQuads.W3C.TestSuite do
   """
 
   use ExUnit.Case, async: false
-  use RDF.EarlFormatter, test_suite: :nquads
+  use RDF.Test.EarlFormatter, test_suite: :nquads
 
   alias RDF.{TestSuite, NQuads}
   alias TestSuite.NS.RDFT

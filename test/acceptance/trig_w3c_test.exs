@@ -6,7 +6,7 @@ defmodule RDF.TriG.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  use RDF.EarlFormatter, test_suite: :trig
+  use RDF.Test.EarlFormatter, test_suite: :trig
   import RDF.Test.Assertions
 
   alias RDF.{TriG, TestSuite, NQuads}

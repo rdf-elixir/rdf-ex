@@ -17,13 +17,14 @@ Also, compatibility with decimal < v2.0 is dropped.
 - `RDF.JSON` datatype
 - `RDF.IRI.merge!/2` which validates that the base and the result of the merge
   is a valid IRI or fails otherwise
-- `RDF.Test.assert_rdf_isomorphic/2` ExUnit test helper 
+- `RDF.Test.Assertions.assert_rdf_isomorphic/2` ExUnit test helper 
 
 ### Changed
 
 - `RDF.IRI.valid?/1` now performs a proper RFC 3987 conformance validation.
   Note: This makes various places where the previous very sloppy implementation 
   was used stricter, e.g. the Turtle decoder or `~I` sigil. 
+- The `RDF.EarlFormatter` module was renamed to `RDF.Test.EarlFormatter`.
 
 ### Fixed
 

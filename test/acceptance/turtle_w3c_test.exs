@@ -6,7 +6,7 @@ defmodule RDF.Turtle.W3C.Test do
   """
 
   use ExUnit.Case, async: false
-  use RDF.EarlFormatter, test_suite: :turtle
+  use RDF.Test.EarlFormatter, test_suite: :turtle
   import RDF.Test.Assertions
 
   alias RDF.{Turtle, TestSuite, NTriples}
