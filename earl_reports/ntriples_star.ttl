@@ -2,14 +2,13 @@
 @prefix doap: <http://usefulinc.com/ns/doap#> .
 @prefix earl: <http://www.w3.org/ns/earl#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <>
-    dc:issued "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+    dc:issued "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
     foaf:maker <http://marcelotto.net/#me> ;
     foaf:primaryTopic <https://hex.pm/packages/rdf> .
 
@@ -21,27 +20,27 @@
 <https://hex.pm/packages/rdf>
     a doap:Project, earl:Software, earl:TestSubject ;
     dc:creator <http://marcelotto.net/#me> ;
-    <http://usefulinc.com/ns/doap#bug-database> <https://github.com/rdf-elixir/rdf-ex/issues> ;
+    doap:bug-database <https://github.com/rdf-elixir/rdf-ex/issues> ;
     doap:category <http://dbpedia.org/resource/Elixir_(programming_language)>, <http://dbpedia.org/resource/Resource_Description_Framework> ;
     doap:created "2017-06-25"^^xsd:date ;
     doap:description "RDF.ex is a pure-Elixir library for working with Resource Description Framework (RDF) data."@en ;
     doap:developer <http://marcelotto.net/#me> ;
     doap:documenter <http://marcelotto.net/#me> ;
-    <http://usefulinc.com/ns/doap#download-page> <https://hex.pm/packages/rdf> ;
+    doap:download-page <https://hex.pm/packages/rdf> ;
     doap:homepage <https://rdf-elixir.dev/> ;
-    doap:implements <http://www.w3.org/TR/n-quads/>, <http://www.w3.org/TR/n-triples/>, <http://www.w3.org/TR/rdf11-concepts/>, <http://www.w3.org/TR/turtle/>, <https://w3c.github.io/rdf-star/rdf-star-cg-spec.html> ;
+    doap:implements <http://www.w3.org/TR/n-quads/>, <http://www.w3.org/TR/n-triples/>, <http://www.w3.org/TR/rdf11-concepts/>, <http://www.w3.org/TR/trig/>, <http://www.w3.org/TR/turtle/>, <https://w3c.github.io/rdf-star/rdf-star-cg-spec.html> ;
     doap:maintainer <http://marcelotto.net/#me> ;
     doap:name "RDF.ex" ;
     doap:platform "Erlang/OTP" ;
-    <http://usefulinc.com/ns/doap#programming-language> "Elixir" ;
-    doap:release <https://hex.pm/packages/rdf/1.1.0> ;
+    doap:programming-language "Elixir" ;
+    doap:release <https://hex.pm/packages/rdf/2.1.0> ;
     doap:repository <https://github.com/rdf-elixir/rdf-ex> ;
     doap:shortdesc "An implementation of RDF for Elixir" ;
     foaf:maker <http://marcelotto.net/#me> .
 
-<https://hex.pm/packages/rdf/1.1.0>
-    doap:name "RDF.ex 1.1.0" ;
-    doap:revision "1.1.0" .
+<https://hex.pm/packages/rdf/2.1.0>
+    doap:name "RDF.ex 2.1.0" ;
+    doap:revision "2.1.0" .
 
 [
     a earl:Assertion ;
@@ -49,72 +48,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-2>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-3>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-4>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-5>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bnode-1>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -127,11 +61,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-nested-1>
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-2>
 ] .
 
 [
@@ -140,7 +74,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -153,11 +87,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bad-1>
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-3>
 ] .
 
 [
@@ -166,11 +100,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bad-2>
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-nested-1>
 ] .
 
 [
@@ -179,7 +113,7 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -192,7 +126,33 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-4>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bad-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
@@ -205,9 +165,48 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-5>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bad-2>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
     earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-1>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-star/tests/nt/syntax#ntriples-star-bnode-1>
 ] .

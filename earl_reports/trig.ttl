@@ -52,7 +52,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_containing_collection>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-num-01>
 ] .
 
 [
@@ -65,7 +65,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-15>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-09>
 ] .
 
 [
@@ -78,7 +78,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_BACKSPACE>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-uri-01>
 ] .
 
 [
@@ -91,7 +91,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-11>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-kw-02>
 ] .
 
 [
@@ -104,7 +104,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-26>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-08>
 ] .
 
 [
@@ -117,7 +117,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2_with_2_squotes>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-03>
 ] .
 
 [
@@ -130,7 +130,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_with_multiple_triples>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-02>
 ] .
 
 [
@@ -143,7 +143,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-02>
 ] .
 
 [
@@ -156,7 +156,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-struct-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-06>
 ] .
 
 [
@@ -169,7 +169,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI_with_all_punctuation>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-12>
 ] .
 
 [
@@ -182,7 +182,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#reserved_escaped_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-num-02>
 ] .
 
 [
@@ -195,7 +195,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefix_reassigned_and_used>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-06>
 ] .
 
 [
@@ -208,7 +208,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_non_leading_extras>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-base-05>
 ] .
 
 [
@@ -221,7 +221,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-pname-02>
 ] .
 
 [
@@ -234,7 +234,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#predicateObjectList_with_blankNodePropertyList_as_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-16>
 ] .
 
 [
@@ -247,7 +247,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_leading_underscore>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-05>
 ] .
 
 [
@@ -260,7 +260,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL2>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-list-03>
 ] .
 
 [
@@ -273,7 +273,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-09>
 ] .
 
 [
@@ -286,7 +286,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI-resolution-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-17>
 ] .
 
 [
@@ -299,7 +299,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_leading_digit>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-06>
 ] .
 
 [
@@ -312,7 +312,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefixed_IRI_predicate>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-09>
 ] .
 
 [
@@ -325,7 +325,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#percent_escaped_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-07>
 ] .
 
 [
@@ -338,7 +338,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_with_PN_CHARS_BASE_character_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-05>
 ] .
 
 [
@@ -351,7 +351,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_numeric_escape4>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-number-dot-in-anon>
 ] .
 
 [
@@ -364,7 +364,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI_with_four_digit_numeric_escape>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-ln-escape-start>
 ] .
 
 [
@@ -377,7 +377,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefixed_IRI_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-05>
 ] .
 
 [
@@ -390,7 +390,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-struct-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-kw-05>
 ] .
 
 [
@@ -403,7 +403,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_escaped_CHARACTER_TABULATION>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-esc-04>
 ] .
 
 [
@@ -416,7 +416,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRIREF_datatype>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-04>
 ] .
 
 [
@@ -429,7 +429,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#HYPHEN_MINUS_in_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-02>
 ] .
 
 [
@@ -442,7 +442,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#collection_subject>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-kw-03>
 ] .
 
 [
@@ -455,7 +455,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_false>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-pname-03>
 ] .
 
 [
@@ -468,7 +468,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2_with_1_squote>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-kw-04>
 ] .
 
 [
@@ -481,7 +481,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_assigned_nfc_bmp_PN_CHARS_BASE_character_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-07>
 ] .
 
 [
@@ -494,7 +494,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-list-01>
 ] .
 
 [
@@ -507,7 +507,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_as_object_containing_objectList>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-esc-03>
 ] .
 
 [
@@ -520,7 +520,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#number_sign_following_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-12>
 ] .
 
 [
@@ -533,7 +533,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG1_with_2_squotes>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-ns-dot-start>
 ] .
 
 [
@@ -546,7 +546,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_subject>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-05>
 ] .
 
 [
@@ -559,7 +559,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#double_lower_case_e>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-collection-graph-01>
 ] .
 
 [
@@ -572,7 +572,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#negative_numeric>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-01>
 ] .
 
 [
@@ -585,7 +585,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-14>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-04>
 ] .
 
 [
@@ -598,7 +598,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#numeric_with_leading_0>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-07>
 ] .
 
 [
@@ -611,7 +611,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_CARRIAGE_RETURN>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-num-03>
 ] .
 
 [
@@ -624,7 +624,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_with_leading_underscore>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-ns-dot-end>
 ] .
 
 [
@@ -637,7 +637,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#langtagged_non_LONG>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-01>
 ] .
 
 [
@@ -650,7 +650,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#old_style_base>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-07>
 ] .
 
 [
@@ -663,7 +663,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#bareword_double>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-03>
 ] .
 
 [
@@ -676,7 +676,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-06>
 ] .
 
 [
@@ -689,7 +689,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#nested_blankNodePropertyLists>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-base-04>
 ] .
 
 [
@@ -702,7 +702,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#comment_following_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-LITERAL2_with_langtag_and_datatype>
 ] .
 
 [
@@ -715,7 +715,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_as_object_containing_objectList_of_two_objects>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-11>
 ] .
 
 [
@@ -728,7 +728,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2_with_UTF8_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-kw-01>
 ] .
 
 [
@@ -741,7 +741,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#lantag_with_subtag>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-missing-ns-dot-start>
 ] .
 
 [
@@ -754,7 +754,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL1_all_punctuation>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-02>
 ] .
 
 [
@@ -767,7 +767,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_assigned_nfc_PN_CHARS_BASE_character_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-10>
 ] .
 
 [
@@ -780,7 +780,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-03>
 ] .
 
 [
@@ -793,7 +793,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_as_subject>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-05>
 ] .
 
 [
@@ -806,7 +806,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_with_leading_digit>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-14>
 ] .
 
 [
@@ -819,7 +819,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-15>
 ] .
 
 [
@@ -832,7 +832,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG1>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-esc-01>
 ] .
 
 [
@@ -845,7 +845,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL2_with_UTF8_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-04>
 ] .
 
 [
@@ -858,7 +858,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-25>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-ln-dash-start>
 ] .
 
 [
@@ -871,7 +871,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL1>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-num-05>
 ] .
 
 [
@@ -884,7 +884,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_true>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-02>
 ] .
 
 [
@@ -897,7 +897,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-23>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-03>
 ] .
 
 [
@@ -910,7 +910,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_REVERSE_SOLIDUS>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-bad-04>
 ] .
 
 [
@@ -923,7 +923,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-bad-02>
 ] .
 
 [
@@ -936,7 +936,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefix_only_IRI>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-bad-03>
 ] .
 
 [
@@ -949,7 +949,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI_with_eight_digit_numeric_escape>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-bad-01>
 ] .
 
 [
@@ -962,7 +962,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localname_with_COLON>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#empty_collection>
 ] .
 
 [
@@ -975,7 +975,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_escaped_CARRIAGE_RETURN>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG1_with_1_squote>
 ] .
 
 [
@@ -988,7 +988,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-13>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#repeated_semis_at_end>
 ] .
 
 [
@@ -1001,7 +1001,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI_subject>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefixed_IRI_object>
 ] .
 
 [
@@ -1014,7 +1014,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL1_with_UTF8_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-07>
 ] .
 
 [
@@ -1027,7 +1027,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-22>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRIREF_datatype>
 ] .
 
 [
@@ -1040,7 +1040,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefixed_name_datatype>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#collection_object>
 ] .
 
 [
@@ -1053,7 +1053,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_assigned_nfc_PN_CHARS_BASE_character_boundaries>
 ] .
 
 [
@@ -1066,7 +1066,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#anonymous_blank_node_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#numeric_with_leading_0>
 ] .
 
 [
@@ -1079,7 +1079,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#objectList_with_two_objects>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-16>
 ] .
 
 [
@@ -1092,7 +1092,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#SPARQL_style_prefix>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#collection_subject>
 ] .
 
 [
@@ -1105,7 +1105,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#localName_with_nfc_PN_CHARS_BASE_character_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_with_PN_CHARS_BASE_character_boundaries>
 ] .
 
 [
@@ -1118,7 +1118,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_LINE_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#number_sign_following_PNAME_NS>
 ] .
 
 [
@@ -1131,7 +1131,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#old_style_prefix>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-22>
 ] .
 
 [
@@ -1144,7 +1144,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-27>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#two_LITERAL_LONG2s>
 ] .
 
 [
@@ -1157,7 +1157,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#collection_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#alternating_bnode_graphs>
 ] .
 
 [
@@ -1170,7 +1170,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_CHARACTER_TABULATION>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_with_non_leading_extras>
 ] .
 
 [
@@ -1183,7 +1183,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#repeated_semis_not_at_end>
 ] .
 
 [
@@ -1196,7 +1196,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_escaped_FORM_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL2_with_UTF8_boundaries>
 ] .
 
 [
@@ -1209,7 +1209,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#two_LITERAL_LONG2s>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#objectList_with_two_objects>
 ] .
 
 [
@@ -1222,7 +1222,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#empty_collection>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#langtagged_LONG_with_subtag>
 ] .
 
 [
@@ -1235,7 +1235,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-21>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#default_namespace_IRI>
 ] .
 
 [
@@ -1248,7 +1248,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefix_with_non_leading_extras>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_escaped_LINE_FEED>
 ] .
 
 [
@@ -1261,7 +1261,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#predicateObjectList_with_two_objectLists>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI_with_four_digit_numeric_escape>
 ] .
 
 [
@@ -1274,7 +1274,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#first>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-25>
 ] .
 
 [
@@ -1287,7 +1287,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2_with_REVERSE_SOLIDUS>
 ] .
 
 [
@@ -1300,7 +1300,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG1_with_1_squote>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_nfc_PN_CHARS_BASE_character_boundaries>
 ] .
 
 [
@@ -1313,7 +1313,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-20>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefixed_IRI_predicate>
 ] .
 
 [
@@ -1326,7 +1326,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-17>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-10>
 ] .
 
 [
@@ -1339,7 +1339,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#comment_following_PNAME_NS>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-12>
 ] .
 
 [
@@ -1352,7 +1352,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefix_with_PN_CHARS_BASE_character_boundaries>
 ] .
 
 [
@@ -1365,7 +1365,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#nested_collection>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_escaped_CARRIAGE_RETURN>
 ] .
 
 [
@@ -1378,7 +1378,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG1_ascii_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-04>
 ] .
 
 [
@@ -1391,7 +1391,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#repeated_semis_not_at_end>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG1_ascii_boundaries>
 ] .
 
 [
@@ -1404,7 +1404,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_with_leading_digit>
 ] .
 
 [
@@ -1417,7 +1417,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#anonymous_blank_node_subject>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#anonymous_blank_node_object>
 ] .
 
 [
@@ -1430,7 +1430,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#langtagged_LONG>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_LINE_FEED>
 ] .
 
 [
@@ -1443,7 +1443,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2_ascii_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-24>
 ] .
 
 [
@@ -1456,7 +1456,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG2_with_REVERSE_SOLIDUS>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL1_with_UTF8_boundaries>
 ] .
 
 [
@@ -1469,7 +1469,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI-resolution-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_BACKSPACE>
 ] .
 
 [
@@ -1482,7 +1482,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-19>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#bareword_double>
 ] .
 
 [
@@ -1495,7 +1495,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL1>
 ] .
 
 [
@@ -1508,7 +1508,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL_LONG1_with_UTF8_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_leading_digit>
 ] .
 
 [
@@ -1521,7 +1521,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#default_namespace_IRI>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#bareword_a_predicate>
 ] .
 
 [
@@ -1534,7 +1534,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-12>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-23>
 ] .
 
 [
@@ -1547,7 +1547,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#bareword_a_predicate>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_REVERSE_SOLIDUS>
 ] .
 
 [
@@ -1560,7 +1560,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#underscore_in_localName>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI-resolution-01>
 ] .
 
 [
@@ -1573,7 +1573,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#SPARQL_style_base>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_graph>
 ] .
 
 [
@@ -1586,7 +1586,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_FORM_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-18>
 ] .
 
 [
@@ -1599,7 +1599,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-24>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-02>
 ] .
 
 [
@@ -1612,7 +1612,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#langtagged_LONG_with_subtag>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI-resolution-08>
 ] .
 
 [
@@ -1625,7 +1625,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2>
 ] .
 
 [
@@ -1638,7 +1638,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#repeated_semis_at_end>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_CARRIAGE_RETURN>
 ] .
 
 [
@@ -1651,7 +1651,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL2_ascii_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#old_style_base>
 ] .
 
 [
@@ -1664,7 +1664,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#labeled_blank_node_with_non_leading_extras>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_leading_underscore>
 ] .
 
 [
@@ -1677,7 +1677,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#bareword_decimal>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-26>
 ] .
 
 [
@@ -1690,7 +1690,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL2_ascii_boundaries>
 ] .
 
 [
@@ -1703,7 +1703,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_escaped_LINE_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-09>
 ] .
 
 [
@@ -1716,7 +1716,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL1_ascii_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_FORM_FEED>
 ] .
 
 [
@@ -1729,7 +1729,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-18>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#old_style_prefix>
 ] .
 
 [
@@ -1742,7 +1742,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_non_leading_extras>
 ] .
 
 [
@@ -1755,7 +1755,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-lists-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL1_ascii_boundaries>
 ] .
 
 [
@@ -1768,7 +1768,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_escaped_BACKSPACE>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#langtagged_non_LONG>
 ] .
 
 [
@@ -1781,7 +1781,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#last>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_escaped_CHARACTER_TABULATION>
 ] .
 
 [
@@ -1794,7 +1794,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#bareword_integer>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_subject>
 ] .
 
 [
@@ -1807,7 +1807,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-subm-16>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#last>
 ] .
 
 [
@@ -1820,7 +1820,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI-resolution-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_escaped_FORM_FEED>
 ] .
 
 [
@@ -1833,7 +1833,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#IRI-resolution-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_false>
 ] .
 
 [
@@ -1846,7 +1846,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#prefix_with_PN_CHARS_BASE_character_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-11>
 ] .
 
 [
@@ -1859,7 +1859,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#number_sign_following_PNAME_NS>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL1_all_punctuation>
 ] .
 
 [
@@ -1872,7 +1872,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#LITERAL1_all_controls>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-06>
 ] .
 
 [
@@ -1885,7 +1885,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#literal_with_numeric_escape8>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-15>
 ] .
 
 [
@@ -1898,7 +1898,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#blankNodePropertyList_as_object>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL1_all_controls>
 ] .
 
 [
@@ -1911,7 +1911,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#positive_numeric>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI-resolution-02>
 ] .
 
 [
@@ -1924,7 +1924,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#sole_blankNodePropertyList>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI_with_eight_digit_numeric_escape>
 ] .
 
 [
@@ -1937,7 +1937,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-struct-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_escaped_BACKSPACE>
 ] .
 
 [
@@ -1950,7 +1950,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-13>
 ] .
 
 [
@@ -1963,7 +1963,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-pname-esc-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2_with_UTF8_boundaries>
 ] .
 
 [
@@ -1976,7 +1976,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-struct-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#anonymous_blank_node_subject>
 ] .
 
 [
@@ -1989,7 +1989,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-base-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-21>
 ] .
 
 [
@@ -2002,7 +2002,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-ln-colons>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL2>
 ] .
 
 [
@@ -2015,7 +2015,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-kw-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG1>
 ] .
 
 [
@@ -2028,7 +2028,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-ns-dots>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#nested_collection>
 ] .
 
 [
@@ -2041,7 +2041,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#nested_blankNodePropertyLists>
 ] .
 
 [
@@ -2054,7 +2054,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-base-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#alternating_iri_graphs>
 ] .
 
 [
@@ -2067,7 +2067,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#lantag_with_subtag>
 ] .
 
 [
@@ -2080,7 +2080,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#predicateObjectList_with_two_objectLists>
 ] .
 
 [
@@ -2093,7 +2093,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-datatypes-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_numeric_escape4>
 ] .
 
 [
@@ -2106,7 +2106,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-uri-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefix_reassigned_and_used>
 ] .
 
 [
@@ -2119,7 +2119,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#double_lower_case_e>
 ] .
 
 [
@@ -2132,7 +2132,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#blankNodePropertyList_with_multiple_triples>
 ] .
 
 [
@@ -2145,7 +2145,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-str-esc-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI_subject>
 ] .
 
 [
@@ -2158,7 +2158,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-kw-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#percent_escaped_localName>
 ] .
 
 [
@@ -2171,7 +2171,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-struct-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#negative_numeric>
 ] .
 
 [
@@ -2184,7 +2184,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-03>
 ] .
 
 [
@@ -2197,7 +2197,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#underscore_in_localName>
 ] .
 
 [
@@ -2210,7 +2210,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-blank-label>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#sole_blankNodePropertyList>
 ] .
 
 [
@@ -2223,7 +2223,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-uri-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG1_with_UTF8_boundaries>
 ] .
 
 [
@@ -2236,7 +2236,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI_with_all_punctuation>
 ] .
 
 [
@@ -2249,7 +2249,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-19>
 ] .
 
 [
@@ -2262,7 +2262,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-struct-02>
 ] .
 
 [
@@ -2275,7 +2275,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#langtagged_LONG>
 ] .
 
 [
@@ -2288,7 +2288,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG1_with_2_squotes>
 ] .
 
 [
@@ -2301,7 +2301,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-ln-dots>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#blankNodePropertyList_as_subject>
 ] .
 
 [
@@ -2314,7 +2314,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_true>
 ] .
 
 [
@@ -2327,7 +2327,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-uri-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#bareword_decimal>
 ] .
 
 [
@@ -2340,7 +2340,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2_with_1_squote>
 ] .
 
 [
@@ -2353,7 +2353,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-datatypes-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#anonymous_blank_node_graph>
 ] .
 
 [
@@ -2366,7 +2366,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-file-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#blankNodePropertyList_as_object>
 ] .
 
 [
@@ -2379,7 +2379,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-file-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_CHARACTER_TABULATION>
 ] .
 
 [
@@ -2392,7 +2392,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-14>
 ] .
 
 [
@@ -2405,7 +2405,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefix_with_non_leading_extras>
 ] .
 
 [
@@ -2418,7 +2418,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-pname-esc-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#comment_following_localName>
 ] .
 
 [
@@ -2431,7 +2431,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-01>
 ] .
 
 [
@@ -2444,7 +2444,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-struct-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#literal_with_numeric_escape8>
 ] .
 
 [
@@ -2457,7 +2457,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localName_with_assigned_nfc_bmp_PN_CHARS_BASE_character_boundaries>
 ] .
 
 [
@@ -2470,7 +2470,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-eval-struct-01>
 ] .
 
 [
@@ -2483,7 +2483,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_with_leading_underscore>
 ] .
 
 [
@@ -2496,7 +2496,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#HYPHEN_MINUS_in_localName>
 ] .
 
 [
@@ -2509,7 +2509,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#IRI-resolution-07>
 ] .
 
 [
@@ -2522,7 +2522,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-27>
 ] .
 
 [
@@ -2535,7 +2535,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#labeled_blank_node_object>
 ] .
 
 [
@@ -2548,7 +2548,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#blankNodePropertyList_containing_collection>
 ] .
 
 [
@@ -2561,7 +2561,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-11>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#SPARQL_style_base>
 ] .
 
 [
@@ -2574,7 +2574,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#positive_numeric>
 ] .
 
 [
@@ -2587,7 +2587,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-str-esc-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#SPARQL_style_prefix>
 ] .
 
 [
@@ -2600,7 +2600,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#localname_with_COLON>
 ] .
 
 [
@@ -2613,7 +2613,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-05>
 ] .
 
 [
@@ -2626,7 +2626,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-kw-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-20>
 ] .
 
 [
@@ -2639,7 +2639,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-08>
 ] .
 
 [
@@ -2652,7 +2652,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-subm-17>
 ] .
 
 [
@@ -2665,7 +2665,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefix_only_IRI>
 ] .
 
 [
@@ -2678,7 +2678,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#prefixed_name_datatype>
 ] .
 
 [
@@ -2691,7 +2691,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#bareword_integer>
 ] .
 
 [
@@ -2704,7 +2704,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-11>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2_with_2_squotes>
 ] .
 
 [
@@ -2717,7 +2717,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-str-esc-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#number_sign_following_localName>
 ] .
 
 [
@@ -2730,7 +2730,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#reserved_escaped_localName>
 ] .
 
 [
@@ -2743,7 +2743,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-number-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#first>
 ] .
 
 [
@@ -2756,7 +2756,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-string-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#comment_following_PNAME_NS>
 ] .
 
 [
@@ -2769,7 +2769,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-struct-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#LITERAL_LONG2_ascii_boundaries>
 ] .
 
 [
@@ -2782,7 +2782,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-base-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-pname-esc-01>
 ] .
 
 [
@@ -2795,7 +2795,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-file-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-07>
 ] .
 
 [
@@ -2808,7 +2808,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-pname-esc-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-04>
 ] .
 
 [
@@ -2821,7 +2821,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-07>
 ] .
 
 [
@@ -2834,7 +2834,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-prefix-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-01>
 ] .
 
 [
@@ -2847,7 +2847,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bnode-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-02>
 ] .
 
 [
@@ -2860,7 +2860,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-base-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-11>
 ] .
 
 [
@@ -2873,7 +2873,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-07>
 ] .
 
 [
@@ -2886,7 +2886,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-15>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-base-03>
 ] .
 
 [
@@ -2899,7 +2899,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-uri-03>
 ] .
 
 [
@@ -2912,7 +2912,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-11>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-lists-05>
 ] .
 
 [
@@ -2925,7 +2925,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-pname-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-08>
 ] .
 
 [
@@ -2938,7 +2938,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-12>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-minimal-whitespace-01>
 ] .
 
 [
@@ -2951,7 +2951,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-LITERAL2_with_langtag_and_datatype>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-04>
 ] .
 
 [
@@ -2964,7 +2964,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-ln-escape-start>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-kw-03>
 ] .
 
 [
@@ -2977,7 +2977,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-ln-dots>
 ] .
 
 [
@@ -2990,7 +2990,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-num-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-str-esc-02>
 ] .
 
 [
@@ -3003,7 +3003,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-kw-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-02>
 ] .
 
 [
@@ -3016,7 +3016,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-file-03>
 ] .
 
 [
@@ -3029,7 +3029,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-06>
 ] .
 
 [
@@ -3042,7 +3042,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-prefix-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-02>
 ] .
 
 [
@@ -3055,7 +3055,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-11>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-04>
 ] .
 
 [
@@ -3068,7 +3068,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-kw-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-03>
 ] .
 
 [
@@ -3081,7 +3081,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-pname-esc-03>
 ] .
 
 [
@@ -3094,7 +3094,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-kw-01>
 ] .
 
 [
@@ -3107,7 +3107,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-09>
 ] .
 
 [
@@ -3120,7 +3120,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-16>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-base-04>
 ] .
 
 [
@@ -3133,7 +3133,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-13>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-05>
 ] .
 
 [
@@ -3146,7 +3146,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-kw-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-01>
 ] .
 
 [
@@ -3159,7 +3159,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-pname-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-05>
 ] .
 
 [
@@ -3172,7 +3172,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-07>
 ] .
 
 [
@@ -3185,7 +3185,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-07>
 ] .
 
 [
@@ -3198,7 +3198,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-ln-dash-start>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-03>
 ] .
 
 [
@@ -3211,7 +3211,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-14>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-04>
 ] .
 
 [
@@ -3224,7 +3224,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-kw-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-blank-label>
 ] .
 
 [
@@ -3237,7 +3237,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-prefix-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-03>
 ] .
 
 [
@@ -3250,7 +3250,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-12>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-01>
 ] .
 
 [
@@ -3263,7 +3263,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-pname-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-datatypes-01>
 ] .
 
 [
@@ -3276,7 +3276,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-06>
 ] .
 
 [
@@ -3289,7 +3289,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-10>
 ] .
 
 [
@@ -3302,7 +3302,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-uri-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-datatypes-02>
 ] .
 
 [
@@ -3315,7 +3315,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-09>
 ] .
 
 [
@@ -3328,7 +3328,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-base-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-str-esc-01>
 ] .
 
 [
@@ -3341,7 +3341,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-num-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-05>
 ] .
 
 [
@@ -3354,7 +3354,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-05>
 ] .
 
 [
@@ -3367,7 +3367,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-13>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-03>
 ] .
 
 [
@@ -3380,7 +3380,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-10>
 ] .
 
 [
@@ -3393,7 +3393,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-esc-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-file-02>
 ] .
 
 [
@@ -3406,7 +3406,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-04>
 ] .
 
 [
@@ -3419,7 +3419,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-kw-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-04>
 ] .
 
 [
@@ -3432,7 +3432,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-lang-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-lists-03>
 ] .
 
 [
@@ -3445,7 +3445,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-10>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-base-01>
 ] .
 
 [
@@ -3458,7 +3458,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-ns-dot-start>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-05>
 ] .
 
 [
@@ -3471,7 +3471,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-17>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-lists-01>
 ] .
 
 [
@@ -3484,7 +3484,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-uri-01>
 ] .
 
 [
@@ -3497,7 +3497,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-uri-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-05>
 ] .
 
 [
@@ -3510,7 +3510,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-str-esc-03>
 ] .
 
 [
@@ -3523,7 +3523,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-number-dot-in-anon>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-06>
 ] .
 
 [
@@ -3536,7 +3536,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-esc-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-uri-04>
 ] .
 
 [
@@ -3549,7 +3549,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-base-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-11>
 ] .
 
 [
@@ -3562,7 +3562,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-num-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-01>
 ] .
 
 [
@@ -3575,7 +3575,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-base-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-file-01>
 ] .
 
 [
@@ -3588,7 +3588,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-uri-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-09>
 ] .
 
 [
@@ -3601,7 +3601,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-02>
 ] .
 
 [
@@ -3614,7 +3614,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-06>
 ] .
 
 [
@@ -3627,7 +3627,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-03>
 ] .
 
 [
@@ -3640,7 +3640,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-prefix-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-06>
 ] .
 
 [
@@ -3653,7 +3653,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-prefix-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-10>
 ] .
 
 [
@@ -3666,7 +3666,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-04>
 ] .
 
 [
@@ -3679,7 +3679,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-num-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-02>
 ] .
 
 [
@@ -3692,7 +3692,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-uri-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-01>
 ] .
 
 [
@@ -3705,7 +3705,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-ln-escape>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-uri-02>
 ] .
 
 [
@@ -3718,7 +3718,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-missing-ns-dot-end>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-10>
 ] .
 
 [
@@ -3731,7 +3731,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-string-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-struct-02>
 ] .
 
 [
@@ -3744,7 +3744,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-ns-dot-end>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-02>
 ] .
 
 [
@@ -3757,7 +3757,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-prefix-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-ln-colons>
 ] .
 
 [
@@ -3770,7 +3770,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-09>
 ] .
 
 [
@@ -3783,7 +3783,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-missing-ns-dot-start>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-08>
 ] .
 
 [
@@ -3796,7 +3796,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-blank-label-dot-end>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-08>
 ] .
 
 [
@@ -3809,7 +3809,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-esc-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-01>
 ] .
 
 [
@@ -3822,7 +3822,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-esc-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-05>
 ] .
 
 [
@@ -3835,7 +3835,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-num-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-kw-02>
 ] .
 
 [
@@ -3848,7 +3848,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-03>
 ] .
 
 [
@@ -3861,7 +3861,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-n3-extras-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-07>
 ] .
 
 [
@@ -3874,7 +3874,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-syntax-bad-struct-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-09>
 ] .
 
 [
@@ -3887,7 +3887,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-bad-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-kw-graph-06>
 ] .
 
 [
@@ -3900,7 +3900,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-bad-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-pname-esc-02>
 ] .
 
 [
@@ -3913,7 +3913,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-bad-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bnode-08>
 ] .
 
 [
@@ -3926,5 +3926,525 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/#turtle-eval-bad-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-string-06>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-ns-dots>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-lists-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-lists-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-base-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-number-03>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-prefix-08>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-list-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-pname-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-13>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-07>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-base-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-prefix-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-blank-label-dot-end>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-esc-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-string-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-list-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-bad-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-03>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-num-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-base-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-bnodeplist-graph-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-uri-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-uri-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-uri-03>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-collection-graph-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-04>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-missing-ns-dot-end>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-06>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-10>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-n3-extras-08>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-struct-13>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-uri-05>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-lang-01>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-11>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-turtle-bad-02>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-graph-bad-10>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-base-03>
+] .
+
+[
+    a earl:Assertion ;
+    earl:assertedBy <http://marcelotto.net/#me> ;
+    earl:mode earl:automatic ;
+    earl:result [
+        a earl:TestResult ;
+        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
+        earl:outcome earl:passed
+    ] ;
+    earl:subject <https://hex.pm/packages/rdf> ;
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/#trig-syntax-bad-ln-escape>
 ] .

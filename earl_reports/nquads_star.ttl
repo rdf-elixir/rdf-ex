@@ -52,7 +52,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test064c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-04>
 ] .
 
 [
@@ -65,7 +65,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test036c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_UTF8_boundaries>
 ] .
 
 [
@@ -78,7 +78,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test030c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_FORM_FEED>
 ] .
 
 [
@@ -91,7 +91,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test035c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_numeric_escape4>
 ] .
 
 [
@@ -104,7 +104,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test048c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-02>
 ] .
 
 [
@@ -117,7 +117,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test009c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-04>
 ] .
 
 [
@@ -130,7 +130,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test006c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-06>
 ] .
 
 [
@@ -143,7 +143,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test004c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_LINE_FEED>
 ] .
 
 [
@@ -156,7 +156,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test054c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_numeric_escape8>
 ] .
 
 [
@@ -169,7 +169,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test022c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_all_punctuation>
 ] .
 
 [
@@ -182,7 +182,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test073c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-03>
 ] .
 
 [
@@ -195,7 +195,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test044c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-01>
 ] .
 
 [
@@ -208,7 +208,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test059c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-01>
 ] .
 
 [
@@ -221,7 +221,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test017c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-07>
 ] .
 
 [
@@ -234,7 +234,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test055c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-02>
 ] .
 
 [
@@ -247,7 +247,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test019c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-base-01>
 ] .
 
 [
@@ -260,7 +260,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test045c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-03>
 ] .
 
 [
@@ -273,7 +273,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test043c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-09>
 ] .
 
 [
@@ -286,7 +286,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test023c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-datatypes-01>
 ] .
 
 [
@@ -299,7 +299,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test038c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-struct-02>
 ] .
 
 [
@@ -312,7 +312,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test034c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-01>
 ] .
 
 [
@@ -325,7 +325,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test040c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-02>
 ] .
 
 [
@@ -338,7 +338,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test056c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_ascii_boundaries>
 ] .
 
 [
@@ -351,7 +351,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test001c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-05>
 ] .
 
 [
@@ -364,7 +364,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test014c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-03>
 ] .
 
 [
@@ -377,7 +377,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test057c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-06>
 ] .
 
 [
@@ -390,7 +390,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test029c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-05>
 ] .
 
 [
@@ -403,7 +403,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test075c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-01>
 ] .
 
 [
@@ -416,7 +416,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test033c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-01>
 ] .
 
 [
@@ -429,7 +429,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test024c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-06>
 ] .
 
 [
@@ -442,7 +442,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test068c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#langtagged_string>
 ] .
 
 [
@@ -455,7 +455,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test047c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-struct-01>
 ] .
 
 [
@@ -468,7 +468,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test025c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal>
 ] .
 
 [
@@ -481,7 +481,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test046c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-03>
 ] .
 
 [
@@ -494,7 +494,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test028c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-05>
 ] .
 
 [
@@ -507,7 +507,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test069c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-03>
 ] .
 
 [
@@ -520,7 +520,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test058c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_all_controls>
 ] .
 
 [
@@ -533,7 +533,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test065c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-01>
 ] .
 
 [
@@ -546,7 +546,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test060c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-02>
 ] .
 
 [
@@ -559,7 +559,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test076c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_dquote>
 ] .
 
 [
@@ -572,7 +572,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test011c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-01>
 ] .
 
 [
@@ -585,7 +585,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test067c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#comment_following_triple>
 ] .
 
 [
@@ -598,7 +598,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test072c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_CARRIAGE_RETURN>
 ] .
 
 [
@@ -611,7 +611,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test018c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-02>
 ] .
 
 [
@@ -624,7 +624,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test061c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_CHARACTER_TABULATION>
 ] .
 
 [
@@ -637,7 +637,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test013c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-02>
 ] .
 
 [
@@ -650,7 +650,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test026c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-02>
 ] .
 
 [
@@ -663,7 +663,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test020c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-04>
 ] .
 
 [
@@ -676,7 +676,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test070c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-03>
 ] .
 
 [
@@ -689,7 +689,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test027c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-02>
 ] .
 
 [
@@ -702,7 +702,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test018m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-03>
 ] .
 
 [
@@ -715,7 +715,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test053m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-01>
 ] .
 
 [
@@ -728,7 +728,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test004m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_squote>
 ] .
 
 [
@@ -741,7 +741,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test047m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#minimal_whitespace>
 ] .
 
 [
@@ -754,7 +754,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test005m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-01>
 ] .
 
 [
@@ -767,7 +767,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test075m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_REVERSE_SOLIDUS2>
 ] .
 
 [
@@ -780,7 +780,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test055m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#lantag_with_subtag>
 ] .
 
 [
@@ -793,7 +793,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test070m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-01>
 ] .
 
 [
@@ -806,7 +806,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test074c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-03>
 ] .
 
 [
@@ -819,7 +819,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test039c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-03>
 ] .
 
 [
@@ -832,7 +832,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test003c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_2_squotes>
 ] .
 
 [
@@ -845,7 +845,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test077c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_BACKSPACE>
 ] .
 
 [
@@ -858,7 +858,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test053c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-datatypes-02>
 ] .
 
 [
@@ -871,7 +871,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test016c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_REVERSE_SOLIDUS>
 ] .
 
 [
@@ -884,7 +884,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test005c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-06>
 ] .
 
 [
@@ -897,7 +897,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test071c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-02>
 ] .
 
 [
@@ -910,7 +910,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test008c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-subm-01>
 ] .
 
 [
@@ -923,7 +923,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test066c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_2_dquotes>
 ] .
 
 [
@@ -936,7 +936,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test063c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-04>
 ] .
 
 [
@@ -949,7 +949,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test062c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-prefix-01>
 ] .
 
 [
@@ -962,7 +962,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test002c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-uri-01>
 ] .
 
 [
@@ -975,7 +975,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test021c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-03>
 ] .
 
 [
@@ -988,7 +988,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test010c>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-05>
 ] .
 
 [
@@ -1001,7 +1001,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test016m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-03>
 ] .
 
 [
@@ -1014,7 +1014,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test063m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-02>
 ] .
 
 [
@@ -1027,7 +1027,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test071m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-08>
 ] .
 
 [
@@ -1040,7 +1040,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test003m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-01>
 ] .
 
 [
@@ -1053,7 +1053,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test020m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-01>
 ] .
 
 [
@@ -1066,7 +1066,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test073m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-lang-01>
 ] .
 
 [
@@ -1079,7 +1079,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test056m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-quint-01>
 ] .
 
 [
@@ -1092,7 +1092,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test072m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-04>
 ] .
 
 [
@@ -1105,7 +1105,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test030m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-07>
 ] .
 
 [
@@ -1118,7 +1118,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test060m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-03>
 ] .
 
 [
@@ -1131,7 +1131,7 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test057m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-02>
 ] .
 
 [
@@ -1144,18 +1144,5 @@
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test048m>
-] .
-
-[
-    a earl:Assertion ;
-    earl:assertedBy <http://marcelotto.net/#me> ;
-    earl:mode earl:automatic ;
-    earl:result [
-        a earl:TestResult ;
-        dc:date "2025-04-09T16:04:28.986301Z"^^xsd:dateTime ;
-        earl:outcome earl:passed
-    ] ;
-    earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://w3c.github.io/rdf-canon/tests/manifest#test017m>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-02>
 ] .

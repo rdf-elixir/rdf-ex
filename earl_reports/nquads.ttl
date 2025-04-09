@@ -2,14 +2,13 @@
 @prefix doap: <http://usefulinc.com/ns/doap#> .
 @prefix earl: <http://www.w3.org/ns/earl#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <>
-    dc:issued "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+    dc:issued "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
     foaf:maker <http://marcelotto.net/#me> ;
     foaf:primaryTopic <https://hex.pm/packages/rdf> .
 
@@ -21,27 +20,27 @@
 <https://hex.pm/packages/rdf>
     a doap:Project, earl:Software, earl:TestSubject ;
     dc:creator <http://marcelotto.net/#me> ;
-    <http://usefulinc.com/ns/doap#bug-database> <https://github.com/rdf-elixir/rdf-ex/issues> ;
+    doap:bug-database <https://github.com/rdf-elixir/rdf-ex/issues> ;
     doap:category <http://dbpedia.org/resource/Elixir_(programming_language)>, <http://dbpedia.org/resource/Resource_Description_Framework> ;
     doap:created "2017-06-25"^^xsd:date ;
     doap:description "RDF.ex is a pure-Elixir library for working with Resource Description Framework (RDF) data."@en ;
     doap:developer <http://marcelotto.net/#me> ;
     doap:documenter <http://marcelotto.net/#me> ;
-    <http://usefulinc.com/ns/doap#download-page> <https://hex.pm/packages/rdf> ;
+    doap:download-page <https://hex.pm/packages/rdf> ;
     doap:homepage <https://rdf-elixir.dev/> ;
     doap:implements <http://www.w3.org/TR/n-quads/>, <http://www.w3.org/TR/n-triples/>, <http://www.w3.org/TR/rdf11-concepts/>, <http://www.w3.org/TR/turtle/>, <https://w3c.github.io/rdf-star/rdf-star-cg-spec.html> ;
     doap:maintainer <http://marcelotto.net/#me> ;
     doap:name "RDF.ex" ;
     doap:platform "Erlang/OTP" ;
-    <http://usefulinc.com/ns/doap#programming-language> "Elixir" ;
-    doap:release <https://hex.pm/packages/rdf/1.1.0> ;
+    doap:programming-language "Elixir" ;
+    doap:release <https://hex.pm/packages/rdf/2.1.0> ;
     doap:repository <https://github.com/rdf-elixir/rdf-ex> ;
     doap:shortdesc "An implementation of RDF for Elixir" ;
     foaf:maker <http://marcelotto.net/#me> .
 
-<https://hex.pm/packages/rdf/1.1.0>
-    doap:name "RDF.ex 1.1.0" ;
-    doap:revision "1.1.0" .
+<https://hex.pm/packages/rdf/2.1.0>
+    doap:name "RDF.ex 2.1.0" ;
+    doap:revision "2.1.0" .
 
 [
     a earl:Assertion ;
@@ -49,11 +48,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-file-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_squote>
 ] .
 
 [
@@ -62,11 +61,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-str-esc-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-03>
 ] .
 
 [
@@ -75,11 +74,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-string-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_2_squotes>
 ] .
 
 [
@@ -88,11 +87,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bnode-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_2_dquotes>
 ] .
 
 [
@@ -101,11 +100,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-01>
 ] .
 
 [
@@ -114,11 +113,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-uri-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-prefix-01>
 ] .
 
 [
@@ -127,11 +126,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-str-esc-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-uri-01>
 ] .
 
 [
@@ -140,11 +139,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-03>
 ] .
 
 [
@@ -153,11 +152,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_REVERSE_SOLIDUS>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-05>
 ] .
 
 [
@@ -166,11 +165,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_REVERSE_SOLIDUS2>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-02>
 ] .
 
 [
@@ -179,11 +178,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_LINE_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-base-01>
 ] .
 
 [
@@ -192,11 +191,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_2_dquotes>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-09>
 ] .
 
 [
@@ -205,11 +204,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_numeric_escape8>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-struct-02>
 ] .
 
 [
@@ -218,11 +217,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-uri-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-02>
 ] .
 
 [
@@ -231,11 +230,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bnode-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-05>
 ] .
 
 [
@@ -244,11 +243,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-02>
 ] .
 
 [
@@ -257,11 +256,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_ascii_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-03>
 ] .
 
 [
@@ -270,11 +269,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-01>
 ] .
 
 [
@@ -283,11 +282,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-datatypes-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_all_controls>
 ] .
 
 [
@@ -296,11 +295,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#minimal_whitespace>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-01>
 ] .
 
 [
@@ -309,11 +308,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-subm-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-04>
 ] .
 
 [
@@ -322,11 +321,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_all_punctuation>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_dquote>
 ] .
 
 [
@@ -335,11 +334,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_CARRIAGE_RETURN>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-01>
 ] .
 
 [
@@ -348,11 +347,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_CARRIAGE_RETURN>
 ] .
 
 [
@@ -361,11 +360,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_UTF8_boundaries>
 ] .
 
 [
@@ -374,11 +373,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#lantag_with_subtag>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_FORM_FEED>
 ] .
 
 [
@@ -387,11 +386,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#langtagged_string>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_numeric_escape4>
 ] .
 
 [
@@ -400,11 +399,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-uri-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-02>
 ] .
 
 [
@@ -413,11 +412,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_2_squotes>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-02>
 ] .
 
 [
@@ -426,11 +425,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-str-esc-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#minimal_whitespace>
 ] .
 
 [
@@ -439,11 +438,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_all_punctuation>
 ] .
 
 [
@@ -452,11 +451,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-01>
 ] .
 
 [
@@ -465,11 +464,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bnode-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_REVERSE_SOLIDUS2>
 ] .
 
 [
@@ -478,11 +477,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_BACKSPACE>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-03>
 ] .
 
 [
@@ -491,11 +490,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_UTF8_boundaries>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#lantag_with_subtag>
 ] .
 
 [
@@ -504,11 +503,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_all_controls>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-01>
 ] .
 
 [
@@ -517,11 +516,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-03>
 ] .
 
 [
@@ -530,11 +529,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_BACKSPACE>
 ] .
 
 [
@@ -543,11 +542,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_squote>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-datatypes-02>
 ] .
 
 [
@@ -556,11 +555,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-file-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_REVERSE_SOLIDUS>
 ] .
 
 [
@@ -569,11 +568,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-string-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-06>
 ] .
 
 [
@@ -582,11 +581,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#comment_following_triple>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-02>
 ] .
 
 [
@@ -595,11 +594,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-string-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-subm-01>
 ] .
 
 [
@@ -608,11 +607,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-datatypes-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-01>
 ] .
 
 [
@@ -621,11 +620,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-07>
 ] .
 
 [
@@ -634,11 +633,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bnode-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-04>
 ] .
 
 [
@@ -647,11 +646,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_CHARACTER_TABULATION>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-03>
 ] .
 
 [
@@ -660,11 +659,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-file-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-08>
 ] .
 
 [
@@ -673,11 +672,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_numeric_escape4>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-esc-01>
 ] .
 
 [
@@ -686,11 +685,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-uri-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-06>
 ] .
 
 [
@@ -699,11 +698,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_dquote>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-01>
 ] .
 
 [
@@ -712,11 +711,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#literal_with_FORM_FEED>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-01>
 ] .
 
 [
@@ -725,11 +724,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-lang-01>
 ] .
 
 [
@@ -738,11 +737,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-quint-01>
 ] .
 
 [
@@ -751,11 +750,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-04>
 ] .
 
 [
@@ -764,11 +763,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-struct-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-07>
 ] .
 
 [
@@ -777,11 +776,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-struct-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-06>
 ] .
 
 [
@@ -790,11 +789,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-08>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bad-literal-03>
 ] .
 
 [
@@ -803,11 +802,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-struct-01>
 ] .
 
 [
@@ -816,11 +815,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-uri-03>
 ] .
 
 [
@@ -829,11 +828,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bad-literal-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-03>
 ] .
 
 [
@@ -842,11 +841,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-num-02>
 ] .
 
 [
@@ -855,11 +854,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bad-string-02>
 ] .
 
 [
@@ -868,11 +867,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-datatypes-01>
 ] .
 
 [
@@ -881,11 +880,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-lang-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-01>
 ] .
 
 [
@@ -894,11 +893,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-esc-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_ascii_boundaries>
 ] .
 
 [
@@ -907,11 +906,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-num-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-03>
 ] .
 
 [
@@ -920,11 +919,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bad-literal-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-05>
 ] .
 
 [
@@ -933,11 +932,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bad-quint-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#langtagged_string>
 ] .
 
 [
@@ -946,11 +945,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-07>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal>
 ] .
 
 [
@@ -959,11 +958,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-bnode-05>
 ] .
 
 [
@@ -972,11 +971,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-esc-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-bnode-02>
 ] .
 
 [
@@ -985,11 +984,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-num-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#comment_following_triple>
 ] .
 
 [
@@ -998,11 +997,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-prefix-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-file-02>
 ] .
 
 [
@@ -1011,11 +1010,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-uri-04>
 ] .
 
 [
@@ -1024,11 +1023,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-base-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_CHARACTER_TABULATION>
 ] .
 
 [
@@ -1037,11 +1036,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-num-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-06>
 ] .
 
 [
@@ -1050,11 +1049,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bad-literal-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_LINE_FEED>
 ] .
 
 [
@@ -1063,11 +1062,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-05>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-02>
 ] .
 
 [
@@ -1076,11 +1075,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-06>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-02>
 ] .
 
 [
@@ -1089,11 +1088,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-04>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-04>
 ] .
 
 [
@@ -1102,11 +1101,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nq-syntax-bad-uri-01>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-string-03>
 ] .
 
 [
@@ -1115,11 +1114,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-string-02>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#literal_with_numeric_escape8>
 ] .
 
 [
@@ -1128,11 +1127,11 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-uri-09>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nq-syntax-uri-03>
 ] .
 
 [
@@ -1141,9 +1140,9 @@
     earl:mode earl:automatic ;
     earl:result [
         a earl:TestResult ;
-        dc:date "2022-12-19T19:25:18.943974Z"^^xsd:dateTime ;
+        dc:date "2025-04-09T15:43:52.731067Z"^^xsd:dateTime ;
         earl:outcome earl:passed
     ] ;
     earl:subject <https://hex.pm/packages/rdf> ;
-    earl:test <https://www.w3.org/2013/N-QuadsTests/#nt-syntax-bad-esc-03>
+    earl:test <https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/#nt-syntax-str-esc-01>
 ] .
