@@ -109,9 +109,13 @@ defmodule RDF.Mixfile do
       "test/acceptance/ntriples_w3c_test.exs",
       "test/acceptance/ntriples_star_w3c_test.exs",
       "test/acceptance/nquads_w3c_test.exs",
+      "test/acceptance/nquads_star_w3c_test.exs",
       "test/acceptance/turtle_w3c_test.exs",
       "test/acceptance/turtle_star_w3c_syntax_test.exs",
       "test/acceptance/turtle_star_w3c_eval_test.exs",
+      "test/acceptance/trig_w3c_test.exs",
+      "test/acceptance/trig_star_w3c_syntax_test.exs",
+      "test/acceptance/trig_star_w3c_eval_test.exs",
       "test/acceptance/canonicalization_w3c_test.exs"
     ]
 
