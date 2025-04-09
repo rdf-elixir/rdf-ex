@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
-## Unreleased
+## 2.1.0 - 2025-04-09
 
 Elixir versions < 1.14 and OTP version < 24 are no longer supported.
 
@@ -38,7 +38,7 @@ Also, compatibility with decimal < v2.0 is dropped.
   were not properly recompiled on changes of the underlying vocabulary file. 
 
 
-[Compare v2.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.1...HEAD)
+[Compare v2.0.1...v2.1.0](https://github.com/rdf-elixir/rdf-ex/compare/v2.0.1...v2.1.0)
 
 
 
