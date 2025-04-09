@@ -25,6 +25,8 @@ Also, compatibility with decimal < v2.0 is dropped.
   Note: This makes various places where the previous very sloppy implementation 
   was used stricter, e.g. the Turtle decoder or `~I` sigil. 
 - The `RDF.EarlFormatter` module was renamed to `RDF.Test.EarlFormatter`.
+- The `RDF.Test.EarlFormatter` no longer marks excluded tests as `earl:untested`, 
+  but simply ignores them.
 
 ### Fixed
 

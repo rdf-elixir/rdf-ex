@@ -97,13 +97,6 @@ defmodule RDF.Test.EarlFormatter do
      {add_result(results, test, assertion(test.tags.test_case, result, mode, config)), config}}
   end
 
-  def handle_cast({:test_finished, %ExUnit.Test{state: {:excluded, _}} = test}, {results, config}) do
-    print_warn("EXCLUDED: #{test.name}")
-
-    {:noreply,
-     {add_result(results, test, assertion(test.tags.test_case, :untested, config)), config}}
-  end
-
   def handle_cast(
         {:test_finished, %ExUnit.Test{state: {:failed, _failed}} = test},
         {results, config}
