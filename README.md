@@ -63,7 +63,7 @@ If you need help with your Elixir and Linked Data projects, just contact [NinjaC
 </tr>
 </table>
 
-The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive) and the [NLnet foundation](https://nlnet.nl/) as part of the funding of [K-Gen](https://nlnet.nl/project/K-Gen/).
+The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive) and the [NLnet foundation](https://nlnet.nl/) as part of the funding of [Ontogen](https://nlnet.nl/project/Ontogen/).
 
 [JetBrains](https://jb.gg/OpenSource) supports the project with complimentary access to its development environments.
 
