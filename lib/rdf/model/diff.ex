@@ -168,6 +168,21 @@ defmodule RDF.Diff do
   end
 
   @doc """
+  Inverts a diff.
+
+  This is done by simply swapping the `additions` and `deletions` of the diff.
+
+  ## Examples
+
+      iex> RDF.Diff.invert(RDF.Diff.new(additions: {EX.S, EX.p, EX.O1}, deletions: {EX.S, EX.p, EX.O2}))
+      %RDF.Diff{additions: RDF.graph({EX.S, EX.p, EX.O2}), deletions: RDF.graph({EX.S, EX.p, EX.O1})}
+  """
+  @spec invert(t) :: t
+  def invert(%__MODULE__{} = diff) do
+    %__MODULE__{diff | additions: diff.deletions, deletions: diff.additions}
+  end
+
+  @doc """
   Determines if a diff is empty.
 
   A `RDF.Diff` is empty, if its `additions` and `deletions` graphs are empty.

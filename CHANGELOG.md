@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 
 
+## Unreleased
+
+### Added
+
+- `RDF.Diff.invert/1`
+
+[Compare v2.1.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.1.0...HEAD)
+
+
 ## 2.1.0 - 2025-04-09
 
 Elixir versions < 1.14 and OTP version < 24 are no longer supported.
