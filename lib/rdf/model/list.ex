@@ -148,6 +148,19 @@ defmodule RDF.List do
   def empty?(%__MODULE__{}), do: false
 
   @doc """
+  Prepends a value to a `RDF.List`.
+
+  The name of the head node can be specified with the `head` option
+  (default: `RDF.bnode()`, i.e. an arbitrary unique name).
+  """
+  @spec prepend(t, any, keyword) :: t
+  def prepend(%__MODULE__{} = list, value, opts \\ []) do
+    head = Keyword.get(opts, :head, BlankNode.new())
+    graph = Graph.add(list.graph, head |> NS.RDF.first(value) |> NS.RDF.rest(list.head))
+    %__MODULE__{head: head, graph: graph}
+  end
+
+  @doc """
   Checks if the given list consists of list nodes which are all blank nodes.
   """
   @spec valid?(t) :: boolean

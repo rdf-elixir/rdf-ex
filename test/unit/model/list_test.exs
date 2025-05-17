@@ -423,6 +423,29 @@ defmodule RDF.ListTest do
     end
   end
 
+  describe "prepend/3" do
+    test "prepending to an empty list", %{empty: empty} do
+      prepended = RDF.List.prepend(empty, "new")
+      assert RDF.List.values(prepended) == [~L"new"]
+      assert prepended.head != empty.head
+      assert RDF.bnode?(prepended.head)
+    end
+
+    test "prepending to a non-empty list", %{one: one} do
+      prepended = RDF.List.prepend(one, "new")
+      assert RDF.List.values(prepended) == [~L"new", EX.element()]
+      assert RDF.bnode?(prepended.head)
+      assert prepended.head != one.head
+    end
+
+    test "with custom head node" do
+      list = RDF.List.from(["a", "b"], head: ~B<abc>)
+      prepended = RDF.List.prepend(list, "new", head: ~B<custom>)
+      assert RDF.List.values(prepended) == [~L"new", ~L"a", ~L"b"]
+      assert prepended.head == ~B<custom>
+    end
+  end
+
   describe "Enumerable.reduce" do
     test "the empty list", %{empty: empty} do
       assert Enum.reduce(empty, [], fn description, acc -> [description | acc] end) == []

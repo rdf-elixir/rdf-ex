@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.List.prepend/3`
 - `RDF.Diff.invert/1`
 
 [Compare v2.1.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.1.0...HEAD)
