@@ -446,6 +446,11 @@ defmodule RDF.ListTest do
     end
   end
 
+  test "the same list in two different graphs are equal", %{abc: abc} do
+    assert abc ==
+             RDF.List.new(abc.head, Graph.new(abc.graph) |> Graph.add(EX.S |> EX.p(abc.head)))
+  end
+
   describe "Enumerable.reduce" do
     test "the empty list", %{empty: empty} do
       assert Enum.reduce(empty, [], fn description, acc -> [description | acc] end) == []

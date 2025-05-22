@@ -38,24 +38,35 @@ defmodule RDF.List do
   def new(head, graph) when maybe_ns_term(head),
     do: new(IRI.new(head), graph)
 
-  def new(head, graph) do
-    list = %__MODULE__{head: head, graph: graph}
-
-    if well_formed?(list) do
-      list
+  def new(head, graph) when is_rdf_resource(head) do
+    if list_graph = extract_list_graph(head, graph, Graph.new()) do
+      %__MODULE__{head: head, graph: list_graph}
     end
   end
 
-  defp well_formed?(list) do
-    Enum.reduce_while(list, MapSet.new(), fn node_description, preceding_nodes ->
-      head = node_description.subject
+  def new(_invalid_head, _graph), do: nil
 
-      if MapSet.member?(preceding_nodes, head) do
-        {:halt, false}
-      else
-        {:cont, MapSet.put(preceding_nodes, head)}
-      end
-    end) && true
+  defp extract_list_graph(@rdf_nil, _graph, list_graph), do: list_graph
+
+  defp extract_list_graph(head, graph, list_graph) do
+    description = graph[head]
+
+    cond do
+      description == nil ->
+        nil
+
+      _duplicate = Graph.get(list_graph, head) ->
+        nil
+
+      true ->
+        with [_] <- Description.get(description, NS.RDF.first()),
+             [rest] <- Description.get(description, NS.RDF.rest()) do
+          extract_list_graph(rest, graph, Graph.add(list_graph, description))
+        else
+          nil -> nil
+          values when is_list(values) -> nil
+        end
+    end
   end
 
   @doc """

@@ -13,6 +13,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.List.prepend/3`
 - `RDF.Diff.invert/1`
 
+### Fixed
+
+- `RDF.List.new/2` now correctly handles lists in different graphs with the same structure
+
 [Compare v2.1.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.1.0...HEAD)
 
 
