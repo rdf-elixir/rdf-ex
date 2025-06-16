@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 - `RDF.List.prepend/3`
 - `RDF.Diff.invert/1`
+- Some performance improvements on the Turtle and TriG encoder
 
 ### Fixed
 

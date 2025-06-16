@@ -142,7 +142,7 @@ defmodule RDF.TurtleTriG.Decoder.AST do
   defp resolve_node({:blankNodePropertyList, property_list}, statements, state) do
     {subject, state} = State.next_bnode(state)
     {new_statements, state} = triples({subject, property_list}, state)
-    {subject, statements ++ new_statements, state}
+    {subject, [new_statements | statements], state}
   end
 
   defp resolve_node(
@@ -167,21 +167,21 @@ defmodule RDF.TurtleTriG.Decoder.AST do
     {last_list_node, statements, state} =
       Enum.reduce(
         rest_elements,
-        {first_list_node, statements ++ first_statement, state},
+        {first_list_node, [first_statement | statements], state},
         fn element, {list_node, statements, state} ->
           {element_node, statements, state} = resolve_node(element, statements, state)
           {next_list_node, state} = State.next_bnode(state)
 
           {next_list_node,
-           statements ++
-             [
-               {list_node, RDF.rest(), next_list_node},
-               {next_list_node, RDF.first(), element_node}
-             ], state}
+           [
+             {list_node, RDF.rest(), next_list_node},
+             {next_list_node, RDF.first(), element_node}
+             | statements
+           ], state}
         end
       )
 
-    {first_list_node, statements ++ [{last_list_node, RDF.rest(), RDF.nil()}], state}
+    {first_list_node, [{last_list_node, RDF.rest(), RDF.nil()} | statements], state}
   end
 
   defp resolve_node({:quoted_triple, s_node, p_node, o_node}, statements, state) do
