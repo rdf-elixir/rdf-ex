@@ -168,7 +168,11 @@ defmodule RDF.PropertyMapTest do
                   predicate: RDF.predicate(),
                   rest: RDF.rest(),
                   subject: RDF.subject(),
-                  value: RDF.value()
+                  value: RDF.value(),
+                  dirLangString: RDF.dirLangString(),
+                  direction: RDF.direction(),
+                  language: RDF.language(),
+                  reifies: RDF.reifies()
                 )}
     end
 

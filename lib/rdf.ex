@@ -387,7 +387,7 @@ defmodule RDF do
 
   defdelegate json(value, opts \\ []), to: RDF.JSON, as: :new
 
-  for term <- ~w[type subject predicate object first rest value]a do
+  for term <- ~w[type subject predicate object first rest value direction language reifies]a do
     defdelegate unquote(term)(), to: RDF.NS.RDF
     @doc false
     defdelegate unquote(term)(s), to: RDF.NS.RDF
@@ -397,6 +397,8 @@ defmodule RDF do
 
   defdelegate langString(), to: RDF.NS.RDF
   defdelegate lang_string(), to: RDF.NS.RDF, as: :langString
+  defdelegate dirLangString(), to: RDF.NS.RDF
+  defdelegate dir_lang_string(), to: RDF.NS.RDF, as: :dirLangString
   defdelegate unquote(nil)(), to: RDF.NS.RDF
 
   defdelegate __base_iri__(), to: RDF.NS.RDF

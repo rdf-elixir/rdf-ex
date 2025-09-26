@@ -5,6 +5,7 @@
 
 <http://www.w3.org/1999/02/22-rdf-syntax-ns#> a owl:Ontology ;
 	dc:title "The RDF Concepts Vocabulary (RDF)" ;
+	dc:date "2019-12-16" ;
 	dc:description "This is the RDF Schema for the RDF vocabulary terms in the RDF Namespace, defined in RDF 1.1 Concepts." .
 
 rdf:HTML a rdfs:Datatype ;
@@ -14,15 +15,6 @@ rdf:HTML a rdfs:Datatype ;
 	rdfs:label "HTML" ;
 	rdfs:comment "The datatype of RDF literals storing fragments of HTML content" .
 
-# TODO: use the official RDF 1.2 vocabulary as soon as it is available
-#       see https://github.com/w3c/rdf-concepts/issues/119
-# Note: This definition of rdf:JSON is not part of the official vocabulary.
-rdf:JSON a rdfs:Datatype ;
-     rdfs:subClassOf rdfs:Literal ;
-     rdfs:seeAlso <https://www.w3.org/TR/rdf12-concepts/#section-json> ;
-     rdfs:label "JSON" ;
-     rdfs:comment "The datatype of RDF literals storing JSON content" .
-
 rdf:langString a rdfs:Datatype ;
 	rdfs:subClassOf rdfs:Literal ;
 	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
@@ -30,18 +22,32 @@ rdf:langString a rdfs:Datatype ;
 	rdfs:label "langString" ;
 	rdfs:comment "The datatype of language-tagged string values" .
 
+rdf:dirLangString a rdfs:Datatype ;
+	rdfs:subClassOf rdfs:Literal ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:label "dirLangString" ;
+	rdfs:comment "The datatype of directional language-tagged string values, which includes a language tag and a base direction (either 'ltr' or 'rtl')" .
+
 rdf:PlainLiteral a rdfs:Datatype ;
+	owl:deprecated true ;
 	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
 	rdfs:subClassOf rdfs:Literal ;
 	rdfs:seeAlso <http://www.w3.org/TR/rdf-plain-literal/> ;
 	rdfs:label "PlainLiteral" ;
-	rdfs:comment "The class of plain (i.e. untyped) literal values, as used in RIF and OWL 2" .
+	rdfs:comment "The class of plain (i.e., untyped) literal values, as used in RIF and OWL 2.  Will not be removed until no longer needed there." .
 
 rdf:type a rdf:Property ;
 	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
 	rdfs:label "type" ;
 	rdfs:comment "The subject is an instance of a class." ;
 	rdfs:range rdfs:Class ;
+	rdfs:domain rdfs:Resource .
+
+rdf:reifies a rdf:Property ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:label "reifies" ;
+	rdfs:comment "The abstract proposition of a more concrete circumstance." ;
+	rdfs:range rdfs:Proposition ;
 	rdfs:domain rdfs:Resource .
 
 rdf:Property a rdfs:Class ;
@@ -132,3 +138,60 @@ rdf:XMLLiteral a rdfs:Datatype ;
 	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
 	rdfs:label "XMLLiteral" ;
 	rdfs:comment "The datatype of XML literal values." .
+
+rdf:JSON a rdfs:Datatype ;
+	rdfs:label "JSON" ;
+	rdfs:comment "The datatype of RDF literals storing JSON content." ;
+	rdfs:subClassOf rdfs:Literal ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+        rdfs:seeAlso <https://www.w3.org/TR/rdf-concepts/#section-json> .
+
+rdf:CompoundLiteral a rdfs:Class ;
+	rdfs:label "CompoundLiteral" ;
+	rdfs:comment "A class representing a compound literal." ;
+	rdfs:subClassOf rdfs:Resource ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:seeAlso <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties> .
+
+rdf:language a rdf:Property ;
+	rdfs:label "language" ;
+	rdfs:comment "The language component of a CompoundLiteral." ;
+	rdfs:domain rdf:CompoundLiteral ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:seeAlso <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties> .
+
+rdf:direction a rdf:Property ;
+	rdfs:label "direction" ;
+	rdfs:comment "The base direction component of a CompoundLiteral." ;
+	rdfs:domain rdf:CompoundLiteral ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:seeAlso <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties> .
+
+## Controlled vocabulary for versions.
+## URIs for versions of RDF and SPARQL
+## The rdfs:label corresponds to the constant defined in RDF Concepts.
+## It can apply to RDF and SPARQL.
+
+rdf:version-1.2 a rdfs:Resource ;
+    rdfs:label "1.2" ;
+    rdfs:comment "Version 1.2." ;
+    rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+    .
+
+rdf:version-1.2-basic a rdfs:Resource ;
+    rdfs:label "1.2-basic" ;
+    rdfs:comment "Version 1.2-basic" ;
+    rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+    .
+
+rdf:version-1.1 a rdfs:Resource ;
+    rdfs:label "1.1" ;
+    rdfs:comment "Version 1.1" ;
+    rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+    .
+
+rdf:version-1.0 a rdfs:Resource ;
+    rdfs:label "1.0" ;
+    rdfs:comment "Version 1.0" ;
+    rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+    .

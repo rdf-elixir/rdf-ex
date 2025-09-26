@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Diff.invert/1`
 - Some performance improvements on the Turtle and TriG encoder
 
+### Changed
+
+- Update RDF and RDFS vocabularies to version 1.2
+
 ### Fixed
 
 - `RDF.List.new/2` now correctly handles lists in different graphs with the same structure

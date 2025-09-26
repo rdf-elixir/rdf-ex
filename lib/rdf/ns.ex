@@ -32,7 +32,12 @@ defmodule RDF.NS do
     file: "rdf.ttl",
     alias: [
       Nil: "nil",
-      LangString: "langString"
+      LangString: "langString",
+      DirLangString: "dirLangString",
+      Version_1_0: "version-1.0",
+      Version_1_1: "version-1.1",
+      Version_1_2: "version-1.2",
+      Version_1_2_basic: "version-1.2-basic"
     ]
 
   @vocabdoc """
