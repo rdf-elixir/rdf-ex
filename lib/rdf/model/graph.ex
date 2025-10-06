@@ -25,7 +25,7 @@ defmodule RDF.Graph do
   @type graph_description :: %{Statement.subject() => Description.t()}
 
   @type t :: %__MODULE__{
-          name: IRI.t() | nil,
+          name: Statement.graph_name(),
           descriptions: graph_description,
           prefixes: PrefixMap.t(),
           base_iri: IRI.t() | nil
