@@ -1777,6 +1777,10 @@ defmodule RDF.GraphTest do
     assert Graph.clear_base_iri(Graph.new(base_iri: EX.base())) == Graph.new()
   end
 
+  test "clear_name/1" do
+    assert Graph.clear_name(named_graph()) == Graph.new()
+  end
+
   test "clear_metadata/1" do
     assert Graph.clear_metadata(Graph.new(base_iri: EX.base(), prefixes: %{ex: EX})) ==
              Graph.new()

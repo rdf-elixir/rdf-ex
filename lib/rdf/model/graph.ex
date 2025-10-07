@@ -185,6 +185,14 @@ defmodule RDF.Graph do
   end
 
   @doc """
+  Clears the name of the given `graph` to `nil`.
+  """
+  @spec clear_name(t) :: t
+  def clear_name(%__MODULE__{} = graph) do
+    %__MODULE__{graph | name: nil}
+  end
+
+  @doc """
   Add triples to a `RDF.Graph`.
 
   The `input` can be provided

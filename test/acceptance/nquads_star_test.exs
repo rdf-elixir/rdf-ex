@@ -58,8 +58,8 @@ defmodule RDF.Star.NQuads.TestSuite do
 
       assert %RDF.Graph{} = graph1 = RDF.Dataset.graph(dataset1, ~I<http://example/Graph>)
       assert %RDF.Graph{} = graph2 = RDF.Dataset.default_graph(dataset2)
-      #
-      assert RDF.Graph.change_name(graph1, nil) == graph2
+
+      assert RDF.Graph.clear_name(graph1) == graph2
     end
   end)
 end
