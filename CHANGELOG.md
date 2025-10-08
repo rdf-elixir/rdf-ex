@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Added
 
+- `RDF.Graph.reachable/2,3`
 - `RDF.Graph.clear_name/1`
 - `RDF.List.prepend/3`
 - `RDF.Diff.invert/1`

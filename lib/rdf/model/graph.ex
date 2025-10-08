@@ -15,7 +15,7 @@ defmodule RDF.Graph do
   @behaviour Access
 
   alias RDF.{Description, Dataset, IRI, PrefixMap, PropertyMap}
-  alias RDF.Graph.Builder
+  alias RDF.Graph.{Builder, Reachability}
   alias RDF.Star.{Statement, Triple, Quad}
 
   import RDF.Guards
@@ -50,6 +50,8 @@ defmodule RDF.Graph do
   @type update_description_fun :: (Description.t() -> Description.t())
 
   @type get_and_update_description_fun :: (Description.t() -> {Description.t(), input} | :pop)
+
+  @type follow_fun :: (RDF.Resource.t(), RDF.IRI.t(), non_neg_integer() -> boolean())
 
   @doc """
   Creates an empty unnamed `RDF.Graph`.
@@ -1470,6 +1472,10 @@ defmodule RDF.Graph do
   end
 
   defdelegate canonical_hash(graph, opts \\ []), to: Dataset
+
+  @doc Reachability.reachable_doc()
+  @spec reachable(t(), RDF.Resource.coercible(), follow_fun() | keyword()) :: t()
+  defdelegate reachable(graph, resource, follow_fun_or_opts \\ []), to: Reachability
 
   @doc """
   Returns the prefixes of the given `graph` as a `RDF.PrefixMap`.
