@@ -1,7 +1,7 @@
 defmodule RDF.InspectTest do
   use RDF.Test.Case
 
-  alias RDF.Turtle
+  alias RDF.{Turtle, TriG}
   alias RDF.NS.RDFS
 
   @test_description EX.S
@@ -89,6 +89,105 @@ defmodule RDF.InspectTest do
                   |> Turtle.write_string!(indent: 2)
                   |> String.trim()) <>
                  "..\n...\n>"
+
+      graph = Graph.new(Enum.map(1..100, &{~i<http://example.com/S#{&1}>, EX.p(), EX.O}))
+      {_, body} = inspect_parts(graph, limit: :infinity)
+      assert body == "  " <> (Turtle.write_string!(graph, indent: 2) |> String.trim()) <> "\n>"
+    end
+
+    test ":content_only option" do
+      result = inspect(@test_graph, custom_options: [content_only: true])
+      refute result =~ "#RDF.Graph"
+      assert result =~ "ex:S1"
+    end
+
+    test ":no_metadata option" do
+      result = inspect(@test_graph, custom_options: [no_metadata: true])
+      refute result =~ "@prefix"
+      assert result =~ "ex:S1"
+    end
+  end
+
+  describe "RDF.Dataset" do
+    test "it includes a header with the dataset name" do
+      dataset = Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2, EX.Graph}])
+      {header, _} = inspect_parts(dataset)
+      assert header == "#RDF.Dataset<name: nil"
+
+      dataset_name = RDF.iri(EX.Dataset)
+      {header, _} = dataset |> Dataset.change_name(dataset_name) |> inspect_parts()
+      assert header == "#RDF.Dataset<name: #{inspect(dataset_name)}"
+    end
+
+    test "it encodes the dataset in TriG" do
+      dataset = Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2, EX.Graph}])
+      {_, body} = inspect_parts(dataset)
+
+      assert body ==
+               "  " <>
+                 (TriG.write_string!(dataset, indent: 2) |> String.trim()) <> "\n>"
+    end
+
+    test ":limit option" do
+      dataset =
+        Dataset.new([
+          # Default graph: 2 statements
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S1, EX.p2(), EX.O2},
+          # Graph1: 6 statements
+          {EX.S2, EX.p1(), EX.O3, EX.Graph1},
+          {EX.S2, EX.p2(), EX.O4, EX.Graph1},
+          {EX.S2, EX.p3(), EX.O5, EX.Graph1},
+          {EX.S2, EX.p4(), EX.O6, EX.Graph1},
+          {EX.S2, EX.p5(), EX.O7, EX.Graph1},
+          {EX.S2, EX.p6(), EX.O8, EX.Graph1},
+          # Graph2: 4 statements
+          {EX.S3, EX.p1(), EX.O9, EX.Graph2},
+          {EX.S3, EX.p2(), EX.O10, EX.Graph2},
+          {EX.S3, EX.p3(), EX.O11, EX.Graph2},
+          {EX.S3, EX.p4(), EX.O12, EX.Graph2}
+        ])
+
+      {_, body} = inspect_parts(dataset, limit: 8)
+
+      # Proportional limiting: 12 total, limit 8, cut_off 4
+      # Default graph (2): round(4 * 2/12) = 1 cut off → shows 1
+      # Graph1 (6): round(4 * 6/12) = 2 cut off → shows 4
+      # Graph2 (4): round(4 * 4/12) = 1 cut off → shows 3
+      limited_dataset =
+        Dataset.new([
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S2, EX.p1(), EX.O3, EX.Graph1},
+          {EX.S2, EX.p2(), EX.O4, EX.Graph1},
+          {EX.S2, EX.p3(), EX.O5, EX.Graph1},
+          {EX.S2, EX.p4(), EX.O6, EX.Graph1},
+          {EX.S3, EX.p1(), EX.O9, EX.Graph2},
+          {EX.S3, EX.p2(), EX.O10, EX.Graph2},
+          {EX.S3, EX.p3(), EX.O11, EX.Graph2}
+        ])
+
+      assert body ==
+               "  " <>
+                 (TriG.write_string!(limited_dataset, indent: 2) |> String.trim()) <>
+                 "\n\n...\n>"
+
+      dataset = Dataset.new(Enum.map(1..100, &{~i<http://example.com/S#{&1}>, EX.p(), EX.O}))
+      {_, body} = inspect_parts(dataset, limit: :infinity)
+      assert body == "  " <> (TriG.write_string!(dataset, indent: 2) |> String.trim()) <> "\n>"
+    end
+
+    test ":content_only option" do
+      dataset = Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2, EX.Graph}])
+      result = inspect(dataset, custom_options: [content_only: true])
+      refute result =~ "#RDF.Dataset"
+      assert result =~ "<http://example.com/S1>"
+    end
+
+    test ":no_metadata option" do
+      dataset = Dataset.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2, EX.Graph}])
+      result = inspect(dataset, custom_options: [no_metadata: true])
+      refute result =~ "@prefix"
+      assert result =~ "<http://example.com/S1>"
     end
   end
 

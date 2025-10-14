@@ -153,14 +153,67 @@ defimpl Inspect, for: RDF.Graph do
 end
 
 defimpl Inspect, for: RDF.Dataset do
-  import Inspect.Algebra
-
   def inspect(dataset, opts) do
-    map = [name: dataset.name, graph_names: Map.keys(dataset.graphs)]
-    open = color("%RDF.Dataset{", :map, opts)
-    sep = color(",", :map, opts)
-    close = color("}", :map, opts)
-    container_doc(open, map, close, opts, &Inspect.List.keyword/2, separator: sep, break: :strict)
+    if opts.structs do
+      try do
+        content_only = Keyword.get(opts.custom_options, :content_only, false)
+        no_metadata = Keyword.get(opts.custom_options, :no_metadata, false)
+
+        statement_count = RDF.Dataset.statement_count(dataset)
+        limit = opts.limit < statement_count
+
+        {dataset, ellipse} =
+          if limit do
+            cut_off = statement_count - opts.limit
+
+            limited_dataset =
+              dataset
+              |> RDF.Dataset.graphs()
+              |> Enum.map(fn graph ->
+                graph_statement_count = RDF.Graph.triple_count(graph)
+                graph_cut_off = round(cut_off * graph_statement_count / statement_count)
+                graph_limit = graph_statement_count - graph_cut_off
+
+                graph
+                |> RDF.Graph.clear()
+                |> RDF.Graph.add(Enum.take(graph, graph_limit))
+              end)
+              |> RDF.Dataset.new(name: dataset.name)
+
+            {limited_dataset, "\n\n..."}
+          else
+            {dataset, nil}
+          end
+
+        header = "#RDF.Dataset<name: #{inspect(dataset.name)}"
+
+        body =
+          dataset
+          |> RDF.TriG.write_string!(content: if(no_metadata, do: :graphs), indent: 2)
+          |> String.trim_trailing()
+
+        if content_only do
+          "#{body}#{ellipse}"
+        else
+          "#{header}\n#{body}#{ellipse}\n>"
+        end
+      rescue
+        caught_exception ->
+          message =
+            "got #{inspect(caught_exception.__struct__)} with message " <>
+              "#{inspect(Exception.message(caught_exception))} while inspecting RDF.Dataset #{dataset.name}"
+
+          exception = Inspect.Error.exception(message: message)
+
+          if opts.safe do
+            Inspect.inspect(exception, opts)
+          else
+            reraise(exception, __STACKTRACE__)
+          end
+      end
+    else
+      Inspect.Map.inspect(dataset, opts)
+    end
   end
 end
 

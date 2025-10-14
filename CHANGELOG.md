@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 ### Changed
 
 - Update RDF and RDFS vocabularies to version 1.2
+- Include dataset content in `RDF.Dataset` inspect string using TriG format
 
 ### Fixed
 
