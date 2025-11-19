@@ -159,19 +159,19 @@ defmodule RDF.Graph.Reachability do
           build_follow_fun_from_opts(Keyword.put(opts, :follow, follow))
       end
 
-    traverse(graph, [RDF.coerce_subject(resource)], into, follow_fun, 0)
+    traverse(graph, [RDF.coerce_subject(resource)], into, follow_fun, 0, MapSet.new())
   end
 
-  defp traverse(_graph, [], result, _follow_fun, _depth), do: result
+  defp traverse(_graph, [], result, _follow_fun, _depth, _visited), do: result
 
-  defp traverse(graph, nodes, result, follow_fun, depth) do
+  defp traverse(graph, nodes, result, follow_fun, depth, visited) do
     depth = depth + 1
 
-    {result, next_level_nodes} =
-      Enum.reduce(nodes, {result, []}, fn node, {result, next} ->
-        if Graph.describes?(result, node) do
+    {result, next_level_nodes, visited} =
+      Enum.reduce(nodes, {result, [], visited}, fn node, {result, next, visited} ->
+        if MapSet.member?(visited, node) do
           # Already visited, skip
-          {result, next}
+          {result, next, visited}
         else
           node_description = Graph.description(graph, node)
 
@@ -181,11 +181,11 @@ defmodule RDF.Graph.Reachability do
               {_s, p, o} -> if follow_fun.(o, p, depth), do: [o], else: []
             end)
 
-          {Graph.add(result, node_description), next_level_nodes}
+          {Graph.add(result, node_description), next_level_nodes, MapSet.put(visited, node)}
         end
       end)
 
-    traverse(graph, next_level_nodes, result, follow_fun, depth)
+    traverse(graph, next_level_nodes, result, follow_fun, depth, visited)
   end
 
   defp build_follow_fun_from_opts(opts) do

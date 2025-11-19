@@ -365,6 +365,25 @@ defmodule RDF.Graph.ReachabilityTest do
                  {EX.B, EX.p(), EX.D}
                ])
     end
+
+    test "into: with pre-existing node in traversal path" do
+      graph =
+        Graph.new([
+          {EX.A, EX.p(), EX.B},
+          {EX.B, EX.p(), EX.C}
+        ])
+
+      # EX.B is in the traversal path but also pre-exists in the into graph
+      existing = Graph.new({EX.B, EX.other(), EX.Other})
+
+      # Should still traverse through EX.B to reach EX.C
+      assert Graph.reachable(graph, EX.A, into: existing) ==
+               Graph.new([
+                 {EX.B, EX.other(), EX.Other},
+                 {EX.A, EX.p(), EX.B},
+                 {EX.B, EX.p(), EX.C}
+               ])
+    end
   end
 
   describe "reachable/3 edge cases" do
