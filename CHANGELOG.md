@@ -14,6 +14,9 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - `RDF.Graph.clear_name/1`
 - `RDF.List.prepend/3`
 - `RDF.Diff.invert/1`
+- Add `:on_graph_mismatch` option to `RDF.Description.delete/3` and `RDF.Graph.delete/3`
+  to control behavior when deleting quads with non-matching graph names;
+  the new default (`:warn`) logs a warning - use `:ignore` to restore the old silent behavior
 - Some performance improvements on the Turtle and TriG encoder
 
 ### Changed

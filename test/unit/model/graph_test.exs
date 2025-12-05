@@ -1177,6 +1177,130 @@ defmodule RDF.GraphTest do
     end
   end
 
+  describe "delete with :on_graph_mismatch option" do
+    test "matching graph name does not trigger mismatch" do
+      import ExUnit.CaptureLog
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}], name: EX.G)
+
+      log =
+        capture_log(fn ->
+          assert Graph.delete(graph, {EX.S, EX.p(), EX.O, EX.G}) == Graph.new(name: EX.G)
+        end)
+
+      assert log == ""
+    end
+
+    test "both nil graph names do not trigger mismatch" do
+      import ExUnit.CaptureLog
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}])
+
+      log =
+        capture_log(fn ->
+          assert Graph.delete(graph, {EX.S, EX.p(), EX.O, nil}) == Graph.new()
+        end)
+
+      assert log == ""
+    end
+
+    test "default (:warn) logs warning and deletes on mismatch" do
+      import ExUnit.CaptureLog
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}])
+
+      log =
+        capture_log(fn ->
+          assert Graph.delete(graph, {EX.S, EX.p(), EX.O, EX.OtherGraph}) == Graph.new()
+        end)
+
+      assert log =~ "mismatch"
+    end
+
+    test "nil quad graph to named graph triggers mismatch with default :warn" do
+      import ExUnit.CaptureLog
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}], name: EX.G)
+
+      log =
+        capture_log(fn ->
+          assert Graph.delete(graph, {EX.S, EX.p(), EX.O, nil}) == Graph.new(name: EX.G)
+        end)
+
+      assert log =~ "mismatch"
+    end
+
+    test ":ignore deletes without warning" do
+      import ExUnit.CaptureLog
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}])
+
+      log =
+        capture_log(fn ->
+          assert Graph.delete(graph, {EX.S, EX.p(), EX.O, EX.OtherGraph},
+                   on_graph_mismatch: :ignore
+                 ) == Graph.new()
+        end)
+
+      assert log == ""
+    end
+
+    test ":skip does not delete on mismatch" do
+      graph = Graph.new([{EX.S, EX.p(), EX.O}])
+
+      assert Graph.delete(graph, {EX.S, EX.p(), EX.O, EX.OtherGraph}, on_graph_mismatch: :skip) ==
+               graph
+
+      graph = Graph.new([{EX.S, EX.p(), EX.O}], name: EX.G)
+
+      assert Graph.delete(graph, {EX.S, EX.p(), EX.O, nil}, on_graph_mismatch: :skip) == graph
+    end
+
+    test ":error raises ArgumentError" do
+      graph = Graph.new([{EX.S, EX.p(), EX.O}])
+
+      assert_raise ArgumentError, ~r/mismatch/i, fn ->
+        Graph.delete(graph, {EX.S, EX.p(), EX.O, EX.OtherGraph}, on_graph_mismatch: :error)
+      end
+    end
+
+    test "with list of statements - skips only mismatched quads" do
+      graph =
+        Graph.new([
+          {EX.S, EX.p1(), EX.O1},
+          {EX.S, EX.p2(), EX.O2}
+        ])
+
+      assert Graph.delete(
+               graph,
+               [
+                 {EX.S, EX.p1(), EX.O1, EX.OtherGraph},
+                 {EX.S, EX.p2(), EX.O2, nil}
+               ],
+               on_graph_mismatch: :skip
+             ) == Graph.new({EX.S, EX.p1(), EX.O1})
+
+      graph =
+        Graph.new(
+          [
+            {EX.S, EX.p1(), EX.O1},
+            {EX.S, EX.p2(), EX.O2}
+          ],
+          name: EX.G
+        )
+
+      assert Graph.delete(
+               graph,
+               [
+                 {EX.S, EX.p1(), EX.O1, EX.G},
+                 {EX.S, EX.p2(), EX.O2, nil}
+               ],
+               on_graph_mismatch: :skip
+             ) ==
+               Graph.new({EX.S, EX.p2(), EX.O2}, name: EX.G)
+    end
+  end
+
   describe "delete_descriptions/2" do
     setup do
       {:ok,

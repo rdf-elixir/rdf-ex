@@ -581,7 +581,6 @@ defmodule RDF.DescriptionTest do
          } do
       assert Description.delete(empty_description, {EX.S, EX.p(), EX.O}) == empty_description
       assert Description.delete(description1, {EX.S, EX.p(), EX.O}) == empty_description
-      assert Description.delete(description1, {EX.S, EX.p(), EX.O, EX.Graph}) == empty_description
 
       assert Description.delete(description2, {EX.S, EX.p(), EX.O2}) ==
                Description.new(EX.S, init: {EX.S, EX.p(), EX.O1})
@@ -596,7 +595,6 @@ defmodule RDF.DescriptionTest do
       assert Description.delete(empty_description, {EX.Other, EX.p(), EX.O}) == empty_description
       assert Description.delete(description1, {EX.Other, EX.p(), EX.O}) == description1
       assert Description.delete(description2, {EX.Other, EX.p(), EX.O2}) == description2
-      assert Description.delete(description2, {EX.Other, EX.p(), EX.O2, EX.Graph}) == description2
     end
 
     test "predicate-object tuples with object lists",
@@ -620,7 +618,7 @@ defmodule RDF.DescriptionTest do
                {EX.p1(), EX.O1},
                {EX.p2(), [EX.O2, EX.O3]},
                {EX.S, EX.p3(), [~B<foo>]},
-               {EX.S, EX.p3(), ~L"bar", EX.Graph}
+               {EX.S, EX.p3(), ~L"bar"}
              ]) == Description.new(EX.S, init: {EX.S, EX.p1(), EX.O2})
     end
 
@@ -689,6 +687,82 @@ defmodule RDF.DescriptionTest do
       assert_raise FunctionClauseError, fn ->
         Description.delete(description(), RDF.dataset())
       end
+    end
+  end
+
+  describe "delete with :on_graph_mismatch option" do
+    setup do
+      {:ok, description: Description.new(EX.S, init: {EX.S, EX.p(), EX.O})}
+    end
+
+    test "default (:warn) logs warning and deletes", %{description: description} do
+      import ExUnit.CaptureLog
+
+      log =
+        capture_log(fn ->
+          assert Description.delete(description, {EX.S, EX.p(), EX.O, EX.G}) ==
+                   Description.new(EX.S)
+        end)
+
+      assert log =~ "Graph name"
+      assert log =~ "ignored"
+    end
+
+    test ":ignore deletes without warning", %{description: description} do
+      import ExUnit.CaptureLog
+
+      log =
+        capture_log(fn ->
+          assert Description.delete(description, {EX.S, EX.p(), EX.O, EX.G},
+                   on_graph_mismatch: :ignore
+                 ) ==
+                   Description.new(EX.S)
+        end)
+
+      assert log == ""
+    end
+
+    test ":skip does not delete", %{description: description} do
+      assert Description.delete(description, {EX.S, EX.p(), EX.O, EX.G}, on_graph_mismatch: :skip) ==
+               description
+    end
+
+    test ":error raises ArgumentError", %{description: description} do
+      assert_raise ArgumentError, ~r/graph name/i, fn ->
+        Description.delete(description, {EX.S, EX.p(), EX.O, EX.G}, on_graph_mismatch: :error)
+      end
+    end
+
+    test "nil graph name does not trigger mismatch", %{description: description} do
+      import ExUnit.CaptureLog
+
+      log =
+        capture_log(fn ->
+          assert Description.delete(description, {EX.S, EX.p(), EX.O, nil}) ==
+                   Description.new(EX.S)
+        end)
+
+      assert log == ""
+    end
+
+    test "with list of statements - skips only mismatched quads", %{description: _description} do
+      desc =
+        Description.new(EX.S,
+          init: [
+            {EX.p1(), EX.O1},
+            {EX.p2(), EX.O2}
+          ]
+        )
+
+      assert Description.delete(
+               desc,
+               [
+                 {EX.S, EX.p1(), EX.O1, EX.G},
+                 {EX.S, EX.p2(), EX.O2, nil}
+               ],
+               on_graph_mismatch: :skip
+             ) ==
+               Description.new(EX.S, init: {EX.p1(), EX.O1})
     end
   end
 

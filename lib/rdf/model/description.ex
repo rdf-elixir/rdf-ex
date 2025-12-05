@@ -22,6 +22,8 @@ defmodule RDF.Description do
 
   import RDF.Guards
 
+  require Logger
+
   @type t :: %__MODULE__{
           subject: Statement.subject(),
           predications: predications
@@ -224,6 +226,17 @@ defmodule RDF.Description do
   the subject must not match subject of the description from which the statements
   are deleted. If you want to delete only a matching description subject, you can
   use `RDF.Data.delete/2`.
+
+  ## Options
+
+  - `:on_graph_mismatch` - Controls behavior when deleting quads with a graph name
+    (since descriptions don't belong to a specific graph):
+    - `:warn` (default) - Log a warning and proceed with deletion
+    - `:ignore` - Silently ignore the graph name and proceed
+    - `:skip` - Skip the statement (don't delete)
+    - `:error` - Raise an `ArgumentError`
+
+    Note: A quad with `nil` as graph name is not considered a mismatch.
   """
   @spec delete(t, input, keyword) :: t
   def delete(description, input, opts \\ [])
@@ -236,8 +249,11 @@ defmodule RDF.Description do
     end
   end
 
-  def delete(%__MODULE__{} = description, {subject, predicate, objects, _}, opts) do
-    delete(description, {subject, predicate, objects}, opts)
+  def delete(%__MODULE__{} = description, {subject, predicate, objects, graph_name}, opts) do
+    case handle_graph_name_mismatch(graph_name, opts) do
+      :proceed -> delete(description, {subject, predicate, objects}, opts)
+      :skip -> description
+    end
   end
 
   def delete(%__MODULE__{} = description, {predicate, objects}, opts) do
@@ -297,6 +313,27 @@ defmodule RDF.Description do
   def delete(description, input, opts)
       when is_list(input) or (is_map(input) and not is_struct(input)) do
     Enum.reduce(input, description, &delete(&2, &1, opts))
+  end
+
+  defp handle_graph_name_mismatch(nil, _opts), do: :proceed
+
+  defp handle_graph_name_mismatch(graph_name, opts) do
+    case Keyword.get(opts, :on_graph_mismatch, :warn) do
+      :ignore ->
+        :proceed
+
+      :warn ->
+        Logger.warning("Graph name #{inspect(graph_name)} ignored when deleting from Description")
+
+        :proceed
+
+      :skip ->
+        :skip
+
+      :error ->
+        raise ArgumentError,
+              "Cannot delete quad with graph name #{inspect(graph_name)} from Description"
+    end
   end
 
   @doc """

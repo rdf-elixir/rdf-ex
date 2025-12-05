@@ -20,6 +20,8 @@ defmodule RDF.Graph do
 
   import RDF.Guards
 
+  require Logger
+
   defstruct name: nil, descriptions: %{}, prefixes: PrefixMap.new(), base_iri: nil
 
   @type graph_description :: %{Statement.subject() => Description.t()}
@@ -412,14 +414,25 @@ defmodule RDF.Graph do
   are deleted. If you want to delete only statements with matching graph names, you can
   use `RDF.Data.delete/2`.
 
-  The optional `:delete_annotations` keyword option allows to set which of
-  the RDF-star annotations of the deleted statements should be deleted.
-  Any of the possible values of `delete_annotations/3` can be provided here.
-  By default, no annotations of the deleted statements will be removed.
-  Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
-  keyword options can be used to add annotations about the deleted statements
-  with the addition semantics similar to the respective `add_annotations/3`,
-  `put_annotations/3` and `put_annotation_properties/3` counterparts.
+  ## Options
+
+  - `:delete_annotations` - Which RDF-star annotations of the deleted statements
+    should be deleted. Any of the possible values of `delete_annotations/3` can
+    be provided here. By default, no annotations of the deleted statements will
+    be removed.
+  - `:add_annotations`, `:put_annotations`, `:put_annotation_properties` -
+    Add annotations about the deleted statements with the respective addition
+    semantics similar to `add_annotations/3`, `put_annotations/3` and
+    `put_annotation_properties/3`.
+  - `:on_graph_mismatch` - Controls behavior when deleting quads whose graph name
+    doesn't match this graph's name:
+    - `:warn` (default) - Log a warning and proceed with deletion
+    - `:ignore` - Silently ignore the graph name mismatch and proceed
+    - `:skip` - Skip the statement (don't delete)
+    - `:error` - Raise an `ArgumentError`
+
+    Note: The graph names must match exactly. A quad with `nil` as graph name
+    to a named graph (or vice versa) is considered a mismatch.
   """
   @spec delete(t, input, keyword) :: t
   def delete(graph, input, opts \\ [])
@@ -430,8 +443,16 @@ defmodule RDF.Graph do
   def delete(%__MODULE__{} = graph, {subject, predications}, opts),
     do: do_delete(graph, RDF.coerce_subject(subject), predications, opts)
 
-  def delete(graph, {subject, predicate, object, _}, opts),
-    do: delete(graph, {subject, predicate, object}, opts)
+  def delete(
+        %__MODULE__{name: graph_name} = graph,
+        {subject, predicate, object, quad_graph},
+        opts
+      ) do
+    case handle_graph_name_mismatch(RDF.coerce_graph_name(quad_graph), graph_name, opts) do
+      :proceed -> delete(graph, {subject, predicate, object}, opts)
+      :skip -> graph
+    end
+  end
 
   def delete(%__MODULE__{} = graph, %Description{} = description, opts),
     do: do_delete(graph, description.subject, description, opts)
@@ -464,6 +485,29 @@ defmodule RDF.Graph do
       graph
     end
     |> RDF.Star.Graph.handle_deletion_annotations({subject, input}, opts)
+  end
+
+  defp handle_graph_name_mismatch(graph_name, graph_name, _opts), do: :proceed
+
+  defp handle_graph_name_mismatch(quad_graph, graph_name, opts) do
+    case Keyword.get(opts, :on_graph_mismatch, :warn) do
+      :ignore ->
+        :proceed
+
+      :warn ->
+        Logger.warning(
+          "Graph name mismatch: quad has #{inspect(quad_graph)}, graph is #{inspect(graph_name)}"
+        )
+
+        :proceed
+
+      :skip ->
+        :skip
+
+      :error ->
+        raise ArgumentError,
+              "Graph name mismatch: quad has #{inspect(quad_graph)}, graph is #{inspect(graph_name)}"
+    end
   end
 
   @doc """
