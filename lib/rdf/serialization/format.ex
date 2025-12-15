@@ -173,7 +173,7 @@ defmodule RDF.Serialization.Format do
 
       #{@encoder_doc_ref}
       """
-      @spec write_string(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+      @spec write_string(RDF.Data.Source.t(), keyword) :: {:ok, String.t()} | {:error, any}
       def write_string(data, opts \\ []), do: Writer.write_string(encoder(), data, opts)
 
       @doc """
@@ -183,7 +183,7 @@ defmodule RDF.Serialization.Format do
 
       #{@encoder_doc_ref}
       """
-      @spec write_string!(RDF.Data.t(), keyword) :: String.t()
+      @spec write_string!(RDF.Data.Source.t(), keyword) :: String.t()
       def write_string!(data, opts \\ []), do: Writer.write_string!(encoder(), data, opts)
 
       if @encoder.stream_support?() do
@@ -192,7 +192,7 @@ defmodule RDF.Serialization.Format do
 
         #{@encoder_doc_ref}
         """
-        @spec write_stream(RDF.Data.t(), keyword) :: Enumerable.t()
+        @spec write_stream(RDF.Data.Source.t(), keyword) :: Enumerable.t()
         def write_stream(data, opts \\ []), do: Writer.write_stream(encoder(), data, opts)
       end
 
@@ -218,7 +218,7 @@ defmodule RDF.Serialization.Format do
 
       #{@encoder_doc_ref}
       """
-      @spec write_file(RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
+      @spec write_file(RDF.Data.Source.t(), Path.t(), keyword) :: :ok | {:error, any}
       def write_file(data, path, opts \\ []), do: Writer.write_file(encoder(), data, path, opts)
 
       @doc """
@@ -230,7 +230,7 @@ defmodule RDF.Serialization.Format do
 
       #{@encoder_doc_ref}
       """
-      @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
+      @spec write_file!(RDF.Data.Source.t(), Path.t(), keyword) :: :ok
       def write_file!(data, path, opts \\ []), do: Writer.write_file!(encoder(), data, path, opts)
 
       @before_compile unquote(__MODULE__)

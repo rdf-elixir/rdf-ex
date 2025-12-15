@@ -32,7 +32,7 @@ defmodule RDF.NQuads.Encoder do
   See module documentation for available options.
   """
   @impl RDF.Serialization.Encoder
-  @spec encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec encode(RDF.Data.Source.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     default_graph_name = default_graph_name(data, Keyword.get(opts, :default_graph_name, false))
 
@@ -56,7 +56,7 @@ defmodule RDF.NQuads.Encoder do
   See module documentation for available options.
   """
   @impl RDF.Serialization.Encoder
-  @spec stream(RDF.Data.t(), keyword) :: Enumerable.t()
+  @spec stream(RDF.Data.Source.t(), keyword) :: Enumerable.t()
   def stream(data, opts \\ []) do
     default_graph_name = default_graph_name(data, Keyword.get(opts, :default_graph_name, false))
 

@@ -20,7 +20,7 @@ defmodule RDF.NTriples.Encoder do
     be sorted into Unicode code point order (Default: `false`)
   """
   @impl RDF.Serialization.Encoder
-  @spec encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec encode(RDF.Data.Source.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def encode(data, opts \\ []) do
     if Keyword.get(opts, :sort, false) do
       {:ok,
@@ -46,7 +46,7 @@ defmodule RDF.NTriples.Encoder do
     (Default: `:string`)
   """
   @impl RDF.Serialization.Encoder
-  @spec stream(RDF.Data.t(), keyword) :: Enumerable.t()
+  @spec stream(RDF.Data.Source.t(), keyword) :: Enumerable.t()
   def stream(data, opts \\ []) do
     case Keyword.get(opts, :mode, :string) do
       :string -> Stream.map(data, &statement(&1))

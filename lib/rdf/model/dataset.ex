@@ -6,11 +6,11 @@ defmodule RDF.Dataset do
 
   `RDF.Dataset` implements:
 
-  - Elixir's `Access` behaviour
+  - the `RDF.Data.Source` protocol
   - Elixir's `Enumerable` protocol
   - Elixir's `Collectable` protocol
   - Elixir's `Inspect` protocol
-  - the `RDF.Data` protocol
+  - Elixir's `Access` behaviour
 
   """
 
@@ -1242,9 +1242,7 @@ defmodule RDF.Dataset do
     end
 
     def reduce(dataset, acc, fun) do
-      dataset
-      |> Dataset.statements()
-      |> Enumerable.List.reduce(acc, fun)
+      RDF.Data.Source.reduce(dataset, acc, fun)
     end
   end
 

@@ -12,17 +12,18 @@ defmodule RDF.Serialization.Writer do
   @default_file_mode ~w[write exclusive]a
   @default_stream_mode :iodata
 
-  @spec write_string(module, RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec write_string(module, RDF.Data.Source.t(), keyword) ::
+          {:ok, String.t()} | {:error, any}
   def write_string(encoder, data, opts \\ []) do
     encoder.encode(data, opts)
   end
 
-  @spec write_string!(module, RDF.Data.t(), keyword) :: String.t()
+  @spec write_string!(module, RDF.Data.Source.t(), keyword) :: String.t()
   def write_string!(encoder, data, opts \\ []) do
     encoder.encode!(data, opts)
   end
 
-  @spec write_stream(module, RDF.Data.t(), keyword) :: Enumerable.t()
+  @spec write_stream(module, RDF.Data.Source.t(), keyword) :: Enumerable.t()
   def write_stream(encoder, data, opts \\ []) do
     if encoder.stream_support?() do
       encoder.stream(data, opts)
@@ -31,7 +32,8 @@ defmodule RDF.Serialization.Writer do
     end
   end
 
-  @spec write_file(module, RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
+  @spec write_file(module, RDF.Data.Source.t(), Path.t(), keyword) ::
+          :ok | {:error, any}
   def write_file(encoder, data, path, opts \\ []) do
     encoder
     |> Serialization.use_file_streaming(opts)
@@ -56,7 +58,7 @@ defmodule RDF.Serialization.Writer do
     |> Enum.into(File.stream!(path, file_mode(encoder, opts)))
   end
 
-  @spec write_file!(module, RDF.Data.t(), Path.t(), keyword) :: :ok
+  @spec write_file!(module, RDF.Data.Source.t(), Path.t(), keyword) :: :ok
   def write_file!(encoder, data, path, opts \\ []) do
     encoder
     |> Serialization.use_file_streaming!(opts)

@@ -24,9 +24,10 @@ defmodule RDF do
     - `RDF.Description`
     - `RDF.Graph`
     - `RDF.Dataset`
-    - `RDF.Data`
     - `RDF.List`
     - `RDF.Diff`
+  - a polymorphic API for working with all of the above RDF data structures
+    uniformly: `RDF.Data` (built on the `RDF.Data.Source` protocol)
   - functions to construct and execute basic graph pattern queries: `RDF.Query`
   - functions for working with RDF serializations: `RDF.Serialization`
   - behaviours for the definition of RDF serialization formats

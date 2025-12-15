@@ -4,11 +4,11 @@ defmodule RDF.Graph do
 
   `RDF.Graph` implements:
 
-  - Elixir's `Access` behaviour
+  - the `RDF.Data.Source` protocol
   - Elixir's `Enumerable` protocol
   - Elixir's `Collectable` protocol
   - Elixir's `Inspect` protocol
-  - the `RDF.Data` protocol
+  - Elixir's `Access` behaviour
 
   """
 
@@ -1637,9 +1637,7 @@ defmodule RDF.Graph do
     end
 
     def reduce(graph, acc, fun) do
-      graph
-      |> Graph.triples()
-      |> Enumerable.List.reduce(acc, fun)
+      RDF.Data.Source.reduce(graph, acc, fun)
     end
   end
 

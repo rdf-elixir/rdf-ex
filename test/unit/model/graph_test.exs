@@ -319,6 +319,14 @@ defmodule RDF.GraphTest do
       assert graph_includes_statement?(g, {EX.Subject1, EX.predicate1(), EX.Object2})
     end
 
+    test "a quad" do
+      assert Graph.add(
+               graph(),
+               {RDF.iri(EX.Subject), EX.predicate(), RDF.iri(EX.Object), RDF.iri(EX.Graph)}
+             )
+             |> graph_includes_statement?({EX.Subject, EX.predicate(), EX.Object})
+    end
+
     test "a list of triples" do
       g =
         Graph.add(graph(), [

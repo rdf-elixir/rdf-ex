@@ -4,11 +4,11 @@ defmodule RDF.Description do
 
   `RDF.Description` implements:
 
-  - Elixir's `Access` behaviour
+  - the `RDF.Data.Source` protocol
   - Elixir's `Enumerable` protocol
   - Elixir's `Collectable` protocol
   - Elixir's `Inspect` protocol
-  - the `RDF.Data` protocol
+  - Elixir's `Access` behaviour
 
   """
 
@@ -1118,9 +1118,7 @@ defmodule RDF.Description do
     end
 
     def reduce(desc, acc, fun) do
-      desc
-      |> Description.triples()
-      |> Enumerable.List.reduce(acc, fun)
+      RDF.Data.Source.reduce(desc, acc, fun)
     end
   end
 

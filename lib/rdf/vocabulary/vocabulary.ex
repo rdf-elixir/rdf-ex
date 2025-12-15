@@ -38,7 +38,7 @@ defmodule RDF.Vocabulary do
   end
 
   @doc false
-  @spec extract_terms(RDF.Data.t(), binary) :: [atom]
+  @spec extract_terms(RDF.Data.Source.t(), binary) :: [atom]
   def extract_terms(data, base_iri) do
     data
     |> RDF.Data.resources()

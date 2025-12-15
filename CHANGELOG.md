@@ -17,12 +17,30 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 - Add `:on_graph_mismatch` option to `RDF.Description.delete/3` and `RDF.Graph.delete/3`
   to control behavior when deleting quads with non-matching graph names;
   the new default (`:warn`) logs a warning - use `:ignore` to restore the old silent behavior
-- Some performance improvements on the Turtle and TriG encoder
 
 ### Changed
 
-- Update RDF and RDFS vocabularies to version 1.2
+- The `RDF.Data` protocol was split into a new `RDF.Data.Source` protocol and
+  a redesigned `RDF.Data` module API following Elixir's Enumerable/Enum pattern:
+  the protocol defines minimal primitives while the module provides a rich,
+  user-friendly API including new functions for iteration (`reduce_while/3`,
+  `each/2`), transformation (`map/2`, `filter/2`, `reject/2`, `take/2`), and
+  conversion (`to_graph/2`, `to_dataset/2`)
+- `RDF.Data.objects/1` was renamed to `RDF.Data.object_terms/1`; use the new
+  `RDF.Data.object_resources/1` to get only resources (IRIs and blank nodes)
+- `RDF.Data.pop/1` now returns `{nil, data}` for empty structures instead of `nil`
+- The `Enumerable` implementations of the RDF.ex data structures now use the
+  optimized `RDF.Data.Source.reduce/3` implementations, improving performance
+  and memory usage in many places that build on them (e.g. N-Triples and
+  N-Quads serialization)
+- Some performance improvements on the Turtle and TriG encoder
 - Include dataset content in `RDF.Dataset` inspect string using TriG format
+- Update RDF and RDFS vocabularies to version 1.2
+
+### Removed
+
+- `RDF.Data.values/2` was removed; use the `values/2` functions on
+  `RDF.Description`, `RDF.Graph`, or `RDF.Dataset` directly
 
 ### Fixed
 

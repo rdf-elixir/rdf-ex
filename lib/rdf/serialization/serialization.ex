@@ -267,7 +267,7 @@ defmodule RDF.Serialization do
   Please refer to the documentation of the encoder of a RDF serialization format
   for format-specific options.
   """
-  @spec write_string(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @spec write_string(RDF.Data.Source.t(), keyword) :: {:ok, String.t()} | {:error, any}
   def write_string(data, opts) do
     with {:ok, format} <- string_format(opts) do
       format.write_string(data, opts)
@@ -285,7 +285,7 @@ defmodule RDF.Serialization do
   Please refer to the documentation of the encoder of a RDF serialization format
   for format-specific options.
   """
-  @spec write_string!(RDF.Data.t(), keyword) :: String.t()
+  @spec write_string!(RDF.Data.Source.t(), keyword) :: String.t()
   def write_string!(data, opts) do
     case string_format(opts) do
       {:ok, format} -> format.write_string!(data, opts)
@@ -302,7 +302,7 @@ defmodule RDF.Serialization do
   Please refer to the documentation of the encoder of a RDF serialization format
   for format-specific options and what the stream emits.
   """
-  @spec write_stream(RDF.Data.t(), keyword) :: Enumerable.t()
+  @spec write_stream(RDF.Data.Source.t(), keyword) :: Enumerable.t()
   def write_stream(data, opts) do
     case string_format(opts) do
       {:ok, format} -> format.write_stream(data, opts)
@@ -337,7 +337,7 @@ defmodule RDF.Serialization do
   Please refer to the documentation of the encoder of a RDF serialization format
   for format-specific options.
   """
-  @spec write_file(RDF.Data.t(), Path.t(), keyword) :: :ok | {:error, any}
+  @spec write_file(RDF.Data.Source.t(), Path.t(), keyword) :: :ok | {:error, any}
   def write_file(data, path, opts \\ []) do
     with {:ok, format} <- file_format(path, opts) do
       format.write_file(data, path, opts)
@@ -354,7 +354,7 @@ defmodule RDF.Serialization do
   Please refer to the documentation of the encoder of a RDF serialization format
   for format-specific options.
   """
-  @spec write_file!(RDF.Data.t(), Path.t(), keyword) :: :ok
+  @spec write_file!(RDF.Data.Source.t(), Path.t(), keyword) :: :ok
   def write_file!(data, path, opts \\ []) do
     case file_format(path, opts) do
       {:ok, format} -> format.write_file!(data, path, opts)

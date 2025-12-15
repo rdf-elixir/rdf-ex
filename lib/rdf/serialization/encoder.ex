@@ -9,7 +9,7 @@ defmodule RDF.Serialization.Encoder do
   It should return an `{:ok, string}` tuple, with `string` being the serialized
   RDF data structure, or `{:error, reason}` if an error occurs.
   """
-  @callback encode(RDF.Data.t()) :: {:ok, String.t()} | {:error, any}
+  @callback encode(RDF.Data.Source.t()) :: {:ok, String.t()} | {:error, any}
 
   @doc """
   Serializes an RDF data structure into a string.
@@ -17,7 +17,7 @@ defmodule RDF.Serialization.Encoder do
   It should return an `{:ok, string}` tuple, with `string` being the serialized
   RDF data structure, or `{:error, reason}` if an error occurs.
   """
-  @callback encode(RDF.Data.t(), keyword) :: {:ok, String.t()} | {:error, any}
+  @callback encode(RDF.Data.Source.t(), keyword) :: {:ok, String.t()} | {:error, any}
 
   @doc """
   Serializes an RDF data structure into a string.
@@ -27,7 +27,7 @@ defmodule RDF.Serialization.Encoder do
   Note: The `__using__` macro automatically provides an overridable default
   implementation based on the non-bang `encode` function.
   """
-  @callback encode!(RDF.Data.t()) :: String.t()
+  @callback encode!(RDF.Data.Source.t()) :: String.t()
 
   @doc """
   Serializes an RDF data structure into a string.
@@ -37,7 +37,7 @@ defmodule RDF.Serialization.Encoder do
   Note: The `__using__` macro automatically provides an overridable default
   implementation based on the non-bang `encode` function.
   """
-  @callback encode!(RDF.Data.t(), keyword) :: String.t()
+  @callback encode!(RDF.Data.Source.t(), keyword) :: String.t()
 
   @doc """
   Serializes an RDF data structure into a stream.
@@ -47,7 +47,7 @@ defmodule RDF.Serialization.Encoder do
   should be configurable via the `:mode` option and its values `:string`
   respective `:iodata`.
   """
-  @callback stream(RDF.Data.t(), keyword) :: Enumerable.t()
+  @callback stream(RDF.Data.Source.t(), keyword) :: Enumerable.t()
 
   @optional_callbacks stream: 2
 
@@ -57,7 +57,7 @@ defmodule RDF.Serialization.Encoder do
 
       @impl unquote(__MODULE__)
       @dialyzer {:nowarn_function, encode!: 2}
-      @spec encode!(RDF.Data.t(), keyword) :: String.t()
+      @spec encode!(RDF.Data.Source.t(), keyword) :: String.t()
       def encode!(data, opts \\ []) do
         case encode(data, opts) do
           {:ok, data} -> data
