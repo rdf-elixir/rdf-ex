@@ -918,42 +918,7 @@ defmodule RDF.Data do
   """
   @spec predicates(Source.t()) :: [RDF.IRI.t()]
   def predicates(data) do
-    case Source.predicates(data) do
-      {:ok, predicates} ->
-        predicates
-
-      {:error, _} ->
-        data |> reduce(MapSet.new(), &MapSet.put(&2, elem(&1, 1))) |> MapSet.to_list()
-    end
-  end
-
-  @doc """
-  Returns all unique resource objects in the data structure.
-
-  Resource objects are IRIs and blank nodes, excluding literals. 
-  For all object terms including literals, use `object_terms/1`.
-
-  ## Examples
-
-      iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O1}, {EX.S, EX.p2, "literal"}])
-      iex> RDF.Data.object_resources(graph)
-      [~I<http://example.com/O1>]
-  """
-  @spec object_resources(Source.t()) :: [RDF.Resource.t()]
-  def object_resources(data) do
-    case Source.objects(data) do
-      {:ok, objects} ->
-        objects
-
-      {:error, _} ->
-        data
-        |> reduce(MapSet.new(), fn
-          {_, _, object}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
-          {_, _, object, _}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
-          _, acc -> acc
-        end)
-        |> MapSet.to_list()
-    end
+    data |> reduce(MapSet.new(), &MapSet.put(&2, elem(&1, 1))) |> MapSet.to_list()
   end
 
   @doc """
@@ -973,29 +938,70 @@ defmodule RDF.Data do
   end
 
   @doc """
+  Returns all unique resource objects in the data structure.
+
+  Resource objects are IRIs and blank nodes, excluding literals. 
+  For all object terms including literals, use `object_terms/1`.
+
+  ## Examples
+
+      iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O1}, {EX.S, EX.p2, "literal"}])
+      iex> RDF.Data.object_resources(graph)
+      [~I<http://example.com/O1>]
+  """
+  @spec object_resources(Source.t()) :: [RDF.Resource.t()]
+  def object_resources(data) do
+    data
+    |> reduce(MapSet.new(), fn
+      {_, _, object}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
+      {_, _, object, _}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
+      _, acc -> acc
+    end)
+    |> MapSet.to_list()
+  end
+
+  @doc """
   Returns all unique resources (non-literal terms) in the data structure.
 
-  Resources are IRIs and blank nodes that appear as subjects or objects.
+  ## Options
+
+  - `:predicates` - when `true`, includes predicates in the result (default: `false`)
 
   ## Examples
 
       iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O}, {EX.S, EX.p2, "literal"}])
       iex> RDF.Data.resources(graph)
       [~I<http://example.com/O>, ~I<http://example.com/S>]
-  """
-  @spec resources(Source.t()) :: [RDF.Resource.t()]
-  def resources(data) do
-    case Source.resources(data) do
-      {:ok, resources} ->
-        resources
 
-      {:error, _} ->
-        data
-        |> subjects()
-        |> MapSet.new()
-        |> MapSet.union(MapSet.new(object_resources(data)))
-        |> MapSet.to_list()
-    end
+      iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O}])
+      iex> RDF.Data.resources(graph, predicates: true)
+      [~I<http://example.com/O>, ~I<http://example.com/S>, ~I<http://example.com/p>]
+  """
+  @spec resources(Source.t(), keyword) :: [RDF.Resource.t()]
+  def resources(data, opts \\ []) do
+    include_predicates = Keyword.get(opts, :predicates, false)
+
+    data
+    |> reduce(MapSet.new(), fn
+      {subject, predicate, object}, acc when is_rdf_resource(object) ->
+        if(include_predicates, do: MapSet.put(acc, predicate), else: acc)
+        |> MapSet.put(subject)
+        |> MapSet.put(object)
+
+      {subject, predicate, object, _graph}, acc when is_rdf_resource(object) ->
+        if(include_predicates, do: MapSet.put(acc, predicate), else: acc)
+        |> MapSet.put(subject)
+        |> MapSet.put(object)
+
+      {subject, predicate, _literal}, acc ->
+        acc = MapSet.put(acc, subject)
+        if include_predicates, do: MapSet.put(acc, predicate), else: acc
+
+      {subject, predicate, _literal, _graph}, acc ->
+        acc = MapSet.put(acc, subject)
+        if include_predicates, do: MapSet.put(acc, predicate), else: acc
+    end)
+    |> MapSet.to_list()
   end
 
   @doc """

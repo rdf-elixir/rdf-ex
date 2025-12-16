@@ -1949,7 +1949,7 @@ defmodule RDF.DataTest do
     end
   end
 
-  describe "resources/1" do
+  describe "resources/1,2" do
     test "RDF.Description" do
       assert EX.S
              |> EX.p1(EX.O1)
@@ -1960,6 +1960,14 @@ defmodule RDF.DataTest do
                MapSet.new([RDF.iri(EX.S), RDF.iri(EX.O1), ~B<blank>])
 
       assert RDF.Data.resources(RDF.description(EX.S)) == []
+
+      assert EX.S
+             |> EX.p1(EX.O1)
+             |> EX.p2("literal")
+             |> EX.p3(~B<blank>)
+             |> RDF.Data.resources(predicates: true)
+             |> MapSet.new() ==
+               MapSet.new([RDF.iri(EX.S), RDF.iri(EX.O1), EX.p1(), EX.p2(), EX.p3(), ~B<blank>])
     end
 
     test "RDF.Graph" do
@@ -1974,6 +1982,25 @@ defmodule RDF.DataTest do
                MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.O1), ~B<b1>, ~B<blank>])
 
       assert RDF.Data.resources(RDF.graph()) == []
+
+      assert [
+               {EX.S1, EX.p1(), EX.O1},
+               {EX.S2, EX.p2(), "literal"},
+               {~B<b1>, EX.p3(), ~B<blank>}
+             ]
+             |> RDF.graph()
+             |> RDF.Data.resources(predicates: true)
+             |> MapSet.new() ==
+               MapSet.new([
+                 RDF.iri(EX.S1),
+                 RDF.iri(EX.S2),
+                 RDF.iri(EX.O1),
+                 EX.p1(),
+                 EX.p2(),
+                 EX.p3(),
+                 ~B<b1>,
+                 ~B<blank>
+               ])
     end
 
     test "RDF.Dataset" do
@@ -1990,6 +2017,25 @@ defmodule RDF.DataTest do
                  RDF.iri(EX.S2),
                  RDF.iri(EX.O1),
                  RDF.iri(EX.O2),
+                 ~B<b1>
+               ])
+
+      assert [
+               {EX.S1, EX.p1(), EX.O1, nil},
+               {EX.S2, EX.p2(), "literal", EX.Graph1},
+               {~B<b1>, EX.p3(), EX.O2, EX.Graph2}
+             ]
+             |> RDF.dataset()
+             |> RDF.Data.resources(predicates: true)
+             |> MapSet.new() ==
+               MapSet.new([
+                 RDF.iri(EX.S1),
+                 RDF.iri(EX.S2),
+                 RDF.iri(EX.O1),
+                 RDF.iri(EX.O2),
+                 EX.p1(),
+                 EX.p2(),
+                 EX.p3(),
                  ~B<b1>
                ])
 

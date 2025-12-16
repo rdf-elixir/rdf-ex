@@ -165,42 +165,6 @@ defprotocol RDF.Data.Source do
   def subjects(data)
 
   @doc """
-  Returns all unique predicates in the data structure.
-
-  It should return `{:ok, predicates}` if you can collect all predicates
-  in `data` in a faster way than fully traversing it.
-
-  Otherwise, it should return `{:error, __MODULE__}` and a default algorithm
-  built on top of `reduce/3` that runs in linear time will be used.
-  """
-  @spec predicates(t) :: {:ok, [RDF.IRI.t()]} | {:error, module}
-  def predicates(data)
-
-  @doc """
-  Returns all unique objects in the data structure.
-
-  It should return `{:ok, objects}` if you can collect all objects
-  in `data` in a faster way than fully traversing it.
-
-  Otherwise, it should return `{:error, __MODULE__}` and a default algorithm
-  built on top of `reduce/3` that runs in linear time will be used.
-  """
-  @spec objects(t) :: {:ok, [RDF.Term.t()]} | {:error, module}
-  def objects(data)
-
-  @doc """
-  Returns all unique resources (non-literal terms) in the data structure.
-
-  It should return `{:ok, resources}` if you can collect all resources
-  in `data` in a faster way than fully traversing it.
-
-  Otherwise, it should return `{:error, __MODULE__}` and a default algorithm
-  built on top of `reduce/3` that runs in linear time will be used.
-  """
-  @spec resources(t) :: {:ok, [RDF.Resource.t()]} | {:error, module}
-  def resources(data)
-
-  @doc """
   Counts statements (triples/quads).
 
   It should return `{:ok, count}` if you can count the number of statements
@@ -363,19 +327,6 @@ defimpl RDF.Data.Source, for: RDF.Description do
   def subjects(%Description{predications: ps}) when map_size(ps) == 0, do: {:ok, []}
   def subjects(%Description{subject: subject}), do: {:ok, [subject]}
 
-  def predicates(%Description{predications: predications}) do
-    predicates =
-      predications
-      |> Enum.filter(fn {_pred, objects} -> map_size(objects) > 0 end)
-      |> Enum.map(fn {pred, _objects} -> pred end)
-
-    {:ok, predicates}
-  end
-
-  def objects(_desc), do: {:error, __MODULE__}
-
-  def resources(_desc), do: {:error, __MODULE__}
-
   def statement_count(%Description{} = desc), do: {:ok, Description.statement_count(desc)}
 
   def description_count(%Description{predications: ps}) when map_size(ps) == 0, do: {:ok, 0}
@@ -394,8 +345,6 @@ end
 
 defimpl RDF.Data.Source, for: RDF.Graph do
   alias RDF.Graph
-
-  import RDF.Guards
 
   def structure_type(_), do: :graph
 
@@ -472,26 +421,6 @@ defimpl RDF.Data.Source, for: RDF.Graph do
   def graph_names(%Graph{name: name}), do: {:ok, [name]}
 
   def subjects(%Graph{descriptions: descriptions}), do: {:ok, Map.keys(descriptions)}
-
-  def predicates(%Graph{} = graph) do
-    {:ok, Graph.predicates(graph) |> MapSet.to_list()}
-  end
-
-  def objects(%Graph{} = graph) do
-    {:ok, Graph.objects(graph) |> MapSet.to_list()}
-  end
-
-  def resources(%Graph{} = graph) do
-    subjects_set = MapSet.new(Map.keys(graph.descriptions))
-
-    objects_set =
-      graph
-      |> Graph.objects()
-      |> Enum.filter(&is_rdf_resource/1)
-      |> MapSet.new()
-
-    {:ok, MapSet.union(subjects_set, objects_set) |> MapSet.to_list()}
-  end
 
   def statement_count(%Graph{} = graph), do: {:ok, Graph.triple_count(graph)}
 
@@ -600,12 +529,6 @@ defimpl RDF.Data.Source, for: RDF.Dataset do
   end
 
   def subjects(%Dataset{} = dataset), do: {:ok, Dataset.subjects(dataset) |> MapSet.to_list()}
-
-  def predicates(%Dataset{} = dataset), do: {:ok, Dataset.predicates(dataset) |> MapSet.to_list()}
-
-  def objects(_dataset), do: {:error, __MODULE__}
-
-  def resources(_dataset), do: {:error, __MODULE__}
 
   def statement_count(%Dataset{} = dataset), do: {:ok, Dataset.statement_count(dataset)}
 

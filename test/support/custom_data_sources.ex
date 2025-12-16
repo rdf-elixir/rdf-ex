@@ -47,18 +47,6 @@ defmodule External do
       RDF.Data.Source.subjects(graph)
     end
 
-    def predicates(%External{data: graph}) do
-      RDF.Data.Source.predicates(graph)
-    end
-
-    def objects(%External{data: graph}) do
-      RDF.Data.Source.objects(graph)
-    end
-
-    def resources(%External{data: graph}) do
-      RDF.Data.Source.resources(graph)
-    end
-
     def graph_names(_external) do
       {:ok, [nil]}
     end
@@ -153,9 +141,6 @@ defmodule MinimalDescription do
 
     def graph_names(_), do: {:error, __MODULE__}
     def subjects(_), do: {:error, __MODULE__}
-    def predicates(_), do: {:error, __MODULE__}
-    def objects(_), do: {:error, __MODULE__}
-    def resources(_), do: {:error, __MODULE__}
     def statement_count(_), do: {:error, __MODULE__}
     def description_count(_), do: {:error, __MODULE__}
     def graph_count(_), do: {:error, __MODULE__}
@@ -221,9 +206,6 @@ defmodule MinimalGraph do
 
     def graph_names(_), do: {:error, __MODULE__}
     def subjects(_), do: {:error, __MODULE__}
-    def predicates(_), do: {:error, __MODULE__}
-    def objects(_), do: {:error, __MODULE__}
-    def resources(_), do: {:error, __MODULE__}
     def statement_count(_), do: {:error, __MODULE__}
     def description_count(_), do: {:error, __MODULE__}
     def graph_count(_), do: {:error, __MODULE__}
@@ -291,9 +273,6 @@ defmodule MinimalDataset do
 
     def graph_names(_), do: {:error, __MODULE__}
     def subjects(_), do: {:error, __MODULE__}
-    def predicates(_), do: {:error, __MODULE__}
-    def objects(_), do: {:error, __MODULE__}
-    def resources(_), do: {:error, __MODULE__}
     def statement_count(_), do: {:error, __MODULE__}
     def description_count(_), do: {:error, __MODULE__}
     def graph_count(_), do: {:error, __MODULE__}
