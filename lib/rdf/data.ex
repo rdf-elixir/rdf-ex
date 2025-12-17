@@ -897,13 +897,33 @@ defmodule RDF.Data do
       [~I<http://example.com/S1>, ~I<http://example.com/S2>]
   """
   @spec subjects(Source.t()) :: [RDF.Resource.t()]
-  def subjects(data) do
+  def subjects(data), do: subjects(data, nil)
+
+  @doc """
+  Returns all unique subjects in the data structure matching the filter function.
+
+  ## Examples
+
+      iex> graph = RDF.graph([{EX.S1, EX.p, EX.O}, {RDF.bnode(:b), EX.p, EX.O}])
+      iex> RDF.Data.subjects(graph, &RDF.iri?/1)
+      [RDF.iri(EX.S1)]
+  """
+  @spec subjects(Source.t(), (RDF.Resource.t() -> boolean) | nil) :: [RDF.Resource.t()]
+  def subjects(data, filter_fun) do
     case Source.subjects(data) do
+      {:ok, subjects} when is_function(filter_fun, 1) ->
+        Enum.filter(subjects, filter_fun)
+
       {:ok, subjects} ->
         subjects
 
       {:error, _} ->
-        data |> reduce(MapSet.new(), &MapSet.put(&2, elem(&1, 0))) |> MapSet.to_list()
+        data
+        |> reduce(MapSet.new(), fn stmt, acc ->
+          subject = elem(stmt, 0)
+          if is_nil(filter_fun) || filter_fun.(subject), do: MapSet.put(acc, subject), else: acc
+        end)
+        |> MapSet.to_list()
     end
   end
 
@@ -917,8 +937,25 @@ defmodule RDF.Data do
       [~I<http://example.com/p1>, ~I<http://example.com/p2>]
   """
   @spec predicates(Source.t()) :: [RDF.IRI.t()]
-  def predicates(data) do
-    data |> reduce(MapSet.new(), &MapSet.put(&2, elem(&1, 1))) |> MapSet.to_list()
+  def predicates(data), do: predicates(data, nil)
+
+  @doc """
+  Returns all unique predicates in the data structure matching the filter function.
+
+  ## Examples
+
+      iex> graph = RDF.graph([{EX.S, EX.p1, EX.O}, {EX.S, EX.p2, EX.O}])
+      iex> RDF.Data.predicates(graph, &(&1 == EX.p1()))
+      [EX.p1()]
+  """
+  @spec predicates(Source.t(), (RDF.IRI.t() -> boolean) | nil) :: [RDF.IRI.t()]
+  def predicates(data, filter_fun) do
+    data
+    |> reduce(MapSet.new(), fn stmt, acc ->
+      predicate = elem(stmt, 1)
+      if is_nil(filter_fun) || filter_fun.(predicate), do: MapSet.put(acc, predicate), else: acc
+    end)
+    |> MapSet.to_list()
   end
 
   @doc """
@@ -929,19 +966,36 @@ defmodule RDF.Data do
   ## Examples
 
       iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O1}, {EX.S, EX.p2, "literal"}])
-      iex> RDF.Data.object_terms(graph)
+      iex> RDF.Data.objects(graph)
       [~L"literal", ~I<http://example.com/O1>]
   """
-  @spec object_terms(Source.t()) :: [RDF.Term.t()]
-  def object_terms(data) do
-    data |> reduce(MapSet.new(), &MapSet.put(&2, elem(&1, 2))) |> MapSet.to_list()
+  @spec objects(Source.t()) :: [RDF.Term.t()]
+  def objects(data), do: objects(data, nil)
+
+  @doc """
+  Returns all unique object terms in the data structure matching the filter function.
+
+  ## Examples
+
+      iex> graph = RDF.graph([{EX.S, EX.p, EX.O}, {EX.S, EX.p2, "literal"}])
+      iex> RDF.Data.objects(graph, &RDF.resource?/1)
+      [RDF.iri(EX.O)]
+  """
+  @spec objects(Source.t(), (RDF.Term.t() -> boolean) | nil) :: [RDF.Term.t()]
+  def objects(data, filter_fun) do
+    data
+    |> reduce(MapSet.new(), fn stmt, acc ->
+      object = elem(stmt, 2)
+      if is_nil(filter_fun) || filter_fun.(object), do: MapSet.put(acc, object), else: acc
+    end)
+    |> MapSet.to_list()
   end
 
   @doc """
   Returns all unique resource objects in the data structure.
 
-  Resource objects are IRIs and blank nodes, excluding literals. 
-  For all object terms including literals, use `object_terms/1`.
+  Resource objects are IRIs and blank nodes, excluding literals.
+  For all object terms including literals, use `objects/1`.
 
   ## Examples
 
@@ -950,22 +1004,25 @@ defmodule RDF.Data do
       [~I<http://example.com/O1>]
   """
   @spec object_resources(Source.t()) :: [RDF.Resource.t()]
-  def object_resources(data) do
-    data
-    |> reduce(MapSet.new(), fn
-      {_, _, object}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
-      {_, _, object, _}, acc when is_rdf_resource(object) -> MapSet.put(acc, object)
-      _, acc -> acc
-    end)
-    |> MapSet.to_list()
-  end
+  def object_resources(data), do: objects(data, &is_rdf_resource/1)
 
   @doc """
   Returns all unique resources (non-literal terms) in the data structure.
 
+  The second argument can be either a keyword list of options or a filter function.
+
   ## Options
 
   - `:predicates` - when `true`, includes predicates in the result (default: `false`)
+  - `:filter` - a filter function (see below)
+
+  ## Filter function
+
+  The filter function can be:
+
+  - a 1-arity function receiving only the term
+  - a 2-arity function receiving `(term, position)` where position is `:subject`,
+    `:predicate`, or `:object`
 
   ## Examples
 
@@ -976,32 +1033,56 @@ defmodule RDF.Data do
       iex> graph = RDF.Graph.new([{EX.S, EX.p, EX.O}])
       iex> RDF.Data.resources(graph, predicates: true)
       [~I<http://example.com/O>, ~I<http://example.com/S>, ~I<http://example.com/p>]
+
+      iex> graph = RDF.graph([{EX.S, EX.p, EX.O}, {RDF.bnode(), EX.p2, EX.O2}])
+      iex> RDF.Data.resources(graph, &RDF.iri?/1) |> MapSet.new()
+      MapSet.new([RDF.iri(EX.S), RDF.iri(EX.O), RDF.iri(EX.O2)])
+
+      iex> graph = RDF.graph([{EX.S, EX.p, EX.O}])
+      iex> RDF.Data.resources(graph, fn _term, pos -> pos == :subject end)
+      [RDF.iri(EX.S)]
   """
-  @spec resources(Source.t(), keyword) :: [RDF.Resource.t()]
-  def resources(data, opts \\ []) do
+  @spec resources(
+          Source.t(),
+          keyword | (RDF.Resource.t() -> boolean) | (RDF.Resource.t(), atom -> boolean)
+        ) :: [RDF.Resource.t()]
+  def resources(data, opts_or_filter \\ [])
+
+  def resources(data, filter_fun) when is_function(filter_fun) do
+    resources(data, filter: filter_fun)
+  end
+
+  def resources(data, opts) do
     include_predicates = Keyword.get(opts, :predicates, false)
 
+    filter_fun =
+      case Keyword.get(opts, :filter) do
+        nil -> nil
+        fun when is_function(fun, 1) -> fn term, _position -> fun.(term) end
+        fun when is_function(fun, 2) -> fun
+      end
+
     data
-    |> reduce(MapSet.new(), fn
-      {subject, predicate, object}, acc when is_rdf_resource(object) ->
-        if(include_predicates, do: MapSet.put(acc, predicate), else: acc)
-        |> MapSet.put(subject)
-        |> MapSet.put(object)
+    |> RDF.Data.reduce(MapSet.new(), fn stmt, acc ->
+      subject = elem(stmt, 0)
+      predicate = elem(stmt, 1)
+      object = elem(stmt, 2)
 
-      {subject, predicate, object, _graph}, acc when is_rdf_resource(object) ->
-        if(include_predicates, do: MapSet.put(acc, predicate), else: acc)
-        |> MapSet.put(subject)
-        |> MapSet.put(object)
-
-      {subject, predicate, _literal}, acc ->
-        acc = MapSet.put(acc, subject)
-        if include_predicates, do: MapSet.put(acc, predicate), else: acc
-
-      {subject, predicate, _literal, _graph}, acc ->
-        acc = MapSet.put(acc, subject)
-        if include_predicates, do: MapSet.put(acc, predicate), else: acc
+      if(include_predicates,
+        do: maybe_filter_put(acc, predicate, :predicate, filter_fun),
+        else: acc
+      )
+      |> maybe_filter_put(subject, :subject, filter_fun)
+      |> maybe_filter_put(object, :object, filter_fun)
     end)
     |> MapSet.to_list()
+  end
+
+  defp maybe_filter_put(acc, %RDF.Literal{}, :object, _), do: acc
+  defp maybe_filter_put(acc, term, _position, nil), do: MapSet.put(acc, term)
+
+  defp maybe_filter_put(acc, term, position, filter_fun) do
+    if filter_fun.(term, position), do: MapSet.put(acc, term), else: acc
   end
 
   @doc """

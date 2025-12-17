@@ -571,21 +571,21 @@ defmodule CustomDataSourceTest do
     assert MapSet.new(RDF.Data.predicates(minimal_dataset())) == MapSet.new([@p, @q])
   end
 
+  test "RDF.Data.objects/1" do
+    assert MapSet.new(RDF.Data.objects(minimal_description())) ==
+             MapSet.new([@o1, RDF.literal("literal")])
+
+    assert MapSet.new(RDF.Data.objects(minimal_graph())) ==
+             MapSet.new([@o1, RDF.literal("literal")])
+
+    assert MapSet.new(RDF.Data.objects(minimal_dataset())) ==
+             MapSet.new([@o1, RDF.literal("literal")])
+  end
+
   test "RDF.Data.object_resources/1" do
     assert RDF.Data.object_resources(minimal_description()) == [@o1]
     assert RDF.Data.object_resources(minimal_graph()) == [@o1]
     assert RDF.Data.object_resources(minimal_dataset()) == [@o1]
-  end
-
-  test "RDF.Data.object_terms/1" do
-    assert MapSet.new(RDF.Data.object_terms(minimal_description())) ==
-             MapSet.new([@o1, RDF.literal("literal")])
-
-    assert MapSet.new(RDF.Data.object_terms(minimal_graph())) ==
-             MapSet.new([@o1, RDF.literal("literal")])
-
-    assert MapSet.new(RDF.Data.object_terms(minimal_dataset())) ==
-             MapSet.new([@o1, RDF.literal("literal")])
   end
 
   test "RDF.Data.resources/1" do

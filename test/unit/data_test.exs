@@ -1,6 +1,8 @@
 defmodule RDF.DataTest do
   use RDF.Test.Case
 
+  import RDF.Guards
+
   doctest RDF.Data
 
   describe "reduce/3" do
@@ -1818,6 +1820,27 @@ defmodule RDF.DataTest do
     end
   end
 
+  test "subjects/2" do
+    graph =
+      RDF.graph([
+        {EX.S1, EX.p(), EX.O},
+        {EX.S2, EX.p(), EX.O},
+        {~B<blank>, EX.p(), EX.O}
+      ])
+
+    assert graph
+           |> RDF.Data.subjects(&is_rdf_iri/1)
+           |> MapSet.new() == MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2)])
+
+    assert graph
+           |> RDF.Data.subjects(&is_rdf_bnode/1)
+           |> MapSet.new() == MapSet.new([~B<blank>])
+
+    assert RDF.Data.subjects(graph, fn _ -> false end) == []
+
+    assert RDF.Data.subjects(RDF.graph(), fn _ -> true end) == []
+  end
+
   describe "predicates/1" do
     test "RDF.Description" do
       assert EX.S
@@ -1855,6 +1878,23 @@ defmodule RDF.DataTest do
 
       assert RDF.Data.predicates(RDF.dataset()) == []
     end
+  end
+
+  test "predicates/2" do
+    graph =
+      RDF.graph([
+        {EX.S1, EX.p1(), EX.O},
+        {EX.S2, EX.p2(), EX.O},
+        {EX.S3, EX.p1(), EX.O}
+      ])
+
+    assert graph
+           |> RDF.Data.predicates(&(&1 == EX.p1()))
+           |> MapSet.new() == MapSet.new([EX.p1()])
+
+    assert RDF.Data.predicates(graph, fn _ -> false end) == []
+
+    assert RDF.Data.predicates(RDF.graph(), fn _ -> true end) == []
   end
 
   describe "object_resources/1" do
@@ -1900,17 +1940,17 @@ defmodule RDF.DataTest do
     end
   end
 
-  describe "object_terms/1" do
+  describe "objects/1" do
     test "RDF.Description" do
       assert EX.S
              |> EX.p1(EX.O1)
              |> EX.p2("literal")
              |> EX.p3(42)
-             |> RDF.Data.object_terms()
+             |> RDF.Data.objects()
              |> MapSet.new() ==
                MapSet.new([RDF.iri(EX.O1), RDF.XSD.string("literal"), RDF.XSD.integer(42)])
 
-      assert RDF.Data.object_terms(RDF.description(EX.S)) == []
+      assert RDF.Data.objects(RDF.description(EX.S)) == []
     end
 
     test "RDF.Graph" do
@@ -1921,7 +1961,7 @@ defmodule RDF.DataTest do
                {EX.S4, EX.p4(), 42}
              ]
              |> RDF.graph()
-             |> RDF.Data.object_terms()
+             |> RDF.Data.objects()
              |> MapSet.new() ==
                MapSet.new([
                  RDF.iri(EX.O1),
@@ -1930,7 +1970,7 @@ defmodule RDF.DataTest do
                  RDF.XSD.integer(42)
                ])
 
-      assert RDF.Data.object_terms(RDF.graph()) == []
+      assert RDF.Data.objects(RDF.graph()) == []
     end
 
     test "RDF.Dataset" do
@@ -1941,12 +1981,34 @@ defmodule RDF.DataTest do
                {EX.S4, EX.p4(), 42, EX.Graph1}
              ]
              |> RDF.dataset()
-             |> RDF.Data.object_terms()
+             |> RDF.Data.objects()
              |> MapSet.new() ==
                MapSet.new([RDF.iri(EX.O1), RDF.XSD.string("literal"), RDF.XSD.integer(42)])
 
-      assert RDF.Data.object_terms(RDF.dataset()) == []
+      assert RDF.Data.objects(RDF.dataset()) == []
     end
+  end
+
+  test "objects/2" do
+    graph =
+      RDF.graph([
+        {EX.S1, EX.p1(), EX.O1},
+        {EX.S2, EX.p2(), "literal"},
+        {EX.S3, EX.p3(), ~B<blank>},
+        {EX.S4, EX.p4(), 42}
+      ])
+
+    assert graph
+           |> RDF.Data.objects(&is_rdf_resource/1)
+           |> MapSet.new() == MapSet.new([RDF.iri(EX.O1), ~B<blank>])
+
+    assert graph
+           |> RDF.Data.objects(&RDF.literal?/1)
+           |> MapSet.new() == MapSet.new([RDF.XSD.string("literal"), RDF.XSD.integer(42)])
+
+    assert RDF.Data.objects(graph, fn _ -> false end) == []
+
+    assert RDF.Data.objects(RDF.graph(), fn _ -> true end) == []
   end
 
   describe "resources/1,2" do
@@ -2040,6 +2102,50 @@ defmodule RDF.DataTest do
                ])
 
       assert RDF.Data.resources(RDF.dataset()) == []
+    end
+
+    test "resources/2 with filter" do
+      graph =
+        RDF.graph([
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S2, EX.p2(), "literal"},
+          {~B<b1>, EX.p3(), ~B<b2>}
+        ])
+
+      # Filter by position
+      assert graph
+             |> RDF.Data.resources(fn _term, position -> position == :subject end)
+             |> MapSet.new() == MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), ~B<b1>])
+
+      assert graph
+             |> RDF.Data.resources(fn _term, position -> position == :object end)
+             |> MapSet.new() == MapSet.new([RDF.iri(EX.O1), ~B<b2>])
+
+      # Filter by term type
+      assert graph
+             |> RDF.Data.resources(&is_rdf_iri/1)
+             |> MapSet.new() == MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.O1)])
+
+      assert graph
+             |> RDF.Data.resources(&is_rdf_bnode/1)
+             |> MapSet.new() == MapSet.new([~B<b1>, ~B<b2>])
+
+      # Combined with predicates: true
+      assert graph
+             |> RDF.Data.resources(
+               predicates: true,
+               filter: fn _term, position -> position == :predicate end
+             )
+             |> MapSet.new() == MapSet.new([EX.p1(), EX.p2(), EX.p3()])
+
+      # Filter as keyword option
+      assert graph
+             |> RDF.Data.resources(filter: &is_rdf_iri/1)
+             |> MapSet.new() == MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.O1)])
+
+      # Edge cases
+      assert RDF.Data.resources(graph, fn _, _ -> false end) == []
+      assert RDF.Data.resources(RDF.graph(), fn _, _ -> true end) == []
     end
   end
 
