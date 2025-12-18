@@ -766,66 +766,6 @@ defmodule RDF.Dataset do
   end
 
   @doc """
-  The set of all properties used in the predicates within all graphs of a `RDF.Dataset`.
-
-  ## Examples
-
-      iex> RDF.Dataset.new([
-      ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
-      ...>   {EX.S2, EX.p2, EX.O2},
-      ...>   {EX.S1, EX.p2, EX.O3}]) |>
-      ...>   RDF.Dataset.predicates()
-      MapSet.new([EX.p1, EX.p2])
-  """
-  def predicates(%__MODULE__{} = dataset) do
-    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, predicates ->
-      MapSet.union(predicates, Graph.predicates(graph))
-    end)
-  end
-
-  @doc """
-  The set of all resources used in the objects within a `RDF.Dataset`.
-
-  Note: This function does collect only IRIs and BlankNodes, not Literals.
-
-  ## Examples
-
-      iex> RDF.Dataset.new([
-      ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
-      ...>   {EX.S2, EX.p2, EX.O2, EX.Graph},
-      ...>   {EX.S3, EX.p1, EX.O2},
-      ...>   {EX.S4, EX.p2, RDF.bnode(:bnode)},
-      ...>   {EX.S5, EX.p3, "foo"}
-      ...> ]) |> RDF.Dataset.objects()
-      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
-  """
-  def objects(%__MODULE__{} = dataset) do
-    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, objects ->
-      MapSet.union(objects, Graph.objects(graph))
-    end)
-  end
-
-  @doc """
-  The set of all resources used within a `RDF.Dataset`.
-
-  ## Examples
-
-    iex> RDF.Dataset.new([
-    ...>   {EX.S1, EX.p1, EX.O1, EX.Graph},
-    ...>   {EX.S2, EX.p1, EX.O2, EX.Graph},
-    ...>   {EX.S2, EX.p2, RDF.bnode(:bnode)},
-    ...>   {EX.S3, EX.p1, "foo"}
-    ...> ]) |> RDF.Dataset.resources()
-    MapSet.new([RDF.iri(EX.S1), RDF.iri(EX.S2), RDF.iri(EX.S3),
-      RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2])
-  """
-  def resources(%__MODULE__{} = dataset) do
-    Enum.reduce(dataset.graphs, MapSet.new(), fn {_, graph}, resources ->
-      MapSet.union(resources, Graph.resources(graph))
-    end)
-  end
-
-  @doc """
   All statements within all graphs of a `RDF.Dataset`.
 
   While the statements of named graphs are returned as quad tuples, the statements

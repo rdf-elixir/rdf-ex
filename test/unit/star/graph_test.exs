@@ -1736,10 +1736,6 @@ defmodule RDF.Star.GraphTest do
              MapSet.new([statement(), RDF.iri(EX.As)])
   end
 
-  test "objects/1" do
-    assert Graph.objects(graph_with_quoted_triples()) == MapSet.new([statement(), EX.ao()])
-  end
-
   describe "statements/1" do
     test "without the filter_star flag" do
       assert Graph.statements(graph_with_quoted_triples()) == [

@@ -687,61 +687,6 @@ defmodule RDF.Description do
   end
 
   @doc """
-  The set of all resources used in the objects within a `RDF.Description`.
-
-  Note: This function does collect only IRIs and BlankNodes, not Literals.
-
-  ## Examples
-
-      iex> RDF.Description.new(EX.S1, init: [
-      ...>   {EX.p1, EX.O1},
-      ...>   {EX.p2, EX.O2},
-      ...>   {EX.p3, EX.O2},
-      ...>   {EX.p4, RDF.bnode(:bnode)},
-      ...>   {EX.p3, "foo"}])
-      ...> |> RDF.Description.objects()
-      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode)])
-  """
-  @spec objects(t) :: MapSet.t()
-  def objects(%__MODULE__{} = description) do
-    objects(description, &RDF.resource?/1)
-  end
-
-  @doc """
-  The set of all resources used in the objects within a `RDF.Description` satisfying the given filter criterion.
-  """
-  @spec objects(t, (Statement.object() -> boolean)) :: MapSet.t()
-  def objects(%__MODULE__{} = description, filter_fn) do
-    Enum.reduce(description.predications, MapSet.new(), fn {_, objects}, acc ->
-      objects
-      |> Map.keys()
-      |> Enum.filter(filter_fn)
-      |> MapSet.new()
-      |> MapSet.union(acc)
-    end)
-  end
-
-  @doc """
-  The set of all resources used within a `RDF.Description`.
-
-  ## Examples
-
-      iex> RDF.Description.new(EX.S1, init: [
-      ...>   {EX.p1, EX.O1},
-      ...>   {EX.p2, EX.O2},
-      ...>   {EX.p1, EX.O2},
-      ...>   {EX.p2, RDF.bnode(:bnode)},
-      ...>   {EX.p3, "foo"}])
-      ...> |> RDF.Description.resources()
-      MapSet.new([RDF.iri(EX.O1), RDF.iri(EX.O2), RDF.bnode(:bnode), EX.p1, EX.p2, EX.p3])
-  """
-  @spec resources(t) :: MapSet.t()
-  def resources(%__MODULE__{} = description) do
-    objects(description)
-    |> MapSet.union(predicates(description))
-  end
-
-  @doc """
   The list of all triples within a `RDF.Description`.
 
   When the optional `:filter_star` flag is set to `true` RDF-star triples with a triple as subject or object

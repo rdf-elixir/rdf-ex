@@ -155,16 +155,6 @@ defmodule RDF.Star.Description.Test do
              |> Description.add(%{EX.ap() => {EX.S, EX.P, EX.O}})
   end
 
-  test "objects/1" do
-    assert Description.new(statement(), init: {EX.ap(), statement()})
-           |> Description.objects() == MapSet.new([statement()])
-  end
-
-  test "resources/1" do
-    assert Description.new(statement(), init: {EX.ap(), statement()})
-           |> Description.resources() == MapSet.new([statement(), EX.ap()])
-  end
-
   describe "statements/1" do
     test "without the filter_star flag" do
       assert Description.new(statement(), init: {EX.ap(), statement()})

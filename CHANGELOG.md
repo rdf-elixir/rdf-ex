@@ -37,7 +37,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ### Removed
 
-- `RDF.Data.values/2` was removed; use the `values/2` functions on
+- `RDF.Description.objects/1`, `RDF.Description.resources/1`,
+  `RDF.Graph.predicates/1`, `RDF.Graph.objects/1`, `RDF.Graph.resources/1`,
+  `RDF.Dataset.predicates/1`, `RDF.Dataset.objects/1`, and `RDF.Dataset.resources/1` -
+  use the corresponding `RDF.Data` functions instead
+- `RDF.Data.values/2` - use the `values/2` functions on
   `RDF.Description`, `RDF.Graph`, or `RDF.Dataset` directly
 
 ### Fixed
