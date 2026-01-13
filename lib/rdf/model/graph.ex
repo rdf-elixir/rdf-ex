@@ -84,7 +84,7 @@ defmodule RDF.Graph do
   @spec new(input | keyword) :: t
   def new(data_or_opts)
 
-  def new(data_or_opts) when is_list(data_or_opts) and length(data_or_opts) != 0 do
+  def new(data_or_opts) when is_list(data_or_opts) and data_or_opts != [] do
     if Keyword.keyword?(data_or_opts) do
       {data, options} = Keyword.pop(data_or_opts, :init)
       new(data, options)
