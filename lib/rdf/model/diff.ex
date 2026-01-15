@@ -149,8 +149,8 @@ defmodule RDF.Diff do
   end
 
   def diff(%Graph{} = graph, %Description{} = description) do
-    diff = diff(description, graph)
-    %__MODULE__{diff | additions: diff.deletions, deletions: diff.additions}
+    %__MODULE__{} = diff = diff(description, graph)
+    %{diff | additions: diff.deletions, deletions: diff.additions}
   end
 
   @doc """

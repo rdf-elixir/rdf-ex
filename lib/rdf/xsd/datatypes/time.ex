@@ -94,7 +94,7 @@ defmodule RDF.XSD.Time do
 
   defp with_offset(time, zone) when zone in ~W[Z UTC GMT], do: time
 
-  defp with_offset(time, offset) do
+  defp with_offset(%Time{} = time, offset) do
     case RDF.Utils.Regex.run(@tz_number_grammar, offset) do
       [_, "-", hour, minute] ->
         {hour, minute} = {String.to_integer(hour), String.to_integer(minute)}
@@ -114,7 +114,7 @@ defmodule RDF.XSD.Time do
         @invalid_value
     end
     |> case do
-      {hour, minute} -> %Time{time | hour: hour, minute: minute}
+      {hour, minute} -> %{time | hour: hour, minute: minute}
       @invalid_value -> @invalid_value
     end
   end

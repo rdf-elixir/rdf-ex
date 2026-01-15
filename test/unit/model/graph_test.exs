@@ -196,7 +196,7 @@ defmodule RDF.GraphTest do
                %Graph{prefixes: PrefixMap.new(ex: EX), name: EX.graph_name()}
 
       assert Graph.new({EX.Subject, EX.predicate(), EX.Object}, prefixes: %{ex: EX}) ==
-               %Graph{
+               %{
                  Graph.new({EX.Subject, EX.predicate(), EX.Object})
                  | prefixes: PrefixMap.new(ex: EX)
                }
@@ -210,7 +210,7 @@ defmodule RDF.GraphTest do
                %Graph{prefixes: PrefixMap.new(ex: EX), base_iri: EX.base()}
 
       assert Graph.new({EX.Subject, EX.predicate(), EX.Object}, base_iri: EX.base()) ==
-               %Graph{Graph.new({EX.Subject, EX.predicate(), EX.Object}) | base_iri: EX.base()}
+               %{Graph.new({EX.Subject, EX.predicate(), EX.Object}) | base_iri: EX.base()}
     end
 
     test "creating a graph from another graph takes the prefixes from the other graph, but overwrites if necessary" do

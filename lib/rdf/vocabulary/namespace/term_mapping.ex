@@ -147,9 +147,9 @@ defmodule RDF.Vocabulary.Namespace.TermMapping do
   defp set_base_uri(term_mapping, %IRI{} = base_iri),
     do: set_base_uri(term_mapping, IRI.to_string(base_iri))
 
-  defp set_base_uri(term_mapping, base_uri) when is_binary(base_uri) do
+  defp set_base_uri(%__MODULE__{} = term_mapping, base_uri) when is_binary(base_uri) do
     if IRI.valid?(base_uri) do
-      %__MODULE__{term_mapping | base_uri: base_uri}
+      %{term_mapping | base_uri: base_uri}
     else
       add_error(term_mapping, InvalidVocabBaseIRIError, "invalid base IRI: #{inspect(base_uri)}")
     end

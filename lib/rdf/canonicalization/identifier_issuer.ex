@@ -17,7 +17,7 @@ defmodule RDF.Canonicalization.IdentifierIssuer do
 
   def canonical, do: new("c14n")
 
-  def copy(issuer), do: %__MODULE__{issuer | id: create_id()}
+  def copy(%__MODULE__{} = issuer), do: %{issuer | id: create_id()}
 
   defp create_id, do: :erlang.unique_integer()
 

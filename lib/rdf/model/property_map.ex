@@ -215,9 +215,9 @@ defmodule RDF.PropertyMap do
 
   defp do_set(property_map, _, _, iri, iri, _), do: {:ok, property_map}
 
-  defp do_set(property_map, _, term, iri, nil, nil) do
+  defp do_set(%__MODULE__{} = property_map, _, term, iri, nil, nil) do
     {:ok,
-     %__MODULE__{
+     %{
        property_map
        | iris: Map.put(property_map.iris, term, iri),
          terms: Map.put(property_map.terms, iri, term)
@@ -233,13 +233,13 @@ defmodule RDF.PropertyMap do
      "conflicting mapping for #{term}: #{iri}; IRI already mapped to #{inspect(old_term)}"}
   end
 
-  defp do_set(property_map, :put, term, new_iri, old_iri, nil) do
-    %__MODULE__{property_map | terms: Map.delete(property_map.terms, old_iri)}
+  defp do_set(%__MODULE__{} = property_map, :put, term, new_iri, old_iri, nil) do
+    %{property_map | terms: Map.delete(property_map.terms, old_iri)}
     |> do_set(:put, term, new_iri, nil, nil)
   end
 
-  defp do_set(property_map, :put, term, new_iri, old_iri, old_term) do
-    %__MODULE__{property_map | iris: Map.delete(property_map.iris, old_term)}
+  defp do_set(%__MODULE__{} = property_map, :put, term, new_iri, old_iri, old_term) do
+    %{property_map | iris: Map.delete(property_map.iris, old_term)}
     |> do_set(:put, term, new_iri, old_iri, nil)
   end
 

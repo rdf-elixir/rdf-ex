@@ -107,15 +107,17 @@ defmodule RDF.Star.Graph do
   def put_annotations(%Graph{} = graph, %rdf_struct{} = statements, annotations)
       when rdf_struct in [Graph, Description] do
     if annotations = normalize_annotations(annotations) do
-      Enum.reduce(
-        statements,
-        graph,
-        &%Graph{
-          &2
+      Enum.reduce(statements, graph, fn statement, %Graph{} = acc ->
+        %{
+          acc
           | descriptions:
-              Map.put(&2.descriptions, &1, Description.change_subject(annotations, &1))
+              Map.put(
+                acc.descriptions,
+                statement,
+                Description.change_subject(annotations, statement)
+              )
         }
-      )
+      end)
     else
       graph
     end

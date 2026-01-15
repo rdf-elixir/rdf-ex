@@ -94,7 +94,7 @@ defimpl Inspect, for: RDF.Description do
           end
       end
     else
-      Inspect.Map.inspect(description, opts)
+      description |> Map.from_struct() |> Inspect.Map.inspect(opts)
     end
   end
 end
@@ -147,7 +147,7 @@ defimpl Inspect, for: RDF.Graph do
           end
       end
     else
-      Inspect.Map.inspect(graph, opts)
+      graph |> Map.from_struct() |> Inspect.Map.inspect(opts)
     end
   end
 end
@@ -212,7 +212,7 @@ defimpl Inspect, for: RDF.Dataset do
           end
       end
     else
-      Inspect.Map.inspect(dataset, opts)
+      dataset |> Map.from_struct() |> Inspect.Map.inspect(opts)
     end
   end
 end
@@ -244,7 +244,7 @@ defimpl Inspect, for: RDF.Diff do
           end
       end
     else
-      Inspect.Map.inspect(diff, opts)
+      diff |> Map.from_struct() |> Inspect.Map.inspect(opts)
     end
   end
 

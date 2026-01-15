@@ -583,7 +583,7 @@ defmodule RDF.Graph do
     delete_predications(graph, {subject, predicate}, opts)
   end
 
-  def delete_predications(graph, {subject, predicate}, opts) do
+  def delete_predications(%__MODULE__{} = graph, {subject, predicate}, opts) do
     subject = RDF.coerce_subject(subject)
     predicate = RDF.coerce_predicate(predicate)
 
@@ -593,7 +593,7 @@ defmodule RDF.Graph do
           graph
 
         {deleted_objects, new_description} ->
-          %__MODULE__{
+          %{
             graph
             | descriptions:
                 if Description.empty?(new_description) do
@@ -1264,9 +1264,9 @@ defmodule RDF.Graph do
   end
 
   def take(%__MODULE__{} = graph, subjects, properties) do
-    graph = take(graph, subjects, nil)
+    %__MODULE__{} = graph = take(graph, subjects, nil)
 
-    %__MODULE__{
+    %{
       graph
       | descriptions:
           Map.new(graph.descriptions, fn {subject, description} ->

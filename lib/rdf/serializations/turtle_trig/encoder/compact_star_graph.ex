@@ -60,8 +60,8 @@ defmodule RDF.TurtleTriG.Encoder.CompactStarGraph do
 
   defp update_annotation_in(_, [], annotation), do: annotation
 
-  defp update_annotation_in(description, [p, o | rest], annotation) do
-    %Description{
+  defp update_annotation_in(%Description{} = description, [p, o | rest], annotation) do
+    %{
       description
       | predications:
           update_in(description.predications, [p, o], &update_annotation_in(&1, rest, annotation))

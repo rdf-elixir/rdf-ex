@@ -167,8 +167,8 @@ defmodule RDF.Dataset do
   def add(%__MODULE__{} = dataset, input, opts),
     do: do_add(dataset, destination_graph(opts), input, opts)
 
-  defp do_add(dataset, graph_name, input, opts) do
-    %__MODULE__{
+  defp do_add(%__MODULE__{} = dataset, graph_name, input, opts) do
+    %{
       dataset
       | graphs:
           lazy_map_update(
@@ -453,11 +453,11 @@ defmodule RDF.Dataset do
   def delete(%__MODULE__{} = dataset, input, opts) when not is_struct(input),
     do: do_delete(dataset, destination_graph(opts), input, opts)
 
-  defp do_delete(dataset, graph_name, input, opts) do
+  defp do_delete(%__MODULE__{} = dataset, graph_name, input, opts) do
     if existing_graph = dataset.graphs[graph_name] do
       new_graph = Graph.delete(existing_graph, input, opts)
 
-      %__MODULE__{
+      %{
         dataset
         | graphs:
             if Graph.empty?(new_graph) do
