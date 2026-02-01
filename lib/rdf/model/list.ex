@@ -7,7 +7,7 @@ defmodule RDF.List do
   - <https://www.w3.org/TR/rdf11-mt/#rdf-collections>
   """
 
-  alias RDF.{BlankNode, Description, Graph, IRI, NS}
+  alias RDF.{BlankNode, Description, Graph, IRI, Resource, NS}
 
   import RDF.Guards
 
@@ -32,7 +32,7 @@ defmodule RDF.List do
   - does not contain cycles, i.e. `rdf:rest` statements don't refer to
     preceding list nodes
   """
-  @spec new(IRI.coercible(), Graph.t()) :: t | nil
+  @spec new(Resource.coercible(), Graph.t()) :: t | nil
   def new(head, graph)
 
   def new(head, graph) when maybe_ns_term(head),
