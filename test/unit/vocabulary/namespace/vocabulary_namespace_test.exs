@@ -19,6 +19,7 @@ defmodule RDF.Vocabulary.NamespaceTest do
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSofEdgeCases.Example}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSwithKernelConflicts.Example}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithAliasesForElixirTerms.Example}
+  @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSWithSpecialFormTerms.Example}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.NSwithUnderscoreTerms.Example}
   @compile {:no_warn_undefined,
             RDF.Vocabulary.NamespaceTest.NSWithIgnoredTerms.ExampleIgnoredLowercasedTerm}
@@ -555,6 +556,32 @@ defmodule RDF.Vocabulary.NamespaceTest do
   end
 
   describe "defvocab with reserved terms" do
+    test "require, import and alias can be used as terms" do
+      defmodule NSWithSpecialFormTerms do
+        use RDF.Vocabulary.Namespace
+
+        defvocab Example,
+          base_iri: "http://example.com/example#",
+          terms: ~w[require import alias]
+      end
+
+      alias NSWithSpecialFormTerms.Example
+      alias RDF.Vocabulary.NamespaceTest.TestNS.EX
+
+      assert Example.require() == ~I<http://example.com/example#require>
+      assert Example.import() == ~I<http://example.com/example#import>
+      assert Example.alias() == ~I<http://example.com/example#alias>
+
+      assert EX.S |> Example.require(EX.O) ==
+               RDF.Description.new(EX.S, init: {Example.require(), EX.O})
+
+      assert EX.S |> Example.import(EX.O) ==
+               RDF.Description.new(EX.S, init: {Example.import(), EX.O})
+
+      assert EX.S |> Example.alias(EX.O) ==
+               RDF.Description.new(EX.S, init: {Example.alias(), EX.O})
+    end
+
     test "terms with a special meaning for Elixir cause a failure" do
       assert_raise RDF.Vocabulary.Namespace.CompileError,
                    ~r/The following terms can not be used, because they conflict with reserved Elixir terms:.*unquote_splicing/s,
@@ -594,9 +621,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
                            quote: "foo",
                            unquote: "foo",
                            unquote_splicing: "foo",
-                           alias: "foo",
-                           import: "foo",
-                           require: "foo",
                            super: "foo",
                            __aliases__: "foo"
                          ]
@@ -652,9 +676,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
             quote_: "quote",
             unquote_: "unquote",
             unquote_splicing_: "unquote_splicing",
-            alias_: "alias",
-            import_: "import",
-            require_: "require",
             super_: "super",
             _aliases_: "__aliases__",
             _info_: "__info__",
@@ -692,9 +713,6 @@ defmodule RDF.Vocabulary.NamespaceTest do
       assert Example.quote_() == ~I<http://example.com/example#quote>
       assert Example.unquote_() == ~I<http://example.com/example#unquote>
       assert Example.unquote_splicing_() == ~I<http://example.com/example#unquote_splicing>
-      assert Example.alias_() == ~I<http://example.com/example#alias>
-      assert Example.import_() == ~I<http://example.com/example#import>
-      assert Example.require_() == ~I<http://example.com/example#require>
       assert Example.super_() == ~I<http://example.com/example#super>
       assert Example._aliases_() == ~I<http://example.com/example#__aliases__>
       assert Example.def_() == ~I<http://example.com/example#def>

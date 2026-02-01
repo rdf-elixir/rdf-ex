@@ -177,9 +177,6 @@ defmodule RDF.Namespace.Builder do
     quote
     unquote
     unquote_splicing
-    alias
-    import
-    require
     super
     __aliases__
     __info__

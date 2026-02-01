@@ -33,6 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
   N-Quads serialization)
 - Some performance improvements on the Turtle and TriG encoder
 - Include dataset content in `RDF.Dataset` inspect string using TriG format
+- No longer consider `alias`, `import` and `require` as reserved terms in `RDF.Namespace`s
 - Update RDF and RDFS vocabularies to version 1.2
 
 ### Removed
