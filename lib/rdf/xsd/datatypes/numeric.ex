@@ -12,15 +12,26 @@ defmodule RDF.XSD.Numeric do
 
   defdelegate datatype?(value), to: Literal.Datatype.Registry, as: :numeric_datatype?
 
-  @doc !"""
-       Tests for numeric value equality of two numeric XSD datatyped literals.
+  @doc """
+  Tests for numeric value equality of two numeric XSD datatyped literals.
 
-       see:
+  see:
 
-       - <https://www.w3.org/TR/sparql11-query/#OperatorMapping>
-       - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
-       """
-  @spec do_equal_value?(t() | any, t() | any) :: boolean
+  - <https://www.w3.org/TR/sparql11-query/#OperatorMapping>
+  - <https://www.w3.org/TR/xpath-functions/#func-numeric-equal>
+
+  ## Examples
+
+      iex> RDF.XSD.Numeric.equal_value?(RDF.XSD.integer(1), RDF.XSD.decimal("1.0"))
+      true
+
+  """
+  def equal_value?(%Literal{literal: left}, right), do: equal_value?(left, right)
+  def equal_value?(left, %Literal{literal: right}), do: equal_value?(left, right)
+  def equal_value?(left, right), do: do_equal_value?(left, right)
+
+  @doc false
+  @spec do_equal_value?(t() | any, t() | any) :: boolean | nil
   def do_equal_value?(left, right)
 
   def do_equal_value?(%left_datatype{value: left}, %right_datatype{value: right}) do

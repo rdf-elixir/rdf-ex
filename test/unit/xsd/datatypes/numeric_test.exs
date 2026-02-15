@@ -1,6 +1,8 @@
 defmodule RDF.XSD.NumericTest do
   use ExUnit.Case
 
+  doctest RDF.XSD.Numeric
+
   alias RDF.XSD
   alias XSD.Numeric
   alias RDF.TestDatatypes.{Age, DecimalUnitInterval, DoubleUnitInterval, FloatUnitInterval}
@@ -55,6 +57,36 @@ defmodule RDF.XSD.NumericTest do
     refute Numeric.zero?(XSD.double("-0.00001"))
     refute Numeric.zero?(XSD.float("-0.00001"))
     refute Numeric.zero?(XSD.decimal("-0.00001"))
+  end
+
+  describe "equal_value?/2" do
+    test "same type" do
+      assert Numeric.equal_value?(XSD.integer(1), XSD.integer(1)) == true
+      assert Numeric.equal_value?(XSD.integer(1), XSD.integer(2)) == false
+      assert Numeric.equal_value?(XSD.double(1.0), XSD.double(1.0)) == true
+      assert Numeric.equal_value?(XSD.decimal("1.0"), XSD.decimal("1.00")) == true
+    end
+
+    test "cross-type" do
+      assert Numeric.equal_value?(XSD.integer(1), XSD.decimal("1.0")) == true
+      assert Numeric.equal_value?(XSD.integer(1), XSD.double(1.0)) == true
+      assert Numeric.equal_value?(XSD.decimal("1.0"), XSD.double(1.0)) == true
+      assert Numeric.equal_value?(XSD.integer(1), XSD.double(2.0)) == false
+    end
+
+    test "derived types" do
+      assert Numeric.equal_value?(XSD.byte(1), XSD.integer(1)) == true
+      assert Numeric.equal_value?(Age.new(42), XSD.decimal("42.0")) == true
+    end
+
+    test "NaN is never equal" do
+      assert Numeric.equal_value?(@nan, @nan) == false
+    end
+
+    test "non-numeric returns nil" do
+      assert Numeric.equal_value?(XSD.integer(1), XSD.string("1")) == nil
+      assert Numeric.equal_value?(XSD.integer(1), nil) == nil
+    end
   end
 
   describe "add/2" do
