@@ -5,8 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
-
-## Unreleased
+## 3.0.0 - 2026-03-19
 
 Elixir versions < 1.15 are no longer supported.
 
@@ -52,7 +51,7 @@ Elixir versions < 1.15 are no longer supported.
 
 - `RDF.List.new/2` now correctly handles lists in different graphs with the same structure
 
-[Compare v2.1.0...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v2.1.0...HEAD)
+[Compare v2.1.0...v3.0.0](https://github.com/rdf-elixir/rdf-ex/compare/v2.1.0...v3.0.0)
 
 
 ## 2.1.0 - 2025-04-09
