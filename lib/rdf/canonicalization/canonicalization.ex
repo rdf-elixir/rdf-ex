@@ -22,7 +22,7 @@ defmodule RDF.Canonicalization do
     (see the [security consideration section](https://www.w3.org/TR/rdf-canon/#security-considerations) in the specification).
     This implementation sets a maximum call limit for the Hash N-Degree Quads algorithm
     which can be configured with this value. Note, that actual limit is the product
-    of the multiplication of the given value with the number blank nodes in the input graph.
+    of the multiplication of the given value with the number of blank nodes in the input graph.
     Defaults to the runtime configured `:hndq_call_limit` of the `:rdf` application
     or `50` if not configured otherwise.
 
@@ -38,7 +38,7 @@ defmodule RDF.Canonicalization do
   @doc """
   Canonicalizes the blank nodes of a graph or dataset according to the RDF Dataset Canonicalization spec.
 
-  This function always returns a `RDF.Dataset` and wraps it in a tuple with the
+  This function always returns an `RDF.Dataset` and wraps it in a tuple with the
   resulting internal state from which the blank node mapping can be retrieved.
   If you want to get just a `RDF.Dataset` back, use `RDF.Dataset.canonicalize/2`.
   If you want to canonicalize just a `RDF.Graph` and get a `RDF.Graph` back,

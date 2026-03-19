@@ -46,19 +46,19 @@ defmodule RDF.Diff do
 
   ## Examples
 
-    iex> RDF.Diff.diff(
-    ...>   RDF.description(EX.S1, init: {EX.S1, EX.p1, [EX.O1, EX.O2]}),
-    ...>   RDF.graph([
-    ...>    {EX.S1, EX.p1, [EX.O2, EX.O3]},
-    ...>    {EX.S2, EX.p2, EX.O4}
-    ...>   ]))
-    %RDF.Diff{
-      additions: RDF.graph([
-        {EX.S1, EX.p1, EX.O3},
-        {EX.S2, EX.p2, EX.O4}
-      ]),
-      deletions: RDF.graph({EX.S1, EX.p1, EX.O1})
-    }
+      iex> RDF.Diff.diff(
+      ...>   RDF.description(EX.S1, init: {EX.S1, EX.p1, [EX.O1, EX.O2]}),
+      ...>   RDF.graph([
+      ...>    {EX.S1, EX.p1, [EX.O2, EX.O3]},
+      ...>    {EX.S2, EX.p2, EX.O4}
+      ...>   ]))
+      %RDF.Diff{
+        additions: RDF.graph([
+          {EX.S1, EX.p1, EX.O3},
+          {EX.S2, EX.p2, EX.O4}
+        ]),
+        deletions: RDF.graph({EX.S1, EX.p1, EX.O1})
+      }
   """
   @spec diff(Description.t() | Graph.t(), Description.t() | Graph.t()) :: t
   def diff(original_rdf_data, new_rdf_data)
@@ -177,6 +177,7 @@ defmodule RDF.Diff do
       iex> RDF.Diff.invert(RDF.Diff.new(additions: {EX.S, EX.p, EX.O1}, deletions: {EX.S, EX.p, EX.O2}))
       %RDF.Diff{additions: RDF.graph({EX.S, EX.p, EX.O2}), deletions: RDF.graph({EX.S, EX.p, EX.O1})}
   """
+  @doc since: "2.1.1"
   @spec invert(t) :: t
   def invert(%__MODULE__{} = diff) do
     %__MODULE__{diff | additions: diff.deletions, deletions: diff.additions}
