@@ -155,11 +155,14 @@ defmodule RDF.Mixfile do
           RDF.Description,
           RDF.Graph,
           RDF.Dataset,
-          RDF.Data,
           RDF.List,
           RDF.Diff,
           RDF.PrefixMap,
           RDF.PropertyMap
+        ],
+        Protocols: [
+          RDF.Data,
+          RDF.Data.Source
         ],
         Namespace: [
           RDF.Namespace,
