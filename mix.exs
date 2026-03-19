@@ -70,14 +70,14 @@ defmodule RDF.Mixfile do
       {:uniq, "~> 0.6"},
       {:jason, "~> 1.4"},
       {:jcs, "~> 0.2"},
-      {:protocol_ex, "~> 0.4.4"},
+      {:protocol_ex, "~> 0.5"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.37", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:excoveralls, "~> 0.18", only: :test},
       # This dependency is needed for ExCoveralls when OTP < 25
       {:castore, "~> 1.0", only: :test},
-      {:benchee, "~> 1.3", only: :dev}
+      {:benchee, "~> 1.5", only: :dev}
     ]
   end
 
