@@ -19,19 +19,14 @@ jobs:
       matrix:
         include:
           - pair:
-              elixir: 1.14.5
-              otp: 24.3
-            build-flags:
-          - pair:
               elixir: 1.15.7
-              otp: 25.3
-            build-flags:
+              otp: 24.3
           - pair:
               elixir: 1.16.2
-              otp: 26.2
+              otp: 25.3
           - pair:
               elixir: 1.17.3
-              otp: 27.3
+              otp: 26.2
           - pair:
               elixir: 1.18.3
               otp: 27.3
