@@ -59,11 +59,15 @@ If you need help with your Elixir and Linked Data projects, just contact [NinjaC
 <tr>
 <td><a href="https://www.netze-bw.de/"><img src="https://iconape.com/wp-content/png_logo_vector/netze-bw-logo.png" alt="NetzeBW Logo" height="150"></a></td>
 <td><a href="https://nlnet.nl/"><img src="https://nlnet.nl/logo/banner.svg" alt="NLnet Foundation Logo" width="150"></a></td>
+<td><a href="https://nlnet.nl/core" ><img src="https://nlnet.nl/logo/NGI/NGIZero-green.hex.svg" alt="NGI Zero Core Logo" height="150"></a></td>  
 <td><a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains Logo" width="150"></a></td>
 </tr>
 </table>
 
-The development of this project was partly sponsored by [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive) and the [NLnet foundation](https://nlnet.nl/) as part of the funding of [Ontogen](https://nlnet.nl/project/Ontogen/).
+The development of this project was partly sponsored by 
+
+- [NetzeBW](https://www.netze-bw.de/) for [NETZlive](https://www.netze-bw.de/unsernetz/netzinnovationen/digitalisierung/netzlive) 
+- [NGI Zero Core](https://nlnet.nl/core), a fund established by [NLnet](https://nlnet.nl/) with financial support from the European Commission's [Next Generation Internet](https://ngi.eu/) program.
 
 [JetBrains](https://jb.gg/OpenSource) supports the project with complimentary access to its development environments.
 
