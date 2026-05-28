@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## 3.0.1 - 2026-05-28
+
+Upgrade to decimal v3.0
+
+[Compare v3.0.0...v3.0.1](https://github.com/rdf-elixir/rdf-ex/compare/v3.0.0...v3.0.1)
+
+
 ## 3.0.0 - 2026-03-19
 
 Elixir versions < 1.15 are no longer supported.
