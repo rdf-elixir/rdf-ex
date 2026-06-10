@@ -267,7 +267,7 @@ defmodule RDF.Graph.BuilderTest do
   test "conditionals" do
     graph =
       RDF.Graph.build do
-        foo = false
+        foo = 1 == 2
 
         # credo:disable-for-next-line Credo.Check.Refactor.CondStatements
         cond do

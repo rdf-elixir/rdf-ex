@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 [Keep a CHANGELOG](http://keepachangelog.com).
 
 
+## Unreleased
+
+### Changed
+
+- `RDF.Data.Source.derive/2` was removed in favor of `RDF.Data.Source.derive/3`:
+  the `opts` argument is now required (pass `[]` for the previous default).
+  This was necessary because default arguments in protocol definitions are
+  deprecated as of Elixir 1.20.
+
+[Compare v3.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v3.0.1...HEAD)
+
+
 ## 3.0.1 - 2026-05-28
 
 Upgrade to decimal v3.0

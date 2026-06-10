@@ -623,7 +623,7 @@ defmodule RDF.GraphTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Graph.add(graph(), Date.utc_today())
+        apply(Graph, :add, [graph(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -827,7 +827,7 @@ defmodule RDF.GraphTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Graph.put(graph(), Date.utc_today())
+        apply(Graph, :put, [graph(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -1041,7 +1041,7 @@ defmodule RDF.GraphTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Graph.put_properties(graph(), Date.utc_today())
+        apply(Graph, :put_properties, [graph(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -1176,7 +1176,7 @@ defmodule RDF.GraphTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Graph.delete(graph(), Date.utc_today())
+        apply(Graph, :delete, [graph(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -1612,7 +1612,7 @@ defmodule RDF.GraphTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Graph.include?(graph(), Date.utc_today())
+        apply(Graph, :include?, [graph(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->

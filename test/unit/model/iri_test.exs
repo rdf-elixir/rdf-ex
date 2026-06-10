@@ -62,9 +62,9 @@ defmodule RDF.IRITest do
     end
 
     test "with Elixirs special atoms" do
-      assert_raise FunctionClauseError, fn -> IRI.new(true) end
-      assert_raise FunctionClauseError, fn -> IRI.new(false) end
-      assert_raise FunctionClauseError, fn -> IRI.new(nil) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new, [true]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new, [false]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new, [nil]) end
     end
   end
 
@@ -100,9 +100,9 @@ defmodule RDF.IRITest do
     end
 
     test "with Elixirs special atoms" do
-      assert_raise FunctionClauseError, fn -> IRI.new!(true) end
-      assert_raise FunctionClauseError, fn -> IRI.new!(false) end
-      assert_raise FunctionClauseError, fn -> IRI.new!(nil) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new!, [true]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new!, [false]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :new!, [nil]) end
     end
   end
 
@@ -129,9 +129,9 @@ defmodule RDF.IRITest do
     end
 
     test "with Elixirs special atoms" do
-      assert_raise FunctionClauseError, fn -> IRI.coerce_base(true) end
-      assert_raise FunctionClauseError, fn -> IRI.coerce_base(false) end
-      assert_raise FunctionClauseError, fn -> IRI.coerce_base(nil) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :coerce_base, [true]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :coerce_base, [false]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :coerce_base, [nil]) end
     end
 
     test "with a RDF.Vocabulary.Namespace module" do
@@ -155,10 +155,10 @@ defmodule RDF.IRITest do
     end
 
     test "with a non-resolvable atom" do
-      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(true) == false end
-      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(false) == false end
-      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(nil) == false end
-      assert_raise RDF.IRI.InvalidError, fn -> IRI.valid!(Foo.Bar) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> apply(IRI, :valid!, [true]) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> apply(IRI, :valid!, [false]) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> apply(IRI, :valid!, [nil]) == false end
+      assert_raise RDF.IRI.InvalidError, fn -> apply(IRI, :valid!, [Foo.Bar]) == false end
     end
 
     test "with relative iris" do
@@ -368,9 +368,9 @@ defmodule RDF.IRITest do
     end
 
     test "with Elixirs special atoms" do
-      assert_raise FunctionClauseError, fn -> IRI.parse(true) end
-      assert_raise FunctionClauseError, fn -> IRI.parse(false) end
-      assert_raise FunctionClauseError, fn -> IRI.parse(nil) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :parse, [true]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :parse, [false]) end
+      assert_raise FunctionClauseError, fn -> apply(IRI, :parse, [nil]) end
     end
   end
 

@@ -41,7 +41,7 @@ defmodule RDF.XSD.IntegerTest do
 
     test "with a non-literal" do
       assert_raise RDF.XSD.Datatype.MismatchError, "'42' is not a #{XSD.Integer}", fn ->
-        XSD.Integer.value(42)
+        apply(XSD.Integer, :value, [42])
       end
     end
   end

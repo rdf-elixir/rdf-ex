@@ -15,7 +15,7 @@ defmodule RDF.NS do
 
   # This is needed to ensure that the Turtle compiler is compiled and ready to be used to parse vocabularies.
   # Without this we randomly get "unable to detect serialization format" errors depending on the parallel compilation order.
-  require RDF.Turtle
+  Code.ensure_compiled!(RDF.Turtle)
 
   @vocabdoc """
   The RDF vocabulary.

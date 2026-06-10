@@ -374,7 +374,7 @@ defmodule RDF.DescriptionTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Description.add(description(), Date.utc_today())
+        apply(Description, :add, [description(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -531,7 +531,7 @@ defmodule RDF.DescriptionTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Description.put(description(), Date.utc_today())
+        apply(Description, :put, [description(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -677,7 +677,7 @@ defmodule RDF.DescriptionTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Description.delete(description(), Date.utc_today())
+        apply(Description, :delete, [description(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->
@@ -1059,7 +1059,7 @@ defmodule RDF.DescriptionTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Description.include?(description(), Date.utc_today())
+        apply(Description, :include?, [description(), Date.utc_today()])
       end
 
       assert_raise FunctionClauseError, fn ->

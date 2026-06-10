@@ -24,16 +24,11 @@ defmodule RDF.QueryPlannerHelper do
   defp simplify_term(variable) when is_atom(variable), do: 1
   defp simplify_term(_), do: 0
 
-  defp variable_count({count}), do: count
-  defp variable_count(variable) when is_atom(variable), do: 1
-
-  defp variable_count(triple) when is_tuple(triple) do
+  defp variable_count(triple) do
     triple
     |> Tuple.to_list()
     |> Enum.count(&variable?/1)
   end
-
-  defp variable_count(_), do: 0
 
   defp variable?(variable) when is_atom(variable), do: true
   defp variable?(%type{}) when type in [RDF.IRI, RDF.Literal, RDF.BlankNode], do: false

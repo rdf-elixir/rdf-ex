@@ -2087,7 +2087,7 @@ defmodule RDF.DatasetTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Dataset.delete(dataset(), Date.utc_today())
+        apply(Dataset, :delete, [dataset(), Date.utc_today()])
       end
     end
   end
@@ -2307,7 +2307,7 @@ defmodule RDF.DatasetTest do
 
     test "structs are causing an error" do
       assert_raise FunctionClauseError, fn ->
-        Dataset.include?(dataset(), Date.utc_today())
+        apply(Dataset, :include?, [dataset(), Date.utc_today()])
       end
     end
   end

@@ -78,7 +78,7 @@ defprotocol RDF.Data.Source do
   template is a graph or dataset).
   """
   @spec derive(t, structure_type, keyword()) :: {:ok, t()} | {:error, derive_error()}
-  def derive(template_data, target_type, opts \\ [])
+  def derive(template_data, target_type, opts)
 
   @doc """
   Returns the subject when the data represents a single-subject structure.

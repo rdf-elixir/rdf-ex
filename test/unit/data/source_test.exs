@@ -454,7 +454,7 @@ defmodule RDF.Data.SourceTest do
     test "to :description uses template subject by default" do
       template = RDF.description(EX.Template)
 
-      assert Source.derive(template, :description) ==
+      assert Source.derive(template, :description, []) ==
                {:ok, RDF.description(EX.Template)}
     end
 
@@ -468,14 +468,14 @@ defmodule RDF.Data.SourceTest do
     test "to :graph creates empty graph" do
       template = RDF.description(EX.Template)
 
-      assert Source.derive(template, :graph) ==
+      assert Source.derive(template, :graph, []) ==
                {:ok, RDF.graph()}
     end
 
     test "to :dataset creates empty dataset" do
       template = RDF.description(EX.Template)
 
-      assert Source.derive(template, :dataset) ==
+      assert Source.derive(template, :dataset, []) ==
                {:ok, RDF.dataset()}
     end
   end
@@ -491,7 +491,7 @@ defmodule RDF.Data.SourceTest do
     test "to :description without :subject option returns error" do
       template = RDF.graph(name: EX.Template)
 
-      assert Source.derive(template, :description) ==
+      assert Source.derive(template, :description, []) ==
                {:error, :no_subject}
     end
 
@@ -499,7 +499,7 @@ defmodule RDF.Data.SourceTest do
       template =
         RDF.graph(name: EX.Template, prefixes: [ex: EX], base_iri: "http://example.com/")
 
-      assert Source.derive(template, :graph) ==
+      assert Source.derive(template, :graph, []) ==
                {:ok,
                 RDF.graph(
                   name: EX.Template,
@@ -519,7 +519,7 @@ defmodule RDF.Data.SourceTest do
     test "to :dataset creates empty dataset" do
       template = RDF.graph(name: EX.Template)
 
-      assert Source.derive(template, :dataset) ==
+      assert Source.derive(template, :dataset, []) ==
                {:ok, RDF.dataset()}
     end
   end
@@ -535,21 +535,21 @@ defmodule RDF.Data.SourceTest do
     test "to :description without :subject option returns error" do
       template = RDF.dataset(name: EX.Template)
 
-      assert Source.derive(template, :description) ==
+      assert Source.derive(template, :description, []) ==
                {:error, :no_subject}
     end
 
     test "to :graph creates empty graph" do
       template = RDF.dataset(name: EX.Template)
 
-      assert Source.derive(template, :graph) ==
+      assert Source.derive(template, :graph, []) ==
                {:ok, RDF.graph()}
     end
 
     test "to :dataset with preserve_metadata: true (default) preserves name" do
       template = RDF.dataset(name: EX.Template)
 
-      assert Source.derive(template, :dataset) ==
+      assert Source.derive(template, :dataset, []) ==
                {:ok, RDF.dataset(name: EX.Template)}
     end
 
