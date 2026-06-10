@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 ## Unreleased
 
+Elixir versions < 1.16 are no longer supported.
+
 ### Changed
 
 - `RDF.Data.Source.derive/2` was removed in favor of `RDF.Data.Source.derive/3`:
