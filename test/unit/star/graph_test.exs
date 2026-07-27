@@ -1235,6 +1235,40 @@ defmodule RDF.Star.GraphTest do
              |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP2, EX.AO2})
   end
 
+  test "delete_predicates/3" do
+    assert graph_with_annotation() |> Graph.delete_predicates(EX.ap()) == graph()
+  end
+
+  describe "delete_predicates/3 with delete_annotations option" do
+    test "with false, no annotations are deleted (default)" do
+      assert graph()
+             |> Graph.add(statement(), add_annotations: {EX.p(), EX.O})
+             |> Graph.delete_predicates(EX.P, delete_annotations: false) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+
+      assert graph()
+             |> Graph.add(statement(), add_annotations: {EX.p(), EX.O})
+             |> Graph.delete_predicates(EX.P) ==
+               graph() |> Graph.add({statement(), EX.p(), EX.O})
+    end
+
+    test "with true, all annotations are deleted" do
+      assert graph()
+             |> Graph.add(statement(), add_annotations: {EX.p(), EX.O})
+             |> Graph.delete_predicates(EX.P, delete_annotations: true) ==
+               graph()
+    end
+  end
+
+  test "delete_predicates/3 with add_annotations option" do
+    assert graph()
+           |> Graph.add({EX.S1, EX.P1, EX.O1}, add_annotations: {EX.AP1, EX.AO1})
+           |> Graph.delete_predicates(EX.P1, add_annotations: {EX.AP1, EX.AO2}) ==
+             graph()
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO1})
+             |> Graph.add({{EX.S1, EX.P1, EX.O1}, EX.AP1, EX.AO2})
+  end
+
   describe "add_annotations/3" do
     test "various statement forms annotated with a predicate-object pair" do
       assert Graph.add_annotations(graph(), statement(), {EX.AP, EX.AO}) ==

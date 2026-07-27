@@ -1364,6 +1364,99 @@ defmodule RDF.GraphTest do
     end
   end
 
+  describe "delete_predicates/2" do
+    setup do
+      {:ok,
+       graph1: Graph.new({EX.S, EX.p(), [EX.O1, EX.O2]}, name: EX.Graph),
+       graph2:
+         Graph.new([
+           {EX.S1, EX.p1(), [EX.O1, EX.O2]},
+           {EX.S2, EX.p2(), EX.O3},
+           {EX.S3, EX.p3(), [~B<foo>, ~L"bar"]}
+         ])}
+    end
+
+    test "a single predicate", %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete_predicates(graph1, EX.other()) == graph1
+      assert Graph.delete_predicates(graph1, EX.p()) == Graph.new(name: EX.Graph)
+
+      assert Graph.delete_predicates(graph2, EX.p2()) ==
+               Graph.delete(graph2, {EX.S2, EX.p2(), EX.O3})
+    end
+
+    test "a list of predicates", %{graph1: graph1, graph2: graph2} do
+      assert Graph.delete_predicates(graph1, [EX.p(), EX.other()]) == Graph.new(name: EX.Graph)
+
+      assert Graph.delete_predicates(graph2, [EX.p1(), EX.p2(), EX.p3()]) == Graph.new()
+    end
+
+    test "the predicates are deleted from all descriptions" do
+      graph =
+        Graph.new([
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S1, EX.p2(), EX.O2},
+          {EX.S2, EX.p1(), EX.O3}
+        ])
+
+      assert Graph.delete_predicates(graph, EX.p1()) == Graph.new({EX.S1, EX.p2(), EX.O2})
+    end
+
+    test "graph metadata is preserved" do
+      graph =
+        Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}],
+          name: EX.Graph,
+          prefixes: [ex: EX],
+          base_iri: "http://example.com/"
+        )
+
+      assert Graph.delete_predicates(graph, EX.p1()) ==
+               Graph.new([{EX.S2, EX.p2(), EX.O2}],
+                 name: EX.Graph,
+                 prefixes: [ex: EX],
+                 base_iri: "http://example.com/"
+               )
+    end
+
+    test "the result is the same with and without RDF-star annotation options" do
+      graph =
+        Graph.new(
+          [
+            {EX.S1, EX.p1(), EX.O1},
+            {EX.S1, EX.p2(), EX.O2},
+            {EX.S2, EX.p1(), EX.O3}
+          ],
+          name: EX.Graph,
+          prefixes: [ex: EX],
+          base_iri: "http://example.com/"
+        )
+
+      assert Graph.delete_predicates(graph, EX.p1()) ==
+               Graph.delete_predicates(graph, EX.p1(), delete_annotations: false)
+
+      assert Graph.delete_predicates(graph, [EX.p1(), EX.p2()]) ==
+               Graph.delete_predicates(graph, [EX.p1(), EX.p2()], delete_annotations: false)
+
+      assert Graph.delete_predicates(graph, EX.other()) ==
+               Graph.delete_predicates(graph, EX.other(), delete_annotations: false)
+    end
+
+    test "complements take/3 with properties" do
+      graph =
+        Graph.new(
+          [
+            {EX.S1, EX.p1(), EX.O1},
+            {EX.S1, EX.p2(), EX.O2},
+            {EX.S2, EX.p1(), EX.O3}
+          ],
+          name: EX.Graph
+        )
+
+      assert graph
+             |> Graph.take(nil, [EX.p1()])
+             |> Graph.add(Graph.delete_predicates(graph, EX.p1())) == graph
+    end
+  end
+
   describe "update/4" do
     test "a description returned from the update function becomes new description of the subject" do
       old_description = Description.new(EX.S2, init: {EX.p2(), EX.O3})

@@ -9,6 +9,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and
 
 Elixir versions < 1.16 are no longer supported.
 
+### Added
+
+- `RDF.Graph.delete_predicates/2,3` as the counterpart of `RDF.Graph.take/3`
+  with properties and the graph-level pendant of `RDF.Description.delete_predicates/2`
+
 ### Changed
 
 - `RDF.Data.Source.derive/2` was removed in favor of `RDF.Data.Source.derive/3`:

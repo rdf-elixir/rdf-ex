@@ -613,6 +613,65 @@ defmodule RDF.Graph do
   end
 
   @doc """
+  Deletes all statements with the given predicates.
+
+  If `predicates` contains predicates that are not in `graph`, they're simply ignored.
+
+  The optional `:delete_annotations` keyword option allows to set which of
+  the RDF-star annotations of the deleted statements should be deleted.
+  Any of the possible values of `delete_annotations/3` can be provided here.
+  By default, no annotations of the deleted statements will be removed.
+  Alternatively, the `:add_annotations`, `:put_annotations` or `:put_annotation_properties`
+  keyword options can be used to add annotations about the deleted statements
+  with the addition semantics similar to the respective `add_annotations/3`,
+  `put_annotations/3` and `put_annotation_properties/3` counterparts.
+
+  ## Examples
+
+      iex> RDF.Graph.new([{EX.S1, EX.p1(), EX.O1}, {EX.S1, EX.p2(), EX.O2}, {EX.S2, EX.p1(), EX.O3}])
+      ...> |> RDF.Graph.delete_predicates(EX.p1())
+      RDF.Graph.new({EX.S1, EX.p2(), EX.O2})
+  """
+  @spec delete_predicates(
+          t,
+          Statement.coercible_predicate() | [Statement.coercible_predicate()],
+          keyword
+        ) :: t
+  def delete_predicates(graph, predicates, opts \\ [])
+
+  # Without annotation options the descriptions map can be rebuilt in one pass,
+  # instead of being updated once per subject-predicate pair.
+  def delete_predicates(%__MODULE__{} = graph, predicates, []) do
+    predicates = predicates |> List.wrap() |> Enum.map(&RDF.coerce_predicate/1)
+
+    %__MODULE__{
+      graph
+      | descriptions:
+          Enum.reduce(graph.descriptions, %{}, fn {subject, description}, descriptions ->
+            description = Description.delete_predicates(description, predicates)
+
+            if Description.empty?(description) do
+              descriptions
+            else
+              Map.put(descriptions, subject, description)
+            end
+          end)
+    }
+  end
+
+  def delete_predicates(%__MODULE__{} = graph, predicates, opts) when is_list(predicates) do
+    Enum.reduce(predicates, graph, &delete_predicates(&2, &1, opts))
+  end
+
+  def delete_predicates(%__MODULE__{} = graph, predicate, opts) do
+    predicate = RDF.coerce_predicate(predicate)
+
+    graph.descriptions
+    |> Map.keys()
+    |> Enum.reduce(graph, &delete_predications(&2, {&1, predicate}, opts))
+  end
+
+  @doc """
   Adds RDF-star annotations to the given set of statements.
 
   The set of `statements` can be given in any input form (see `add/3`).
