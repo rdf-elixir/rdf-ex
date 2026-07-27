@@ -1717,6 +1717,24 @@ defmodule RDF.GraphTest do
              |> Graph.take(nil, [EX.p1()]) ==
                Graph.new([{EX.s1(), EX.p1(), EX.o1()}, {EX.s2(), EX.p1(), EX.o2()}])
     end
+
+    test "descriptions which become empty are removed" do
+      graph = Graph.new([{EX.s1(), EX.p1(), EX.o1()}, {EX.s2(), EX.p2(), EX.o2()}])
+
+      assert Graph.take(graph, nil, [EX.p1()]) ==
+               Graph.new([{EX.s1(), EX.p1(), EX.o1()}])
+
+      assert Graph.take(graph, [EX.s1(), EX.s2()], [EX.p1()]) ==
+               Graph.new([{EX.s1(), EX.p1(), EX.o1()}])
+
+      assert Graph.subjects(Graph.take(graph, nil, [EX.p1()])) == MapSet.new([RDF.iri(EX.s1())])
+      refute Graph.describes?(Graph.take(graph, nil, [EX.p1()]), EX.s2())
+    end
+
+    test "with properties none of the descriptions use" do
+      assert Graph.new([{EX.s1(), EX.p1(), EX.o1()}], name: EX.Graph)
+             |> Graph.take(nil, [EX.p2()]) == Graph.new(name: EX.Graph)
+    end
   end
 
   describe "intersection/2" do

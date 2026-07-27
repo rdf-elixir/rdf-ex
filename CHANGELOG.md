@@ -16,6 +16,12 @@ Elixir versions < 1.16 are no longer supported.
   This was necessary because default arguments in protocol definitions are
   deprecated as of Elixir 1.20.
 
+### Fixed
+
+- `RDF.Graph.take/3` left empty descriptions behind for subjects whose statements
+  were all removed by the `properties` limitation, which broke `RDF.Graph.equal?/2`
+  and made the Turtle/TriG encoder raise a `RDF.Graph.EmptyDescriptionError`
+
 [Compare v3.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v3.0.1...HEAD)
 
 

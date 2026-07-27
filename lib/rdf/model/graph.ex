@@ -1241,6 +1241,8 @@ defmodule RDF.Graph do
   If `subjects` contains IRIs that are not used in the `graph`, they're simply ignored.
 
   The optional `properties` argument allows to limit also properties of the subject descriptions.
+  Subjects whose descriptions become empty by this limitation are removed, since empty
+  descriptions in a graph lead to inconsistent behaviour.
 
   If `nil` is passed as the `subjects`, the subjects will not be limited.
   """
@@ -1263,11 +1265,17 @@ defmodule RDF.Graph do
   def take(%__MODULE__{} = graph, subjects, properties) do
     %__MODULE__{} = graph = take(graph, subjects, nil)
 
-    %{
+    %__MODULE__{
       graph
       | descriptions:
-          Map.new(graph.descriptions, fn {subject, description} ->
-            {subject, Description.take(description, properties)}
+          Enum.reduce(graph.descriptions, %{}, fn {subject, description}, descriptions ->
+            description = Description.take(description, properties)
+
+            if Description.empty?(description) do
+              descriptions
+            else
+              Map.put(descriptions, subject, description)
+            end
           end)
     }
   end
