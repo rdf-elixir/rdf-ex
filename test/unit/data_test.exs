@@ -632,6 +632,21 @@ defmodule RDF.DataTest do
                  base_iri: "http://example.com/"
                )
     end
+
+    test "preserves the prefixes of the graphs of a dataset" do
+      dataset =
+        RDF.dataset([
+          RDF.graph([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}],
+            name: EX.Graph1,
+            prefixes: [ex: EX]
+          )
+        ])
+
+      assert RDF.Data.filter(dataset, fn {_s, p, _o, _g} -> p == EX.p1() end) ==
+               RDF.dataset([
+                 RDF.graph([{EX.S1, EX.p1(), EX.O1}], name: EX.Graph1, prefixes: [ex: EX])
+               ])
+    end
   end
 
   describe "reject/2" do
@@ -706,6 +721,22 @@ defmodule RDF.DataTest do
                  base_iri: "http://example.com/"
                )
     end
+
+    test "preserves the prefixes of the graphs of a dataset" do
+      dataset =
+        RDF.dataset([
+          RDF.graph([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}],
+            name: EX.Graph1,
+            prefixes: [ex: EX]
+          )
+        ])
+
+      assert RDF.Data.reject(dataset, fn {_s, p, _o, _g} -> p == EX.p2() end) ==
+               RDF.dataset([
+                 RDF.graph([{EX.S1, EX.p1(), EX.O1}], name: EX.Graph1, prefixes: [ex: EX])
+               ])
+    end
+  end
   end
 
   describe "take/2" do

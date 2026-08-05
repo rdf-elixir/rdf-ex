@@ -26,6 +26,7 @@ Elixir versions < 1.16 are no longer supported.
 - `RDF.Graph.take/3` left empty descriptions behind for subjects whose statements
   were all removed by the `properties` limitation, which broke `RDF.Graph.equal?/2`
   and made the Turtle/TriG encoder raise a `RDF.Graph.EmptyDescriptionError`
+- `RDF.Data.filter/2` and `RDF.Data.reject/2` lost the prefixes of the graphs of a dataset
 
 [Compare v3.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v3.0.1...HEAD)
 

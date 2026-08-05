@@ -300,16 +300,11 @@ defmodule RDF.Data do
   """
   @spec filter(Source.t(), (RDF.Statement.t() -> boolean)) :: Source.t()
   def filter(data, fun) when is_function(fun, 1) do
-    filtered_statements =
-      reduce(data, [], fn stmt, acc ->
-        if fun.(stmt) do
-          [stmt | acc]
-        else
-          acc
-        end
-      end)
-
-    rebuild_structure(data, filtered_statements)
+    if subtract_complement?(data) do
+      subtract(data, collect_rejected(data, fun))
+    else
+      rebuild_structure(data, collect_matching(data, fun))
+    end
   end
 
   @doc """
@@ -332,16 +327,31 @@ defmodule RDF.Data do
   """
   @spec reject(Source.t(), (RDF.Statement.t() -> boolean)) :: Source.t()
   def reject(data, fun) when is_function(fun, 1) do
-    filtered_statements =
-      reduce(data, [], fn stmt, acc ->
-        if fun.(stmt) do
-          acc
-        else
-          [stmt | acc]
-        end
-      end)
+    if subtract_complement?(data) do
+      subtract(data, collect_matching(data, fun))
+    else
+      rebuild_structure(data, collect_rejected(data, fun))
+    end
+  end
 
-    rebuild_structure(data, filtered_statements)
+  defp collect_matching(data, fun) do
+    reduce(data, [], fn stmt, acc ->
+      if fun.(stmt) do
+        [stmt | acc]
+      else
+        acc
+      end
+    end)
+  end
+
+  defp collect_rejected(data, fun) do
+    reduce(data, [], fn stmt, acc ->
+      if fun.(stmt) do
+        acc
+      else
+        [stmt | acc]
+      end
+    end)
   end
 
   @doc """
@@ -1555,6 +1565,19 @@ defmodule RDF.Data do
 
   defp rebuild_structure(:dataset, data, statements) do
     derive(data, :dataset, dataset_name(data), statements)
+  end
+
+  # A dataset rebuilt from statements loses the metadata of its graphs, since the
+  # RDF.Data layer moves statements only. Removing the complement from the original
+  # keeps them. Descriptions and graphs have no such nested metadata and are rebuilt,
+  # which is cheaper whenever less is kept than dropped - the common case.
+  defp subtract_complement?(data), do: Source.structure_type(data) == :dataset
+
+  defp subtract(data, statements) do
+    case Source.delete(data, statements) do
+      {:ok, result} -> result
+      {:error, _} -> delete_fallback(data, statements)
+    end
   end
 
   defp dataset_name(%RDF.Dataset{name: name}), do: name
