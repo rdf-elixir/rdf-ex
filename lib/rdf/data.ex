@@ -355,6 +355,44 @@ defmodule RDF.Data do
   end
 
   @doc """
+  Splits the data structure in two according to a given function.
+
+  Returns a tuple `{matching, non_matching}` with two data structures of the same
+  type as the given one: the first with the statements for which the predicate
+  function returns a truthy value, the second with the remaining ones.
+
+  The result is equivalent to `{filter(data, fun), reject(data, fun)}`, but
+  computed in a single pass over the statements.
+
+  ## Examples
+
+      iex> graph = RDF.graph([{EX.S1, EX.p1, EX.O1}, {EX.S2, EX.p2, EX.O2}])
+      iex> RDF.Data.split_with(graph, fn {_s, p, _o} -> p == EX.p1 end)
+      {RDF.graph([{EX.S1, EX.p1, EX.O1}]), RDF.graph([{EX.S2, EX.p2, EX.O2}])}
+
+      iex> dataset = RDF.dataset([{EX.S, EX.p1, EX.O, EX.G}, {EX.S, EX.p2, EX.O, nil}])
+      iex> RDF.Data.split_with(dataset, fn {_s, p, _o, _g} -> p == EX.p1 end)
+      {RDF.dataset([{EX.S, EX.p1, EX.O, EX.G}]), RDF.dataset([{EX.S, EX.p2, EX.O}])}
+  """
+  @spec split_with(Source.t(), (RDF.Statement.t() -> boolean)) :: {Source.t(), Source.t()}
+  def split_with(data, fun) when is_function(fun, 1) do
+    {matching, non_matching} =
+      reduce(data, {[], []}, fn stmt, {matching, non_matching} ->
+        if fun.(stmt) do
+          {[stmt | matching], non_matching}
+        else
+          {matching, [stmt | non_matching]}
+        end
+      end)
+
+    if subtract_complement?(data) do
+      {subtract(data, non_matching), subtract(data, matching)}
+    else
+      {rebuild_structure(data, matching), rebuild_structure(data, non_matching)}
+    end
+  end
+
+  @doc """
   Takes the first `amount` statements from the RDF data structure.
 
   Returns a new data structure of the same type containing at most `amount` statements.

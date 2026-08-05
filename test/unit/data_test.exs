@@ -737,6 +737,138 @@ defmodule RDF.DataTest do
                ])
     end
   end
+
+  describe "split_with/2" do
+    test "RDF.Description" do
+      desc = EX.S |> EX.p1(EX.O1) |> EX.p2(EX.O2)
+
+      assert RDF.Data.split_with(desc, fn {_s, p, _o} -> p == EX.p1() end) ==
+               {EX.S |> EX.p1(EX.O1), EX.S |> EX.p2(EX.O2)}
+
+      assert RDF.Data.split_with(desc, fn {_s, p, _o} -> p == EX.nonexistent() end) ==
+               {RDF.description(EX.S), desc}
+    end
+
+    test "RDF.Graph" do
+      graph =
+        RDF.graph([
+          {EX.S1, EX.p1(), EX.O1},
+          {EX.S1, EX.p2(), EX.O2},
+          {EX.S2, EX.p1(), EX.O3}
+        ])
+
+      assert RDF.Data.split_with(graph, fn {_s, p, _o} -> p == EX.p1() end) ==
+               {RDF.graph([
+                  {EX.S1, EX.p1(), EX.O1},
+                  {EX.S2, EX.p1(), EX.O3}
+                ]),
+                RDF.graph([
+                  {EX.S1, EX.p2(), EX.O2}
+                ])}
+
+      graph =
+        RDF.graph([
+          {EX.S1, EX.p(), "value1"},
+          {EX.S2, EX.p(), 42},
+          {EX.S3, EX.p(), RDF.iri(EX.O)}
+        ])
+
+      assert RDF.Data.split_with(graph, fn {_s, _p, o} -> RDF.literal?(o) end) ==
+               {RDF.graph([
+                  {EX.S1, EX.p(), "value1"},
+                  {EX.S2, EX.p(), 42}
+                ]),
+                RDF.graph([
+                  {EX.S3, EX.p(), RDF.iri(EX.O)}
+                ])}
+    end
+
+    test "RDF.Dataset" do
+      dataset =
+        RDF.dataset([
+          {EX.S1, EX.p1(), EX.O1, EX.Graph1},
+          {EX.S1, EX.p2(), EX.O2, EX.Graph1},
+          {EX.S2, EX.p1(), EX.O3, nil}
+        ])
+
+      assert RDF.Data.split_with(dataset, fn {_s, p, _o, _g} -> p == EX.p1() end) ==
+               {RDF.dataset([
+                  {EX.S1, EX.p1(), EX.O1, EX.Graph1},
+                  {EX.S2, EX.p1(), EX.O3, nil}
+                ]),
+                RDF.dataset([
+                  {EX.S1, EX.p2(), EX.O2, EX.Graph1}
+                ])}
+    end
+
+    test "empty data structures" do
+      assert RDF.Data.split_with(RDF.graph(), fn _ -> true end) == {RDF.graph(), RDF.graph()}
+
+      assert RDF.Data.split_with(RDF.description(EX.S), fn _ -> true end) ==
+               {RDF.description(EX.S), RDF.description(EX.S)}
+
+      assert RDF.Data.split_with(RDF.dataset(), fn _ -> true end) ==
+               {RDF.dataset(), RDF.dataset()}
+    end
+
+    test "preserves graph metadata (name, prefixes, base_iri)" do
+      graph =
+        RDF.graph([{EX.S1, EX.p(), EX.O1}, {EX.S2, EX.p(), EX.O2}],
+          name: EX.G,
+          prefixes: [ex: EX],
+          base_iri: "http://example.com/"
+        )
+
+      assert RDF.Data.split_with(graph, fn {s, _, _} -> s == RDF.iri(EX.S1) end) ==
+               {RDF.graph([{EX.S1, EX.p(), EX.O1}],
+                  name: EX.G,
+                  prefixes: [ex: EX],
+                  base_iri: "http://example.com/"
+                ),
+                RDF.graph([{EX.S2, EX.p(), EX.O2}],
+                  name: EX.G,
+                  prefixes: [ex: EX],
+                  base_iri: "http://example.com/"
+                )}
+    end
+
+    test "preserves the prefixes of the graphs of a dataset" do
+      dataset =
+        RDF.dataset([
+          RDF.graph([{EX.S1, EX.p1(), EX.O1}, {EX.S2, EX.p2(), EX.O2}],
+            name: EX.Graph1,
+            prefixes: [ex: EX]
+          )
+        ])
+
+      assert RDF.Data.split_with(dataset, fn {_s, p, _o, _g} -> p == EX.p1() end) ==
+               {RDF.dataset([
+                  RDF.graph([{EX.S1, EX.p1(), EX.O1}], name: EX.Graph1, prefixes: [ex: EX])
+                ]),
+                RDF.dataset([
+                  RDF.graph([{EX.S2, EX.p2(), EX.O2}], name: EX.Graph1, prefixes: [ex: EX])
+                ])}
+    end
+
+    test "is equivalent to a filter/2 and reject/2 pair" do
+      graph =
+        RDF.graph(
+          [
+            {EX.S1, EX.p1(), EX.O1},
+            {EX.S1, EX.p2(), EX.O2},
+            {EX.S2, EX.p1(), EX.O3},
+            {EX.S3, EX.p3(), "value"}
+          ],
+          name: EX.G,
+          prefixes: [ex: EX],
+          base_iri: "http://example.com/"
+        )
+
+      fun = fn {_s, p, _o} -> p == EX.p1() end
+
+      assert RDF.Data.split_with(graph, fun) ==
+               {RDF.Data.filter(graph, fun), RDF.Data.reject(graph, fun)}
+    end
   end
 
   describe "take/2" do

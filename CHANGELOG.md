@@ -13,6 +13,8 @@ Elixir versions < 1.16 are no longer supported.
 
 - `RDF.Graph.delete_predicates/2,3` as the counterpart of `RDF.Graph.take/3`
   with properties and the graph-level pendant of `RDF.Description.delete_predicates/2`
+- `RDF.Data.split_with/2` which splits the given data structure in two according 
+  to a given function
 
 ### Changed
 

@@ -239,6 +239,20 @@ defmodule CustomDataSourceTest do
              MinimalDataset.new(RDF.dataset({EX.S2, EX.q(), "literal", EX.G}))
   end
 
+  test "RDF.Data.split_with/2" do
+    assert RDF.Data.split_with(minimal_description(), fn {_s, p, _o} -> p == @p end) ==
+             {MinimalDescription.new(@s, RDF.description(EX.S, init: {EX.p(), EX.O1})),
+              MinimalDescription.new(@s, RDF.description(EX.S, init: {EX.q(), "literal"}))}
+
+    assert RDF.Data.split_with(minimal_graph(), fn {s, _p, _o} -> s == @s1 end) ==
+             {%MinimalGraph{data: RDF.graph({EX.S1, EX.p(), EX.O1})},
+              %MinimalGraph{data: RDF.graph({EX.S2, EX.q(), "literal"})}}
+
+    assert RDF.Data.split_with(minimal_dataset(), fn {s, _p, _o, _g} -> s == @s1 end) ==
+             {MinimalDataset.new(RDF.dataset({EX.S1, EX.p(), EX.O1, nil})),
+              MinimalDataset.new(RDF.dataset({EX.S2, EX.q(), "literal", EX.G}))}
+  end
+
   test "RDF.Data.take/2" do
     assert %MinimalDescription{} = result = RDF.Data.take(minimal_description(), 1)
     assert RDF.Data.statement_count(result) == 1
