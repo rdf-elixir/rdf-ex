@@ -121,7 +121,7 @@ defmodule RDF.Namespace.Builder do
         else
           {:error,
            %Elixir.RDF.Namespace.UndefinedTermError{
-             message: "undefined term #{term} in namespace #{__MODULE__}"
+             message: "undefined term #{term} in namespace #{inspect(__MODULE__)}"
            }}
         end
       end

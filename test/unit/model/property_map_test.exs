@@ -182,8 +182,15 @@ defmodule RDF.PropertyMapTest do
     end
 
     test "with a non-strict vocabulary namespace" do
-      assert_raise ArgumentError, ~r/non-strict/, fn ->
-        PropertyMap.add(PropertyMap.new(), EX)
+      assert_raise ArgumentError,
+                   "expected a strict vocabulary namespace, but " <>
+                     "RDF.TestVocabularyNamespaces.EX is non-strict",
+                   fn -> PropertyMap.add(PropertyMap.new(), EX) end
+    end
+
+    test "with a non-namespace module" do
+      assert_raise ArgumentError, "expected a vocabulary namespace, but got Enum", fn ->
+        PropertyMap.add(PropertyMap.new(), Enum)
       end
     end
 

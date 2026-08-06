@@ -154,7 +154,10 @@ defmodule RDF.Namespace do
     if namespace?(namespace) do
       namespace.__resolve_term__(term)
     else
-      {:error, %RDF.Namespace.UndefinedTermError{message: "#{namespace} is not a RDF.Namespace"}}
+      {:error,
+       %RDF.Namespace.UndefinedTermError{
+         message: "#{inspect(namespace)} is not a RDF.Namespace"
+       }}
     end
   end
 
@@ -190,7 +193,7 @@ defmodule RDF.Namespace do
       ns_mod.__info__(:attributes) |> Keyword.get(:external_resource) |> List.wrap()
 
     unless ns_type do
-      raise "#{ns_mod} is not a RDF.Namespace"
+      raise "#{inspect(ns_mod)} is not a RDF.Namespace"
     end
 
     quote do

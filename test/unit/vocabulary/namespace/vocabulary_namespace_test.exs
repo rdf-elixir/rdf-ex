@@ -1,13 +1,13 @@
 defmodule RDF.Vocabulary.NamespaceTest do
   use ExUnit.Case
 
-  doctest RDF.Vocabulary.Namespace
-
   import RDF.Sigils
   import RDF.Test.Case, only: [assert_order_independent: 1, order_independent: 1]
 
   alias RDF.Description
   alias RDF.NS.RDFS
+
+  doctest RDF.Vocabulary.Namespace
 
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.EX}
   @compile {:no_warn_undefined, RDF.Vocabulary.NamespaceTest.TestNS.ExampleFromGraph}
@@ -1584,6 +1584,14 @@ defmodule RDF.Vocabulary.NamespaceTest do
 
       assert {:error, %RDF.Namespace.UndefinedTermError{}} =
                RDF.Namespace.resolve_term(StrictExampleFromTerms.Undefined)
+
+      assert ExampleFromGraph.__resolve_term__(:undefined) ==
+               {:error,
+                %RDF.Namespace.UndefinedTermError{
+                  message:
+                    "undefined term undefined in strict vocabulary " <>
+                      "RDF.Vocabulary.NamespaceTest.TestNS.ExampleFromGraph"
+                }}
 
       assert_raise RDF.Namespace.UndefinedTermError, fn ->
         RDF.Namespace.resolve_term!(TestNS.ExampleFromGraph.Undefined)

@@ -148,11 +148,11 @@ defmodule RDF.PropertyMap do
         add(property_map, mapping_from_namespace(namespace))
 
       not is_vocabulary_namespace ->
-        raise ArgumentError, "expected a vocabulary namespace, but got #{namespace}"
+        raise ArgumentError, "expected a vocabulary namespace, but got #{inspect(namespace)}"
 
       not apply(namespace, :__strict__, []) ->
         raise ArgumentError,
-              "expected a strict vocabulary namespace, but #{namespace} is non-strict"
+              "expected a strict vocabulary namespace, but #{inspect(namespace)} is non-strict"
 
       true ->
         add(property_map, mapping_from_vocab_namespace(namespace))

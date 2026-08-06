@@ -117,4 +117,24 @@ defmodule RDF.NamespaceTest do
       assert RDF.Namespace.namespace?(__MODULE__) == false
     end
   end
+
+  test "resolve_term/1" do
+    assert Namespace.resolve_term(RDF.TestNamespaces.SimpleNS) ==
+             {:error,
+              %RDF.Namespace.UndefinedTermError{
+                message: "RDF.TestNamespaces is not a RDF.Namespace"
+              }}
+
+    assert Namespace.resolve_term(NonExisting.Test) ==
+             {:error,
+              %RDF.Namespace.UndefinedTermError{
+                message: "NonExisting is not a RDF.Namespace"
+              }}
+
+    assert SimpleNS.__resolve_term__(:undefined) ==
+             {:error,
+              %RDF.Namespace.UndefinedTermError{
+                message: "undefined term undefined in namespace RDF.TestNamespaces.SimpleNS"
+              }}
+  end
 end

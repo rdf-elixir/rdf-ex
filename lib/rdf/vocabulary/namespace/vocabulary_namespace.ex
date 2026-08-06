@@ -131,7 +131,7 @@ defmodule RDF.Vocabulary.Namespace do
         TermMapping.raise_error(
           stacktrace,
           ArgumentError,
-          "none of #{Enum.join(@required_input_opts, ", ")} are given on defvocab for #{module}"
+          "none of #{Enum.join(@required_input_opts, ", ")} are given on defvocab for #{inspect(module)}"
         )
 
       {[{_, input}], opts} ->
@@ -142,7 +142,7 @@ defmodule RDF.Vocabulary.Namespace do
           TermMapping.raise_error(
             stacktrace,
             ArgumentError,
-            "both :file and :data are given on defvocab for #{module}"
+            "both :file and :data are given on defvocab for #{inspect(module)}"
           )
         else
           {term_restriction, [{_, input}]} = Keyword.pop!(inputs, :terms)
@@ -311,7 +311,7 @@ defmodule RDF.Vocabulary.Namespace do
             if @strict or term in @ignored_terms do
               {:error,
                %Elixir.RDF.Namespace.UndefinedTermError{
-                 message: "undefined term #{term} in strict vocabulary #{__MODULE__}"
+                 message: "undefined term #{term} in strict vocabulary #{inspect(__MODULE__)}"
                }}
             else
               {:ok, term_to_iri(@base_iri, term)}

@@ -29,6 +29,8 @@ Elixir versions < 1.16 are no longer supported.
   were all removed by the `properties` limitation, which broke `RDF.Graph.equal?/2`
   and made the Turtle/TriG encoder raise a `RDF.Graph.EmptyDescriptionError`
 - `RDF.Data.filter/2` and `RDF.Data.reject/2` lost the prefixes of the graphs of a dataset
+- error messages of `RDF.Namespace`, `RDF.Vocabulary.Namespace` and `RDF.PropertyMap`
+  showed module names with their internal `Elixir.` prefix
 
 [Compare v3.0.1...HEAD](https://github.com/rdf-elixir/rdf-ex/compare/v3.0.1...HEAD)
 
