@@ -25,6 +25,9 @@ Elixir versions < 1.16 are no longer supported.
 
 ### Fixed
 
+- the `write_file/3` functions on `RDF.Serialization` and the serialization format
+  modules returned `:ok` also when the write failed with an error result instead of
+  an exception
 - `RDF.Graph.take/3` left empty descriptions behind for subjects whose statements
   were all removed by the `properties` limitation, which broke `RDF.Graph.equal?/2`
   and made the Turtle/TriG encoder raise a `RDF.Graph.EmptyDescriptionError`

@@ -262,6 +262,46 @@ defmodule RDF.SerializationTest do
       assert File.read!(file) == @example_turtle_string
       File.rm(file)
     end
+
+    test "when the file can not be written" do
+      file = file("non_existing_dir/write_file_test.ttl")
+
+      assert Serialization.write_file(@example_graph, file, format: :turtle) ==
+               {:error, :enoent}
+
+      refute File.exists?(file)
+    end
+
+    test "when the file exists already and :force is not set" do
+      file = file("write_file_test.ttl")
+      File.write!(file, "")
+
+      assert Serialization.write_file(@example_graph, file, format: :turtle) ==
+               {:error, :eexist}
+
+      assert File.read!(file) == ""
+      File.rm(file)
+    end
+
+    test "with streaming, when the file can not be written" do
+      file = file("non_existing_dir/write_file_test.nt")
+
+      assert {:error, %File.Error{reason: :enoent}} =
+               Serialization.write_file(@example_graph, file, format: :ntriples, stream: true)
+
+      refute File.exists?(file)
+    end
+
+    test "with streaming, when the file exists already and :force is not set" do
+      file = file("write_file_test.nt")
+      File.write!(file, "")
+
+      assert {:error, %File.Error{reason: :eexist}} =
+               Serialization.write_file(@example_graph, file, format: :ntriples, stream: true)
+
+      assert File.read!(file) == ""
+      File.rm(file)
+    end
   end
 
   describe "write_file!/2" do
