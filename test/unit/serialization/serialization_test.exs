@@ -148,6 +148,14 @@ defmodule RDF.SerializationTest do
       assert Serialization.read_file(@example_ntriples_file, media_type: "application/n-triples") ==
                {:ok, Graph.clear_metadata(@example_graph)}
     end
+
+    test "with a stream mode as value of the :stream option" do
+      assert Serialization.read_file(@example_ntriples_file, stream: :string) ==
+               {:ok, Graph.clear_metadata(@example_graph)}
+
+      assert Serialization.read_file(@example_ntriples_file, stream: :iodata) ==
+               {:ok, Graph.clear_metadata(@example_graph)}
+    end
   end
 
   describe "read_file!/2" do
@@ -170,6 +178,14 @@ defmodule RDF.SerializationTest do
     test "with media_type name" do
       assert Serialization.read_file!(@example_turtle_file, media_type: "text/turtle") ==
                @example_graph
+    end
+
+    test "with a stream mode as value of the :stream option" do
+      assert Serialization.read_file!(@example_ntriples_file, stream: :string) ==
+               Graph.clear_metadata(@example_graph)
+
+      assert Serialization.read_file!(@example_ntriples_file, stream: :iodata) ==
+               Graph.clear_metadata(@example_graph)
     end
   end
 
