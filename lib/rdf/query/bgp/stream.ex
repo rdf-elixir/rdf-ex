@@ -137,7 +137,6 @@ defmodule RDF.Query.BGP.Stream do
     if objects = predications[predicate] do
       if quoted_triple_with_variables?(object_or_variable) do
         matching_object_triples(objects, object_or_variable)
-        matching_object_triples(objects, object_or_variable)
       else
         cond do
           # object_or_variable is a variable
