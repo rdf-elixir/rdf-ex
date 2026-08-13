@@ -20,6 +20,15 @@ defmodule RDF.IRITest do
     %IRI{value: "https://en.wiktionary.org/wiki/Ῥόδος"},
     URI.parse("https://en.wiktionary.org/wiki/Ῥόδος")
   ]
+
+  # URI.merge before Elixir 1.19 raises "you must merge onto an absolute URI"
+  # for authority-less base IRIs like this one
+  @authority_less_merge_support Version.match?(System.version(), ">= 1.19.0")
+
+  if @authority_less_merge_support do
+    @absolute_iris @absolute_iris ++ ["tag:example"]
+  end
+
   @relative_iris [
     "/relative/",
     %IRI{value: "/relative/"},
@@ -305,6 +314,75 @@ defmodule RDF.IRITest do
         # We just test it doesn't fail.
         IRI.merge(invalid_iri, "foo")
       end)
+    end
+
+    test "RFC 3986 normal examples (section 5.4.1)" do
+      for {rel, expected} <- [
+            {"g:h", "g:h"},
+            {"g", "http://a/b/c/g"},
+            {"./g", "http://a/b/c/g"},
+            {"g/", "http://a/b/c/g/"},
+            {"/g", "http://a/g"},
+            {"//g", "http://g"},
+            {"?y", "http://a/b/c/d;p?y"},
+            {"g?y", "http://a/b/c/g?y"},
+            {"#s", "http://a/b/c/d;p?q#s"},
+            {"g#s", "http://a/b/c/g#s"},
+            {"g?y#s", "http://a/b/c/g?y#s"},
+            {";x", "http://a/b/c/;x"},
+            {"g;x", "http://a/b/c/g;x"},
+            {"g;x?y#s", "http://a/b/c/g;x?y#s"},
+            {"", "http://a/b/c/d;p?q"},
+            {".", "http://a/b/c/"},
+            {"./", "http://a/b/c/"},
+            {"..", "http://a/b/"},
+            {"../", "http://a/b/"},
+            {"../g", "http://a/b/g"},
+            {"../..", "http://a/"},
+            {"../../", "http://a/"},
+            {"../../g", "http://a/g"}
+          ] do
+        assert IRI.merge("http://a/b/c/d;p?q", rel) == IRI.new(expected)
+      end
+    end
+
+    test "RFC 3986 abnormal examples (section 5.4.2)" do
+      for {rel, expected} <- [
+            {"../../../g", "http://a/g"},
+            {"../../../../g", "http://a/g"},
+            {"/./g", "http://a/g"},
+            {"/../g", "http://a/g"},
+            {"g.", "http://a/b/c/g."},
+            {".g", "http://a/b/c/.g"},
+            {"g..", "http://a/b/c/g.."},
+            {"..g", "http://a/b/c/..g"},
+            {"./../g", "http://a/b/g"},
+            {"./g/.", "http://a/b/c/g/"},
+            {"g/./h", "http://a/b/c/g/h"},
+            {"g/../h", "http://a/b/c/h"},
+            {"g;x=1/./y", "http://a/b/c/g;x=1/y"},
+            {"g;x=1/../y", "http://a/b/c/y"},
+            {"g?y/./x", "http://a/b/c/g?y/./x"},
+            {"g?y/../x", "http://a/b/c/g?y/../x"},
+            {"g#s/./x", "http://a/b/c/g#s/./x"},
+            {"g#s/../x", "http://a/b/c/g#s/../x"},
+            # strict-parser interpretation; RFC 3986 also tolerates "http://a/b/c/g"
+            # as a backwards-compatible alternative
+            {"http:g", "http:g"}
+          ] do
+        assert IRI.merge("http://a/b/c/d;p?q", rel) == IRI.new(expected)
+      end
+    end
+
+    if @authority_less_merge_support do
+      test "with authority-less base IRIs" do
+        assert IRI.merge("tag:example", "rel") == IRI.new("tag:rel")
+        assert IRI.merge("tag:example", "?q") == IRI.new("tag:example?q")
+        assert IRI.merge("urn:isbn:0451450523", "foo") == IRI.new("urn:foo")
+
+        assert IRI.merge("mailto:user@example.com", "#frag") ==
+                 IRI.new("mailto:user@example.com#frag")
+      end
     end
   end
 
